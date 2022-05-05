@@ -44,6 +44,7 @@ namespace Vodovoz
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IEmployeeService _employeeService;
@@ -69,13 +70,15 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository)
+			ICategoryRepository categoryRepository,
+			INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
 			Build();
 			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
 				?? throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
 			_terminalNomenclatureProvider = terminalNomenclatureProvider
 				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -95,7 +98,8 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository)
+			ICategoryRepository categoryRepository,
+			INomenclatureParametersProvider nomenclatureParametersProvider)
 			: this(
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
@@ -103,7 +107,8 @@ namespace Vodovoz
 				routeListItemRepository,
 				employeeService,
 				commonServices,
-				categoryRepository)
+				categoryRepository,
+				nomenclatureParametersProvider)
 		{
 			var rl = UoW.GetById<RouteList>(routeListId);
 
@@ -217,10 +222,12 @@ namespace Vodovoz
 			{
 				config.AddColumn("Нужна загрузка")
 					  .AddToggleRenderer(x => x.LeftNeedToReload).Radio()
+					  .AddSetter((c, x) => c.Activatable = !x.IsFastDelivery)
 					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
 					  .AddTextRenderer(x => "Да")
 					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
 					  .AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
+					  .AddSetter((c, x) => c.Activatable = !x.IsFastDelivery)
 					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
 					  .AddTextRenderer(x => "Нет")
 					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered);
@@ -288,10 +295,9 @@ namespace Vodovoz
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
 			foreach(var item in routeListFrom.Addresses)
 			{
-				if(!item.Order.IsFastDelivery)
-				{
-					items.Add(new RouteListItemNode { RouteListItem = item });
-				}
+
+				items.Add(new RouteListItemNode { RouteListItem = item });
+
 			}
 
 			ytreeviewRLFrom.ItemsDataSource = items;
@@ -379,6 +385,7 @@ namespace Vodovoz
 
 			List<RouteListItemNode> needReloadNotSet = new List<RouteListItemNode>();
 			List<RouteListItemNode> needReloadSetAndRlEnRoute = new List<RouteListItemNode>();
+			List<RouteListItemNode> fastDeliveryNotEnoughQuantity = new List<RouteListItemNode>();
 
 			foreach(var row in ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>())
 			{
@@ -390,7 +397,7 @@ namespace Vodovoz
 					continue;
 				}
 
-				if(!row.LeftNeedToReload && !row.LeftNotNeedToReload)
+				if(!row.IsFastDelivery && !row.LeftNeedToReload && !row.LeftNotNeedToReload)
 				{
 					needReloadNotSet.Add(row);
 					continue;
@@ -399,6 +406,15 @@ namespace Vodovoz
 				if(row.LeftNeedToReload && routeListTo.Status >= RouteListStatus.EnRoute)
 				{
 					needReloadSetAndRlEnRoute.Add(row);
+					continue;
+				}
+
+				var hasEnoughQuantityForFastDelivery = _routeListItemRepository
+					.HasEnoughQuantityForFastDelivery(UoW, row.RouteListItem, routeListTo, _nomenclatureParametersProvider.FastDeliveryNomenclatureId);
+
+				if(!hasEnoughQuantityForFastDelivery)
+				{
+					fastDeliveryNotEnoughQuantity.Add(row);
 					continue;
 				}
 
@@ -470,9 +486,15 @@ namespace Vodovoz
 
 			if(needReloadSetAndRlEnRoute.Count > 0)
 			{
-                MessageDialogHelper.RunWarningDialog("Для следующих адресов была указана необходимость загрузки при переносе в МЛ со статусом \"В пути\" и выше , поэтому они не были перенесены:\n * " +
-					string.Join("\n * ", needReloadSetAndRlEnRoute.Select(x => x.Address)));
+                MessageDialogHelper.RunWarningDialog("Для следующих адресов была указана необходимость загрузки при переносе в МЛ со статусом \"В пути\" и выше , поэтому они не были перенесены:\n * " + 
+                                                     string.Join("\n * ", needReloadSetAndRlEnRoute.Select(x => x.Address)));
             }
+
+			if(fastDeliveryNotEnoughQuantity.Count > 0)
+			{
+				MessageDialogHelper.RunWarningDialog("Для следующих адресов c доставкой за час у водителя не хватает остатков, поэтому они не были перенесены:\n * " + 
+				                                     string.Join("\n * ", fastDeliveryNotEnoughQuantity.Select(x => x.Address)));
+			}
 
 			if(messages.Count > 0)
 			{

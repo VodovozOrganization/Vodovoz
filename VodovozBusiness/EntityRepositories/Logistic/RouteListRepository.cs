@@ -411,10 +411,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return null;
 		}
 
-		public IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uow, int routeListId)
+		public IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uow, int routeListId, RouteListItemStatus [] excludeAddressStatuses = null)
 		{
 			GoodsInRouteListResult resultAlias = null;
-			EquipmentInRouteListResult equipmentResultAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			RouteListItem routeListItemAlias = null;
@@ -427,29 +426,31 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
 				.And(() => routeListItemAlias.RouteList.Id == routeListId)
-				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
 				.SelectList(list => list
 					.SelectGroup(() => orderItemsAlias.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
-				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
-				.List<GoodsInRouteListResult>();
+				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>());
 
 			var equipment = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
 				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
 				.And(() => routeListItemAlias.RouteList.Id == routeListId)
-				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
 				.And(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.SelectList(list => list
-					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => equipmentResultAlias.NomenclatureId)
-					.SelectSum(() => orderEquipmentAlias.Count).WithAlias(() => equipmentResultAlias.Amount))
-				.TransformUsing(Transformers.AliasToBean<EquipmentInRouteListResult>())
-				.List<EquipmentInRouteListResult>();
+					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(Projections.Cast(NHibernateUtil.Decimal, Projections.Sum(Projections.Property(() => orderEquipmentAlias.Count)))).WithAlias(() => resultAlias.Amount))
+				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>());
 
-			goodsInRouteListResults.AddRange(items);
-			goodsInRouteListResults.AddRange(equipment.Select(x => 
-				new GoodsInRouteListResult { NomenclatureId = x.NomenclatureId, Amount = Convert.ToDecimal(x.Amount) }));
+			if(excludeAddressStatuses != null)
+			{
+				items.Where(() => !routeListItemAlias.Status.IsIn(excludeAddressStatuses));
+				equipment.Where(() => !routeListItemAlias.Status.IsIn(excludeAddressStatuses));
+			}
+
+			goodsInRouteListResults.AddRange(
+				items.List<GoodsInRouteListResult>()
+					.Union(equipment.List<GoodsInRouteListResult>()));
 
 			return goodsInRouteListResults;
 		}
@@ -1134,11 +1135,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		public int NomenclatureId { get; set; }
 		public decimal Amount { get; set; }
-	}
-	public class EquipmentInRouteListResult
-	{
-		public int NomenclatureId { get; set; }
-		public int Amount { get; set; }
 	}
 
 	public class GoodsInRouteListResultToDivide
