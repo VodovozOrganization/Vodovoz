@@ -21,6 +21,8 @@ namespace Vodovoz.Parameters
 		public int GetPaymentByCardFromMarketplaceId => _parametersProvider.GetIntValue("payment_by_card_from_marketplace_id");
 		public int GetPaymentByCardFromFastPaymentServiceId =>
 			_parametersProvider.GetIntValue("payment_by_card_from_fast_payment_service_id");
+		public int GetPaymentByCardFromSiteByQrCode =>
+			_parametersProvider.GetIntValue("payment_by_card_from_site_by_qr_code_id");
 		public int GetDiscountReasonStockBottle10PercentsId =>
 			_parametersProvider.GetIntValue("discount_reason_stock_bottle_10_percents");
 		public int GetDiscountReasonStockBottle20PercentsId =>

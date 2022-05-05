@@ -37,13 +37,20 @@ namespace FastPaymentsAPI.Library.Managers
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 		}
 
-		public bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQR)
+		public bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQR, bool fastPaymentFromOnline)
 		{
 			var elapsedTime = (DateTime.Now - fastPaymentCreationDate).TotalMinutes;
 
 			if(fastPaymentWithQR)
 			{
 				if(elapsedTime > _fastPaymentParametersProvider.GetQRLifetime)
+				{
+					return true;
+				}
+			}
+			else if(fastPaymentFromOnline)
+			{
+				if(elapsedTime > _fastPaymentParametersProvider.GetOnlinePayByQRLifetime)
 				{
 					return true;
 				}
@@ -67,14 +74,21 @@ namespace FastPaymentsAPI.Library.Managers
 					fastPayment.SetProcessingStatus();
 					break;
 				case FastPaymentDTOStatus.Performed:
-					fastPayment.SetPerformedStatus(
-						uow,
-						statusDate,
-						uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId),
-						_standartNomenclatures,
-						_routeListItemRepository,
-						_selfDeliveryRepository,
-						_cashRepository);
+					if(fastPayment.Order != null)
+					{
+						fastPayment.SetPerformedStatusForOrder(
+							uow,
+							statusDate,
+							uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId),
+							_standartNomenclatures,
+							_routeListItemRepository,
+							_selfDeliveryRepository,
+							_cashRepository);
+					}
+					else
+					{
+						fastPayment.SetPerformedStatusForOnlineOrder(statusDate);
+					}
 					break;
 				case FastPaymentDTOStatus.Rejected:
 					fastPayment.SetRejectedStatus();

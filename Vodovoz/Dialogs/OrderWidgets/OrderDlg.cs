@@ -541,7 +541,8 @@ namespace Vodovoz
 			var excludedPaymentFromIds = new[]
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
-				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId
+				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
+				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode
 			};
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
 			{
