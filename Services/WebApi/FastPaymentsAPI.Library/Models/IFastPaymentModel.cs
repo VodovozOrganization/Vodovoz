@@ -9,12 +9,18 @@ namespace FastPaymentsAPI.Library.Models
 	public interface IFastPaymentModel
 	{
 		FastPayment GetFastPaymentByTicket(string ticket);
-		IList<FastPayment> GetAllPerformedOrProcessingFastPayments(int orderId);
-		void SaveNewTicket(
+		IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOrder(int orderId);
+		IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(int onlineOrderId, decimal onlineOrderSum);
+		void SaveNewTicketForOrder(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			int orderId,
 			Guid fastPaymentGuid,
 			string phoneNumber = null);
+		void SaveNewTicketForOnlineOrder(
+			OrderRegistrationResponseDTO orderRegistrationResponseDto,
+			Guid fastPaymentGuid,
+			int onlineOrderId,
+			decimal onlineOrderSum);
 		void UpdateFastPaymentStatus(PaidOrderInfoDTO operationInfoDto);
 		void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
 		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto);

@@ -88,13 +88,14 @@ namespace FastPaymentsAPI.Library.Managers
 				if((int)response.Status == (int)payment.FastPaymentStatus)
 				{
 					var fastPaymentWithQR = !string.IsNullOrWhiteSpace(payment.QRPngBase64);
-					if(!_fastPaymentManager.IsTimeToCancelPayment(payment.CreationDate, fastPaymentWithQR))
+					var fastPaymentFromOnline = payment.OnlineOrderId.HasValue;
+					if(!_fastPaymentManager.IsTimeToCancelPayment(payment.CreationDate, fastPaymentWithQR, fastPaymentFromOnline))
 					{
 						continue;
 					}
 
 					//Отправляем запрос на отмену сессии в банк только для быстрых платежей не по QR-коду
-					if(!fastPaymentWithQR)
+					if(!fastPaymentWithQR && !fastPaymentFromOnline)
 					{
 						var cancelPaymentResponse = await orderRequestManager.CancelPayment(payment.Ticket);
 						

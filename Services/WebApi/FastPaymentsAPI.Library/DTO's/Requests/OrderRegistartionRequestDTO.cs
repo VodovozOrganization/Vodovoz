@@ -57,8 +57,8 @@ namespace FastPaymentsAPI.Library.DTO_s.Requests
 		public string OrderNumber { get; set; }
 
 		[XmlElement(ElementName = "qr_ttl")]
-		public int QRTtl { get; set; }
-
+		public int? QRTtl { get; set; }
+		
 		[XmlElement(ElementName = "return_qr_image")]
 		public int ReturnQRImage { get; set; }
 
@@ -70,5 +70,7 @@ namespace FastPaymentsAPI.Library.DTO_s.Requests
 		
 		[XmlElement(ElementName = "signature")]
 		public string Signature { get; set; }
+		
+		public bool ShouldSerializeQRTtl() => QRTtl.HasValue;
 	}
 }

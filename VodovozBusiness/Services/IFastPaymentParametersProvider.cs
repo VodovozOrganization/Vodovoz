@@ -4,6 +4,7 @@ namespace Vodovoz.Parameters
 	{
 		int GetQRLifetime { get; }
 		int GetPayUrlLifetime { get; }
+		int GetOnlinePayByQRLifetime { get; }
 		string GetFastPaymentBackUrl { get; }
 		string GetFastPaymentApiBaseUrl { get; }
 		string GetAvangardFastPayBaseUrl { get; }

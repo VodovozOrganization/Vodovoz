@@ -409,13 +409,16 @@ namespace Vodovoz
 					continue;
 				}
 
-				var hasEnoughQuantityForFastDelivery = _routeListItemRepository
-					.HasEnoughQuantityForFastDelivery(UoW, row.RouteListItem, routeListTo, _nomenclatureParametersProvider.FastDeliveryNomenclatureId);
-
-				if(!hasEnoughQuantityForFastDelivery)
+				if(row.IsFastDelivery)
 				{
-					fastDeliveryNotEnoughQuantity.Add(row);
-					continue;
+					var hasEnoughQuantityForFastDelivery = _routeListItemRepository
+						.HasEnoughQuantityForFastDelivery(UoW, row.RouteListItem, routeListTo, _nomenclatureParametersProvider.FastDeliveryNomenclatureId);
+
+					if(!hasEnoughQuantityForFastDelivery)
+					{
+						fastDeliveryNotEnoughQuantity.Add(row);
+						continue;
+					}
 				}
 
 				var transferredAddressFromRouteListTo =

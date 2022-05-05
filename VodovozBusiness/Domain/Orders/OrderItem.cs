@@ -189,7 +189,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref discountByStock, value, () => DiscountByStock);
 		}
 
-
 		decimal? valueAddedTax;
 		[Display(Name = "НДС на момент создания заказа")]
 		public virtual decimal? ValueAddedTax {
