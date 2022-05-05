@@ -94,7 +94,23 @@ node('Vod6'){
 			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 			
 			echo 'Move files to CD folder'
-			bat 'xcopy "Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+			bat 'xcopy "Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\bin\\Release\\net6.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+		}
+		else
+		{
+			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+		}
+	}
+	stage('PayPageAPI Deploy')
+	{
+		if(env.BRANCH_NAME ==~ /(develop|master)/
+			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+		{
+			echo 'Publish PayPageAPI to folder (' + env.BRANCH_NAME + ')'
+			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+			
+			echo 'Move files to CD folder'
+			bat 'xcopy "Vodovoz\\Services\\WebApi\\PayPageAPI\\bin\\Release\\net6.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 		}
 		else
 		{
