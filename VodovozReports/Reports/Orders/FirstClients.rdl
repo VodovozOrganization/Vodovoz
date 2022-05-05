@@ -64,19 +64,19 @@
             <Width>75.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>84.5pt</Width>
+            <Width>82.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.9pt</Width>
+            <Width>32.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.2pt</Width>
+            <Width>59.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>62.4pt</Width>
+            <Width>54.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>68.9pt</Width>
@@ -812,8 +812,8 @@
                     d.id is not null OR i.promotional_set_id is not null
                 )
     ) AS discount,
-    SUM(i.price) AS price,
-    COUNT(nomenclature.tare_volume = 'Vol19L') as count_19_bottles,
+    SUM(IFNULL(i.actual_count, i.count) * i.price - i.discount_money) AS price,
+    COUNT(nomenclature.tare_volume = 'Vol19L' AND nomenclature.category = 'water') as count_19_bottles,
     cc.name as came_from ,
     o.comment AS comment ,
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS order_creator,
@@ -997,7 +997,7 @@ FROM
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
