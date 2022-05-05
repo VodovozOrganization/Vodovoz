@@ -55,7 +55,9 @@ namespace DriverAPI.Library.Converters
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)
 						.Count(),
 					FullBottlesToReturn = loaded19lWater - routeList.Addresses
-						.Where(rla => rla.Status != RouteListItemStatus.Canceled && rla.Status != RouteListItemStatus.Overdue)
+						.Where(rla => rla.Status != RouteListItemStatus.Canceled
+						              && rla.Status != RouteListItemStatus.Overdue
+						              && (!rla.WasTransfered || (rla.WasTransfered && rla.NeedToReload)))
 						.Sum(rla => rla.Order.Total19LBottlesToDeliver),
 					EmptyBottlesToReturn = routeList.Addresses
 						.Sum(rla => rla.DriverBottlesReturned ?? 0),

@@ -8,6 +8,7 @@ namespace Vodovoz.HibernateMapping
 		public ExpenseMap ()
 		{
 			Table("cash_expense");
+			DynamicUpdate();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 
