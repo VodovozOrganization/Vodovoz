@@ -140,7 +140,7 @@ namespace Vodovoz
 
 			IList<ReceptionItemNode> returnableItems = new List<ReceptionItemNode>();
 			IList<ReceptionItemNode> returnableEquipment = new List<ReceptionItemNode>();
-			IList<ReceptionItemNode> returnableAdditionalLoadingItems = new List<ReceptionItemNode>();
+			IList<ReceptionItemNode> returnableAdditionalLoading = new List<ReceptionItemNode>();
 
 			ReceptionItemNode returnableTerminal = null;
 			int loadedTerminalAmount = default(int);
@@ -230,6 +230,7 @@ namespace Vodovoz
 					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
 					.And(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
 					.And(() => orderAlias.IsFastDelivery == true)
+					.And(() => routeListItemAlias.Status != RouteListItemStatus.Transfered)
 					.Select(Projections.Sum(() => orderItemsAlias.Count));
 
 				var additionalEquipmentSubquery = QueryOver.Of(() => orderEquipmentAlias)
@@ -239,9 +240,10 @@ namespace Vodovoz
 					.And(() => orderEquipmentAlias.Nomenclature.Id == nomenclatureAlias.Id)
 					.And(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.Deliver)
 					.And(() => orderAlias.IsFastDelivery == true)
+					.And(() => routeListItemAlias.Status != RouteListItemStatus.Transfered)
 					.Select(Projections.Sum(() => orderEquipmentAlias.Count));
 
-				returnableAdditionalLoadingItems = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
+				returnableAdditionalLoading = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
 					.JoinAlias(() => routeListAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
 					.JoinAlias(() => additionalLoadingDocumentAlias.Items, () => additionalLoadingDocumentItemAlias)
 					.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -283,7 +285,7 @@ namespace Vodovoz
 					ReceptionReturnsList.Add(returnableTerminal);
 			}
 
-			foreach(var item in returnableAdditionalLoadingItems)
+			foreach(var item in returnableAdditionalLoading)
 			{
 				if(ReceptionReturnsList.All(i => i.NomenclatureId != item.NomenclatureId))
 				{
