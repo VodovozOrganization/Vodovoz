@@ -39,12 +39,6 @@ namespace PayPageAPI.Controllers
 			return View(_payViewModelFactory.CreateNewPayViewModel(fastPayment));
 		}
 
-		[Route("~/Oferta")]
-		public IActionResult Oferta()
-		{
-			return View();
-		}
-
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 		public IActionResult Error()
 		{
