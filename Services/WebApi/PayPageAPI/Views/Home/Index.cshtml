@@ -1,0 +1,28 @@
+﻿@model PayViewModel
+@{
+    ViewData["Title"] = $"Оплата заказа №{@Model.OrderNum}";
+}
+
+<div class="text-left mt-4">
+	<h4 class="mb-3">@Model.PayOrderTitle</h4>
+	<p>Дата заказа: @Model.OrderDate?.ToShortDateString()</p>
+	<p>Сумма заказа: @Model.SumString</p>
+	<div class="container mb-3">
+		<div class="row align-items-center">
+			<div>
+				Статус оплаты: @Model.StatusString
+			</div>
+			<div hidden=@Model.IsNotPayable class="col-3">
+				<a class="btn btn-info" asp-area="" asp-controller="Home" asp-action="Index" asp-route-ticket=@Model.Ticket>Обновить статус</a>
+			</div>
+		</div>
+	</div>
+	<div hidden=@Model.IsNotPayable>
+		<p>Нажимая оплатить, Вы соглашаетесь с <a href="pdf/Оферта_ВВ_Север.pdf">договором оферты</a>.</p>
+		<a class="btn btn-success mt-3" href="@Model.PayUrl">Оплатить</a>
+	</div>
+</div>
+<div class="container">
+	<img src="img/my-prinimaem-oplatu-170x128.png" alt="" />
+	<img src="img/СБП_логотип.svg" alt="" width="95em"/>
+</div>

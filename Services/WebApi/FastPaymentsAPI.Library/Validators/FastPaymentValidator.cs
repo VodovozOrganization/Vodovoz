@@ -18,8 +18,46 @@ namespace FastPaymentsAPI.Library.Validators
 		{
 			if(orderId <= 0)
 			{
-				_logger.LogError("Запрос на отправку платежа пришёл с неверным значением номера заказа");
+				_logger.LogError($"Запрос на отправку платежа пришёл с неверным значением номера заказа {orderId}");
 				return "Неверное значение номера заказа";
+			}
+
+			return null;
+		}
+		
+		public string Validate(int onlineOrderId, string backUrl, string backUrlOk, string backUrlFail)
+		{
+			var orderIdValidationResult = Validate(onlineOrderId);
+			if(orderIdValidationResult != null)
+			{
+				return orderIdValidationResult;
+			}
+			
+			if(string.IsNullOrEmpty(backUrl))
+			{
+				_logger.LogError(GetLogMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrl)));
+				return GetReturnMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrl));
+			}
+			if(string.IsNullOrEmpty(backUrlOk))
+			{
+				_logger.LogError(GetLogMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrlOk)));
+				return GetReturnMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrlOk));
+			}
+			if(string.IsNullOrEmpty(backUrlFail))
+			{
+				_logger.LogError(GetLogMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrlFail)));
+				return GetReturnMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrlFail));
+			}
+
+			return null;
+		}
+		
+		public string ValidateOnlineOrder(decimal onlineOrderSum)
+		{
+			if(onlineOrderSum < 10)
+			{
+				_logger.LogError("Запрос на отправку платежа пришёл с суммой заказа меньше 10 рублей");
+				return "Нельзя отправить платеж на заказ, сумма которого меньше 10 рублей";
 			}
 
 			return null;
@@ -57,7 +95,7 @@ namespace FastPaymentsAPI.Library.Validators
 			if(order == null)
 			{
 				_logger.LogError($"Запрос на отправку платежа пришёл со значением номера заказа, не существующем в базе (Id: {orderId})");
-				return $"Заказ с номером {orderId} не существующет в базе";
+				return $"Заказ с номером {orderId} не существует в базе";
 			}
 
 			if(!order.DeliveryDate.HasValue)
@@ -91,6 +129,16 @@ namespace FastPaymentsAPI.Library.Validators
 			}
 
 			return null;
+		}
+
+		private static string GetLogMessageForOnlineOrderNullOrEmptyParameter(string parameterName)
+		{
+			return $"Запрос на отправку ссылки на оплату онлайн-заказа пришел с пустым значением {parameterName}";
+		}
+		
+		private static string GetReturnMessageForOnlineOrderNullOrEmptyParameter(string parameterName)
+		{
+			return $"Null или пустое значение {parameterName}";
 		}
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NHibernate.Type;
 using QS.DomainModel.Entity;
@@ -30,6 +29,7 @@ namespace Vodovoz.Domain.FastPayments
 		private FastPaymentStatus _fastPaymentStatus;
 		private decimal _amount;
 		private int _externalId;
+		private int? _onlineOrderId;
 		private Guid _fastPaymnetGuid;
 
 		public virtual int Id { get; set; }
@@ -90,6 +90,12 @@ namespace Vodovoz.Domain.FastPayments
 			set => SetField(ref _externalId, value);
 		}
 		
+		[Display(Name = "Онлайн-заказ")]
+		public virtual int? OnlineOrderId {
+			get => _onlineOrderId;
+			set => SetField(ref _onlineOrderId, value);
+		}
+		
 		[Display(Name = "Номер телефона")]
 		public virtual string PhoneNumber
 		{
@@ -108,7 +114,7 @@ namespace Vodovoz.Domain.FastPayments
 			FastPaymentStatus = FastPaymentStatus.Processing;
 		}
 		
-		public virtual void SetPerformedStatus(
+		public virtual void SetPerformedStatusForOrder(
 			IUnitOfWork uow,
 			DateTime paidDate,
 			PaymentFrom paymentByCardFromQrId,
@@ -153,6 +159,12 @@ namespace Vodovoz.Domain.FastPayments
 				routeListItem.RecalculateTotalCash();
 				uow.Save(routeListItem);
 			}
+		}
+		
+		public virtual void SetPerformedStatusForOnlineOrder(DateTime paidDate)
+		{
+			FastPaymentStatus = FastPaymentStatus.Performed;
+			PaidDate = paidDate;
 		}
 		
 		public virtual void SetRejectedStatus()

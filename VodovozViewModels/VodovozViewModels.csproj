@@ -432,6 +432,7 @@
     <Compile Include="ViewModels\Payments\AutomaticallyAllocationBalanceWindowViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
+    <Compile Include="ViewModels\Reports\IncomingCallsAnalysisReportViewModel.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
