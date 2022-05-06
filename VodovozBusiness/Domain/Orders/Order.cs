@@ -595,6 +595,22 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref commentManager, value, () => CommentManager);
 		}
 
+		private string _driverMobileAppComment;
+		[Display(Name = "Комментарий водителя из приложения")]
+		public virtual string DriverMobileAppComment
+		{
+			get => _driverMobileAppComment;
+			set => SetField(ref _driverMobileAppComment, value);
+		}
+
+		private DateTime _driverMobileAppCommentTime;
+		[Display(Name = "Время установки комментария водителя из приложения")]
+		public virtual DateTime DriverMobileAppCommentTime
+		{
+			get => _driverMobileAppCommentTime;
+			set => SetField(ref _driverMobileAppCommentTime, value);
+		}
+
 		int? returnedTare;
 
 		[Display(Name = "Возвратная тара")]
