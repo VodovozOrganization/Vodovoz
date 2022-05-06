@@ -31,6 +31,7 @@ namespace Vodovoz.ViewModels.Goods
 		private DelegateCommand _showFlyerInfoCommand;
 
 		private int _bottlesCount;
+		private double _fastDeliveryMaxDistance;
 		private bool _flyerAdditionEnabled;
 
 		public AdditionalLoadingSettingsViewModel(
@@ -58,6 +59,7 @@ namespace Vodovoz.ViewModels.Goods
 				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanUpdate;
 
 			BottlesCount = _deliveryRulesParametersProvider.BottlesCountForFlyer;
+			FastDeliveryMaxDistance = _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
 			FlyerAdditionEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
 
 			Initialize();
@@ -75,6 +77,12 @@ namespace Vodovoz.ViewModels.Goods
 		{
 			get => _bottlesCount;
 			set => SetField(ref _bottlesCount, value);
+		}
+
+		public double FastDeliveryMaxDistance
+		{
+			get => _fastDeliveryMaxDistance;
+			set => SetField(ref _fastDeliveryMaxDistance, value);
 		}
 
 		public bool FlyerAdditionEnabled
@@ -228,6 +236,7 @@ namespace Vodovoz.ViewModels.Goods
 				UoW.Save(priority);
 			}
 			_deliveryRulesParametersProvider.UpdateBottlesCountForFlyerParameter(BottlesCount.ToString());
+			_deliveryRulesParametersProvider.UpdateFastDeliveryMaxDistanceParameter(FastDeliveryMaxDistance.ToString());
 			_deliveryRulesParametersProvider.UpdateAdditionalLoadingFlyerAdditionEnabledParameter(FlyerAdditionEnabled.ToString());
 			UoW.Commit();
 			return true;

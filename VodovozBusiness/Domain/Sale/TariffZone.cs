@@ -20,20 +20,27 @@ namespace Vodovoz.Domain.Sale
 			set => SetField(ref name, value, () => Name);
 		}
 
-		private TimeSpan from;
-		[Display(Name = "От часа")]
-		public virtual TimeSpan From
+		private bool _isFastDeliveryAvailable;
+		public virtual bool IsFastDeliveryAvailable
 		{
-			get => from;
-			set => SetField(ref @from, value, () => From);
+			get => _isFastDeliveryAvailable;
+			set => SetField(ref _isFastDeliveryAvailable, value);
 		}
 
-		private TimeSpan to;
-		[Display(Name = "До часа")]
-		public virtual TimeSpan To
+		private TimeSpan _fastDeliveryTimeFrom;
+		[Display(Name = "От часа")]
+		public virtual TimeSpan FastDeliveryTimeFrom
 		{
-			get => to;
-			set => SetField(ref to, value, () => To);
+			get => _fastDeliveryTimeFrom;
+			set => SetField(ref _fastDeliveryTimeFrom, value, () => FastDeliveryTimeFrom);
+		}
+
+		private TimeSpan _fastDeliveryTimeTo;
+		[Display(Name = "До часа")]
+		public virtual TimeSpan FastDeliveryTimeTo
+		{
+			get => _fastDeliveryTimeTo;
+			set => SetField(ref _fastDeliveryTimeTo, value, () => FastDeliveryTimeTo);
 		}
 	}
 }

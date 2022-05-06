@@ -1634,9 +1634,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionTariffZonesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<TariffZone>(),
-			() => new OrmReference(typeof(TariffZone))
+		tdiMain.OpenTab(() => new TariffZoneJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
 		);
 	}
 
