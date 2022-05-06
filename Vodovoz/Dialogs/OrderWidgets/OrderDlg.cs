@@ -857,7 +857,28 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Для выбора доставки за час необходимо корректно заполнить координаты точки доставки");
 				return;
 			}
-			
+
+			var district = Entity.DeliveryPoint.District;
+
+			if(district == null)
+			{
+				MessageDialogHelper.RunWarningDialog($"Для точки доставки не указан район");
+				return;
+			}
+
+			if(district.TariffZone == null)
+			{
+				MessageDialogHelper.RunWarningDialog($"Для района не указана тарифная зона");
+				return;
+			}
+
+			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+			{
+				MessageDialogHelper.RunWarningDialog(
+					$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в { district.TariffZone.FastDeliveryTimeFrom }");
+				return;
+			}
+
 			if(Entity.Total19LBottlesToDeliver == 0)
 			{
 				MessageDialogHelper.RunWarningDialog("В доставке за час нет 19л воды!!!");
@@ -1481,7 +1502,24 @@ namespace Vodovoz
 					throw new InvalidOperationException(
 						"В доставке за час обязательно должна быть точка доставки с заполненными координатами");
 				}
-				
+
+				var district = Entity.DeliveryPoint.District;
+
+				if(district == null)
+				{
+					throw new InvalidOperationException($"Для точки доставки не указан район");
+				}
+
+				if(district.TariffZone == null)
+				{
+					throw new InvalidOperationException($"Для района не указана тарифная зона");
+				}
+
+				if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+				{
+					throw new InvalidOperationException($"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в { district.TariffZone.FastDeliveryTimeFrom }");
+				}
+
 				if(Entity.Total19LBottlesToDeliver == 0)
 				{
 					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");

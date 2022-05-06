@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -9,7 +10,7 @@ namespace Vodovoz.Domain.Sale
 		NominativePlural = "тарифные зоны",
 		Nominative = "тарифная зона")]
 	[EntityPermission]
-	public class TariffZone : BusinessObjectBase<TariffZone>, IDomainObject
+	public class TariffZone : BusinessObjectBase<TariffZone>, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -41,6 +42,25 @@ namespace Vodovoz.Domain.Sale
 		{
 			get => _fastDeliveryTimeTo;
 			set => SetField(ref _fastDeliveryTimeTo, value, () => FastDeliveryTimeTo);
+		}
+
+		public virtual bool IsFastDeliveryAvailableAtCurrentTime
+		{
+			get
+			{
+				return IsFastDeliveryAvailable
+				       && FastDeliveryTimeFrom <= DateTime.Now.TimeOfDay
+				       && DateTime.Now.TimeOfDay <= FastDeliveryTimeTo;
+			}
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(IsFastDeliveryAvailable
+				&& FastDeliveryTimeFrom == FastDeliveryTimeTo)
+			{
+				yield return new ValidationResult("Неверно указан интервал для доставки за час.", new[] { nameof(FastDeliveryTimeTo) });
+			}
 		}
 	}
 }
