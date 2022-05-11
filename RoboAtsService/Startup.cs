@@ -56,7 +56,8 @@ namespace RoboAtsService
 
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
-			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(), new ApplicationVersionInfo(), new LogService(), null, false, null);
+			ErrorReporter.Instance.AutomaticallySendEnabled = false;
+			ErrorReporter.Instance.SendedLogRowCount = 100;
 
 			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
@@ -80,7 +81,7 @@ namespace RoboAtsService
 			builder.RegisterType<PaymentFromBankClientController>().AsSelf().AsImplementedInterfaces();*/
 
 
-			builder.RegisterInstance(SingletonErrorReporter.Instance).AsImplementedInterfaces();
+			builder.RegisterInstance(ErrorReporter.Instance).AsImplementedInterfaces();
 
 			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly)
 				.Where(t => t.Name.EndsWith("Provider"))
