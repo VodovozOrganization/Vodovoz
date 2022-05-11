@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
-		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
+		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 

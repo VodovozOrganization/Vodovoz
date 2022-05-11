@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 		private readonly ICommonServices _commonServices;
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
 		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private RoboatsEntityType? _selectedExportType;
 		private OpenViewModelCommand _openDialogCommand;
 		private bool exportStarting;
@@ -72,7 +72,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 			ICommonServices commonServices,
 			IDeliveryScheduleRepository deliveryScheduleRepository,
 			RoboatsViewModelFactory roboatsViewModelFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureJournalFactory,
 			INavigationManager navigation) : base(commonServices.InteractiveService, navigation)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_deliveryScheduleRepository = deliveryScheduleRepository ?? throw new ArgumentNullException(nameof(deliveryScheduleRepository));
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_openDialogCommand = new OpenViewModelCommand(OpenDialog);
 
 			var canEdit = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_roboats_catalogs");
@@ -213,7 +213,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 			{
 				return;
 			}
-			var viewModel = new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _nomenclatureSelectorFactory, _roboatsViewModelFactory, _commonServices);
+			var viewModel = new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), _nomenclatureJournalFactory, _roboatsViewModelFactory, _commonServices);
 			OpenDialog(viewModel);
 		}
 

@@ -1,7 +1,5 @@
 ﻿using NHibernate.Criterion;
-using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Osm.DTO;
 using QS.Utilities.Text;
 using System;
 using System.Collections.Generic;

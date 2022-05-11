@@ -464,7 +464,7 @@ namespace Vodovoz
 					.FirstOrDefault();
 
 				RoboatsSettings roboatsSettings = new RoboatsSettings(new ParametersProvider());
-				RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, SingletonErrorReporter.Instance);
+				RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 				IDeliveryScheduleRepository deliveryScheduleRepository = new DeliveryScheduleRepository();
 				IFileDialogService fileDialogService = new FileDialogService();
 				RoboatsViewModelFactory roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);

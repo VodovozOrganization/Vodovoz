@@ -13,12 +13,12 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 	public class RoboatsWaterTypeViewModel : EntityTabViewModelBase<RoboatsWaterType>
 	{
 		private RoboatsEntityViewModel _roboatsEntityViewModel;
-		private readonly INomenclatureSelectorFactory _nomenclatureJournalFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private readonly bool _canEdit;
 		private readonly bool _canCreate;
 
-		public RoboatsWaterTypeViewModel(IEntityUoWBuilder uowBuilder, INomenclatureSelectorFactory nomenclatureJournalFactory, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
+		public RoboatsWaterTypeViewModel(IEntityUoWBuilder uowBuilder, INomenclatureJournalFactory nomenclatureJournalFactory, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
 		{
 			if(roboatsViewModelFactory is null)
 			{

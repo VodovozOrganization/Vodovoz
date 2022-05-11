@@ -20,19 +20,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 	public class RoboatsWaterTypeJournalViewModel : SingleEntityJournalViewModelBase<RoboatsWaterType, RoboatsWaterTypeViewModel, RoboatsWaterTypeJournalNode>
 	{
 		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private readonly ICommonServices _commonServices;
 		private OpenViewModelCommand _openViewModelCommand;
 
 		public RoboatsWaterTypeJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			RoboatsViewModelFactory roboatsViewModelFactory,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureJournalFactory,
 			ICommonServices commonServices
 		) : base(unitOfWorkFactory, commonServices)
 		{
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Вода для Roboats";
@@ -154,9 +154,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		};
 
 		protected override Func<RoboatsWaterTypeViewModel> CreateDialogFunction => () =>
-			new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForCreate(), _nomenclatureSelectorFactory, _roboatsViewModelFactory, _commonServices);
+			new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForCreate(), _nomenclatureJournalFactory, _roboatsViewModelFactory, _commonServices);
 
 		protected override Func<RoboatsWaterTypeJournalNode, RoboatsWaterTypeViewModel> OpenDialogFunction => (node) =>
-			new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), _nomenclatureSelectorFactory, _roboatsViewModelFactory, _commonServices);
+			new RoboatsWaterTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), _nomenclatureJournalFactory, _roboatsViewModelFactory, _commonServices);
 	}
 }

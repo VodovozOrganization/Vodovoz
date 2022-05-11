@@ -37,11 +37,11 @@ namespace Vodovoz.Factories
 			//Необходимо исправить получение всех этих зависимостей из скоупа
 			_parametersProvider = new ParametersProvider();
 			RoboatsSettings roboatsSettings = new RoboatsSettings(_parametersProvider);
-			RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, SingletonErrorReporter.Instance);
+			RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			IDeliveryScheduleRepository deliveryScheduleRepository = new DeliveryScheduleRepository();
 			IFileDialogService fileDialogService = new FileDialogService();
 			_roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			var nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, _roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_deliveryScheduleSelectorFactory = new DeliveryScheduleJournalFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, _roboatsViewModelFactory);
 		}

@@ -65,7 +65,7 @@ namespace Vodovoz.Models
 					ex is NotSupportedException)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Error, $"Произошла ошибка при сохранении файла в хранилище: {ex.Message}. \n Обратитесь в тех. поддержку", "Ошибка");
-					_errorReporter.SendErrorReport(new[] { ex });
+					_errorReporter.AutomaticSendErrorReport("Ошибка при сохранении файла", ex);
 					return false;
 				}
 				throw;
@@ -104,7 +104,7 @@ namespace Vodovoz.Models
 					ex is NotSupportedException)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Error, $"Произошла ошибка при сохранении файла в хранилище: {ex.Message}. \n Обратитесь в тех. поддержку", "Ошибка");
-					_errorReporter.SendErrorReport(new[] { ex });
+					_errorReporter.AutomaticSendErrorReport("Ошибка при сохранении файла", ex);
 					return false;
 				}
 				throw;
@@ -143,7 +143,7 @@ namespace Vodovoz.Models
 					ex is NotSupportedException)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Error, $"Произошла ошибка при получении файла из хранилища: {ex.Message}. \n Обратитесь в тех. поддержку", "Ошибка");
-					_errorReporter.SendErrorReport(new[] { ex });
+					_errorReporter.AutomaticSendErrorReport("Ошибка при сохранении файла", ex);
 					return false;
 				}
 				throw;
@@ -182,7 +182,7 @@ namespace Vodovoz.Models
 					ex is NotSupportedException)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Error, $"Произошла ошибка при удалении файла из хранилища: {ex.Message}. \n Обратитесь в тех. поддержку", "Ошибка");
-					_errorReporter.SendErrorReport(new[] { ex });
+					_errorReporter.AutomaticSendErrorReport("Ошибка при сохранении файла", ex);
 					return false;
 				}
 				throw;
