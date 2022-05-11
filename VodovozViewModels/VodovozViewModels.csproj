@@ -113,6 +113,7 @@
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DebtorJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\TariffZoneJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\TrackPointJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\CarManufacturerJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalNode.cs" />
@@ -180,6 +181,7 @@
     <Compile Include="Journals\JournalViewModels\Goods\EquipmentKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\NomenclaturesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\ProductGroupJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\TariffZoneJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\TrackPointJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\CarManufacturerJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalViewModel.cs" />
@@ -218,6 +220,7 @@
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
     <Compile Include="ViewModels\Flyers\FlyerViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\TariffZoneViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TrackPointViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarManufacturerViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
