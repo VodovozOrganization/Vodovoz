@@ -254,11 +254,6 @@ namespace Vodovoz.Configuration
                 .SearchColumn("Название", x => x.Name)
                 .Column("Код", x => x.Id.ToString())
                 .End();
-            OrmMain.AddObjectDescription<TariffZone>()
-                .DefaultTableView()
-                .SearchColumn("Номер", x => x.Id.ToString())
-                .SearchColumn("Название", x => x.Name)
-                .End();
             OrmMain.AddObjectDescription<NonReturnReason>()
                 .DefaultTableView()
                 .SearchColumn("Код", x => x.Id.ToString())

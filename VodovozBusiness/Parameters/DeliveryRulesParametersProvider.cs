@@ -9,6 +9,7 @@ namespace Vodovoz.Parameters
 		private const string _onlineDeliveriesTodayParameter = "is_stopped_online_deliveries_today";
 		private const string _bottlesCountForFlyerParameter = "bottles_count_for_flyer";
 		private const string _additionalLoadingFlyerAdditionEnabledParameter = "additional_loading_flyer_addition_enabled";
+		private const string _maxDistanceToLatestTrackPointKm = "fast_delivery_max_distance_km";
 
 		public DeliveryRulesParametersProvider(IParametersProvider parametersProvider)
 		{
@@ -31,7 +32,7 @@ namespace Vodovoz.Parameters
 
 		#region FastDelivery
 
-		public double MaxDistanceToLatestTrackPointKm => _parametersProvider.GetValue<double>("fast_delivery_max_distance_km");
+		public double MaxDistanceToLatestTrackPointKm => _parametersProvider.GetValue<double>(_maxDistanceToLatestTrackPointKm);
 		public int DriverGoodWeightLiftPerHandInKg => _parametersProvider.GetValue<int>("fast_delivery_driver_weight_lift_kg");
 		public int MaxFastOrdersPerSpecificTime => _parametersProvider.GetValue<int>("fast_delivery_max_orders_per_time");
 		public int FastDeliveryScheduleId => _parametersProvider.GetValue<int>("fast_delivery_schedule_id");
@@ -40,6 +41,8 @@ namespace Vodovoz.Parameters
 		public TimeSpan MinTimeForNewFastDeliveryOrder => _parametersProvider.GetValue<TimeSpan>("fast_delivery_min_new_order_time");
 		public TimeSpan DriverUnloadTime => _parametersProvider.GetValue<TimeSpan>("fast_delivery_driver_unload_time");
 		public TimeSpan SpecificTimeForMaxFastOrdersCount => _parametersProvider.GetValue<TimeSpan>("fast_delivery_time_for_max_orders");
+		public void UpdateFastDeliveryMaxDistanceParameter(string value) =>
+			_parametersProvider.CreateOrUpdateParameter(_maxDistanceToLatestTrackPointKm, value);
 
 		#endregion
 	}
