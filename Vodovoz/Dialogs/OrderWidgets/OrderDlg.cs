@@ -875,7 +875,7 @@ namespace Vodovoz
 			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
 			{
 				MessageDialogHelper.RunWarningDialog(
-					$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в { district.TariffZone.FastDeliveryTimeFrom }");
+					$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в {district.TariffZone.FastDeliveryTimeFrom:hh\\:mm}");
 				return;
 			}
 
@@ -1517,7 +1517,10 @@ namespace Vodovoz
 
 				if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
 				{
-					throw new InvalidOperationException($"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в { district.TariffZone.FastDeliveryTimeFrom }");
+					MessageDialogHelper.RunWarningDialog(
+						$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в {district.TariffZone.FastDeliveryTimeFrom:hh\\:mm}");
+					
+					return false;
 				}
 
 				if(Entity.Total19LBottlesToDeliver == 0)

@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Goods
 			Initialize();
 		}
 
-		public override string Title => "Настройка запаса";
+		public override string Title => "Настройка запаса и радиуса";
 
 		public GenericObservableList<AdditionalLoadingNomenclatureDistribution> ObservableNomenclatureDistributions { get; private set; }
 
