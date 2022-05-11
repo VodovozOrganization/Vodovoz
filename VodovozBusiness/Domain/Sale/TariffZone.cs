@@ -56,8 +56,7 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(IsFastDeliveryAvailable
-				&& FastDeliveryTimeFrom == FastDeliveryTimeTo)
+			if(IsFastDeliveryAvailable && FastDeliveryTimeFrom == FastDeliveryTimeTo)
 			{
 				yield return new ValidationResult("Неверно указан интервал для доставки за час.", new[] { nameof(FastDeliveryTimeTo) });
 			}

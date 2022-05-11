@@ -136,8 +136,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 		public RouteList GetRouteListForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool getClosestByRoute,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IEnumerable<NomenclatureAmountNode> nomenclatureNodes)
 		{
-			var district = GetDistrict(uow, (decimal) latitude, (decimal) longitude);
-			if(district == null || district.TariffZone ==null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+			var district = GetDistrict(uow, (decimal)latitude, (decimal)longitude);
+			if(district?.TariffZone == null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
 			{
 				return null;
 			}

@@ -868,7 +868,7 @@ namespace Vodovoz
 
 			if(district.TariffZone == null)
 			{
-				MessageDialogHelper.RunWarningDialog($"Для района не указана тарифная зона");
+				MessageDialogHelper.RunWarningDialog($"Для района точки доставки не указана тарифная зона");
 				return;
 			}
 
@@ -1512,7 +1512,7 @@ namespace Vodovoz
 
 				if(district.TariffZone == null)
 				{
-					throw new InvalidOperationException($"Для района не указана тарифная зона");
+					throw new InvalidOperationException($"Для района точки доставки не указана тарифная зона");
 				}
 
 				if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
