@@ -1495,9 +1495,20 @@ namespace Vodovoz
 					_deliveryRulesParametersProvider,
 					Entity.GetAllGoodsToDeliver()
 				);
+
 				if(routeListToAddOrderTo == null)
 				{
-					MessageDialogHelper.RunWarningDialog("Не удалось подобрать МЛ для доставки за час");
+					var verificationData =
+						new FastDeliveryVerificationData(
+							Entity.Id,
+							Entity.DeliveryPoint.ShortAddress,
+							(double)Entity.DeliveryPoint.Latitude.Value,
+							(double)Entity.DeliveryPoint.Longitude.Value,
+							Entity.GetAllGoodsToDeliver());
+
+					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
+						null, UoW, verificationData);
+
 					return false;
 				}
 			}
