@@ -102,7 +102,7 @@ namespace RoboAtsService.Requests
 
 		private string GetHouseNumber(string fullBuildingNumber)
 		{
-			Regex regex = new Regex("\\d{1,}");
+			Regex regex = new Regex(@"\d{1,}");
 			var match = regex.Match(fullBuildingNumber);
 			return match.Value;
 		}
@@ -133,7 +133,10 @@ namespace RoboAtsService.Requests
 		{
 			Regex regex = new Regex(@"((к[ ]*[.]?[ ]*\d+)|(кор[ ]*[.]?[ ]*\d+)|(корпус[ ]*[.]?[ ]*\d+)){1,}");
 			var match = regex.Match(fullBuildingNumber);
-			return match.Value;
+
+			Regex regexDigits = new Regex(@"\d{1,}");
+			var corpusNumber = regexDigits.Match(match.Value);
+			return corpusNumber.Value;
 		}
 
 		private string GetAddressApartmentNumber(int counterpartyId)
@@ -161,7 +164,7 @@ namespace RoboAtsService.Requests
 
 		private string GetApartmentNumber(string fullApartmentNumber)
 		{
-			Regex regex = new Regex("\\d{1,}");
+			Regex regex = new Regex(@"\d{1,}");
 			var match = regex.Match(fullApartmentNumber);
 			return match.Value;
 		}
