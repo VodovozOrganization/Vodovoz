@@ -108,9 +108,7 @@
           </TableColumn>
           <TableColumn>
             <Width>37.0pt</Width>
-          </TableColumn>
-          <!--table_column-->
-          <TableColumn>
+          </TableColumn><!--table_column--><TableColumn>
             <Width>75pt</Width>
           </TableColumn>
           <TableColumn>
@@ -174,9 +172,7 @@
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
-                  </ReportItems>
-                  <!--colspan-->
-                </TableCell>
+                  </ReportItems><!--colspan--></TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
@@ -350,9 +346,7 @@
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
-                  </ReportItems>
-                  <!--colspan-->
-                </TableCell>
+                  </ReportItems><!--colspan--></TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
@@ -600,9 +594,7 @@
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
-                  </ReportItems>
-                  <!--colspan-->
-                </TableCell>
+                  </ReportItems><!--colspan--></TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
@@ -823,9 +815,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <!--table_cell_name-->
-                <TableCell>
+                </TableCell><!--table_cell_name--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>КЛИЕНТУ</Value>
@@ -974,8 +964,8 @@
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
                         <FontSize>8pt</FontSize>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -995,7 +985,7 @@
                         <FontFamily>Arial</FontFamily>
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1016,8 +1006,8 @@
                         <PaddingBottom>5pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                         <PaddingTop>5pt</PaddingTop>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1059,13 +1049,11 @@
                         <FontSize>8pt</FontSize>
                         <PaddingBottom>5pt</PaddingBottom>
                         <PaddingTop>5pt</PaddingTop>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <!--table_cell_value-->
-                <TableCell>
+                </TableCell><!--table_cell_value--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>={ToClient}</Value>
@@ -1120,7 +1108,7 @@
                         <PaddingBottom>5pt</PaddingBottom>
                         <PaddingTop>5pt</PaddingTop>
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1140,7 +1128,7 @@
                         <PaddingBottom>5pt</PaddingBottom>
                         <PaddingTop>5pt</PaddingTop>
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1162,7 +1150,7 @@
                         <FontSize>8pt</FontSize>
                         <PaddingBottom>5pt</PaddingBottom>
                         <PaddingTop>5pt</PaddingTop>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1183,7 +1171,7 @@
                         <FontSize>8pt</FontSize>
                         <PaddingBottom>5pt</PaddingBottom>
                         <PaddingTop>5pt</PaddingTop>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1204,7 +1192,7 @@
                         <FontSize>8pt</FontSize>
                         <PaddingBottom>5pt</PaddingBottom>
                         <PaddingTop>5pt</PaddingTop>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1238,9 +1226,7 @@
                     </Textbox>
                   </ReportItems>
                   <ColSpan>5</ColSpan>
-                </TableCell>
-                <!--table_cell_total-->
-                <TableCell>
+                </TableCell><!--table_cell_total--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>Километраж</Value>
@@ -1398,9 +1384,7 @@
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
-                  </ReportItems>
-                  <!--colspan-->
-                </TableCell>
+                  </ReportItems><!--colspan--></TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox77">
@@ -1479,9 +1463,7 @@
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
-                  </ReportItems>
-                  <!--colspan-->
-                </TableCell>
+                  </ReportItems><!--colspan--></TableCell>
                 <TableCell>
                   <ColSpan>3</ColSpan>
                   <ReportItems>
@@ -1943,9 +1925,7 @@ ORDER BY route_list_addresses.order_in_route;
         <Field Name="terminals_sum">
           <DataField>terminals_sum</DataField>
           <TypeName>System.Decimal</TypeName>
-        </Field>
-        <!--fields-->
-      </Fields>
+        </Field><!--fields--></Fields>
     </DataSet>
     <DataSet Name="TotalInfo">
       <Query>
