@@ -507,8 +507,16 @@ namespace Vodovoz.Views.Logistic
 				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
 				{
 					bool overdueOrder = false;
-					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
-						x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department);
+
+					List<UndeliveryOrderNode> undeliveryOrderNodes = new List<UndeliveryOrderNode>();
+
+					if(ViewModel.UndeliveredOrdersOnDay != null)
+					{
+						undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay
+							.Where(x => x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department)
+							.ToList();
+					}
+
 					if(undeliveryOrderNodes.Any(x => x.NewOrderId == order.Id))
 					{
 						overdueOrder = true;
