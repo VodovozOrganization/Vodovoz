@@ -98,16 +98,16 @@
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>80pt</Width>
+            <Width>73.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38pt</Width>
+            <Width>29pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38pt</Width>
+            <Width>37.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50pt</Width>
@@ -202,7 +202,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
-                      <Value>Бензин</Value>
+                      <Value>Бенз</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -590,7 +590,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>Пустые</Value>
+                      <Value>Пус.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -766,7 +766,9 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell><!--table_cell_name--><TableCell>
+                </TableCell>
+                <!--table_cell_name-->
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>КЛИЕНТУ</Value>
@@ -805,7 +807,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>бутыли</Value>
+                      <Value>бут</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1000,7 +1002,9 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell><!--table_cell_value--><TableCell>
+                </TableCell>
+                <!--table_cell_value-->
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>={ToClient}</Value>
@@ -1187,7 +1191,9 @@ Switch(
                     </Textbox>
                   </ReportItems>
                   <ColSpan>5</ColSpan>
-                </TableCell><!--table_cell_total--><TableCell>
+                </TableCell>
+                <!--table_cell_total-->
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>
@@ -1418,7 +1424,9 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value><!--table_cell_total_without_stock--></Value>
+                      <Value>
+                        <!--table_cell_total_without_stock-->
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2169,7 +2177,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
@@ -2369,7 +2377,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
