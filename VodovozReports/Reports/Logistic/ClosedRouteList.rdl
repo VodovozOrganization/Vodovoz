@@ -115,13 +115,13 @@
             <Width>75pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35pt</Width>
+            <Width>31.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35pt</Width>
+            <Width>27.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35pt</Width>
+            <Width>31.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>35pt</Width>
@@ -214,7 +214,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
-                      <Value>Расход</Value>
+                      <Value>Расх</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -232,7 +232,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox66">
-                      <Value>Бензин</Value>
+                      <Value>Бенз</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -636,7 +636,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>Пустые</Value>
+                      <Value>Пус.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -654,7 +654,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>Залоги за</Value>
+                      <Value>Зал за</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -890,7 +890,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>оборуд.</Value>
+                      <Value>обор.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1505,7 +1505,7 @@
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>32.9pt</Top>
+        <Top>33.7pt</Top>
       </Table>
       <List Name="List1">
         <Height>36.12pt</Height>
