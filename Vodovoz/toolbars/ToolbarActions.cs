@@ -103,12 +103,14 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
+using Vodovoz.ViewModels.ViewModels.Reports;
 
 public partial class MainWindow : Window
 {
@@ -124,9 +126,10 @@ public partial class MainWindow : Window
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
 
-	//CRM
+	//Работа с клиентами
 	Action ActionCallTasks;
 	Action ActionBottleDebtors;
+	Action ActionIncomingCallsAnalysisReport;
 
 	//Логистика
 	Action ActionRouteListTable;
@@ -196,9 +199,10 @@ public partial class MainWindow : Window
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
 
-		//CRM
+		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
+		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
 
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
@@ -286,9 +290,10 @@ public partial class MainWindow : Window
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(ActionClientBalance, null);
 
-		//CRM
+		//Работа с клиентами
 		w1.Add(ActionCallTasks, null);
 		w1.Add(ActionBottleDebtors, null);
+		w1.Add(ActionIncomingCallsAnalysisReport, null);
 
 		//Логистика
 		w1.Add(ActionRouteListTable, null);
@@ -369,9 +374,10 @@ public partial class MainWindow : Window
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
 
-		//CRM
+		//Работа с клиентами
 		ActionCallTasks.Activated += ActionCallTasks_Activate;
 		ActionBottleDebtors.Activated += ActionBottleDebtors_Activate;
+		ActionIncomingCallsAnalysisReport.Activated += OnActionIncomingCallsAnalysisReportActivated;
 
 		//Логистика
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
@@ -431,6 +437,11 @@ public partial class MainWindow : Window
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
 
 		#endregion
+	}
+
+	private void OnActionIncomingCallsAnalysisReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<IncomingCallsAnalysisReportViewModel>(null);
 	}
 
 	private void ActionSalariesJournal_Activated(object sender, EventArgs e)
@@ -532,6 +543,7 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
+		var nomenclatureParameterProvider = new NomenclatureParametersProvider(parametersProvider);
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
 		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
@@ -545,7 +557,8 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider)
+				new CategoryRepository(parametersProvider),
+				nomenclatureParameterProvider
 			)
 		);
 	}

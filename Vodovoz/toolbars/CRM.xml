@@ -2,5 +2,6 @@
     <toolbar name='toolbarSub'>
         <toolitem name='ActionCallTasks' action='ActionCallTasks'/>
         <toolitem name='ActionBottleDebtors' action='ActionBottleDebtors'/>
+        <toolitem name='ActionIncomingCallsAnalysisReport' action='ActionIncomingCallsAnalysisReport'/>
     </toolbar>
 </ui>

@@ -87,6 +87,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/PayBySms")]
 		public void PayBySms(PayBySmsRequestDto payBySmsRequestModel)
 		{
+			return;
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation($"(OrderId: {payBySmsRequestModel.OrderId}) User token: {tokenStr}");
 

@@ -112,6 +112,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 				if (cashSubdivisions.Contains(warehouse.OwningSubdivision))
 				{
 					terminal = GetTerminalInRLWithSpecialRequirements(uow, routeList, warehouse);
+					if(routeList.AdditionalLoadingDocument != null)
+					{
+						result.AddRange(GetGoodsInRLWithoutEquipmentsWithSpecialRequirements(uow, routeList).ToList());
+						result.AddRange(GetEquipmentsInRLWithSpecialRequirements(uow, routeList).ToList());
+					}
 				}
 				else
 				{
@@ -197,13 +202,16 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			if(routeList.AdditionalLoadingDocument != null)
 			{
-				result.AddRange(
-					routeList.AdditionalLoadingDocument.Items.Select(x => new GoodsInRouteListResult
+				var fastDeliveryOrdersItemsInRL = GetFastDeliveryOrdersItemsInRL(uow, routeList.Id);
+				foreach(var additionalItem in routeList.AdditionalLoadingDocument.Items)
+				{
+					var fastDeliveryItem = fastDeliveryOrdersItemsInRL.FirstOrDefault(x => x.NomenclatureId == additionalItem.Nomenclature.Id);
+					result.Add(new GoodsInRouteListResult
 					{
-						NomenclatureId = x.Nomenclature.Id,
-						Amount = x.Amount
-					})
-				);
+						NomenclatureId = additionalItem.Nomenclature.Id,
+						Amount = additionalItem.Amount - (fastDeliveryItem?.Amount ?? 0)
+					});
+				}
 			}
 
 			return result
@@ -401,6 +409,84 @@ namespace Vodovoz.EntityRepositories.Logistic
 			}
 
 			return null;
+		}
+
+		public IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uow, int routeListId, RouteListItemStatus [] excludeAddressStatuses = null)
+		{
+			GoodsInRouteListResult resultAlias = null;
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemsAlias = null;
+			RouteListItem routeListItemAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+
+			List<GoodsInRouteListResult> goodsInRouteListResults = new List<GoodsInRouteListResult>();
+
+			var items = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+				.Where(() => orderAlias.IsFastDelivery)
+				.And(() => routeListItemAlias.RouteList.Id == routeListId)
+				.SelectList(list => list
+					.SelectGroup(() => orderItemsAlias.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
+				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>());
+
+			var equipment = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+				.Where(() => orderAlias.IsFastDelivery)
+				.And(() => routeListItemAlias.RouteList.Id == routeListId)
+				.And(() => orderEquipmentAlias.Direction == Direction.Deliver)
+				.SelectList(list => list
+					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(Projections.Cast(NHibernateUtil.Decimal, Projections.Sum(Projections.Property(() => orderEquipmentAlias.Count)))).WithAlias(() => resultAlias.Amount))
+				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>());
+
+			if(excludeAddressStatuses != null)
+			{
+				items.Where(() => !routeListItemAlias.Status.IsIn(excludeAddressStatuses));
+				equipment.Where(() => !routeListItemAlias.Status.IsIn(excludeAddressStatuses));
+			}
+
+			goodsInRouteListResults.AddRange(
+				items.List<GoodsInRouteListResult>()
+					.Union(equipment.List<GoodsInRouteListResult>()));
+
+			return goodsInRouteListResults;
+		}
+
+		public int Get19LWaterInRLCount(IUnitOfWork uow, int routeListId)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemsAlias = null;
+			RouteListItem routeListItemAlias = null;
+			RouteList routeListAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
+
+			var orderItems19LWater = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
+				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
+				.Where(() => routeListItemAlias.RouteList.Id == routeListId)
+				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => !orderAlias.IsFastDelivery)
+				.Select(Projections.Sum(() => orderItemsAlias.Count))
+				.SingleOrDefault<decimal>();
+
+			var additionalItems19LWater = uow.Session.QueryOver<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
+				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinEntityAlias(() => routeListAlias,
+					() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentItemAlias.AdditionalLoadingDocument.Id)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListAlias.Id == routeListId)
+				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount))
+				.SingleOrDefault<decimal>();
+
+			return (int)(orderItems19LWater + additionalItems19LWater);
 		}
 
 		public DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee)
@@ -1050,7 +1136,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public int NomenclatureId { get; set; }
 		public decimal Amount { get; set; }
 	}
-	
+
 	public class GoodsInRouteListResultToDivide
 	{
 		public int NomenclatureId { get; set; }

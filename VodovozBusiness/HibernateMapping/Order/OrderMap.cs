@@ -62,6 +62,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.ODZComment)                        .Column("odz_comment");
 			Map(x => x.OPComment)                         .Column("op_comment");
 			Map(x => x.IsFastDelivery)                    .Column("is_fast_delivery");
+			Map(x => x.IsCopiedFromUndelivery)            .Column("is_copied_from_undelivery");
 
 			Map(x => x.OrderStatus)                       .Column("order_status")
 				.CustomType<OrderStatusStringType>();
@@ -78,7 +79,7 @@ namespace Vodovoz.HibernateMapping
 				.CustomType<OrderSourceStringType>();
 			Map(x => x.OrderPaymentStatus)                .Column("order_payment_status")
 				.CustomType<OrderPaymentStatusStringType>();
-			Map(x => x.OrderAddressType)				  .Column("order_address_type")
+			Map(x => x.OrderAddressType)                  .Column("order_address_type")
 				.CustomType<OrderAddressTypeStringType>();
 
 			References(x => x.Client)                     .Column("client_id");

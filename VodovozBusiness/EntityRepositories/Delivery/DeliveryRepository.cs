@@ -136,6 +136,12 @@ namespace Vodovoz.EntityRepositories.Delivery
 		public RouteList GetRouteListForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool getClosestByRoute,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IEnumerable<NomenclatureAmountNode> nomenclatureNodes)
 		{
+			var district = GetDistrict(uow, (decimal)latitude, (decimal)longitude);
+			if(district?.TariffZone == null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+			{
+				return null;
+			}
+
 			var maxDistanceToTrackPoint = deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
 			var driverGoodWeightLiftPerHand = deliveryRulesParametersProvider.DriverGoodWeightLiftPerHandInKg;
 			var maxFastOrdersPerSpecificTime = deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
@@ -228,7 +234,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var addressCountSubquery = QueryOver.Of(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Where(() => rla.RouteList.Id == rl.Id)
-				.WhereRestrictionOn(() => rla.Status).Not.IsIn(RouteListItem.GetNotDeliveredStatuses())
+				.And(() => rla.Status == RouteListItemStatus.EnRoute)
 				.And(() => o.IsFastDelivery)
 				.And(Restrictions.GtProperty(
 					Projections.Property(() => rla.CreationDate),
@@ -310,6 +316,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Inner.JoinAlias(() => o.OrderItems, () => oi)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
+				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue })
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
 					.SelectGroup(() => oi.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
@@ -486,7 +493,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var addressCountSubquery = QueryOver.Of(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Where(() => rla.RouteList.Id == rl.Id)
-				.WhereRestrictionOn(() => rla.Status).Not.IsIn(RouteListItem.GetNotDeliveredStatuses())
+				.And(() => rla.Status == RouteListItemStatus.EnRoute)
 				.And(() => o.IsFastDelivery)
 				.And(Restrictions.GtProperty(
 					Projections.Property(() => rla.CreationDate),
@@ -600,6 +607,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Inner.JoinAlias(() => o.OrderItems, () => oi)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
+				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue })
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
 					.SelectGroup(() => oi.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
