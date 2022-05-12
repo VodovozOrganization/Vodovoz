@@ -53,16 +53,16 @@
             <Width>21.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.5pt</Width>
+            <Width>69.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>114.5pt</Width>
+            <Width>99.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>113.9pt</Width>
+            <Width>100.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>73.5pt</Width>
+            <Width>71.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>33.2pt</Width>
@@ -83,13 +83,16 @@
             <Width>23.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>103.4pt</Width>
+            <Width>72.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>61.5pt</Width>
+            <Width>65.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.0pt</Width>
+            <Width>70.8pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>65.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -313,7 +316,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Комментарий</Value>
+                      <Value>Комментарий
+из заказа</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -333,7 +337,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>Место и № звонка водителя</Value>
+                      <Value>Комментарий
+водительского 
+телефона</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -353,7 +359,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>Коммент. вод. тел.</Value>
+                      <Value>Комментарий водителя из приложения</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -367,6 +373,24 @@
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>Комментарий ОСК</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -614,7 +638,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>=Fields!comment.Value</Value>
+                      <Value>={comment}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -635,28 +659,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>={driver_call_full}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop>10pt</PaddingTop>
-                        <PaddingBottom>10pt</PaddingBottom>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                      <CanShrink>true</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox60">
-                      <Value>=Fields!comment_manager.Value</Value>
+                      <Value>={comment_manager}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -671,6 +674,46 @@
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>={driver_app_comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>={op_comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -949,43 +992,11 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
-      </Table>
-      <Table Name="Table2">
-        <DataSetName>RouteLists</DataSetName>
-        <NoRows>Нет незакрытых маршрутных листов</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>54.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>220.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>131.1pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>24.6pt</Height>
-              <TableCells>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox3">
-                      <Value>Не закрытые маршрутные листы</Value>
+                    <Textbox Name="Textbox48">
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -993,63 +1004,6 @@
                           <Top>None</Top>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>16pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>3</ColSpan>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox16">
-                      <Value>№ МЛ</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox17">
-                      <Value>Водитель</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>Статус</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -1059,65 +1013,7 @@
               </TableCells>
             </TableRow>
           </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>=Fields!route_list_id.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox20">
-                      <Value>=Fields!driver_name.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox21">
-                      <Value>=Switch( Fields!status.Value = 'New', "Новый", Fields!status.Value = 'InLoading', "На погрузке", Fields!status.Value = 'EnRoute', "В пути", Fields!status.Value = 'OnClosing', "На закрытии", Fields!status.Value = 'NotDelivered', "Не доставлен")</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>1.5pt</Left>
-        <Top>140.9pt</Top>
+        </Footer>
       </Table>
       <Table Name="Table3">
         <DataSetName>Orders</DataSetName>
@@ -1208,7 +1104,7 @@
       <Textbox Name="Textbox9">
         <Height>17.25pt</Height>
         <Width>803.27pt</Width>
-        <Value>В отчет должны попадать реализации, в которых фактически возвращенная тара меньше ожидаемой, с возможностью различной фильтрации (по дате, водителю, причине и т.д.) и МЛ которых в статусе: "закрыт" или "проверка километража".</Value>
+        <Value>В отчет попадают реализации, в которых фактически возвращенная тара меньше ожидаемой, находящиеся в статусах Доставлен, Выгрузка на складе или Закрыт.</Value>
         <ZIndex>1</ZIndex>
         <Left>9.10pt</Left>
         <Top>5.30pt</Top>
@@ -1295,15 +1191,9 @@
 		WHEN 'CallFromAddress' THEN 'с адреса'
 		WHEN 'CallFromAnywhere' THEN 'не с адреса'
 	END AS driver_call_string,
-    CONCAT_WS('\n',
-		(CASE driver_call_type
-			WHEN 'NoCall'  THEN 'не звонил'
-			WHEN 'CallFromAddress' THEN 'с адреса'
-			WHEN 'CallFromAnywhere' THEN 'не с адреса'
-		END),
-		driver_call_id
-	) AS driver_call_full,
 	comment_manager,
+    op_comment,
+    driver_app_comment,
 	bottle_reserv,
     #Ввод остатков
 IF(delivery_points.have_residue = 0, "Нет", "Да") AS enteredresidue,
@@ -1344,7 +1234,6 @@ LEFT JOIN
 	employees AS employees_author ON employees_author.id = orders.author_employee_id
 WHERE
 	orders.delivery_date = DATE(@date)
-	AND((route_lists.status = 'Closed') OR (route_lists.status = 'MileageCheck'))
 	AND (@reason_id = -1 OR @reason_id = tare_non_return_reason_id)
 	AND (@driver_id = -1 OR @driver_id = employees.id)
     AND (bottles_return &gt; returned)
@@ -1372,7 +1261,7 @@ WHERE
 		)
 		OR (@driver_call = -1)
 	)
-	AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NotDelivered')
+	AND orders.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
 GROUP BY ordersIdAlias
 ORDER BY reason_type_status
 ;</CommandText>
@@ -1428,10 +1317,6 @@ ORDER BY reason_type_status
           <DataField>bottles_return</DataField>
           <TypeName>System.Int16</TypeName>
         </Field>
-        <Field Name="driver_call_full">
-          <DataField>driver_call_full</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="comment_manager">
           <DataField>comment_manager</DataField>
           <TypeName>System.String</TypeName>
@@ -1456,41 +1341,12 @@ ORDER BY reason_type_status
           <DataField>author</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="RouteLists">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    route_lists.id AS route_list_id,
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
-    route_lists.status AS status
-FROM
-    route_lists
-        LEFT JOIN
-    employees ON employees.id = route_lists.driver_id
-WHERE
-    route_lists.date = @date
-    AND (route_lists.status &lt;&gt; 'Closed'
-        AND route_lists.status &lt;&gt; 'MileageCheck')
-    ORDER BY route_lists.status;</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="date">
-            <Value>={?date}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="route_list_id">
-          <DataField>route_list_id</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="driver_name">
-          <DataField>driver_name</DataField>
+        <Field Name="op_comment">
+          <DataField>op_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="status">
-          <DataField>status</DataField>
+        <Field Name="driver_app_comment">
+          <DataField>driver_app_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
