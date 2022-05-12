@@ -1521,6 +1521,24 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Время получения").AddTextRenderer(node => node.ReceiveTime.ToString("G"))
 					.Finish()
 			);
+
+			//DriverTareMessagesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DriverTareMessagesJournalViewModel>(
+				() => FluentColumnsConfig<DriverMessageJournalNode>.Create()
+					.AddColumn("Дата").AddTextRenderer(node => node.CommentDate.ToString("dd.MM.yy"))
+					.AddColumn("Время").AddTextRenderer(node => node.CommentDate.ToString("HH:mm:ss"))
+					.AddColumn("ФИО водителя").AddTextRenderer(node => node.DriverName)
+					.AddColumn("Телефон водителя").AddTextRenderer(node => node.DriverPhone)
+					.AddColumn("№ МЛ").AddNumericRenderer(node => node.RouteListId)
+					.AddColumn("№ заказа").AddNumericRenderer(node => node.OrderId)
+					.AddColumn("План бут.").AddNumericRenderer(node => node.BottlesReturn)
+					.AddColumn("Факт бут.").AddNumericRenderer(node => node.ActualBottlesReturn)
+					.AddColumn("Долг бут. по адресу").AddNumericRenderer(node => node.AddressBottlesDebt)
+					.AddColumn("Комментарий водителя").AddTextRenderer(node => node.DriverComment)
+					.Finish()
+			);
+
+			
 		}
 	}
 }
