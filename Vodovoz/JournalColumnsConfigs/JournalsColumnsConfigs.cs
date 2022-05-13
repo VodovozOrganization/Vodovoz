@@ -1539,6 +1539,15 @@ namespace Vodovoz.JournalColumnsConfigs
 			);
 
 			
+			//TariffZoneJournalViewModel
+			TreeViewColumnsConfigFactory.Register<TariffZoneJournalViewModel>(
+				() => FluentColumnsConfig<TariffZoneJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Доступна\nдоставка за час").AddTextRenderer(node => node.IsFastDeliveryAvailable ? "Да" : "").XAlign(0.5f)
+					.AddColumn("Время работы\nдоставки за час").AddTextRenderer(node => node.FastDeliveryAvailableTime)
+					.Finish()
+			);
 		}
 	}
 }

@@ -542,8 +542,9 @@ namespace Vodovoz
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
 				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
-				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode
-			};
+				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode,
+				_orderParametersProvider.PaymentByCardFromOnlineStoreId
+		};
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
 			{
 				ySpecPaymentFrom.ItemsList =
@@ -690,8 +691,11 @@ namespace Vodovoz
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
+			bool showEshop = Entity.EShopOrder == null;
+			labelEShop.Visible = !showEshop;
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
 			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
+			yvalidatedentryEShopOrder.Visible = !showEshop;
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
@@ -857,7 +861,28 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Для выбора доставки за час необходимо корректно заполнить координаты точки доставки");
 				return;
 			}
-			
+
+			var district = Entity.DeliveryPoint.District;
+
+			if(district == null)
+			{
+				MessageDialogHelper.RunWarningDialog($"Для точки доставки не указан район");
+				return;
+			}
+
+			if(district.TariffZone == null)
+			{
+				MessageDialogHelper.RunWarningDialog($"Для района точки доставки не указана тарифная зона");
+				return;
+			}
+
+			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+			{
+				MessageDialogHelper.RunWarningDialog(
+					$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в {district.TariffZone.FastDeliveryTimeFrom:hh\\:mm}");
+				return;
+			}
+
 			if(Entity.Total19LBottlesToDeliver == 0)
 			{
 				MessageDialogHelper.RunWarningDialog("В доставке за час нет 19л воды!!!");
@@ -1489,7 +1514,27 @@ namespace Vodovoz
 					throw new InvalidOperationException(
 						"В доставке за час обязательно должна быть точка доставки с заполненными координатами");
 				}
-				
+
+				var district = Entity.DeliveryPoint.District;
+
+				if(district == null)
+				{
+					throw new InvalidOperationException($"Для точки доставки не указан район");
+				}
+
+				if(district.TariffZone == null)
+				{
+					throw new InvalidOperationException($"Для района точки доставки не указана тарифная зона");
+				}
+
+				if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+				{
+					MessageDialogHelper.RunWarningDialog(
+						$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в {district.TariffZone.FastDeliveryTimeFrom:hh\\:mm}");
+					
+					return false;
+				}
+
 				if(Entity.Total19LBottlesToDeliver == 0)
 				{
 					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
@@ -1503,9 +1548,20 @@ namespace Vodovoz
 					_deliveryRulesParametersProvider,
 					Entity.GetAllGoodsToDeliver()
 				);
+
 				if(routeListToAddOrderTo == null)
 				{
-					MessageDialogHelper.RunWarningDialog("Не удалось подобрать МЛ для доставки за час");
+					var verificationData =
+						new FastDeliveryVerificationData(
+							Entity.Id,
+							Entity.DeliveryPoint.ShortAddress,
+							(double)Entity.DeliveryPoint.Latitude.Value,
+							(double)Entity.DeliveryPoint.Longitude.Value,
+							Entity.GetAllGoodsToDeliver());
+
+					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
+						null, UoW, verificationData);
+
 					return false;
 				}
 			}

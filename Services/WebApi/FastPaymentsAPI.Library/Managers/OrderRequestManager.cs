@@ -84,7 +84,10 @@ namespace FastPaymentsAPI.Library.Managers
 			}
 			else
 			{
-				orderRegistrationRequestDTO.BackUrl = GetVodovozFastPayUrl(fastPaymentGuid);
+				var backUrl = GetVodovozFastPayUrl(fastPaymentGuid);
+				orderRegistrationRequestDTO.BackUrl = backUrl;
+				orderRegistrationRequestDTO.BackUrlOk = backUrl;
+				orderRegistrationRequestDTO.BackUrlFail = backUrl;
 			}
 
 			return orderRegistrationRequestDTO;

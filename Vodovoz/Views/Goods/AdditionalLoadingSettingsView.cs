@@ -32,6 +32,12 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(vm => vm.BottlesCount, w => w.Text, new IntToStringConverter())
 				.InitializeFromSource();
 
+			entryFastDeliveryMaxDistance.ValidationMode = ValidationType.Numeric;
+			entryFastDeliveryMaxDistance.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(vm => vm.FastDeliveryMaxDistance, w => w.Text, new DoubleToStringConverter())
+				.InitializeFromSource();
+
 			ycheckFlyerAdditionEnabled.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(vm => vm.FlyerAdditionEnabled, w => w.Active)
