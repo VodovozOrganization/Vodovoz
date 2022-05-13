@@ -207,7 +207,7 @@ namespace Vodovoz.Domain.Orders
 
 					if(Id == 0)
 					{
-						AddCertificates = DeliveryPoint.Category.Id == EducationalInstitutionDeliveryPointCategoryId 
+						AddCertificates = DeliveryPoint.Category?.Id == EducationalInstitutionDeliveryPointCategoryId 
 						                  && (DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null);
 					}
 
