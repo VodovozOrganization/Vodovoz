@@ -206,7 +206,10 @@ namespace Vodovoz.Domain.Orders
 						DeliverySchedule = value.DeliverySchedule;
 
 					if(Id == 0)
-						AddCertificates = DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null;
+					{
+						AddCertificates = DeliveryPoint.Category.Id == EducationalInstitutionDeliveryPointCategoryId 
+						                  && (DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null);
+					}
 
 					if (oldDeliveryPoint != null) {
 						UpdateContract();
@@ -3322,6 +3325,12 @@ namespace Vodovoz.Domain.Orders
 						);
 				}
 			}
+
+			if(!AddCertificates)
+			{
+				ObservableOrderDocuments.Where(od => od.Type == OrderDocumentType.ProductCertificate).ToList()
+					.ForEach(od => ObservableOrderDocuments.Remove(od));
+			}
 		}
 
 		public virtual void CheckDocumentExportPermissions()
@@ -4155,6 +4164,25 @@ namespace Vodovoz.Domain.Orders
 					ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == FastDeliveryNomenclature.Id);
 
 			RemoveOrderItem(fastDeliveryItemToRemove);
+		}
+
+		#endregion
+
+		#region Точка доставки
+
+		private int _educationalInstitutionDeliveryPointCategoryId;
+		private int EducationalInstitutionDeliveryPointCategoryId
+		{
+			get
+			{
+				if(_educationalInstitutionDeliveryPointCategoryId == default(int))
+				{
+					var deliveryPointParametersProvider = new DeliveryPointParametersProvider(new ParametersProvider());
+					_educationalInstitutionDeliveryPointCategoryId = deliveryPointParametersProvider.EducationalInstitutionDeliveryPointCategoryId;
+				}
+
+				return _educationalInstitutionDeliveryPointCategoryId;
+			}
 		}
 
 		#endregion
