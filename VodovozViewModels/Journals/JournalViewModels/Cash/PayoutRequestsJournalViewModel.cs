@@ -9,9 +9,9 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
+using QS.Utilities;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private bool _canSeeCurrentSubdivisonRequests;
 		private int _currentEmployeeId;
 		private Employee _currentEmployee;
+		private string _footerInfo;
 
 		public PayoutRequestsJournalViewModel(
 			PayoutRequestJournalFilterViewModel filterViewModel,
@@ -88,9 +89,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			var threadLoader = DataLoader as ThreadDataLoader<PayoutRequestJournalNode>;
 			threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
+			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
 			FinishJournalConfiguration();
 			AccessRequest();
+		}
+		
+		public override string FooterInfo
+		{
+			get => _footerInfo;
+			set => SetField(ref _footerInfo, value);
+		}
+		
+		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
+		{
+			var totalSum = Items.Count > 0 ? Items.OfType<PayoutRequestJournalNode>().Sum(x => x.Sum) : 0;
+			FooterInfo = $"{base.FooterInfo} | " + $"Сумма загруженных заявок: {totalSum.ToShortCurrencyString()}";
 		}
 
 		private void AccessRequest()
