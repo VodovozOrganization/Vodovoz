@@ -101,11 +101,11 @@ namespace Vodovoz.Tools
 				User = new UserInfo
 				{
 					Name = user == null ? "" : user.Name,
-					Email = email
+					Email = email ?? string.Empty
 				},
 				Report = new ErrorInfo
 				{
-					UserDescription = description,
+					UserDescription = description ?? string.Empty,
 					Log = _logService.GetLog(logRowsCount),
 					StackTrace = GetExceptionText(exceptions)
 				}
