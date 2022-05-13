@@ -98,16 +98,16 @@
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>80pt</Width>
+            <Width>73.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38pt</Width>
+            <Width>29pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38pt</Width>
+            <Width>37.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50pt</Width>
@@ -202,7 +202,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
-                      <Value>Бензин</Value>
+                      <Value>Бенз</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -590,7 +590,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>Пустые</Value>
+                      <Value>Пус.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -805,7 +805,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>бутыли</Value>
+                      <Value>бут</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>

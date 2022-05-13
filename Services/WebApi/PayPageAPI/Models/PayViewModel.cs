@@ -34,7 +34,8 @@ namespace PayPageAPI.Models
 		public string PayUrl => $"{_fastPaymentParametersProvider.GetAvangardFastPayBaseUrl}?ticket={Ticket}";
 		public string SumString => _orderSum.ToShortCurrencyString();
 		public string StatusString => _fastPaymentStatus.GetEnumTitle();
-		public bool IsNotPayable => _fastPaymentStatus != FastPaymentStatus.Processing;
+		public bool IsNotProcessingStatus => _fastPaymentStatus != FastPaymentStatus.Processing;
+		public bool IsPerformedStatus => _fastPaymentStatus == FastPaymentStatus.Performed;
 		public string PayOrderTitle => IsOnlineOrder ? $"Оплата онлайн-заказа №{OrderNum}" : $"Оплата заказа №{OrderNum}";
 		
 		private void Initialize(FastPayment fastPayment)
