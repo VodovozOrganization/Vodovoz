@@ -3325,6 +3325,12 @@ namespace Vodovoz.Domain.Orders
 						);
 				}
 			}
+
+			if(!AddCertificates)
+			{
+				ObservableOrderDocuments.Where(od => od.Type == OrderDocumentType.ProductCertificate).ToList()
+					.ForEach(od => ObservableOrderDocuments.Remove(od));
+			}
 		}
 
 		public virtual void CheckDocumentExportPermissions()
