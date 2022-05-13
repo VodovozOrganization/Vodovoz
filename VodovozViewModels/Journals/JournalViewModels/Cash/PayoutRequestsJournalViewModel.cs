@@ -104,7 +104,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
 		{
 			var totalSum = Items.Count > 0 ? Items.OfType<PayoutRequestJournalNode>().Sum(x => x.Sum) : 0;
-			FooterInfo = $"{base.FooterInfo} | " + $"Сумма загруженных заявок: {totalSum.ToShortCurrencyString()}";
+			FooterInfo = $"{base.FooterInfo} | Сумма загруженных заявок: {totalSum.ToShortCurrencyString()}";
 		}
 
 		private void AccessRequest()
