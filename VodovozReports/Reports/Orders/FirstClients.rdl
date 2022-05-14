@@ -248,7 +248,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>Кол-во 19л бутылей</Value>
+                      <Value>19л бут.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -812,8 +812,16 @@
                     d.id is not null OR i.promotional_set_id is not null
                 )
     ) AS discount,
-    SUM(IFNULL(i.actual_count, i.count) * i.price - i.discount_money) AS price,
-    COUNT(nomenclature.tare_volume = 'Vol19L' AND nomenclature.category = 'water') as count_19_bottles,
+    SUM(ROUND(IFNULL(i.actual_count, i.count) * i.price - i.discount_money, 0)) AS price,
+    ROUND((SELECT
+         SUM(order_items.count)
+     FROM
+         order_items 
+             LEFT JOIN
+         nomenclature ON nomenclature.id = order_items.nomenclature_id
+     WHERE
+             order_items.order_id = o.id
+       AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'), 0) as count_19_bottles,
     cc.name as came_from ,
     o.comment AS comment ,
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS order_creator,
