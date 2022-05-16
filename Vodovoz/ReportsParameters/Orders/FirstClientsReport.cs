@@ -9,6 +9,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
@@ -33,6 +34,13 @@ namespace Vodovoz.ReportsParameters.Orders
 			var reasons = discountReasonRepository.GetDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			yCpecCmbDiscountReason.SelectedItem = reasons.FirstOrDefault(r => r.Id == 16);
+
+			yChooseOrderStatus.ItemsEnum = typeof(OrderStatus);
+			yChooseOrderStatus.ShowSpecialStateAll = true;
+
+			yChooseThePaymentTypeForTheOrder.ItemsEnum = typeof(PaymentType);
+			yChooseThePaymentTypeForTheOrder.ShowSpecialStateAll = true;
+
 			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;
 			entryDistrict.SetEntityAutocompleteSelectorFactory(districtSelector);
 			entryDistrict.CanEditReference = false;
@@ -66,6 +74,8 @@ namespace Vodovoz.ReportsParameters.Orders
 					{ "start_date", datePeriodPicker.StartDateOrNull.Value },
 					{ "end_date", datePeriodPicker.EndDateOrNull.Value },
 					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0 },
+					{ "order_status", yChooseOrderStatus.SelectedItem.ToString() },
+					{ "payment_type", yChooseThePaymentTypeForTheOrder.SelectedItem.ToString() },
 					{ "district_id", entryDistrict.Subject?.GetIdOrNull() },
 					{ "has_promotional_sets", chkBtnWithPromotionalSets.Active }
 				}
