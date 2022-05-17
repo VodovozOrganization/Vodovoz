@@ -221,16 +221,12 @@ namespace Vodovoz
 			else
 			{
 				config.AddColumn("Нужна загрузка")
-					  .AddToggleRenderer(x => x.LeftNeedToReload).Radio()
-					  .AddSetter((c, x) => c.Activatable = !x.IsFastDelivery)
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-					  .AddTextRenderer(x => "Да")
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-					  .AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
-					  .AddSetter((c, x) => c.Activatable = !x.IsFastDelivery)
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-					  .AddTextRenderer(x => "Нет")
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered);
+					.AddToggleRenderer(x => x.LeftNeedToReload).Radio()
+					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery)
+					.AddTextRenderer(x => (x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery) ? "Да" : "")
+					.AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
+					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery)
+					.AddTextRenderer(x => (x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery) ? "Нет" : "");
 			}
 
 			return config.AddColumn("Нужен терминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
