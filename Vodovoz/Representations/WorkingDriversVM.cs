@@ -140,20 +140,23 @@ namespace Vodovoz.ViewModel
 				.List<WorkingDriverVMNode>();
 
 			var summaryResult = new List<WorkingDriverVMNode>();
-			foreach(var driver in result.GroupBy(x => x.Id)) {
+			int rowNum = 0;
+			foreach(var driver in result.GroupBy(x => x.Id).OrderBy(x => x.First().ShortName)) {
 				var savedRow = driver.First();
 				savedRow.RouteListsText = String.Join("; ", driver.Select(x => x.TrackId != null ? String.Format("<span foreground=\"green\"><b>{0}</b></span>", x.RouteListNumber) : x.RouteListNumber.ToString()));
 				savedRow.RouteListsIds = driver.ToDictionary(x => x.RouteListNumber, x => x.TrackId);
 				savedRow.AddressesAll = driver.Sum(x => x.AddressesAll);
 				savedRow.AddressesCompleted = driver.Sum(x => x.AddressesCompleted);
 				savedRow.Additional19LWaterLeft = driver.Sum(x => x.Additional19LWaterLeft);
+				savedRow.RowNumber = ++rowNum;
 				summaryResult.Add(savedRow);
 			}
 
-			SetItemsSource(summaryResult.OrderBy(x => x.ShortName).ToList());
+			SetItemsSource(summaryResult);
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<WorkingDriverVMNode>.Create()
+			.AddColumn("№").AddNumericRenderer(node => node.RowNumber)
 			.AddColumn("Имя").SetDataProperty(node => node.ShortName)
 			.AddColumn("Машина").AddTextRenderer().AddSetter((c, node) => c.Markup = node.CarText)
 			.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
@@ -200,6 +203,7 @@ namespace Vodovoz.ViewModel
 	{
 		public int Id { get; set; }
 
+		public int RowNumber { get; set; }
 		public string Name { get; set; }
 		public string LastName { get; set; }
 		public string Patronymic { get; set; }
