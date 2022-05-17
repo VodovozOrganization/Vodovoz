@@ -606,9 +606,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _driverMobileAppComment, value);
 		}
 
-		private DateTime _driverMobileAppCommentTime;
+		private DateTime? _driverMobileAppCommentTime;
 		[Display(Name = "Время установки комментария водителя из приложения")]
-		public virtual DateTime DriverMobileAppCommentTime
+		public virtual DateTime? DriverMobileAppCommentTime
 		{
 			get => _driverMobileAppCommentTime;
 			set => SetField(ref _driverMobileAppCommentTime, value);
