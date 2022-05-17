@@ -232,7 +232,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToList();
 
-					if(!selectedNodes.Any())
+					if(selectedNodes.Count != 1)
 					{
 						return false;
 					}
@@ -256,7 +256,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				(selected) =>
 				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToList();
-					if(!selectedNodes.Any())
+					if(selectedNodes.Count != 1)
 					{
 						return;
 					}
