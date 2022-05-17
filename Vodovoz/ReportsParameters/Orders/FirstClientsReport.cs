@@ -31,9 +31,9 @@ namespace Vodovoz.ReportsParameters.Orders
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-			var reasons = discountReasonRepository.GetDiscountReasons(UoW);
+			var reasons = discountReasonRepository.GetActiveDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;
-			yCpecCmbDiscountReason.SelectedItem = reasons.FirstOrDefault(r => r.Id == 16);
+			yCpecCmbDiscountReason.SelectedItem = reasons?.OrderByDescending(r => r.Id).First() ?? null;
 
 			yChooseOrderStatus.ItemsEnum = typeof(OrderStatus);
 			yChooseOrderStatus.ShowSpecialStateAll = true;
