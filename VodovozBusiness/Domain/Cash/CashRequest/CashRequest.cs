@@ -159,8 +159,7 @@ namespace Vodovoz.Domain.Cash
 				}
 			}
 
-			if(PayoutRequestState == PayoutRequestState.Agreed
-			&& Organization == null)
+			if(PayoutRequestState == PayoutRequestState.Agreed && Organization == null)
 			{
 				yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(Organization) });
 			}

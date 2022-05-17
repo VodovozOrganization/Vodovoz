@@ -2024,8 +2024,9 @@ public partial class MainWindow : Gtk.Window
 
 		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
-		NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory>
-			(null, employeeJournalFactory, OpenPageOptions.IgnoreHash);
+		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory, bool>
+			(null, employeeJournalFactory, false, OpenPageOptions.IgnoreHash);
+		page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 	}
 
 	protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)
