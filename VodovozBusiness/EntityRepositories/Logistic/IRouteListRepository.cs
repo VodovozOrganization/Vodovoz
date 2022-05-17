@@ -68,5 +68,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		IList<RouteList> GetRouteListsForCarInPeriods(IUnitOfWork uow, int carId,
 			IList<(DateTime startDate, DateTime? endDate)> periods);
+
+		IList<Employee> GetDriversWithAdditionalLoading(IUnitOfWork uow, params int[] routeListIds);
 	}
 }

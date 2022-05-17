@@ -1101,6 +1101,22 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return query.List<RouteList>();
 		}
+
+		public IList<Employee> GetDriversWithAdditionalLoading(IUnitOfWork uow, params int[] routeListIds)
+		{
+			RouteList routeListAlias = null;
+
+			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias);
+
+			if(routeListIds.Length > 0)
+			{
+				query.WhereRestrictionOn(() => routeListAlias.Id).IsIn(routeListIds);
+			}
+
+			return query.Where(() => routeListAlias.AdditionalLoadingDocument != null)
+				.Select(x => x.Driver)
+				.List<Employee>();
+		}
 	}
 
 	#region DTO
