@@ -1,4 +1,5 @@
-﻿using GMap.NET;
+﻿using System;
+using GMap.NET;
 using GMap.NET.MapProviders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
@@ -33,6 +34,25 @@ namespace Vodovoz.Tools.Logistic
 		{
 			var basePoint = new PointLatLng((double)toBase.BaseLatitude.Value, (double)toBase.BaseLongitude.Value);
 			return (int)GetDistance(fromDP.GmapPoint, basePoint);
+		}
+
+		public static PointLatLng FindPointByDistanceAndRadians(PointLatLng startPoint, double initialRadians, double distanceKilometers)
+		{
+			const double radiusEarthKilometers = 6371.01d;
+			var distRatio = distanceKilometers / radiusEarthKilometers;
+			var distRatioSine = Math.Sin(distRatio);
+			var distRatioCosine = Math.Cos(distRatio);
+
+			var startLatRad = PureProjection.DegreesToRadians(startPoint.Lat);
+			var startLonRad = PureProjection.DegreesToRadians(startPoint.Lng);
+
+			var startLatCos = Math.Cos(startLatRad);
+			var startLatSin = Math.Sin(startLatRad);
+
+			var endLatRads = Math.Asin((startLatSin * distRatioCosine) + (startLatCos * distRatioSine * Math.Cos(initialRadians)));
+			var endLonRads = startLonRad + Math.Atan2(Math.Sin(initialRadians) * distRatioSine * startLatCos, distRatioCosine - startLatSin * Math.Sin(endLatRads));
+
+			return new PointLatLng(PureProjection.RadiansToDegrees(endLatRads), PureProjection.RadiansToDegrees(endLonRads));
 		}
 
 		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)
