@@ -5,7 +5,9 @@ namespace Vodovoz.Filters.ViewModels
     public class RouteListTrackFilterViewModel : FilterViewModelBase<RouteListTrackFilterViewModel> 
     {
         private bool _isFastDeliveryOnly;
-        public bool IsFastDeliveryOnly
+        private bool _showFastDeliveryCircle;
+
+		public bool IsFastDeliveryOnly
         {
             get => _isFastDeliveryOnly;
             set
@@ -18,8 +20,7 @@ namespace Vodovoz.Filters.ViewModels
             }
         }
 
-        private bool _showFastDeliveryCircle;
-		public bool ShowFastDeliveryCircle
+        public bool ShowFastDeliveryCircle
         {
 	        get => _showFastDeliveryCircle;
 	        set => UpdateFilterField(ref _showFastDeliveryCircle, value);
