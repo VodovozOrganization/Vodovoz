@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Dialog;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
@@ -11,6 +12,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	/// </summary>
 	public class ProposedRoute
 	{
+		private readonly IInteractiveService _interactiveService;
 		public List<ProposedRoutePoint> Orders = new List<ProposedRoutePoint>();
 		public PossibleTrip Trip;
 
@@ -21,9 +23,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// </summary>
 		public long RouteCost;
 
-		public ProposedRoute(PossibleTrip trip)
+		public ProposedRoute(PossibleTrip trip, IInteractiveService interactiveService)
 		{
 			Trip = trip;
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
 		/// <summary>
@@ -34,7 +37,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public void UpdateAddressOrderInRealRoute(RouteList updatedRoute)
 		{
 			if(updatedRoute.Status > RouteListStatus.InLoading)
-				throw new InvalidOperationException($"Была выполнена попытка перестроить маршрут {updatedRoute.Id} после того, как он отгружен.");
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, 
+					$"Была выполнена попытка перестроить маршрут {updatedRoute.Id} после того, как он отгружен. Проверьте фильтр \"Показать уехавшие\".");
+
+				return;
+			}
 
 			for(int i = 0; i < updatedRoute.ObservableAddresses.Count; i++) {
 				var address = updatedRoute.ObservableAddresses[i];
