@@ -120,6 +120,7 @@ namespace FastPaymentsAPI.Controllers
 						response.ErrorMessage = message;
 						_logger.LogError(message + $" Код ответа {orderRegistrationResponseDto.ResponseCode}\n" +
 							$"{orderRegistrationResponseDto.ResponseMessage}");
+						return response;
 					}
 				}
 				catch(Exception e)
@@ -240,6 +241,7 @@ namespace FastPaymentsAPI.Controllers
 						response.ErrorMessage = message;
 						_logger.LogError(message + $" Код ответа {orderRegistrationResponseDto.ResponseCode}\n" +
 							$"{orderRegistrationResponseDto.ResponseMessage}");
+						return response;
 					}
 				}
 				catch(Exception e)
@@ -384,6 +386,7 @@ namespace FastPaymentsAPI.Controllers
 						response.ErrorMessage = message;
 						_logger.LogError(message + $" Код ответа {orderRegistrationResponseDto.ResponseCode}\n" +
 							$"{orderRegistrationResponseDto.ResponseMessage}");
+						return response;
 					}
 				}
 				catch(Exception e)
