@@ -143,9 +143,9 @@ namespace Vodovoz.ViewModels
 			
 			int bottleDebt;
 			if(Entity.DeliveryPoint == null)
-				bottleDebt = bottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Customer, Entity.Date);
+				bottleDebt = bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Customer, Entity.Date);
 			else
-				bottleDebt = bottlesRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint, Entity.Date);
+				bottleDebt = bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint, Entity.Date);
 			CurrentBottlesDebt = NumberToTextRus.FormatCase(bottleDebt, "{0} бутыль", "{0} бутыли", "{0} бутылей");
 
 			decimal bottleDeposit;

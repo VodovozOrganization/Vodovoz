@@ -3,5 +3,6 @@
         <toolitem name='ActionCallTasks' action='ActionCallTasks'/>
         <toolitem name='ActionBottleDebtors' action='ActionBottleDebtors'/>
         <toolitem name='ActionIncomingCallsAnalysisReport' action='ActionIncomingCallsAnalysisReport'/>
+		<toolitem name='ActionDriversTareMessages' action='ActionDriversTareMessages'/>
     </toolbar>
 </ui>
