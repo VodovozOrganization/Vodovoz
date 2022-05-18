@@ -246,7 +246,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 				catch(Exception e)
 				{
-					var message = $"При регистрации заказа {orderId} для отправки QR-кода в системе эквайринга произошла ошибка";
+					var message = $"При регистрации заказа {orderId} в системе эквайринга произошла ошибка";
 					response.ErrorMessage = message;
 					_logger.LogError(e, message);
 					return response;
