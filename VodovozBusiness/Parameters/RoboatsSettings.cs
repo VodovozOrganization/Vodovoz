@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Vodovoz.Parameters
 {
@@ -14,6 +10,9 @@ namespace Vodovoz.Parameters
 		{
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 		}
+
+		public int DefaultCounterpartyNameId => _parametersProvider.GetIntValue("roboats_default_counterparty_name_id");
+		public int DefaultCounterpartyPatronymicId => _parametersProvider.GetIntValue("roboats_default_counterparty_patronymic_id");
 
 		public string DeliverySchedulesAudiofilesFolder => _parametersProvider.GetStringValue("roboats_delivery_schedule_audiofiles_path");
 		public string AddressesAudiofilesFolder => _parametersProvider.GetStringValue("roboats_street_audiofiles_path");

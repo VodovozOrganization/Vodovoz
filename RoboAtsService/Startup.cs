@@ -12,11 +12,9 @@ using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using QS.ErrorReporting;
 using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
-using QS.Project.Versioning;
 using QS.Services;
 using RoboAtsService.Middleware;
 using System.Linq;
@@ -24,6 +22,7 @@ using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.NhibernateExtensions;
+using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
@@ -64,6 +63,7 @@ namespace RoboAtsService
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsRepository>().AsSelf();
+			builder.RegisterType<RoboatsSettings>().AsSelf();
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()
 				.AsImplementedInterfaces();

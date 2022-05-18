@@ -1,7 +1,6 @@
-﻿using NHibernate.Criterion;
+﻿using NHibernate;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
-using QS.Utilities.Text;
-using QS.Osm.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +11,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Roboats;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Counterparties
@@ -19,10 +20,14 @@ namespace Vodovoz.EntityRepositories.Counterparties
 	public partial class RoboatsRepository
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly RoboatsSettings _roboatsSettings;
+		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 
-		public RoboatsRepository(IUnitOfWorkFactory unitOfWorkFactory)
+		public RoboatsRepository(IUnitOfWorkFactory unitOfWorkFactory, RoboatsSettings roboatsSettings, INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
+			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 		}
 
 		public IEnumerable<int> GetCounterpartyIdsByPhone(string phone)
@@ -78,34 +83,19 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				Phone phoneAlias = null;
-				DeliveryPoint deliveryPointAlias = null;
+				var resultPhone = GetCountepartyPhone(uow, phone, counterpartyId);
 
-				var queryDeliveryPoint = uow.Session.QueryOver(() => phoneAlias)
-					.Left.JoinAlias(() => phoneAlias.DeliveryPoint, () => deliveryPointAlias)
-					.Where(() => phoneAlias.DigitsNumber == phone)
-					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
-					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.DeliveryPoint)))
-					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName)))
-					.Select(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName.Id));
-
-				var nameIdFromDeliveryPoint = queryDeliveryPoint.SingleOrDefault<int>();
-
-				if(nameIdFromDeliveryPoint > 0)
+				if(resultPhone == null || resultPhone.RoboAtsCounterpartyName.Id == _roboatsSettings.DefaultCounterpartyNameId)
 				{
-					return nameIdFromDeliveryPoint;
+					resultPhone = GetDeliveryPointPhone(uow, phone, counterpartyId);
 				}
 
-				var queryCounterparty = uow.Session.QueryOver(() => phoneAlias)
-					.Where(() => phoneAlias.DigitsNumber == phone)
-					.Where(() => phoneAlias.Counterparty.Id == counterpartyId)
-					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.Counterparty)))
-					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName)))
-					.Select(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName.Id));
+				if(resultPhone == null)
+				{
+					return _roboatsSettings.DefaultCounterpartyNameId;
+				}
 
-				var nameIdFromCounterparty = queryCounterparty.SingleOrDefault<int>();
-
-				return nameIdFromCounterparty;
+				return resultPhone.RoboAtsCounterpartyName.Id;
 			}
 		}
 
@@ -113,36 +103,75 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				Phone phoneAlias = null;
-				DeliveryPoint deliveryPointAlias = null;
+				var resultPhone = GetCountepartyPhone(uow, phone, counterpartyId);
 
-				var queryDeliveryPoint = uow.Session.QueryOver(() => phoneAlias)
-					.Left.JoinAlias(() => phoneAlias.DeliveryPoint, () => deliveryPointAlias)
-					.Where(() => phoneAlias.DigitsNumber == phone)
-					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
-					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.DeliveryPoint)))
-					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyPatronymic)))
-					.Select(Projections.Property(() => phoneAlias.RoboAtsCounterpartyPatronymic.Id));
-
-				var patronymicIdFromDeliveryPoint = queryDeliveryPoint.SingleOrDefault<int>();
-
-				if(patronymicIdFromDeliveryPoint > 0)
+				if(resultPhone == null || resultPhone.RoboAtsCounterpartyPatronymic.Id == _roboatsSettings.DefaultCounterpartyPatronymicId)
 				{
-					return patronymicIdFromDeliveryPoint;
+					resultPhone = GetDeliveryPointPhone(uow, phone, counterpartyId);
 				}
 
-				var queryCounterparty = uow.Session.QueryOver(() => phoneAlias)
-					.Where(() => phoneAlias.DigitsNumber == phone)
-					.Where(() => phoneAlias.Counterparty.Id == counterpartyId)
-					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.Counterparty)))
-					.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyPatronymic)))
-					.Select(Projections.Property(() => phoneAlias.RoboAtsCounterpartyPatronymic.Id));
+				if(resultPhone == null)
+				{
+					return _roboatsSettings.DefaultCounterpartyPatronymicId;
+				}
 
-				var patronymicIdFromCounterparty = queryCounterparty.SingleOrDefault<int>();
-
-				return patronymicIdFromCounterparty;
+				return resultPhone.RoboAtsCounterpartyPatronymic.Id;
 			}
 		}
+
+		private Phone GetCountepartyPhone(IUnitOfWork uow, string phoneNumber, int counterpartyId)
+		{
+			Phone phoneAlias = null;
+
+			var query = uow.Session.QueryOver(() => phoneAlias)
+				.Where(() => phoneAlias.DigitsNumber == phoneNumber)
+				.Where(() => phoneAlias.Counterparty.Id == counterpartyId)
+				.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.Counterparty)))
+				.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName)))
+				.OrderBy(Projections.Id()).Desc();
+
+			Phone resultPhone = null;
+
+			var counterpartyPhones = query.List<Phone>();
+			foreach(var phone in counterpartyPhones)
+			{
+				resultPhone = phone;
+				if(resultPhone.RoboAtsCounterpartyName.Id != _roboatsSettings.DefaultCounterpartyNameId)
+				{
+					continue;
+				}
+			}
+			return resultPhone;
+		}
+
+		private Phone GetDeliveryPointPhone(IUnitOfWork uow, string phoneNumber, int counterpartyId)
+		{
+			Phone phoneAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+
+			var query = uow.Session.QueryOver(() => phoneAlias)
+				.Left.JoinAlias(() => phoneAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Where(() => phoneAlias.DigitsNumber == phoneNumber)
+				.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
+				.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.DeliveryPoint)))
+				.Where(Restrictions.IsNotNull(Projections.Property(() => phoneAlias.RoboAtsCounterpartyName)))
+				.OrderBy(Projections.Id()).Desc();
+
+			Phone resultPhone = null;
+
+			var phones = query.List<Phone>();
+			foreach(var phone in phones)
+			{
+				resultPhone = phone;
+				if(resultPhone.RoboAtsCounterpartyName.Id != _roboatsSettings.DefaultCounterpartyNameId)
+				{
+					continue;
+				}
+			}
+			return resultPhone;
+		}
+
+		
 
 		public Order GetLastOrder(int counterpartyId, int? deliveryPoint = null)
 		{
@@ -162,18 +191,29 @@ namespace Vodovoz.EntityRepositories.Counterparties
 								acceptedOrderStatuses
 						)
 					);
-
+				
 				if(deliveryPoint.HasValue)
 				{
 					query.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Value);
 				}
-
+				
 				query.OrderByAlias(() => orderAlias.CreateDate).Desc.Take(1);
+				var lastOrder = query.SingleOrDefault<Order>();
 
-				var result = query.SingleOrDefault<Order>();
-				return result;
+				var hasOnlyWaterNomenclatures = HasOnlyWaterNomenclatures(lastOrder);
+
+				if(hasOnlyWaterNomenclatures)
+				{
+					return lastOrder;
+				}
+				else
+				{
+					return null;
+				}
 			}
 		}
+
+		
 
 		public IEnumerable<int> GetRoboatsAvailableDeliveryIntervals()
 		{
@@ -183,6 +223,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 				var query = uow.Session.QueryOver(() => deliveryScheduleAlias)
 					.Where(Restrictions.IsNotNull(Projections.Property(() => deliveryScheduleAlias.RoboatsAudiofile)))
+					.OrderBy(Projections.Property(() => deliveryScheduleAlias.From)).Asc()
 					.Select(Projections.Property(() => deliveryScheduleAlias.Id));
 				var result = query.List<int>();
 
@@ -197,8 +238,12 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
 
 				Order orderAlias = null;
+				DeliveryPoint deliveryPointAlias = null;
+				RoboatsFiasStreet roboatsFiasStreetAlias = null;
 
-				var query = uow.Session.QueryOver(() => orderAlias)
+				var lastOrdersByDeliveryPoints = uow.Session.QueryOver(() => orderAlias)
+					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+					.JoinEntityQueryOver(() => roboatsFiasStreetAlias, Restrictions.Where(() => deliveryPointAlias.StreetFiasGuid == roboatsFiasStreetAlias.FiasStreetGuid))
 					.Where(() => orderAlias.Client.Id == clientId)
 					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
 					.Where(() => !orderAlias.IsBottleStock)
@@ -208,12 +253,37 @@ namespace Vodovoz.EntityRepositories.Counterparties
 								acceptedOrderStatuses
 						)
 					)
-					.Select(Projections.Distinct(Projections.Property(() => orderAlias.DeliveryPoint.Id)))
-					.OrderByAlias(() => orderAlias.CreateDate).Desc;
+					.Select(
+						Projections.Max(Projections.Id()),
+						Projections.GroupProperty(Projections.Property(() => orderAlias.DeliveryPoint.Id)))
+					.List<object[]>().Select(x => (int)x[0]);
 
-				var result = query.List<int>();
-				return result;
+
+				OrderItem orderItemAlias = null;
+				Nomenclature nomenclatureAlias = null;
+				
+				var orders = uow.Session.QueryOver(() => orderAlias)
+					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias).Fetch(SelectMode.Fetch, () => orderItemAlias)
+					.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias).Fetch(SelectMode.Fetch, () => nomenclatureAlias)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
+					.Select(Projections.Distinct(Projections.RootEntity()))
+					.List();
+
+				foreach(var order in orders)
+				{
+					if(HasOnlyWaterNomenclatures(order))
+					{
+						yield return order.DeliveryPoint.Id;
+					}
+				}
 			}
+		}
+
+		private bool HasOnlyWaterNomenclatures(Order order)
+		{
+			return !order.OrderItems
+				.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
+				.Any(x => x.Nomenclature.Category != NomenclatureCategory.water);
 		}
 
 		public int? GetBottlesReturnForOrder(int counterpartyId, int orderId)
