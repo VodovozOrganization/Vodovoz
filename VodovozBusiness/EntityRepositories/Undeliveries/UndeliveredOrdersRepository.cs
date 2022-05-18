@@ -195,5 +195,16 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 
 			return bottles19L ?? 0;
 		}
+
+		public Order GetOldOrderFromUndeliveredByNewOrderId(IUnitOfWork uow, int newOrderId)
+		{
+			Order oldOrderAlias = null;
+
+			return uow.Session.QueryOver<UndeliveredOrder>()
+				.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
+				.Where(u => u.NewOrder.Id == newOrderId)
+				.Select(Projections.Entity(() => oldOrderAlias))
+				.SingleOrDefault<Order>();
+		}
 	}
 }
