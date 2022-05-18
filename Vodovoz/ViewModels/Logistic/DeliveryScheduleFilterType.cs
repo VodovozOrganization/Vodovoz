@@ -9,6 +9,8 @@ namespace Vodovoz.ViewModels.Logistic
 		[Display(Name = "Окончание доставки")]
 		DeliveryEnd = 1,
 		[Display(Name = "Строгое попадание")]
-		DeliveryStartAndEnd = 2
+		DeliveryStartAndEnd = 2,
+		[Display(Name = "Время создания заказа")]
+		OrderCreateDate = 3
 	}
 }
