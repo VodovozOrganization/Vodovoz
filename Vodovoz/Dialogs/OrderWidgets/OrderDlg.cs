@@ -371,6 +371,7 @@ namespace Vodovoz
 				.CopyAttachedDocuments();
 			
 			Entity.IsCopiedFromUndelivery = true;
+			Entity.CopiedOrderFromUndelivery = copying.GetCopiedOrder;
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard
 				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
 			{

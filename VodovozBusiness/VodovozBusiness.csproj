@@ -126,6 +126,7 @@
     <Compile Include="Domain\FinancialDistrict.cs" />
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
     <Compile Include="Domain\Goods\AdditionalLoadingNomenclatureDistribution.cs" />
+    <Compile Include="Domain\Goods\OrderItemComparerForCopyingFromUndelivery.cs" />
     <Compile Include="Domain\Goods\NomenclaturePurchasePrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
