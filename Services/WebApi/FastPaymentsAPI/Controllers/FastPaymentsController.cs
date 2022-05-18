@@ -107,9 +107,30 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-				var orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid);
+				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
+				try
+				{
+					_logger.LogInformation("Регистрируем заказ в системе эквайринга");
+					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid);
+
+					if(orderRegistrationResponseDto.ResponseCode != 0)
+					{
+						var message = $"При регистрации заказа {orderId} для отправки QR-кода в системе эквайринга произошла ошибка";
+						response.ErrorMessage = message;
+						_logger.LogError(message + $" Код ответа {orderRegistrationResponseDto.ResponseCode}\n" +
+							$"{orderRegistrationResponseDto.ResponseMessage}");
+						return response;
+					}
+				}
+				catch(Exception e)
+				{
+					var message = $"При регистрации заказа {orderId} для отправки QR-кода в системе эквайринга произошла ошибка";
+					response.ErrorMessage = message;
+					_logger.LogError(e, message);
+					return response;
+				}
+
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid);
 
@@ -175,20 +196,24 @@ namespace FastPaymentsAPI.Controllers
 						}
 						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
 						{
-							_logger.LogInformation($"Посылаем запрос в банк на отмену сессии оплаты: {ticket}");
-							var cancelPaymentResponse = await _fastPaymentOrderModel.CancelPayment(ticket);
+							var fastPaymentWithQR = !string.IsNullOrWhiteSpace(fastPayment.QRPngBase64);
+							var fastPaymentFromOnline = fastPayment.OnlineOrderId.HasValue;
+							
+							if(!fastPaymentWithQR && !fastPaymentFromOnline)
+							{
+								_logger.LogInformation($"Посылаем запрос в банк на отмену сессии оплаты: {ticket}");
+								var cancelPaymentResponse = await _fastPaymentOrderModel.CancelPayment(ticket);
+						
+								if(cancelPaymentResponse.ResponseCode != 0)
+								{
+									_logger.LogError($"Не удалось отменить сессию: {ticket} код: {cancelPaymentResponse.ResponseCode}");
+									response.ErrorMessage = "Не удалось отменить сессию оплаты";
+									return response;
+								}
+							}
 
-							if(cancelPaymentResponse.ResponseCode == 0)
-							{
-								_logger.LogInformation("Отменяем платеж");
-								_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
-							}
-							else
-							{
-								_logger.LogError($"Не удалось отменить сессию: {ticket} код: {cancelPaymentResponse.ResponseCode}");
-								response.ErrorMessage = "Не удалось отменить сессию оплаты";
-								return response;
-							}
+							_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
+							_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 						}
 					}
 				}
@@ -203,9 +228,30 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-				var orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid, phoneNumber);
-								
+				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
+				
+				try
+				{
+					_logger.LogInformation("Регистрируем заказ в системе эквайринга");
+					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid, phoneNumber);
+
+					if(orderRegistrationResponseDto.ResponseCode != 0)
+					{
+						var message = $"При регистрации заказа {orderId} в системе эквайринга произошла ошибка";
+						response.ErrorMessage = message;
+						_logger.LogError(message + $" Код ответа {orderRegistrationResponseDto.ResponseCode}\n" +
+							$"{orderRegistrationResponseDto.ResponseMessage}");
+						return response;
+					}
+				}
+				catch(Exception e)
+				{
+					var message = $"При регистрации заказа {orderId} в системе эквайринга произошла ошибка";
+					response.ErrorMessage = message;
+					_logger.LogError(e, message);
+					return response;
+				}
+
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid, phoneNumber);
 
@@ -274,6 +320,7 @@ namespace FastPaymentsAPI.Controllers
 				if(fastPayments.Any())
 				{
 					var fastPayment = fastPayments[0];
+					var ticket = fastPayment.Ticket;
 
 					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Performed)
 					{
@@ -283,10 +330,10 @@ namespace FastPaymentsAPI.Controllers
 
 					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Processing)
 					{
-						_logger.LogInformation($"Делаем запрос в банк, чтобы узнать статус оплаты сессии {fastPayment.Ticket}");
+						_logger.LogInformation($"Делаем запрос в банк, чтобы узнать статус оплаты сессии {ticket}");
 						try
 						{
-							var orderInfoResponseDto = await _fastPaymentOrderModel.GetOrderInfo(fastPayment.Ticket);
+							var orderInfoResponseDto = await _fastPaymentOrderModel.GetOrderInfo(ticket);
 
 							if((int)orderInfoResponseDto.Status != (int)fastPayment.FastPaymentStatus)
 							{
@@ -302,7 +349,7 @@ namespace FastPaymentsAPI.Controllers
 
 							if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
 							{
-								_logger.LogInformation("Отменяем платеж");
+								_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
 								_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 							}
 						}
@@ -311,7 +358,7 @@ namespace FastPaymentsAPI.Controllers
 							response.ErrorMessage = "При получении информации об оплате из банка или обновлении статуса платежа произошла ошибка";
 							_logger.LogError(
 								e,
-								$"При получении информации об оплате из банка {fastPayment.Ticket} или обновлении статуса платежа произошла ошибка");
+								$"При получении информации об оплате из банка {ticket} или обновлении статуса платежа произошла ошибка");
 							return response;
 						}
 					}
@@ -328,10 +375,19 @@ namespace FastPaymentsAPI.Controllers
 				var fastPaymentGuid = Guid.NewGuid();
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
-				_logger.LogInformation($"Регистрируем онлайн-заказ {onlineOrderId} в системе эквайринга");
 				try
 				{
+					_logger.LogInformation($"Регистрируем онлайн-заказ {onlineOrderId} в системе эквайринга");
 					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOnlineOrder(requestRegisterOnlineOrderDto);
+					
+					if(orderRegistrationResponseDto.ResponseCode != 0)
+					{
+						var message = $"При регистрации онлайн-заказа {onlineOrderId} в системе эквайринга произошла ошибка";
+						response.ErrorMessage = message;
+						_logger.LogError(message + $" Код ответа {orderRegistrationResponseDto.ResponseCode}\n" +
+							$"{orderRegistrationResponseDto.ResponseMessage}");
+						return response;
+					}
 				}
 				catch(Exception e)
 				{
