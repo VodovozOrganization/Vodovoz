@@ -72,7 +72,18 @@ namespace Vodovoz.TempAdapters
 					);
 				journal.SelectionMode = JournalSelectionMode.Single;
 				journal.SetFilter(expenceCategoryfilterViewModel,
-					filter => Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())));
+					filter =>
+					{
+						if(filter.ShowArchive)
+						{
+							return Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray()));
+						}
+
+						return Restrictions.Conjunction()
+							.Add(Restrictions.Not(Restrictions.In("Id", filter.ExcludedIds.ToArray())))
+							.Add(Restrictions.Eq(
+								Projections.Property<ExpenseCategory>(c => c.IsArchive), filter.ShowArchive));
+					});
 				return journal;
 			});
 		}

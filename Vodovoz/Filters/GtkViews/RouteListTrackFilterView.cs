@@ -1,4 +1,5 @@
 ﻿using QS.Views.GtkUI;
+using System;
 using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Filters.GtkViews
@@ -9,7 +10,22 @@ namespace Vodovoz.Filters.GtkViews
 		public RouteListTrackFilterView(RouteListTrackFilterViewModel filterViewModel) : base(filterViewModel)
 		{
 			this.Build();
-			ycheckbuttonIsFastDeliveryOnly.Binding.AddBinding(filterViewModel, vm => vm.IsFastDeliveryOnly, w => w.Active).InitializeFromSource();
+
+			Configure();
+		}
+
+		private void Configure()
+		{
+			ycheckbuttonShowFastDeliveryCircle.Visible = true;
+
+			ycheckbuttonIsFastDeliveryOnly.Binding
+				.AddBinding(ViewModel, vm => vm.IsFastDeliveryOnly, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonShowFastDeliveryCircle.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsFastDeliveryOnly, w => w.Sensitive)
+				.AddBinding(vm => vm.ShowFastDeliveryCircle, w => w.Active)
+				.InitializeFromSource();
 		}
 
 		public RouteListTrackFilterViewModel FilterViewModel => ViewModel;

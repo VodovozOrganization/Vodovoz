@@ -81,6 +81,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
 
+			//блокируем отправку смс
+			ySendSmsButton.Sensitive = false;
 			ySendSmsButton.Pressed += OnSendSmsButtonPressed;
 			btnSendFastPaymentUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
 		}
@@ -268,7 +270,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			ySendSmsButton.Sensitive = _orderPermissionResult.CanRead;
+			//ySendSmsButton.Sensitive = _orderPermissionResult.CanRead;
 			yPhonesListTreeView.ItemsDataSource = _counterparty.Phones;
 		}
 

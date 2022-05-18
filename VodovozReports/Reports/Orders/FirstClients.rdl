@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -56,31 +58,34 @@
             <Width>25.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>87.7pt</Width>
+            <Width>77.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>75.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.8pt</Width>
+            <Width>82.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>33.4pt</Width>
+            <Width>32.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.1pt</Width>
+            <Width>59.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>54.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>68.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.2pt</Width>
+            <Width>47.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>73.3pt</Width>
+            <Width>67.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>59.5pt</Width>
@@ -243,7 +248,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>Часть города</Value>
+                      <Value>19л бут.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -264,6 +269,24 @@
                     <Textbox Name="Textbox8">
                       <Value>Контактный телефон</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Сумма заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -543,7 +566,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>={geographic_group}</Value>
+                      <Value>={count_19l_water}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -582,6 +605,28 @@
                         <PaddingRight>2pt</PaddingRight>
                         <FontSize>8pt</FontSize>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>={order_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -723,7 +768,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
@@ -736,7 +781,6 @@
         END AS person_type,
     dp.compiled_address_short AS address_of_delivery,
     GROUP_CONCAT(DISTINCT nomenclature.name SEPARATOR ', ') AS nomenclatures,
-    o.sum_to_receive ,
     CASE o.payment_type
         WHEN 'cash' THEN 'НАЛ'
         WHEN 'cashless' THEN 'БЕЗНАЛ'
@@ -744,7 +788,6 @@
         WHEN 'Terminal' THEN 'ТЕР-МИНАЛ'
         ELSE o.payment_type
         END AS payment_type,
-    gg.name as geographic_group,
     IFNULL(
             GROUP_CONCAT(
                     DISTINCT
@@ -769,6 +812,16 @@
                     d.id is not null OR i.promotional_set_id is not null
                 )
     ) AS discount,
+    SUM(ROUND(IFNULL(i.actual_count, i.count) * i.price - i.discount_money, 2)) AS order_sum,
+    ROUND((SELECT
+         SUM(order_items.count)
+     FROM
+         order_items 
+             LEFT JOIN
+         nomenclature ON nomenclature.id = order_items.nomenclature_id
+     WHERE
+             order_items.order_id = o.id
+       AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'), 0) as count_19l_water,
     cc.name as came_from ,
     o.comment AS comment ,
     GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS order_creator,
@@ -796,6 +849,8 @@ WHERE
         WHEN @discount_id != 0 AND @has_promotional_sets THEN d.id = @discount_id OR i.promotional_set_id is not null
         END)
   AND (@district_id = '' OR districts.id = @district_id)
+  AND (@order_status = 'All' OR (o.order_status = @order_status) )
+  AND (@payment_type = 'All' OR (o.payment_type  = @payment_type) )
 GROUP BY o.id DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -813,9 +868,15 @@ GROUP BY o.id DESC;</CommandText>
           <QueryParameter Name="has_promotional_sets">
             <Value>={?has_promotional_sets}</Value>
           </QueryParameter>
+          <QueryParameter Name="payment_type">
+            <Value>={?payment_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_status">
+            <Value>={?order_status}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -850,14 +911,11 @@ GROUP BY o.id DESC;</CommandText>
         <Field Name="nomenclatures">
           <DataField>nomenclatures</DataField>
         </Field>
-        <Field Name="sum_to_receive">
-          <DataField>sum_to_receive</DataField>
+        <Field Name="order_sum">
+          <DataField>order_sum</DataField>
         </Field>
         <Field Name="payment_type">
           <DataField>payment_type</DataField>
-        </Field>
-        <Field Name="geographic_group">
-          <DataField>geographic_group</DataField>
         </Field>
         <Field Name="came_from">
           <DataField>came_from</DataField>
@@ -868,6 +926,10 @@ GROUP BY o.id DESC;</CommandText>
         <Field Name="delivery_district">
           <DataField>delivery_district</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="count_19l_water">
+          <DataField>count_19l_water</DataField>
+          <TypeName>System.Int64</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -937,7 +999,8 @@ FROM
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString></ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -953,7 +1016,8 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -965,7 +1029,8 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_id">
       <DataType>Integer</DataType>
@@ -977,7 +1042,8 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="district_id">
       <DataType>String</DataType>
@@ -992,7 +1058,34 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_status">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>All</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="payment_type">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>All</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
