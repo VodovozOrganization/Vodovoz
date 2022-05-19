@@ -56,6 +56,7 @@ namespace Vodovoz.Domain.Complaints
 				switch(GuiltyType.Value) {
 					case ComplaintGuiltyTypes.None:
 					case ComplaintGuiltyTypes.Client:
+					case ComplaintGuiltyTypes.Depreciation:
 					case ComplaintGuiltyTypes.Supplier:
 						return $"Виновный \"{GuiltyType.GetEnumTitle()}\"";
 					case ComplaintGuiltyTypes.Subdivision:

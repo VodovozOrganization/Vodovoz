@@ -22,10 +22,7 @@ namespace Vodovoz.Views.Complaints
 		{
 			yEnumGuiltyType.ItemsEnum = typeof(ComplaintGuiltyTypes);
 			
-			if(ViewModel.HideClientFromGuilty)
-			{
-				yEnumGuiltyType.AddEnumToHideList(ComplaintGuiltyTypes.Client);
-			}
+			// TODO убрать
 			
 			yEnumGuiltyType.Binding.AddBinding(ViewModel.Entity, s => s.GuiltyType, w => w.SelectedItemOrNull).InitializeFromSource();
 			entVmEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
