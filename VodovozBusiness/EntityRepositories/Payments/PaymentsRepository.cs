@@ -259,6 +259,17 @@ namespace Vodovoz.EntityRepositories.Payments
 				.TransformUsing(Transformers.AliasToBean<UnallocatedBalancesJournalNode>())
 				.SetTimeout(180);
 		}
+		
+		public bool PaymentFromAvangardExists(IUnitOfWork uow, DateTime paidDate, int orderNum, decimal orderSum)
+		{
+			var payment = uow.Session.QueryOver<PaymentFromAvangard>()
+				.Where(p => p.OrderNum == orderNum)
+				.And(p => p.PaidDate == paidDate)
+				.And(p => p.OrderSum == orderSum)
+				.SingleOrDefault<PaymentFromAvangard>();
+			
+			return payment != null;
+		}
 	}
 	
 	public class UnallocatedBalancesJournalNode : JournalNodeBase
