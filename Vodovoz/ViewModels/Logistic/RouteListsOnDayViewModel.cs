@@ -1248,6 +1248,14 @@ namespace Vodovoz.ViewModels.Logistic
 								.Distinct().ToList()
 							;
 						break;
+					case DeliveryScheduleFilterType.OrderCreateDate:
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+								.Where(x => x.CreateDate.Value.TimeOfDay >= DeliveryFromTime)
+								.Where(x => x.CreateDate.Value.TimeOfDay <= DeliveryToTime)
+								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+								.Distinct().ToList()
+							;
+						break;
 				}
 
 
