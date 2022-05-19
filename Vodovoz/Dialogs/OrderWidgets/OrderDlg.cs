@@ -371,6 +371,7 @@ namespace Vodovoz
 				.CopyAttachedDocuments();
 			
 			Entity.IsCopiedFromUndelivery = true;
+			Entity.CopiedOrderFromUndelivery = copying.GetCopiedOrder;
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard
 				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
 			{
@@ -542,8 +543,9 @@ namespace Vodovoz
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
 				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
-				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode
-			};
+				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode,
+				_orderParametersProvider.PaymentByCardFromOnlineStoreId
+		};
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
 			{
 				ySpecPaymentFrom.ItemsList =
@@ -649,10 +651,11 @@ namespace Vodovoz
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
 
 			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
-			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
-			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
-			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
+			textManagerComments.Binding.AddBinding(Entity, e => e.CommentManager, w => w.Buffer.Text).InitializeFromSource();
+			textDriverCommentFromMobile.Binding.AddBinding(Entity, e => e.DriverMobileAppComment, w => w.Buffer.Text).InitializeFromSource();
 
+			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
+			enumDiverCallType.Binding.AddBinding(Entity, e => e.DriverCallType, w => w.SelectedItem).InitializeFromSource();
 			driverCallId.Binding.AddFuncBinding(Entity, e => e.DriverCallId == null ? "" : e.DriverCallId.ToString(), w => w.LabelProp).InitializeFromSource();
 
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
@@ -690,8 +693,11 @@ namespace Vodovoz
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
+			bool showEshop = Entity.EShopOrder == null;
+			labelEShop.Visible = !showEshop;
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
 			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
+			yvalidatedentryEShopOrder.Visible = !showEshop;
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
@@ -1313,8 +1319,12 @@ namespace Vodovoz
 		private void OldFieldsConfigure()
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
-			hbxTareComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
-			hbxTareComments.Sensitive = CanEditByPermission && !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			var tareVisible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			textTaraComments.Sensitive = CanEditByPermission && !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+
+			labelTaraComments.Visible = tareVisible;
+			textTaraComments.Visible = tareVisible;
+			GtkScrolledWindow4.Visible = tareVisible;
 
 			if (Entity.Client != null)
 			{
@@ -1327,8 +1337,12 @@ namespace Vodovoz
 				}
 				else
 				{
-					hbxODZComments.Visible = false;
-					hbxOPComments.Visible = false;
+					textOPComments.Visible = false;
+					labelOPComments.Visible = false;
+					GtkScrolledWindow6.Visible = false;
+					labelODZComments.Visible = false;
+					textODZComments.Visible = false;
+					GtkScrolledWindow8.Visible = false;
 				}
 			}
 			
