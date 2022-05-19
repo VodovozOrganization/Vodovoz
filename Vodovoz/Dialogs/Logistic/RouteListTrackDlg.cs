@@ -284,7 +284,7 @@ namespace Vodovoz
 					if(routelisttrackfilterview1.FilterViewModel.ShowFastDeliveryCircle && driversWithAdditionalLoading.Contains(pointsForDriver.Key))
 					{
 						CustomPolygons.CreateRoundPolygon(fastDeliveryOverlay, lastPoint.Latitude, lastPoint.Longitude, radiusInKm: _fastDeliveryMaxDistanceKm,
-							segmentsPointsCount: 30, borderWidth: 1, color: System.Drawing.Color.OrangeRed, fillAlpha: 0);
+							segmentsPointsCount: 30, borderWidth: 1, color: System.Drawing.Color.OrangeRed, fillAlpha: 30);
 					}
 
 					carMarkers.Add(lastPoint.DriverId, marker);
