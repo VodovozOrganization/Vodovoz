@@ -1522,11 +1522,16 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnOnLineActionActivated(object sender, EventArgs e)
 	{
-		var paymentsRepository = new PaymentsRepository();
+		/*var paymentsRepository = new PaymentsRepository();
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromTinkoffReport>(),
 			() => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport(paymentsRepository))
+		);*/
+
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromAvangardReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromAvangardReport())
 		);
 	}
 
