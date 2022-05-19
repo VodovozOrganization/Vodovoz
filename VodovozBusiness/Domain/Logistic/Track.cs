@@ -8,6 +8,8 @@ using QS.DomainModel.Entity;
 using QS.Osrm;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -17,6 +19,7 @@ namespace Vodovoz.Domain.Logistic
 	public class Track : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		public virtual int Id { get; set; }
 
@@ -137,7 +140,7 @@ namespace Vodovoz.Domain.Logistic
 				logger.Error("В подобранной части города не указаны координаты базы");
 				return null;
 			}
-			var response = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Simplified);
+			var response = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Simplified, _globalSettings.ExcludeToll);
 			if(response.Code == "Ok") {
 				DistanceToBase = (double)response.Routes.First().TotalDistanceKm;
 			} else

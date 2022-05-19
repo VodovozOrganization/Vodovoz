@@ -18,6 +18,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Client
 {
@@ -31,6 +33,7 @@ namespace Vodovoz.Domain.Client
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		private TimeSpan? _lunchTimeFrom;
 		private TimeSpan? _lunchTimeTo;
@@ -724,7 +727,7 @@ namespace Vodovoz.Domain.Client
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 			
-			var result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False);
+			var result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
 			if(result == null) {
 				logger.Error("Сервер расчета расстояний не вернул ответа.");
 				return false;
