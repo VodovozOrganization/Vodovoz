@@ -77,7 +77,6 @@ namespace FastPaymentsAPI.Library.Managers
 
 			if(phoneNumber == null)
 			{
-				orderRegistrationRequestDTO.IsQR = 1;
 				orderRegistrationRequestDTO.ReturnQRImage = 1;
 				orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetQRLifetime;
 				orderRegistrationRequestDTO.BackUrl = _fastPaymentParametersProvider.GetFastPaymentBackUrl;
@@ -85,10 +84,13 @@ namespace FastPaymentsAPI.Library.Managers
 			else
 			{
 				var backUrl = GetVodovozFastPayUrl(fastPaymentGuid);
+				orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetPayUrlLifetime;
 				orderRegistrationRequestDTO.BackUrl = backUrl;
 				orderRegistrationRequestDTO.BackUrlOk = backUrl;
 				orderRegistrationRequestDTO.BackUrlFail = backUrl;
 			}
+			
+			orderRegistrationRequestDTO.IsQR = 1;
 
 			return orderRegistrationRequestDTO;
 		}
