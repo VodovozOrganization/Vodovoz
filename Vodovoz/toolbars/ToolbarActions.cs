@@ -950,11 +950,13 @@ public partial class MainWindow : Window
 		var stockRepository = new StockRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(new ParametersProvider());
 		var routeListRepository = new RouteListRepository(stockRepository, terminalNomenclatureProvider);
+		var scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		var deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, routeListRepository, deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
+			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, routeListRepository, scheduleRestrictionRepository,
+				deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
 		);
 	}
 
