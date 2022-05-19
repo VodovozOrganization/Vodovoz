@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public int RouteListId { get; set; }
 		public int OrderId { get; set; }
 		public int BottlesReturn { get; set; }
-		public int ActualBottlesReturn { get; set; }
+		public int? ActualBottlesReturn { get; set; }
 		public int AddressBottlesDebt { get; set; }
 		public string DriverComment { get; set; }
 	}
