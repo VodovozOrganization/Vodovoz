@@ -94,19 +94,6 @@ namespace FastPaymentsAPI.Library.Managers
 						continue;
 					}
 
-					//Отправляем запрос на отмену сессии в банк только для быстрых платежей не по QR-коду
-					if(!fastPaymentWithQR && !fastPaymentFromOnline)
-					{
-						var cancelPaymentResponse = await orderRequestManager.CancelPayment(payment.Ticket);
-						
-						if(cancelPaymentResponse.ResponseCode != 0)
-						{
-							_logger.LogError(
-								$"Не удалось отменить сессию оплаты {payment.Ticket}. Код ответа: {cancelPaymentResponse.ResponseCode}");
-							continue;
-						}
-					}
-
 					_logger.LogInformation($"Отменяем платеж с сессией: {payment.Ticket}");
 					_fastPaymentManager.UpdateFastPaymentStatus(uow, payment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 				}
