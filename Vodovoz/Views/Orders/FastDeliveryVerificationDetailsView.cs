@@ -67,5 +67,9 @@ namespace Vodovoz.Views.Orders
 
 			treeViewDetails.ItemsDataSource = ViewModel.Nodes;
 		}
+
+		protected void OnButtonSaveLogisticiaCommentClicked(object sender, System.EventArgs e)
+		{
+		}
 	}
 }

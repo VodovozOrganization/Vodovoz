@@ -1701,6 +1701,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncomingCallsAnalysisReportView.cs" />
     <Compile Include="Views\Logistic\TariffZoneView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.TariffZoneView.cs" />
+    <Compile Include="Filters\GtkViews\FastDeliveryAvailabilityFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FastDeliveryAvailabilityFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
