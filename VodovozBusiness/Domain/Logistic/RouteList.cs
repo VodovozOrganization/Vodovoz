@@ -228,6 +228,7 @@ namespace Vodovoz.Domain.Logistic
 				if(SetField(ref status, value))
 				{
 					OnPropertyChanged(() => CanChangeStatusToDelivered);
+					OnPropertyChanged(() => CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument);
 				}
 			}
 		}
@@ -594,8 +595,25 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
 
-		public virtual bool CanChangeStatusToDelivered => Status == RouteListStatus.EnRoute && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute);
-		
+		public virtual bool CanChangeStatusToDelivered
+		{
+			get
+			{
+				return Status == RouteListStatus.EnRoute
+					   && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute)
+					   && AdditionalLoadingDocument == null;
+			}
+		}
+
+		public virtual bool CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument
+		{
+			get
+			{
+				return Status == RouteListStatus.EnRoute
+					   && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute);
+			}
+		}
+
 		/// <summary>
 		/// МЛ находится в статусе для открытия диалога закрытия
 		/// </summary>
@@ -1281,9 +1299,9 @@ namespace Vodovoz.Domain.Logistic
 			UpdateStatus();
 		}
 
-		public virtual void UpdateStatus()
+		public virtual void UpdateStatus(bool isIgnoreAdditionalLoadingDocument = false)
 		{
-			if(CanChangeStatusToDelivered)
+			if(isIgnoreAdditionalLoadingDocument ? CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument : CanChangeStatusToDelivered)
 			{
 				ChangeStatus(RouteListStatus.Delivered);
 			}
