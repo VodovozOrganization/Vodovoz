@@ -32,6 +32,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			{ SmsPaymentStatus.ReadyToSend, SmsPaymentStatus.Cancelled };
 
 		private readonly bool _canSendSmsForAdditionalOrderStatuses;
+		private readonly bool _canChangeDiscountValue;
 		private Phone _selectedPhone;
 		private Counterparty _counterparty;
 		private Order _order;
@@ -59,6 +60,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			_orderPermissionResult = currentPermissionService.ValidateEntityPermission(typeof(Order));
 			_canSendSmsForAdditionalOrderStatuses =
 				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
+			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			Configure();
 		}
 
@@ -80,9 +82,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				};
 			}
 			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
-
-			//блокируем отправку смс
-			ySendSmsButton.Sensitive = false;
+			
+			ySendSmsButton.Sensitive = _canChangeDiscountValue;
 			ySendSmsButton.Pressed += OnSendSmsButtonPressed;
 			btnSendFastPaymentUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
 		}
@@ -270,7 +271,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			//ySendSmsButton.Sensitive = _orderPermissionResult.CanRead;
+			ySendSmsButton.Sensitive = _canChangeDiscountValue;
 			yPhonesListTreeView.ItemsDataSource = _counterparty.Phones;
 		}
 
