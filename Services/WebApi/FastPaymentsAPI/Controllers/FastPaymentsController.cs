@@ -196,22 +196,6 @@ namespace FastPaymentsAPI.Controllers
 						}
 						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
 						{
-							var fastPaymentWithQR = !string.IsNullOrWhiteSpace(fastPayment.QRPngBase64);
-							var fastPaymentFromOnline = fastPayment.OnlineOrderId.HasValue;
-							
-							if(!fastPaymentWithQR && !fastPaymentFromOnline)
-							{
-								_logger.LogInformation($"Посылаем запрос в банк на отмену сессии оплаты: {ticket}");
-								var cancelPaymentResponse = await _fastPaymentOrderModel.CancelPayment(ticket);
-						
-								if(cancelPaymentResponse.ResponseCode != 0)
-								{
-									_logger.LogError($"Не удалось отменить сессию: {ticket} код: {cancelPaymentResponse.ResponseCode}");
-									response.ErrorMessage = "Не удалось отменить сессию оплаты";
-									return response;
-								}
-							}
-
 							_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
 							_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 						}
