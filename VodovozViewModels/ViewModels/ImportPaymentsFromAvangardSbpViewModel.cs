@@ -23,7 +23,9 @@ namespace Vodovoz.ViewModels
 		private const string _help = "<b>Загрузка реестра оплат</b>:\n" +
 									"Для выгрузки данных, необходимо выбрать файл с реестром оплат из Авангарда\n" +
 									"и нажать \"Прочитать данные из файла\"\n" +
-									"Загружать можно только файлы с расширением .csv и\n" +
+									"Загружать можно только файлы с расширением .csv\n" +
+									"При загрузке идет проверка на дубли, как в уже подгруженных платежах так и тех, что сохранены в БД\n" +
+									"Также отрицательные платежи не загружаются из реестра, если таковые имеются\n" +
 									"<b>Сохранение данных</b>:\n" +
 									"Производится по кнопке \"Загрузить\"";
 
@@ -131,7 +133,7 @@ namespace Vodovoz.ViewModels
 							countDuplicates = default(int);
 							CheckForDuplicates(ParseData());
 							
-							var paymentsSum = AvangardPayments.Sum(p => p.OrderSum);
+							var paymentsSum = AvangardPayments.Sum(p => p.TotalSum);
 							ProgressTitle = $"{_doneProgress}. Загружено платежей <b>{AvangardPayments.Count}шт.</b>" +
 								$" на сумму: <b>{paymentsSum.ToShortCurrencyString()}</b> " +
 								$"Не загружено дублей: <b>{countDuplicates}шт.</b>";
@@ -176,7 +178,7 @@ namespace Vodovoz.ViewModels
 		{
 			foreach(var node in parsedData)
 			{
-				if(node.OrderSum < 0)
+				if(node.TotalSum < 0)
 				{
 					continue;
 				}
@@ -184,9 +186,9 @@ namespace Vodovoz.ViewModels
 				var curPayment = AvangardPayments.SingleOrDefault(
 					x => x.PaidDate == node.PaidDate
 						&& x.OrderNum == node.OrderNum
-						&& x.OrderSum == node.OrderSum);
+						&& x.TotalSum == node.TotalSum);
 
-				if(curPayment != null || _paymentsRepository.PaymentFromAvangardExists(UoW, node.PaidDate, node.OrderNum, node.OrderSum))
+				if(curPayment != null || _paymentsRepository.PaymentFromAvangardExists(UoW, node.PaidDate, node.OrderNum, node.TotalSum))
 				{
 					countDuplicates++;
 					continue;

@@ -19,7 +19,7 @@
       <Textbox Name="Textbox2">
         <Height>19.57pt</Height>
         <Width>814.05pt</Width>
-        <Value>='Отчет по оплатам Online c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
+        <Value>='Отчет по оплатам СБП Авангарда c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.8pt</Left>
         <Top>0.6pt</Top>
@@ -164,7 +164,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>Номер оплаты и магазин</Value>
+                      <Value>Номер оплаты</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -410,7 +410,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>={number_and_shop}</Value>
+                      <Value>={number}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -747,19 +747,7 @@
             <Width>61.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.4pt</Width>
-          </TableColumn>
-          <TableColumn>
             <Width>68.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>171.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>141.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>159.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -803,77 +791,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox38">
-                      <Value>Магазин</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox27">
                       <Value>Сумма (р.)</Value>
                       <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Value>Электронная почта</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>Номер телефона</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>Клиент</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -899,7 +819,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>=Fields!date_and_time.Value</Value>
+                      <Value>={paid_date}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -921,29 +841,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>=Fields!number.Value</Value>
+                      <Value>={order_num}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox39">
-                      <Value>={shop}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -962,7 +862,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>=Fields!total_sum.Value</Value>
+                      <Value>={total_sum}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -977,68 +877,6 @@
                         <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                         <Format>#,##0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox33">
-                      <Value>=Fields!email.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox34">
-                      <Value>=Fields!phone.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>Нет</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>General</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1094,7 +932,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -1125,7 +963,7 @@
     TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(author.name, 1), LEFT(author.patronymic, 1), author.last_name)) AS author,
     IFNULL(
             DATE_FORMAT(
-                    p.date_and_time,
+                    p.paid_date,
                     '%d.%m.%Y %H:%i:%s'
                 ),
             'оплата не найдена'
@@ -1170,43 +1008,20 @@
             END
         ) AS underpayment_number,
     o.delivery_date &gt; @endDate AS is_future_order,
-    IF(p.shop IS NULL, o.online_order, CONCAT(p.number, '\n', p.shop)) AS number_and_shop
+    p.order_num AS number
     #для отладки на тестовых БД. Для того, чтоб увидеть заказы на будущие даты
     #o.delivery_date &gt; '2018-10-03' AS is_future_order
 FROM
     orders o
-    LEFT JOIN
+        LEFT JOIN
     (
         Select
             o_online.id as order_id,
-            p_online.*
+            p_avangard.*
         From orders o_online
-        JOIN payments_by_card_online p_online on p_online.number = o_online.online_order
-            AND p_online.date_and_time &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
-            AND p_online.date_and_time &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
-            AND p_online.payment_by_card_from IN ('FromVodovozWebSite', 'FromTinkoff')
-
-        UNION
-
-        Select
-            o_e_shop.id as order_id,
-            p_e_shop.*
-        From orders o_e_shop
-        JOIN payments_by_card_online p_e_shop on p_e_shop.number = o_e_shop.e_shop_order
-            AND p_e_shop.date_and_time &gt; DATE_ADD(o_e_shop.create_date, INTERVAL -10 DAY)
-            AND p_e_shop.date_and_time &lt; DATE_ADD(o_e_shop.create_date, INTERVAL 10 DAY)
-            AND p_e_shop.payment_by_card_from = 'FromEShop'
-
-        UNION
-
-        Select
-            o_sms.id as order_id,
-            p_sms.*
-        From orders o_sms
-        JOIN payments_by_card_online p_sms on p_sms.number = o_sms.id
-            AND p_sms.date_and_time &gt; DATE_ADD(o_sms.create_date, INTERVAL -10 DAY)
-            AND p_sms.date_and_time &lt; DATE_ADD(o_sms.create_date, INTERVAL 10 DAY)
-            AND p_sms.payment_by_card_from = 'FromSMS'
+        JOIN payments_from_avangard p_avangard on p_avangard.order_num = o_online.online_order
+            AND p_avangard.paid_date &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
+            AND p_avangard.paid_date &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
     ) as p on p.order_id = o.id
         LEFT JOIN
     counterparty c ON c.id = o.client_id
@@ -1217,34 +1032,36 @@ FROM
         LEFT JOIN
     (
         SELECT
-            i.order_id AS id,
+            o_sub.id AS order_id,
             SUM(ROUND(price * IFNULL(actual_count, count) - discount_money, 2)) AS total
         FROM
-            order_items i
+            orders o_sub
+        JOIN
+            order_items i ON o_sub.id = i.order_id
+        WHERE 
+            o_sub.payment_type = 'ByCard'
+                AND o_sub.online_order IS NOT NULL
+                AND o_sub.delivery_date &gt;= @startDate
+                AND o_sub.delivery_date &lt;= @endDate
         GROUP BY
             i.order_id
-    ) o_sum ON o_sum.id = o.id
+    ) o_sum ON o.id = o_sum.order_id
 WHERE
-    o.payment_type = 'ByCard' 
-    AND o.online_order IS NOT NULL
-    AND o.delivery_date &gt;= @startDate
-    AND o.delivery_date &lt;= @endDate
-    AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
-ORDER BY order_satus_numbered DESC
-;</CommandText>
+    o.payment_type = 'ByCard'
+        AND o.online_order IS NOT NULL
+        AND o.delivery_date &gt;= @startDate
+        AND o.delivery_date &lt;= @endDate
+ORDER BY order_satus_numbered DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!startDate</Value>
-          </QueryParameter>
-          <QueryParameter Name="shop">
-            <Value>=Parameters!shop</Value>
           </QueryParameter>
           <QueryParameter Name="endDate">
             <Value>=Parameters!endDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1303,102 +1120,58 @@ ORDER BY order_satus_numbered DESC
         </Field>
         <Field Name="is_future_order">
           <DataField>is_future_order</DataField>
-          <TypeName>System.Int64</TypeName>
+          <TypeName>System.Boolean</TypeName>
         </Field>
-        <Field Name="number_and_shop">
-          <DataField>number_and_shop</DataField>
-          <TypeName>System.String</TypeName>
+        <Field Name="number">
+          <DataField>number</DataField>
+          <TypeName>System.Int64</TypeName>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT *
-FROM payments_by_card_online pbco
-WHERE 
-(
-    (   
-        number NOT IN(
+FROM payments_from_avangard pfa
+WHERE
+    (
+        order_num NOT IN
+        (      
             SELECT online_order
             FROM orders
-            WHERE online_order IS NOT NULL 
-                AND delivery_date &gt;= @startDate
-        )
-        AND payment_by_card_from IN ('FromVodovozWebSite', 'FromTinkoff')
-    )
-    OR
-    (
-        number NOT IN(
-            SELECT id
-            FROM orders
             WHERE online_order IS NOT NULL
-                AND delivery_date &gt;= @startDate
+              AND delivery_date &gt;= @startDate
         )
-        AND payment_by_card_from = 'FromSMS'
     )
-    OR
-    (
-        NOT EXISTS(
-            SELECT e_shop_order
-            FROM orders o
-            WHERE online_order IS NOT NULL
-                AND delivery_date &gt;= @startDate
-                AND o.e_shop_order = pbco.number
-        )
-        AND payment_by_card_from = 'FromEShop'
-    )
-)
-AND pbco.date_and_time &gt;= @startDate
-AND pbco.date_and_time &lt;= @endDate
-AND (@shop = 'ALL' OR pbco.shop = @shop OR pbco.shop IS NULL)
-ORDER BY pbco.date_and_time DESC
-;</CommandText>
+  AND pfa.paid_date &gt;= @startDate
+  AND pfa.paid_date &lt;= @endDate
+ORDER BY pfa.paid_date DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!startDate</Value>
-          </QueryParameter>
-          <QueryParameter Name="shop">
-            <Value>=Parameters!shop</Value>
           </QueryParameter>
           <QueryParameter Name="endDate">
             <Value>=Parameters!endDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
-        <Field Name="number">
-          <DataField>number</DataField>
+        <Field Name="order_num">
+          <DataField>order_num</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="total_sum">
           <DataField>total_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="status">
-          <DataField>status</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="date_and_time">
-          <DataField>date_and_time</DataField>
+        <Field Name="paid_date">
+          <DataField>paid_date</DataField>
           <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="email">
-          <DataField>email</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="phone">
-          <DataField>phone</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="shop">
-          <DataField>shop</DataField>
-          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1414,7 +1187,7 @@ ORDER BY pbco.date_and_time DESC
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1429,13 +1202,6 @@ ORDER BY pbco.date_and_time DESC
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="endDate">
-      <DataType>String</DataType>
-      <Nullable>true</Nullable>
-      <AllowBlank>true</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
-    </ReportParameter>
-    <ReportParameter Name="shop">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>

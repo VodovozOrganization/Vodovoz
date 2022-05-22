@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping.Payments
 			
 			Map(x => x.PaidDate).Column("paid_date");
 			Map(x => x.OrderNum).Column("order_num");
-			Map(x => x.OrderSum).Column("order_sum");
+			Map(x => x.TotalSum).Column("total_sum");
 		}
 	}
 }

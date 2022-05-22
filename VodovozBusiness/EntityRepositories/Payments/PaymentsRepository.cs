@@ -265,7 +265,7 @@ namespace Vodovoz.EntityRepositories.Payments
 			var payment = uow.Session.QueryOver<PaymentFromAvangard>()
 				.Where(p => p.OrderNum == orderNum)
 				.And(p => p.PaidDate == paidDate)
-				.And(p => p.OrderSum == orderSum)
+				.And(p => p.TotalSum == orderSum)
 				.SingleOrDefault<PaymentFromAvangard>();
 			
 			return payment != null;

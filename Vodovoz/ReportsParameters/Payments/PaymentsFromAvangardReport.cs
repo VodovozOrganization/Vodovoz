@@ -16,14 +16,13 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		void Configure()
 		{
-			dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
-			dateperiodpicker.EndDate = DateTime.Today;
-			rbtnYesterday.Active = true;
 			SetControlsAccessibility();
 			rbtnLast3Days.Clicked += OnRbtnLast3DaysToggled;
 			rbtnYesterday.Clicked += OnRbtnYesterdayToggled;
 			rbtnCustomPeriod.Clicked += OnCustomPeriodChanged;
 			dateperiodpicker.PeriodChangedByUser += OnCustomPeriodChanged;
+			buttonRun.Clicked += OnButtonRunClicked;
+			rbtnYesterday.Active = true;
 		}
 
 		void SetControlsAccessibility()
@@ -39,7 +38,7 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		#endregion
 
-		protected void OnButtonRunClicked(object sender, EventArgs e)
+		private void OnButtonRunClicked(object sender, EventArgs e)
 		{
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
@@ -58,7 +57,7 @@ namespace Vodovoz.ReportsParameters.Payments
 			return info;
 		}
 
-		protected void OnRbtnLast3DaysToggled(object sender, EventArgs e)
+		private void OnRbtnLast3DaysToggled(object sender, EventArgs e)
 		{
 			if(rbtnLast3Days.Active)
 			{
@@ -69,17 +68,16 @@ namespace Vodovoz.ReportsParameters.Payments
 			SetControlsAccessibility();
 		}
 
-		protected void OnRbtnYesterdayToggled(object sender, EventArgs e)
+		private void OnRbtnYesterdayToggled(object sender, EventArgs e)
 		{
 			if(rbtnYesterday.Active)
 			{
-				dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
-				dateperiodpicker.EndDate = DateTime.Today;
+				dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today.AddDays(-1);
 			}
 			SetControlsAccessibility();
 		}
 
-		protected void OnCustomPeriodChanged(object sender, EventArgs e)
+		private void OnCustomPeriodChanged(object sender, EventArgs e)
 		{
 			SetControlsAccessibility();
 		}

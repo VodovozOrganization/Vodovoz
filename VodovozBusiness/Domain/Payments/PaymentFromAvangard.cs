@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Payments
 	{
 		private DateTime _paidDate;
 		private int _orderNum;
-		private decimal _orderSum;
+		private decimal _totalSum;
 		
 		public virtual int Id { get; set; }
 
@@ -23,10 +23,10 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref _orderNum, value);
 		}
 		
-		public virtual decimal OrderSum
+		public virtual decimal TotalSum
 		{
-			get => _orderSum;
-			set => SetField(ref _orderSum, value);
+			get => _totalSum;
+			set => SetField(ref _totalSum, value);
 		}
 	}
 }

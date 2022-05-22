@@ -20,7 +20,7 @@ namespace Vodovoz.Factories
 			{
 				PaidDate = node.PaidDate,
 				OrderNum = node.OrderNum,
-				OrderSum = node.OrderSum
+				TotalSum = node.TotalSum
 			};
 
 			return payment;
@@ -32,7 +32,7 @@ namespace Vodovoz.Factories
 			{
 				PaidDate = DateTime.Parse(data[0]),
 				OrderNum = int.Parse(data[13]),
-				OrderSum = decimal.Parse(data[8], _culture)
+				TotalSum = decimal.Parse(data[8], _culture)
 			};
 
 			return node;
@@ -43,7 +43,6 @@ namespace Vodovoz.Factories
 	{
 		public DateTime PaidDate { get; set; }
 		public int OrderNum { get; set; }
-		public decimal OrderSum { get; set; }
-		public bool isCheckedForDuplicate { get; set; }
+		public decimal TotalSum { get; set; }
 	}
 }

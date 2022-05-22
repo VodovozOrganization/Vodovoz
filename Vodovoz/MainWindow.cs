@@ -2561,7 +2561,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromAvangardReport>(),
-			() => new QSReport.ReportViewDlg(autofacScope.Resolve<PaymentsFromAvangardReport>())
+			() => new QSReport.ReportViewDlg(new PaymentsFromAvangardReport())
 		);
 	}
 }

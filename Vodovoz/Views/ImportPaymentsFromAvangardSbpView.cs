@@ -66,7 +66,7 @@ namespace Vodovoz.Views
 					.XAlign(0.5f)
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.OrderSum.ToShortCurrencyString())
+					.AddTextRenderer(n => n.TotalSum.ToShortCurrencyString())
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
