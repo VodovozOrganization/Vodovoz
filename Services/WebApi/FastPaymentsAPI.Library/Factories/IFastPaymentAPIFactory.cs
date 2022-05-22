@@ -22,6 +22,7 @@ namespace FastPaymentsAPI.Library.Factories
 			DateTime creationDate,
 			Guid fastPaymentGuid,
 			decimal orderSum,
+			int externalId,
 			Order order = null,
 			string phoneNumber = null,
 			int? onlineOrderId = null);
