@@ -149,7 +149,7 @@ namespace FastPaymentsAPI.Controllers
 
 		[HttpGet]
 		[Route("/api/RegisterOrder")]
-		public async Task<FastPaymentResponseDTO> RegisterOrder(int orderId, string phoneNumber)
+		public async Task<FastPaymentResponseDTO> RegisterOrder(int orderId, string phoneNumber, bool isQr)
 		{
 			_logger.LogInformation($"Поступил запрос на отправку платежа с данными orderId: {orderId}, phoneNumber: {phoneNumber}");
 
@@ -217,7 +217,7 @@ namespace FastPaymentsAPI.Controllers
 				try
 				{
 					_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid, phoneNumber);
+					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid, phoneNumber, isQr);
 
 					if(orderRegistrationResponseDto.ResponseCode != 0)
 					{
@@ -260,7 +260,7 @@ namespace FastPaymentsAPI.Controllers
 		[HttpPost]
 		[Route("/api/RegisterOrder")]
 		public async Task<FastPaymentResponseDTO> RegisterOrder([FromBody] FastPaymentRequestDTO fastPaymentRequestDto) =>
-			await RegisterOrder(fastPaymentRequestDto.OrderId, fastPaymentRequestDto.PhoneNumber);
+			await RegisterOrder(fastPaymentRequestDto.OrderId, fastPaymentRequestDto.PhoneNumber, fastPaymentRequestDto.IsQr);
 		
 		/// <summary>
 		/// Эндпойнт для регистрации онлайн-заказа и получения ссылки на платежную страницу
