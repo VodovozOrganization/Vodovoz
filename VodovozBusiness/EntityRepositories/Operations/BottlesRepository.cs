@@ -14,7 +14,7 @@ namespace Vodovoz.EntityRepositories.Operations
 {
 	public class BottlesRepository : IBottlesRepository
 	{
-		public int GetBottlesAtCounterparty(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
+		public int GetBottlesDebtAtCounterparty(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
@@ -31,7 +31,7 @@ namespace Vodovoz.EntityRepositories.Operations
 			return bottles;
 		}
 
-		public int GetBottlesAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, DateTime? before = null)
+		public int GetBottlesDebtAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
@@ -49,7 +49,7 @@ namespace Vodovoz.EntityRepositories.Operations
 			return bottles;
 		}
 
-		public int GetBottlesAtCouterpartyAndDeliveryPoint(IUnitOfWork UoW, Counterparty counterparty, DeliveryPoint deliveryPoint, DateTime? before = null)
+		public int GetBottlesDebtAtCouterpartyAndDeliveryPoint(IUnitOfWork UoW, Counterparty counterparty, DeliveryPoint deliveryPoint, DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;

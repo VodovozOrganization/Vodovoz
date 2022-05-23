@@ -311,10 +311,8 @@ namespace DriverAPI.Library.Models
 			{
 				if(!string.IsNullOrWhiteSpace(driverComment))
 				{
-					vodovozOrder.CommentManager =
-						string.IsNullOrWhiteSpace(vodovozOrder.CommentManager)
-							? driverComment
-							: vodovozOrder.CommentManager + Environment.NewLine + driverComment;
+					vodovozOrder.DriverMobileAppComment = driverComment;
+					vodovozOrder.DriverMobileAppCommentTime = recievedTime;
 				}
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;

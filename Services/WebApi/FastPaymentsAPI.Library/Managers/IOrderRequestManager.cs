@@ -9,7 +9,7 @@ namespace FastPaymentsAPI.Library.Managers
 	public interface IOrderRequestManager
 	{
 		string GetVodovozFastPayUrl(Guid fastPaymentGuid);
-		Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null);
+		Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null, bool isQr = true);
 		Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(RequestRegisterOnlineOrderDTO registerOnlineOrderDto);
 		Task<OrderInfoResponseDTO> GetOrderInfo(string ticket);
 		Task<CancelPaymentResponseDTO> CancelPayment(string ticket);

@@ -14,10 +14,21 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    o.delivery_date,
     distr.district_name AS d_name,
     gg.name as gg_name,
-     NULLIF(
+    ord.*
+FROM
+    districts distr
+        INNER JOIN
+    geographic_groups gg ON distr.geographic_group_id = gg.id 
+        INNER JOIN
+    districts_sets ds ON ds.id = distr.districts_set_id AND ds.status ='Active'
+        LEFT JOIN  
+    (
+    SELECT
+            dp.district_id,
+            o.delivery_date,
+    NULLIF(
             COUNT(DISTINCT IF(
                         o.is_fast_delivery, o.id, NULL
                 )), 0) AS orders_fast_delivery,
@@ -64,30 +75,30 @@
     COUNT(DISTINCT o.id) AS total_orders_count,
     SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', cast(i.count as SIGNED), NULL)) AS total_bottles_count,
     HOUR(dsch.to_time) AS delivery_schedule
-FROM
+        FROM
     orders o
         LEFT JOIN
     order_items i ON o.id = i.order_id
-        INNER JOIN
-    delivery_points dp ON dp.id = o.delivery_point_id
         LEFT JOIN
     nomenclature n ON i.nomenclature_id = n.id
-        INNER JOIN
-    districts distr ON dp.district_id = distr.id
-        LEFT JOIN
-    geographic_groups gg on distr.geographic_group_id = gg.id
         LEFT JOIN
     delivery_schedule dsch ON o.delivery_schedule_id = dsch.id
-WHERE
-        o.order_status NOT IN ('Canceled','NewOrder','WaitForPayment')
-  AND DATE(o.delivery_date) &gt;= DATE(@start_date) AND DATE(o.delivery_date) &lt;= DATE(@end_date)
-  AND o.delivery_schedule_id IS NOT NULL
-  AND NOT o.is_contract_closer
-  AND o.order_address_type != 'Service'
-  AND (@geographic_group_id = '' OR distr.geographic_group_id = @geographic_group_id)
-  AND NOT o.self_delivery
-GROUP BY distr.id, o.delivery_date
-ORDER BY d_name, delivery_date;</CommandText>
+        INNER JOIN
+    delivery_points dp ON dp.id = o.delivery_point_id    
+        WHERE
+    o.order_status NOT IN ('Canceled','NewOrder','WaitForPayment')
+    AND DATE(o.delivery_date) &gt;= DATE(@start_date) AND DATE(o.delivery_date) &lt;= DATE(@end_date)
+    AND o.delivery_schedule_id IS NOT NULL
+    AND NOT o.is_contract_closer
+    AND o.order_address_type != 'Service'
+    AND NOT o.self_delivery  
+        GROUP BY dp.district_id
+    ) ord ON ord.district_id = distr.id
+       WHERE
+    (@geographic_group_id = '' OR distr.geographic_group_id = @geographic_group_id)
+    AND (@tariff_zone_id = '' OR distr.tariff_zone_id = @tariff_zone_id)
+GROUP BY distr.id
+ORDER BY d_name;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -100,6 +111,12 @@ ORDER BY d_name, delivery_date;</CommandText>
           </QueryParameter>
           <QueryParameter Name="geographic_group_name">
             <Value>={?geographic_group_name}</Value>
+          </QueryParameter>
+          <QueryParameter Name="tariff_zone_id">
+            <Value>={?tariff_zone_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="tariff_zone_name">
+            <Value>={?tariff_zone_name}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -191,6 +208,19 @@ ORDER BY d_name, delivery_date;</CommandText>
           <BorderWidth />
         </Style>
       </Textbox>
+      <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14pt</Height>
+        <Width>400pt</Width>
+        <Value>=Iif(Len({?tariff_zone_name})&gt;0, "Тарифная зона: " + {?tariff_zone_name}, "")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>407.1pt</Left>
+        <Top>19pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
@@ -218,7 +248,7 @@ ORDER BY d_name, delivery_date;</CommandText>
           </BorderWidth>
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>26.4pt</Width>
           </TableColumn>
           <TableColumn>
@@ -230,10 +260,10 @@ ORDER BY d_name, delivery_date;</CommandText>
           <TableColumn>
             <Width>60.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>51.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
@@ -266,7 +296,7 @@ ORDER BY d_name, delivery_date;</CommandText>
             <TableRow>
               <Height>26.0pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
                       <Value>№</Value>
@@ -334,7 +364,7 @@ ORDER BY d_name, delivery_date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
                       <Value>Доставка за час</Value>
@@ -429,7 +459,7 @@ ORDER BY d_name, delivery_date;</CommandText>
             <TableRow>
               <Height>26.0pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value></Value>
@@ -497,7 +527,7 @@ ORDER BY d_name, delivery_date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
                       <Value>Заказы</Value>
@@ -514,7 +544,7 @@ ORDER BY d_name, delivery_date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
                       <Value>Бутыли</Value>
@@ -677,7 +707,7 @@ ORDER BY d_name, delivery_date;</CommandText>
             <TableRow>
               <Height>14.4pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>=RowNumber()</Value>
@@ -769,7 +799,7 @@ ORDER BY d_name, delivery_date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>={orders_fast_delivery}</Value>
@@ -791,7 +821,7 @@ ORDER BY d_name, delivery_date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value>={bottles_fast_delivery}</Value>
@@ -809,7 +839,7 @@ ORDER BY d_name, delivery_date;</CommandText>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >N0</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -982,7 +1012,7 @@ ORDER BY d_name, delivery_date;</CommandText>
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value></Value>
@@ -1070,7 +1100,7 @@ ORDER BY d_name, delivery_date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
                       <Value>=Sum({orders_fast_delivery})</Value>
@@ -1092,7 +1122,7 @@ ORDER BY d_name, delivery_date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
                       <Value>=Sum({bottles_fast_delivery})</Value>
@@ -1110,7 +1140,7 @@ ORDER BY d_name, delivery_date;</CommandText>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >N0</Format>
+                        <Format>N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1327,29 +1357,43 @@ ORDER BY d_name, delivery_date;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geographic_group_id">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geographic_group_name">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="tariff_zone_id">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="tariff_zone_name">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
