@@ -32,11 +32,13 @@ namespace Vodovoz.SidePanel.InfoViews
 			{ SmsPaymentStatus.ReadyToSend, SmsPaymentStatus.Cancelled };
 
 		private readonly bool _canSendSmsForAdditionalOrderStatuses;
-		private readonly bool _canChangeDiscountValue;
+		private readonly bool _canSendSmsForPayFromYookassa;
+		private readonly bool _canSendSmsForPayFromSbpByCard;
 		private Phone _selectedPhone;
 		private Counterparty _counterparty;
 		private Order _order;
 		private bool _isPaidOrder;
+		
 
 		public SmsSendPanelView(
 			ICommonServices commonServices,
@@ -60,7 +62,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			_orderPermissionResult = currentPermissionService.ValidateEntityPermission(typeof(Order));
 			_canSendSmsForAdditionalOrderStatuses =
 				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
-			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
+			_canSendSmsForPayFromYookassa = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_yookassa");
+			_canSendSmsForPayFromSbpByCard = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_sbp_by_card");
 			Configure();
 		}
 
@@ -82,9 +85,13 @@ namespace Vodovoz.SidePanel.InfoViews
 				};
 			}
 			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
-			
+
+			ySendSmsButton.Sensitive = _canSendSmsForPayFromYookassa;
+			btnSendFastPaymentPayByCardUrlBySms.Sensitive = _canSendSmsForPayFromSbpByCard;
+				
 			ySendSmsButton.Pressed += OnSendSmsButtonPressed;
-			btnSendFastPaymentUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
+			btnSendFastPaymentPayByQrUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
+			btnSendFastPaymentPayByCardUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
 		}
 
 		private void OnSendSmsButtonPressed(object btn, EventArgs args)
@@ -158,10 +165,11 @@ namespace Vodovoz.SidePanel.InfoViews
 				}
 			}
 
-			ySendSmsButton.Sensitive = false;
+			btnSendFastPaymentPayByQrUrlBySms.Sensitive = btnSendFastPaymentPayByCardUrlBySms.Sensitive = ySendSmsButton.Sensitive = false;
 			GLib.Timeout.Add(10000, () =>
 			{
-				ySendSmsButton.Sensitive = true;
+				btnSendFastPaymentPayByQrUrlBySms.Sensitive =
+					btnSendFastPaymentPayByCardUrlBySms.Sensitive = ySendSmsButton.Sensitive = true;
 				return false;
 			});
 
@@ -221,19 +229,21 @@ namespace Vodovoz.SidePanel.InfoViews
 				}
 			}
 
-			btnSendFastPaymentUrlBySms.Sensitive = false;
+			btnSendFastPaymentPayByQrUrlBySms.Sensitive = btnSendFastPaymentPayByCardUrlBySms.Sensitive = ySendSmsButton.Sensitive = false;
 			GLib.Timeout.Add(10000, () =>
 			{
 				if(!_isPaidOrder)
 				{
-					btnSendFastPaymentUrlBySms.Sensitive = true;
+					btnSendFastPaymentPayByQrUrlBySms.Sensitive =
+						btnSendFastPaymentPayByCardUrlBySms.Sensitive = ySendSmsButton.Sensitive = true;
 				}
 
 				return false;
 			});
 
+			var isQr = (btn as yButton)?.Name == nameof(btnSendFastPaymentPayByQrUrlBySms);
 			var smsSender = new SmsSender(_fastPaymentParametersProvider, InstantSmsServiceSetting.GetInstantSmsService());
-			var resultTask = smsSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text);
+			var resultTask = smsSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text, isQr);
 			resultTask.Wait();
 			var result = resultTask.Result;
 
@@ -270,7 +280,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			ySendSmsButton.Sensitive = _orderPermissionResult.CanRead;
+			ySendSmsButton.Sensitive = _orderPermissionResult.CanRead && _canSendSmsForPayFromYookassa;
 			yPhonesListTreeView.ItemsDataSource = _counterparty.Phones;
 		}
 

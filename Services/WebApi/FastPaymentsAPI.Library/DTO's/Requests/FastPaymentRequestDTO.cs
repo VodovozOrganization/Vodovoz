@@ -4,5 +4,6 @@
 	{
 		public int OrderId { get; set; }
 		public string PhoneNumber { get; set; }
+		public bool IsQr { get; set; } = true;
 	}
 }

@@ -32,9 +32,10 @@ namespace FastPaymentsAPI.Library.Managers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 		}
 
-		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null)
+		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null,
+			bool isQr = true)
 		{
-			var orderDTO = GetOrderRegistrationRequestDTO(order, fastPaymentGuid, phoneNumber);
+			var orderDTO = GetOrderRegistrationRequestDTO(order, fastPaymentGuid, phoneNumber, isQr);
 			var xmlStringFromOrderDTO = _dtoManager.GetXmlStringFromDTO(orderDTO);
 
 			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
@@ -69,7 +70,8 @@ namespace FastPaymentsAPI.Library.Managers
 			return $"{_fastPaymentParametersProvider.GetVodovozFastPayBaseUrl}/{fastPaymentGuid}";
 		}
 
-		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(Order order, Guid fastPaymentGuid, string phoneNumber = null)
+		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(Order order, Guid fastPaymentGuid, string phoneNumber = null,
+			bool isQr = true)
 		{
 			var signatureParameters = _fastPaymentApiFactory.GetSignatureParamsForRegisterOrder(order.Id, order.OrderSum);
 			var signature = _signatureManager.GenerateSignature(signatureParameters);
@@ -78,19 +80,23 @@ namespace FastPaymentsAPI.Library.Managers
 			if(phoneNumber == null)
 			{
 				orderRegistrationRequestDTO.ReturnQRImage = 1;
+				orderRegistrationRequestDTO.IsQR = 1;
 				orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetQRLifetime;
 				orderRegistrationRequestDTO.BackUrl = _fastPaymentParametersProvider.GetFastPaymentBackUrl;
 			}
 			else
 			{
+				if(isQr)
+				{
+					orderRegistrationRequestDTO.IsQR = 1;
+					orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetPayUrlLifetime;
+				}
+				
 				var backUrl = GetVodovozFastPayUrl(fastPaymentGuid);
-				orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetPayUrlLifetime;
 				orderRegistrationRequestDTO.BackUrl = backUrl;
 				orderRegistrationRequestDTO.BackUrlOk = backUrl;
 				orderRegistrationRequestDTO.BackUrlFail = backUrl;
 			}
-			
-			orderRegistrationRequestDTO.IsQR = 1;
 
 			return orderRegistrationRequestDTO;
 		}
