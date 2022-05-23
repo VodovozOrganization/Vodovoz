@@ -84,7 +84,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
 			
 			ySendSmsButton.Pressed += OnSendSmsButtonPressed;
-			btnSendFastPaymentUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
+			btnSendFastPaymentPayByQrUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
+			btnSendFastPaymentPayByCardUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
 		}
 
 		private void OnSendSmsButtonPressed(object btn, EventArgs args)
@@ -221,19 +222,20 @@ namespace Vodovoz.SidePanel.InfoViews
 				}
 			}
 
-			btnSendFastPaymentUrlBySms.Sensitive = false;
+			btnSendFastPaymentPayByQrUrlBySms.Sensitive = btnSendFastPaymentPayByCardUrlBySms.Sensitive = false;
 			GLib.Timeout.Add(10000, () =>
 			{
 				if(!_isPaidOrder)
 				{
-					btnSendFastPaymentUrlBySms.Sensitive = true;
+					btnSendFastPaymentPayByQrUrlBySms.Sensitive = btnSendFastPaymentPayByCardUrlBySms.Sensitive = true;
 				}
 
 				return false;
 			});
 
+			var isQr = (btn as yButton).Name == nameof(btnSendFastPaymentPayByQrUrlBySms);
 			var smsSender = new SmsSender(_fastPaymentParametersProvider, InstantSmsServiceSetting.GetInstantSmsService());
-			var resultTask = smsSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text);
+			var resultTask = smsSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text, isQr);
 			resultTask.Wait();
 			var result = resultTask.Result;
 
