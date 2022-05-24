@@ -60,7 +60,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result;
 		}
 
-		public bool AddressHasAlreadyBeenUsedForPromo( IUnitOfWork uow, DeliveryPoint deliveryPoint )
+		public bool AddressHasAlreadyBeenUsedForPromo(IUnitOfWork uow, DeliveryPoint deliveryPoint)
 		{
 			VodovozOrder ordersAlias = null;
 			PromotionalSet promotionalSetAlias = null;
@@ -69,10 +69,10 @@ namespace Vodovoz.EntityRepositories.Orders
 			var result = uow.Session.QueryOver(() => ordersAlias)
 									.JoinAlias(() => ordersAlias.PromotionalSets, () => promotionalSetAlias)
 									.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
-									.Where(() => deliveryPointAlias.City.IsLike( deliveryPoint.City, MatchMode.Anywhere)
-											   && deliveryPointAlias.Street.IsLike( deliveryPoint.Street, MatchMode.Anywhere)
-											   && deliveryPointAlias.Building.IsLike( deliveryPoint.Building, MatchMode.Anywhere)
-											   && deliveryPointAlias.Room.IsLike( deliveryPoint.Room, MatchMode.Anywhere)
+									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
+											   && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
+											   && deliveryPointAlias.Building.IsLike(deliveryPoint.Building, MatchMode.Anywhere)
+											   && deliveryPointAlias.Room.IsLike(deliveryPoint.Room, MatchMode.Anywhere)
 											   && promotionalSetAlias.ForTheFirstOrderOnlyToTheAddress
 											   && ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses()))
 									.List<VodovozOrder>();
@@ -81,7 +81,8 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		private static OrderStatus[] GetAcceptableStatuses()
 		{
-			return new[] {
+			return new[] 
+			{
 				OrderStatus.Accepted,
 				OrderStatus.InTravelList,
 				OrderStatus.WaitForPayment,
