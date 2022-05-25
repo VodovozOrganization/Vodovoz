@@ -683,7 +683,6 @@ public partial class MainWindow : Window
 	private void OnActionImportPaymentsFromAvangardActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ImportPaymentsFromAvangardSbpViewModel>(null);
-
 	}
 
 	private void OnActionUnallocatedBalancesJournalActivated(object sender, EventArgs e)

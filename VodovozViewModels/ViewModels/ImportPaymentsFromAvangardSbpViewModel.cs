@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels
 		private DelegateCommand _helpCommand;
 		private DelegateCommand _chooseFileCommand;
 		private DelegateCommand _parsePaymentRegistryCommand;
-		private int countDuplicates;
+		private int _countDuplicates;
 		private bool _canParsePayments;
 		private string _selectedFileTitle;
 		private string _selectedFilePath;
@@ -130,13 +130,13 @@ namespace Vodovoz.ViewModels
 					{
 						try
 						{
-							countDuplicates = default(int);
+							_countDuplicates = default(int);
 							CheckForDuplicates(ParseData());
 							
 							var paymentsSum = AvangardPayments.Sum(p => p.TotalSum);
 							ProgressTitle = $"{_doneProgress}. Загружено платежей <b>{AvangardPayments.Count}шт.</b>" +
 								$" на сумму: <b>{paymentsSum.ToShortCurrencyString()}</b> " +
-								$"Не загружено дублей: <b>{countDuplicates}шт.</b>";
+								$"Не загружено дублей: <b>{_countDuplicates}шт.</b>";
 						}
 						catch
 						{
@@ -190,7 +190,7 @@ namespace Vodovoz.ViewModels
 
 				if(curPayment != null || _paymentsRepository.PaymentFromAvangardExists(UoW, node.PaidDate, node.OrderNum, node.TotalSum))
 				{
-					countDuplicates++;
+					_countDuplicates++;
 					continue;
 				}
 
