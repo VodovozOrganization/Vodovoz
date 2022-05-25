@@ -168,8 +168,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			btnSendFastPaymentPayByQrUrlBySms.Sensitive = btnSendFastPaymentPayByCardUrlBySms.Sensitive = ySendSmsButton.Sensitive = false;
 			GLib.Timeout.Add(10000, () =>
 			{
-				btnSendFastPaymentPayByQrUrlBySms.Sensitive =
-					btnSendFastPaymentPayByCardUrlBySms.Sensitive = ySendSmsButton.Sensitive = true;
+				btnSendFastPaymentPayByQrUrlBySms.Sensitive = true;
+				btnSendFastPaymentPayByCardUrlBySms.Sensitive = _canSendSmsForPayFromSbpByCard;
+				ySendSmsButton.Sensitive = _canSendSmsForPayFromYookassa;
+
 				return false;
 			});
 
@@ -234,8 +236,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				if(!_isPaidOrder)
 				{
-					btnSendFastPaymentPayByQrUrlBySms.Sensitive =
-						btnSendFastPaymentPayByCardUrlBySms.Sensitive = ySendSmsButton.Sensitive = true;
+					btnSendFastPaymentPayByQrUrlBySms.Sensitive = true;
+					btnSendFastPaymentPayByCardUrlBySms.Sensitive = _canSendSmsForPayFromSbpByCard;
+					ySendSmsButton.Sensitive = _canSendSmsForPayFromYookassa;
 				}
 
 				return false;
