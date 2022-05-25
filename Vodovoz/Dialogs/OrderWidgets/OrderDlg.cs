@@ -891,15 +891,21 @@ namespace Vodovoz
 				return;
 			}
 
-			var verificationData =
-				new FastDeliveryVerificationData(
-					Entity.Id,
-					Entity.DeliveryPoint.ShortAddress,
-					(double)Entity.DeliveryPoint.Latitude.Value,
-					(double)Entity.DeliveryPoint.Longitude.Value,
-					Entity.GetAllGoodsToDeliver());
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
-				null, UoW, verificationData);
+			var fastDeliveryVerification = _deliveryRepository.GetRouteListsForFastDelivery(
+				UoW,
+				(double)Entity.DeliveryPoint.Latitude.Value,
+				(double)Entity.DeliveryPoint.Longitude.Value,
+				isGetClosestByRoute: false,
+				_deliveryRulesParametersProvider,
+				Entity.GetAllGoodsToDeliver(),
+				Entity
+			);
+
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification, _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm, Entity);
+
+			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerification, Order>(
+				null, UoW, fastDeliveryVerification, Entity);
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1542,27 +1548,28 @@ namespace Vodovoz
 					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
 				}
 
-				routeListToAddOrderTo = _deliveryRepository.GetRouteListForFastDelivery(
+				var fastDeliveryVerification = _deliveryRepository.GetRouteListsForFastDelivery(
 					UoW,
 					(double)Entity.DeliveryPoint.Latitude.Value,
 					(double)Entity.DeliveryPoint.Longitude.Value,
-					true,
+					isGetClosestByRoute: true,
 					_deliveryRulesParametersProvider,
-					Entity.GetAllGoodsToDeliver()
+					Entity.GetAllGoodsToDeliver(),
+					Entity
 				);
+
+				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification,  _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm, Entity);
+
+				routeListToAddOrderTo = fastDeliveryVerification
+					.FastDeliveryVerificationDetailsNodes
+					.FirstOrDefault(x => x.IsValidRLToFastDelivery)
+					?.RouteList;
 
 				if(routeListToAddOrderTo == null)
 				{
-					var verificationData =
-						new FastDeliveryVerificationData(
-							Entity.Id,
-							Entity.DeliveryPoint.ShortAddress,
-							(double)Entity.DeliveryPoint.Latitude.Value,
-							(double)Entity.DeliveryPoint.Longitude.Value,
-							Entity.GetAllGoodsToDeliver());
-
-					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
-						null, UoW, verificationData);
+					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerification, Order>(
+						null, UoW, fastDeliveryVerification, Entity);
 
 					return false;
 				}

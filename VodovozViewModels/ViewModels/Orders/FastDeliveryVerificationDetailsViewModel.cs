@@ -6,6 +6,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels.Dialog;
 using QS.Navigation;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
@@ -17,7 +18,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
-		private readonly FastDeliveryVerificationData _fastDeliveryVerificationData;
+		private readonly FastDeliveryVerification _fastDeliveryVerification;
 		private string _message;
 		
 		public FastDeliveryVerificationDetailsViewModel(
@@ -25,15 +26,16 @@ namespace Vodovoz.ViewModels.Orders
 			IDeliveryRepository deliveryRepository,
 			INavigationManager navigationManager,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-			FastDeliveryVerificationData fastDeliveryVerificationData) : base(navigationManager)
+			FastDeliveryVerification fastDeliveryVerification,
+			Order fastDeliveryOrder) : base(navigationManager)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_deliveryRulesParametersProvider =
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-			_fastDeliveryVerificationData = fastDeliveryVerificationData ?? throw new ArgumentNullException(nameof(fastDeliveryVerificationData));
+			_fastDeliveryVerification = fastDeliveryVerification ?? throw new ArgumentNullException(nameof(fastDeliveryVerification));
 			WindowPosition = WindowGravity.None;
-			DetailsTitle = $"Детализация по заказу№{fastDeliveryVerificationData.OrderId}, адрес: {fastDeliveryVerificationData.Address}";
+			DetailsTitle = $"Детализация по заказу№{fastDeliveryOrder.Id}, адрес: {fastDeliveryOrder.DeliveryPoint.ShortAddress}";
 			UpdateNodes();
 		}
 
@@ -49,41 +51,19 @@ namespace Vodovoz.ViewModels.Orders
 
 		private void UpdateNodes()
 		{
-			var fastOrders = _deliveryRepository.GetRouteListsForFastDelivery(
-				_uow, _fastDeliveryVerificationData.Latitude, _fastDeliveryVerificationData.Longitude, _deliveryRulesParametersProvider,
-				_fastDeliveryVerificationData.NomenclatureNodes);
-
-			foreach(var node in fastOrders)
+			foreach(var node in _fastDeliveryVerification.FastDeliveryVerificationDetailsNodes)
 			{
 				Nodes.Add(node);
+			}
+
+			if(_fastDeliveryVerification.AdditionalInformation != null)
+			{
+				Message = string.Join("\n", _fastDeliveryVerification.AdditionalInformation);
 			}
 
 			Message = Nodes.Any(x => x.IsValidRLToFastDelivery)
 				? "Есть доступные водители для быстрой доставки"
 				: "Нет доступных водителей для быстрой доставки";
 		}
-	}
-
-	public class FastDeliveryVerificationData
-	{
-		public FastDeliveryVerificationData(
-			int orderId,
-			string address,
-			double latitude,
-			double longitude,
-			IEnumerable<NomenclatureAmountNode> nomenclatureNodes)
-		{
-			OrderId = orderId;
-			Address = address;
-			Latitude = latitude;
-			Longitude = longitude;
-			NomenclatureNodes = nomenclatureNodes;
-		}
-		
-		public int OrderId { get; }
-		public string Address { get; }
-		public double Latitude { get; }
-		public double Longitude { get; }
-		public IEnumerable<NomenclatureAmountNode> NomenclatureNodes { get; }
 	}
 }
