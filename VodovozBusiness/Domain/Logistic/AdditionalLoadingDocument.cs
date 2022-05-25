@@ -49,6 +49,6 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool HasItemsNeededToLoad => Items.Any(item =>
 			!Nomenclature.GetCategoriesNotNeededToLoad().Contains(item.Nomenclature.Category)
-			&& !item.Nomenclature.NoDelivey);
+			&& !item.Nomenclature.NoDelivery);
 	}
 }

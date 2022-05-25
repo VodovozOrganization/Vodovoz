@@ -273,7 +273,7 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 
 			checkNoDeliver.Binding
-				.AddBinding(ViewModel.Entity, e => e.NoDelivey, w => w.Active)
+				.AddBinding(ViewModel.Entity, e => e.NoDelivery, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
