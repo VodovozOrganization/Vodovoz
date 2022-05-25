@@ -591,7 +591,9 @@ namespace Vodovoz.Domain.Logistic
 		/// <returns>Количество полных 19л бутылей</returns>
 		public virtual int TotalFullBottlesToClient => Addresses.Sum(a => a.GetFullBottlesToDeliverCount());
 
-		public virtual bool NeedToLoad => Addresses.Any(address => address.NeedToLoad);
+		public virtual bool NeedToLoad =>
+			Addresses.Any(address => address.NeedToLoad)
+			|| (AdditionalLoadingDocument != null && AdditionalLoadingDocument.HasItemsNeededToLoad);
 
 		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
 
