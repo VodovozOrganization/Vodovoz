@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Logistic
 	public class Track : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		public virtual int Id { get; set; }
 

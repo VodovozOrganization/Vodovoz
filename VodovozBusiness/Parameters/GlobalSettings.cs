@@ -13,6 +13,6 @@ namespace Vodovoz.Parameters
 		}
 		public string OsrmServiceUrl => _parametersProvider.GetStringValue("osrm_url");
 
-		public bool ExcludeToll =>  _parametersProvider.GetBoolValue("osrm_exclide_toll");
+		public bool ExcludeToll =>  _parametersProvider.GetBoolValue("osrm_exclude_toll");
 	}
 }

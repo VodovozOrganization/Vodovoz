@@ -25,7 +25,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 {
 	public class DeliveryRepository : IDeliveryRepository
 	{
-		readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		#region Получение районов по координатам
 

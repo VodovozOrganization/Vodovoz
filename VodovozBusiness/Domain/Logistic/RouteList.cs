@@ -82,7 +82,7 @@ namespace Vodovoz.Domain.Logistic
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		private CarVersion _carVersion;
 		private Car _car;

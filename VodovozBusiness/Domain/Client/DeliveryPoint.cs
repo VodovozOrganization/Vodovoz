@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Client
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		private TimeSpan? _lunchTimeFrom;
 		private TimeSpan? _lunchTimeTo;
