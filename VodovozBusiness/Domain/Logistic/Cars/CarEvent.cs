@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Logistic
 		private string _comment;
 		private bool _doNotShowInOperation;
 		private Insurance _insurance;
-		private decimal _price;
+		private decimal _repairCost;
 
 		#region Свойства
 
@@ -105,10 +105,10 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display( Name = "Стоимость ремонта" )]
-		public virtual decimal Price
+		public virtual decimal RepairCost
 		{
-			get => _price;
-			set => SetField( ref _price, value );
+			get => _repairCost;
+			set => SetField( ref _repairCost, value );
 		}
 
 		#endregion

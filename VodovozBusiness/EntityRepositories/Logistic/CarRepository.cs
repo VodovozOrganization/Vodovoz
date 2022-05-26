@@ -38,10 +38,5 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return rll.Any();
         }
-
-		public IList<Car> GetCars( IUnitOfWork uow )
-		{
-			return uow.Session.QueryOver<Car>().List();
-		}
 	}
 }
