@@ -2556,4 +2556,12 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<CarModelJournalViewModel>(null);
 	}
+
+	protected void OnActionPaymentsFromAvangardReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromAvangardReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromAvangardReport())
+		);
+	}
 }

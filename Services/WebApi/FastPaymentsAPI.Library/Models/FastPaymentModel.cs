@@ -85,6 +85,7 @@ namespace FastPaymentsAPI.Library.Models
 				creationDate,
 				fastPaymentGuid,
 				order.OrderSum,
+				orderId,
 				order,
 				phoneNumber);
 			fastPayment.SetProcessingStatus();
@@ -113,6 +114,7 @@ namespace FastPaymentsAPI.Library.Models
 				creationDate,
 				fastPaymentGuid,
 				onlineOrderSum,
+				onlineOrderId,
 				null,
 				null,
 				onlineOrderId);
@@ -157,7 +159,7 @@ namespace FastPaymentsAPI.Library.Models
 				CreationDate = creationDate,
 				Ticket = orderRegistrationResponseDto.Ticket,
 				QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
-				ExternalId = (int)orderRegistrationResponseDto.Id,
+				ExternalId = orderId,
 				FastPaymentGuid = fastPaymentGuid
 			};
 

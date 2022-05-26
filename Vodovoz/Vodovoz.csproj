@@ -1701,6 +1701,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncomingCallsAnalysisReportView.cs" />
     <Compile Include="Views\Logistic\TariffZoneView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.TariffZoneView.cs" />
+    <Compile Include="Views\ImportPaymentsFromAvangardSbpView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ImportPaymentsFromAvangardSbpView.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromAvangardReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromAvangardReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
