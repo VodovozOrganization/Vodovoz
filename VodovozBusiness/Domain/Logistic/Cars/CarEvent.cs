@@ -172,7 +172,7 @@ namespace Vodovoz.Domain.Logistic
 	{
 		None,
 		Casco,
-		Ssago,
+		Osago,
 		Gto
 	}
 
