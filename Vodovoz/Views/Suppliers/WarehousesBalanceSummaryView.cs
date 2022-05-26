@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
@@ -36,7 +37,7 @@ namespace Vodovoz.Views.Suppliers
 				.InitializeFromSource();
 			buttonAbort.Clicked += (sender, args) => { ViewModel.ReportGenerationCancelationTokenSource.Cancel(); };
 
-			buttonExport.Visible = false;
+			buttonExport.Clicked += (sender, args) => Export();
 
 			datePicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.DateOrNull).InitializeFromSource();
 
@@ -134,6 +135,59 @@ namespace Vodovoz.Views.Suppliers
 			}, ViewModel.ReportGenerationCancelationTokenSource.Token);
 
 			await _generationTask;
+		}
+
+
+
+		private async void Export()
+		{
+			var extension = ".xlsx";
+
+			var filechooser = new FileChooserDialog("Сохранить отчет...",
+				null,
+				FileChooserAction.Save,
+				"Отменить", ResponseType.Cancel,
+				"Сохранить", ResponseType.Accept)
+			{
+				DoOverwriteConfirmation = true,
+				CurrentName = $"{Tab.TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
+			};
+
+			var excelFilter = new FileFilter
+			{
+				Name = $"Документ Microsoft Excel ({extension})"
+			};
+
+			excelFilter.AddMimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			excelFilter.AddPattern($"*{extension}");
+			filechooser.AddFilter(excelFilter);
+
+
+			if(filechooser.Run() == (int)ResponseType.Accept)
+			{
+				var path = filechooser.Filename;
+
+				if(!path.Contains(extension))
+				{
+					path += extension;
+				}
+
+				filechooser.Hide();
+
+				await Task.Run(() =>
+				{
+					try
+					{
+						ViewModel.ExportReport(path);
+					}
+					catch(Exception ex)
+					{
+						
+					}
+				});
+			}
+
+			filechooser.Destroy();
 		}
 	}
 }

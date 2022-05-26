@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Multi;
@@ -265,6 +266,34 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			cancellationToken.ThrowIfCancellationRequested();
 			return await new ValueTask<BalanceSummaryReport>(report);
+		}
+
+		public void ExportReport(string path)
+		{
+			var rows = from row in Report.SummaryRows
+					   select new
+					   {
+						   row.NomId,
+						   row.NomTitle,
+						   row.Min,
+						   row.Common,
+						   row.Diff
+					   };
+
+			var wb = new XLWorkbook();
+			var ws = wb.Worksheets.Add("Inserting Data");
+
+			ws.Cell(1, 1).Value = "Код";
+			ws.Cell(1, 2).Value = "Наименование";
+			ws.Cell(1, 3).Value = "Мин. Остаток";
+			ws.Cell(1, 4).Value = "Общий остаток";
+			ws.Cell(1, 5).Value = "Разница";
+
+			ws.Cell(2, 1).InsertData(rows);
+
+			ws.Columns().AdjustToContents();
+
+			wb.SaveAs(path);
 		}
 
 		private void RemoveWarehousesByFilterCondition(ref BalanceSummaryReport report, CancellationToken cancellationToken)
