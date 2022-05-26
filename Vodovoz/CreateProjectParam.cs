@@ -163,6 +163,7 @@ using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Views.Payments;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
+using Vodovoz.Domain.Logistic.FastDelivery;
 
 namespace Vodovoz
 {
@@ -283,6 +284,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboAtsCounterpartyNameViewModel, RoboAtsCounterpartyNameView>()
 				.RegisterWidgetForTabViewModel<RoboAtsCounterpartyPatronymicViewModel, RoboAtsCounterpartyPatronymicView>()
 				.RegisterWidgetForTabViewModel<TariffZoneViewModel, TariffZoneView>()
+				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
 				;
 
             //Регистрация виджетов
@@ -350,6 +352,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveryTransferAbsenceReasonJournalFilterViewModel, UndeliveryTransferAbsenceReasonJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProductionWarehouseMovementReportViewModel, ProductionWarehouseMovementReportView>()
 				.RegisterWidgetForWidgetViewModel<TrackPointJournalFilterViewModel, TrackPointJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<FastDeliveryAvailabilityFilterViewModel, FastDeliveryAvailabilityFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

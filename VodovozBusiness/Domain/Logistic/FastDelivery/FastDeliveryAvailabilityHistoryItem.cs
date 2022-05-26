@@ -26,6 +26,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		private bool _isValidIsGoodsEnough;
 		private bool _isValidUnclosedFastDeliveries;
 		private FastDeliveryAvailabilityHistory _fastDeliveryAvailabilityHistory;
+		private bool _isValidToFastDelivery;
 
 		#region Свойства
 
@@ -138,6 +139,13 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		{
 			get => _fastDeliveryAvailabilityHistory;
 			set => SetField(ref _fastDeliveryAvailabilityHistory, value);
+		}
+
+		[Display(Name = "МЛ подходит для экспресс-доставки")]
+		public virtual bool IsValidToFastDelivery
+		{
+			get => _isValidToFastDelivery;
+			set => SetField(ref _isValidToFastDelivery, value);
 		}
 
 		#endregion

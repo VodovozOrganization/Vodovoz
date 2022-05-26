@@ -358,7 +358,7 @@ namespace VodovozDeliveryRulesService
 				nomenclatureNodes);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
-			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification, _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm);
+			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
 
 			return fastDeliveryVerification.IsValid;
 		}

@@ -6,38 +6,6 @@ namespace Vodovoz.Views.Orders
 	{
 		private global::Gamma.GtkWidgets.yVBox vboxMain;
 
-		private global::Gamma.GtkWidgets.yLabel lblMessage;
-
-		private global::Gtk.HSeparator hseparator1;
-
-		private global::Gtk.Expander expanderDetails;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-
-		private global::Gamma.GtkWidgets.yTreeView treeViewDetails;
-
-		private global::Gtk.Label GtkLblDetails;
-
-		private global::Gtk.Expander expanderAdditional;
-
-		private global::Gamma.GtkWidgets.yHBox yhboxAdditional;
-
-		private global::Gtk.ScrolledWindow scrolledWindowAdditional;
-
-		private global::Gamma.GtkWidgets.yTreeView treeViewNomenclatures;
-
-		private global::Gamma.GtkWidgets.yVBox yvboxLogisticiaComment;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelLogisticiaComment;
-
-		private global::Gtk.ScrolledWindow scrolledWindowLogisticiaComment;
-
-		private global::Gamma.GtkWidgets.yTextView ytextviewLogisticiaComment;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonSaveLogisticiaComment;
-
-		private global::Gtk.Label GtkLblAdditional;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -48,126 +16,12 @@ namespace Vodovoz.Views.Orders
 			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.lblMessage = new global::Gamma.GtkWidgets.yLabel();
-			this.lblMessage.Name = "lblMessage";
-			this.lblMessage.LabelProp = global::Mono.Unix.Catalog.GetString("Message");
-			this.vboxMain.Add(this.lblMessage);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.lblMessage]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.hseparator1 = new global::Gtk.HSeparator();
-			this.hseparator1.Name = "hseparator1";
-			this.vboxMain.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hseparator1]));
-			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.expanderDetails = new global::Gtk.Expander(null);
-			this.expanderDetails.CanFocus = true;
-			this.expanderDetails.Name = "expanderDetails";
-			this.expanderDetails.Expanded = true;
-			// Container child expanderDetails.Gtk.Container+ContainerChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeViewDetails = new global::Gamma.GtkWidgets.yTreeView();
-			this.treeViewDetails.CanFocus = true;
-			this.treeViewDetails.Name = "treeViewDetails";
-			this.GtkScrolledWindow.Add(this.treeViewDetails);
-			this.expanderDetails.Add(this.GtkScrolledWindow);
-			this.GtkLblDetails = new global::Gtk.Label();
-			this.GtkLblDetails.Name = "GtkLblDetails";
-			this.GtkLblDetails.LabelProp = global::Mono.Unix.Catalog.GetString("Детализация");
-			this.GtkLblDetails.UseUnderline = true;
-			this.expanderDetails.LabelWidget = this.GtkLblDetails;
-			this.vboxMain.Add(this.expanderDetails);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.expanderDetails]));
-			w5.Position = 2;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.expanderAdditional = new global::Gtk.Expander(null);
-			this.expanderAdditional.CanFocus = true;
-			this.expanderAdditional.Name = "expanderAdditional";
-			this.expanderAdditional.Expanded = true;
-			// Container child expanderAdditional.Gtk.Container+ContainerChild
-			this.yhboxAdditional = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxAdditional.Name = "yhboxAdditional";
-			this.yhboxAdditional.Spacing = 6;
-			// Container child yhboxAdditional.Gtk.Box+BoxChild
-			this.scrolledWindowAdditional = new global::Gtk.ScrolledWindow();
-			this.scrolledWindowAdditional.Name = "scrolledWindowAdditional";
-			this.scrolledWindowAdditional.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child scrolledWindowAdditional.Gtk.Container+ContainerChild
-			this.treeViewNomenclatures = new global::Gamma.GtkWidgets.yTreeView();
-			this.treeViewNomenclatures.CanFocus = true;
-			this.treeViewNomenclatures.Name = "treeViewNomenclatures";
-			this.scrolledWindowAdditional.Add(this.treeViewNomenclatures);
-			this.yhboxAdditional.Add(this.scrolledWindowAdditional);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxAdditional[this.scrolledWindowAdditional]));
-			w7.Position = 0;
-			// Container child yhboxAdditional.Gtk.Box+BoxChild
-			this.yvboxLogisticiaComment = new global::Gamma.GtkWidgets.yVBox();
-			this.yvboxLogisticiaComment.Name = "yvboxLogisticiaComment";
-			this.yvboxLogisticiaComment.Spacing = 6;
-			// Container child yvboxLogisticiaComment.Gtk.Box+BoxChild
-			this.ylabelLogisticiaComment = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelLogisticiaComment.Name = "ylabelLogisticiaComment";
-			this.ylabelLogisticiaComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий логиста:");
-			this.yvboxLogisticiaComment.Add(this.ylabelLogisticiaComment);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticiaComment[this.ylabelLogisticiaComment]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child yvboxLogisticiaComment.Gtk.Box+BoxChild
-			this.scrolledWindowLogisticiaComment = new global::Gtk.ScrolledWindow();
-			this.scrolledWindowLogisticiaComment.CanFocus = true;
-			this.scrolledWindowLogisticiaComment.Name = "scrolledWindowLogisticiaComment";
-			this.scrolledWindowLogisticiaComment.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child scrolledWindowLogisticiaComment.Gtk.Container+ContainerChild
-			this.ytextviewLogisticiaComment = new global::Gamma.GtkWidgets.yTextView();
-			this.ytextviewLogisticiaComment.CanFocus = true;
-			this.ytextviewLogisticiaComment.Name = "ytextviewLogisticiaComment";
-			this.scrolledWindowLogisticiaComment.Add(this.ytextviewLogisticiaComment);
-			this.yvboxLogisticiaComment.Add(this.scrolledWindowLogisticiaComment);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticiaComment[this.scrolledWindowLogisticiaComment]));
-			w10.Position = 1;
-			// Container child yvboxLogisticiaComment.Gtk.Box+BoxChild
-			this.ybuttonSaveLogisticiaComment = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonSaveLogisticiaComment.CanFocus = true;
-			this.ybuttonSaveLogisticiaComment.Name = "ybuttonSaveLogisticiaComment";
-			this.ybuttonSaveLogisticiaComment.UseUnderline = true;
-			this.ybuttonSaveLogisticiaComment.Label = global::Mono.Unix.Catalog.GetString("Сохранить комментарий");
-			global::Gtk.Image w11 = new global::Gtk.Image();
-			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
-			this.ybuttonSaveLogisticiaComment.Image = w11;
-			this.yvboxLogisticiaComment.Add(this.ybuttonSaveLogisticiaComment);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticiaComment[this.ybuttonSaveLogisticiaComment]));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
-			this.yhboxAdditional.Add(this.yvboxLogisticiaComment);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhboxAdditional[this.yvboxLogisticiaComment]));
-			w13.Position = 1;
-			this.expanderAdditional.Add(this.yhboxAdditional);
-			this.GtkLblAdditional = new global::Gtk.Label();
-			this.GtkLblAdditional.Name = "GtkLblAdditional";
-			this.GtkLblAdditional.LabelProp = global::Mono.Unix.Catalog.GetString("Доплонительно");
-			this.GtkLblAdditional.UseUnderline = true;
-			this.expanderAdditional.LabelWidget = this.GtkLblAdditional;
-			this.vboxMain.Add(this.expanderAdditional);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.expanderAdditional]));
-			w15.Position = 3;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.ybuttonSaveLogisticiaComment.Clicked += new global::System.EventHandler(this.OnButtonSaveLogisticiaCommentClicked);
 		}
 	}
 }

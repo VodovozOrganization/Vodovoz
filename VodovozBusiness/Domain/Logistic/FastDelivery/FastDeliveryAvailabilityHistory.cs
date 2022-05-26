@@ -24,13 +24,19 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		private Employee _logistician;
 		private string _logisticianComment;
 		private DateTime _logisticianCommentVersion;
-		private DateTime? _logisticianReactionTime;
 		private Double _fastDeliveryMaxDistanceKm;
 		private Employee _author;
 		private IList<FastDeliveryAvailabilityHistoryItem> _items;
 		private IList<FastDeliveryOrderItemsHistory> _orderItemsHistoryItems;
 		private IList<FastDeliveryNomenclatureDistributionHistory> _nomenclatureDistributionHistoryItems;
 		private bool _isGetClosestByRoute;
+		private double _maxDistanceToLatestTrackPointKm;
+		private int _driverGoodWeightLiftPerHandInKg;
+		private int _maxFastOrdersPerSpecificTime;
+		private TimeSpan _maxTimeForFastDelivery;
+		private TimeSpan _minTimeForNewFastDeliveryOrder;
+		private TimeSpan _driverUnloadTime;
+		private TimeSpan _specificTimeForMaxFastOrdersCount;
 
 		#region Свойства
 
@@ -99,13 +105,6 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			set => SetField(ref _logisticianCommentVersion, value);
 		}
 
-		[Display(Name = "Время реакции логиста")]
-		public virtual DateTime? LogisticianReactionTime
-		{
-			get => _logisticianReactionTime;
-			set => SetField(ref _logisticianReactionTime, value);
-		}
-
 		[Display(Name = "Радиус охвата экспресс-доставки в км")]
 		public virtual Double FastDeliveryMaxDistanceKm
 		{
@@ -127,27 +126,76 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			set => SetField(ref _isGetClosestByRoute, value);
 		}
 
+		[Display(Name = "Максимальное расстояние")]
+		public virtual double MaxDistanceToLatestTrackPointKm
+		{
+			get => _maxDistanceToLatestTrackPointKm;
+			set => SetField(ref _maxDistanceToLatestTrackPointKm, value);
+		}
+
+		[Display(Name = "Вес для одной руки")]
+		public virtual int DriverGoodWeightLiftPerHandInKg
+		{
+			get => _driverGoodWeightLiftPerHandInKg;
+			set => SetField(ref _driverGoodWeightLiftPerHandInKg, value);
+		}
+
+		[Display(Name = "Максимальное время для экспресс-доставки")]
+		public virtual TimeSpan MaxTimeForFastDelivery
+		{
+			get => _maxTimeForFastDelivery;
+			set => SetField(ref _maxTimeForFastDelivery, value);
+		}
+
+		[Display(Name = "Минимальное время экспресс-доставки")]
+		public virtual TimeSpan MinTimeForNewFastDeliveryOrder
+		{
+			get => _minTimeForNewFastDeliveryOrder;
+			set => SetField(ref _minTimeForNewFastDeliveryOrder, value);
+		}
+
+		[Display(Name = "Время разгрузки")]
+		public virtual TimeSpan DriverUnloadTime
+		{
+			get => _driverUnloadTime;
+			set => SetField(ref _driverUnloadTime, value);
+		}
+
+		[Display(Name = "Максимальное количество экспресс-доставок в определённое время")]
+		public virtual int MaxFastOrdersPerSpecificTime
+		{
+			get => _maxFastOrdersPerSpecificTime;
+			set => SetField(ref _maxFastOrdersPerSpecificTime, value);
+		}
+
+		[Display(Name = "Время для максимального количества экспресс-доставок")]
+		public virtual TimeSpan SpecificTimeForMaxFastOrdersCount
+		{
+			get => _specificTimeForMaxFastOrdersCount;
+			set => SetField(ref _specificTimeForMaxFastOrdersCount, value);
+		}
+
 		#endregion
 
-		//[Display(Name = "Строки истории доступности экспресс-доставки")]
-		//public virtual IList<FastDeliveryAvailabilityHistoryItem> Items
-		//{
-		//	get => _items;
-		//	set => SetField(ref _items, value);
-		//}
+		[Display(Name = "Строки истории доступности экспресс-доставки")]
+		public virtual IList<FastDeliveryAvailabilityHistoryItem> Items
+		{
+			get => _items;
+			set => SetField(ref _items, value);
+		}
 
-		//[Display(Name = "Строки заказа итории экспресс-доставки")]
-		//public virtual IList<FastDeliveryOrderItemsHistory> OrderItemsHistoryItems
-		//{
-		//	get => _orderItemsHistoryItems;
-		//	set => SetField(ref _orderItemsHistoryItems, value);
-		//}
+		[Display(Name = "Строки заказа итории экспресс-доставки")]
+		public virtual IList<FastDeliveryOrderItemsHistory> OrderItemsHistoryItems
+		{
+			get => _orderItemsHistoryItems;
+			set => SetField(ref _orderItemsHistoryItems, value);
+		}
 
-		//[Display(Name = "Строки истории распределения номенклатур для экспресс-доставки")]
-		//public virtual IList<FastDeliveryNomenclatureDistributionHistory> NomenclatureDistributionHistoryItems
-		//{
-		//	get => _nomenclatureDistributionHistoryItems;
-		//	set => SetField(ref _nomenclatureDistributionHistoryItems, value);
-		//}
+		[Display(Name = "Строки истории распределения номенклатур для экспресс-доставки")]
+		public virtual IList<FastDeliveryNomenclatureDistributionHistory> NomenclatureDistributionHistoryItems
+		{
+			get => _nomenclatureDistributionHistoryItems;
+			set => SetField(ref _nomenclatureDistributionHistoryItems, value);
+		}
 	}
 }

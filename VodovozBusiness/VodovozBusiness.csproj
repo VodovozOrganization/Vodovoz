@@ -364,7 +364,7 @@
     <Compile Include="HibernateMapping\Logistic\FastDelivery\FastDeliveryAvailabilityHistoryItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistoryMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FastDelivery\FastDeliveryOrderItemsHistoryMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\FastDelivery\FastDelliveryAvailabilityHistoryMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\FastDelivery\FastDeliveryAvailabilityHistoryMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
@@ -768,6 +768,7 @@
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
     <Compile Include="ConfigureDeletion.cs" />
+    <Compile Include="Tools\Orders\FastDeliveryHistoryItemsConverter.cs" />
     <Compile Include="Tools\Orders\OrderStateKey.cs" />
     <Compile Include="Tools\Orders\OrderRules.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryPriceRuleMap.cs" />

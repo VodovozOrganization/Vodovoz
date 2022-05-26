@@ -23,7 +23,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 		#region MyRegion
 
-		FastDeliveryVerification GetRouteListsForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool isGetClosestByRoute,
+		FastDeliveryVerificationDTO GetRouteListsForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool isGetClosestByRoute,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IEnumerable<NomenclatureAmountNode> nomenclatureNodes,
 			Order fastDeliveryOrder = null);
 

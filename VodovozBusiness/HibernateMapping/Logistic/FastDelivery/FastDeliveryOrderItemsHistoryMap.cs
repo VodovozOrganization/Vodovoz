@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
 			Map(x => x.Count).Column("count");
 
 			References(x => x.Nomenclature).Column("nomenclature_id");
-			References(x => x.FastDeliveryAvailabilityHistory).Column("fast_dellivery_availability_history_id");
+			References(x => x.FastDeliveryAvailabilityHistory).Column("fast_delivery_availability_history_id");
 		}
 	}
 }

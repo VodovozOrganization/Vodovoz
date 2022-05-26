@@ -24,10 +24,11 @@ namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
 			Map(x => x.IsValidRemainingTimeForShipmentNewOrder).Column("is_valid_remaining_time_for_shipment_new_order");
 			Map(x => x.LastCoordinateTime).Column("last_coordinate_time").CustomType<TimeAsTimeSpanType>(); ;
 			Map(x => x.IsValidLastCoordinateTime).Column("is_valid_last_coordinate_time");
+			Map(x => x.IsValidToFastDelivery).Column("is_valid_to_fast_delivery");
 
 			References(x => x.RouteList).Column("route_list_id");
 			References(x => x.Driver).Column("driver_id");
-			References(x => x.FastDeliveryAvailabilityHistory).Column("fast_dellivery_availability_history_id");
+			References(x => x.FastDeliveryAvailabilityHistory).Column("fast_delivery_availability_history_id");
 		}
 	}
 }

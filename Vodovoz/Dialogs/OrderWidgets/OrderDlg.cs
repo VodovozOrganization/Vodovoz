@@ -97,6 +97,7 @@ using Vodovoz.Models.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz
 {
@@ -902,10 +903,10 @@ namespace Vodovoz
 			);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
-			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification, _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm, Entity);
+			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
 
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerification, Order>(
-				null, UoW, fastDeliveryVerification, Entity);
+			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDTO>(
+				null, fastDeliveryVerification);
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1559,7 +1560,7 @@ namespace Vodovoz
 				);
 
 				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
-				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification,  _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm, Entity);
+				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
 
 				routeListToAddOrderTo = fastDeliveryVerification
 					.FastDeliveryVerificationDetailsNodes
@@ -1568,8 +1569,8 @@ namespace Vodovoz
 
 				if(routeListToAddOrderTo == null)
 				{
-					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerification, Order>(
-						null, UoW, fastDeliveryVerification, Entity);
+					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationDTO>(
+						null, UoW, fastDeliveryVerification);
 
 					return false;
 				}

@@ -1703,6 +1703,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.TariffZoneView.cs" />
     <Compile Include="Filters\GtkViews\FastDeliveryAvailabilityFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FastDeliveryAvailabilityFilterView.cs" />
+    <Compile Include="ViewWidgets\Logistics\FastDeliveryVerificationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.FastDeliveryVerificationView.cs" />
+    <Compile Include="Views\Logistic\FastDeliveryAvailabilityHistoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryAvailabilityHistoryView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

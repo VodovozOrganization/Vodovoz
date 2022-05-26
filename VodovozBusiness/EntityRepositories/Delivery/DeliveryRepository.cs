@@ -13,6 +13,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
@@ -125,7 +126,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 		#region Fast Delivery
 
-		public FastDeliveryVerification GetRouteListsForFastDelivery(
+		public FastDeliveryVerificationDTO GetRouteListsForFastDelivery(
 			IUnitOfWork uow,
 			double latitude,
 			double longitude,
@@ -134,15 +135,6 @@ namespace Vodovoz.EntityRepositories.Delivery
 			IEnumerable<NomenclatureAmountNode> nomenclatureNodes,
 			Order fastDeliveryOrder = null)
 		{
-			var district = GetDistrict(uow, (decimal)latitude, (decimal)longitude);
-			if(district?.TariffZone == null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
-			{
-				return new FastDeliveryVerification
-				{
-					AdditionalInformation = new List<string> {"Не найден район или у района отсутствует тарифная зона"}
-				};
-			}
-
 			var maxDistanceToTrackPoint = deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
 			var driverGoodWeightLiftPerHand = deliveryRulesParametersProvider.DriverGoodWeightLiftPerHandInKg;
 			var maxFastOrdersPerSpecificTime = deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
@@ -155,6 +147,27 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var minTimeForNewOrder = (int)deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder.TotalMinutes;
 			var driverUnloadTime = (int)deliveryRulesParametersProvider.DriverUnloadTime.TotalMinutes;
 			var specificTimeForFastOrdersCount = (int)deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
+
+			var district = GetDistrict(uow, (decimal)latitude, (decimal)longitude);
+			if(district?.TariffZone == null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+			{
+				return new FastDeliveryVerificationDTO
+				{
+					AdditionalInformation = new List<string> { "Не найден район или у района отсутствует тарифная зона" },
+					FastDeliveryAvailabilityHistory = new FastDeliveryAvailabilityHistory
+					{
+						IsGetClosestByRoute = isGetClosestByRoute,
+						Order = fastDeliveryOrder,
+						MaxDistanceToLatestTrackPointKm = maxDistanceToTrackPoint,
+						DriverGoodWeightLiftPerHandInKg = driverGoodWeightLiftPerHand,
+						MaxFastOrdersPerSpecificTime = maxFastOrdersPerSpecificTime,
+						MaxTimeForFastDelivery = maxTimeForFastDeliveryTimespan,
+						MinTimeForNewFastDeliveryOrder = deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder,
+						DriverUnloadTime = deliveryRulesParametersProvider.DriverUnloadTime,
+						SpecificTimeForMaxFastOrdersCount = deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount
+					}
+				};
+			}
 
 			var neededNomenclatures = nomenclatureNodes.ToDictionary(x => x.NomenclatureId, x => x.Amount);
 
@@ -421,12 +434,22 @@ namespace Vodovoz.EntityRepositories.Delivery
 				}
 			}
 
-			return new FastDeliveryVerification
+			return new FastDeliveryVerificationDTO
 			{
-				IsGetClosestByRoute = isGetClosestByRoute,
-				FastDeliveryVerificationDetailsNodes = routeListNodes
+				FastDeliveryVerificationDetailsNodes = routeListNodes,
+				FastDeliveryAvailabilityHistory = new FastDeliveryAvailabilityHistory
+				{
+					IsGetClosestByRoute = isGetClosestByRoute,
+					Order = fastDeliveryOrder,
+					MaxDistanceToLatestTrackPointKm = maxDistanceToTrackPoint,
+					DriverGoodWeightLiftPerHandInKg = driverGoodWeightLiftPerHand,
+					MaxFastOrdersPerSpecificTime = maxFastOrdersPerSpecificTime,
+					MaxTimeForFastDelivery = maxTimeForFastDeliveryTimespan,
+					MinTimeForNewFastDeliveryOrder = deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder,
+					DriverUnloadTime = deliveryRulesParametersProvider.DriverUnloadTime,
+					SpecificTimeForMaxFastOrdersCount = deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount
+				}
 			};
-
 		}
 
 		private class RouteListNomenclatureAmount
@@ -507,11 +530,20 @@ namespace Vodovoz.EntityRepositories.Delivery
 		public bool IsValidParameter { get; set; }
 	}
 
-	public class FastDeliveryVerification
+	public class FastDeliveryVerificationDTO
 	{
 		public IEnumerable<FastDeliveryVerificationDetailsNode> FastDeliveryVerificationDetailsNodes { get; set; }
 		public IEnumerable<string> AdditionalInformation { get; set; }
 		public bool IsValid => FastDeliveryVerificationDetailsNodes.Any(x => x.IsValidRLToFastDelivery);
-		public bool IsGetClosestByRoute { get; set; }
+		public FastDeliveryAvailabilityHistory FastDeliveryAvailabilityHistory { get; set; }
+		//public bool IsGetClosestByRoute { get; set; }
+		//public Order Order { get; set; }
+		//public double MaxDistanceToLatestTrackPointKm { get; set; }
+		//public int DriverGoodWeightLiftPerHandInKg { get; set; }
+		//public int MaxFastOrdersPerSpecificTime { get; set; }
+		//public TimeSpan MaxTimeForFastDelivery { get; set; }
+		//public TimeSpan MinTimeForNewFastDeliveryOrder { get; set; }
+		//public TimeSpan DriverUnloadTime { get; set; }
+		//public TimeSpan SpecificTimeForMaxFastOrdersCount { get; set; }
 	}
 }
