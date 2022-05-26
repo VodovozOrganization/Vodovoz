@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
@@ -301,7 +303,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -322,7 +325,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -343,7 +347,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -364,7 +369,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox83">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -385,7 +391,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -720,7 +727,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -738,7 +746,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -756,7 +765,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -774,7 +784,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1101,8 +1112,8 @@ GROUP BY o2.e_shop_order;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>38.0pt</Left>
-        <Top>181.1pt</Top>
+        <Left>36.4pt</Left>
+        <Top>189.8pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1163,7 +1174,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1181,7 +1193,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1199,7 +1212,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1217,7 +1231,8 @@ GROUP BY o2.e_shop_order;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1240,8 +1255,8 @@ GROUP BY o2.e_shop_order;</CommandText>
         <Width>134pt</Width>
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
-        <Left>42.50pt</Left>
-        <Top>335.30pt</Top>
+        <Left>40.9pt</Left>
+        <Top>344.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1254,8 +1269,8 @@ GROUP BY o2.e_shop_order;</CommandText>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
-        <Left>284.5pt</Left>
-        <Top>335.1pt</Top>
+        <Left>282.9pt</Left>
+        <Top>343.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1335,7 +1350,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>259.0pt</Top>
+        <Top>267.7pt</Top>
       </Table>
       <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1358,7 +1373,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1384,7 +1400,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1406,7 +1423,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>250.6pt</Top>
+        <Top>269.4pt</Top>
       </Table>
       <Line Name="Line3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>0.07pt</Height>
@@ -1421,7 +1438,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>252.7pt</Top>
+        <Top>264.6pt</Top>
       </Line>
       <Table Name="Table9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1495,7 +1512,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>152.6pt</Top>
+        <Top>161.3pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1658,7 +1675,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>149.5pt</Top>
+        <Top>158.2pt</Top>
       </Line>
       <Table Name="Table13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
@@ -1774,13 +1791,14 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>22.4pt</Left>
-        <Top>293.9pt</Top>
+        <Left>20.8pt</Left>
+        <Top>302.6pt</Top>
         <ZIndex>2</ZIndex>
       </Table>
       <Table Name="Table16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>EquipmentOnlineStore</DataSetName>
-        <NoRows></NoRows>
+        <NoRows>
+        </NoRows>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -1823,8 +1841,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>414.7pt</Left>
-        <Top>294.2pt</Top>
+        <Left>413.1pt</Left>
+        <Top>302.9pt</Top>
         <Details>
           <TableRows>
             <TableRow>
@@ -1939,7 +1957,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1960,7 +1979,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1981,7 +2001,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2002,7 +2023,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2023,7 +2045,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2358,7 +2381,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2376,7 +2400,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2394,7 +2419,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2412,7 +2438,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2450,8 +2477,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
-        <Left>284.5pt</Left>
-        <Top>230pt</Top>
+        <Left>282.9pt</Left>
+        <Top>238.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2464,13 +2491,39 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Width>134pt</Width>
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
-        <Left>42.50pt</Left>
-        <Top>230.00pt</Top>
+        <Left>40.9pt</Left>
+        <Top>238.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox29">
+        <Height>13.52pt</Height>
+        <Width>389.09pt</Width>
+        <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>173.1pt</Left>
+        <Top>357.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox32">
+        <Height>15.02pt</Height>
+        <Width>397.30pt</Width>
+        <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>134.5pt</Left>
+        <Top>135.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
@@ -2504,7 +2557,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
