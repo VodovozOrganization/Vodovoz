@@ -26,8 +26,8 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime _startDate;
 		private DateTime _endDate;
 		private string _comment;
+		private string _foundation;
 		private bool _doNotShowInOperation;
-		private Insurance _insurance;
 		private decimal _repairCost;
 
 		#region Свойства
@@ -90,18 +90,18 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _comment, value);
 		}
 
+		[Display(Name = "Основание")]
+		public virtual string Foundation
+		{
+			get => _foundation;
+			set => SetField(ref _foundation, value);
+		}		
+
 		[Display( Name = "Не отражать в эксплуатации ТС" )]
 		public virtual bool DoNotShowInOperation
 		{
 			get => _doNotShowInOperation;
 			set => SetField( ref _doNotShowInOperation, value );
-		}
-
-		[Display( Name = "Страховка" )]
-		public virtual Insurance Insurance
-		{
-			get => _insurance;
-			set => SetField( ref _insurance, value );
 		}
 
 		[Display( Name = "Стоимость ремонта" )]
@@ -152,6 +152,18 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(StartDate), nameof(EndDate) });
 			}
 
+			if(string.IsNullOrEmpty(Foundation))
+			{
+				yield return new ValidationResult($"Основание должено быть заполнено.",
+					new[] { nameof(Comment) });
+			}
+
+			if(Foundation?.Length > 255)
+			{
+				yield return new ValidationResult($"Превышена максимально допустимая длина основания ({Comment.Length}/255).",
+					new[] { nameof(Comment) });
+			}
+
 			if(CarEventType != null && CarEventType.NeedComment && string.IsNullOrEmpty(Comment))
 			{
 				yield return new ValidationResult("Комментарий должен быть заполнен.",
@@ -166,19 +178,5 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
-	}
-
-	public enum Insurance
-	{
-		None,
-		Casco,
-		Osago,
-		Gto
-	}
-
-	public class InsuranceOfUseStringType : EnumStringType
-	{
-		public InsuranceOfUseStringType() : base( typeof( Insurance ) )
-		{ }
 	}
 }

@@ -14,8 +14,8 @@ namespace Vodovoz.HibernateMapping.Logistic
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
 			Map(x => x.Comment).Column("comment");
-			Map(x => x.DoNotShowInOperation).Column( "donot_show_in_operation" );
-			Map(x => x.Insurance).Column("insurance").CustomType<InsuranceOfUseStringType>();
+			Map(x => x.Foundation).Column("foundation");
+			Map(x => x.DoNotShowInOperation).Column("donot_show_in_operation");
 			Map(x => x.RepairCost).Column("repair_cost");
 
 			References(x => x.CarEventType).Column("car_event_type_id");

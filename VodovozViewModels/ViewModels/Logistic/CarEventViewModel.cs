@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
 	{
 		private DelegateCommand _changeDriverCommand;
+		private DelegateCommand _changeEventTypeCommand;
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -31,7 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				throw new ArgumentNullException(nameof(employeeService));
 			}
-			
+
 			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
 			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
 			EmployeeSelectorFactory =
@@ -60,6 +61,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 							? Entity.Car.Driver
 							: null;
 					}
+				},
+				() => true
+			));
+
+		public DelegateCommand ChangeEventTypeCommand => _changeEventTypeCommand ?? (_changeEventTypeCommand =
+			new DelegateCommand(() =>
+				{
 				},
 				() => true
 			));
