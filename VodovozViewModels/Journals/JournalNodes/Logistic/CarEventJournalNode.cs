@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string GeographicGroups { get; set; }
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
+		public decimal RepairCost { get; set; }
 		public string Comment { get; set; }
 		public CarTypeOfUse CarTypeOfUse { get; set; }
 		public CarOwnType CarOwnType { get; set; }
