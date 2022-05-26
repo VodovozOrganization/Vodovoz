@@ -2215,7 +2215,9 @@ namespace Vodovoz.Domain.Orders
 		/// <c>false</c> если нельзя.</returns>
 		public virtual bool CanUsedPromo(IPromotionalSetRepository promotionalSetRepository)
 		{
-			return promotionalSetRepository.AddressHasAlreadyBeenUsedForPromo( UoW, deliveryPoint );
+			return Client.PersonType == PersonType.natural
+				&& ((DeliveryPoint.RoomType == RoomType.Office) || (DeliveryPoint.RoomType == RoomType.Store))
+				&& promotionalSetRepository.AddressHasAlreadyBeenUsedForPromo( UoW, deliveryPoint );
 		}
 
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
