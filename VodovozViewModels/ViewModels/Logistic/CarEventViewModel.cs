@@ -8,6 +8,8 @@ using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
@@ -16,6 +18,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
 	{
+		private readonly ICarEventSettings _carEventSettingsSettings = new CarEventSettings(new ParametersProvider());
 		private DelegateCommand _changeDriverCommand;
 		private DelegateCommand _changeEventTypeCommand;
 		public CarEventViewModel(
@@ -68,6 +71,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand ChangeEventTypeCommand => _changeEventTypeCommand ?? (_changeEventTypeCommand =
 			new DelegateCommand(() =>
 				{
+					if(Entity.CarEventType.Id == _carEventSettingsSettings.DontShowCarEventByReportId)
+					{
+						Entity.DoNotShowInOperation = true;
+					}
 				},
 				() => true
 			));
