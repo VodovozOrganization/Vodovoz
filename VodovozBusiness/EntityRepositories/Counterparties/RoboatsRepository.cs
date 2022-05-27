@@ -171,8 +171,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			return resultPhone;
 		}
 
-		
-
 		public Order GetLastOrder(int counterpartyId, int? deliveryPoint = null)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
@@ -212,8 +210,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				}
 			}
 		}
-
-		
 
 		public IEnumerable<int> GetRoboatsAvailableDeliveryIntervals()
 		{
@@ -316,16 +312,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 				var result = query.SingleOrDefault();
 				return result;
-			}
-		}
-
-		public IEnumerable<RoboatsWaterType> GetAvailableWaters()
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-
-				var availaleWaters = uow.GetAll<RoboatsWaterType>().ToList();
-				return availaleWaters;
 			}
 		}
 

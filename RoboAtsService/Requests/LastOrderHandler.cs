@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using RoboAtsService.Monitoring;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Counterparties;
 
 namespace RoboAtsService.Requests
@@ -10,15 +13,19 @@ namespace RoboAtsService.Requests
 	/// </summary>
 	public class LastOrderHandler : GetRequestHandlerBase
 	{
+		private readonly ILogger<LastOrderHandler> _logger;
 		private readonly RoboatsRepository _roboatsRepository;
+		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public LastOrderRequestType RequestType { get; }
 
 		public override string Request => RoboatsRequestType.LastOrder;
 
-		public LastOrderHandler(RoboatsRepository roboatsRepository, RequestDto requestDto) : base(requestDto)
+		public LastOrderHandler(ILogger<LastOrderHandler> logger, RoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
+			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
 
 			switch(RequestDto.RequestSubType)
 			{
@@ -39,13 +46,41 @@ namespace RoboAtsService.Requests
 
 		public override string Execute()
 		{
-			var counterpartyIds = _roboatsRepository.GetCounterpartyIdsByPhone(ClientPhone);
-			if(counterpartyIds.Count() != 1)
+			try
 			{
+				return ExecuteRequest();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "При обработке запроса информации о последнем заказе возникло исключение");
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnLastOrderHandle,
+						$"При обработке запроса информации о последнем заказе возникло исключение: {ex.Message}");
+				return ErrorMessage;
+			}
+		}
+
+		public string ExecuteRequest()
+		{
+			var counterpartyIds = _roboatsRepository.GetCounterpartyIdsByPhone(ClientPhone);
+			var counterpartyCount = counterpartyIds.Count();
+			if(counterpartyCount > 1)
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.OnLastOrderHandle,
+					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}");
 				return ErrorMessage;
 			}
 
-			var counterpartyId = counterpartyIds.First();
+			int counterpartyId;
+			if(counterpartyCount == 1)
+			{
+				counterpartyId = counterpartyIds.First();
+			}
+			else
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.OnLastOrderHandle,
+					$"Для телефона {ClientPhone} не найден контрагент");
+				return ErrorMessage;
+			}
 
 			switch(RequestType)
 			{
@@ -58,6 +93,8 @@ namespace RoboAtsService.Requests
 				case LastOrderRequestType.BottlesReturn:
 					return GetBottlesReturn(counterpartyId);
 				default:
+					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.OnLastOrderHandle,
+						$"Неизвестный тип запроса: {RequestType}");
 					return ErrorMessage;
 			}
 		}
@@ -70,15 +107,25 @@ namespace RoboAtsService.Requests
 
 		private string GetLastOrderId(int counterpartyId)
 		{
-			var deliveryPointIds = _roboatsRepository.GetLastDeliveryPointIds(counterpartyId);
-			if(!AddressId.HasValue || deliveryPointIds.All(x => x != AddressId))
+			if(!AddressId.HasValue)
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AddressIdNotSpecified, RoboatsCallOperation.GetLastOrderId,
+					$"В запросе не указан код точки доставки: {nameof(AddressId)}");
+			}
+
+			var deliveryPointIds = _roboatsRepository.GetLastDeliveryPointIds(counterpartyId);
+			if(deliveryPointIds.All(x => x != AddressId))
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.GetLastOrderId,
+						$"Для контрагента {counterpartyId} не найдена точка доставки {AddressId}");
 				return ErrorMessage;
 			}
 
 			var order = _roboatsRepository.GetLastOrder(counterpartyId, AddressId.Value);
 			if(order == null)
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderId,
+					$"Для точки доставки {AddressId} не найден последний заказ, либо он не удовлетворяет требованиям");
 				return "NO DATA";
 			}
 
@@ -89,18 +136,24 @@ namespace RoboAtsService.Requests
 		{
 			if(!int.TryParse(RequestDto.OrderId, out int orderId))
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectOrderId, RoboatsCallOperation.GetWaterInfo,
+					$"Некорректный номер заказа {RequestDto.OrderId}");
 				return ErrorMessage;
 			}
 
-			var availableWaters = _roboatsRepository.GetAvailableWaters();
+			var availableWaters = _roboatsRepository.GetWaterTypes();
 			if(!availableWaters.Any())
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AvailableWatersNotFound, RoboatsCallOperation.GetWaterInfo,
+					$"Не найдены доступные для заказа типы воды");
 				return ErrorMessage;
 			}
 
 			var waterQuantity = _roboatsRepository.GetWatersQuantityFromOrder(counterpartyId, orderId);
 			if(!waterQuantity.Any())
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.WaterInOrderNotFound, RoboatsCallOperation.GetWaterInfo,
+					$"Не найдена вода в заказе {orderId}");
 				return ErrorMessage;
 			}
 
@@ -110,6 +163,8 @@ namespace RoboAtsService.Requests
 				var roboatsWaterInfo = availableWaters.FirstOrDefault(x => x.Nomenclature.Id == waterItem.NomenclatureId);
 				if(roboatsWaterInfo == null)
 				{
+					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.WaterNotSupported, RoboatsCallOperation.GetWaterInfo,
+						$"Вода {roboatsWaterInfo.Nomenclature.Id} в заказе {orderId} не доступна для заказа (не найдена в списке доступной воды)");
 					return ErrorMessage;
 				}
 
@@ -125,24 +180,20 @@ namespace RoboAtsService.Requests
 		{
 			if(!int.TryParse(RequestDto.OrderId, out int orderId))
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectOrderId, RoboatsCallOperation.GetBottlesReturn,
+					$"Некорректный номер заказа {RequestDto.OrderId}");
 				return ErrorMessage;
 			}
 
 			var bottlesReturn = _roboatsRepository.GetBottlesReturnForOrder(counterpartyId, orderId);
 			if(!bottlesReturn.HasValue)
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.BottlesReturnNotFound, RoboatsCallOperation.GetBottlesReturn,
+					$"Не найдено количество возвратной тары для заказа {orderId}");
 				return ErrorMessage;
 			}
 
 			return $"{bottlesReturn.Value}";
 		}
-	}
-
-	public enum LastOrderRequestType
-	{
-		LastOrderExist,
-		GetLastOrderId,
-		WaterQuantity,
-		BottlesReturn
 	}
 }

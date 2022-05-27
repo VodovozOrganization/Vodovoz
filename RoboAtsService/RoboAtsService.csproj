@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
-		<UserSecretsId>aspnet-RoboAtsService-C11850E7-5291-4328-A603-90062E37B9B2</UserSecretsId>
+		<TargetFramework>net5.0</TargetFramework>
 		<WebProject_DirectoryAccessLevelKey>0</WebProject_DirectoryAccessLevelKey>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>

@@ -17,7 +17,9 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Services;
 using RoboAtsService.Middleware;
+using RoboAtsService.Monitoring;
 using System.Linq;
+using System.Reflection;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -62,8 +64,9 @@ namespace RoboAtsService
 			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
-			builder.RegisterType<RoboatsRepository>().AsSelf();
-			builder.RegisterType<RoboatsSettings>().AsSelf();
+			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<RoboatsSettings>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()
 				.AsImplementedInterfaces();
@@ -83,6 +86,11 @@ namespace RoboAtsService
 
 			builder.RegisterInstance(ErrorReporter.Instance).AsImplementedInterfaces();
 
+			builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
+				.Where(t => t.Name.EndsWith("Handler"))
+				.AsSelf()
+				.AsImplementedInterfaces();
+
 			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly)
 				.Where(t => t.Name.EndsWith("Provider"))
 				.AsSelf()
@@ -98,7 +106,7 @@ namespace RoboAtsService
 				.AsSelf()
 				.AsImplementedInterfaces();
 
-			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly)
+			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly, Assembly.GetExecutingAssembly())
 				.Where(t => t.Name.EndsWith("Factory"))
 				.AsSelf()
 				.AsImplementedInterfaces();

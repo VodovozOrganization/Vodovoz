@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RoboAtsService.Monitoring;
 using RoboAtsService.Requests;
 using System.Diagnostics;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -16,12 +17,16 @@ namespace RoboAtsService.Controllers
 
 		private readonly RoboatsRepository _roboatsRepository;
 		private readonly RoboatsOrderModel _roboatsOrderModel;
+		private readonly RequestHandlerFactory _handlerFactory;
+		private readonly RoboatsCallRegistrator _callRegistrator;
 
-		public RoboATSController(ILogger<RoboATSController> logger, RoboatsRepository roboatsRepository, RoboatsOrderModel roboatsOrderModel)
+		public RoboATSController(ILogger<RoboATSController> logger, RoboatsRepository repository, RoboatsOrderModel orderModel, RequestHandlerFactory handlerFactory, RoboatsCallRegistrator callRegistrator)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_roboatsRepository = roboatsRepository ?? throw new System.ArgumentNullException(nameof(roboatsRepository));
-			_roboatsOrderModel = roboatsOrderModel ?? throw new System.ArgumentNullException(nameof(roboatsOrderModel));
+			_roboatsRepository = repository ?? throw new System.ArgumentNullException(nameof(repository));
+			_roboatsOrderModel = orderModel ?? throw new System.ArgumentNullException(nameof(orderModel));
+			_handlerFactory = handlerFactory ?? throw new System.ArgumentNullException(nameof(handlerFactory));
+			_callRegistrator = callRegistrator ?? throw new System.ArgumentNullException(nameof(callRegistrator));
 		}
 
 		[HttpGet]
@@ -60,13 +65,13 @@ namespace RoboAtsService.Controllers
 				OrderId = orderId
 			};
 
-			RequestHandlerFactory adapter = new RequestHandlerFactory(_roboatsRepository, _roboatsOrderModel);
-			var roboatsRequest = adapter.GetRequest(request);
-			if(roboatsRequest == null)
+			var handler = _handlerFactory.GetHandler(request);
+			if(handler == null)
 			{
 				return "null request";
 			}
-			var result = roboatsRequest.Execute();
+			//_callRegistrator.RegisterCall(request.ClientPhone);
+			var result = handler.Execute();
 			sw.Stop();
 			var query = HttpContext.Request.GetEncodedPathAndQuery();
 			_logger.LogInformation($"Request: {query} | Response: {result} | Request time: {sw.Elapsed.Seconds}.{sw.Elapsed.Milliseconds} sec.");

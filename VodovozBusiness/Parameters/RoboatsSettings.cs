@@ -19,5 +19,7 @@ namespace Vodovoz.Parameters
 		public string WaterTypesAudiofilesFolder => _parametersProvider.GetStringValue("roboats_water_type_audiofiles_path");
 		public string CounterpartyNameAudiofilesFolder => _parametersProvider.GetStringValue("roboats_counterparty_name_audiofiles_path");
 		public string CounterpartyPatronymicAudiofilesFolder => _parametersProvider.GetStringValue("roboats_counterparty_patronymic_audiofiles_path");
+
+		public int MaxBanknoteForReturn => _parametersProvider.GetIntValue("roboats_max_banknote_for_return");
 	}
 }

@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using RoboAtsService.Monitoring;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Counterparties;
 
 namespace RoboAtsService.Requests
@@ -10,20 +13,51 @@ namespace RoboAtsService.Requests
 	/// </summary>
 	public class AddressHandler : GetRequestHandlerBase
 	{
+		private readonly ILogger<AddressHandler> _logger;
 		private readonly RoboatsRepository _roboatsRepository;
+		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public override string Request => RoboatsRequestType.Address;
 
-		public AddressHandler(RoboatsRepository roboatsRepository, RequestDto requestDto) : base(requestDto)
+		public AddressHandler(ILogger<AddressHandler> logger, RoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
+			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
 		}
 
 		public override string Execute()
 		{
-			var counterpartyIds = _roboatsRepository.GetCounterpartyIdsByPhone(ClientPhone);
-			if(counterpartyIds.Count() != 1)
+			try
 			{
+				return ExecuteRequest();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "При обработке запроса информации об адресе возникло исключение");
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnAddressHandle,
+						$"При обработке запроса информации об адресе возникло исключение: {ex.Message}");
+				return ErrorMessage;
+			}
+		}
+
+		private string ExecuteRequest()
+		{
+			var counterpartyIds = _roboatsRepository.GetCounterpartyIdsByPhone(ClientPhone);
+			var counterpartyCount = counterpartyIds.Count();
+			if(counterpartyCount != 1)
+			{
+				if(counterpartyCount > 1)
+				{
+					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck,
+						$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}");
+				}
+				else
+				{
+					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
+						$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}");
+				}
+
 				return ErrorMessage;
 			}
 
@@ -56,13 +90,18 @@ namespace RoboAtsService.Requests
 			}
 			else
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.GetDeliveryPoints,
+					$"Для контрагента {counterpartyId} не найдены подходящие точки доставки");
 				return "NO DATA";
 			}
 		}
 
 		public string GetRoboatsStreetId(int counterpartyId)
 		{
-			if(!int.TryParse(RequestDto.AddressId, out int addressId)){
+			if(!int.TryParse(RequestDto.AddressId, out int addressId))
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectAddressId, RoboatsCallOperation.GetStreetId,
+					$"Некорректный код точки доставки {RequestDto.AddressId}");
 				return ErrorMessage;
 			}
 
@@ -74,6 +113,8 @@ namespace RoboAtsService.Requests
 			}
 			else
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.StreetNotFound, RoboatsCallOperation.GetStreetId,
+					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найдена улица в справочнике Roboats");
 				return "NO DATA";
 			}
 		}
@@ -82,18 +123,22 @@ namespace RoboAtsService.Requests
 		{
 			if(!int.TryParse(RequestDto.AddressId, out int addressId))
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectAddressId, RoboatsCallOperation.GetHouseNumber,
+					$"Некорректный код точки доставки {RequestDto.AddressId}");
 				return ErrorMessage;
 			}
 
+			string result = string.Empty;
 			var deliveryPointBuilding = _roboatsRepository.GetDeliveryPointBuilding(addressId, counterpartyId);
-			if(string.IsNullOrWhiteSpace(deliveryPointBuilding))
+			if(!string.IsNullOrWhiteSpace(deliveryPointBuilding))
 			{
-				return "NO DATA";
+				result = GetHouseNumber(deliveryPointBuilding);
 			}
 
-			var result = GetHouseNumber(deliveryPointBuilding);
-			if(string.IsNullOrWhiteSpace(result))
+			if(string.IsNullOrWhiteSpace(deliveryPointBuilding) || string.IsNullOrWhiteSpace(result))
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.HouseNotFound, RoboatsCallOperation.GetHouseNumber,
+					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер дома");
 				return "NO DATA";
 			}
 
@@ -111,18 +156,22 @@ namespace RoboAtsService.Requests
 		{
 			if(!int.TryParse(RequestDto.AddressId, out int addressId))
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectAddressId, RoboatsCallOperation.GetCorpusNumber,
+					$"Некорректный код точки доставки {RequestDto.AddressId}");
 				return ErrorMessage;
 			}
-
+			string result = string.Empty;
 			var deliveryPointBuilding = _roboatsRepository.GetDeliveryPointBuilding(addressId, counterpartyId);
-			if(string.IsNullOrWhiteSpace(deliveryPointBuilding))
+
+			if(!string.IsNullOrWhiteSpace(deliveryPointBuilding))
 			{
-				return "NO DATA";
+				result = GetCorpusNumber(deliveryPointBuilding);
 			}
 
-			var result = GetCorpusNumber(deliveryPointBuilding);
-			if(string.IsNullOrWhiteSpace(result))
+			if(string.IsNullOrWhiteSpace(deliveryPointBuilding) || string.IsNullOrWhiteSpace(result))
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.CorpusNotFound, RoboatsCallOperation.GetCorpusNumber,
+					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер корпуса");
 				return "NO DATA";
 			}
 
@@ -143,19 +192,23 @@ namespace RoboAtsService.Requests
 		{
 			if(!int.TryParse(RequestDto.AddressId, out int addressId))
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectAddressId, RoboatsCallOperation.GetStreetId,
+					$"Некорректный код точки доставки {RequestDto.AddressId}");
 				return ErrorMessage;
 			}
 
 
+			string result = string.Empty;
 			var deliveryPointApartment = _roboatsRepository.GetDeliveryPointApartment(addressId, counterpartyId);
-			if(string.IsNullOrWhiteSpace(deliveryPointApartment))
+			if(!string.IsNullOrWhiteSpace(deliveryPointApartment))
 			{
-				return "NO DATA";
+				result = GetApartmentNumber(deliveryPointApartment);
 			}
 
-			var result = GetApartmentNumber(deliveryPointApartment);
-			if(string.IsNullOrWhiteSpace(result))
+			if(string.IsNullOrWhiteSpace(deliveryPointApartment) || string.IsNullOrWhiteSpace(result))
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ApartmentNotFound, RoboatsCallOperation.GetApartmentNumber,
+					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер квартиры");
 				return "NO DATA";
 			}
 

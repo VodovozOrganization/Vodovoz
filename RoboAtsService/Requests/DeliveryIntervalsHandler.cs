@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using RoboAtsService.Monitoring;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Counterparties;
 
 namespace RoboAtsService.Requests
@@ -10,23 +13,36 @@ namespace RoboAtsService.Requests
 	/// </summary>
 	public class DeliveryIntervalsHandler : GetRequestHandlerBase
 	{
+		private readonly ILogger<DeliveryIntervalsHandler> _logger;
 		private readonly RoboatsRepository _roboatsRepository;
+		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public override string Request => RoboatsRequestType.DateTime;
 
-		public DeliveryIntervalsHandler(RoboatsRepository roboatsRepository, RequestDto requestDto) : base(requestDto)
+		public DeliveryIntervalsHandler(ILogger<DeliveryIntervalsHandler> logger, RoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
+			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
 		}
 
 		public override string Execute()
 		{
-			var counterpartyIds = _roboatsRepository.GetCounterpartyIdsByPhone(ClientPhone);
-			if(counterpartyIds.Count() != 1)
+			try
 			{
+				return ExecuteRequest();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "При обработке запроса информации об интервалах доставки возникло исключение");
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnDeliveryIntervalsHandle,
+						$"При обработке запроса информации об интервалах доставки возникло исключение: {ex.Message}");
 				return ErrorMessage;
 			}
+		}
 
+		public string ExecuteRequest()
+		{
 			var intervals = _roboatsRepository.GetRoboatsAvailableDeliveryIntervals();
 			if(intervals.Any())
 			{
@@ -53,6 +69,8 @@ namespace RoboAtsService.Requests
 			}
 			else
 			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryIntervalsNotFound, RoboatsCallOperation.GetDeliveryIntervals,
+					$"Не найдены интервалы доставки");
 				return "NO DATA";
 			}
 		}

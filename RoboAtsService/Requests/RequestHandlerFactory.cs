@@ -1,36 +1,33 @@
-﻿using System;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Models.Orders;
+﻿using Autofac;
+using System;
 
 namespace RoboAtsService.Requests
 {
 	public class RequestHandlerFactory
 	{
-		private readonly RoboatsRepository _roboatsRepository;
-		private readonly RoboatsOrderModel _roboatsOrderModel;
+		private readonly ILifetimeScope _scope;
 
-		public RequestHandlerFactory(RoboatsRepository roboatsRepository, RoboatsOrderModel roboatsOrderModel)
+		public RequestHandlerFactory(ILifetimeScope scope)
 		{
-			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
-			_roboatsOrderModel = roboatsOrderModel ?? throw new ArgumentNullException(nameof(roboatsOrderModel));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 		}
 
-		public GetRequestHandlerBase GetRequest(RequestDto request)
+		public GetRequestHandlerBase GetHandler(RequestDto request)
 		{
 			switch(request.RequestType)
 			{
 				case RoboatsRequestType.Address:
-					return new AddressHandler(_roboatsRepository, request);
+					return _scope.Resolve<AddressHandler>(new TypedParameter(request.GetType(), request));
 				case RoboatsRequestType.LastOrder:
-					return new LastOrderHandler(_roboatsRepository, request);
+					return _scope.Resolve<LastOrderHandler>(new TypedParameter(request.GetType(), request));
 				case RoboatsRequestType.Order:
-					return new OrderHandler(_roboatsRepository, _roboatsOrderModel, request);
+					return _scope.Resolve<OrderHandler>(new TypedParameter(request.GetType(), request));
 				case RoboatsRequestType.ClientCheck:
-					return new ClientCheckHandler(_roboatsRepository, request);
+					return _scope.Resolve<ClientCheckHandler>(new TypedParameter(request.GetType(), request));
 				case RoboatsRequestType.DateTime:
-					return new DeliveryIntervalsHandler(_roboatsRepository, request);
+					return _scope.Resolve<DeliveryIntervalsHandler>(new TypedParameter(request.GetType(), request));
 				case RoboatsRequestType.WaterType:
-					return new WaterTypeHandler(_roboatsRepository, request);
+					return _scope.Resolve<WaterTypeHandler>(new TypedParameter(request.GetType(), request));
 				default:
 					return null;
 			}
