@@ -14,6 +14,7 @@ using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using System.Threading.Tasks;
 
 namespace Vodovoz.JournalViewers
 {
@@ -53,6 +54,7 @@ namespace Vodovoz.JournalViewers
 				new CallTaskFilterViewModel(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(), _deliveryPointRepository);
 			_callTasksVm.PropertyChanged += CreateCallTaskFilterView;
 			representationtreeviewTask.RepresentationModel = _callTasksVm;
+			buttonExport.Clicked += (sender, args) =>  Export();
 			CreateCallTaskFilterView(_callTasksVm.Filter, EventArgs.Empty);
 			UpdateStatistics();
 		}
@@ -82,23 +84,63 @@ namespace Vodovoz.JournalViewers
 			}
 		}
 
+		private async void Export()
+		{
+			var extension = ".xlsx";
+
+			var filechooser = new FileChooserDialog("Сохранить отчет...",
+				null,
+				FileChooserAction.Save,
+				"Отменить", ResponseType.Cancel,
+				"Сохранить", ResponseType.Accept)
+			{
+				DoOverwriteConfirmation = true,
+				CurrentName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
+			};
+
+			var excelFilter = new FileFilter
+			{
+				Name = $"Документ Microsoft Excel ({extension})"
+			};
+
+			excelFilter.AddMimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			excelFilter.AddPattern($"*{extension}");
+			filechooser.AddFilter(excelFilter);
+
+
+			if(filechooser.Run() == (int)ResponseType.Accept)
+			{
+				var path = filechooser.Filename;
+
+				if(!path.Contains(extension))
+				{
+					path += extension;
+				}
+
+				filechooser.Hide();
+
+				await Task.Run(() =>
+				{
+					try
+					{
+						_callTasksVm.ExportTasks(path);
+					}
+					catch (Exception ex)
+					{
+
+					}
+				});
+			}
+
+			filechooser.Destroy();
+		}
+
 		#region BaseJournalHeandler
 
 		protected void OnAddTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg dlg = new CallTaskDlg();
 			TabParent.AddTab(dlg, this);
-
-			/*
-			ClientTaskViewModel clientTaskViewModel = new ClientTaskViewModel(employeeRepository,
-																				bottleRepository,
-																				callTaskRepository,
-																				phoneRepository,
-																				EntityUoWBuilder.ForCreate(), 
-																				UnitOfWorkFactory.GetDefaultFactory, 
-																				ServicesConfig.CommonServices);
-			TabParent.AddTab(clientTaskViewModel, this);
-			*/
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
@@ -111,22 +153,6 @@ namespace Vodovoz.JournalViewers
 
 			CallTaskDlg dlg = new CallTaskDlg(selected.Id);
 			OpenSlaveTab(dlg);
-
-			/*
-			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().FirstOrDefault();
-
-			if(selected == null)
-				return;
-
-			ClientTaskViewModel clientTaskViewModel = new ClientTaskViewModel(employeeRepository,
-																				bottleRepository,
-																				callTaskRepository,
-																				phoneRepository,
-																				EntityUoWBuilder.ForOpen(selected.Id),
-																				UnitOfWorkFactory.GetDefaultFactory,
-																				ServicesConfig.CommonServices);
-			OpenSlaveTab(clientTaskViewModel);
-			*/
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)

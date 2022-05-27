@@ -18,6 +18,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
+using ClosedXML.Excel;
 
 namespace Vodovoz.Representations
 {
@@ -176,6 +177,49 @@ namespace Vodovoz.Representations
 			.List<CallTaskVMNode>();
 			tasks = SortResult(tasks).ToList();
 			SetItemsSource(tasks);
+		}
+
+		internal void ExportTasks(string path)
+		{
+			var rows = from row in ItemsList as List<CallTaskVMNode>
+					   select new 
+					   { 
+						   row.Id,
+						   row.TaskStatus,
+						   row.ClientName,
+						   row.CreationDate,
+						   row.AddressName, 
+						   row.DebtByAddress,
+						   row.DebtByClient,
+						   row.DeliveryPointPhones,
+						   row.CounterpartyPhones,
+						   row.Phones,
+						   row.AssignedEmployeeName,
+						   row.Deadline,
+						   row.ImportanceDegree
+					   };
+
+		var wb = new XLWorkbook();
+			var ws = wb.Worksheets.Add("Inserting Data");
+
+			ws.Cell(1, 1).Value = "Код";
+			ws.Cell(1, 2).Value = "Статус";
+			ws.Cell(1, 3).Value = "Клиент";
+			ws.Cell(1, 4).Value = "Дата созадния";
+			ws.Cell(1, 5).Value = "Адрес";
+			ws.Cell(1, 6).Value = "Долг по адресу";
+			ws.Cell(1, 7).Value = "Долг по клиенту";
+			ws.Cell(1, 8).Value = "Телефон адреса";
+			ws.Cell(1, 9).Value = "Телефон клиента";
+			ws.Cell(1, 10).Value = "Телефоны";
+			ws.Cell(1, 11).Value = "Назначенное имя сотрудника";
+			ws.Cell(1, 12).Value = "Выполнить до";
+			ws.Cell(1, 13).Value = "Важность";
+
+			ws.Cell(2, 1).InsertData(rows);
+			ws.Columns().AdjustToContents();
+
+			wb.SaveAs(path);
 		}
 
 		private IEnumerable<CallTaskVMNode> SortResult(IEnumerable<CallTaskVMNode> tasks)
