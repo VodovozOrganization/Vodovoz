@@ -2179,9 +2179,10 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			if(CanUsedPromo(promotionalSetRepository))
+			if(proSet.ForTheFirstOrderOnlyToTheAddress && promotionalSetRepository.AddressHasAlreadyBeenUsed(UoW, deliveryPoint))
 			{
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, $"По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n");
+				string message = "Этот промонабор можно заказать только при первом заказе на адрес.";
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 				return false;
 			}
 
@@ -2206,18 +2207,6 @@ namespace Vodovoz.Domain.Orders
 			if(InteractiveService.Question(sb.ToString()))
 				return true;
 			return false;
-		}
-
-		/// <summary>
-		/// Проверка на использование промо-набора в заказе на адрес
-		/// </summary>
-		/// <returns><c>true</c>, если на адрес не доставляли промо-набор,
-		/// <c>false</c> если нельзя.</returns>
-		public virtual bool CanUsedPromo(IPromotionalSetRepository promotionalSetRepository)
-		{
-			return Client.PersonType == PersonType.natural
-				&& ((DeliveryPoint.RoomType == RoomType.Office) || (DeliveryPoint.RoomType == RoomType.Store))
-				&& promotionalSetRepository.AddressHasAlreadyBeenUsedForPromo( UoW, deliveryPoint );
 		}
 
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
