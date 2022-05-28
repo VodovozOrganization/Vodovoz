@@ -1502,9 +1502,9 @@ namespace Vodovoz
 				}
 			}
 			bool forTheFirstOrderOnlyToTheAddress = Entity.PromotionalSets.Any(x => x.ForTheFirstOrderOnlyToTheAddress);
-			if(forTheFirstOrderOnlyToTheAddress && Entity.CanUsedPromo(_promotionalSetRepository))
+			if(forTheFirstOrderOnlyToTheAddress && _promotionalSetRepository.AddressHasAlreadyBeenUsed(UoW, Entity.DeliveryPoint))
 			{
-				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n" +
+				string message = "Добавленный промонабор в можно заказать только при первом заказе на адрес.\n" +
 								 "Пожалуйста удалите промо набор или поменяйте адрес доставки.";
 				MessageDialogHelper.RunWarningDialog( message );
 				return false;
