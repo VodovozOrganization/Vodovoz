@@ -15,6 +15,7 @@ namespace Vodovoz.Views.Suppliers
 	public partial class WarehousesBalanceSummaryView : TabViewBase<WarehousesBalanceSummaryViewModel>
 	{
 		private Task _generationTask;
+		private int _maxWarehousesInReportExport = 10;
 
 		public WarehousesBalanceSummaryView(WarehousesBalanceSummaryViewModel viewModel) : base(viewModel)
 		{
@@ -137,57 +138,28 @@ namespace Vodovoz.Views.Suppliers
 			await _generationTask;
 		}
 
-
-
-		private async void Export()
+		private void Export()
 		{
-			var extension = ".xlsx";
-
-			var filechooser = new FileChooserDialog("Сохранить отчет...",
-				null,
-				FileChooserAction.Save,
-				"Отменить", ResponseType.Cancel,
-				"Сохранить", ResponseType.Accept)
+			if(ViewModel.Report == null)
 			{
-				DoOverwriteConfirmation = true,
-				CurrentName = $"{Tab.TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
-			};
-
-			var excelFilter = new FileFilter
-			{
-				Name = $"Документ Microsoft Excel ({extension})"
-			};
-
-			excelFilter.AddMimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-			excelFilter.AddPattern($"*{extension}");
-			filechooser.AddFilter(excelFilter);
-
-
-			if(filechooser.Run() == (int)ResponseType.Accept)
-			{
-				var path = filechooser.Filename;
-
-				if(!path.Contains(extension))
-				{
-					path += extension;
-				}
-
-				filechooser.Hide();
-
-				await Task.Run(() =>
-				{
-					try
-					{
-						ViewModel.ExportReport(path);
-					}
-					catch(Exception ex)
-					{
-						
-					}
-				});
+				ViewModel.ShowWarning("Отчет пустой.");
+				return;
 			}
 
-			filechooser.Destroy();
+			if(ViewModel.Report.WarehousesTitles.Count > _maxWarehousesInReportExport)
+			{
+				ViewModel.ShowWarning("Пожалуйста выберите до 10 складов.");
+				return;
+			}
+
+			try
+			{
+				ViewModel.ExportReport();
+			}
+			catch(Exception ex)
+			{
+				Application.Invoke((s, eventArgs) => throw ex);
+			}
 		}
 	}
 }

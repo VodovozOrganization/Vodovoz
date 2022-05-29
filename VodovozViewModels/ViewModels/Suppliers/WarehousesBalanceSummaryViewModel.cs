@@ -12,6 +12,7 @@ using NHibernate.Util;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -23,6 +24,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 {
 	public class WarehousesBalanceSummaryViewModel : DialogTabViewModelBase
 	{
+		private readonly IFileDialogService _fileDialogService;
 		private SelectableParameterReportFilterViewModel _nomsViewModel;
 		private SelectableParameterReportFilterViewModel _warsViewModel;
 		private SelectableParametersReportFilter _nomsFilter;
@@ -32,9 +34,10 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private BalanceSummaryReport _report;
 
 		public WarehousesBalanceSummaryViewModel(
-			IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation)
+			IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation, IFileDialogService fileDialogService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_fileDialogService = fileDialogService;
 			TabName = "Остатки по складам";
 		}
 
@@ -268,8 +271,42 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			return await new ValueTask<BalanceSummaryReport>(report);
 		}
 
-		public void ExportReport(string path)
+		public void ExportReport()
 		{
+			using(var wb = new XLWorkbook())
+			{
+				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
+				var ws = wb.Worksheets.Add(sheetName);
+
+				InsertValues(ws);
+				ws.Columns().AdjustToContents();
+
+				if(TryGetSavePath(out string path))
+				{
+					wb.SaveAs(path);
+				}
+
+			}
+		}
+
+		private bool TryGetSavePath(out string path)
+		{
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			path = result.Path;
+
+			return result.Successful;
+
+		}
+
+		private void InsertValues(IXLWorksheet ws)
+		{
+			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "Общий остаток", "Разница" };
 			var rows = from row in Report.SummaryRows
 					   select new
 					   {
@@ -279,21 +316,23 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						   row.Common,
 						   row.Diff
 					   };
-
-			var wb = new XLWorkbook();
-			var ws = wb.Worksheets.Add("Inserting Data");
-
-			ws.Cell(1, 1).Value = "Код";
-			ws.Cell(1, 2).Value = "Наименование";
-			ws.Cell(1, 3).Value = "Мин. Остаток";
-			ws.Cell(1, 4).Value = "Общий остаток";
-			ws.Cell(1, 5).Value = "Разница";
-
+			int index = 1;
+			foreach(var name in colNames)
+			{
+				ws.Cell(1, index).Value = name;
+				index++;
+			}
 			ws.Cell(2, 1).InsertData(rows);
+			AddWarehouseCloumns(ws, index);
+		}
 
-			ws.Columns().AdjustToContents();
-
-			wb.SaveAs(path);
+		private void AddWarehouseCloumns(IXLWorksheet ws, int startIndex)
+		{
+			for(var i = 0; i < Report.WarehousesTitles.Count; i++)
+			{
+				ws.Cell(1, startIndex + i).Value = $"{Report.WarehousesTitles[i]}";
+				ws.Cell(2, startIndex + i).InsertData(Report.SummaryRows.Select(sr => sr.Separate[i]));
+			}
 		}
 
 		private void RemoveWarehousesByFilterCondition(ref BalanceSummaryReport report, CancellationToken cancellationToken)
