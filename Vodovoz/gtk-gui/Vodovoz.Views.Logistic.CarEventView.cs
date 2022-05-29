@@ -255,7 +255,7 @@ namespace Vodovoz.Views.Logistic
 			this.labelComment1.Name = "labelComment1";
 			this.labelComment1.Xalign = 1F;
 			this.labelComment1.Yalign = 0F;
-			this.labelComment1.LabelProp = global::Mono.Unix.Catalog.GetString("Основание:");
+			this.labelComment1.LabelProp = global::Mono.Unix.Catalog.GetString("Основание. Номер и дата документа:");
 			this.table1.Add(this.labelComment1);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.labelComment1]));
 			w18.TopAttach = ((uint)(9));
