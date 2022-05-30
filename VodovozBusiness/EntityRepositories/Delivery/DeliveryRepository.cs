@@ -316,7 +316,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Inner.JoinAlias(() => o.OrderItems, () => oi)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
-				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue })
+				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
 					.SelectGroup(() => oi.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
@@ -330,6 +330,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Inner.JoinAlias(() => o.OrderEquipments, () => oe)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oe.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
+				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
 				.And(() => oe.Direction == Direction.Deliver)
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
@@ -607,7 +608,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Inner.JoinAlias(() => o.OrderItems, () => oi)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
-				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue })
+				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
 					.SelectGroup(() => oi.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
@@ -621,6 +622,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Inner.JoinAlias(() => o.OrderEquipments, () => oe)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oe.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
+				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
 				.And(() => oe.Direction == Direction.Deliver)
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
