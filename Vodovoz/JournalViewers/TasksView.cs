@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using System.Threading.Tasks;
+using QS.Dialog.GtkUI.FileDialog;
 
 namespace Vodovoz.JournalViewers
 {
@@ -47,7 +48,7 @@ namespace Vodovoz.JournalViewers
 			evmeEmployee.ChangedByUser += OnEvmeEmployeeChangedByUser;
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
-			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()));
+			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()), new FileDialogService());
 			_callTasksVm.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			_callTasksVm.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			_callTasksVm.Filter =
@@ -84,55 +85,19 @@ namespace Vodovoz.JournalViewers
 			}
 		}
 
-		private async void Export()
+		private void Export()
 		{
-			var extension = ".xlsx";
 
-			var filechooser = new FileChooserDialog("Сохранить отчет...",
-				null,
-				FileChooserAction.Save,
-				"Отменить", ResponseType.Cancel,
-				"Сохранить", ResponseType.Accept)
+			var fileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+
+			try
 			{
-				DoOverwriteConfirmation = true,
-				CurrentName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
-			};
-
-			var excelFilter = new FileFilter
-			{
-				Name = $"Документ Microsoft Excel ({extension})"
-			};
-
-			excelFilter.AddMimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-			excelFilter.AddPattern($"*{extension}");
-			filechooser.AddFilter(excelFilter);
-
-
-			if(filechooser.Run() == (int)ResponseType.Accept)
-			{
-				var path = filechooser.Filename;
-
-				if(!path.Contains(extension))
-				{
-					path += extension;
-				}
-
-				filechooser.Hide();
-
-				await Task.Run(() =>
-				{
-					try
-					{
-						_callTasksVm.ExportTasks(path);
-					}
-					catch (Exception ex)
-					{
-
-					}
-				});
+				_callTasksVm.ExportTasks(fileName);
 			}
-
-			filechooser.Destroy();
+			catch(Exception ex)
+			{
+				Application.Invoke((s, eventArgs) => throw ex);
+			}
 		}
 
 		#region BaseJournalHeandler

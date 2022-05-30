@@ -19,6 +19,8 @@ using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using ClosedXML.Excel;
+using QS.Project.Services.FileDialog;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Vodovoz.Representations
 {
@@ -26,14 +28,16 @@ namespace Vodovoz.Representations
 	{
 		private readonly Pixbuf img;
 		private readonly Pixbuf emptyImg;
+		private readonly IFileDialogService _fileDialogService;
 
 		private CallTaskFilterViewModel filter;
-		public CallTaskFilterViewModel Filter 
+		public CallTaskFilterViewModel Filter
 		{
 			get => filter;
-			set 
+			set
 			{
-				if(filter != value) {
+				if(filter != value)
+				{
 					filter = value;
 					filter.OnFiltered += (sender, e) => UpdateNodes();
 					PropertyChanged?.Invoke(this, EventArgs.Empty);
@@ -55,15 +59,16 @@ namespace Vodovoz.Representations
 			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? "Самовывоз")
 			.AddColumn("Долг по адресу").AddTextRenderer(node => node.DebtByAddress.ToString()).XAlign(0.5f)
 			.AddColumn("Долг по клиенту").AddTextRenderer(node => node.DebtByClient.ToString()).XAlign(0.5f)
-			.AddColumn("Телефоны").AddTextRenderer(node => node.DeliveryPointPhones == "+7" ? String.Empty : node.DeliveryPointPhones )
+			.AddColumn("Телефоны").AddTextRenderer(node => node.DeliveryPointPhones == "+7" ? String.Empty : node.DeliveryPointPhones)
 				.WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? String.Empty)
 			.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
-		public CallTasksVM(IImageProvider imageProvider)
+		public CallTasksVM(IImageProvider imageProvider, IFileDialogService fileDialogService)
 		{
+			_fileDialogService = fileDialogService;
 			img = new Pixbuf(UoW.GetById<StoredImageResource>(imageProvider.GetCrmIndicatorId()).BinaryFile);
 			emptyImg = img.Copy();
 			emptyImg.Fill(0xffffffff);
@@ -86,7 +91,8 @@ namespace Vodovoz.Representations
 						.Left.JoinAlias(() => callTaskAlias.DeliveryPoint, () => deliveryPointAlias)
 						.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);
 
-			switch(Filter.DateType) {
+			switch(Filter.DateType)
+			{
 				case TaskFilterDateType.CreationTime:
 					tasksQuery.Where(x => x.CreationDate >= Filter.StartDate.Date)
 							  .And(x => x.CreationDate <= Filter.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59));
@@ -153,6 +159,7 @@ namespace Vodovoz.Representations
 				   .Select(() => callTaskAlias.CreationDate).WithAlias(() => resultAlias.CreationDate)
 				   .Select(() => callTaskAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => callTaskAlias.TaskState).WithAlias(() => resultAlias.TaskStatus)
+				   .Select(() => callTaskAlias.Comment).WithAlias(() => resultAlias.Comment)
 				   .Select(() => callTaskAlias.ImportanceDegree).WithAlias(() => resultAlias.ImportanceDegree)
 				   .Select(() => callTaskAlias.IsTaskComplete).WithAlias(() => resultAlias.IsTaskComplete)
 				   .Select(() => callTaskAlias.TareReturn).WithAlias(() => resultAlias.TareReturn)
@@ -179,53 +186,106 @@ namespace Vodovoz.Representations
 			SetItemsSource(tasks);
 		}
 
-		internal void ExportTasks(string path)
+		internal void ExportTasks(string fileName)
 		{
+			using(var wb = new XLWorkbook())
+			{
+				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
+				var ws = wb.Worksheets.Add(sheetName);
+
+				InsertValues(ws);
+				ws.Columns().AdjustToContents();
+				ws.Columns().AddVerticalPageBreaks();
+
+				if(TryGetSavePath(fileName, out string path))
+				{
+					wb.SaveAs(path);
+				}
+			}
+		}
+
+		private void InsertValues(IXLWorksheet ws)
+		{
+			var colName = new string[] { "Код", "Статус", "Клиент", "Дата созадния", "Адрес", "Долг по адресу", "Долг по клиенту", "Телефон адреса", "Телефон клиента", "Комментарий", "Ответственный", "Выполнить до", "Срочность" };
 			var rows = from row in ItemsList as List<CallTaskVMNode>
-					   select new 
-					   { 
+					   select new
+					   {
 						   row.Id,
-						   row.TaskStatus,
+						   TaskStatus = ConvertTaskStatusToString(row.TaskStatus),
 						   row.ClientName,
-						   row.CreationDate,
-						   row.AddressName, 
+						   CreationDate = $"{row.CreationDate:dd.MM.yyyy HH-mm}",
+						   row.AddressName,
 						   row.DebtByAddress,
 						   row.DebtByClient,
 						   row.DeliveryPointPhones,
 						   row.CounterpartyPhones,
-						   row.Phones,
+						   Comment = row.Comment?.Trim(),
 						   row.AssignedEmployeeName,
-						   row.Deadline,
-						   row.ImportanceDegree
+						   Deadline = $"{row.Deadline:dd.MM.yyyy HH-mm}",
+						   ImportanceDegree = ConvertImportanceDegreeToString(row.ImportanceDegree)
 					   };
 
-		var wb = new XLWorkbook();
-			var ws = wb.Worksheets.Add("Inserting Data");
+			for(int i = 0; i < colName.Length; i++)
+			{
+				ws.Cell(1, i + 1).Value = colName[i];
+			}
 
-			ws.Cell(1, 1).Value = "Код";
-			ws.Cell(1, 2).Value = "Статус";
-			ws.Cell(1, 3).Value = "Клиент";
-			ws.Cell(1, 4).Value = "Дата созадния";
-			ws.Cell(1, 5).Value = "Адрес";
-			ws.Cell(1, 6).Value = "Долг по адресу";
-			ws.Cell(1, 7).Value = "Долг по клиенту";
-			ws.Cell(1, 8).Value = "Телефон адреса";
-			ws.Cell(1, 9).Value = "Телефон клиента";
-			ws.Cell(1, 10).Value = "Телефоны";
-			ws.Cell(1, 11).Value = "Назначенное имя сотрудника";
-			ws.Cell(1, 12).Value = "Выполнить до";
-			ws.Cell(1, 13).Value = "Важность";
+			ws.Cell(2, 1).InsertData(rows).SetDataType(XLDataType.Text);
+		}
 
-			ws.Cell(2, 1).InsertData(rows);
-			ws.Columns().AdjustToContents();
+		private string ConvertImportanceDegreeToString(ImportanceDegreeType importanceDegree)
+		{
+			switch(importanceDegree)
+			{
+				case ImportanceDegreeType.Nope:
+					return "Нет";
+				case ImportanceDegreeType.Important:
+					return "Важно";
+				default:
+					return "Неизвестно";
+			}
+		}
 
-			wb.SaveAs(path);
+		private string ConvertTaskStatusToString(CallTaskStatus taskStatus)
+		{
+			switch(taskStatus)
+			{
+				case CallTaskStatus.Call:
+					return "Звонок";
+				case CallTaskStatus.Task:
+					return "Задание";
+				case CallTaskStatus.DifficultClient:
+					return "Сложный клиент";
+				case CallTaskStatus.FirstClient:
+					return "Первичка";
+				case CallTaskStatus.Reconciliation:
+					return "Cверка";
+				case CallTaskStatus.DepositReturn:
+					return "Возврат залогов";
+				default:
+					return "Неизвестно";
+			}
+		}
+
+		private bool TryGetSavePath(string fileName, out string path)
+		{
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				FileName = fileName
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			path = result.Path;
+
+			return result.Successful;
+
 		}
 
 		private IEnumerable<CallTaskVMNode> SortResult(IEnumerable<CallTaskVMNode> tasks)
 		{
-			IEnumerable<CallTaskVMNode> result; 
-			switch(Filter.SortingParam) 
+			IEnumerable<CallTaskVMNode> result;
+			switch(Filter.SortingParam)
 			{
 				case SortingParamType.DebtByAddress:
 					result = tasks.OrderBy(x => x.DebtByAddress);
@@ -262,11 +322,11 @@ namespace Vodovoz.Representations
 			return result;
 		}
 
-		public Dictionary<string, int> GetStatistics (Employee employee = null)
+		public Dictionary<string, int> GetStatistics(Employee employee = null)
 		{
 			var statisticsParam = new Dictionary<string, int>();
 
-			if(!(Filter is CallTaskFilterViewModel taskFilter)) 
+			if(!(Filter is CallTaskFilterViewModel taskFilter))
 				return statisticsParam;
 
 			DateTime start = taskFilter.StartDate.Date;
@@ -280,9 +340,9 @@ namespace Vodovoz.Representations
 
 			if(employee != null)
 				baseQuery.And(() => tasksAlias.AssignedEmployee.Id == employee.Id);
-				
+
 			var callTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.Call);
-			statisticsParam.Add("Звонков : ", callTaskQuery.RowCount() );
+			statisticsParam.Add("Звонков : ", callTaskQuery.RowCount());
 
 			var difTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.DifficultClient);
 			statisticsParam.Add("Сложных клиентов : ", difTaskQuery.RowCount());
@@ -297,15 +357,19 @@ namespace Vodovoz.Representations
 			return statisticsParam;
 		}
 
-		public override IEnumerable<IJournalPopupItem> PopupItems {
-			get {
+		public override IEnumerable<IJournalPopupItem> PopupItems
+		{
+			get
+			{
 				var result = new List<IJournalPopupItem>();
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Отметить как важное",
-					(selectedItems) => {
+					(selectedItems) =>
+					{
 						var selectedNodes = selectedItems.Cast<CallTaskVMNode>();
 						ChangeEnitity((task) => task.ImportanceDegree = ImportanceDegreeType.Important, selectedNodes.ToArray(), false);
-						foreach(var selectedNode in selectedNodes) {
+						foreach(var selectedNode in selectedNodes)
+						{
 							selectedNode.ImportanceDegree = ImportanceDegreeType.Important;
 						}
 					}
@@ -315,12 +379,12 @@ namespace Vodovoz.Representations
 			}
 		}
 
-		public void ChangeEnitity(Action<CallTask> action , CallTaskVMNode[] tasks , bool NeedUpdate = true)
+		public void ChangeEnitity(Action<CallTask> action, CallTaskVMNode[] tasks, bool NeedUpdate = true)
 		{
 			if(action == null)
 				return;
 
-			tasks.ToList().ForEach((taskNode) => 
+			tasks.ToList().ForEach((taskNode) =>
 			{
 				CallTask task = UoW.GetById<CallTask>(taskNode.Id);
 				action(task);
@@ -376,8 +440,12 @@ namespace Vodovoz.Representations
 
 		public int TareReturn { get; set; }
 
-		public string RowColor {
-			get {
+		public string Comment { get; set; }
+
+		public string RowColor
+		{
+			get
+			{
 				if(IsTaskComplete)
 					return "green";
 				if(DateTime.Now > Deadline)
