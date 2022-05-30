@@ -87,7 +87,6 @@ namespace Vodovoz.JournalViewers
 
 		private void Export()
 		{
-
 			var fileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 			try
@@ -96,7 +95,7 @@ namespace Vodovoz.JournalViewers
 			}
 			catch(Exception ex)
 			{
-				Application.Invoke((s, eventArgs) => throw ex);
+				throw ex;
 			}
 		}
 

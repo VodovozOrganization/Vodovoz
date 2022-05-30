@@ -194,8 +194,6 @@ namespace Vodovoz.Representations
 				var ws = wb.Worksheets.Add(sheetName);
 
 				InsertValues(ws);
-				ws.Columns().AdjustToContents();
-				ws.Columns().AddVerticalPageBreaks();
 
 				if(TryGetSavePath(fileName, out string path))
 				{
@@ -206,7 +204,7 @@ namespace Vodovoz.Representations
 
 		private void InsertValues(IXLWorksheet ws)
 		{
-			var colName = new string[] { "№", "Номер задачи", "Статус", "Клиент", "Дата созадния", "Адрес", "Долг по адресу", "Долг по клиенту", "Телефон адреса", "Телефон клиента", "Комментарий", "Ответственный", "Выполнить до", "Срочность" };
+			var colName = new string[] { "№", "Номер\nзадачи", "Статус", "Клиент", "Дата созадния", "Адрес", "Долг \nпо адресу", "Долг \nпо клиенту", "Телефон адреса", "Телефон клиента", "Ответственный", "Выполнить до", "Срочность", "Комментарий" };
 			var index = 0;
 			var rows = from row in ItemsList as List<CallTaskVMNode>
 					   select new
@@ -215,16 +213,16 @@ namespace Vodovoz.Representations
 						   row.Id,
 						   TaskStatus = ConvertTaskStatusToString(row.TaskStatus),
 						   row.ClientName,
-						   CreationDate = $"{row.CreationDate:dd.MM.yyyy HH-mm}",
+						   CreationDate = $"{row.CreationDate:dd.MM.yyyy HH:mm}",
 						   row.AddressName,
 						   row.DebtByAddress,
 						   row.DebtByClient,
 						   row.DeliveryPointPhones,
 						   row.CounterpartyPhones,
-						   Comment = row.Comment?.Trim(),
 						   row.AssignedEmployeeName,
-						   Deadline = $"{row.Deadline:dd.MM.yyyy HH-mm}",
-						   ImportanceDegree = ConvertImportanceDegreeToString(row.ImportanceDegree)
+						   Deadline = $"{row.Deadline:dd.MM.yyyy HH:mm}",
+						   ImportanceDegree = ConvertImportanceDegreeToString(row.ImportanceDegree),
+						   Comment = row.Comment?.Trim()
 					   };
 
 			for(int i = 0; i < colName.Length; i++)
@@ -233,6 +231,11 @@ namespace Vodovoz.Representations
 			}
 
 			ws.Cell(2, 1).InsertData(rows).SetDataType(XLDataType.Text);
+			ws.Columns(1, colName.Length - 1).AdjustToContents();
+			ws.Column(colName.Length).Width = 60;
+			ws.Column(colName.Length).Style.Alignment.WrapText = true;
+			ws.Row(1).Height = 40;
+			ws.Columns().AddVerticalPageBreaks();
 		}
 
 		private string ConvertImportanceDegreeToString(ImportanceDegreeType importanceDegree)
