@@ -206,10 +206,12 @@ namespace Vodovoz.Representations
 
 		private void InsertValues(IXLWorksheet ws)
 		{
-			var colName = new string[] { "Код", "Статус", "Клиент", "Дата созадния", "Адрес", "Долг по адресу", "Долг по клиенту", "Телефон адреса", "Телефон клиента", "Комментарий", "Ответственный", "Выполнить до", "Срочность" };
+			var colName = new string[] { "№", "Номер задачи", "Статус", "Клиент", "Дата созадния", "Адрес", "Долг по адресу", "Долг по клиенту", "Телефон адреса", "Телефон клиента", "Комментарий", "Ответственный", "Выполнить до", "Срочность" };
+			var index = 0;
 			var rows = from row in ItemsList as List<CallTaskVMNode>
 					   select new
 					   {
+						   ind = index++,
 						   row.Id,
 						   TaskStatus = ConvertTaskStatusToString(row.TaskStatus),
 						   row.ClientName,
