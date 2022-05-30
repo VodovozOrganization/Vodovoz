@@ -24,6 +24,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 {
 	public class WarehousesBalanceSummaryViewModel : DialogTabViewModelBase
 	{
+		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
+		private readonly string _parameterNom = "nomenclatures";
+		private readonly string _parameterNomType = "nomenclature_type";
+		private readonly string _parameterProducGroups = "product_groups";
+		private readonly string _parameterWarehouses = "warehouses";
 		private readonly IFileDialogService _fileDialogService;
 		private SelectableParameterReportFilterViewModel _nomsViewModel;
 		private SelectableParameterReportFilterViewModel _warsViewModel;
@@ -103,14 +108,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			cancellationToken.ThrowIfCancellationRequested();
 			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
 
-			var nomsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == "nomenclatures");
+			var nomsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNom);
 			var noms = nomsSet?.GetIncludedParameters()?.ToList();
-			var typesSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == "nomenclature_type");
+			var typesSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomType);
 			var types = typesSet?.GetIncludedParameters()?.ToList();
-			var groupsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == "product_groups");
+			var groupsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterProducGroups);
 			var groups = groupsSet?.GetIncludedParameters()?.ToList();
 			var wars = _warsFilter.ParameterSets
-				.FirstOrDefault(ps => ps.ParameterName == "warehouses")?.GetIncludedParameters()?.ToList();
+				.FirstOrDefault(ps => ps.ParameterName == _parameterWarehouses)?.GetIncludedParameters()?.ToList();
 
 			Nomenclature nomAlias = null;
 
@@ -285,23 +290,23 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				{
 					wb.SaveAs(path);
 				}
-
 			}
 		}
 
 		private bool TryGetSavePath(out string path)
 		{
+			var extension = ".xlsx";
 			var dialogSettings = new DialogSettings
 			{
 				Title = "Сохранить",
-				FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+				FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
 			};
 
+			dialogSettings.FileFilters.Add(new DialogFileFilter(_xlsxFileFilter, $"*{extension}"));
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 			path = result.Path;
 
 			return result.Successful;
-
 		}
 
 		private void InsertValues(IXLWorksheet ws)
@@ -380,10 +385,10 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private SelectableParameterReportFilterViewModel CreateNomsViewModel()
 		{
 			_nomsFilter = new SelectableParametersReportFilter(UoW);
-			var nomenclatureTypeParam = _nomsFilter.CreateParameterSet("Типы номенклатур", "nomenclature_type",
+			var nomenclatureTypeParam = _nomsFilter.CreateParameterSet("Типы номенклатур", _parameterNomType,
 				new ParametersEnumFactory<NomenclatureCategory>());
 
-			var nomenclatureParam = _nomsFilter.CreateParameterSet("Номенклатуры", "nomenclatures",
+			var nomenclatureParam = _nomsFilter.CreateParameterSet("Номенклатуры", _parameterNom,
 				new ParametersFactory(UoW, (filters) =>
 				{
 					SelectableEntityParameter<Nomenclature> resultAlias = null;
@@ -422,7 +427,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
 
-			_nomsFilter.CreateParameterSet("Группы товаров", "product_groups",
+			_nomsFilter.CreateParameterSet("Группы товаров", _parameterProducGroups,
 				new RecursiveParametersFactory<ProductGroup>(UoW, (filters) =>
 					{
 						var query = UoW.Session.QueryOver<ProductGroup>();
@@ -447,7 +452,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		{
 			_warsFilter = new SelectableParametersReportFilter(UoW);
 
-			_warsFilter.CreateParameterSet("Склады", "warehouses", new ParametersFactory(UoW, (filters) =>
+			_warsFilter.CreateParameterSet("Склады", _parameterWarehouses, new ParametersFactory(UoW, (filters) =>
 			{
 				SelectableEntityParameter<Warehouse> resultAlias = null;
 				var query = UoW.Session.QueryOver<Warehouse>().Where(x => !x.IsArchive);

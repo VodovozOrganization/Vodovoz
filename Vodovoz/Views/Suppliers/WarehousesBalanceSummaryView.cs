@@ -146,19 +146,17 @@ namespace Vodovoz.Views.Suppliers
 				return;
 			}
 
-			if(ViewModel.Report.WarehousesTitles.Count > _maxWarehousesInReportExport)
-			{
-				ViewModel.ShowWarning("Пожалуйста выберите до 10 складов.");
-				return;
-			}
-
 			try
 			{
 				ViewModel.ExportReport();
 			}
+			catch(OutOfMemoryException)
+			{
+				ViewModel.ShowWarning($"Слишком большой обьём данных.\n Пожалуйста, уменьшите выборку.");
+			}
 			catch(Exception ex)
 			{
-				Application.Invoke((s, eventArgs) => throw ex);
+				throw ex;
 			}
 		}
 	}
