@@ -1249,10 +1249,9 @@ ORDER BY order_satus_numbered DESC;</CommandText>
                 END
         From fast_payments fp
         Where fp.external_id = pfa.order_num
-        and date(fp.paid_date) = pfa.paid_date
+        and date(fp.paid_date) = date(pfa.paid_date)
         ) AS pay_type
 FROM payments_from_avangard pfa
-         
 WHERE
     (
             order_num NOT IN
