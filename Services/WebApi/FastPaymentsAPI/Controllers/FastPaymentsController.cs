@@ -132,7 +132,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
-				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid);
+				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid, FastPaymentPayType.ByQrCode);
 
 				response.QRCode = orderRegistrationResponseDto.QRPngBase64;
 				response.FastPaymentStatus = FastPaymentStatus.Processing;
@@ -237,7 +237,8 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
-				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid, phoneNumber);
+				var payType = isQr ? FastPaymentPayType.ByQrCode : FastPaymentPayType.ByCard;
+				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid, payType, phoneNumber);
 
 				response.Ticket = orderRegistrationResponseDto.Ticket;
 				response.FastPaymentGuid = fastPaymentGuid;
@@ -384,7 +385,7 @@ namespace FastPaymentsAPI.Controllers
 				_logger.LogInformation($"Сохраняем новую сессию оплаты для онлайн-заказа №{onlineOrderId}");
 				try
 				{
-					_fastPaymentModel.SaveNewTicketForOnlineOrder(orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum);
+					_fastPaymentModel.SaveNewTicketForOnlineOrder(orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum, FastPaymentPayType.ByQrCode);
 				}
 				catch(Exception e)
 				{

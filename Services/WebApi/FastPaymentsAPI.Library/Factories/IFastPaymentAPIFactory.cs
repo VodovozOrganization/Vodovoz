@@ -23,6 +23,7 @@ namespace FastPaymentsAPI.Library.Factories
 			Guid fastPaymentGuid,
 			decimal orderSum,
 			int externalId,
+			FastPaymentPayType payType,
 			Order order = null,
 			string phoneNumber = null,
 			int? onlineOrderId = null);

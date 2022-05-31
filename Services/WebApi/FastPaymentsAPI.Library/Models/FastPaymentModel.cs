@@ -64,6 +64,7 @@ namespace FastPaymentsAPI.Library.Models
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			int orderId,
 			Guid fastPaymentGuid,
+			FastPaymentPayType payType,
 			string phoneNumber = null)
 		{
 			Order order;
@@ -76,7 +77,7 @@ namespace FastPaymentsAPI.Library.Models
 			catch(Exception e)
 			{
 				_logger.LogError(e, $"При загрузке заказа№ {orderId} произошла ошибка, записываю в файл...");
-				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid);
+				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid, payType);
 				return;
 			}
 
@@ -86,6 +87,7 @@ namespace FastPaymentsAPI.Library.Models
 				fastPaymentGuid,
 				order.OrderSum,
 				orderId,
+				payType,
 				order,
 				phoneNumber);
 			fastPayment.SetProcessingStatus();
@@ -97,7 +99,7 @@ namespace FastPaymentsAPI.Library.Models
 			catch(Exception e)
 			{
 				_logger.LogError(e, "При сохранении платежа произошла ошибка, записываю в файл...");
-				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid);
+				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid, payType);
 			}
 		}
 		
@@ -105,7 +107,8 @@ namespace FastPaymentsAPI.Library.Models
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			Guid fastPaymentGuid,
 			int onlineOrderId,
-			decimal onlineOrderSum)
+			decimal onlineOrderSum,
+			FastPaymentPayType payType)
 		{
 			var creationDate = DateTime.Now;
 			
@@ -115,6 +118,7 @@ namespace FastPaymentsAPI.Library.Models
 				fastPaymentGuid,
 				onlineOrderSum,
 				onlineOrderId,
+				payType,
 				null,
 				null,
 				onlineOrderId);
@@ -151,7 +155,8 @@ namespace FastPaymentsAPI.Library.Models
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			int orderId,
 			DateTime creationDate,
-			Guid fastPaymentGuid)
+			Guid fastPaymentGuid,
+			FastPaymentPayType payType)
 		{
 			var fastPaymentDTO = new FastPaymentDTO
 			{
@@ -160,7 +165,8 @@ namespace FastPaymentsAPI.Library.Models
 				Ticket = orderRegistrationResponseDto.Ticket,
 				QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
 				ExternalId = orderId,
-				FastPaymentGuid = fastPaymentGuid
+				FastPaymentGuid = fastPaymentGuid,
+				FastPaymentPayType = payType
 			};
 
 			_fastPaymentFileCache.WritePaymentCache(fastPaymentDTO);

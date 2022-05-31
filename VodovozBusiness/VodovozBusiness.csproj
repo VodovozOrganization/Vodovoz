@@ -122,6 +122,7 @@
     <Compile Include="Domain\Employees\PremiumBase.cs" />
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\FastPayments\FastPayment.cs" />
+    <Compile Include="Domain\FastPayments\FastPaymentPayType.cs" />
     <Compile Include="Domain\FastPayments\FastPaymentStatus.cs" />
     <Compile Include="Domain\FinancialDistrict.cs" />
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
