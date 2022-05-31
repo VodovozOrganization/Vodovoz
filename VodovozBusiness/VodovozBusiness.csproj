@@ -149,7 +149,7 @@
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />
-    <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemsHistory.cs" />
+    <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryAvailabilityHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryAvailabilityHistoryItem.cs" />
     <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
@@ -768,7 +768,7 @@
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
     <Compile Include="ConfigureDeletion.cs" />
-    <Compile Include="Tools\Orders\FastDeliveryHistoryItemsConverter.cs" />
+    <Compile Include="Tools\Orders\FastDeliveryHistoryConverter.cs" />
     <Compile Include="Tools\Orders\OrderStateKey.cs" />
     <Compile Include="Tools\Orders\OrderRules.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryPriceRuleMap.cs" />

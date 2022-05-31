@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		Nominative = "строка заказа истории экспресс-доставки",
 		NominativePlural = "строки заказа истории экспресс-доставки")]
-	public class FastDeliveryOrderItemsHistory : PropertyChangedBase, IDomainObject
+	public class FastDeliveryOrderItemHistory : PropertyChangedBase, IDomainObject
 	{
 		private Nomenclature _nomenclature;
 		private decimal _count;

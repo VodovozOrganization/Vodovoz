@@ -19,6 +19,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
 using Vodovoz.Services;
+using Vodovoz.Tools.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Delivery
@@ -148,25 +149,34 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var driverUnloadTime = (int)deliveryRulesParametersProvider.DriverUnloadTime.TotalMinutes;
 			var specificTimeForFastOrdersCount = (int)deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
 
+			var fastDeliveryVerificationDTO = new FastDeliveryVerificationDTO
+			{
+				FastDeliveryAvailabilityHistory = new FastDeliveryAvailabilityHistory
+				{
+					IsGetClosestByRoute = isGetClosestByRoute,
+					Order = fastDeliveryOrder,
+					MaxDistanceToLatestTrackPointKm = maxDistanceToTrackPoint,
+					DriverGoodWeightLiftPerHandInKg = driverGoodWeightLiftPerHand,
+					MaxFastOrdersPerSpecificTime = maxFastOrdersPerSpecificTime,
+					MaxTimeForFastDelivery = maxTimeForFastDeliveryTimespan,
+					MinTimeForNewFastDeliveryOrder = deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder,
+					DriverUnloadTime = deliveryRulesParametersProvider.DriverUnloadTime,
+					SpecificTimeForMaxFastOrdersCount = deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount,
+				}
+			};
+
+			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter();
+			fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory.OrderItemsHistory = fastDeliveryOrder == null
+				? fastDeliveryHistoryConverter.ConvertNomenclatureAmountNodesToOrderItemsHistory(nomenclatureNodes, fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory)
+				: fastDeliveryHistoryConverter.ConvertOrderItemsToOrderItemsHistory(fastDeliveryOrder.OrderItems, fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory);
+
 			var district = GetDistrict(uow, (decimal)latitude, (decimal)longitude);
 			if(district?.TariffZone == null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
 			{
-				return new FastDeliveryVerificationDTO
-				{
-					AdditionalInformation = new List<string> { "Не найден район или у района отсутствует тарифная зона" },
-					FastDeliveryAvailabilityHistory = new FastDeliveryAvailabilityHistory
-					{
-						IsGetClosestByRoute = isGetClosestByRoute,
-						Order = fastDeliveryOrder,
-						MaxDistanceToLatestTrackPointKm = maxDistanceToTrackPoint,
-						DriverGoodWeightLiftPerHandInKg = driverGoodWeightLiftPerHand,
-						MaxFastOrdersPerSpecificTime = maxFastOrdersPerSpecificTime,
-						MaxTimeForFastDelivery = maxTimeForFastDeliveryTimespan,
-						MinTimeForNewFastDeliveryOrder = deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder,
-						DriverUnloadTime = deliveryRulesParametersProvider.DriverUnloadTime,
-						SpecificTimeForMaxFastOrdersCount = deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount
-					}
-				};
+				fastDeliveryVerificationDTO.AdditionalInformation =
+					new List<string> {"Не найден район или у района отсутствует тарифная зона"};
+
+				return fastDeliveryVerificationDTO;
 			}
 
 			var neededNomenclatures = nomenclatureNodes.ToDictionary(x => x.NomenclatureId, x => x.Amount);
@@ -434,22 +444,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 				}
 			}
 
-			return new FastDeliveryVerificationDTO
-			{
-				FastDeliveryVerificationDetailsNodes = routeListNodes,
-				FastDeliveryAvailabilityHistory = new FastDeliveryAvailabilityHistory
-				{
-					IsGetClosestByRoute = isGetClosestByRoute,
-					Order = fastDeliveryOrder,
-					MaxDistanceToLatestTrackPointKm = maxDistanceToTrackPoint,
-					DriverGoodWeightLiftPerHandInKg = driverGoodWeightLiftPerHand,
-					MaxFastOrdersPerSpecificTime = maxFastOrdersPerSpecificTime,
-					MaxTimeForFastDelivery = maxTimeForFastDeliveryTimespan,
-					MinTimeForNewFastDeliveryOrder = deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder,
-					DriverUnloadTime = deliveryRulesParametersProvider.DriverUnloadTime,
-					SpecificTimeForMaxFastOrdersCount = deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount
-				}
-			};
+			fastDeliveryVerificationDTO.FastDeliveryVerificationDetailsNodes = routeListNodes;
+
+			return fastDeliveryVerificationDTO;
 		}
 
 		private class RouteListNomenclatureAmount

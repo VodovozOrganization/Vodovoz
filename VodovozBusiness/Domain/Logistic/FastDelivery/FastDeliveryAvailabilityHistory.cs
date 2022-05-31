@@ -27,7 +27,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		private Double _fastDeliveryMaxDistanceKm;
 		private Employee _author;
 		private IList<FastDeliveryAvailabilityHistoryItem> _items;
-		private IList<FastDeliveryOrderItemsHistory> _orderItemsHistoryItems;
+		private IList<FastDeliveryOrderItemHistory> _orderItemsHistory;
 		private IList<FastDeliveryNomenclatureDistributionHistory> _nomenclatureDistributionHistoryItems;
 		private bool _isGetClosestByRoute;
 		private double _maxDistanceToLatestTrackPointKm;
@@ -185,10 +185,10 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		}
 
 		[Display(Name = "Строки заказа итории экспресс-доставки")]
-		public virtual IList<FastDeliveryOrderItemsHistory> OrderItemsHistoryItems
+		public virtual IList<FastDeliveryOrderItemHistory> OrderItemsHistory
 		{
-			get => _orderItemsHistoryItems;
-			set => SetField(ref _orderItemsHistoryItems, value);
+			get => _orderItemsHistory;
+			set => SetField(ref _orderItemsHistory, value);
 		}
 
 		[Display(Name = "Строки истории распределения номенклатур для экспресс-доставки")]

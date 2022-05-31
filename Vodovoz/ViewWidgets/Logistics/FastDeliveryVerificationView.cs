@@ -1,8 +1,7 @@
-﻿using System;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewWidgets.Logistics
@@ -25,9 +24,14 @@ namespace Vodovoz.ViewWidgets.Logistics
 				.AddBinding(ViewModel, vm => vm.Message, w => w.LabelProp)
 				.InitializeFromSource();
 
-			GtkLblDetails.Text = ViewModel.DetailsTitle;
+			ytextviewLogisticiaComment.Binding.AddBinding(ViewModel.FastDeliveryAvailabilityHistory, h => h.LogisticianComment, w => w.Buffer.Text)
+				.InitializeFromSource();
+
+			ybuttonSaveLogisticiaComment.Binding.AddFuncBinding(ViewModel.FastDeliveryAvailabilityHistory, x => x.Order != null, w => w.Visible).InitializeFromSource();
+			ybuttonSaveLogisticiaComment.Clicked += (sender, args) => ViewModel.SaveLogisticianCommentCommand.Execute();
 
 			ConfigureTreeDetails();
+			ConfigureOrderItems();
 		}
 
 		private void ConfigureTreeDetails()
@@ -70,6 +74,16 @@ namespace Vodovoz.ViewWidgets.Logistics
 				.Finish();
 
 			treeViewDetails.ItemsDataSource = ViewModel.Nodes;
+		}
+
+		private void ConfigureOrderItems()
+		{
+			treeViewNomenclatures.ColumnsConfig = FluentColumnsConfig<FastDeliveryOrderItemHistory>.Create()
+				.AddColumn("Товар").HeaderAlignment(0.5f).AddTextRenderer(x => x.Nomenclature.Name)
+				.AddColumn("Кол-во").MinWidth(75).HeaderAlignment(0.5f).AddNumericRenderer(node => node.Count)
+				.Finish();
+
+			treeViewNomenclatures.ItemsDataSource = ViewModel.OrderItemsHistory;
 		}
 	}
 }

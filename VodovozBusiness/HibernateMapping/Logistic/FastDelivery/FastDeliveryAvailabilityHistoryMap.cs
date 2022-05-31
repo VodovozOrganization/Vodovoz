@@ -34,7 +34,7 @@ namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
 			References(x => x.Counterparty).Column("counterparty_id");
 
 			HasMany(x => x.Items).KeyColumn("fast_delivery_availability_history_id").Cascade.AllDeleteOrphan().Inverse();
-			HasMany(x => x.OrderItemsHistoryItems).KeyColumn("fast_delivery_availability_history_id").Cascade.AllDeleteOrphan().Inverse();
+			HasMany(x => x.OrderItemsHistory).KeyColumn("fast_delivery_availability_history_id").Cascade.AllDeleteOrphan().Inverse();
 			HasMany(x => x.NomenclatureDistributionHistoryItems).KeyColumn("fast_delivery_availability_history_id").Cascade.AllDeleteOrphan().Inverse();
 		}
 	}

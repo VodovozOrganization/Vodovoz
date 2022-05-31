@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(FastDeliveryAvailabilityHistory),
 				typeof(FastDeliveryAvailabilityHistoryItem),
 				typeof(FastDeliveryNomenclatureDistributionHistory),
-				typeof(FastDeliveryOrderItemsHistory)
+				typeof(FastDeliveryOrderItemHistory)
 				);
 		}
 
@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistoryAlias = null;
 			FastDeliveryAvailabilityHistoryItem fastDeliveryAvailabilityHistoryItemAlias = null;
 			FastDeliveryNomenclatureDistributionHistory fastDeliveryNomenclatureDistributionHistoryAlias = null;
-			FastDeliveryOrderItemsHistory fastDeliveryOrderItemsHistoryAlias = null;
+			FastDeliveryOrderItemHistory fastDeliveryOrderItemHistoryAlias = null;
 			Employee driverAlias = null;
 			Employee authorAlias = null;
 			Employee logisticianAlias = null;
@@ -81,8 +81,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id ==
 						  fastDeliveryAvailabilityHistoryAlias.Id,
 					JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => fastDeliveryOrderItemsHistoryAlias,
-					() => fastDeliveryOrderItemsHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id,
+				.JoinEntityAlias(() => fastDeliveryOrderItemHistoryAlias,
+					() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id,
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryItemAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Author, () => authorAlias)
@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			if(FilterViewModel.VerificationDateFrom != null && FilterViewModel.VerificationDateTo != null)
 			{
 				itemsQuery.Where(x => x.VerificationDate >= FilterViewModel.VerificationDateFrom.Value.Date.Add(new TimeSpan(0, 0, 0, 0))
-				                      && x.VerificationDate <= FilterViewModel.VerificationDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
+									  && x.VerificationDate <= FilterViewModel.VerificationDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 			}
 
 			if(FilterViewModel.Counterparty != null)
@@ -156,7 +156,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.LogisticianComment).WithAlias(() => resultAlias.LogisticianComment)
 					.Select(logisticianProjection).WithAlias(() => resultAlias.Logistician)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.LogisticianCommentVersion).WithAlias(() => resultAlias.LogisticianCommentVersion)
-				).TransformUsing(Transformers.AliasToBean<FastDeliveryAvailabilityHistoryJournalNode>());
+				).OrderBy(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate).Desc
+				.TransformUsing(Transformers.AliasToBean<FastDeliveryAvailabilityHistoryJournalNode>());
 
 			return itemsQuery;
 		};
