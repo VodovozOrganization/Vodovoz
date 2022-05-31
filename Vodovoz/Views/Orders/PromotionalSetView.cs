@@ -39,7 +39,7 @@ namespace Vodovoz.Views.Orders
 													  .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
 													  .InitializeFromSource();
 
-			ycheckForTheFirstOrderOnlyToTheAddress.Binding.AddBinding(ViewModel.Entity, e => e.ForTheFirstOrderOnlyToTheAddress, w => w.Active)
+			ycheckForTheFirstOrderOnlyToTheAddress.Binding.AddBinding(ViewModel.Entity, e => e.CanBeReorderedWithoutRestriction, w => w.Active)
 														  .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
 														  .InitializeFromSource();
 			ycheckForTheFirstOrderOnlyToTheAddress.Visible = ycheckForTheFirstOrderOnlyToTheAddress.Sensitive = ViewModel.CanChangeType;
