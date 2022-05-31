@@ -69,12 +69,12 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _canBeAddedWithOtherPromoSets, value, () => CanBeAddedWithOtherPromoSets);
 		}
 
-		bool _forTheFirstOrderOnlyToTheAddress;
-		[Display(Name = "Только для первого заказа на адрес")]
-		public virtual bool ForTheFirstOrderOnlyToTheAddress
+		bool _canBeReorderedWithoutRestriction;
+		[Display(Name = "Можно заказывать повторно без ограничений")]
+		public virtual bool CanBeReorderedWithoutRestriction
 		{
-			get => _forTheFirstOrderOnlyToTheAddress;
-			set => SetField(ref _forTheFirstOrderOnlyToTheAddress, value);
+			get => _canBeReorderedWithoutRestriction;
+			set => SetField(ref _canBeReorderedWithoutRestriction, value);
 		}
 
 		IList<PromotionalSetItem> _promotionalSetItems = new List<PromotionalSetItem>();

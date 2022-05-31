@@ -60,10 +60,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result;
 		}
 
-		public bool AddressHasAlreadyBeenUsed(IUnitOfWork uow, DeliveryPoint deliveryPoint)
+		public bool AddressHasAlreadyBeenUsedForPromo(IUnitOfWork uow, DeliveryPoint deliveryPoint)
 		{
 			VodovozOrder ordersAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
+			PromotionalSet promotionalSetAlias = null;
 
 			var result = uow.Session.QueryOver(() => ordersAlias)
 									.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
@@ -71,6 +72,7 @@ namespace Vodovoz.EntityRepositories.Orders
 											   && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
 											   && deliveryPointAlias.Building.IsLike(deliveryPoint.Building, MatchMode.Anywhere)
 											   && deliveryPointAlias.Room.IsLike(deliveryPoint.Room, MatchMode.Anywhere)
+											   && !promotionalSetAlias.CanBeReorderedWithoutRestriction
 											   && ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses()))
 									.List<VodovozOrder>();
 			return result.Count() != 0;
