@@ -1,37 +1,40 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using Gamma.ColumnConfig;
+using QS.Dialog;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Organizations;
-using Gamma.ColumnConfig;
-using QS.DomainModel.Entity;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
-    [System.ComponentModel.ToolboxItem(true)]
+	[System.ComponentModel.ToolboxItem(true)]
     public partial class OrderChangesReport : SingleUoWWidgetBase, IParametersWidget
     {
         private List<SelectedChangeTypeNode> changeTypes = new List<SelectedChangeTypeNode>();
         private List<SelectedIssueTypeNode> issueTypes = new List<SelectedIssueTypeNode>();
         private readonly IReportDefaultsProvider reportDefaultsProvider;
+		private readonly IInteractiveService _interactiveService;
 
-        public OrderChangesReport(IReportDefaultsProvider reportDefaultsProvider)
+		public OrderChangesReport(IReportDefaultsProvider reportDefaultsProvider, IInteractiveService interactiveService)
         {
             this.reportDefaultsProvider = reportDefaultsProvider ?? throw new ArgumentNullException(nameof(reportDefaultsProvider));
-            this.Build();
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			this.Build();
             Configure();
         }
 
         private void Configure()
         {
             UoW = UnitOfWorkFactory.CreateWithoutRoot();
-            buttonCreateReport.Clicked += OnButtonCreateReportClicked;
-            dateperiodpicker.StartDate = DateTime.Today.AddDays(-1);
-            dateperiodpicker.EndDate = DateTime.Today.AddDays(-1);
+			chkOldMonitoring.Toggled += (sender, e) => UpdatePeriod();
+			UpdatePeriod();
+			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
             dateperiodpicker.PeriodChangedByUser += OnDateChanged;
             var organizations = UoW.GetAll<Organization>();
             comboOrganization.ItemsList = organizations;
@@ -61,9 +64,21 @@ namespace Vodovoz.ReportsParameters.Orders
             AddIssueType("Проблемы менеджеров", "ManagersIssues");
 
             ytreeviewIssueTypes.ItemsDataSource = issueTypes;
-        }
+		}
 
-        private void AddChangeType(string title, string value)
+		private void UpdatePeriod()
+		{
+			if(chkOldMonitoring.Active)
+			{
+				dateperiodpicker.SetPeriod(DateTime.Today.AddDays(-60), DateTime.Today.AddDays(-60));
+			}
+			else
+			{
+				dateperiodpicker.SetPeriod(DateTime.Today.AddDays(-1), DateTime.Today.AddDays(-1));
+			}
+		}
+
+		private void AddChangeType(string title, string value)
         {
             var changeType = new SelectedChangeTypeNode();
             changeType.Title = title;
@@ -133,27 +148,58 @@ namespace Vodovoz.ReportsParameters.Orders
         }
 
         private bool issuesSensitive => changeTypes.Any(x => x.Value == "PaymentType" && !x.Selected);
-
-        private void UpdateSensitivity()
+        
+		private void UpdateSensitivity()
         {
-            bool hasValidDate = dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate < DateTime.Now;
-            bool hasOrganization = comboOrganization.SelectedItem != null;
+			bool isValidDate;
+			if(chkOldMonitoring.Active)
+			{
+				isValidDate =
+				 dateperiodpicker.StartDateOrNull != null
+					&& dateperiodpicker.EndDateOrNull != null
+					&& dateperiodpicker.StartDate < DateTime.Today.AddDays(-59)
+					&& dateperiodpicker.EndDate < DateTime.Today.AddDays(-59);
+			}
+			else
+			{
+				isValidDate = dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate >= DateTime.Today.AddDays(-59);
+			}
+
+			if(!isValidDate)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					chkOldMonitoring.Active ? "Можно выбирать период только раньше 60 дней" : "Можно выбирать только последние 60 дней");
+			}
+
+			bool hasOrganization = comboOrganization.SelectedItem != null;
             bool hasChangeTypes = changeTypes.Any(x => x.Selected);
             bool hasIssueTypes = issueTypes.Any(x => x.Selected);
-            buttonCreateReport.Sensitive = hasValidDate && hasOrganization && (hasChangeTypes || hasIssueTypes);
+            buttonCreateReport.Sensitive = isValidDate && hasOrganization && (hasChangeTypes || hasIssueTypes);
             ytreeviewIssueTypes.Sensitive = issuesSensitive;
         }
 
         private void UpdatePeriodMessage()
         {
-            if(dateperiodpicker.StartDateOrNull == null) {
+            if(dateperiodpicker.StartDateOrNull == null && dateperiodpicker.EndDateOrNull == null)
+            {
                 ylabelDateWarning.Visible = false;
                 return;
             }
-
-            var period = DateTime.Now - dateperiodpicker.StartDate;
-            ylabelDateWarning.Visible = period.Days > 14;
-        }
+            
+			if((dateperiodpicker.StartDateOrNull == null && dateperiodpicker.EndDateOrNull != null)
+				|| (dateperiodpicker.StartDateOrNull != null && dateperiodpicker.StartDate < DateTime.Today.AddDays(-13)))
+			{
+				ylabelDateWarning.Visible = true;
+			}
+			if(dateperiodpicker.StartDateOrNull != null)
+			{
+				var period = dateperiodpicker.EndDateOrNull == null
+					? DateTime.Now - dateperiodpicker.StartDate
+					: dateperiodpicker.EndDate - dateperiodpicker.StartDate;
+				ylabelDateWarning.Visible = period.Days > 14;
+			}
+		}
 
         private void OnDateChanged(object sender, EventArgs e)
         {
