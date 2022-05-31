@@ -15,12 +15,14 @@ namespace FastPaymentsAPI.Library.Models
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			int orderId,
 			Guid fastPaymentGuid,
+			FastPaymentPayType payType,
 			string phoneNumber = null);
 		void SaveNewTicketForOnlineOrder(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			Guid fastPaymentGuid,
 			int onlineOrderId,
-			decimal onlineOrderSum);
+			decimal onlineOrderSum,
+			FastPaymentPayType payType);
 		void UpdateFastPaymentStatus(PaidOrderInfoDTO operationInfoDto);
 		void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
 		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto);
