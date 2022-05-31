@@ -2181,7 +2181,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(CanUsedPromo(promotionalSetRepository))
 			{
-				string message = "Этот промонабор можно заказать только при первом заказе на адрес.";
+				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 				return false;
 			}
