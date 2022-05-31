@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -432,7 +432,7 @@ WHERE o.id = @order_id
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Signatures" >
+    <DataSet Name="Signatures">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
@@ -451,7 +451,7 @@ WHERE o.id = @order_id
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="StoredImages" >
+    <DataSet Name="StoredImages">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
@@ -489,7 +489,7 @@ WHERE o.id = @order_id
         <Source>Database</Source>
         <Value>=First({logo}, "StoredImages")</Value>
         <Sizing>FitProportional</Sizing>
-        <MIMEType >image/jpeg</MIMEType>
+        <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Textbox Name="Textbox1">
         <Height>12.00pt</Height>
@@ -1480,7 +1480,7 @@ WHERE o.id = @order_id
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
-            <MIMEType >image/png</MIMEType>
+            <MIMEType>image/png</MIMEType>
           </Image>
           <Image Name="Image4">
             <Height>60.21pt</Height>
@@ -1500,7 +1500,7 @@ WHERE o.id = @order_id
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
-            <MIMEType >image/png</MIMEType>
+            <MIMEType>image/png</MIMEType>
           </Image>
         </ReportItems>
         <Style>
@@ -1565,7 +1565,7 @@ WHERE o.id = @order_id
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.26pt</Height>
         <Width>500.69pt</Width>
-        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' +{?special_contract_number}</Value>
+        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' + Iif(String.IsNullOrEmpty({?special_contract_number}), '', {?special_contract_number})</Value>
         <ZIndex>1</ZIndex>
         <Left>39.20pt</Left>
         <Top>204.70pt</Top>
