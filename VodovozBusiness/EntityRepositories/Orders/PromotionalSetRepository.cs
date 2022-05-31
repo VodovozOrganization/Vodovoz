@@ -68,6 +68,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var result = uow.Session.QueryOver(() => ordersAlias)
 									.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
+									.JoinAlias(() => ordersAlias.PromotionalSets, () => promotionalSetAlias)
 									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
 											   && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
 											   && deliveryPointAlias.Building.IsLike(deliveryPoint.Building, MatchMode.Anywhere)
