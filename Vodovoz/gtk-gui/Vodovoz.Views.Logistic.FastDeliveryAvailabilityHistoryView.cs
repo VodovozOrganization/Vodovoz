@@ -6,27 +6,11 @@ namespace Vodovoz.Views.Logistic
 	{
 		private global::Gamma.GtkWidgets.yVBox vboxMain;
 
-		private global::Gamma.GtkWidgets.yHBox yhboxVerification;
+		private global::Gamma.GtkWidgets.yHBox yhboxMainButtons;
 
-		private global::Gtk.Expander expanderAdditional;
+		private global::Gamma.GtkWidgets.yButton buttonClose;
 
-		private global::Gamma.GtkWidgets.yHBox yhboxAdditional;
-
-		private global::Gtk.ScrolledWindow scrolledWindowAdditional;
-
-		private global::Gamma.GtkWidgets.yTreeView treeViewNomenclatures;
-
-		private global::Gamma.GtkWidgets.yVBox yvboxLogisticiaComment;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelLogisticiaComment;
-
-		private global::Gtk.ScrolledWindow scrolledWindowLogisticiaComment;
-
-		private global::Gamma.GtkWidgets.yTextView ytextviewLogisticiaComment;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonSaveLogisticiaComment;
-
-		private global::Gtk.Label GtkLblAdditional;
+		private global::Gamma.GtkWidgets.yHBox yhboxVerificationWidget;
 
 		protected virtual void Build()
 		{
@@ -39,87 +23,35 @@ namespace Vodovoz.Views.Logistic
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.yhboxVerification = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxVerification.Name = "yhboxVerification";
-			this.yhboxVerification.Spacing = 6;
-			this.vboxMain.Add(this.yhboxVerification);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.yhboxVerification]));
-			w1.Position = 0;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.expanderAdditional = new global::Gtk.Expander(null);
-			this.expanderAdditional.CanFocus = true;
-			this.expanderAdditional.Name = "expanderAdditional";
-			this.expanderAdditional.Expanded = true;
-			// Container child expanderAdditional.Gtk.Container+ContainerChild
-			this.yhboxAdditional = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxAdditional.Name = "yhboxAdditional";
-			this.yhboxAdditional.Spacing = 6;
-			// Container child yhboxAdditional.Gtk.Box+BoxChild
-			this.scrolledWindowAdditional = new global::Gtk.ScrolledWindow();
-			this.scrolledWindowAdditional.Name = "scrolledWindowAdditional";
-			this.scrolledWindowAdditional.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child scrolledWindowAdditional.Gtk.Container+ContainerChild
-			this.treeViewNomenclatures = new global::Gamma.GtkWidgets.yTreeView();
-			this.treeViewNomenclatures.CanFocus = true;
-			this.treeViewNomenclatures.Name = "treeViewNomenclatures";
-			this.scrolledWindowAdditional.Add(this.treeViewNomenclatures);
-			this.yhboxAdditional.Add(this.scrolledWindowAdditional);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxAdditional[this.scrolledWindowAdditional]));
+			this.yhboxMainButtons = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxMainButtons.Name = "yhboxMainButtons";
+			this.yhboxMainButtons.Spacing = 6;
+			// Container child yhboxMainButtons.Gtk.Box+BoxChild
+			this.buttonClose = new global::Gamma.GtkWidgets.yButton();
+			this.buttonClose.CanFocus = true;
+			this.buttonClose.Name = "buttonClose";
+			this.buttonClose.UseUnderline = true;
+			this.buttonClose.Label = global::Mono.Unix.Catalog.GetString("Закрыть");
+			global::Gtk.Image w1 = new global::Gtk.Image();
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-close", global::Gtk.IconSize.Menu);
+			this.buttonClose.Image = w1;
+			this.yhboxMainButtons.Add(this.buttonClose);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxMainButtons[this.buttonClose]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			this.vboxMain.Add(this.yhboxMainButtons);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.yhboxMainButtons]));
 			w3.Position = 0;
-			// Container child yhboxAdditional.Gtk.Box+BoxChild
-			this.yvboxLogisticiaComment = new global::Gamma.GtkWidgets.yVBox();
-			this.yvboxLogisticiaComment.Name = "yvboxLogisticiaComment";
-			this.yvboxLogisticiaComment.Spacing = 6;
-			// Container child yvboxLogisticiaComment.Gtk.Box+BoxChild
-			this.ylabelLogisticiaComment = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelLogisticiaComment.Name = "ylabelLogisticiaComment";
-			this.ylabelLogisticiaComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий логиста:");
-			this.yvboxLogisticiaComment.Add(this.ylabelLogisticiaComment);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticiaComment[this.ylabelLogisticiaComment]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
-			// Container child yvboxLogisticiaComment.Gtk.Box+BoxChild
-			this.scrolledWindowLogisticiaComment = new global::Gtk.ScrolledWindow();
-			this.scrolledWindowLogisticiaComment.CanFocus = true;
-			this.scrolledWindowLogisticiaComment.Name = "scrolledWindowLogisticiaComment";
-			this.scrolledWindowLogisticiaComment.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child scrolledWindowLogisticiaComment.Gtk.Container+ContainerChild
-			this.ytextviewLogisticiaComment = new global::Gamma.GtkWidgets.yTextView();
-			this.ytextviewLogisticiaComment.CanFocus = true;
-			this.ytextviewLogisticiaComment.Name = "ytextviewLogisticiaComment";
-			this.scrolledWindowLogisticiaComment.Add(this.ytextviewLogisticiaComment);
-			this.yvboxLogisticiaComment.Add(this.scrolledWindowLogisticiaComment);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticiaComment[this.scrolledWindowLogisticiaComment]));
-			w6.Position = 1;
-			// Container child yvboxLogisticiaComment.Gtk.Box+BoxChild
-			this.ybuttonSaveLogisticiaComment = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonSaveLogisticiaComment.CanFocus = true;
-			this.ybuttonSaveLogisticiaComment.Name = "ybuttonSaveLogisticiaComment";
-			this.ybuttonSaveLogisticiaComment.UseUnderline = true;
-			this.ybuttonSaveLogisticiaComment.Label = global::Mono.Unix.Catalog.GetString("Сохранить комментарий");
-			global::Gtk.Image w7 = new global::Gtk.Image();
-			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
-			this.ybuttonSaveLogisticiaComment.Image = w7;
-			this.yvboxLogisticiaComment.Add(this.ybuttonSaveLogisticiaComment);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticiaComment[this.ybuttonSaveLogisticiaComment]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
-			this.yhboxAdditional.Add(this.yvboxLogisticiaComment);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxAdditional[this.yvboxLogisticiaComment]));
-			w9.Position = 1;
-			this.expanderAdditional.Add(this.yhboxAdditional);
-			this.GtkLblAdditional = new global::Gtk.Label();
-			this.GtkLblAdditional.Name = "GtkLblAdditional";
-			this.GtkLblAdditional.LabelProp = global::Mono.Unix.Catalog.GetString("Доплонительно");
-			this.GtkLblAdditional.UseUnderline = true;
-			this.expanderAdditional.LabelWidget = this.GtkLblAdditional;
-			this.vboxMain.Add(this.expanderAdditional);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.expanderAdditional]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.yhboxVerificationWidget = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxVerificationWidget.Name = "yhboxVerificationWidget";
+			this.yhboxVerificationWidget.Spacing = 6;
+			this.vboxMain.Add(this.yhboxVerificationWidget);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.yhboxVerificationWidget]));
+			w4.Position = 1;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

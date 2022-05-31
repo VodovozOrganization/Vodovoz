@@ -19,24 +19,24 @@ namespace Vodovoz.Views.Logistic
 		{
 			var fastDeliveryVerificationView = new FastDeliveryVerificationView(ViewModel.FastDeliveryVerificationViewModel);
 			fastDeliveryVerificationView.ShowAll();
-			yhboxVerification.PackStart(fastDeliveryVerificationView, true, true, 0);
+			/*yhboxVerification.PackStart(fastDeliveryVerificationView, true, true, 0);
 
 			ytextviewLogisticiaComment.Binding.AddBinding(ViewModel.Entity, e => e.LogisticianComment, w => w.Buffer.Text)
 				.InitializeFromSource();
 
-			ybuttonSaveLogisticiaComment.Clicked += (sender, args) => ViewModel.SaveLogisticiaCommentCommand.Execute();
+			ybuttonSaveLogisticiaComment.Clicked += (sender, args) => ViewModel.SaveLogisticiaCommentCommand.Execute();*/
 
 			ConfigureOrderItems();
 		}
 
 		private void ConfigureOrderItems()
 		{
-			treeViewNomenclatures.ColumnsConfig = FluentColumnsConfig<FastDeliveryOrderItemsHistory>.Create()
+			/*treeViewNomenclatures.ColumnsConfig = FluentColumnsConfig<FastDeliveryOrderItemsHistory>.Create()
 				.AddColumn("Товар").HeaderAlignment(0.5f).AddTextRenderer(x => x.Nomenclature.Name)
 				.AddColumn("Кол-во").MinWidth(75).HeaderAlignment(0.5f).AddNumericRenderer(node => node.Count)
 				.Finish();
 
-			treeViewNomenclatures.ItemsDataSource = ViewModel.Entity.OrderItemsHistoryItems;
+			treeViewNomenclatures.ItemsDataSource = ViewModel.Entity.OrderItemsHistoryItems;*/
 		}
 	}
 }
