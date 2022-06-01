@@ -422,6 +422,8 @@
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Parameters\CarEventSettings.cs" />
+    <Compile Include="Services\ICarEventSettings.cs" />
     <Compile Include="Services\IDeliveryPointParametersProvider.cs" />
     <Compile Include="Services\IEmployeeSettings.cs" />
     <Compile Include="Services\IFastPaymentParametersProvider.cs" />

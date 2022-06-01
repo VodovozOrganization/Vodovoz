@@ -310,6 +310,7 @@ public partial class MainWindow : Gtk.Window
 			ActionBookkeepping.Visible =
 			ActionCashMenubar.Visible = // Касса
 			ActionRetailMenubar.Visible =
+			ActionCarMenubar.Visible =
 			ActionProduction.Visible = !userIsSalesRepresentative;// Производство
 
 		// Отчеты в Продажи
@@ -2564,5 +2565,30 @@ public partial class MainWindow : Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromAvangardReport>(),
 			() => new QSReport.ReportViewDlg(new PaymentsFromAvangardReport())
 		);
+	}
+
+	protected void OnActionCostCarExploitationReport(object sender, EventArgs e)
+	{
+		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+		IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
+			= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
+				() =>
+				{
+					var filter = new CarJournalFilterViewModel(new CarModelJournalFactory())
+					{
+						Archive = false
+					};
+					filter.SetFilterSensitivity(false);
+					filter.CanChangeRestrictedCarOwnTypes = true;
+					return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices);
+				}
+			);
+
+		var viewModel = new CostCarExploitationReportViewModel(
+			uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory);
+
+		tdiMain.AddTab(viewModel);
 	}
 }
