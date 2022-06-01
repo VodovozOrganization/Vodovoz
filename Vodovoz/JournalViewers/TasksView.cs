@@ -14,6 +14,7 @@ using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using QS.Dialog.GtkUI.FileDialog;
 
 namespace Vodovoz.JournalViewers
 {
@@ -46,13 +47,14 @@ namespace Vodovoz.JournalViewers
 			evmeEmployee.ChangedByUser += OnEvmeEmployeeChangedByUser;
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
-			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()));
+			_callTasksVm = new CallTasksVM(new BaseParametersProvider(new ParametersProvider()), new FileDialogService());
 			_callTasksVm.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			_callTasksVm.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			_callTasksVm.Filter =
 				new CallTaskFilterViewModel(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(), _deliveryPointRepository);
 			_callTasksVm.PropertyChanged += CreateCallTaskFilterView;
 			representationtreeviewTask.RepresentationModel = _callTasksVm;
+			buttonExport.Clicked += (sender, args) => Export();
 			CreateCallTaskFilterView(_callTasksVm.Filter, EventArgs.Empty);
 			UpdateStatistics();
 		}
@@ -82,23 +84,20 @@ namespace Vodovoz.JournalViewers
 			}
 		}
 
+		private void Export()
+		{
+			var fileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+
+			_callTasksVm.ExportTasks(fileName);
+
+		}
+
 		#region BaseJournalHeandler
 
 		protected void OnAddTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg dlg = new CallTaskDlg();
 			TabParent.AddTab(dlg, this);
-
-			/*
-			ClientTaskViewModel clientTaskViewModel = new ClientTaskViewModel(employeeRepository,
-																				bottleRepository,
-																				callTaskRepository,
-																				phoneRepository,
-																				EntityUoWBuilder.ForCreate(), 
-																				UnitOfWorkFactory.GetDefaultFactory, 
-																				ServicesConfig.CommonServices);
-			TabParent.AddTab(clientTaskViewModel, this);
-			*/
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
@@ -111,22 +110,6 @@ namespace Vodovoz.JournalViewers
 
 			CallTaskDlg dlg = new CallTaskDlg(selected.Id);
 			OpenSlaveTab(dlg);
-
-			/*
-			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().FirstOrDefault();
-
-			if(selected == null)
-				return;
-
-			ClientTaskViewModel clientTaskViewModel = new ClientTaskViewModel(employeeRepository,
-																				bottleRepository,
-																				callTaskRepository,
-																				phoneRepository,
-																				EntityUoWBuilder.ForOpen(selected.Id),
-																				UnitOfWorkFactory.GetDefaultFactory,
-																				ServicesConfig.CommonServices);
-			OpenSlaveTab(clientTaskViewModel);
-			*/
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
