@@ -37,7 +37,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckbuttonShowFastDeliveryCircle.Sensitive = false;
 			this.ycheckbuttonShowFastDeliveryCircle.CanFocus = true;
 			this.ycheckbuttonShowFastDeliveryCircle.Name = "ycheckbuttonShowFastDeliveryCircle";
-			this.ycheckbuttonShowFastDeliveryCircle.Label = global::Mono.Unix.Catalog.GetString("Отображать радиус доставки");
+			this.ycheckbuttonShowFastDeliveryCircle.Label = global::Mono.Unix.Catalog.GetString("Отображать районы и радиус доставки");
 			this.ycheckbuttonShowFastDeliveryCircle.DrawIndicator = true;
 			this.ycheckbuttonShowFastDeliveryCircle.UseUnderline = true;
 			this.hbox1.Add(this.ycheckbuttonShowFastDeliveryCircle);
