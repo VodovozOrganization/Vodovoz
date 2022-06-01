@@ -215,7 +215,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				int OrderBySelector(RouteListWithCoordinateNode x)
 				{
 					var proposedRoute = OsrmClientFactory.Instance
-						.GetRoute(new List<PointOnEarth> { new PointOnEarth(x.Latitude, x.Longitude), deliveryPoint }, false, GeometryOverview.False, _globalSettings.ExcludeToll).Routes
+						.GetRoute(new List<PointOnEarth> { new PointOnEarth(x.Latitude, x.Longitude), deliveryPoint }, false, GeometryOverview.False, _globalSettings.ExcludeToll).Routes?
 						.FirstOrDefault();
 
 					//Если не удалось подобрать маршрут ставим самый низкий приоритет в сортировке
@@ -460,7 +460,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				var distance = DistanceHelper.GetDistanceKm(node.Latitude, node.Longitude, latitude, longitude);
 				var deliveryPoint = new PointOnEarth(latitude, longitude);
 				var proposedRoute = OsrmClientFactory.Instance
-					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, _globalSettings.ExcludeToll).Routes
+					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, _globalSettings.ExcludeToll).Routes?
 					.FirstOrDefault();
 				
 				node.DistanceByLineToClient.ParameterValue = (decimal)distance;
