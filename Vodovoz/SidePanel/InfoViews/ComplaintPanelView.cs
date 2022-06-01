@@ -245,6 +245,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				switch(filter.GuiltyItemVM.Entity.GuiltyType) {
 					case ComplaintGuiltyTypes.None:
 					case ComplaintGuiltyTypes.Client:
+					case ComplaintGuiltyTypes.Depreciation:
 					case ComplaintGuiltyTypes.Supplier:
 						break;
 					case ComplaintGuiltyTypes.Employee:
@@ -277,6 +278,7 @@ namespace Vodovoz.SidePanel.InfoViews
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Subdivision)}' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Client)}' THEN 'Клиент' " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Depreciation)}' THEN 'Износ' " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Supplier)}' THEN 'Поставщик' " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет (не рекламация)' " +
 						"ELSE ?1 " +

@@ -12,5 +12,6 @@
         <toolitem name='ActionWayBillGenerator' action='ActionWayBillGenerator'/>
         <toolitem name='ActionImportPaymentsByCard' action='ActionImportPaymentsByCard'/>
 		<toolitem name='ActionFinancialDistrictsSetsJournal' action='ActionFinancialDistrictsSetsJournal'/>
+		<toolitem name='ActionImportPaymentsFromAvangard' action='ActionImportPaymentsFromAvangard'/>
 	</toolbar>
 </ui>

@@ -310,6 +310,7 @@ public partial class MainWindow : Gtk.Window
 			ActionBookkeepping.Visible =
 			ActionCashMenubar.Visible = // Касса
 			ActionRetailMenubar.Visible =
+			ActionCarMenubar.Visible =
 			ActionProduction.Visible = !userIsSalesRepresentative;// Производство
 
 		// Отчеты в Продажи
@@ -2024,8 +2025,9 @@ public partial class MainWindow : Gtk.Window
 
 		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
-		NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory>
-			(null, employeeJournalFactory, OpenPageOptions.IgnoreHash);
+		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory, bool>
+			(null, employeeJournalFactory, false, OpenPageOptions.IgnoreHash);
+		page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 	}
 
 	protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)
@@ -2555,5 +2557,38 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionCarModelsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CarModelJournalViewModel>(null);
+	}
+
+	protected void OnActionPaymentsFromAvangardReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromAvangardReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromAvangardReport())
+		);
+	}
+
+	protected void OnActionCostCarExploitationReport(object sender, EventArgs e)
+	{
+		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+		IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
+			= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
+				() =>
+				{
+					var filter = new CarJournalFilterViewModel(new CarModelJournalFactory())
+					{
+						Archive = false
+					};
+					filter.SetFilterSensitivity(false);
+					filter.CanChangeRestrictedCarOwnTypes = true;
+					return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices);
+				}
+			);
+
+		var viewModel = new CostCarExploitationReportViewModel(
+			uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory);
+
+		tdiMain.AddTab(viewModel);
 	}
 }

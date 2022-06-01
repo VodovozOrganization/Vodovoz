@@ -16,6 +16,8 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Dialogs.Logistic
 {
@@ -23,6 +25,7 @@ namespace Dialogs.Logistic
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		#region Поля
 
@@ -369,7 +372,7 @@ namespace Dialogs.Logistic
 					}
 					routePoints.Add (new PointOnEarth (point.Latitude, point.Longitude));
 
-					var missedTrack = OsrmClientFactory.Instance.GetRoute(routePoints, false, GeometryOverview.Simplified);
+					var missedTrack = OsrmClientFactory.Instance.GetRoute(routePoints, false, GeometryOverview.Simplified, _globalSettings.ExcludeToll);
 					if (missedTrack == null)
 					{
 						MessageDialogHelper.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
@@ -543,7 +546,7 @@ namespace Dialogs.Logistic
 					}
 				}
 
-				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 				var decodedPoints = Polyline.DecodePolyline(recalculatedTrack.RouteGeometry);
 				var pointsRecalculated = decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
@@ -568,7 +571,7 @@ namespace Dialogs.Logistic
 			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
 			pointsToBase.Add(pointsToRecalculate.First());
 
-			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full);
+			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 			var decodedToBase = Polyline.DecodePolyline(recalculatedToBase.RouteGeometry);
 			var pointsRecalculatedToBase = decodedToBase.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();

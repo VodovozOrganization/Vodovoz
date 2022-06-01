@@ -149,12 +149,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				() => driverProjection)
 			);
 
+			itemsQuery.OrderBy(() => carEventAlias.CreateDate).Desc();
+
 			itemsQuery
 				.SelectList(list => list
 					.SelectGroup(() => carEventAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => carEventAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 					.Select(() => carEventAlias.StartDate).WithAlias(() => resultAlias.StartDate)
 					.Select(() => carEventAlias.EndDate).WithAlias(() => resultAlias.EndDate)
+					.Select(() => carEventAlias.RepairCost).WithAlias(() => resultAlias.RepairCost)
 					.Select(() => carEventAlias.Comment).WithAlias(() => resultAlias.Comment)
 					.Select(() => carEventTypeAlias.Name).WithAlias(() => resultAlias.CarEventTypeName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegistrationNumber)

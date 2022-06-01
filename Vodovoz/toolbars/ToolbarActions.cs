@@ -136,6 +136,7 @@ public partial class MainWindow : Window
 	Action ActionImportPaymentsByCard;
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionUnallocatedBalancesJournal;
+	Action ActionImportPaymentsFromAvangard;
 
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
@@ -222,6 +223,7 @@ public partial class MainWindow : Window
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
+		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -298,6 +300,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionImportPaymentsByCard, null);
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionUnallocatedBalancesJournal, null);
+		w1.Add(ActionImportPaymentsFromAvangard, null);
 
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
@@ -382,6 +385,7 @@ public partial class MainWindow : Window
 		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
+		ActionImportPaymentsFromAvangard.Activated += OnActionImportPaymentsFromAvangardActivated;
 
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
@@ -674,6 +678,11 @@ public partial class MainWindow : Window
 	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
+	}
+	
+	private void OnActionImportPaymentsFromAvangardActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ImportPaymentsFromAvangardSbpViewModel>(null);
 	}
 
 	private void OnActionUnallocatedBalancesJournalActivated(object sender, EventArgs e)
