@@ -15,14 +15,12 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using QS.Dialog.GtkUI.FileDialog;
-using QS.Dialog;
 
 namespace Vodovoz.JournalViewers
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class TasksView : SingleUowTabBase
 	{
-		private readonly IInteractiveService _interactiveService;
 		private CallTasksVM _callTasksVm;
 		private CallTaskFilterView _callTaskFilterView;
 
@@ -31,12 +29,10 @@ namespace Vodovoz.JournalViewers
 
 		public TasksView(
 			IEmployeeJournalFactory employeeJournalFactory,
-			IInteractiveService interactiveService,
 			IDeliveryPointRepository deliveryPointRepository)
 		{
 			this.Build();
 
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
@@ -58,7 +54,7 @@ namespace Vodovoz.JournalViewers
 				new CallTaskFilterViewModel(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(), _deliveryPointRepository);
 			_callTasksVm.PropertyChanged += CreateCallTaskFilterView;
 			representationtreeviewTask.RepresentationModel = _callTasksVm;
-			buttonExport.Clicked += (sender, args) =>  Export();
+			buttonExport.Clicked += (sender, args) => Export();
 			CreateCallTaskFilterView(_callTasksVm.Filter, EventArgs.Empty);
 			UpdateStatistics();
 		}
@@ -92,14 +88,8 @@ namespace Vodovoz.JournalViewers
 		{
 			var fileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
-			try
-			{
-				_callTasksVm.ExportTasks(fileName);
-			}
-			catch(Exception ex)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при выгрузке данных.\n{ex.Message}");
-			}
+			_callTasksVm.ExportTasks(fileName);
+
 		}
 
 		#region BaseJournalHeandler
