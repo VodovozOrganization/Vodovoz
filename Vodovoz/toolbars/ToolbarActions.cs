@@ -1,7 +1,9 @@
-﻿using Dialogs.Employees;
+﻿using Autofac;
+using Dialogs.Employees;
 using Gtk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -500,10 +502,12 @@ public partial class MainWindow : Window
 
 	void ActionCallTasks_Activate(object sender, System.EventArgs e)
 	{
+		var interactiveService = MainClass.AppDIContainer.BeginLifetimeScope().Resolve<IInteractiveService>();
 		tdiMain.OpenTab(
 			"CRM",
 			() => new TasksView(
-								new EmployeeJournalFactory(),
+								new EmployeeJournalFactory(), 
+								interactiveService,
 								new DeliveryPointRepository()), null
 		);
 	}

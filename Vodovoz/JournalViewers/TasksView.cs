@@ -14,14 +14,15 @@ using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
-using System.Threading.Tasks;
 using QS.Dialog.GtkUI.FileDialog;
+using QS.Dialog;
 
 namespace Vodovoz.JournalViewers
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class TasksView : SingleUowTabBase
 	{
+		private readonly IInteractiveService _interactiveService;
 		private CallTasksVM _callTasksVm;
 		private CallTaskFilterView _callTaskFilterView;
 
@@ -30,10 +31,12 @@ namespace Vodovoz.JournalViewers
 
 		public TasksView(
 			IEmployeeJournalFactory employeeJournalFactory,
+			IInteractiveService interactiveService,
 			IDeliveryPointRepository deliveryPointRepository)
 		{
 			this.Build();
 
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
@@ -95,7 +98,7 @@ namespace Vodovoz.JournalViewers
 			}
 			catch(Exception ex)
 			{
-				throw ex;
+				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при выгрузке данных.\n{ex.Message}");
 			}
 		}
 

@@ -20,7 +20,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using ClosedXML.Excel;
 using QS.Project.Services.FileDialog;
-using DocumentFormat.OpenXml.Spreadsheet;
+using Gamma.Utilities;
 
 namespace Vodovoz.Representations
 {
@@ -204,24 +204,24 @@ namespace Vodovoz.Representations
 
 		private void InsertValues(IXLWorksheet ws)
 		{
-			var colName = new string[] { "№", "Номер\nзадачи", "Статус", "Клиент", "Дата созадния", "Адрес", "Долг \nпо адресу", "Долг \nпо клиенту", "Телефон адреса", "Телефон клиента", "Ответственный", "Выполнить до", "Срочность", "Комментарий" };
+			var colName = new string[] { "№", "Номер \nзадачи", "Статус", "Клиент", "Дата созадния", "Адрес", "Долг \nпо адресу", "Долг \nпо клиенту", "Телефон адреса", "Телефон клиента", "Ответственный", "Выполнить до", "Срочность", "Комментарий" };
 			var index = 0;
 			var rows = from row in ItemsList as List<CallTaskVMNode>
 					   select new
 					   {
 						   ind = index++,
 						   row.Id,
-						   TaskStatus = ConvertTaskStatusToString(row.TaskStatus),
+						   TaskStatus = row.TaskStatus.GetEnumTitle(),
 						   row.ClientName,
 						   CreationDate = $"{row.CreationDate:dd.MM.yyyy HH:mm}",
 						   row.AddressName,
 						   row.DebtByAddress,
 						   row.DebtByClient,
-						   row.DeliveryPointPhones,
-						   row.CounterpartyPhones,
+						   DeliveryPointPhones = row.DeliveryPointPhones?.Replace("\n", ",\n"),
+						   CounterpartyPhones = row.CounterpartyPhones?.Replace("\n", ",\n"),
 						   row.AssignedEmployeeName,
 						   Deadline = $"{row.Deadline:dd.MM.yyyy HH:mm}",
-						   ImportanceDegree = ConvertImportanceDegreeToString(row.ImportanceDegree),
+						   ImportanceDegree = row.ImportanceDegree.GetEnumTitle(),
 						   Comment = row.Comment?.Trim()
 					   };
 
@@ -230,46 +230,19 @@ namespace Vodovoz.Representations
 				ws.Cell(1, i + 1).Value = colName[i];
 			}
 
-			ws.Cell(2, 1).InsertData(rows).SetDataType(XLDataType.Text);
+			ws.Cell(2, 1).InsertData(rows);
 			ws.Columns(1, colName.Length - 1).AdjustToContents();
 			ws.Column(colName.Length).Width = 60;
 			ws.Column(colName.Length).Style.Alignment.WrapText = true;
-			ws.Row(1).Height = 40;
+
+			var indexDPPhones = Array.IndexOf(colName, "Телефон адреса") + 1;
+			var indexCPhones = Array.IndexOf(colName, "Телефон клиента") + 1;
+			ws.Column(indexDPPhones).Style.Alignment.WrapText = true;
+			ws.Column(indexDPPhones).SetDataType(XLDataType.Text);
+			ws.Column(indexCPhones).Style.Alignment.WrapText = true;
+			ws.Column(indexCPhones).SetDataType(XLDataType.Text);
+
 			ws.Columns().AddVerticalPageBreaks();
-		}
-
-		private string ConvertImportanceDegreeToString(ImportanceDegreeType importanceDegree)
-		{
-			switch(importanceDegree)
-			{
-				case ImportanceDegreeType.Nope:
-					return "Нет";
-				case ImportanceDegreeType.Important:
-					return "Важно";
-				default:
-					return "Неизвестно";
-			}
-		}
-
-		private string ConvertTaskStatusToString(CallTaskStatus taskStatus)
-		{
-			switch(taskStatus)
-			{
-				case CallTaskStatus.Call:
-					return "Звонок";
-				case CallTaskStatus.Task:
-					return "Задание";
-				case CallTaskStatus.DifficultClient:
-					return "Сложный клиент";
-				case CallTaskStatus.FirstClient:
-					return "Первичка";
-				case CallTaskStatus.Reconciliation:
-					return "Cверка";
-				case CallTaskStatus.DepositReturn:
-					return "Возврат залогов";
-				default:
-					return "Неизвестно";
-			}
 		}
 
 		private bool TryGetSavePath(string fileName, out string path)
