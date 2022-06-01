@@ -503,7 +503,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			"CRM",
 			() => new TasksView(
-								new EmployeeJournalFactory(), 
+								new EmployeeJournalFactory(),
 								new DeliveryPointRepository()), null
 		);
 	}
