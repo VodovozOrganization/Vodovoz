@@ -1591,8 +1591,8 @@ public partial class MainWindow : Gtk.Window
 	protected void OnImageListOpenActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<StoredImageResource>(),
-			() => new OrmReference(typeof(StoredImageResource))
+			OrmReference.GenerateHashName<StoredResource>(),
+			() => new OrmReference(typeof(StoredResource))
 		);
 	}
 

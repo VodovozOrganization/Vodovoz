@@ -147,9 +147,9 @@ namespace Vodovoz.Domain.Organizations
             set => SetField(ref withoutVAT, value);
         }
 
-        private StoredImageResource stamp;
+        private StoredResource stamp;
         [Display(Name = "Печать")]
-        public virtual StoredImageResource Stamp
+        public virtual StoredResource Stamp
         {
             get => stamp;
             set => SetField(ref stamp, value);

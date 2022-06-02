@@ -69,7 +69,7 @@ namespace Vodovoz.Representations
 		public CallTasksVM(IImageProvider imageProvider, IFileDialogService fileDialogService)
 		{
 			_fileDialogService = fileDialogService;
-			img = new Pixbuf(UoW.GetById<StoredImageResource>(imageProvider.GetCrmIndicatorId()).BinaryFile);
+			img = new Pixbuf(UoW.GetById<StoredResource>(imageProvider.GetCrmIndicatorId()).BinaryFile);
 			emptyImg = img.Copy();
 			emptyImg.Fill(0xffffffff);
 		}

@@ -40,7 +40,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Management" />
     <Reference Include="System.Transactions" />
@@ -796,7 +795,6 @@
     <Compile Include="Domain\Orders\Documents\NomenclatureCertificateDocument.cs" />
     <Compile Include="Domain\StoredResources\StoredResource.cs" />
     <Compile Include="HibernateMapping\StoredResourceMap.cs" />
-    <Compile Include="Domain\StoredResources\StoredImageResource.cs" />
     <Compile Include="Domain\Client\CallTask.cs" />
     <Compile Include="HibernateMapping\Counterparty\CallTaskMap.cs" />
     <Compile Include="Domain\Logistic\Discrepancy.cs" />
