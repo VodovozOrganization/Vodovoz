@@ -9,6 +9,8 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -17,6 +19,7 @@ namespace Vodovoz.Tools.Logistic
 		private static readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private static readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		private static readonly IFuelRepository _fuelRepository = new FuelRepository();
+		private static readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 		private static void Calculate() => throw new NotImplementedException();
 
 		static double fuelCost;
@@ -71,7 +74,7 @@ namespace Vodovoz.Tools.Logistic
 						return result;
 					}
 					route.Add(new PointOnEarth(latitude.Value, longitude.Value));
-					var osrmResult = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False);
+					var osrmResult = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
 					if(osrmResult == null) {
 						result.ErrorMessage = "Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.";
 						return result;

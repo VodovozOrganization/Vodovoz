@@ -21,5 +21,6 @@ namespace Vodovoz.EntityRepositories.Payments
 		IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments);
 		IQueryOver<Payment, Payment> GetAllUnallocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId);
+		bool PaymentFromAvangardExists(IUnitOfWork uow, DateTime paidDate, int orderNum, decimal orderSum);
 	}
 }
