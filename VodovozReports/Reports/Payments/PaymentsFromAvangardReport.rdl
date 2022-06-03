@@ -72,7 +72,7 @@
           <TableColumn>
             <Width>48.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>50.5pt</Width>
           </TableColumn>
           <TableColumn>
@@ -182,7 +182,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value>Тип оплаты</Value>
@@ -460,7 +460,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>={pay_type}</Value>
@@ -799,7 +799,7 @@
           <TableColumn>
             <Width>61.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>61.3pt</Width>
           </TableColumn>
           <TableColumn>
@@ -845,7 +845,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>Тип оплаты</Value>
@@ -932,7 +932,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
                       <Value>={pay_type}</Value>
@@ -1121,7 +1121,7 @@ FROM
             fp.pay_type as pay_type
         From orders o_online
                  JOIN payments_from_avangard p_avangard on p_avangard.order_num = o_online.online_order
-                 JOIN fast_payments fp on fp.external_id = p_avangard.order_num                                    
+                 JOIN fast_payments fp on fp.external_id = p_avangard.order_num
             AND p_avangard.paid_date &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
             AND p_avangard.paid_date &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
     ) as p on p.order_id = o.id
@@ -1140,19 +1140,21 @@ FROM
             orders o_sub
         JOIN
             order_items i ON o_sub.id = i.order_id
-        WHERE 
+        WHERE
             o_sub.payment_type = 'ByCard'
-                AND o_sub.online_order IS NOT NULL
-                AND o_sub.delivery_date &gt;= @startDate
-                AND o_sub.delivery_date &lt;= @endDate
+          AND o_sub.online_order IS NOT NULL
+          AND o_sub.payment_from_id IN (10, 11)
+          AND o_sub.delivery_date &gt;= @startDate
+          AND o_sub.delivery_date &lt;= @endDate
         GROUP BY
             i.order_id
     ) o_sum ON o.id = o_sum.order_id
 WHERE
     o.payment_type = 'ByCard'
-        AND o.online_order IS NOT NULL
-        AND o.delivery_date &gt;= @startDate
-        AND o.delivery_date &lt;= @endDate
+  AND o.online_order IS NOT NULL
+  AND o.payment_from_id IN (10, 11)
+  AND o.delivery_date &gt;= @startDate
+  AND o.delivery_date &lt;= @endDate
 ORDER BY order_satus_numbered DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -1249,19 +1251,20 @@ ORDER BY order_satus_numbered DESC;</CommandText>
                 END
         From fast_payments fp
         Where fp.external_id = pfa.order_num
-        and date(fp.paid_date) = date(pfa.paid_date)
-        ) AS pay_type
+          and date(fp.paid_date) = date(pfa.paid_date)
+    ) AS pay_type
 FROM payments_from_avangard pfa
 WHERE
     (
-            order_num NOT IN
-            (
-                SELECT online_order
-                FROM orders
-                WHERE online_order IS NOT NULL
-                  AND delivery_date &gt;= @startDate
-            )
+        order_num NOT IN
+        (
+            SELECT online_order
+            FROM orders
+            WHERE online_order IS NOT NULL
+              AND payment_from_id IN (10, 11)
+              AND delivery_date &gt;= @startDate
         )
+    )
   AND pfa.paid_date &gt;= @startDate
   AND pfa.paid_date &lt;= @endDate
 ORDER BY pfa.paid_date DESC;</CommandText>
