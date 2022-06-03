@@ -1223,7 +1223,6 @@ namespace Vodovoz
 
 			#region stuff
 
-			DeleteConfig.AddHibernateDeleteInfo<StoredImageResource>();
 			DeleteConfig.AddHibernateDeleteInfo<StoredResource>();
 
 			#endregion
