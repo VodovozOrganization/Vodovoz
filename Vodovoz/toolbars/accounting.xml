@@ -2,6 +2,8 @@
 	<toolbar name='toolbarSub'>
 		<!-- <toolitem name='ActionTransferBankDocs' action='ActionTransferBankDocs'/> -->
 		<toolitem name='ActionPaymentFromBank' action='ActionPaymentFromBank'/>
+		<toolitem name='ActionImportPaymentsByCard' action='ActionImportPaymentsByCard'/>
+		<toolitem name='ActionImportPaymentsFromAvangard' action='ActionImportPaymentsFromAvangard'/>
 		<toolitem name='ActionUnallocatedBalancesJournal' action='ActionUnallocatedBalancesJournal'/>
 		<toolitem name='ActionAccountingTable' action='ActionAccountingTable'/>
 		<!-- <toolitem name='ActionAccountFlow' action='ActionAccountFlow'/> -->
@@ -10,8 +12,6 @@
         <toolitem name='ActionOldExportTo1c' action='ActionOldExportTo1c'/>
         <toolitem name='ActionExportCounterpartiesTo1c' action='ActionExportCounterpartiesTo1c'/>
         <toolitem name='ActionWayBillGenerator' action='ActionWayBillGenerator'/>
-        <toolitem name='ActionImportPaymentsByCard' action='ActionImportPaymentsByCard'/>
 		<toolitem name='ActionFinancialDistrictsSetsJournal' action='ActionFinancialDistrictsSetsJournal'/>
-		<toolitem name='ActionImportPaymentsFromAvangard' action='ActionImportPaymentsFromAvangard'/>
 	</toolbar>
 </ui>
