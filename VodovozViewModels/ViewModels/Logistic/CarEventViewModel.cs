@@ -71,7 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand ChangeEventTypeCommand => _changeEventTypeCommand ?? (_changeEventTypeCommand =
 			new DelegateCommand(() =>
 				{
-					if(Entity.CarEventType.Id == _carEventSettingsSettings.DontShowCarEventByReportId)
+					if(Entity.CarEventType?.Id == _carEventSettingsSettings.DontShowCarEventByReportId)
 					{
 						Entity.DoNotShowInOperation = true;
 					}
