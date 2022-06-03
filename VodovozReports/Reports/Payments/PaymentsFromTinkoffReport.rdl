@@ -1214,11 +1214,12 @@ FROM
             i.order_id
     ) o_sum ON o_sum.id = o.id
 WHERE
-    o.payment_type = 'ByCard' 
-    AND o.online_order IS NOT NULL
-    AND o.delivery_date &gt;= @startDate
-    AND o.delivery_date &lt;= @endDate
-    AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
+  o.payment_type = 'ByCard'
+  AND o.online_order IS NOT NULL
+  AND o.payment_from_id not in (10, 11) #убираем платежи из авангарда
+  AND o.delivery_date &gt;= @startDate
+  AND o.delivery_date &lt;= @endDate
+  AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
 ORDER BY order_satus_numbered DESC
 ;</CommandText>
         <QueryParameters>
@@ -1313,16 +1314,18 @@ WHERE
         SELECT online_order
         FROM orders
         WHERE online_order IS NOT NULL
+          AND payment_from_id NOT IN (10, 11) #убираем платежи из авангарда
           AND delivery_date &gt;= @startDate
     )
         AND payment_by_card_from IN ('FromVodovozWebSite', 'FromEShop', 'FromTinkoff')
     )
     OR
-	(
+    (
         number NOT IN(
         SELECT id
         FROM orders
         WHERE online_order IS NOT NULL
+          AND payment_from_id NOT IN (10, 11) #убираем платежи из авангарда
           AND delivery_date &gt;= @startDate
     )
         AND payment_by_card_from = 'FromSMS'
