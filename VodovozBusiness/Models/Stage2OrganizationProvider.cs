@@ -177,7 +177,9 @@ namespace Vodovoz.Models
 
 		private int GetOrganizationIdForByCard(PaymentFrom paymentFrom, GeographicGroup geographicGroup, DateTime? orderCreateDate)
 		{
-			if(paymentFrom == null || paymentFrom.Id == _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
+			if(paymentFrom == null
+				|| paymentFrom.Id == _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId
+				|| paymentFrom.Id == _orderParametersProvider.GetPaymentByCardFromAvangardId)
 			{
 				return _organizationParametersProvider.VodovozNorthOrganizationId;
 			}

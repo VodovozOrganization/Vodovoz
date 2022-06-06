@@ -124,7 +124,7 @@ namespace Vodovoz.Domain.FastPayments
 		public virtual void SetPerformedStatusForOrder(
 			IUnitOfWork uow,
 			DateTime paidDate,
-			PaymentFrom paymentByCardFromQrId,
+			PaymentFrom paymentByCardFromId,
 			IStandartNomenclatures standartNomenclatures,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
@@ -158,7 +158,7 @@ namespace Vodovoz.Domain.FastPayments
 			PaidDate = paidDate;
 			Order.OnlineOrder = ExternalId;
 			Order.PaymentType = PaymentType.ByCard;
-			Order.PaymentByCardFrom = paymentByCardFromQrId;
+			Order.PaymentByCardFrom = paymentByCardFromId;
 			Order.ForceUpdateContract();
 
 			foreach (var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
