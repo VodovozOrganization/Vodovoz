@@ -6,32 +6,52 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
+using System.Collections;
+using System.Linq;
+using System.Timers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
 	public class FastDeliveryAvailabilityHistoryJournalViewModel : FilterableSingleEntityJournalViewModelBase<FastDeliveryAvailabilityHistory,
 		FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryJournalNode, FastDeliveryAvailabilityFilterViewModel>
 	{
+		private readonly Timer _timer;
+		private const double _interval = 30 * 1000; //5 минут
+
 		private readonly IEmployeeService _employeeService;
+		private readonly IFileDialogService _fileDialogService;
+		private readonly IFastDeliveryAvailabilityHistoryParameterProvider _fastDeliveryAvailabilityHistoryParameterProvider;
 
 		public FastDeliveryAvailabilityHistoryJournalViewModel(FastDeliveryAvailabilityFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEmployeeService employeeService)
+			IEmployeeService employeeService,
+			IFileDialogService fileDialogService,
+			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_fastDeliveryAvailabilityHistoryParameterProvider = fastDeliveryAvailabilityHistoryParameterProvider
+			                                                    ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
+
 			TabName = "Журнал истории проверок экспресс-доставок";
+
+			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 
 			UpdateOnChanges(
 				typeof(FastDeliveryAvailabilityHistory),
@@ -39,6 +59,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(FastDeliveryNomenclatureDistributionHistory),
 				typeof(FastDeliveryOrderItemHistory)
 				);
+
+			
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory);
+			fastDeliveryAvailabilityHistoryModel.ClearFastDeliveryAvailabilityHistory(_fastDeliveryAvailabilityHistoryParameterProvider);
+
+			_timer = new Timer(_interval);
+			_timer.Elapsed += TimerOnElapsed;
+			_timer.Start();
+		}
+
+		private void TimerOnElapsed(object sender, ElapsedEventArgs e)
+		{
+			_timer.Interval = _interval;
+			Refresh();
+		}
+
+		protected void BeforeItemsUpdated(IList items, uint start)
+		{
+			foreach(var item in items.Cast<FastDeliveryAvailabilityHistoryJournalNode>().Skip((int)start))
+			{
+				item.RowNum = items.IndexOf(item) + 1;
+			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<FastDeliveryAvailabilityHistory>> ItemsSourceQueryFunction => (uow) =>
@@ -165,6 +207,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		protected override void CreateNodeActions()
 		{
 			CreateDefaultEditAction();
+			CreateXLExportAction();
+		}
+
+		private void CreateXLExportAction()
+		{
+			var xlExportAction = new JournalAction("Экспорт в Excel",
+				(selected) => true,
+				(selected) => true,
+				(selected) =>
+				{
+					var rows = ItemsSourceQueryFunction.Invoke(UoW)
+						.List<FastDeliveryAvailabilityHistoryJournalNode>();
+
+					var report = new FastDeliveryAvailabilityHistoryReport(rows, _fileDialogService);
+					report.Export();
+				}
+			);
+
+			NodeActionsList.Add(xlExportAction);
 		}
 
 		protected override Func<FastDeliveryAvailabilityHistoryViewModel> CreateDialogFunction =>

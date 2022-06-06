@@ -1551,18 +1551,18 @@ namespace Vodovoz.JournalColumnsConfigs
 			//FastDeliveryAvailabilityHistoryJournalViewModel
 			TreeViewColumnsConfigFactory.Register<FastDeliveryAvailabilityHistoryJournalViewModel>(
 				() => FluentColumnsConfig<FastDeliveryAvailabilityHistoryJournalNode>.Create()
-					.AddColumn("№").AddNumericRenderer(node => node.Id)
-					.AddColumn("Дата и время проверки").AddTextRenderer(node => node.VerificationDate.ToString("dd.MM.yy HH:mm:ss"))
-					.AddColumn("Автор заказа").AddTextRenderer(node => string.IsNullOrEmpty(node.Author) ? "Сайт" : node.Author)
+					.AddColumn("№").AddNumericRenderer(node => node.RowNum)
+					.AddColumn("Дата и время\nпроверки").AddTextRenderer(node => node.VerificationDateString)
+					.AddColumn("Автор заказа").AddTextRenderer(node => node.AuthorString)
 					.AddColumn("№ заказа").AddNumericRenderer(node => node.Order)
 					.AddColumn("Имя контрагента").AddTextRenderer(node => node.Counterparty)
 					.AddColumn("Адрес доставки").AddTextRenderer(node => node.Address)
 					.AddColumn("Район").AddTextRenderer(node => node.District)
-					.AddColumn("Доступно для заказа").AddTextRenderer(node => node.IsValid ? "Да" : "")
+					.AddColumn("Доступно\nдля заказа").AddTextRenderer(node => node.IsValidString)
 					.AddColumn("Комментарий логиста /\nПринятые меры").AddTextRenderer(node => node.LogisticianComment)
 					.AddColumn("ФИО логиста").AddTextRenderer(node => node.Logistician)
-					.AddColumn("Дата и время последнего сохранения комментария").AddTextRenderer(node => node.LogisticianCommentVersion > DateTime.MinValue ? node.LogisticianCommentVersion.ToString("dd.MM.yy HH:mm:ss") : "")
-					.AddColumn("Время реакции в часах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
+					.AddColumn("Дата и время последнего\nсохранения комментария").AddTextRenderer(node => node.LogisticianCommentVersionString)
+					.AddColumn("Время реакции в\nчасах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
 					.Finish()
 			);
 		}

@@ -26,9 +26,16 @@ namespace Vodovoz.ViewWidgets.Logistics
 
 			ytextviewLogisticiaComment.Binding.AddBinding(ViewModel.FastDeliveryAvailabilityHistory, h => h.LogisticianComment, w => w.Buffer.Text)
 				.InitializeFromSource();
+			ytextviewLogisticiaComment.Binding.AddBinding(ViewModel, vm => vm.ShowLogisticianComment, w => w.Sensitive)
+				.InitializeFromSource();
 
-			ybuttonSaveLogisticiaComment.Binding.AddFuncBinding(ViewModel.FastDeliveryAvailabilityHistory, x => x.Order != null, w => w.Visible).InitializeFromSource();
+			yvboxLogisticianComment.Binding.AddBinding(ViewModel, vm => vm.ShowLogisticianComment, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSaveLogisticiaComment.Binding.AddBinding(ViewModel, vm => vm.ShowLogisticianComment, w => w.Sensitive).InitializeFromSource();
 			ybuttonSaveLogisticiaComment.Clicked += (sender, args) => ViewModel.SaveLogisticianCommentCommand.Execute();
+
+			expanderAdditional.Visible = ViewModel.ShowLogisticianComment;
 
 			ConfigureTreeDetails();
 			ConfigureOrderItems();

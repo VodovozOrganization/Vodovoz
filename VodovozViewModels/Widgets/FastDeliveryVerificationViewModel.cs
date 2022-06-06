@@ -76,5 +76,6 @@ namespace Vodovoz.ViewModels.Widgets
 		public IList<FastDeliveryVerificationDetailsNode> Nodes { get; } 
 		public IEnumerable<FastDeliveryOrderItemHistory> OrderItemsHistory => FastDeliveryAvailabilityHistory.OrderItemsHistory;
 		public FastDeliveryAvailabilityHistory FastDeliveryAvailabilityHistory { get; }
+		public bool ShowLogisticianComment => _logistician != null;
 	}
 }

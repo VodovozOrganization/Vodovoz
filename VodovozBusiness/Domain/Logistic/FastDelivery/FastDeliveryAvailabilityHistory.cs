@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		Nominative = "история доступности экспресс-доставки",
 		NominativePlural = "истории доступности экспресс-доставки")]
 
-	public class FastDeliveryAvailabilityHistory : PropertyChangedBase, IDomainObject
+	public class FastDeliveryAvailabilityHistory : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private DateTime _verificationDate;
 		private Order _order;
@@ -197,5 +197,18 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			get => _nomenclatureDistributionHistoryItems;
 			set => SetField(ref _nomenclatureDistributionHistoryItems, value);
 		}
+
+		#region IValidatableObject implementation
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(LogisticianComment?.Length > 255)
+			{
+				yield return new ValidationResult($"Превышена максимально допустимая длина комментария ({LogisticianComment.Length}/255).",
+					new[] { nameof(LogisticianComment) });
+			}
+		}
+
+		#endregion
 	}
 }

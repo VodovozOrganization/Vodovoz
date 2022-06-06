@@ -16,8 +16,17 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string Logistician { get; set; }
 		public string LogisticianComment { get; set; }
 		public DateTime LogisticianCommentVersion { get; set; }
+		public int RowNum { get; set; }
 
+		public string IsValidString => IsValid ? "Да" : "";
 
+		public string VerificationDateString => VerificationDate.ToString("dd.MM.yy HH:mm:ss");
+
+		public string AuthorString => string.IsNullOrEmpty(Author) ? "Сайт" : Author;
+
+		public string LogisticianCommentVersionString => LogisticianCommentVersion > DateTime.MinValue
+			? LogisticianCommentVersion.ToString("dd.MM.yy HH:mm:ss")
+			: "";
 		public string LogisticianReactionTime
 		{
 			get
@@ -32,5 +41,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 				return reactionTimeString;
 			}
 		}
+
 	}
 }

@@ -413,6 +413,7 @@
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
     <Compile Include="Parameters\ExpenseParametersProvider.cs" />
+    <Compile Include="Parameters\FastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\FastPaymentParametersProvider.cs" />
     <Compile Include="Parameters\GeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
@@ -426,6 +427,7 @@
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Services\IDeliveryPointParametersProvider.cs" />
     <Compile Include="Services\IEmployeeSettings.cs" />
     <Compile Include="Services\IFastPaymentParametersProvider.cs" />

@@ -13,6 +13,8 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.Project.Services.FileDialog;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
@@ -58,6 +60,7 @@ using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -1174,6 +1177,9 @@ public partial class MainWindow : Window
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
 		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		IFileDialogService fileDialogService = new FileDialogService();
+		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
+			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
 
 		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
 		{
@@ -1184,7 +1190,10 @@ public partial class MainWindow : Window
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService)
+			VodovozGtkServicesConfig.EmployeeService,
+			fileDialogService,
+			fastDeliveryAvailabilityHistoryParameterProvider
+			)
 		);
 	}
 }

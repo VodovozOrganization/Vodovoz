@@ -5,6 +5,8 @@ using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Models
@@ -20,7 +22,7 @@ namespace Vodovoz.Models
 
 		public void SaveFastDeliveryAvailabilityHistory(FastDeliveryVerificationDTO fastDeliveryVerificationDTO)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("FastDeliveryAvailabilityHistoryModel"))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("SaveFastDeliveryAvailabilityHistory"))
 			{
 				var fastDeliveryAvailabilityHistory = fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory;
 
@@ -48,6 +50,30 @@ namespace Vodovoz.Models
 				uow.Save(fastDeliveryAvailabilityHistory);
 				uow.Commit();
 			}
+		}
+
+		public void ClearFastDeliveryAvailabilityHistory(IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider)
+		{
+			if(fastDeliveryAvailabilityHistoryParameterProvider.FastDeliveryHistoryClearDate >= DateTime.Now.Date)
+			{
+				return;
+			}
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("ClearFastDeliveryAvailabilityHistory"))
+			{
+				var availabilityHistories = uow.Session.Query<FastDeliveryAvailabilityHistory>()
+					.Where(x => x.VerificationDate < DateTime.Now.Date.AddDays(-fastDeliveryAvailabilityHistoryParameterProvider.FastDeliveryHistoryStorageDays))
+					.ToList();
+
+				foreach(var history in availabilityHistories)
+				{
+					uow.Delete(history);
+				}
+
+				uow.Commit();
+			}
+
+			fastDeliveryAvailabilityHistoryParameterProvider.UpdateFastDeliveryHistoryClearDate(DateTime.Now.Date.ToString());
 		}
 	}
 }
