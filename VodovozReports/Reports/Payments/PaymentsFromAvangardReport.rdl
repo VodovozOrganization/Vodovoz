@@ -1025,7 +1025,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -1165,7 +1165,7 @@ ORDER BY order_satus_numbered DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1254,19 +1254,13 @@ ORDER BY order_satus_numbered DESC;</CommandText>
           and date(fp.paid_date) = date(pfa.paid_date)
     ) AS pay_type
 FROM payments_from_avangard pfa
+LEFT JOIN orders o ON o.online_order = pfa.order_num
+    AND payment_from_id IN (10, 11)
+    AND delivery_date &gt;= @startDate
 WHERE
-    (
-        order_num NOT IN
-        (
-            SELECT online_order
-            FROM orders
-            WHERE online_order IS NOT NULL
-              AND payment_from_id IN (10, 11)
-              AND delivery_date &gt;= @startDate
-        )
-    )
-  AND pfa.paid_date &gt;= @startDate
-  AND pfa.paid_date &lt;= @endDate
+    o.id is null
+    AND pfa.paid_date &gt;= @startDate
+    AND pfa.paid_date &lt;= @endDate
 ORDER BY pfa.paid_date DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
