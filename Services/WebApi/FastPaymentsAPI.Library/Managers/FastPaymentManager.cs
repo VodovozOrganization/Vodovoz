@@ -76,10 +76,14 @@ namespace FastPaymentsAPI.Library.Managers
 				case FastPaymentDTOStatus.Performed:
 					if(fastPayment.Order != null)
 					{
+						var paymentFrom = fastPayment.FastPaymentPayType == FastPaymentPayType.ByCard
+							? _orderParametersProvider.GetPaymentByCardFromAvangardId
+							: _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId;
+						
 						fastPayment.SetPerformedStatusForOrder(
 							uow,
 							statusDate,
-							uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId),
+							uow.GetById<PaymentFrom>(paymentFrom),
 							_standartNomenclatures,
 							_routeListItemRepository,
 							_selfDeliveryRepository,
