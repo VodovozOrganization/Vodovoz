@@ -202,7 +202,7 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref _isManuallyCreated, value);
 		}
 		
-		[Display(Name = "Пользователь, работающий с диалогом ручное распределение")]
+		[Display(Name = "Пользователь, работающий с диалогом ручного распределения")]
 		[IgnoreHistoryTrace]
 		public virtual UserBase CurrentEditorUser
 		{
