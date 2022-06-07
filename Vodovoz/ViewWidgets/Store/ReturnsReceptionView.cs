@@ -217,17 +217,21 @@ namespace Vodovoz
 						Projections.Property(() => orderEquipmentAlias.Count)
 					)));
 
-				var itemsReserveProjection = Projections.SqlFunction(
+				var itemsReserveProjection =
+					Projections.Conditional(Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null), Projections.Constant(0),
+						Projections.SqlFunction(
 							new SQLFunctionTemplate(NHibernateUtil.Int32, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
 							NHibernateUtil.Int32,
 							Projections.SubQuery(allLoaded),
-							Projections.SubQuery(itemsToDelivery));
+							Projections.SubQuery(itemsToDelivery)));
 
-				var equipmentReserveProjection = Projections.SqlFunction(
+				var equipmentReserveProjection =
+					Projections.Conditional(Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null), Projections.Constant(0),
+						Projections.SqlFunction(
 							new SQLFunctionTemplate(NHibernateUtil.Int32, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
 							NHibernateUtil.Int32,
 							Projections.SubQuery(allLoaded),
-							Projections.SubQuery(equipmentToDelivery));
+							Projections.SubQuery(equipmentToDelivery)));
 
 				returnableItems = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
 					.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
