@@ -31,8 +31,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class ManualPaymentMatchingViewModel : EntityTabViewModelBase<Payment>
 	{
+		private const string _error = "Ошибка";
 		private DateTime? _startDate = DateTime.Now.AddMonths(-1);
-		private DateTime? _endDate = DateTime.Now;
+		private DateTime? _endDate = DateTime.Now.AddMonths(1);
 		private OrderStatus? _orderStatus;
 		private OrderPaymentStatus? _orderPaymentStatus;
 		private ManualPaymentMatchingViewModelAllocatedNode _selectedAllocatedNode;
@@ -67,9 +68,21 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			if(uowBuilder.IsNewEntity)
 			{
-				AbortOpening("Невозможно создать новую загрузку выписки из текущего диалога, необходимо использовать диалоги создания");
+				throw new AbortCreatingPageException(
+					"Невозможно создать новую загрузку выписки из текущего диалога, необходимо использовать диалоги создания",
+					_error);
 			}
 
+			var curEditor = Entity.CurrentEditorUser;
+			if(curEditor != null)
+			{
+				throw new AbortCreatingPageException(
+					$"Невозможно открыть диалог ручного распределения платежа №{Entity.PaymentNum}," +
+					$" т.к. он уже открыт пользователем: {curEditor.Name}",
+					_error);
+			}
+
+			UpdateCurrentEditor();
 			TabName = "Ручное распределение платежей";
 
 			//Поиск
@@ -85,11 +98,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			CreateCommands();
 			GetCounterpartyDebt();
 			ConfigureEntityChangingRelations();
+			UpdateNodes();
 
 			if(HasPaymentItems)
 			{
 				UpdateAllocatedNodes();
 			}
+			
+			TabClosed += OnTabClosed;
 		}
 
 		#region Свойства
@@ -488,7 +504,25 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 
 			Entity.Status = PaymentState.completed;
-			SaveAndClose();
+			UpdateCurrentEditor();
+			
+			try
+			{
+				SaveAndClose();
+			}
+			catch
+			{
+				ShowErrorMessage("При сохранении платежа произошла ошибка. Переоткройте диалог.");
+			}
+			finally
+			{
+				UoW.Session.Clear();
+				var curPayment = UoW.GetById<Payment>(Entity.Id);
+				curPayment.CurrentEditorUser = null;
+				UoW.Save(curPayment);
+				UoW.Commit();
+				Close(false, CloseSource.Self);
+			}
 		}
 		
 		private Bank FillBank(Payment payment)
@@ -702,6 +736,37 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 			return null;
+		}
+		
+		private void UpdateCurrentEditor()
+		{
+			if(Entity.CurrentEditorUser != null)
+			{
+				DeleteCurrentEditor();
+			}
+			else
+			{
+				Entity.CurrentEditorUser = CurrentUser;
+				Save();
+			}
+		}
+
+		private void DeleteCurrentEditor()
+		{
+			Entity.CurrentEditorUser = null;
+		}
+		
+		private void OnTabClosed(object sender, EventArgs e)
+		{
+			if(Entity.CurrentEditorUser != null)
+			{
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				{
+					DeleteCurrentEditor();
+					uow.Save(Entity);
+					uow.Commit();
+				}
+			}
 		}
 
 		private ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>

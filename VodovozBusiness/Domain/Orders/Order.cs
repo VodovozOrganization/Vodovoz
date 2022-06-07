@@ -2723,16 +2723,22 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void UpdateOrderPaymentStatus()
+		public virtual void UpdateOrderPaymentStatus(decimal canceledSum)
 		{
 			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, Id);
-			
-			OrderPaymentStatus =
-				allocatedSum >= OrderSum
-					? OrderPaymentStatus.Paid
-					: allocatedSum == 0
-						? OrderPaymentStatus.UnPaid
-						: OrderPaymentStatus.PartiallyPaid;
+
+			if(allocatedSum == 0 || allocatedSum - canceledSum == 0)
+			{
+				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			}
+			else if(allocatedSum - canceledSum > OrderSum)
+			{
+				OrderPaymentStatus = OrderPaymentStatus.Paid;
+			}
+			else
+			{
+				OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+			}
 		}
 
 		/// <summary>
