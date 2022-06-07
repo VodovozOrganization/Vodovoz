@@ -24,18 +24,11 @@ namespace Vodovoz.ViewWidgets.Logistics
 				.AddBinding(ViewModel, vm => vm.Message, w => w.LabelProp)
 				.InitializeFromSource();
 
-			ytextviewLogisticiaComment.Binding.AddBinding(ViewModel.FastDeliveryAvailabilityHistory, h => h.LogisticianComment, w => w.Buffer.Text)
-				.InitializeFromSource();
-			ytextviewLogisticiaComment.Binding.AddBinding(ViewModel, vm => vm.ShowLogisticianComment, w => w.Sensitive)
-				.InitializeFromSource();
+			ytextviewLogisticiaComment.Binding.AddBinding(ViewModel.FastDeliveryAvailabilityHistory, h => h.LogisticianComment, w => w.Buffer.Text).InitializeFromSource();
 
-			yvboxLogisticianComment.Binding.AddBinding(ViewModel, vm => vm.ShowLogisticianComment, w => w.Sensitive)
-				.InitializeFromSource();
+			yvboxLogisticianComment.Binding.AddBinding(ViewModel, vm => vm.ShowLogisticianComment, w => w.Visible).InitializeFromSource();
 
-			ybuttonSaveLogisticiaComment.Binding.AddBinding(ViewModel, vm => vm.ShowLogisticianComment, w => w.Sensitive).InitializeFromSource();
 			ybuttonSaveLogisticiaComment.Clicked += (sender, args) => ViewModel.SaveLogisticianCommentCommand.Execute();
-
-			expanderAdditional.Visible = ViewModel.ShowLogisticianComment;
 
 			ConfigureTreeDetails();
 			ConfigureOrderItems();
@@ -88,6 +81,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			treeViewNomenclatures.ColumnsConfig = FluentColumnsConfig<FastDeliveryOrderItemHistory>.Create()
 				.AddColumn("Товар").HeaderAlignment(0.5f).AddTextRenderer(x => x.Nomenclature.Name)
 				.AddColumn("Кол-во").MinWidth(75).HeaderAlignment(0.5f).AddNumericRenderer(node => node.Count)
+				.AddColumn("")
 				.Finish();
 
 			treeViewNomenclatures.ItemsDataSource = ViewModel.OrderItemsHistory;

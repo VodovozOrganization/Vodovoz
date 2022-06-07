@@ -19,7 +19,7 @@ namespace Vodovoz.Views.Orders
 		private void ConfigureView()
 		{
 			var fastDeliveryVerificationView = new FastDeliveryVerificationView(ViewModel.FastDeliveryVerificationViewModel);
-			fastDeliveryVerificationView.ShowAll();
+			fastDeliveryVerificationView.Show();
 			vboxMain.PackStart(fastDeliveryVerificationView, true, true, 0);
 		}
 	}

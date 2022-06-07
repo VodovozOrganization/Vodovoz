@@ -17,7 +17,7 @@ namespace Vodovoz.Views.Logistic
 		private void Configure()
 		{
 			var fastDeliveryVerificationView = new FastDeliveryVerificationView(ViewModel.FastDeliveryVerificationViewModel);
-			fastDeliveryVerificationView.ShowAll();
+			fastDeliveryVerificationView.Show();
 			yhboxVerificationWidget.PackStart(fastDeliveryVerificationView, true, true, 0);
 
 			buttonClose.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
