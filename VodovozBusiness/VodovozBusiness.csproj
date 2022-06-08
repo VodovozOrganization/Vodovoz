@@ -1108,6 +1108,12 @@
     <Compile Include="HibernateMapping\Employees\EmployeePostMap.cs" />
     <Compile Include="Services\IOrderPaymentSettings.cs" />
     <Compile Include="Parameters\OrderPaymentSettings.cs" />
+    <Compile Include="Domain\HistoryChanges\OldChangedEntity.cs" />
+    <Compile Include="Domain\HistoryChanges\OldChangeSet.cs" />
+    <Compile Include="Domain\HistoryChanges\OldFieldChange.cs" />
+    <Compile Include="HibernateMapping\HistoryChanges\OldFieldChangeMap.cs" />
+    <Compile Include="HibernateMapping\HistoryChanges\OldChangeSetMap.cs" />
+    <Compile Include="HibernateMapping\HistoryChanges\OldChangedEntityMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1186,6 +1192,8 @@
     <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
     <Folder Include="Models\" />
     <Folder Include="Journal\" />
+    <Folder Include="Domain\HistoryChanges\" />
+    <Folder Include="HibernateMapping\HistoryChanges\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
@@ -1193,7 +1201,7 @@
       <Name>Gamma.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
-      <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>
+      <Project>{54871F7B-7DF2-43BD-9ACD-72F650BA35A1}</Project>
       <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
