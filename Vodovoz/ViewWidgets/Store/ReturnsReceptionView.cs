@@ -171,9 +171,9 @@ namespace Vodovoz
 					.JoinEntityAlias(() => orderItemsAlias, () => orderItemsAlias.Order.Id == orderAlias.Id)
 					.JoinEntityAlias(() => routeListAlias, () => routeListItemAlias.RouteList.Id == routeListAlias.Id)
 					.Left.JoinAlias(() => routeListAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
-					.JoinEntityAlias(() => additionalLoadingDocumentItemAlias, () =>
-							additionalLoadingDocumentItemAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id
-							&& additionalLoadingDocumentItemAlias.Nomenclature.Id == orderItemsAlias.Nomenclature.Id,
+					.JoinEntityAlias(() => additionalLoadingDocumentItemAlias, () => 
+							additionalLoadingDocumentItemAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id 
+							&& additionalLoadingDocumentItemAlias.Nomenclature.Id == orderItemsAlias.Nomenclature.Id, 
 						JoinType.LeftOuterJoin)
 					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
 					.And(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
@@ -201,8 +201,11 @@ namespace Vodovoz
 							Projections.Property(() => routeListItemAlias.Status),
 							Projections.Property(() => routeListItemToAlias.NeedToReload),
 							Projections.Property(() => orderItemsAlias.Count),
-							Projections.Conditional(Restrictions.Or(Restrictions.IsNull(Projections.Property(() => routeListAlias.AdditionalLoadingDocument)), 
-									Restrictions.IsNull(Projections.SubQuery(fastDeliveryWithoutAdditionalLoading))), 
+							Projections.Conditional(
+								Restrictions.Or(
+									Restrictions.IsNull(Projections.Property(() => routeListAlias.AdditionalLoadingDocument)), 
+									Restrictions.IsNull(Projections.SubQuery(fastDeliveryWithoutAdditionalLoading))
+									), 
 								Projections.Constant(0m),
 								Projections.SubQuery(fastDeliveryWithoutAdditionalLoading))
 						)).WithAlias(() => resultAlias.ExpectedAmount)
