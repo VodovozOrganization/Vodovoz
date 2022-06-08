@@ -331,7 +331,7 @@ namespace Vodovoz.Views.Orders
 			this.ycheckForTheFirstOrderOnlyToTheAddress = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckForTheFirstOrderOnlyToTheAddress.CanFocus = true;
 			this.ycheckForTheFirstOrderOnlyToTheAddress.Name = "ycheckForTheFirstOrderOnlyToTheAddress";
-			this.ycheckForTheFirstOrderOnlyToTheAddress.Label = global::Mono.Unix.Catalog.GetString("Только для первого заказа на адрес");
+			this.ycheckForTheFirstOrderOnlyToTheAddress.Label = global::Mono.Unix.Catalog.GetString("Можно заказывать повторно без ограничений");
 			this.ycheckForTheFirstOrderOnlyToTheAddress.DrawIndicator = true;
 			this.ycheckForTheFirstOrderOnlyToTheAddress.UseUnderline = true;
 			this.hbox5.Add(this.ycheckForTheFirstOrderOnlyToTheAddress);
