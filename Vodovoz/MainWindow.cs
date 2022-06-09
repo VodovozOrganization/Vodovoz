@@ -147,6 +147,7 @@ using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2330,14 +2331,22 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
 	{
-		IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
-		IParametersProvider parametersProvider = new ParametersProvider();
-		INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);
+		//IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
+		//IParametersProvider parametersProvider = new ParametersProvider();
+		//INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);
+		//IFileDialogService fileDialogService = new FileDialogService();
+
+		//NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+		//	ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, productGroupJournalFactory, nomenclaturePlanParametersProvider,
+		//	fileDialogService);
+
 		IFileDialogService fileDialogService = new FileDialogService();
 
-		NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, productGroupJournalFactory, nomenclaturePlanParametersProvider,
-			fileDialogService);
+		//FastDeliverySalesReportViewModel viewModel = new FastDeliverySalesReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+		//	ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
 
 		tdiMain.AddTab(viewModel);
 	}
