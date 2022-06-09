@@ -943,8 +943,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _ourOrganization, value);
 		}
 
-		public virtual Order CopiedOrderFromUndelivery { get; set; }
-
 		public Order()
 		{
 			Comment = string.Empty;
@@ -1036,27 +1034,17 @@ namespace Vodovoz.Domain.Orders
 					}
 					else //если копия из недовоза сверяем цены с переносимым заказом
 					{
-						if(CopiedOrderFromUndelivery == null)
+						var currentCopiedItems = ObservableOrderItems.Where(oi => oi.CopiedFromUndelivery != null).ToArray();
+					
+						//сначала проверяем все позиции у которых можно менять цену из старого заказа
+						CopiedOrderItemsPriceValidation(currentCopiedItems, incorrectPriceItems);
+
+						//затем смотрим у новых добавленных, если таковые имеются
+						var newAddedItems = ObservableOrderItems.Where(oi => oi.CopiedFromUndelivery == null).ToArray();
+
+						if(newAddedItems.Any())
 						{
-							CopiedOrderFromUndelivery = _undeliveredOrdersRepository.GetOldOrderFromUndeliveredByNewOrderId(UoW, Id);
-						}
-
-						if(CopiedOrderFromUndelivery != null)
-						{
-							var copiedItems = CopiedOrderFromUndelivery.OrderItems.Where(x => x.CanEditPrice).ToArray();
-						
-							//сначала проверяем все позиции у которых можно менять цену из старого заказа
-							CopiedOrderItemsPriceValidation(copiedItems, incorrectPriceItems);
-
-							//затем смотрим у новых добавленных, если таковые имеются
-							var newAddedItems =
-								ObservableOrderItems.Where(x => x.CanEditPrice)
-									.Except(copiedItems, _itemComparerForCopyingFromUndelivery).ToArray();
-
-							if(newAddedItems.Any())
-							{
-								OrderItemsPriceValidation(newAddedItems, incorrectPriceItems);
-							}
+							OrderItemsPriceValidation(newAddedItems, incorrectPriceItems);
 						}
 					}
 
@@ -1287,19 +1275,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		private void CopiedOrderItemsPriceValidation(OrderItem[] copiedItems, List<string> incorrectPriceItems)
+		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
 		{
-			for(var i = 0; i < copiedItems.Length; i++)
+			for(var i = 0; i < currentCopiedItems.Length; i++)
 			{
-				var copiedItem = copiedItems[i];
-				var currentItem =
-					ObservableOrderItems.SingleOrDefault(x =>
-						x.CanEditPrice && x.Nomenclature.Id == copiedItem.Nomenclature.Id);
-
-				if(currentItem == null)
-				{
-					continue;
-				}
+				var currentItem = currentCopiedItems[i];
+				var copiedItem = UoW.GetById<OrderItem>(currentItem.CopiedFromUndelivery.Id);
+				
 				if(currentItem.Price < copiedItem.Price)
 				{
 					incorrectPriceItems.Add(

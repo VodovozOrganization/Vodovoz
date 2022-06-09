@@ -164,7 +164,7 @@ namespace Vodovoz.Models.Orders
 		}
 
 		/// <summary>
-		/// Копирование доставки. При переносе из недовоза платная доставка должна переноситься со всеми скидками и старой ценой.
+		/// Копирование доставки. При переносе из недовоза платная доставка должна переносится со всеми скидками и старой ценой.
 		/// Использовать только после выполнения (<see cref="CopyOrderItems"/>)
 		/// </summary>
 		public CopyingOrder CopyPaidDeliveryItem()
@@ -299,6 +299,11 @@ namespace Vodovoz.Models.Orders
 				IncludeNDS = orderItem.IncludeNDS
 			};
 
+			//если перенос из недовоза - сохраняем ссылку на переносимый товар
+			if(withPrices)
+			{
+				newOrderItem.CopiedFromUndelivery = orderItem;
+			}
 			if(withDiscounts)
 			{
 				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
