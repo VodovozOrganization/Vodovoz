@@ -513,9 +513,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			catch
 			{
 				ShowErrorMessage("При сохранении платежа произошла ошибка. Переоткройте диалог.");
-			}
-			finally
-			{
 				UoW.Session.Clear();
 				var curPayment = UoW.GetById<Payment>(Entity.Id);
 				curPayment.CurrentEditorUser = null;
