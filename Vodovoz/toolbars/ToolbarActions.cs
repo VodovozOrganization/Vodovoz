@@ -1,10 +1,7 @@
-﻿using System;
-using Autofac;
-using Dialogs.Employees;
+﻿using Dialogs.Employees;
 using Gtk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
-using Microsoft.Extensions.Primitives;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -22,51 +19,31 @@ using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Sale;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Chats;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Suppliers;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.FilterViewModels.Suppliers;
-using Vodovoz.JournalViewers;
-using Vodovoz.JournalViewModels.Suppliers;
-using Vodovoz.Representations;
-using Vodovoz.ServiceDialogs;
-using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Logistic;
-using Vodovoz.ViewModels.Suppliers;
-using Vodovoz.EntityRepositories.Store;
-using QS.Project.Journal;
-using QS.Services;
-using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure;
-using Vodovoz.ViewModels;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Chats;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Factories;
-using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters.Cash;
 using Vodovoz.Journals.FilterViewModels;
@@ -87,12 +64,10 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
@@ -101,16 +76,14 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
-using VodovozInfrastructure.Interfaces;
 using Action = Gtk.Action;
-using Vodovoz.ViewModels.ViewModels.Reports;
 
 public partial class MainWindow : Window
 {
@@ -130,6 +103,7 @@ public partial class MainWindow : Window
 	Action ActionCallTasks;
 	Action ActionBottleDebtors;
 	Action ActionIncomingCallsAnalysisReport;
+	Action ActionDriversTareMessages;
 
 	//Логистика
 	Action ActionRouteListTable;
@@ -162,6 +136,7 @@ public partial class MainWindow : Window
 	Action ActionImportPaymentsByCard;
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionUnallocatedBalancesJournal;
+	Action ActionImportPaymentsFromAvangard;
 
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
@@ -203,7 +178,7 @@ public partial class MainWindow : Window
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
-
+		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
 
@@ -248,6 +223,7 @@ public partial class MainWindow : Window
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
+		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -294,6 +270,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionCallTasks, null);
 		w1.Add(ActionBottleDebtors, null);
 		w1.Add(ActionIncomingCallsAnalysisReport, null);
+		w1.Add(ActionDriversTareMessages, null);
 
 		//Логистика
 		w1.Add(ActionRouteListTable, null);
@@ -323,6 +300,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionImportPaymentsByCard, null);
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionUnallocatedBalancesJournal, null);
+		w1.Add(ActionImportPaymentsFromAvangard, null);
 
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
@@ -378,7 +356,7 @@ public partial class MainWindow : Window
 		ActionCallTasks.Activated += ActionCallTasks_Activate;
 		ActionBottleDebtors.Activated += ActionBottleDebtors_Activate;
 		ActionIncomingCallsAnalysisReport.Activated += OnActionIncomingCallsAnalysisReportActivated;
-
+		ActionDriversTareMessages.Activated += OnActionDriversTareMessagesActivated;
 		//Логистика
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		ActionAtWorks.Activated += ActionAtWorks_Activated;
@@ -407,6 +385,7 @@ public partial class MainWindow : Window
 		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
+		ActionImportPaymentsFromAvangard.Activated += OnActionImportPaymentsFromAvangardActivated;
 
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
@@ -444,6 +423,10 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<IncomingCallsAnalysisReportViewModel>(null);
 	}
 
+	private void OnActionDriversTareMessagesActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriverTareMessagesJournalViewModel>(null);
+	}
 	private void ActionSalariesJournal_Activated(object sender, EventArgs e)
 	{
 		var filter = new SalaryByEmployeeJournalFilterViewModel(new SubdivisionRepository(new ParametersProvider()), EmployeeStatus.IsWorking);
@@ -543,7 +526,6 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
-		var nomenclatureParameterProvider = new NomenclatureParametersProvider(parametersProvider);
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
 		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
@@ -557,8 +539,7 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider),
-				nomenclatureParameterProvider
+				new CategoryRepository(parametersProvider)
 			)
 		);
 	}
@@ -695,6 +676,11 @@ public partial class MainWindow : Window
 	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
+	}
+	
+	private void OnActionImportPaymentsFromAvangardActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ImportPaymentsFromAvangardSbpViewModel>(null);
 	}
 
 	private void OnActionUnallocatedBalancesJournalActivated(object sender, EventArgs e)
@@ -968,11 +954,16 @@ public partial class MainWindow : Window
 		var employeeRepository = new EmployeeRepository();
 		var chatRepository = new ChatRepository();
 		var trackRepository = new TrackRepository();
+		var stockRepository = new StockRepository();
+		var terminalNomenclatureProvider = new BaseParametersProvider(new ParametersProvider());
+		var routeListRepository = new RouteListRepository(stockRepository, terminalNomenclatureProvider);
+		var scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		var deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
+			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, routeListRepository, scheduleRestrictionRepository,
+				deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
 		);
 	}
 

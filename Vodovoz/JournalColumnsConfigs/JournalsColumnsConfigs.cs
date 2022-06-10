@@ -1281,6 +1281,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Водитель").AddTextRenderer(node => node.DriverFullName)
 					.AddColumn("Дата начала").AddTextRenderer(node => node.StartDate.ToString("d"))
 					.AddColumn("Дата окончания").AddTextRenderer(node => node.EndDate.ToString("d"))
+					.AddColumn("Стоимость").AddTextRenderer(node => node.RepairCost.ToString("0.##"))
 					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment).WrapWidth(400).WrapMode(WrapMode.WordChar)
 					.AddColumn("Автор").AddTextRenderer(node => node.AuthorFullName)
 					.Finish()
@@ -1522,6 +1523,23 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			//DriverTareMessagesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DriverTareMessagesJournalViewModel>(
+				() => FluentColumnsConfig<DriverMessageJournalNode>.Create()
+					.AddColumn("Дата").AddTextRenderer(node => node.CommentDate.ToString("dd.MM.yy"))
+					.AddColumn("Время").AddTextRenderer(node => node.CommentDate.ToString("HH:mm:ss"))
+					.AddColumn("ФИО водителя").AddTextRenderer(node => node.DriverName)
+					.AddColumn("Телефон водителя").AddTextRenderer(node => node.DriverPhone)
+					.AddColumn("№ МЛ").AddNumericRenderer(node => node.RouteListId)
+					.AddColumn("№ заказа").AddNumericRenderer(node => node.OrderId)
+					.AddColumn("План бут.").AddNumericRenderer(node => node.BottlesReturn)
+					.AddColumn("Факт бут.").AddNumericRenderer(node => node.ActualBottlesReturn)
+					.AddColumn("Долг бут. по адресу").AddNumericRenderer(node => node.AddressBottlesDebt)
+					.AddColumn("Комментарий водителя").AddTextRenderer(node => node.DriverComment)
+					.Finish()
+			);
+
+			
 			//TariffZoneJournalViewModel
 			TreeViewColumnsConfigFactory.Register<TariffZoneJournalViewModel>(
 				() => FluentColumnsConfig<TariffZoneJournalNode>.Create()

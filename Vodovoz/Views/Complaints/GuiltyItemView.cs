@@ -20,13 +20,7 @@ namespace Vodovoz.Views.Complaints
 
 		protected override void ConfigureWidget()
 		{
-			yEnumGuiltyType.ItemsEnum = typeof(ComplaintGuiltyTypes);
-			
-			if(ViewModel.HideClientFromGuilty)
-			{
-				yEnumGuiltyType.AddEnumToHideList(ComplaintGuiltyTypes.Client);
-			}
-			
+			yEnumGuiltyType.ItemsEnum = typeof(ComplaintGuiltyTypes);			
 			yEnumGuiltyType.Binding.AddBinding(ViewModel.Entity, s => s.GuiltyType, w => w.SelectedItemOrNull).InitializeFromSource();
 			entVmEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			entVmEmployee.Binding.AddBinding(ViewModel.Entity, e => e.Employee, w => w.Subject).InitializeFromSource();

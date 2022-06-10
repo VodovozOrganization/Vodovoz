@@ -346,7 +346,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 				//Читаем полученные маршруты.
 				for(int route_number = 0; route_number < routing.Vehicles(); route_number++) {
-					var route = new ProposedRoute(possibleRoutes[route_number]);
+					var route = new ProposedRoute(possibleRoutes[route_number], interactiveService);
 					long first_node = routing.Start(route_number);
 					long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
 					route.RouteCost = routing.GetCost(first_node, second_node, route_number);
@@ -507,7 +507,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 				int route_number = 0;
 
-				proposedRoute = new ProposedRoute(null);
+				proposedRoute = new ProposedRoute(null, interactiveService);
 				long first_node = routing.Start(route_number);
 				long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
 				proposedRoute.RouteCost = routing.GetCost(first_node, second_node, route_number);

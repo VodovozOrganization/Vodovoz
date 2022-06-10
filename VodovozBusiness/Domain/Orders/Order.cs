@@ -71,6 +71,9 @@ namespace Vodovoz.Domain.Orders
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
+		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
+			new OrderItemComparerForCopyingFromUndelivery();
+
 		#region Платная доставка
 
 		private int paidDeliveryNomenclatureId;
@@ -206,7 +209,10 @@ namespace Vodovoz.Domain.Orders
 						DeliverySchedule = value.DeliverySchedule;
 
 					if(Id == 0)
-						AddCertificates = DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null;
+					{
+						AddCertificates = DeliveryPoint.Category?.Id == EducationalInstitutionDeliveryPointCategoryId 
+						                  && (DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null);
+					}
 
 					if (oldDeliveryPoint != null) {
 						UpdateContract();
@@ -595,6 +601,22 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref commentManager, value, () => CommentManager);
 		}
 
+		private string _driverMobileAppComment;
+		[Display(Name = "Комментарий водителя из приложения")]
+		public virtual string DriverMobileAppComment
+		{
+			get => _driverMobileAppComment;
+			set => SetField(ref _driverMobileAppComment, value);
+		}
+
+		private DateTime? _driverMobileAppCommentTime;
+		[Display(Name = "Время установки комментария водителя из приложения")]
+		public virtual DateTime? DriverMobileAppCommentTime
+		{
+			get => _driverMobileAppCommentTime;
+			set => SetField(ref _driverMobileAppCommentTime, value);
+		}
+
 		int? returnedTare;
 
 		[Display(Name = "Возвратная тара")]
@@ -921,6 +943,8 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _ourOrganization, value);
 		}
 
+		public virtual Order CopiedOrderFromUndelivery { get; set; }
+
 		public Order()
 		{
 			Comment = string.Empty;
@@ -1003,43 +1027,47 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
+					List<string> incorrectPriceItems = new List<string>();
+					string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
+					
 					if(!IsCopiedFromUndelivery)
 					{
-						// Проверка соответствия цен в заказе ценам в номенклатуре
-						string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
-						List<string> incorrectPriceItems = new List<string>();
-						foreach(OrderItem item in ObservableOrderItems)
+						OrderItemsPriceValidation(ObservableOrderItems, incorrectPriceItems);
+					}
+					else //если копия из недовоза сверяем цены с переносимым заказом
+					{
+						if(CopiedOrderFromUndelivery == null)
 						{
-							decimal fixedPrice = GetFixedPrice(item);
-							decimal nomenclaturePrice = GetNomenclaturePrice(item);
-							if(fixedPrice > 0m)
-							{
-								if(item.Price < fixedPrice)
-								{
-									incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-										item.NomenclatureString,
-										item.Price,
-										fixedPrice));
-								}
-							}
-							else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice)
-							{
-								incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-									item.NomenclatureString,
-									item.Price,
-									nomenclaturePrice));
-							}
+							CopiedOrderFromUndelivery = _undeliveredOrdersRepository.GetOldOrderFromUndeliveredByNewOrderId(UoW, Id);
 						}
 
-						if(incorrectPriceItems.Any())
+						if(CopiedOrderFromUndelivery != null)
 						{
-							foreach(string item in incorrectPriceItems)
-							{
-								priceResult += item;
-							}
+							var copiedItems = CopiedOrderFromUndelivery.OrderItems.Where(x => x.CanEditPrice).ToArray();
+						
+							//сначала проверяем все позиции у которых можно менять цену из старого заказа
+							CopiedOrderItemsPriceValidation(copiedItems, incorrectPriceItems);
 
-							yield return new ValidationResult(priceResult);
+							//затем смотрим у новых добавленных, если таковые имеются
+							var newAddedItems =
+								ObservableOrderItems.Where(x => x.CanEditPrice)
+									.Except(copiedItems, _itemComparerForCopyingFromUndelivery).ToArray();
+
+							if(newAddedItems.Any())
+							{
+								OrderItemsPriceValidation(newAddedItems, incorrectPriceItems);
+							}
 						}
+					}
+
+					if(incorrectPriceItems.Any())
+					{
+						foreach(string item in incorrectPriceItems)
+						{
+							priceResult += item;
+						}
+
+						yield return new ValidationResult(priceResult);
 					}
 					// Конец проверки цен
 
@@ -1259,6 +1287,54 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private void CopiedOrderItemsPriceValidation(OrderItem[] copiedItems, List<string> incorrectPriceItems)
+		{
+			for(var i = 0; i < copiedItems.Length; i++)
+			{
+				var copiedItem = copiedItems[i];
+				var currentItem =
+					ObservableOrderItems.SingleOrDefault(x =>
+						x.CanEditPrice && x.Nomenclature.Id == copiedItem.Nomenclature.Id);
+
+				if(currentItem == null)
+				{
+					continue;
+				}
+				if(currentItem.Price < copiedItem.Price)
+				{
+					incorrectPriceItems.Add(
+						$"{currentItem.NomenclatureString} - цена: {currentItem.Price}, должна быть: {copiedItem.Price}\n");
+				}
+			}
+		}
+
+		private void OrderItemsPriceValidation(IEnumerable<OrderItem> validatedOrderItems, IList<string> incorrectPriceItems)
+		{
+			// Проверка соответствия цен в заказе ценам в номенклатуре
+			foreach(var item in validatedOrderItems)
+			{
+				decimal fixedPrice = GetFixedPrice(item);
+				decimal nomenclaturePrice = GetNomenclaturePrice(item);
+				if(fixedPrice > 0m)
+				{
+					if(item.Price < fixedPrice)
+					{
+						incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
+							item.NomenclatureString,
+							item.Price,
+							fixedPrice));
+					}
+				}
+				else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice)
+				{
+					incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
+						item.NomenclatureString,
+						item.Price,
+						nomenclaturePrice));
+				}
+			}
+		}
+
 		#endregion
 
 		#region Вычисляемые
@@ -1344,9 +1420,9 @@ namespace Vodovoz.Domain.Orders
 		        && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
 		public virtual bool HasItemsNeededToLoad => ObservableOrderItems.Any(orderItem =>
-				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderItem.Nomenclature.Category) && !orderItem.Nomenclature.NoDelivey)
+				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderItem.Nomenclature.Category) && !orderItem.Nomenclature.NoDelivery)
 			|| ObservableOrderEquipments.Any(orderEquipment =>
-				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivey);
+				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivery);
 
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.cashless
 			&& (Contract?.Organization?.WithoutVAT ?? false);
@@ -3322,6 +3398,12 @@ namespace Vodovoz.Domain.Orders
 						);
 				}
 			}
+
+			if(!AddCertificates)
+			{
+				ObservableOrderDocuments.Where(od => od.Type == OrderDocumentType.ProductCertificate).ToList()
+					.ForEach(od => ObservableOrderDocuments.Remove(od));
+			}
 		}
 
 		public virtual void CheckDocumentExportPermissions()
@@ -4155,6 +4237,25 @@ namespace Vodovoz.Domain.Orders
 					ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == FastDeliveryNomenclature.Id);
 
 			RemoveOrderItem(fastDeliveryItemToRemove);
+		}
+
+		#endregion
+
+		#region Точка доставки
+
+		private int _educationalInstitutionDeliveryPointCategoryId;
+		private int EducationalInstitutionDeliveryPointCategoryId
+		{
+			get
+			{
+				if(_educationalInstitutionDeliveryPointCategoryId == default(int))
+				{
+					var deliveryPointParametersProvider = new DeliveryPointParametersProvider(new ParametersProvider());
+					_educationalInstitutionDeliveryPointCategoryId = deliveryPointParametersProvider.EducationalInstitutionDeliveryPointCategoryId;
+				}
+
+				return _educationalInstitutionDeliveryPointCategoryId;
+			}
 		}
 
 		#endregion

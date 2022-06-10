@@ -357,12 +357,12 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref hide, value, () => Hide);
 		}
 
-		private bool noDelivey;
+		private bool _noDelivery;
 
 		[Display(Name = "Доставка не требуется")]
-		public virtual bool NoDelivey {
-			get => noDelivey;
-			set => SetField(ref noDelivey, value, () => NoDelivey);
+		public virtual bool NoDelivery {
+			get => _noDelivery;
+			set => SetField(ref _noDelivery, value, () => NoDelivery);
 		}
 
 		private bool isNewBottle;

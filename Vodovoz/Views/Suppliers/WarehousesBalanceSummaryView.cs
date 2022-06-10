@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
@@ -14,6 +15,7 @@ namespace Vodovoz.Views.Suppliers
 	public partial class WarehousesBalanceSummaryView : TabViewBase<WarehousesBalanceSummaryViewModel>
 	{
 		private Task _generationTask;
+		private int _maxWarehousesInReportExport = 10;
 
 		public WarehousesBalanceSummaryView(WarehousesBalanceSummaryViewModel viewModel) : base(viewModel)
 		{
@@ -36,7 +38,7 @@ namespace Vodovoz.Views.Suppliers
 				.InitializeFromSource();
 			buttonAbort.Clicked += (sender, args) => { ViewModel.ReportGenerationCancelationTokenSource.Cancel(); };
 
-			buttonExport.Visible = false;
+			buttonExport.Clicked += (sender, args) => Export();
 
 			datePicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.DateOrNull).InitializeFromSource();
 
@@ -134,6 +136,28 @@ namespace Vodovoz.Views.Suppliers
 			}, ViewModel.ReportGenerationCancelationTokenSource.Token);
 
 			await _generationTask;
+		}
+
+		private void Export()
+		{
+			if(ViewModel.Report == null)
+			{
+				ViewModel.ShowWarning("Отчет пустой.");
+				return;
+			}
+
+			try
+			{
+				ViewModel.ExportReport();
+			}
+			catch(OutOfMemoryException)
+			{
+				ViewModel.ShowWarning($"Слишком большой обьём данных.\n Пожалуйста, уменьшите выборку.");
+			}
+			catch(Exception ex)
+			{
+				throw ex;
+			}
 		}
 	}
 }

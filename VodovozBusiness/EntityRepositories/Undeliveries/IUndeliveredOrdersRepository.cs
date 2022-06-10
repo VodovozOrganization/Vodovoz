@@ -16,5 +16,6 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 		IList<int> GetListOfUndeliveryIdsForDriver(IUnitOfWork uow, Employee driver);
 		IList<object[]> GetGuiltyAndCountForDates(IUnitOfWork uow, DateTime? start = null, DateTime? end = null);
 		decimal GetUndelivered19LBottlesQuantity(IUnitOfWork uow, DateTime? start = null, DateTime? end = null);
+		Order GetOldOrderFromUndeliveredByNewOrderId(IUnitOfWork uow, int newOrderId);
 	}
 }

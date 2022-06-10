@@ -40,7 +40,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Management" />
     <Reference Include="System.Transactions" />
@@ -122,10 +121,12 @@
     <Compile Include="Domain\Employees\PremiumBase.cs" />
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\FastPayments\FastPayment.cs" />
+    <Compile Include="Domain\FastPayments\FastPaymentPayType.cs" />
     <Compile Include="Domain\FastPayments\FastPaymentStatus.cs" />
     <Compile Include="Domain\FinancialDistrict.cs" />
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
     <Compile Include="Domain\Goods\AdditionalLoadingNomenclatureDistribution.cs" />
+    <Compile Include="Domain\Goods\OrderItemComparerForCopyingFromUndelivery.cs" />
     <Compile Include="Domain\Goods\NomenclaturePurchasePrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
@@ -167,6 +168,7 @@
     <Compile Include="Domain\Orders\SelectedNomenclaturePlan.cs" />
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\AllocationStatus.cs" />
+    <Compile Include="Domain\Payments\PaymentFromAvangard.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
@@ -302,7 +304,9 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
+    <Compile Include="Factories\IPaymentFromAvangardFactory.cs" />
     <Compile Include="Factories\OsrmClientFactory.cs" />
+    <Compile Include="Factories\PaymentFromAvangardFactory.cs" />
     <Compile Include="HibernateMapping\Cash\CashlessRequestFileMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
@@ -368,6 +372,7 @@
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryTransferAbsenceReasonMap.cs" />
+    <Compile Include="HibernateMapping\Payments\PaymentFromAvangardMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
@@ -397,6 +402,7 @@
     <Compile Include="Models\Stage2OrganizationProvider.cs" />
     <Compile Include="NhibernateExtensions\MySQL57SpatialExtendedDialect.cs" />
     <Compile Include="Models\DeliveryPointFixedPricesModel.cs" />
+    <Compile Include="Parameters\DeliveryPointParametersProvider.cs" />
     <Compile Include="Parameters\EmployeeSettings.cs" />
     <Compile Include="Parameters\DebtorsParameters.cs" />
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
@@ -415,6 +421,9 @@
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Parameters\CarEventSettings.cs" />
+    <Compile Include="Services\ICarEventSettings.cs" />
+    <Compile Include="Services\IDeliveryPointParametersProvider.cs" />
     <Compile Include="Services\IEmployeeSettings.cs" />
     <Compile Include="Services\IFastPaymentParametersProvider.cs" />
     <Compile Include="Services\IGlobalSettings.cs" />
@@ -786,7 +795,6 @@
     <Compile Include="Domain\Orders\Documents\NomenclatureCertificateDocument.cs" />
     <Compile Include="Domain\StoredResources\StoredResource.cs" />
     <Compile Include="HibernateMapping\StoredResourceMap.cs" />
-    <Compile Include="Domain\StoredResources\StoredImageResource.cs" />
     <Compile Include="Domain\Client\CallTask.cs" />
     <Compile Include="HibernateMapping\Counterparty\CallTaskMap.cs" />
     <Compile Include="Domain\Logistic\Discrepancy.cs" />
@@ -1284,7 +1292,7 @@
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="RestSharp" Version="106.15.0" />
-    <PackageReference Include="SSH.NET" Version="2020.0.1" />
+    <PackageReference Include="SSH.NET" Version="2020.0.2" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />

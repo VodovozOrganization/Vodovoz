@@ -23,6 +23,7 @@ namespace Vodovoz.Views.Logistic
 
 			entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
 			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel.Entity, e => e.CarEventType, e => e.Subject).InitializeFromSource();
+			entityviewmodelentryCarEventType.ChangedByUser += (sender, e) => ViewModel.ChangeEventTypeCommand.Execute();
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
@@ -34,6 +35,16 @@ namespace Vodovoz.Views.Logistic
 			ydatepickerStartEventDate.Binding.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date).InitializeFromSource();
 
 			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
+
+			yspinPaymentTotalCarEvent.Binding
+				.AddBinding(ViewModel.Entity, e => e.RepairCost, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			checkbuttonDoNotShowInOperation.Binding
+				.AddBinding(ViewModel.Entity, e => e.DoNotShowInOperation, w => w.Active)
+				.InitializeFromSource();
+
+			ytextviewFoundation.Binding.AddBinding(ViewModel.Entity, e => e.Foundation, w => w.Buffer.Text).InitializeFromSource();
 
 			ytextviewCommnet.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 

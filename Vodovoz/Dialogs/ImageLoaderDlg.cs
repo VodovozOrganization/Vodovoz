@@ -8,12 +8,13 @@ using Vodovoz.Domain.StoredResources;
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ImageLoaderDlg : EntityDialogBase<StoredImageResource>
+	public partial class ImageLoaderDlg : EntityDialogBase<StoredResource>
 	{
 		public ImageLoaderDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<StoredImageResource>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<StoredResource>();
+			UoWGeneric.Root.Type = ResoureceType.Image;
 			TabName = "Новое изображение";
 			ConfigureDlg();
 		}
@@ -21,11 +22,12 @@ namespace Vodovoz.Dialogs
 		public ImageLoaderDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<StoredImageResource>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<StoredResource>(id);
+			UoWGeneric.Root.Type = ResoureceType.Image;
 			ConfigureDlg();
 		}
 
-		public ImageLoaderDlg(StoredImageResource sub): this(sub.Id)
+		public ImageLoaderDlg(StoredResource sub): this(sub.Id)
 		{
 		}
 
@@ -38,7 +40,7 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<StoredImageResource>(UoWGeneric.Root);
+			var valid = new QSValidator<StoredResource>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 			else {
