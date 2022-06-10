@@ -41,7 +41,7 @@ namespace DriverAPI.Library.Converters
 			{
 				var ownOrders = routeList.Addresses
 					.Where(rla => (!rla.Order.IsFastDelivery && !rla.WasTransfered) 
-					              || (rla.WasTransfered && !rla.NeedToReload))
+					              || (rla.WasTransfered))
 					.Sum(rla => rla.Order.Total19LBottlesToDeliver);
 
 				var additionalBalance = routeList.AdditionalLoadingDocument.Items
