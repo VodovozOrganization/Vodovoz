@@ -156,6 +156,7 @@
     <Compile Include="Journals\JournalNodes\RegisteredRMJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RoboatsWaterTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RoboatsStreetJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Roboats\RoboatsCallJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />
     <Compile Include="Journals\JournalNodes\SalesChannelJournalNode.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Journals\JournalViewModels\Organization\RoboatsStreetJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\UnallocatedBalancesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Roboats\RoboatsCallsRegistryJournalViewModel.cs" />
     <Compile Include="ReportsParameters\Cash\DayOfSalaryGiveoutReportViewModel.cs" />
     <Compile Include="TempAdapters\ICarModelJournalFactory.cs" />
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />

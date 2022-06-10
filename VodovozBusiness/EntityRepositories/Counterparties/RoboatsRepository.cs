@@ -197,6 +197,10 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				
 				query.OrderByAlias(() => orderAlias.CreateDate).Desc.Take(1);
 				var lastOrder = query.SingleOrDefault<Order>();
+				if(lastOrder == null)
+				{
+					return null;
+				}
 
 				var hasOnlyWaterNomenclatures = HasOnlyWaterNomenclatures(lastOrder);
 
@@ -263,6 +267,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias).Fetch(SelectMode.Fetch, () => nomenclatureAlias)
 					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
 					.Select(Projections.Distinct(Projections.RootEntity()))
+					.OrderByAlias(() => orderAlias.DeliveryDate).Desc()
 					.List();
 
 				foreach(var order in orders)
@@ -322,8 +327,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				var result = new List<NomenclatureQuantity>();
 
 				var order = uow.GetById<Order>(orderId);
-
-				if(order.Client.Id != counterpartyId)
+				if(order == null || order.Client.Id != counterpartyId)
 				{
 					return result;
 				}

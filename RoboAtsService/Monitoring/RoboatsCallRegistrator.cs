@@ -29,11 +29,20 @@ namespace RoboAtsService.Monitoring
 			using var uow = _uowFactory.CreateWithoutRoot();
 
 			var call = RegisterCall(phone);
-			call.FailType = failType;
-			call.Description = description;
 			call.Status = RoboatsCallStatus.Fail;
 			call.Result = RoboatsCallResult.Nothing;
-			call.Operation = operation;
+
+			var callDetail = new RoboatsCallDetail
+			{
+				Call = call,
+				OperationTime = DateTime.Now,
+				FailType = failType,
+				Operation = operation,
+				Description = description
+			};
+
+			call.CallDetails.Add(callDetail);
+
 			uow.Save(call);
 			uow.Commit();
 		}
@@ -43,23 +52,42 @@ namespace RoboAtsService.Monitoring
 			using var uow = _uowFactory.CreateWithoutRoot();
 
 			var call = RegisterCall(phone);
-			call.FailType = failType;
-			call.Description = description;
 			call.Status = RoboatsCallStatus.Aborted;
 			call.Result = RoboatsCallResult.Nothing;
-			call.Operation = operation;
+
+			var callDetail = new RoboatsCallDetail
+			{
+				Call = call,
+				OperationTime = DateTime.Now,
+				FailType = failType,
+				Operation = operation,
+				Description = description
+			};
+
+			call.CallDetails.Add(callDetail);
+
 			uow.Save(call);
 			uow.Commit();
 		}
 
-		public void RegisterAborted(string phone, string description = null)
+		public void RegisterAborted(string phone, RoboatsCallOperation operation, string description = null)
 		{
 			using var uow = _uowFactory.CreateWithoutRoot();
 
 			var call = RegisterCall(phone);
-			call.Description = description;
 			call.Status = RoboatsCallStatus.Aborted;
 			call.Result = RoboatsCallResult.OrderCreated;
+
+			var callDetail = new RoboatsCallDetail
+			{
+				Call = call,
+				OperationTime = DateTime.Now,
+				Operation = operation,
+				Description = description
+			};
+
+			call.CallDetails.Add(callDetail);
+
 			uow.Save(call);
 			uow.Commit();
 		}
@@ -69,10 +97,19 @@ namespace RoboAtsService.Monitoring
 			using var uow = _uowFactory.CreateWithoutRoot();
 
 			var call = RegisterCall(phone);
-			call.FailType = RoboatsCallFailType.None;
-			call.Description = description;
 			call.Status = RoboatsCallStatus.Success;
 			call.Result = RoboatsCallResult.OrderAccepted;
+
+			var callDetail = new RoboatsCallDetail
+			{
+				Call = call,
+				OperationTime = DateTime.Now,
+				Operation = RoboatsCallOperation.CreateOrder,
+				Description = description
+			};
+
+			call.CallDetails.Add(callDetail);
+
 			uow.Save(call);
 			uow.Commit();
 		}
@@ -91,8 +128,15 @@ namespace RoboAtsService.Monitoring
 			{
 				return CreateNewCall(phone);
 			}
+			else if(currentCall.CallTime > DateTime.Now.AddMinutes(-10))
+			{
+				activeCalls.Remove(currentCall);
+			}
+			else
+			{
+				currentCall = CreateNewCall(phone);
+			}
 
-			activeCalls.Remove(currentCall);
 			CloseStaleCalls(activeCalls);
 			return currentCall;
 		}

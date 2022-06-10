@@ -13,10 +13,30 @@ namespace Vodovoz.HibernateMapping.Roboats
 			Map(x => x.CallTime).Column("call_time");
 			Map(x => x.Phone).Column("phone");
 			Map(x => x.Status).Column("status").CustomType<RoboatsCallStatusStringType>();
+			Map(x => x.Result).Column("result").CustomType<RoboatsCallResultStringType>();
+
+			HasMany(x => x.CallDetails).KeyColumn("call_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.Not.LazyLoad();
+		}
+	}
+
+	public class RoboatsCallDetailMap : ClassMap<RoboatsCallDetail>
+	{
+		public RoboatsCallDetailMap()
+		{
+			Table("roboats_call_details");
+
+			Id(x => x.Id).GeneratedBy.Native();
+			Map(x => x.OperationTime).Column("operation_time");
 			Map(x => x.FailType).Column("fail_type").CustomType<RoboatsCallFailTypeStringType>();
 			Map(x => x.Operation).Column("operation").CustomType<RoboatsCallOperationStringType>();
-			Map(x => x.Result).Column("result").CustomType<RoboatsCallResultStringType>();
 			Map(x => x.Description).Column("description");
+			
+			References(x => x.Call).Column("call_id")
+				.Fetch.Join()
+				.Not.LazyLoad();
 		}
 	}
 }

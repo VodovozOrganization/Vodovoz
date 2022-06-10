@@ -68,7 +68,7 @@ namespace RoboAtsService.Requests
 				case "patronymic":
 					return GetCounterpartyPatronymicId(counterpartyId);
 				default:
-					return counterpartyCount != null ? $"{counterpartyCount}" : "0";
+					return counterpartyId != null ? "1" : "0";
 			}
 		}
 

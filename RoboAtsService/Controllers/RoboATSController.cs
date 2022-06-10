@@ -70,7 +70,6 @@ namespace RoboAtsService.Controllers
 			{
 				return "null request";
 			}
-			//_callRegistrator.RegisterCall(request.ClientPhone);
 			var result = handler.Execute();
 			sw.Stop();
 			var query = HttpContext.Request.GetEncodedPathAndQuery();

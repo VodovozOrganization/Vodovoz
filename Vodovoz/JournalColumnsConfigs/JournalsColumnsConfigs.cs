@@ -53,6 +53,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -1585,6 +1587,18 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Номенклатура").AddTextRenderer(node => node.Title)
 					.AddColumn("")
+					.Finish()
+			);
+
+			//RoboatsCallsRegistryJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RoboatsCallsRegistryJournalViewModel>(
+				() => FluentColumnsConfig<RoboatsCallJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Время").AddTextRenderer(node => node.Time.ToString("dd.MM.yyyy HH:mm:ss"))
+					.AddColumn("Телефон").AddTextRenderer(node => node.Phone)
+					.AddColumn("Статус").AddTextRenderer(node => node.CallStatus)
+					.AddColumn("Результат").AddTextRenderer(node => node.CallResult)
+					.AddColumn("Детали звонка").AddTextRenderer(node => node.Details)
 					.Finish()
 			);
 		}

@@ -79,6 +79,80 @@ namespace RoboAtsService.Requests
 
 		public string ExecuteRequest()
 		{
+			if(RequestDto.RequestSubType == "price")
+			{
+				return HandleCalculatePriceRequest();
+			}
+
+			if(RequestDto.IsAddOrder == "1")
+			{
+				return HandleCreateOrderRequest();
+			}
+
+			_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.OnOrderHandle,
+				$"Неизвестный запрос: RequestType={RequestDto.RequestType}, RequestSubType={RequestDto.RequestSubType}.");
+
+			return ErrorMessage;
+		}
+
+		private string HandleCalculatePriceRequest()
+		{
+			var counterpartyIds = _roboatsRepository.GetCounterpartyIdsByPhone(ClientPhone);
+			var counterpartyCount = counterpartyIds.Count();
+			if(counterpartyCount > 1)
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.OnOrderHandle,
+					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}");
+				return ErrorMessage;
+			}
+
+			int counterpartyId;
+			if(counterpartyCount == 1)
+			{
+				counterpartyId = counterpartyIds.First();
+			}
+			else
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.OnOrderHandle,
+					$"Для телефона {ClientPhone} не найден контрагент");
+				return ErrorMessage;
+			}
+
+			if(!AddressId.HasValue)
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AddressIdNotSpecified, RoboatsCallOperation.OnOrderHandle,
+					$"В запросе не указан код точки доставки: {nameof(AddressId)}. Контрагент {counterpartyId}");
+				return ErrorMessage;
+			}
+
+			var deliveryPointIds = _roboatsRepository.GetLastDeliveryPointIds(counterpartyId);
+			if(deliveryPointIds.All(x => x != AddressId))
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.OnOrderHandle,
+					$"Для контрагента {counterpartyId} не найдена точка доставки {AddressId}");
+				return ErrorMessage;
+			}
+
+			var waters = GetWaters();
+			if(!waters.Any())
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.WaterNotSupported, RoboatsCallOperation.OnOrderHandle,
+					$"По указанным в запросе типам воды ({RequestDto.WaterQuantity}) не удалось найти доступную воду. Контрагент {counterpartyId}, точка доставки {AddressId}");
+				return ErrorMessage;
+			}
+
+			if(!int.TryParse(RequestDto.ReturnBottlesCount, out int bottlesReturn))
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AddressIdNotSpecified, RoboatsCallOperation.OnOrderHandle,
+					$"В запросе не указано количество бутылей на возврат: {nameof(RequestDto.ReturnBottlesCount)}. Контрагент {counterpartyId}, точка доставки {AddressId}");
+				return ErrorMessage;
+			}
+
+			return CalculatePrice(counterpartyId, AddressId.Value, waters, bottlesReturn);
+		}
+
+		private string HandleCreateOrderRequest()
+		{
 			var counterpartyIds = _roboatsRepository.GetCounterpartyIdsByPhone(ClientPhone);
 			var counterpartyCount = counterpartyIds.Count();
 			if(counterpartyCount > 1)
@@ -130,20 +204,7 @@ namespace RoboAtsService.Requests
 				return ErrorMessage;
 			}
 
-			if(RequestDto.RequestSubType == "price")
-			{
-				return CalculatePrice(counterpartyId, AddressId.Value, waters, bottlesReturn);
-			}
-
-			if(RequestDto.IsAddOrder == "1")
-			{
-				return CreateOrderAndGetResult(counterpartyId, AddressId.Value, waters, bottlesReturn);
-			}
-
-			_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.OnOrderHandle,
-				$"Неизвестный запрос: RequestType={RequestDto.RequestType}, RequestSubType={RequestDto.RequestSubType}. Контрагент {counterpartyId}, точка доставки {AddressId}");
-
-			return ErrorMessage;
+			return CreateOrderAndGetResult(counterpartyId, AddressId.Value, waters, bottlesReturn);
 		}
 
 		private string CalculatePrice(int counterpartyId, int deliveryPointId, IEnumerable<RoboatsWaterInfo> watersInfo, int bottlesReturn)
@@ -209,11 +270,16 @@ namespace RoboAtsService.Requests
 
 			var isFullOrder = RequestDto.IsFullOrder == "1";
 
-			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn) && isFullOrder && payment == RoboAtsOrderPayment.Cash)
+			//Подозреваю что эта проверка будет еще нужна. Пока что по итогам теста решили сделать чтобы не указание сдачи приравнивалось к нулю.
+			/*if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn) && isFullOrder && payment == RoboAtsOrderPayment.Cash)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.UnknownIsTerminalValue, RoboatsCallOperation.CreateOrder,
 					$"Для подтверждения наличного заказа необходимо указать сдачу. Сдача с: {RequestDto.BanknoteForReturn}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}");
 				return ErrorMessage;
+			}*/
+			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn))
+			{
+				banknoteForReturn = 0;
 			}
 
 			var maxBanknoteForReturn = _roboatsSettings.MaxBanknoteForReturn;
@@ -233,22 +299,24 @@ namespace RoboAtsService.Requests
 			orderArgs.Date = date;
 			orderArgs.DeliveryScheduleId = deliverySchedule.Id;
 			orderArgs.PaymentType = payment;
-			if(banknoteForReturn > 0)
+			//Так же, если не будет замечаний по сдаче удалить при релизе.
+			/*if(banknoteForReturn > 0)
 			{
 				orderArgs.BanknoteForReturn = banknoteForReturn;
-			}
+			}*/
+			orderArgs.BanknoteForReturn = banknoteForReturn;
 
 			try
 			{
 				if(isFullOrder)
 				{
-					_roboatsOrderModel.CreateAndAcceptOrder(orderArgs);
-					_callRegistrator.RegisterSuccess(ClientPhone);
+					var orderId = _roboatsOrderModel.CreateAndAcceptOrder(orderArgs);
+					_callRegistrator.RegisterSuccess(ClientPhone, $"Звонок был успешно завершен. Cоздан и подтвержден заказ {orderId}");
 				}
 				else
 				{
-					_roboatsOrderModel.CreateIncompleteOrder(orderArgs);
-					_callRegistrator.RegisterAborted(ClientPhone);
+					var orderId = _roboatsOrderModel.CreateIncompleteOrder(orderArgs);
+					_callRegistrator.RegisterAborted(ClientPhone, RoboatsCallOperation.CreateOrder, $"Звонок не был успешно завершен. Был создан черновой заказ {orderId}");
 				}
 				return "1";
 			}
@@ -262,7 +330,7 @@ namespace RoboAtsService.Requests
 
 		private IEnumerable<RoboatsWaterInfo> GetWaters()
 		{
-			var waterNodes = RequestDto.WaterQuantity.Split('|');
+			var waterNodes = RequestDto.WaterQuantity.Split('|').Where(x => !string.IsNullOrWhiteSpace(x));
 			if(!waterNodes.Any())
 			{
 				return Enumerable.Empty<RoboatsWaterInfo>();

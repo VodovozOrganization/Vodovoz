@@ -111,6 +111,7 @@ namespace RoboAtsService.Requests
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AddressIdNotSpecified, RoboatsCallOperation.GetLastOrderId,
 					$"В запросе не указан код точки доставки: {nameof(AddressId)}");
+				return ErrorMessage;
 			}
 
 			var deliveryPointIds = _roboatsRepository.GetLastDeliveryPointIds(counterpartyId);

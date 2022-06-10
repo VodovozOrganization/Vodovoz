@@ -79,10 +79,6 @@ namespace RoboAtsService
 				.AsSelf()
 				.AsImplementedInterfaces();
 
-			/*builder.RegisterType<RoboatsOrderModel>().AsSelf();
-			builder.RegisterType<EmployeeRepository>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<PaymentFromBankClientController>().AsSelf().AsImplementedInterfaces();*/
-
 
 			builder.RegisterInstance(ErrorReporter.Instance).AsImplementedInterfaces();
 
@@ -115,9 +111,6 @@ namespace RoboAtsService
 				.Where(t => t.Name.EndsWith("Controller"))
 				.AsSelf()
 				.AsImplementedInterfaces();
-
-			/*var instance = CallTaskSingletonFactory.GetInstance();
-			builder.RegisterInstance(instance).As<ICallTaskFactory>().SingleInstance();*/
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

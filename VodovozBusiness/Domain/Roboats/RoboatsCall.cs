@@ -1,6 +1,8 @@
 ﻿using QS.DomainModel.Entity;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Roboats
 {
@@ -41,14 +43,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _status, value);
 		}
 
-		private RoboatsCallFailType _failType;
-		[Display(Name = "Тип проблемы")]
-		public virtual RoboatsCallFailType FailType
-		{
-			get => _failType;
-			set => SetField(ref _failType, value);
-		}
-
 		private RoboatsCallResult _result;
 		[Display(Name = "Результат звонка")]
 		public virtual RoboatsCallResult Result
@@ -57,6 +51,65 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _result, value);
 		}
 
+		IList<RoboatsCallDetail> _callDetails = new List<RoboatsCallDetail>();
+		[Display(Name = "Детали звонка")]
+		public virtual IList<RoboatsCallDetail> CallDetails
+		{
+			get => _callDetails;
+			set => SetField(ref _callDetails, value);
+		}
+
+		GenericObservableList<RoboatsCallDetail> observableCallDetails;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<RoboatsCallDetail> ObservableCallDetails
+		{
+			get
+			{
+				if(observableCallDetails == null)
+					observableCallDetails = new GenericObservableList<RoboatsCallDetail>(CallDetails);
+				return observableCallDetails;
+			}
+		}
+
+	}
+
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "детали звонка Roboats",
+		Nominative = "детали звонка Roboats")]
+	public class RoboatsCallDetail : PropertyChangedBase, IDomainObject
+	{
+		private int _id;
+		[Display(Name = "Код")]
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
+
+		private DateTime _operationTime;
+		[Display(Name = "Время операции")]
+		public virtual DateTime OperationTime
+		{
+			get => _operationTime;
+			set => SetField(ref _operationTime, value);
+		}
+
+		private RoboatsCall _call;
+		[Display(Name = "Звонок")]
+		public virtual RoboatsCall Call
+		{
+			get => _call;
+			set => SetField(ref _call, value);
+		}
+
+		private RoboatsCallFailType _failType;
+		[Display(Name = "Тип проблемы")]
+		public virtual RoboatsCallFailType FailType
+		{
+			get => _failType;
+			set => SetField(ref _failType, value);
+		}
+		
 		private RoboatsCallOperation _operation;
 		[Display(Name = "Выполняемое действие")]
 		public virtual RoboatsCallOperation Operation

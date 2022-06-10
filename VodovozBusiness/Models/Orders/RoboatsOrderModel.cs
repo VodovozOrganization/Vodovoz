@@ -1,11 +1,6 @@
-﻿using Autofac.Core;
-using QS.DomainModel.UoW;
-using QS.Services;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -16,7 +11,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Models.Orders
@@ -74,6 +68,7 @@ namespace Vodovoz.Models.Orders
 					var nomenclature = uow.GetById<Nomenclature>(waterInfo.NomenclatureId);
 					order.AddWaterForSale(nomenclature, waterInfo.BottlesCount);
 				}
+				order.RecalculateItemsPrice();
 				order.CalculateDeliveryPrice();
 				return order.OrderSum;
 			}
@@ -81,9 +76,10 @@ namespace Vodovoz.Models.Orders
 
 		/// <summary>
 		/// Создает и подтверждает заказ
+		/// Возвращает номер сохраненного заказа
 		/// </summary>
 		/// <param name="roboatsOrderArgs"></param>
-		public void CreateAndAcceptOrder(RoboatsOrderArgs roboatsOrderArgs)
+		public int CreateAndAcceptOrder(RoboatsOrderArgs roboatsOrderArgs)
 		{
 			if(roboatsOrderArgs is null)
 			{
@@ -101,13 +97,15 @@ namespace Vodovoz.Models.Orders
 				var order = CreateOrder(uow, roboatsEmployee, roboatsOrderArgs);
 				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
 				order.SaveEntity(uow, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+				return order.Id;
 			}
 		}
 
 		/// <summary>
 		/// Создает заказ с имеющимися данными в статусе Новый, для обработки его оператором вручную.
+		/// Возвращает номер сохраненного заказа
 		/// </summary>
-		public void CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs)
+		public int CreateIncompleteOrder(RoboatsOrderArgs roboatsOrderArgs)
 		{
 			if(roboatsOrderArgs is null)
 			{
@@ -124,6 +122,7 @@ namespace Vodovoz.Models.Orders
 
 				var order = CreateOrder(uow, roboatsEmployee, roboatsOrderArgs);
 				order.SaveEntity(uow, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+				return order.Id;
 			}
 		}
 
