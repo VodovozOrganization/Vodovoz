@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		private bool _isGoodsEnough;
 		private int _unclosedFastDeliveries;
 		private TimeSpan _remainingTimeForShipmentNewOrder;
-		private TimeSpan _lastCoordinateTime;
+		private TimeSpan _lastCoordinateTimeElapsed;
 		private decimal _distanceByLineToClient;
 		private decimal _distanceByRoadToClient;
 		private int _id;
@@ -72,10 +72,10 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		}
 
 		[Display(Name = "Время получения последних коодинат")]
-		public virtual TimeSpan LastCoordinateTime
+		public virtual TimeSpan LastCoordinateTimeElapsed
 		{
-			get => _lastCoordinateTime;
-			set => SetField(ref _lastCoordinateTime, value);
+			get => _lastCoordinateTimeElapsed;
+			set => SetField(ref _lastCoordinateTimeElapsed, value);
 		}
 
 		[Display(Name = "Расстояние до клиента по прямой")]

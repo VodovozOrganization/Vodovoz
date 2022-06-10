@@ -22,7 +22,7 @@ namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
 			Map(x => x.IsValidUnclosedFastDeliveries).Column("is_valid_unclosed_fast_deliveries");
 			Map(x => x.RemainingTimeForShipmentNewOrder).Column("remaining_time_for_shipment_new_order").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.IsValidRemainingTimeForShipmentNewOrder).Column("is_valid_remaining_time_for_shipment_new_order");
-			Map(x => x.LastCoordinateTime).Column("last_coordinate_time").CustomType<TimeAsTimeSpanType>(); ;
+			Map(x => x.LastCoordinateTimeElapsed).Column("last_coordinate_time").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.IsValidLastCoordinateTime).Column("is_valid_last_coordinate_time");
 			Map(x => x.IsValidToFastDelivery).Column("is_valid_to_fast_delivery");
 

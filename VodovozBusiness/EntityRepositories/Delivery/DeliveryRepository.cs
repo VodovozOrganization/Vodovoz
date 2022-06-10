@@ -244,7 +244,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 				}
 
 				//Выставляем время последней координаты
-				node.LastCoordinateTime.ParameterValue = DateTime.Now - node.TimeStamp;
+
+				var timeSpan = DateTime.Now - node.TimeStamp;
+				node.LastCoordinateTime.ParameterValue = timeSpan.TotalHours > 838 ? new TimeSpan(838, 0, 0) : timeSpan;
 
 				if(node.LastCoordinateTime.ParameterValue.TotalMinutes <= trackPointTimeOffset)
 				{

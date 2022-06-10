@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 				if(LogisticianCommentVersion > DateTime.MinValue)
 				{
 					var ts = LogisticianCommentVersion - VerificationDate;
-					reactionTimeString += $"{((int)ts.TotalHours):00}:{ts.Minutes:00}";
+					reactionTimeString += $"{ts.TotalHours:00}:{ts.Minutes:00}";
 				}
 
 				return reactionTimeString;

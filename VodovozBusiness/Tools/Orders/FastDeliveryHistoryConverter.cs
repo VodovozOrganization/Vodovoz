@@ -46,7 +46,7 @@ namespace Vodovoz.Tools.Orders
 					LastCoordinateTime = new FastDeliveryVerificationParameter<TimeSpan>
 					{
 						IsValidParameter = item.IsValidLastCoordinateTime,
-						ParameterValue = item.LastCoordinateTime
+						ParameterValue = item.LastCoordinateTimeElapsed
 					},
 					UnClosedFastDeliveries = new FastDeliveryVerificationParameter<int>
 					{
@@ -77,7 +77,7 @@ namespace Vodovoz.Tools.Orders
 					Driver = node.RouteList.Driver,
 					IsGoodsEnough = node.IsGoodsEnough.ParameterValue,
 					IsValidIsGoodsEnough = node.IsGoodsEnough.IsValidParameter,
-					LastCoordinateTime = node.LastCoordinateTime.ParameterValue,
+					LastCoordinateTimeElapsed =  node.LastCoordinateTime.ParameterValue,
 					IsValidLastCoordinateTime = node.LastCoordinateTime.IsValidParameter,
 					RemainingTimeForShipmentNewOrder = node.RemainingTimeForShipmentNewOrder.ParameterValue,
 					IsValidRemainingTimeForShipmentNewOrder = node.RemainingTimeForShipmentNewOrder.IsValidParameter,
