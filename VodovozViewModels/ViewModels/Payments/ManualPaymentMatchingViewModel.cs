@@ -514,10 +514,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				ShowErrorMessage("При сохранении платежа произошла ошибка. Переоткройте диалог.");
 				UoW.Session.Clear();
-				var curPayment = UoW.GetById<Payment>(Entity.Id);
-				curPayment.CurrentEditorUser = null;
-				UoW.Save(curPayment);
-				UoW.Commit();
+				RemoveCurrentEditor(UoW);
 				Close(false, CloseSource.Self);
 			}
 		}
@@ -759,11 +756,17 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 				{
-					DeleteCurrentEditor();
-					uow.Save(Entity);
-					uow.Commit();
+					RemoveCurrentEditor(uow);
 				}
 			}
+		}
+		
+		private void RemoveCurrentEditor(IUnitOfWork uow)
+		{
+			var curPayment = uow.GetById<Payment>(Entity.Id);
+			curPayment.CurrentEditorUser = null;
+			uow.Save(curPayment);
+			uow.Commit();
 		}
 
 		private ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
