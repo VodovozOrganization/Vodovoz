@@ -543,10 +543,11 @@ namespace Vodovoz
 			var excludedPaymentFromIds = new[]
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
+				_orderParametersProvider.GetPaymentByCardFromAvangardId,
 				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
 				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode,
 				_orderParametersProvider.PaymentByCardFromOnlineStoreId
-		};
+			};
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
 			{
 				ySpecPaymentFrom.ItemsList =

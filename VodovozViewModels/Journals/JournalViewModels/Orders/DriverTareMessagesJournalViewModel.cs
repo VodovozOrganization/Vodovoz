@@ -96,7 +96,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private IQueryOver<RouteListItem> GetQuery(IUnitOfWork uow)
 		{
 			BottlesMovementOperation debtBottlesOperationAlias = null;
-			BottlesMovementOperation orderBottlesOperationAlias = null;
 			VodovozOrder orderAlias = null;
 			RouteListItem routeListItemAlias = null;
 			RouteList routeListAlias = null;
@@ -117,7 +116,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			var query = uow.Session.QueryOver(() => routeListItemAlias)
 				.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
-				.Left.JoinAlias(() => orderAlias.BottlesMovementOperation, () => orderBottlesOperationAlias)
 				.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => driverAlias.Phones, () => phoneAlias)
@@ -151,7 +149,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(Projections.Property(() => phoneAlias.Number)).WithAlias(() => resultAlias.DriverPhone)
 					.Select(Projections.Property(() => routeListAlias.Id)).WithAlias(() => resultAlias.RouteListId)
 					.Select(Projections.Property(() => orderAlias.BottlesReturn)).WithAlias(() => resultAlias.BottlesReturn)
-					.Select(Projections.Property(() => orderBottlesOperationAlias.Returned)).WithAlias(() => resultAlias.ActualBottlesReturn)
+					.Select(Projections.Property(() => routeListItemAlias.DriverBottlesReturned)).WithAlias(() => resultAlias.ActualBottlesReturn)
 					.Select(Projections.SubQuery(bottlesDebtSubquery)).WithAlias(() => resultAlias.AddressBottlesDebt)
 					.Select(Projections.Property(() => orderAlias.DriverMobileAppComment)).WithAlias(() => resultAlias.DriverComment)
 				)

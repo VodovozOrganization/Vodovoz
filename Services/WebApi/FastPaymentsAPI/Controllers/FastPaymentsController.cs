@@ -132,7 +132,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
-				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid);
+				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid, FastPaymentPayType.ByQrCode);
 
 				response.QRCode = orderRegistrationResponseDto.QRPngBase64;
 				response.FastPaymentStatus = FastPaymentStatus.Processing;
@@ -149,7 +149,7 @@ namespace FastPaymentsAPI.Controllers
 
 		[HttpGet]
 		[Route("/api/RegisterOrder")]
-		public async Task<FastPaymentResponseDTO> RegisterOrder(int orderId, string phoneNumber)
+		public async Task<FastPaymentResponseDTO> RegisterOrder(int orderId, string phoneNumber, bool isQr)
 		{
 			_logger.LogInformation($"Поступил запрос на отправку платежа с данными orderId: {orderId}, phoneNumber: {phoneNumber}");
 
@@ -196,22 +196,6 @@ namespace FastPaymentsAPI.Controllers
 						}
 						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
 						{
-							var fastPaymentWithQR = !string.IsNullOrWhiteSpace(fastPayment.QRPngBase64);
-							var fastPaymentFromOnline = fastPayment.OnlineOrderId.HasValue;
-							
-							if(!fastPaymentWithQR && !fastPaymentFromOnline)
-							{
-								_logger.LogInformation($"Посылаем запрос в банк на отмену сессии оплаты: {ticket}");
-								var cancelPaymentResponse = await _fastPaymentOrderModel.CancelPayment(ticket);
-						
-								if(cancelPaymentResponse.ResponseCode != 0)
-								{
-									_logger.LogError($"Не удалось отменить сессию: {ticket} код: {cancelPaymentResponse.ResponseCode}");
-									response.ErrorMessage = "Не удалось отменить сессию оплаты";
-									return response;
-								}
-							}
-
 							_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
 							_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 						}
@@ -233,7 +217,7 @@ namespace FastPaymentsAPI.Controllers
 				try
 				{
 					_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid, phoneNumber);
+					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid, phoneNumber, isQr);
 
 					if(orderRegistrationResponseDto.ResponseCode != 0)
 					{
@@ -253,7 +237,8 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
-				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid, phoneNumber);
+				var payType = isQr ? FastPaymentPayType.ByQrCode : FastPaymentPayType.ByCard;
+				_fastPaymentModel.SaveNewTicketForOrder(orderRegistrationResponseDto, orderId, fastPaymentGuid, payType, phoneNumber);
 
 				response.Ticket = orderRegistrationResponseDto.Ticket;
 				response.FastPaymentGuid = fastPaymentGuid;
@@ -276,7 +261,7 @@ namespace FastPaymentsAPI.Controllers
 		[HttpPost]
 		[Route("/api/RegisterOrder")]
 		public async Task<FastPaymentResponseDTO> RegisterOrder([FromBody] FastPaymentRequestDTO fastPaymentRequestDto) =>
-			await RegisterOrder(fastPaymentRequestDto.OrderId, fastPaymentRequestDto.PhoneNumber);
+			await RegisterOrder(fastPaymentRequestDto.OrderId, fastPaymentRequestDto.PhoneNumber, fastPaymentRequestDto.IsQr);
 		
 		/// <summary>
 		/// Эндпойнт для регистрации онлайн-заказа и получения ссылки на платежную страницу
@@ -400,7 +385,7 @@ namespace FastPaymentsAPI.Controllers
 				_logger.LogInformation($"Сохраняем новую сессию оплаты для онлайн-заказа №{onlineOrderId}");
 				try
 				{
-					_fastPaymentModel.SaveNewTicketForOnlineOrder(orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum);
+					_fastPaymentModel.SaveNewTicketForOnlineOrder(orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum, FastPaymentPayType.ByQrCode);
 				}
 				catch(Exception e)
 				{

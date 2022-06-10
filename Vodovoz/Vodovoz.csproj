@@ -1707,6 +1707,12 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.FastDeliveryVerificationView.cs" />
     <Compile Include="Views\Logistic\FastDeliveryAvailabilityHistoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryAvailabilityHistoryView.cs" />
+    <Compile Include="Views\ImportPaymentsFromAvangardSbpView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ImportPaymentsFromAvangardSbpView.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromAvangardReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromAvangardReport.cs" />
+    <Compile Include="Views\Reports\CostCarExploitationReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.CostCarExploitationReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2110,7 +2116,7 @@
     </PackageReference>
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
-    <PackageReference Include="SSH.NET" Version="2020.0.1" />
+    <PackageReference Include="SSH.NET" Version="2020.0.2" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />

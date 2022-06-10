@@ -140,6 +140,7 @@ public partial class MainWindow : Window
 	Action ActionImportPaymentsByCard;
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionUnallocatedBalancesJournal;
+	Action ActionImportPaymentsFromAvangard;
 
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
@@ -226,6 +227,7 @@ public partial class MainWindow : Window
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
+		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -303,6 +305,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionImportPaymentsByCard, null);
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionUnallocatedBalancesJournal, null);
+		w1.Add(ActionImportPaymentsFromAvangard, null);
 
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
@@ -388,6 +391,7 @@ public partial class MainWindow : Window
 		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
+		ActionImportPaymentsFromAvangard.Activated += OnActionImportPaymentsFromAvangardActivated;
 
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
@@ -528,7 +532,6 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
-		var nomenclatureParameterProvider = new NomenclatureParametersProvider(parametersProvider);
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
 		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
@@ -542,8 +545,7 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider),
-				nomenclatureParameterProvider
+				new CategoryRepository(parametersProvider)
 			)
 		);
 	}
@@ -680,6 +682,11 @@ public partial class MainWindow : Window
 	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
+	}
+	
+	private void OnActionImportPaymentsFromAvangardActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ImportPaymentsFromAvangardSbpViewModel>(null);
 	}
 
 	private void OnActionUnallocatedBalancesJournalActivated(object sender, EventArgs e)
@@ -956,11 +963,13 @@ public partial class MainWindow : Window
 		var stockRepository = new StockRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(new ParametersProvider());
 		var routeListRepository = new RouteListRepository(stockRepository, terminalNomenclatureProvider);
+		var scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		var deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, routeListRepository, deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
+			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, routeListRepository, scheduleRestrictionRepository,
+				deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
 		);
 	}
 

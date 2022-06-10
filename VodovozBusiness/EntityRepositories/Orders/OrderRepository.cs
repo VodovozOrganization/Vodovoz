@@ -608,6 +608,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Add(Restrictions.Disjunction()
 						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
 						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
 						//Не выбираем данный источник отправки для чеков, пока нет оплаты на сайте по QR
 						/*.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCode)*/));
 
@@ -684,6 +685,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
 				.SingleOrDefault<decimal>();
@@ -694,6 +696,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum(() => cashlessMovOperationAlias.Expense))

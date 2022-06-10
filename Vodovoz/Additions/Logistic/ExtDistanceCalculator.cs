@@ -13,6 +13,8 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -42,6 +44,7 @@ namespace Vodovoz.Tools.Logistic
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 
@@ -341,7 +344,7 @@ namespace Vodovoz.Tools.Logistic
 					CachedDistance.GetPointOnEarth(fromHash),
 					CachedDistance.GetPointOnEarth(toHash)
 				};
-				var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.False);
+				var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.False, _globalSettings.ExcludeToll);
 				ok = result?.Code == "Ok";
 				if(ok && result.Routes.Any()) {
 					cachedValue = new CachedDistance {

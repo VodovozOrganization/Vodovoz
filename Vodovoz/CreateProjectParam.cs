@@ -353,6 +353,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ProductionWarehouseMovementReportViewModel, ProductionWarehouseMovementReportView>()
 				.RegisterWidgetForWidgetViewModel<TrackPointJournalFilterViewModel, TrackPointJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryAvailabilityFilterViewModel, FastDeliveryAvailabilityFilterView>()
+				.RegisterWidgetForWidgetViewModel<CostCarExploitationReportViewModel, CostCarExploitationReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -517,6 +518,7 @@ namespace Vodovoz
 
 			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
 			builder.RegisterType<CarVersionsViewModelFactory>().As<ICarVersionsViewModelFactory>();
+			builder.RegisterType<PaymentFromAvangardFactory>().As<IPaymentFromAvangardFactory>();
 
 			#endregion
 

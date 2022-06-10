@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -26,6 +27,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 {
 	public class DeliveryRepository : IDeliveryRepository
 	{
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+
 		#region Получение районов по координатам
 
 		/// <summary>
@@ -225,7 +228,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				var distance = DistanceHelper.GetDistanceKm(node.Latitude, node.Longitude, latitude, longitude);
 				var deliveryPoint = new PointOnEarth(latitude, longitude);
 				var proposedRoute = OsrmClientFactory.Instance
-					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }).Routes
+					.GetRoute(new List<PointOnEarth> { new PointOnEarth(node.Latitude, node.Longitude), deliveryPoint }, false, GeometryOverview.False, _globalSettings.ExcludeToll).Routes?
 					.FirstOrDefault();
 				
 				node.DistanceByLineToClient.ParameterValue = (decimal)distance;
@@ -376,7 +379,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Inner.JoinAlias(() => o.OrderItems, () => oi)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
-				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue })
+				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
 					.SelectGroup(() => oi.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
@@ -390,6 +393,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.Inner.JoinAlias(() => o.OrderEquipments, () => oe)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oe.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
+				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
 				.And(() => oe.Direction == Direction.Deliver)
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
@@ -533,14 +537,5 @@ namespace Vodovoz.EntityRepositories.Delivery
 		public IEnumerable<string> AdditionalInformation { get; set; }
 		public bool IsValid => FastDeliveryVerificationDetailsNodes.Any(x => x.IsValidRLToFastDelivery);
 		public FastDeliveryAvailabilityHistory FastDeliveryAvailabilityHistory { get; set; }
-		//public bool IsGetClosestByRoute { get; set; }
-		//public Order Order { get; set; }
-		//public double MaxDistanceToLatestTrackPointKm { get; set; }
-		//public int DriverGoodWeightLiftPerHandInKg { get; set; }
-		//public int MaxFastOrdersPerSpecificTime { get; set; }
-		//public TimeSpan MaxTimeForFastDelivery { get; set; }
-		//public TimeSpan MinTimeForNewFastDeliveryOrder { get; set; }
-		//public TimeSpan DriverUnloadTime { get; set; }
-		//public TimeSpan SpecificTimeForMaxFastOrdersCount { get; set; }
 	}
 }

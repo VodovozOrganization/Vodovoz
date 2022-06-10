@@ -82,6 +82,7 @@ namespace Vodovoz.Domain.Logistic
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		private CarVersion _carVersion;
 		private Car _car;
@@ -228,6 +229,7 @@ namespace Vodovoz.Domain.Logistic
 				if(SetField(ref status, value))
 				{
 					OnPropertyChanged(() => CanChangeStatusToDelivered);
+					OnPropertyChanged(() => CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument);
 				}
 			}
 		}
@@ -590,12 +592,31 @@ namespace Vodovoz.Domain.Logistic
 		/// <returns>Количество полных 19л бутылей</returns>
 		public virtual int TotalFullBottlesToClient => Addresses.Sum(a => a.GetFullBottlesToDeliverCount());
 
-		public virtual bool NeedToLoad => Addresses.Any(address => address.NeedToLoad);
+		public virtual bool NeedToLoad =>
+			Addresses.Any(address => address.NeedToLoad)
+			|| (AdditionalLoadingDocument != null && AdditionalLoadingDocument.HasItemsNeededToLoad);
 
 		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
 
-		public virtual bool CanChangeStatusToDelivered => Status == RouteListStatus.EnRoute && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute);
-		
+		public virtual bool CanChangeStatusToDelivered
+		{
+			get
+			{
+				return Status == RouteListStatus.EnRoute
+					   && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute)
+					   && AdditionalLoadingDocument == null;
+			}
+		}
+
+		public virtual bool CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument
+		{
+			get
+			{
+				return Status == RouteListStatus.EnRoute
+					   && !Addresses.Any(a => a.Status == RouteListItemStatus.EnRoute);
+			}
+		}
+
 		/// <summary>
 		/// МЛ находится в статусе для открытия диалога закрытия
 		/// </summary>
@@ -1281,9 +1302,9 @@ namespace Vodovoz.Domain.Logistic
 			UpdateStatus();
 		}
 
-		public virtual void UpdateStatus()
+		public virtual void UpdateStatus(bool isIgnoreAdditionalLoadingDocument = false)
 		{
-			if(CanChangeStatusToDelivered)
+			if(isIgnoreAdditionalLoadingDocument ? CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument : CanChangeStatusToDelivered)
 			{
 				ChangeStatus(RouteListStatus.Delivered);
 			}
@@ -2344,7 +2365,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 				}
 
-				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 
 				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
@@ -2370,7 +2391,7 @@ namespace Vodovoz.Domain.Logistic
 			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
 			pointsToBase.Add(pointsToRecalculate.First());
 
-			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full);
+			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 
 			RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);

@@ -10,6 +10,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -65,43 +66,47 @@ namespace Vodovoz.ViewModel
 				Projections.Constant(true),
 				Projections.Constant(false));
 
-			#region Additional19LWaterLeft
+			#region Water19LReserve
 
-			Nomenclature additionalNomenclatureAlias = null;
-			Nomenclature additionalNomenclatureDeliveredAlias = null;
-			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
-			OrderItem additionalOrderItemsAlias = null;
-			Order additionalOrderAlias = null;
-			RouteListItem additionalRouteListItemAlias = null;
+			Nomenclature water19LLeftNomenclatureAlias = null;
+			Nomenclature water19LNomenclatureDeliveredAlias = null;
+			CarLoadDocumentItem carLoadDocumentItemAlias = null;
+			CarLoadDocument carLoadDocumentAlias = null;
+			OrderItem water19LOrderItemsAlias = null;
+			Order water19LOrderAlias = null;
+			RouteListItem water19LRouteListItemAlias = null;
+			RouteListItem water19LTransferedToAlias = null;
 
-			var additional19LWaterAllSubquery = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => additionalNomenclatureAlias)
-				.Where(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument.Id == routeListAlias.AdditionalLoadingDocument.Id)
-				.And(() => additionalNomenclatureAlias.Category == NomenclatureCategory.water)
-				.And(() => additionalNomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
+			var loadedWater19L = QueryOver.Of<CarLoadDocumentItem>(() => carLoadDocumentItemAlias)
+				.JoinAlias(() => carLoadDocumentItemAlias.Nomenclature, () => water19LLeftNomenclatureAlias)
+				.JoinAlias(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias)
+				.Where(() => carLoadDocumentAlias.RouteList.Id == routeListAlias.Id)
+				.And(() => water19LLeftNomenclatureAlias.Category == NomenclatureCategory.water)
+				.And(() => water19LLeftNomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Sum(() => carLoadDocumentItemAlias.Amount));
 
-			var additional19LWaterDeliveredSubquery = QueryOver.Of<OrderItem>(() => additionalOrderItemsAlias)
-				.JoinAlias(() => additionalOrderItemsAlias.Order, () => additionalOrderAlias)
-				.JoinAlias(() => additionalOrderItemsAlias.Nomenclature, () => additionalNomenclatureDeliveredAlias)
-				.JoinEntityAlias(() => additionalRouteListItemAlias, () => additionalRouteListItemAlias.Order.Id == additionalOrderAlias.Id)
-				.Where(() => additionalRouteListItemAlias.RouteList.Id == routeListAlias.Id)
-				.And(() => additionalOrderAlias.IsFastDelivery)
-				.And(Restrictions.Or(Restrictions.Not(Restrictions.In(Projections.Property(() => additionalRouteListItemAlias.Status),
-					new ArrayList { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })),
-					Restrictions.Conjunction()
-							.Add(() => additionalRouteListItemAlias.WasTransfered)
-							.Add(() => additionalRouteListItemAlias.NeedToReload)))
-				.And(() => additionalNomenclatureDeliveredAlias.Category == NomenclatureCategory.water)
-				.And(() => additionalNomenclatureDeliveredAlias.TareVolume == TareVolume.Vol19L)
-				.Select(Projections.Sum(() => additionalOrderItemsAlias.Count));
+			var water19LToDelivery = QueryOver.Of<OrderItem>(() => water19LOrderItemsAlias)
+				.JoinAlias(() => water19LOrderItemsAlias.Order, () => water19LOrderAlias)
+				.JoinAlias(() => water19LOrderItemsAlias.Nomenclature, () => water19LNomenclatureDeliveredAlias)
+				.Left.JoinAlias(() => water19LRouteListItemAlias.TransferedTo, () => water19LTransferedToAlias)
+				.JoinEntityAlias(() => water19LRouteListItemAlias, () => water19LRouteListItemAlias.Order.Id == water19LOrderAlias.Id)
+				.Where(() => water19LRouteListItemAlias.RouteList.Id == routeListAlias.Id)
+				.And(Restrictions.And(Restrictions.Not(Restrictions.In(Projections.Property(() => water19LRouteListItemAlias.Status),
+					new ArrayList { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue })),
+					Restrictions.Disjunction()
+							.Add(() => water19LRouteListItemAlias.Status != RouteListItemStatus.Transfered)
+							.Add(() => water19LTransferedToAlias.NeedToReload)))
+				.And(() => water19LNomenclatureDeliveredAlias.Category == NomenclatureCategory.water)
+				.And(() => water19LNomenclatureDeliveredAlias.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Sum(() => water19LOrderItemsAlias.Count));
 
-			var additional19LWaterLeftProjection =
-				Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
-					NHibernateUtil.Decimal,
-					Projections.SubQuery(additional19LWaterAllSubquery),
-					Projections.SubQuery(additional19LWaterDeliveredSubquery));
+			var water19LReserveProjection =
+				Projections.Conditional(Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null), Projections.Constant(0m),
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
+						NHibernateUtil.Decimal,
+						Projections.SubQuery(loadedWater19L),
+						Projections.SubQuery(water19LToDelivery)));
 
 			#endregion
 
@@ -134,33 +139,36 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
 					.SelectSubQuery(trackSubquery).WithAlias(() => resultAlias.TrackId)
 					.SelectSubQuery(uncompletedBottlesSubquery).WithAlias(() => resultAlias.BottlesLeft)
-					.Select(additional19LWaterLeftProjection).WithAlias(() => resultAlias.Additional19LWaterLeft)
+					.Select(water19LReserveProjection).WithAlias(() => resultAlias.Water19LReserve)
 					)
 				.TransformUsing(Transformers.AliasToBean<WorkingDriverVMNode>())
 				.List<WorkingDriverVMNode>();
 
 			var summaryResult = new List<WorkingDriverVMNode>();
-			foreach(var driver in result.GroupBy(x => x.Id)) {
+			int rowNum = 0;
+			foreach(var driver in result.GroupBy(x => x.Id).OrderBy(x => x.First().ShortName)) {
 				var savedRow = driver.First();
 				savedRow.RouteListsText = String.Join("; ", driver.Select(x => x.TrackId != null ? String.Format("<span foreground=\"green\"><b>{0}</b></span>", x.RouteListNumber) : x.RouteListNumber.ToString()));
 				savedRow.RouteListsIds = driver.ToDictionary(x => x.RouteListNumber, x => x.TrackId);
 				savedRow.AddressesAll = driver.Sum(x => x.AddressesAll);
 				savedRow.AddressesCompleted = driver.Sum(x => x.AddressesCompleted);
-				savedRow.Additional19LWaterLeft = driver.Sum(x => x.Additional19LWaterLeft);
+				savedRow.Water19LReserve = driver.Sum(x => x.Water19LReserve);
+				savedRow.RowNumber = ++rowNum;
 				summaryResult.Add(savedRow);
 			}
 
-			SetItemsSource(summaryResult.OrderBy(x => x.ShortName).ToList());
+			SetItemsSource(summaryResult);
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<WorkingDriverVMNode>.Create()
+			.AddColumn("№").AddNumericRenderer(node => node.RowNumber)
 			.AddColumn("Имя").SetDataProperty(node => node.ShortName)
 			.AddColumn("Машина").AddTextRenderer().AddSetter((c, node) => c.Markup = node.CarText)
 			.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)
 			.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
-			.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Additional19LWaterLeft:N0}")
+			.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Water19LReserve:N0}")
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
@@ -200,6 +208,7 @@ namespace Vodovoz.ViewModel
 	{
 		public int Id { get; set; }
 
+		public int RowNumber { get; set; }
 		public string Name { get; set; }
 		public string LastName { get; set; }
 		public string Patronymic { get; set; }
@@ -215,7 +224,7 @@ namespace Vodovoz.ViewModel
 
 		public decimal BottlesLeft { get; set; } // @Дима
 
-		public decimal Additional19LWaterLeft { get; set; }
+		public decimal Water19LReserve { get; set; }
 
 		public int CompletedPercent {
 			get {

@@ -31,6 +31,7 @@ namespace Vodovoz.Domain.FastPayments
 		private int _externalId;
 		private int? _onlineOrderId;
 		private Guid _fastPaymnetGuid;
+		private FastPaymentPayType _fastPaymentPayType;
 
 		public virtual int Id { get; set; }
         
@@ -109,6 +110,12 @@ namespace Vodovoz.Domain.FastPayments
 			set => SetField(ref _fastPaymnetGuid, value);
 		}
 
+		public virtual FastPaymentPayType FastPaymentPayType
+		{
+			get => _fastPaymentPayType;
+			set => SetField(ref _fastPaymentPayType, value);
+		}
+
 		public virtual void SetProcessingStatus()
 		{
 			FastPaymentStatus = FastPaymentStatus.Processing;
@@ -117,7 +124,7 @@ namespace Vodovoz.Domain.FastPayments
 		public virtual void SetPerformedStatusForOrder(
 			IUnitOfWork uow,
 			DateTime paidDate,
-			PaymentFrom paymentByCardFromQrId,
+			PaymentFrom paymentByCardFromId,
 			IStandartNomenclatures standartNomenclatures,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
@@ -151,7 +158,7 @@ namespace Vodovoz.Domain.FastPayments
 			PaidDate = paidDate;
 			Order.OnlineOrder = ExternalId;
 			Order.PaymentType = PaymentType.ByCard;
-			Order.PaymentByCardFrom = paymentByCardFromQrId;
+			Order.PaymentByCardFrom = paymentByCardFromId;
 			Order.ForceUpdateContract();
 
 			foreach (var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
@@ -174,4 +181,5 @@ namespace Vodovoz.Domain.FastPayments
 	}
 
 	public class FastPaymentStatusStringType : EnumStringType<FastPaymentStatus> { }
+	public class FastPaymentPayTypeStringType : EnumStringType<FastPaymentPayType> { }
 }

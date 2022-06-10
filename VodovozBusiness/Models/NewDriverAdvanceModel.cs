@@ -27,7 +27,8 @@ namespace Vodovoz.Models
 
 		public bool NeedNewDriverAdvance(IUnitOfWork uow)
 		{
-			if(_routeListRepository.HasEmployeeAdvance(uow, _routeList.Id, _routeList.Driver.Id))
+			if(!_newDriverAdvanceParametersProvider.IsNewDriverAdvanceEnabled
+			   || _routeListRepository.HasEmployeeAdvance(uow, _routeList.Id, _routeList.Driver.Id))
 			{
 				return false;
 			}

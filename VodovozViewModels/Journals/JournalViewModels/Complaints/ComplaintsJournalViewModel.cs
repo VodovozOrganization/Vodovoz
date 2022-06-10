@@ -256,6 +256,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT " +
 					"CASE ?1 " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Client)}' THEN 'Клиент' " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Depreciation )}' THEN 'Износ' " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет' " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN CONCAT('(',?5,')', ?2)" +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Subdivision)}' THEN ?3 " +
@@ -363,6 +364,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType) {
 						case ComplaintGuiltyTypes.None:
 						case ComplaintGuiltyTypes.Client:
+						case ComplaintGuiltyTypes.Depreciation:
 						case ComplaintGuiltyTypes.Supplier:
 							break;
 						case ComplaintGuiltyTypes.Employee:

@@ -20,7 +20,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::QSWidgetLib.ValidatedEntry validatedPhoneEntry;
 
-		private global::Gamma.GtkWidgets.yButton btnSendFastPaymentUrlBySms;
+		private global::Gamma.GtkWidgets.yButton btnSendFastPaymentPayByQrUrlBySms;
+
+		private global::Gamma.GtkWidgets.yButton btnSendFastPaymentPayByCardUrlBySms;
 
 		private global::Gamma.GtkWidgets.yButton ySendSmsButton;
 
@@ -95,16 +97,27 @@ namespace Vodovoz.SidePanel.InfoViews
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.btnSendFastPaymentUrlBySms = new global::Gamma.GtkWidgets.yButton();
-			this.btnSendFastPaymentUrlBySms.CanFocus = true;
-			this.btnSendFastPaymentUrlBySms.Name = "btnSendFastPaymentUrlBySms";
-			this.btnSendFastPaymentUrlBySms.UseUnderline = true;
-			this.btnSendFastPaymentUrlBySms.Label = global::Mono.Unix.Catalog.GetString("Отправить ссылку на быструю оплату");
-			this.vbox2.Add(this.btnSendFastPaymentUrlBySms);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnSendFastPaymentUrlBySms]));
+			this.btnSendFastPaymentPayByQrUrlBySms = new global::Gamma.GtkWidgets.yButton();
+			this.btnSendFastPaymentPayByQrUrlBySms.CanFocus = true;
+			this.btnSendFastPaymentPayByQrUrlBySms.Name = "btnSendFastPaymentPayByQrUrlBySms";
+			this.btnSendFastPaymentPayByQrUrlBySms.UseUnderline = true;
+			this.btnSendFastPaymentPayByQrUrlBySms.Label = global::Mono.Unix.Catalog.GetString("Отправить ссылку на\nбыструю оплату по QR коду");
+			this.vbox2.Add(this.btnSendFastPaymentPayByQrUrlBySms);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnSendFastPaymentPayByQrUrlBySms]));
 			w8.Position = 3;
 			w8.Expand = false;
 			w8.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.btnSendFastPaymentPayByCardUrlBySms = new global::Gamma.GtkWidgets.yButton();
+			this.btnSendFastPaymentPayByCardUrlBySms.CanFocus = true;
+			this.btnSendFastPaymentPayByCardUrlBySms.Name = "btnSendFastPaymentPayByCardUrlBySms";
+			this.btnSendFastPaymentPayByCardUrlBySms.UseUnderline = true;
+			this.btnSendFastPaymentPayByCardUrlBySms.Label = global::Mono.Unix.Catalog.GetString("Отправить ссылку на\nбыструю оплату по карте");
+			this.vbox2.Add(this.btnSendFastPaymentPayByCardUrlBySms);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnSendFastPaymentPayByCardUrlBySms]));
+			w9.Position = 4;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.ySendSmsButton = new global::Gamma.GtkWidgets.yButton();
 			this.ySendSmsButton.CanFocus = true;
@@ -112,10 +125,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.ySendSmsButton.UseUnderline = true;
 			this.ySendSmsButton.Label = global::Mono.Unix.Catalog.GetString("Отправить смс");
 			this.vbox2.Add(this.ySendSmsButton);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ySendSmsButton]));
-			w9.Position = 4;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ySendSmsButton]));
+			w10.Position = 5;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

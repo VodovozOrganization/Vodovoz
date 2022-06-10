@@ -10,6 +10,7 @@ namespace Vodovoz.EntityRepositories.Sale
 	{
 		QueryOver<District> GetDistrictsWithBorder();
 		IList<District> GetDistrictsWithBorder(IUnitOfWork uow);
+		IList<District> GetDistrictsWithBorderForFastDelivery(IUnitOfWork uow);
 		IEnumerable<OrderCountResultNode> OrdersCountByDistrict(IUnitOfWork uow, DateTime date, int minBottlesInOrder);
 	}
 }

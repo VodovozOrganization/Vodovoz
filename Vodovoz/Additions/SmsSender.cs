@@ -25,7 +25,7 @@ namespace Vodovoz.Additions
             _instantSmsService = service ?? throw new ArgumentNullException(nameof(service));
         }
 
-		public async Task<ResultMessage> SendFastPaymentUrlAsync(Order order, string phoneNumber)
+		public async Task<ResultMessage> SendFastPaymentUrlAsync(Order order, string phoneNumber, bool isQr)
 		{
 			var orderId = order.Id;
 			if(_instantSmsService == null)
@@ -34,7 +34,7 @@ namespace Vodovoz.Additions
 			}
 
 			var realPhoneNumber = PhoneUtils.RemoveNonDigit(phoneNumber);
-			var response = await GetFastPaymentResponseDtoAsync(orderId, realPhoneNumber);
+			var response = await GetFastPaymentResponseDtoAsync(orderId, realPhoneNumber, isQr);
 
 			if(response == null)
 			{
@@ -67,13 +67,13 @@ namespace Vodovoz.Additions
 			return _instantSmsService.SendSms(smsMessage);
 		}
 
-		private async Task<FastPaymentResponseDTO> GetFastPaymentResponseDtoAsync(int orderid, string phoneNumber)
+		private async Task<FastPaymentResponseDTO> GetFastPaymentResponseDtoAsync(int orderid, string phoneNumber, bool isQr)
 		{
 			using(_httpClient = HttpClientFactory.Create())
 			{
 				_httpClient.BaseAddress = new Uri(_fastPaymentParametersProvider.GetFastPaymentApiBaseUrl);
 				_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-				var responseTask = await _httpClient.PostAsJsonAsync("/api/RegisterOrder", new { orderid, phoneNumber });
+				var responseTask = await _httpClient.PostAsJsonAsync("/api/RegisterOrder", new { orderid, phoneNumber, isQr });
 
 				return await responseTask.Content.ReadAsAsync<FastPaymentResponseDTO>();
 			}
