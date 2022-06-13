@@ -1,7 +1,4 @@
-﻿using System;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Threading;
+﻿using MegafonSmsSendService;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -10,13 +7,19 @@ using NLog;
 using QS.Project.DB;
 using QSProjectsLib;
 using SmsRuSendService;
+using SmsSendInterface;
+using System;
+using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Threading;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace VodovozSmsInformerService
 {
-    class Service
+	class Service
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		
@@ -32,6 +35,8 @@ namespace VodovozSmsInformerService
 		private static string mysqlUser;
 		private static string mysqlPassword;
 		private static string mysqlDatabase;
+
+		private static IConfigurationSection megafonSmsSection;
 
 		static NewClientSmsInformer newClientInformer;
 		static UndeliveryNotApprovedSmsInformer undeliveryNotApprovedSmsInformer;
@@ -61,6 +66,7 @@ namespace VodovozSmsInformerService
 				mysqlDatabase = mysqlSection["mysql_database"];
 
 				var smsRuSection = configuration.GetSection("SmsRu");
+				megafonSmsSection = configuration.GetSection("MegafonSms");
 
 				smsRuConfig = 
 					new SmsRuConfiguration(
@@ -113,13 +119,33 @@ namespace VodovozSmsInformerService
 
 				ISmsNotificationRepository smsNotificationRepository = new SmsNotificationRepository();
 
-				SmsRuSendController smsSender = new SmsRuSendController(smsRuConfig);
-				
+				ISmsSender smsSender;
+				ISmsBalanceNotifier smsBalanceNotifier;
+
+				var smsSettings = new SmsSettings(new ParametersProvider());
+				switch(smsSettings.SmsProvider)
+				{
+					case SmsProvider.SmsRu:
+						var smsRuSender = new SmsRuSendController(smsRuConfig);
+						smsSender = smsRuSender;
+						smsBalanceNotifier = smsRuSender;
+						break;
+					case SmsProvider.Megafon:
+					default:
+						var login = megafonSmsSection["login"];
+						var password = megafonSmsSection["password"];
+						var megafonSender = new MegafonSmsSender(login, password, smsSettings);
+						smsSender = megafonSender;
+						smsBalanceNotifier = megafonSender;
+						break;
+				}
+
+
 				newClientInformer = new NewClientSmsInformer(smsSender, smsNotificationRepository);
 				newClientInformer.Start();
 
 				BaseParametersProvider parametersProvider = new BaseParametersProvider(new ParametersProvider());
-				LowBalanceNotifier lowBalanceNotifier = new LowBalanceNotifier(smsSender, smsSender, parametersProvider);
+				LowBalanceNotifier lowBalanceNotifier = new LowBalanceNotifier(smsSender, smsBalanceNotifier, parametersProvider);
 				lowBalanceNotifier.Start();
 				
 				undeliveryNotApprovedSmsInformer = new UndeliveryNotApprovedSmsInformer(smsSender, smsNotificationRepository);

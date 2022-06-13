@@ -420,6 +420,7 @@
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
+    <Compile Include="Parameters\SmsSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
     <Compile Include="Services\ICarEventSettings.cs" />
@@ -674,6 +675,7 @@
     <Compile Include="Services\IPremiumRaskatGAZelleParametersProvider.cs" />
     <Compile Include="Services\IRouteListParametersProvider.cs" />
     <Compile Include="Services\ISalesReceiptsParametersProvider.cs" />
+    <Compile Include="Services\ISmsSettings.cs" />
     <Compile Include="Services\ITabsParametersProvider.cs" />
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />

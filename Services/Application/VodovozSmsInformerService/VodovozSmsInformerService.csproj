@@ -93,6 +93,10 @@
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
       <Name>QSProjectsLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\MegafonSmsSendService\MegafonSmsSendService.csproj">
+      <Project>{ba629b01-180c-46b5-8b12-ade9e9e63762}</Project>
+      <Name>MegafonSmsSendService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Library\SmsRuSendService\SmsRuSendService.csproj">
       <Project>{9083162f-81a6-49b3-a2d6-f355d62ec5c2}</Project>
       <Name>SmsRuSendService</Name>
