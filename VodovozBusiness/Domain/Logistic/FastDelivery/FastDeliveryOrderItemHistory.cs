@@ -1,13 +1,14 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Logistic.FastDelivery
 {
-
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		Nominative = "строка заказа истории экспресс-доставки",
 		NominativePlural = "строки заказа истории экспресс-доставки")]
+	[EntityPermission]
 	public class FastDeliveryOrderItemHistory : PropertyChangedBase, IDomainObject
 	{
 		private Nomenclature _nomenclature;

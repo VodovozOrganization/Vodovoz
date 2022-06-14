@@ -12,6 +12,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Timers;
+using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -98,17 +99,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			Counterparty counterpartyAlias = null;
 			FastDeliveryAvailabilityHistoryJournalNode resultAlias = null;
 
-			var authorProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
-				NHibernateUtil.String,
+			var authorProjection = CustomProjections.Concat_WS(
+				"",
 				Projections.Property(() => authorAlias.LastName),
 				Projections.Property(() => authorAlias.Name),
 				Projections.Property(() => authorAlias.Patronymic)
 			);
 
-			var logisticianProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
-				NHibernateUtil.String,
+			var logisticianProjection = CustomProjections.Concat_WS(
+				"",
 				Projections.Property(() => logisticianAlias.LastName),
 				Projections.Property(() => logisticianAlias.Name),
 				Projections.Property(() => logisticianAlias.Patronymic)
@@ -132,7 +131,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Logistician, () => logisticianAlias)
-			.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Counterparty, () => counterpartyAlias);
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Counterparty, () => counterpartyAlias);
 
 			if(FilterViewModel.VerificationDateFrom != null && FilterViewModel.VerificationDateTo != null)
 			{
@@ -190,13 +189,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.SelectGroup(() => fastDeliveryAvailabilityHistoryAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate).WithAlias(() => resultAlias.VerificationDate)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.Order.Id).WithAlias(() => resultAlias.Order)
-					.Select(authorProjection).WithAlias(() => resultAlias.Author)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 					.Select(() => deliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.Address)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.District)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.IsValid).WithAlias(() => resultAlias.IsValid)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.LogisticianComment).WithAlias(() => resultAlias.LogisticianComment)
-					.Select(logisticianProjection).WithAlias(() => resultAlias.Logistician)
+					.Select(() => logisticianAlias.LastName).WithAlias(() => resultAlias.LogisticianLastName)
+					.Select(() => logisticianAlias.Name).WithAlias(() => resultAlias.LogisticianName)
+					.Select(() => logisticianAlias.Patronymic).WithAlias(() => resultAlias.LogisticianPatronymic)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.LogisticianCommentVersion).WithAlias(() => resultAlias.LogisticianCommentVersion)
 				).OrderBy(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate).Desc
 				.TransformUsing(Transformers.AliasToBean<FastDeliveryAvailabilityHistoryJournalNode>());

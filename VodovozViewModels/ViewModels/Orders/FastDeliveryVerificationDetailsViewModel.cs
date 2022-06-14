@@ -9,11 +9,10 @@ namespace Vodovoz.ViewModels.Orders
 {
 	public class FastDeliveryVerificationDetailsViewModel : WindowDialogViewModelBase
 	{
-		public FastDeliveryVerificationDetailsViewModel(INavigationManager navigationManager, FastDeliveryVerificationDTO fastDeliveryVerificationDTO)
+		public FastDeliveryVerificationDetailsViewModel(INavigationManager navigationManager, FastDeliveryVerificationViewModel fastDeliveryVerificationViewModel)
 			: base(navigationManager)
 		{
-			FastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(
-					fastDeliveryVerificationDTO ?? throw new ArgumentNullException(nameof(fastDeliveryVerificationDTO)));
+			FastDeliveryVerificationViewModel = fastDeliveryVerificationViewModel ?? throw new ArgumentNullException(nameof(fastDeliveryVerificationViewModel));
 
 			WindowPosition = WindowGravity.None;
 		}

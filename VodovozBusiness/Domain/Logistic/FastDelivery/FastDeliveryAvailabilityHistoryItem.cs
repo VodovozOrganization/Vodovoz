@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic.FastDelivery
@@ -8,6 +9,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		Nominative = "строка истории доступности экспресс-доставки",
 		NominativePlural = "строки истории доступности экспресс-доставки")]
+	[EntityPermission]
 	public class FastDeliveryAvailabilityHistoryItem : PropertyChangedBase, IDomainObject
 	{
 		private RouteList _routeList;
@@ -50,7 +52,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			set => SetField(ref _driver, value);
 		}
 
-		[Display(Name = "Достаточно остатков на борту")]
+		[Display(Name = "Достаточно остатков на борту?")]
 		public virtual bool IsGoodsEnough
 		{
 			get => _isGoodsEnough;
@@ -92,42 +94,42 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			set => SetField(ref _distanceByRoadToClient, value);
 		}
 
-		[Display(Name = "Расстояние до клиента по прямой подходит")]
+		[Display(Name = "Расстояние до клиента по прямой подходит?")]
 		public virtual bool IsValidDistanceByLineToClient
 		{
 			get => _isValidDistanceByLineToClient;
 			set => SetField(ref _isValidDistanceByLineToClient, value);
 		}
 
-		[Display(Name = "Расстояние до клиента по дорогам подходит")]
+		[Display(Name = "Расстояние до клиента по дорогам подходит?")]
 		public virtual bool IsValidDistanceByRoadToClient
 		{
 			get => _isValidDistanceByRoadToClient;
 			set => SetField(ref _isValidDistanceByRoadToClient, value);
 		}
 
-		[Display(Name = "Время получения последних коодинат не слишком старое")]
+		[Display(Name = "Время получения последних коодинат не слишком старое?")]
 		public virtual bool IsValidLastCoordinateTime
 		{
 			get => _isValidLastCoordinateTime;
 			set => SetField(ref _isValidLastCoordinateTime, value);
 		}
 
-		[Display(Name = "Достаточно времени на отгрузку нового заказа")]
+		[Display(Name = "Достаточно времени на отгрузку нового заказа?")]
 		public virtual bool IsValidRemainingTimeForShipmentNewOrder
 		{
 			get => _isValidRemainingTimeForShipmentNewOrder;
 			set => SetField(ref _isValidRemainingTimeForShipmentNewOrder, value);
 		}
 
-		[Display(Name = "Достаточно остатков на борту")]
+		[Display(Name = "Достаточно остатков на борту?")]
 		public virtual bool IsValidIsGoodsEnough
 		{
 			get => _isValidIsGoodsEnough;
 			set => SetField(ref _isValidIsGoodsEnough, value);
 		}
 
-		[Display(Name = "Незакрытых экспресс-доставки немного")]
+		[Display(Name = "Незакрытых экспресс-доставки немного?")]
 		public virtual bool IsValidUnclosedFastDeliveries
 		{
 			get => _isValidUnclosedFastDeliveries;
@@ -141,7 +143,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			set => SetField(ref _fastDeliveryAvailabilityHistory, value);
 		}
 
-		[Display(Name = "МЛ подходит для экспресс-доставки")]
+		[Display(Name = "МЛ подходит для экспресс-доставки?")]
 		public virtual bool IsValidToFastDelivery
 		{
 			get => _isValidToFastDelivery;

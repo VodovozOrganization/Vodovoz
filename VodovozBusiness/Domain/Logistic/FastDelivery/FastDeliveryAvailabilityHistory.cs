@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -9,9 +10,10 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic.FastDelivery
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine, 
 		Nominative = "история доступности экспресс-доставки",
 		NominativePlural = "истории доступности экспресс-доставки")]
+	[EntityPermission]
 
 	public class FastDeliveryAvailabilityHistory : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
@@ -24,7 +26,6 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		private Employee _logistician;
 		private string _logisticianComment;
 		private DateTime _logisticianCommentVersion;
-		private Double _fastDeliveryMaxDistanceKm;
 		private Employee _author;
 		private IList<FastDeliveryAvailabilityHistoryItem> _items;
 		private IList<FastDeliveryOrderItemHistory> _orderItemsHistory;
@@ -105,13 +106,6 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			set => SetField(ref _logisticianCommentVersion, value);
 		}
 
-		[Display(Name = "Радиус охвата экспресс-доставки в км")]
-		public virtual Double FastDeliveryMaxDistanceKm
-		{
-			get => _fastDeliveryMaxDistanceKm;
-			set => SetField(ref _fastDeliveryMaxDistanceKm, value);
-		}
-
 		[Display(Name = "Автор")]
 		public virtual Employee Author
 		{
@@ -119,14 +113,14 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			set => SetField(ref _author, value);
 		}
 
-		[Display(Name = "Расстояние по дорогам")]
+		[Display(Name = "Расстояние по дорогам?")]
 		public virtual bool IsGetClosestByRoute
 		{
 			get => _isGetClosestByRoute;
 			set => SetField(ref _isGetClosestByRoute, value);
 		}
 
-		[Display(Name = "Максимальное расстояние")]
+		[Display(Name = "Радиус охвата экспресс-доставки")]
 		public virtual double MaxDistanceToLatestTrackPointKm
 		{
 			get => _maxDistanceToLatestTrackPointKm;
@@ -184,7 +178,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			set => SetField(ref _items, value);
 		}
 
-		[Display(Name = "Строки заказа итории экспресс-доставки")]
+		[Display(Name = "Строки заказа истории экспресс-доставки")]
 		public virtual IList<FastDeliveryOrderItemHistory> OrderItemsHistory
 		{
 			get => _orderItemsHistory;

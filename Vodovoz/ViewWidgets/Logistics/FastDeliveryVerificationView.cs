@@ -28,7 +28,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 
 			yvboxLogisticianComment.Binding.AddBinding(ViewModel, vm => vm.ShowLogisticianComment, w => w.Visible).InitializeFromSource();
 
-			ybuttonSaveLogisticiaComment.Clicked += (sender, args) => ViewModel.SaveLogisticianCommentCommand.Execute();
+			ybuttonSaveLogisticianComment.Clicked += (sender, args) => ViewModel.SaveLogisticianCommentCommand.Execute();
 
 			ConfigureTreeDetails();
 			ConfigureOrderItems();

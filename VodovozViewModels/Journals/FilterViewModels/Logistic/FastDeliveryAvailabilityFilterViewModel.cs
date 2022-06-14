@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				.CreateCounterpartyAutocompleteSelectorFactory();
 		}
 
-		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; set; }
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DistrictSelectorFactory { get; }
 

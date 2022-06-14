@@ -98,6 +98,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz
 {
@@ -906,8 +907,9 @@ namespace Vodovoz
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
 
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDTO>(
-				null, fastDeliveryVerification);
+			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryVerification);
+			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
+				null, fastDeliveryVerificationViewModel);
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1570,8 +1572,9 @@ namespace Vodovoz
 
 				if(routeListToAddOrderTo == null)
 				{
-					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationDTO>(
-						null, UoW, fastDeliveryVerification);
+					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryVerification);
+					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
+						null, UoW, fastDeliveryVerificationViewModel);
 
 					return false;
 				}

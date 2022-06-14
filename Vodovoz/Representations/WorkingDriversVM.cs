@@ -23,8 +23,6 @@ namespace Vodovoz.ViewModel
 {
 	public class WorkingDriversVM : RepresentationModelEntityBase<RouteList, WorkingDriverVMNode>
 	{
-		private bool _isFastDeliveryOnly;
-
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes()

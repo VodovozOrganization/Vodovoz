@@ -1561,7 +1561,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Район").AddTextRenderer(node => node.District)
 					.AddColumn("Доступно\nдля заказа").AddTextRenderer(node => node.IsValidString)
 					.AddColumn("Комментарий логиста /\nПринятые меры").AddTextRenderer(node => node.LogisticianComment)
-					.AddColumn("ФИО логиста").AddTextRenderer(node => node.Logistician)
+					.AddColumn("ФИО логиста").AddTextRenderer(node => node.LogisticianNameWithInitials)
 					.AddColumn("Дата и время последнего\nсохранения комментария").AddTextRenderer(node => node.LogisticianCommentVersionString)
 					.AddColumn("Время реакции в\nчасах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
 					.Finish()

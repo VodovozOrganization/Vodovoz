@@ -12,7 +12,6 @@ namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.FastDeliveryMaxDistanceKm).Column("fast_delivery_max_distance_km");
 			Map(x => x.VerificationDate).Column("verification_date").ReadOnly();
 			Map(x => x.LogisticianComment).Column("logistician_comment");
 			Map(x => x.LogisticianCommentVersion).Column("logistician_comment_version");
