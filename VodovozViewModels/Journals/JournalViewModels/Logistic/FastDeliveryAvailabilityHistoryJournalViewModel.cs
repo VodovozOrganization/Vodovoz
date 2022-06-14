@@ -35,7 +35,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly IFastDeliveryAvailabilityHistoryParameterProvider _fastDeliveryAvailabilityHistoryParameterProvider;
 
 		public FastDeliveryAvailabilityHistoryJournalViewModel(FastDeliveryAvailabilityFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -47,8 +46,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			_fastDeliveryAvailabilityHistoryParameterProvider = fastDeliveryAvailabilityHistoryParameterProvider
-			                                                    ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
+			var availabilityHistoryParameterProvider = fastDeliveryAvailabilityHistoryParameterProvider
+			                                                        ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
 
 			TabName = "Журнал истории проверок экспресс-доставок";
 
@@ -63,7 +62,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory);
-			fastDeliveryAvailabilityHistoryModel.ClearFastDeliveryAvailabilityHistory(_fastDeliveryAvailabilityHistoryParameterProvider);
+			fastDeliveryAvailabilityHistoryModel.ClearFastDeliveryAvailabilityHistory(availabilityHistoryParameterProvider);
 
 			_timer = new Timer(_interval);
 			_timer.Elapsed += TimerOnElapsed;
@@ -90,7 +89,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			FastDeliveryAvailabilityHistoryItem fastDeliveryAvailabilityHistoryItemAlias = null;
 			FastDeliveryNomenclatureDistributionHistory fastDeliveryNomenclatureDistributionHistoryAlias = null;
 			FastDeliveryOrderItemHistory fastDeliveryOrderItemHistoryAlias = null;
-			Employee driverAlias = null;
 			Employee authorAlias = null;
 			Employee logisticianAlias = null;
 			Order orderAlias = null;
@@ -113,19 +111,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				Projections.Property(() => logisticianAlias.Patronymic)
 			);
 
+			var isValidSubquery = QueryOver.Of(() => fastDeliveryAvailabilityHistoryItemAlias)
+				.Where(() => fastDeliveryAvailabilityHistoryItemAlias.FastDeliveryAvailabilityHistory.Id ==
+							 fastDeliveryAvailabilityHistoryAlias.Id)
+				.And(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidToFastDelivery)
+				.Select(Projections.Conditional(Restrictions.Gt(Projections.RowCount(), 0),
+					Projections.Constant(true),
+					Projections.Constant(false)));
+
+
 			var itemsQuery = uow.Session.QueryOver(() => fastDeliveryAvailabilityHistoryAlias)
-				.JoinEntityAlias(() => fastDeliveryAvailabilityHistoryItemAlias,
-					() => fastDeliveryAvailabilityHistoryItemAlias.FastDeliveryAvailabilityHistory.Id ==
-						  fastDeliveryAvailabilityHistoryAlias.Id,
-					JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => fastDeliveryNomenclatureDistributionHistoryAlias,
-					() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id ==
-						  fastDeliveryAvailabilityHistoryAlias.Id,
+					() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id ==fastDeliveryAvailabilityHistoryAlias.Id,
 					JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => fastDeliveryOrderItemHistoryAlias,
 					() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id,
 					JoinType.LeftOuterJoin)
-				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryItemAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint, () => deliveryPointAlias)
@@ -156,7 +157,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(FilterViewModel.IsValid != null)
 			{
-				itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.IsValid == FilterViewModel.IsValid);
+				itemsQuery.Where(Restrictions.Eq(Projections.SubQuery(isValidSubquery), FilterViewModel.IsValid));
 			}
 
 			if(FilterViewModel.LogisticianReactionTimeMinutes > 0)
@@ -195,7 +196,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 					.Select(() => deliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.Address)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.District)
-					.Select(() => fastDeliveryAvailabilityHistoryAlias.IsValid).WithAlias(() => resultAlias.IsValid)
+					.SelectSubQuery(isValidSubquery).WithAlias(() => resultAlias.IsValid)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.LogisticianComment).WithAlias(() => resultAlias.LogisticianComment)
 					.Select(() => logisticianAlias.LastName).WithAlias(() => resultAlias.LogisticianLastName)
 					.Select(() => logisticianAlias.Name).WithAlias(() => resultAlias.LogisticianName)

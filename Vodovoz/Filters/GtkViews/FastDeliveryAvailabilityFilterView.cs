@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using QS.Widgets;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -30,7 +31,8 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.VerificationDateTo, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			ycheckbuttonVerificationSucces.Binding.AddBinding(ViewModel, vm => vm.IsValid, w => w.Active).InitializeFromSource();
+			nullablecheckVerificationSuccess.RenderMode = RenderMode.Icon;
+			nullablecheckVerificationSuccess.Binding.AddBinding(ViewModel, vm => vm.IsValid, w => w.Active).InitializeFromSource();
 		}
 	}
 }

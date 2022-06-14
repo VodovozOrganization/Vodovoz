@@ -23,7 +23,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public DateTime LogisticianCommentVersion { get; set; }
 		public int RowNum { get; set; }
 
-		public string IsValidString => IsValid ? "Да" : "";
+		public string IsValidString => IsValid ? "Да" : "Нет";
 
 		public string VerificationDateString => VerificationDate.ToString("dd.MM.yy HH:mm:ss");
 

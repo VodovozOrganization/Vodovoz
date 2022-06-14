@@ -3,7 +3,9 @@ using QS.Project.Journal.EntitySelector;
 using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
@@ -29,9 +31,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
 
+			var districtFilter = new DistrictJournalFilterViewModel()
+			{
+				Status = DistrictsSetStatus.Active
+			};
 			DistrictSelectorFactory =
 				(districtJournalFactory ?? throw new ArgumentNullException(nameof(districtJournalFactory)))
-				.CreateDistrictAutocompleteSelectorFactory();
+				.CreateDistrictAutocompleteSelectorFactory(districtFilter);
 
 			CounterpartySelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))

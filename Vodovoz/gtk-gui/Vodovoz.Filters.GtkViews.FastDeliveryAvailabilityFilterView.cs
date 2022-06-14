@@ -14,7 +14,11 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.ValidatedEntry entryReactionTime;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonVerificationSucces;
+		private global::Gtk.HBox hbox6;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelVerificationSuccess;
+
+		private global::QS.Widgets.NullableCheckButton nullablecheckVerificationSuccess;
 
 		private global::Gamma.Widgets.yDatePeriodPicker ydateperiodpickerVerificationDate;
 
@@ -91,20 +95,37 @@ namespace Vodovoz.Filters.GtkViews
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ycheckbuttonVerificationSucces = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonVerificationSucces.CanFocus = true;
-			this.ycheckbuttonVerificationSucces.Name = "ycheckbuttonVerificationSucces";
-			this.ycheckbuttonVerificationSucces.Label = global::Mono.Unix.Catalog.GetString("Проверка успешна");
-			this.ycheckbuttonVerificationSucces.DrawIndicator = true;
-			this.ycheckbuttonVerificationSucces.UseUnderline = true;
-			this.table1.Add(this.ycheckbuttonVerificationSucces);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonVerificationSucces]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.LeftAttach = ((uint)(5));
-			w5.RightAttach = ((uint)(6));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.hbox6 = new global::Gtk.HBox();
+			this.hbox6.Name = "hbox6";
+			this.hbox6.Spacing = 6;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.ylabelVerificationSuccess = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelVerificationSuccess.Name = "ylabelVerificationSuccess";
+			this.ylabelVerificationSuccess.Xalign = 1F;
+			this.ylabelVerificationSuccess.LabelProp = global::Mono.Unix.Catalog.GetString("Проверка успешна:");
+			this.hbox6.Add(this.ylabelVerificationSuccess);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.ylabelVerificationSuccess]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.nullablecheckVerificationSuccess = new global::QS.Widgets.NullableCheckButton();
+			this.nullablecheckVerificationSuccess.CanFocus = true;
+			this.nullablecheckVerificationSuccess.Name = "nullablecheckVerificationSuccess";
+			this.nullablecheckVerificationSuccess.UseUnderline = true;
+			this.hbox6.Add(this.nullablecheckVerificationSuccess);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.nullablecheckVerificationSuccess]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			this.table1.Add(this.hbox6);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox6]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.LeftAttach = ((uint)(4));
+			w7.RightAttach = ((uint)(6));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ydateperiodpickerVerificationDate = new global::Gamma.Widgets.yDatePeriodPicker();
 			this.ydateperiodpickerVerificationDate.Events = ((global::Gdk.EventMask)(256));
@@ -112,66 +133,66 @@ namespace Vodovoz.Filters.GtkViews
 			this.ydateperiodpickerVerificationDate.StartDate = new global::System.DateTime(0);
 			this.ydateperiodpickerVerificationDate.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.ydateperiodpickerVerificationDate);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.ydateperiodpickerVerificationDate]));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ydateperiodpickerVerificationDate]));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelCounterparty = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCounterparty.Name = "ylabelCounterparty";
 			this.ylabelCounterparty.Xalign = 1F;
 			this.ylabelCounterparty.LabelProp = global::Mono.Unix.Catalog.GetString("Контрагент:");
 			this.table1.Add(this.ylabelCounterparty);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCounterparty]));
-			w7.LeftAttach = ((uint)(2));
-			w7.RightAttach = ((uint)(3));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCounterparty]));
+			w9.LeftAttach = ((uint)(2));
+			w9.RightAttach = ((uint)(3));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelDistrict = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDistrict.Name = "ylabelDistrict";
 			this.ylabelDistrict.Xalign = 1F;
 			this.ylabelDistrict.LabelProp = global::Mono.Unix.Catalog.GetString("Район:");
 			this.table1.Add(this.ylabelDistrict);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelDistrict]));
-			w8.LeftAttach = ((uint)(4));
-			w8.RightAttach = ((uint)(5));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelDistrict]));
+			w10.LeftAttach = ((uint)(4));
+			w10.RightAttach = ((uint)(5));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelLogistician = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelLogistician.Name = "ylabelLogistician";
 			this.ylabelLogistician.Xalign = 1F;
 			this.ylabelLogistician.LabelProp = global::Mono.Unix.Catalog.GetString("Логист:");
 			this.table1.Add(this.ylabelLogistician);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelLogistician]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelLogistician]));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelReactionTime = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelReactionTime.Name = "ylabelReactionTime";
 			this.ylabelReactionTime.Xalign = 1F;
 			this.ylabelReactionTime.LabelProp = global::Mono.Unix.Catalog.GetString("Время реакции более (минут):");
 			this.table1.Add(this.ylabelReactionTime);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelReactionTime]));
-			w10.TopAttach = ((uint)(1));
-			w10.BottomAttach = ((uint)(2));
-			w10.LeftAttach = ((uint)(2));
-			w10.RightAttach = ((uint)(3));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelReactionTime]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			w12.LeftAttach = ((uint)(2));
+			w12.RightAttach = ((uint)(3));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelVerificationDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelVerificationDate.Name = "ylabelVerificationDate";
 			this.ylabelVerificationDate.Xalign = 1F;
 			this.ylabelVerificationDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата проверки:");
 			this.table1.Add(this.ylabelVerificationDate);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelVerificationDate]));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelVerificationDate]));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{

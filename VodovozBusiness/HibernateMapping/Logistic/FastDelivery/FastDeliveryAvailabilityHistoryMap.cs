@@ -15,7 +15,6 @@ namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
 			Map(x => x.VerificationDate).Column("verification_date").ReadOnly();
 			Map(x => x.LogisticianComment).Column("logistician_comment");
 			Map(x => x.LogisticianCommentVersion).Column("logistician_comment_version");
-			Map(x => x.IsValid).Column("is_valid");
 			Map(x => x.IsGetClosestByRoute).Column("is_get_closest_by_route");
 			Map(x => x.MaxDistanceToLatestTrackPointKm).Column("max_distance_to_latest_track_point_km");
 			Map(x => x.DriverGoodWeightLiftPerHandInKg).Column("driver_good_weight_lift_per_hand_in_kg");

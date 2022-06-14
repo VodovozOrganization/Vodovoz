@@ -22,10 +22,8 @@ namespace Vodovoz.ViewModels.Widgets
 			_fastDeliveryVerificationDTO = fastDeliveryVerificationDTO ?? throw new ArgumentNullException(nameof(fastDeliveryVerificationDTO));
 
 			var order = fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory.Order;
-			if(order != null)
-			{
-				DetailsTitle = $"Детализация по заказу №{order.Id}, адрес: {order.DeliveryPoint.ShortAddress}";
-			}
+			var deliveryPoint = fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory.DeliveryPoint;
+			DetailsTitle = $"Детализация по заказу №{order?.Id ?? 0}, адрес: {deliveryPoint?.ShortAddress}";
 
 			FastDeliveryAvailabilityHistory = fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory;
 
@@ -73,9 +71,12 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public string DetailsTitle { get; }
 
-		public IList<FastDeliveryVerificationDetailsNode> Nodes { get; } 
+		public IList<FastDeliveryVerificationDetailsNode> Nodes { get; }
+		
 		public IEnumerable<FastDeliveryOrderItemHistory> OrderItemsHistory => FastDeliveryAvailabilityHistory.OrderItemsHistory;
+		
 		public FastDeliveryAvailabilityHistory FastDeliveryAvailabilityHistory { get; }
+		
 		public bool ShowLogisticianComment => _logistician != null;
 	}
 }

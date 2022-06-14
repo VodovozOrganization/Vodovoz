@@ -96,6 +96,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			w5.Position = 2;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.expanderAdditional = new global::Gtk.Expander(null);
+			this.expanderAdditional.HeightRequest = 200;
 			this.expanderAdditional.CanFocus = true;
 			this.expanderAdditional.Name = "expanderAdditional";
 			this.expanderAdditional.Expanded = true;
@@ -161,7 +162,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			this.expanderAdditional.Add(this.yhboxAdditional);
 			this.GtkLblAdditional = new global::Gtk.Label();
 			this.GtkLblAdditional.Name = "GtkLblAdditional";
-			this.GtkLblAdditional.LabelProp = global::Mono.Unix.Catalog.GetString("Доплонительно");
+			this.GtkLblAdditional.LabelProp = global::Mono.Unix.Catalog.GetString("Дополнительно");
 			this.GtkLblAdditional.UseUnderline = true;
 			this.expanderAdditional.LabelWidget = this.GtkLblAdditional;
 			this.vboxMain.Add(this.expanderAdditional);

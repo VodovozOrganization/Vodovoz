@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
 			dialogSettings.DefaultFileExtention = ".xlsx";
-			dialogSettings.FileName = $"{this.GetType().Name} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+			dialogSettings.FileName = $"{"Доставка за час"} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 			if(result.Successful)
@@ -51,17 +51,5 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			public IList<FastDeliveryAvailabilityHistoryJournalNode> Rows { get; set; }
 		}
-
-		public string VerificationDate { get; set; }
-		public string Author { get; set; }
-		public string Order { get; set; }
-		public string Counterparty { get; set; }
-		public string Address { get; set; }
-		public string District { get; set; }
-		public string IsValid { get; set; }
-		public string LogisticianComment { get; set; }
-		public string Logistician { get; set; }
-		public string LogisticianCommentVersion { get; set; }
-		public string LogisticianReactionTime { get; set; }
 	}
 }

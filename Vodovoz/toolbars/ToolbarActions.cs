@@ -203,7 +203,7 @@ public partial class MainWindow : Window
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
-		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "История доступности экпресс-доставки", null, "table");
+		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "Доставка за час", null, "table");
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");

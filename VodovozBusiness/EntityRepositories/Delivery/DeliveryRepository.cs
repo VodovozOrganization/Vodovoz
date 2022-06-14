@@ -537,7 +537,6 @@ namespace Vodovoz.EntityRepositories.Delivery
 	{
 		public IEnumerable<FastDeliveryVerificationDetailsNode> FastDeliveryVerificationDetailsNodes { get; set; }
 		public IEnumerable<string> AdditionalInformation { get; set; }
-		public bool IsValid => FastDeliveryVerificationDetailsNodes.Any(x => x.IsValidRLToFastDelivery);
 		public FastDeliveryAvailabilityHistory FastDeliveryAvailabilityHistory { get; set; }
 	}
 }

@@ -9,11 +9,11 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class DistrictJournalFactory : IDistrictJournalFactory
 	{
-		public IEntityAutocompleteSelectorFactory CreateDistrictAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateDistrictAutocompleteSelectorFactory(DistrictJournalFilterViewModel districtJournalFilterViewModel = null)
 		{
 			return new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () =>
 			{
-				var filter = new DistrictJournalFilterViewModel();
+				var filter = districtJournalFilterViewModel ?? new DistrictJournalFilterViewModel();
 				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			});
 		}

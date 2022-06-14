@@ -22,7 +22,6 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		private Counterparty _counterparty;
 		private DeliveryPoint _deliveryPoint;
 		private District _district;
-		private bool _isValid;
 		private Employee _logistician;
 		private string _logisticianComment;
 		private DateTime _logisticianCommentVersion;
@@ -76,13 +75,6 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		{
 			get => _district;
 			set => SetField(ref _district, value);
-		}
-
-		[Display(Name = "Доступно для экспресс-доставки")]
-		public virtual bool IsValid
-		{
-			get => _isValid;
-			set => SetField(ref _isValid, value);
 		}
 
 		[Display(Name = "Логист")]
