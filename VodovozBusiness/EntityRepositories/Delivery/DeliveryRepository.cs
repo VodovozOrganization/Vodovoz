@@ -322,9 +322,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
 				.Where(() => (rla.Status != RouteListItemStatus.Canceled
-				              && rla.Status != RouteListItemStatus.Overdue
-				              && !rla.WasTransfered)
-				             || (rla.Status == RouteListItemStatus.Transfered && !rlaTransfered.NeedToReload))
+							  && rla.Status != RouteListItemStatus.Overdue
+							  && (!rla.WasTransfered || rla.NeedToReload))
+							 || (rla.Status == RouteListItemStatus.Transfered && !rlaTransfered.NeedToReload))
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
 					.SelectGroup(() => oi.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
@@ -340,9 +340,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oe.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
 				.Where(() => (rla.Status != RouteListItemStatus.Canceled
-				              && rla.Status != RouteListItemStatus.Overdue
-				              && !rla.WasTransfered)
-				             || (rla.Status == RouteListItemStatus.Transfered && !rlaTransfered.NeedToReload))
+							  && rla.Status != RouteListItemStatus.Overdue
+							  && (!rla.WasTransfered || rla.NeedToReload))
+							 || (rla.Status == RouteListItemStatus.Transfered && !rlaTransfered.NeedToReload))
 				.And(() => oe.Direction == Direction.Deliver)
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
@@ -624,7 +624,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
 				.Where(() => (rla.Status != RouteListItemStatus.Canceled
 							&& rla.Status != RouteListItemStatus.Overdue
-							&& !rla.WasTransfered)
+							&& (!rla.WasTransfered || rla.NeedToReload))
 							|| (rla.Status == RouteListItemStatus.Transfered && !rlaTransfered.NeedToReload))
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
@@ -641,9 +641,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oe.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
 				.Where(() => (rla.Status != RouteListItemStatus.Canceled
-				              && rla.Status != RouteListItemStatus.Overdue
-				              && !rla.WasTransfered)
-				             || (rla.Status == RouteListItemStatus.Transfered && !rlaTransfered.NeedToReload))
+							  && rla.Status != RouteListItemStatus.Overdue
+							 && (!rla.WasTransfered || rla.NeedToReload))
+							 || (rla.Status == RouteListItemStatus.Transfered && !rlaTransfered.NeedToReload))
 				.And(() => oe.Direction == Direction.Deliver)
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
