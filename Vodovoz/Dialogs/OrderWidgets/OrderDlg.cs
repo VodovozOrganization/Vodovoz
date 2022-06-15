@@ -97,6 +97,8 @@ using Vodovoz.Models.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz
 {
@@ -891,15 +893,22 @@ namespace Vodovoz
 				return;
 			}
 
-			var verificationData =
-				new FastDeliveryVerificationData(
-					Entity.Id,
-					Entity.DeliveryPoint.ShortAddress,
-					(double)Entity.DeliveryPoint.Latitude.Value,
-					(double)Entity.DeliveryPoint.Longitude.Value,
-					Entity.GetAllGoodsToDeliver());
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
-				null, UoW, verificationData);
+			var fastDeliveryVerification = _deliveryRepository.GetRouteListsForFastDelivery(
+				UoW,
+				(double)Entity.DeliveryPoint.Latitude.Value,
+				(double)Entity.DeliveryPoint.Longitude.Value,
+				isGetClosestByRoute: false,
+				_deliveryRulesParametersProvider,
+				Entity.GetAllGoodsToDeliver(),
+				Entity
+			);
+
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
+
+			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryVerification);
+			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
+				null, fastDeliveryVerificationViewModel);
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1542,27 +1551,29 @@ namespace Vodovoz
 					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
 				}
 
-				routeListToAddOrderTo = _deliveryRepository.GetRouteListForFastDelivery(
+				var fastDeliveryVerification = _deliveryRepository.GetRouteListsForFastDelivery(
 					UoW,
 					(double)Entity.DeliveryPoint.Latitude.Value,
 					(double)Entity.DeliveryPoint.Longitude.Value,
-					true,
+					isGetClosestByRoute: true,
 					_deliveryRulesParametersProvider,
-					Entity.GetAllGoodsToDeliver()
+					Entity.GetAllGoodsToDeliver(),
+					Entity
 				);
+
+				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
+
+				routeListToAddOrderTo = fastDeliveryVerification
+					.FastDeliveryVerificationDetailsNodes
+					.FirstOrDefault(x => x.IsValidRLToFastDelivery)
+					?.RouteList;
 
 				if(routeListToAddOrderTo == null)
 				{
-					var verificationData =
-						new FastDeliveryVerificationData(
-							Entity.Id,
-							Entity.DeliveryPoint.ShortAddress,
-							(double)Entity.DeliveryPoint.Latitude.Value,
-							(double)Entity.DeliveryPoint.Longitude.Value,
-							Entity.GetAllGoodsToDeliver());
-
-					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
-						null, UoW, verificationData);
+					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryVerification);
+					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
+						null, UoW, fastDeliveryVerificationViewModel);
 
 					return false;
 				}
