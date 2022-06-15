@@ -1,4 +1,3 @@
--Dfile.encoding="UTF-8"
 node('Vod6'){
 	stage('Checkout'){
 		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_WIN}/workspace/Vodovoz_Vodovoz_master"
