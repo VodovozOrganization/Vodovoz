@@ -51,8 +51,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			TabName = "Журнал истории проверок экспресс-доставок";
 
-			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
-
 			UpdateOnChanges(
 				typeof(FastDeliveryAvailabilityHistory),
 				typeof(FastDeliveryAvailabilityHistoryItem),
@@ -73,14 +71,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			_timer.Interval = _interval;
 			Refresh();
-		}
-
-		protected void BeforeItemsUpdated(IList items, uint start)
-		{
-			foreach(var item in items.Cast<FastDeliveryAvailabilityHistoryJournalNode>().Skip((int)start))
-			{
-				item.RowNum = items.IndexOf(item) + 1;
-			}
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<FastDeliveryAvailabilityHistory>> ItemsSourceQueryFunction => (uow) =>

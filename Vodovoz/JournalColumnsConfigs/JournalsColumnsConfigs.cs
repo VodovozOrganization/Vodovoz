@@ -1552,7 +1552,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			//FastDeliveryAvailabilityHistoryJournalViewModel
 			TreeViewColumnsConfigFactory.Register<FastDeliveryAvailabilityHistoryJournalViewModel>(
 				() => FluentColumnsConfig<FastDeliveryAvailabilityHistoryJournalNode>.Create()
-					.AddColumn("№").AddNumericRenderer(node => node.RowNum)
+					.AddColumn("№").AddNumericRenderer(node => node.Id)
 					.AddColumn("Дата и время\nпроверки").AddTextRenderer(node => node.VerificationDateString)
 					.AddColumn("Автор заказа").AddTextRenderer(node => node.AuthorString)
 					.AddColumn("№ заказа").AddNumericRenderer(node => node.Order)

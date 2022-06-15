@@ -1192,7 +1192,9 @@ public partial class MainWindow : Window
 
 		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
 		{
-			HidenByDefault = true
+			HidenByDefault = true,
+			VerificationDateFrom = DateTime.Now.Date,
+			VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23,59,59))
 		};
 
 		tdiMain.OpenTab(() => new FastDeliveryAvailabilityHistoryJournalViewModel(

@@ -21,7 +21,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string LogisticianPatronymic { get; set; }
 		public string LogisticianComment { get; set; }
 		public DateTime LogisticianCommentVersion { get; set; }
-		public int RowNum { get; set; }
 
 		public string IsValidString => IsValid ? "Да" : "Нет";
 
