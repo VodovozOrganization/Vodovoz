@@ -169,9 +169,9 @@ namespace Vodovoz.EntityRepositories.Delivery
 			};
 
 			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter();
-			fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory.OrderItemsHistory = fastDeliveryOrder == null
-				? fastDeliveryHistoryConverter.ConvertNomenclatureAmountNodesToOrderItemsHistory(nomenclatureNodes, fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory)
-				: fastDeliveryHistoryConverter.ConvertOrderItemsToOrderItemsHistory(fastDeliveryOrder.OrderItems, fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory);
+			fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory.OrderItemsHistory =
+				fastDeliveryHistoryConverter.ConvertNomenclatureAmountNodesToOrderItemsHistory(nomenclatureNodes,
+					fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory);
 
 			var district = GetDistrict(uow, (decimal)latitude, (decimal)longitude);
 			if(district?.TariffZone == null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)

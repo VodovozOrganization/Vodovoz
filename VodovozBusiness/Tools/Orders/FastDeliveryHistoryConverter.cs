@@ -107,19 +107,6 @@ namespace Vodovoz.Tools.Orders
 				.ToList();
 		}
 
-		public IList<FastDeliveryOrderItemHistory> ConvertOrderItemsToOrderItemsHistory(
-			IEnumerable<OrderItem> orderItems, FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory)
-		{
-			return orderItems
-				.Select(x => new FastDeliveryOrderItemHistory
-				{
-					Nomenclature = x.Nomenclature,
-					Count = x.Count,
-					FastDeliveryAvailabilityHistory = fastDeliveryAvailabilityHistory
-				})
-				.ToList();
-		}
-
 		public IList<FastDeliveryNomenclatureDistributionHistory> ConvertNomenclatureDistributionToDistributionHistory(
 			IEnumerable<AdditionalLoadingNomenclatureDistribution> distributions, FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory)
 		{
