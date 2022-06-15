@@ -1,5 +1,6 @@
 ﻿using MegafonSmsAPI;
 using NLog;
+using QS.Utilities.Numeric;
 using SmsSendInterface;
 using System;
 using System.Threading.Tasks;
@@ -12,11 +13,13 @@ namespace MegafonSmsSendService
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly ISmsSettings _smsSettings;
 		private MegafonSmsClient _client;
+		private PhoneFormatter _phoneFormatter;
 
 		public MegafonSmsSender(string login, string password, ISmsSettings smsSettings)
 		{
 			_client = new MegafonSmsClient(login, password);
 			_smsSettings = smsSettings ?? throw new ArgumentNullException(nameof(smsSettings));
+			_phoneFormatter = new PhoneFormatter(PhoneFormat.DigitsTen);
 		}
 
 		public BalanceResponse GetBalanceResponse => new BalanceResponse { Status = BalanceResponseStatus.Error };
@@ -32,9 +35,10 @@ namespace MegafonSmsSendService
 
 		public async Task<ISmsSendResult> SendSmsAsync(ISmsMessage message)
 		{
-			if(!ulong.TryParse(message.MobilePhoneNumber, out ulong phone))
+			var formattedPhone = $"7{_phoneFormatter.FormatString(message.MobilePhoneNumber)}";
+			if(!ulong.TryParse(formattedPhone, out ulong phone))
 			{
-				throw new ArgumentException($"Неудалось распарсить номер телефона: {message.MobilePhoneNumber}");
+				throw new ArgumentException($"Неудалось распарсить номер телефона: {message.MobilePhoneNumber}. Форматированный номер: {formattedPhone}");
 			}
 
 			var sms = new SmsMessage
