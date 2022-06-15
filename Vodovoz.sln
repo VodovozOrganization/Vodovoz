@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32407.337
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz", "Vodovoz\Vodovoz.csproj", "{FBD0A975-C275-4C43-9840-9D96C4E4EB21}"
 EndProject
@@ -216,9 +216,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.ErrorReporting.Client", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Osrm", "..\QSProjects\QS.Osrm\QS.Osrm.csproj", "{88B67AA2-14A5-4211-B00C-62E260FEC53E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Updater.Desktop", "..\QSProjects\QS.Updater.Desktop\QS.Updater.Desktop.csproj", "{9ED68A8A-25EE-4B6A-A483-A386BFC2F12B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Updater.Desktop", "..\QSProjects\QS.Updater.Desktop\QS.Updater.Desktop.csproj", "{9ED68A8A-25EE-4B6A-A483-A386BFC2F12B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayPageAPI", "Services\WebApi\PayPageAPI\PayPageAPI.csproj", "{C8E0788C-D182-4022-91EA-CD7879E3AFD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PayPageAPI", "Services\WebApi\PayPageAPI\PayPageAPI.csproj", "{C8E0788C-D182-4022-91EA-CD7879E3AFD5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MegafonSmsSendService", "MegafonSmsSendService\MegafonSmsSendService.csproj", "{BA629B01-180C-46B5-8B12-ADE9E9E63762}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1270,6 +1272,18 @@ Global
 		{C8E0788C-D182-4022-91EA-CD7879E3AFD5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C8E0788C-D182-4022-91EA-CD7879E3AFD5}.Release|x86.ActiveCfg = Release|Any CPU
 		{C8E0788C-D182-4022-91EA-CD7879E3AFD5}.Release|x86.Build.0 = Release|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.Debug|x86.Build.0 = Debug|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.Release|x86.ActiveCfg = Release|Any CPU
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1376,6 +1390,7 @@ Global
 		{88B67AA2-14A5-4211-B00C-62E260FEC53E} = {4C931756-0F11-43FD-BE5D-F5691FCB8B01}
 		{9ED68A8A-25EE-4B6A-A483-A386BFC2F12B} = {4C931756-0F11-43FD-BE5D-F5691FCB8B01}
 		{C8E0788C-D182-4022-91EA-CD7879E3AFD5} = {F2BFD0D2-5A21-4D6C-9CEA-328B30FDFBAB}
+		{BA629B01-180C-46B5-8B12-ADE9E9E63762} = {029100AD-4EE8-4BD7-8FC8-C7ECF4C7B484}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

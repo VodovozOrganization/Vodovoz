@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="MegafonSmsAPI" Version="1.0.1" />
+	  <PackageReference Include="NLog" Version="4.7.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Services\Library\SmsSendInterface\SmsSendInterface.csproj" />
+    <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj" />
+  </ItemGroup>
+
+</Project>
