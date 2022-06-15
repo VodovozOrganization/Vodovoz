@@ -338,7 +338,6 @@ namespace Vodovoz
 
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			buttonPrint.Sensitive = Entity.TypeOperation == IncomeType.Return;
 			labelExpenseTitle.Visible = comboExpense.Visible = 
 				ylabel1.Visible = specialListCmbOrganisation.Visible = Entity.TypeOperation == IncomeType.Return;
 			labelIncomeTitle.Visible = comboCategory.Visible = Entity.TypeOperation != IncomeType.Return;
