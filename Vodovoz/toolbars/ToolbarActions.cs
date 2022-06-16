@@ -13,6 +13,8 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.Project.Services.FileDialog;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
@@ -58,6 +60,7 @@ using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -114,6 +117,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListKeeping;
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
+	Action ActionFastDeliveryAvailabilityJournal;
 
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
@@ -199,7 +203,7 @@ public partial class MainWindow : Window
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
-
+		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "Доставка за час", null, "table");
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -287,6 +291,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionCarProxiesJournal, null);
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
+		w1.Add(ActionFastDeliveryAvailabilityJournal, null);
 
 		//Бухгалтерия
 		w1.Add(ActionTransferBankDocs, null);
@@ -366,6 +371,7 @@ public partial class MainWindow : Window
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
+		ActionFastDeliveryAvailabilityJournal.Activated += ActionFastDeliveryAvailabilityJournal_Activated;
 
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
@@ -1161,7 +1167,8 @@ public partial class MainWindow : Window
 		var carEventFilter = new CarEventFilterViewModel(
 			carJournalFactory,
 			carEventTypeJournalFactory,
-			new EmployeeJournalFactory()) { HidenByDefault = true };
+			new EmployeeJournalFactory())
+		{ HidenByDefault = true };
 
 		tdiMain.OpenTab(() => new CarEventJournalViewModel(
 			carEventFilter,
@@ -1171,6 +1178,33 @@ public partial class MainWindow : Window
 			carEventTypeJournalFactory,
 			VodovozGtkServicesConfig.EmployeeService,
 			employeeFactory)
+		);
+	}
+
+	void ActionFastDeliveryAvailabilityJournal_Activated(object sender, EventArgs e)
+	{
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		IFileDialogService fileDialogService = new FileDialogService();
+		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
+			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
+
+		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
+		{
+			HidenByDefault = true,
+			VerificationDateFrom = DateTime.Now.Date,
+			VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23,59,59))
+		};
+
+		tdiMain.OpenTab(() => new FastDeliveryAvailabilityHistoryJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
+			fileDialogService,
+			fastDeliveryAvailabilityHistoryParameterProvider
+			)
 		);
 	}
 }
