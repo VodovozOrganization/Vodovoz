@@ -360,7 +360,8 @@ namespace VodovozDeliveryRulesService
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
 
-			return fastDeliveryVerification.FastDeliveryAvailabilityHistory.Items.Any(x => x.IsValidToFastDelivery);
+			var allowedRouteLists = fastDeliveryVerification.FastDeliveryAvailabilityHistory.Items;
+			return allowedRouteLists != null && allowedRouteLists.Any(x => x.IsValidToFastDelivery);
 		}
 	}
 }
