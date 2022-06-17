@@ -6,18 +6,6 @@ namespace Vodovoz.Views.Orders
 	{
 		private global::Gamma.GtkWidgets.yVBox vboxMain;
 
-		private global::Gamma.GtkWidgets.yLabel lblMessage;
-
-		private global::Gtk.HSeparator hseparator1;
-
-		private global::Gtk.Expander expanderDetails;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-
-		private global::Gamma.GtkWidgets.yTreeView treeViewDetails;
-
-		private global::Gtk.Label GtkLblDetails;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -28,46 +16,6 @@ namespace Vodovoz.Views.Orders
 			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.lblMessage = new global::Gamma.GtkWidgets.yLabel();
-			this.lblMessage.Name = "lblMessage";
-			this.lblMessage.LabelProp = global::Mono.Unix.Catalog.GetString("Message");
-			this.vboxMain.Add(this.lblMessage);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.lblMessage]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.hseparator1 = new global::Gtk.HSeparator();
-			this.hseparator1.Name = "hseparator1";
-			this.vboxMain.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hseparator1]));
-			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.expanderDetails = new global::Gtk.Expander(null);
-			this.expanderDetails.CanFocus = true;
-			this.expanderDetails.Name = "expanderDetails";
-			this.expanderDetails.Expanded = true;
-			// Container child expanderDetails.Gtk.Container+ContainerChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeViewDetails = new global::Gamma.GtkWidgets.yTreeView();
-			this.treeViewDetails.CanFocus = true;
-			this.treeViewDetails.Name = "treeViewDetails";
-			this.GtkScrolledWindow.Add(this.treeViewDetails);
-			this.expanderDetails.Add(this.GtkScrolledWindow);
-			this.GtkLblDetails = new global::Gtk.Label();
-			this.GtkLblDetails.Name = "GtkLblDetails";
-			this.GtkLblDetails.LabelProp = global::Mono.Unix.Catalog.GetString("Детализация");
-			this.GtkLblDetails.UseUnderline = true;
-			this.expanderDetails.LabelWidget = this.GtkLblDetails;
-			this.vboxMain.Add(this.expanderDetails);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.expanderDetails]));
-			w5.Position = 2;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

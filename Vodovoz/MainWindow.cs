@@ -311,7 +311,7 @@ public partial class MainWindow : Gtk.Window
 			ActionBookkeepping.Visible =
 			ActionCashMenubar.Visible = // Касса
 			ActionRetailMenubar.Visible =
-			ActionCarMenubar.Visible =
+			ActionTransportMenuBar.Visible =
 			ActionProduction.Visible = !userIsSalesRepresentative;// Производство
 
 		// Отчеты в Продажи
@@ -2576,7 +2576,7 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionCostCarExploitationReport(object sender, EventArgs e)
+	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = autofacScope.Resolve<IInteractiveService>();

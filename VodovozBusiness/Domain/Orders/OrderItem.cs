@@ -30,6 +30,8 @@ namespace Vodovoz.Domain.Orders
 		private int FastDeliveryNomenclatureId =>
 			_fastDeliveryNomenclatureId ?? (_fastDeliveryNomenclatureId = _nomenclatureParameterProvider.FastDeliveryNomenclatureId).Value;
 
+		private OrderItem _copiedFromUndelivery;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -289,6 +291,12 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion Аренда
 
+		public OrderItem CopiedFromUndelivery
+		{
+			get => _copiedFromUndelivery;
+			set => SetField(ref _copiedFromUndelivery, value);
+		}
+		
 		#endregion
 
 		#region Вычисляемые
