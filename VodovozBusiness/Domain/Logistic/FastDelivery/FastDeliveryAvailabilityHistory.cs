@@ -184,7 +184,6 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 			set => SetField(ref _nomenclatureDistributionHistoryItems, value);
 		}
 
-
 		public virtual IEnumerable<string> AdditionalInformation { get; set; }
 
 		#region IValidatableObject implementation

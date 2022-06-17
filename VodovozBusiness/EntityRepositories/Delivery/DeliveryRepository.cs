@@ -177,8 +177,11 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter();
 
-			fastDeliveryAvailabilityHistory.OrderItemsHistory =
-				fastDeliveryHistoryConverter.ConvertNomenclatureAmountNodesToOrderItemsHistory(nomenclatureNodes, fastDeliveryAvailabilityHistory);
+			if(nomenclatureNodes != null)
+			{
+				fastDeliveryAvailabilityHistory.OrderItemsHistory =
+					fastDeliveryHistoryConverter.ConvertNomenclatureAmountNodesToOrderItemsHistory(nomenclatureNodes, fastDeliveryAvailabilityHistory);
+			}
 
 			var distributions = uow.GetAll<AdditionalLoadingNomenclatureDistribution>();
 			fastDeliveryAvailabilityHistory.NomenclatureDistributionHistoryItems =
@@ -188,7 +191,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			if(district?.TariffZone == null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
 			{
 				fastDeliveryAvailabilityHistory.AdditionalInformation =
-					new List<string> {"Не найден район или у района отсутствует тарифная зона"};
+					new List<string> {"Не найден район, у района отсутствует тарифная зона, либо недоступна экспресс-доставка в текущее время."};
 
 				return fastDeliveryAvailabilityHistory;
 			}
@@ -470,8 +473,11 @@ namespace Vodovoz.EntityRepositories.Delivery
 				}
 			}
 
-			fastDeliveryAvailabilityHistory.Items = fastDeliveryHistoryConverter
-				.ConvertVerificationDetailsNodesToAvailabilityHistoryItems(routeListNodes, fastDeliveryAvailabilityHistory);
+			if(routeListNodes != null)
+			{
+				fastDeliveryAvailabilityHistory.Items = fastDeliveryHistoryConverter
+					.ConvertVerificationDetailsNodesToAvailabilityHistoryItems(routeListNodes, fastDeliveryAvailabilityHistory);
+			}
 
 			return fastDeliveryAvailabilityHistory;
 		}

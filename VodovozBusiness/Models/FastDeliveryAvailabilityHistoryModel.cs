@@ -1,26 +1,20 @@
 ﻿using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NLog;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.FastDelivery;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Models
 {
 	public class FastDeliveryAvailabilityHistoryModel
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ILogger _logger;
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-		public FastDeliveryAvailabilityHistoryModel(IUnitOfWorkFactory unitOfWorkFactory, ILogger logger)
+		public FastDeliveryAvailabilityHistoryModel(IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_logger = logger ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
 		public void SaveFastDeliveryAvailabilityHistory(FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory)

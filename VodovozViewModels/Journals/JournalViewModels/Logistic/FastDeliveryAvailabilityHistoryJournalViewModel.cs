@@ -4,15 +4,13 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
-using System.Collections;
-using System.Linq;
 using System.Timers;
-using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -24,7 +22,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
-using NLog;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -36,22 +33,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly ILogger _logger;
 
 		public FastDeliveryAvailabilityHistoryJournalViewModel(FastDeliveryAvailabilityFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IFileDialogService fileDialogService,
-			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider,
-			ILogger logger)
+			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			var availabilityHistoryParameterProvider = fastDeliveryAvailabilityHistoryParameterProvider
-			                                                        ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
+			                                           ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
 
 			TabName = "Журнал истории проверок экспресс-доставок";
 
@@ -63,7 +57,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				);
 
 			
-			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory, _logger);
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory);
 			fastDeliveryAvailabilityHistoryModel.ClearFastDeliveryAvailabilityHistory(availabilityHistoryParameterProvider);
 
 			_timer = new Timer(_interval);

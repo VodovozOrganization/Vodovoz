@@ -903,7 +903,7 @@ namespace Vodovoz
 				Entity
 			);
 
-			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory, logger);
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
@@ -1561,7 +1561,7 @@ namespace Vodovoz
 					Entity
 				);
 
-				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory, logger);
+				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
 				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 				routeListToAddOrderTo = fastDeliveryAvailabilityHistory.Items

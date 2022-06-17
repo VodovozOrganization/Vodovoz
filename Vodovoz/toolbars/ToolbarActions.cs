@@ -13,7 +13,6 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
-using NLog;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
 using Vodovoz;
@@ -1188,7 +1187,6 @@ public partial class MainWindow : Window
 		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
 		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
 		IFileDialogService fileDialogService = new FileDialogService();
-		ILogger logger = LogManager.GetCurrentClassLogger();
 		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
 			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
 
@@ -1205,9 +1203,7 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			fileDialogService,
-			fastDeliveryAvailabilityHistoryParameterProvider,
-			logger
-			)
+			fastDeliveryAvailabilityHistoryParameterProvider)
 		);
 	}
 }

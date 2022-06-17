@@ -357,7 +357,7 @@ namespace VodovozDeliveryRulesService
 				_deliveryRulesParametersProvider,
 				nomenclatureNodes);
 
-			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory, _logger);
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 			var allowedRouteLists = fastDeliveryAvailabilityHistory.Items;
