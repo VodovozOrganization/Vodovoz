@@ -79,8 +79,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			var sumProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * ?2 - ?3)"),
 				NHibernateUtil.Decimal, Projections.Property(() => orderItemAlias.Price),
 				amountPrjection,
-				Projections.Property(() => orderItemAlias.DiscountMoney)
-				);
+				Projections.Property(() => orderItemAlias.DiscountMoney));
 
 			return itemsQuery
 				.SelectList(list => list
@@ -108,7 +107,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					var dialogSettings = new DialogSettings();
 					dialogSettings.Title = "Сохранить";
 					dialogSettings.DefaultFileExtention = ".xlsx";
-					dialogSettings.FileName = $"{this.GetType().Name} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+					dialogSettings.FileName = $"Отчёт по продажам с доставкой за час {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 					if(result.Successful)

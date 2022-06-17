@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		private DelegateCommand _exportCommand;
 		private FastDeliveryAdditionalLoadingReport _report;
 		private bool _isRunning;
+
 		public FastDeliveryAdditionalLoadingReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
 			INavigationManager navigation, IFileDialogService fileDialogService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
@@ -51,19 +52,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			if(CreateDateFrom != null && CreateDateTo != null)
 			{
-				itemsQuery.Where(() => routeListAlias.Date >= CreateDateFrom.Value.Date.Add(new TimeSpan(0, 0, 0, 0))
-									   && routeListAlias.Date <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
+				itemsQuery.Where(() => routeListAlias.Date >= CreateDateFrom.Value.Date.Add(new TimeSpan(0, 0, 0, 0)) 
+				                       && routeListAlias.Date <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 			}
 
 			var ownOrdersAmountSubquery = QueryOver.Of(() => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
-				//.Where(() => (routeListItemAlias.Status != RouteListItemStatus.Canceled
-				//              && routeListItemAlias.Status != RouteListItemStatus.Overdue
-				//              && (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload))
-				//             || (routeListItemAlias.Status == RouteListItemStatus.Transfered && !routeListItemAlias.NeedToReload))
-				.Where(() => routeListItemAlias.Status != RouteListItemStatus.Canceled 
-				             && routeListItemAlias.Status != RouteListItemStatus.Overdue 
-				             && routeListItemAlias.Status != RouteListItemStatus.Transfered)
+				.WhereRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(new RouteListItemStatus[]
+				{
+					RouteListItemStatus.Canceled,
+					RouteListItemStatus.Overdue,
+					RouteListItemStatus.Transfered
+				})
 				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
 				.And(() => !orderAlias.IsFastDelivery)
 				.Select(Projections.Count(Projections.Id()));
@@ -89,7 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					var dialogSettings = new DialogSettings();
 					dialogSettings.Title = "Сохранить";
 					dialogSettings.DefaultFileExtention = ".xlsx";
-					dialogSettings.FileName = $"{this.GetType().Name} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+					dialogSettings.FileName = $"Отчёт по дозагрузке МЛ {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 					if(result.Successful)

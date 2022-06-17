@@ -62,8 +62,8 @@ namespace Vodovoz.Views.Reports
 		{
 			ytreeviewReport.ColumnsConfig = FluentColumnsConfig<FastDeliverySalesReportRow>.Create()
 				.AddColumn("Номер заказа").AddNumericRenderer(n => n.OrderId)
-				.AddColumn("Дата создания заказа").AddTextRenderer(n => n.OrderCreateDateTime.ToShortDateString())
-				.AddColumn("Время создания заказа").AddTextRenderer(n => n.OrderCreateDateTime.ToShortTimeString())
+				.AddColumn("Дата создания заказа").AddTextRenderer(n => n.OrderCreateDate)
+				.AddColumn("Время создания заказа").AddTextRenderer(n => n.OrderCreateTime)
 				.AddColumn("Номер МЛ").AddNumericRenderer(n => n.RouteListId)
 				.AddColumn("ФИО водителя").AddTextRenderer(n => n.DriverNameWithInitials)
 				.AddColumn("Район доставки").AddTextRenderer(n => n.District)

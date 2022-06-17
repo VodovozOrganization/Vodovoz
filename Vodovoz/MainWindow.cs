@@ -2331,22 +2331,14 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
 	{
-		//IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
-		//IParametersProvider parametersProvider = new ParametersProvider();
-		//INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);
-		//IFileDialogService fileDialogService = new FileDialogService();
-
-		//NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-		//	ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, productGroupJournalFactory, nomenclaturePlanParametersProvider,
-		//	fileDialogService);
-
+		IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
+		IParametersProvider parametersProvider = new ParametersProvider();
+		INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);
 		IFileDialogService fileDialogService = new FileDialogService();
 
-		//FastDeliverySalesReportViewModel viewModel = new FastDeliverySalesReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-		//	ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
-
-		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+		NomenclaturePlanReportViewModel viewModel = new NomenclaturePlanReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, ServicesConfig.CommonServices, productGroupJournalFactory, nomenclaturePlanParametersProvider,
+			fileDialogService);
 
 		tdiMain.AddTab(viewModel);
 	}
@@ -2603,9 +2595,21 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
 	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliverySalesReportViewModel viewModel = new FastDeliverySalesReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
 	}
 
 	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
 	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
 	}
 }
