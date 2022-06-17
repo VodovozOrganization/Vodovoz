@@ -1539,7 +1539,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			
 			//TariffZoneJournalViewModel
 			TreeViewColumnsConfigFactory.Register<TariffZoneJournalViewModel>(
 				() => FluentColumnsConfig<TariffZoneJournalNode>.Create()
@@ -1547,6 +1546,24 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("Доступна\nдоставка за час").AddTextRenderer(node => node.IsFastDeliveryAvailable ? "Да" : "").XAlign(0.5f)
 					.AddColumn("Время работы\nдоставки за час").AddTextRenderer(node => node.FastDeliveryAvailableTime)
+					.Finish()
+			);
+
+			//FastDeliveryAvailabilityHistoryJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FastDeliveryAvailabilityHistoryJournalViewModel>(
+				() => FluentColumnsConfig<FastDeliveryAvailabilityHistoryJournalNode>.Create()
+					.AddColumn("№").AddNumericRenderer(node => node.Id)
+					.AddColumn("Дата и время\nпроверки").AddTextRenderer(node => node.VerificationDateString)
+					.AddColumn("Автор заказа").AddTextRenderer(node => node.AuthorString)
+					.AddColumn("№ заказа").AddNumericRenderer(node => node.Order)
+					.AddColumn("Имя контрагента").AddTextRenderer(node => node.Counterparty)
+					.AddColumn("Адрес доставки").AddTextRenderer(node => node.Address)
+					.AddColumn("Район").AddTextRenderer(node => node.District)
+					.AddColumn("Доступно\nдля заказа").AddTextRenderer(node => node.IsValidString)
+					.AddColumn("Комментарий логиста /\nПринятые меры").AddTextRenderer(node => node.LogisticianComment)
+					.AddColumn("ФИО логиста").AddTextRenderer(node => node.LogisticianNameWithInitials)
+					.AddColumn("Дата и время последнего\nсохранения комментария").AddTextRenderer(node => node.LogisticianCommentVersionString)
+					.AddColumn("Время реакции в\nчасах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
 					.Finish()
 			);
 		}

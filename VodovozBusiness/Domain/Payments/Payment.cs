@@ -9,6 +9,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using QS.Project.Domain;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -51,6 +52,7 @@ namespace Vodovoz.Domain.Payments
 		private Account _organizationAccount;
 		private ProfitCategory _profitCategory;
 		private Payment _refundedPayment;
+		private UserBase _currentEditorUser;
 		private IList<PaymentItem> _paymentItems = new List<PaymentItem>();
 
 		public virtual int Id { get; set; }
@@ -198,6 +200,14 @@ namespace Vodovoz.Domain.Payments
 		{
 			get => _isManuallyCreated;
 			set => SetField(ref _isManuallyCreated, value);
+		}
+		
+		[Display(Name = "Пользователь, работающий с диалогом ручного распределения")]
+		[IgnoreHistoryTrace]
+		public virtual UserBase CurrentEditorUser
+		{
+			get => _currentEditorUser;
+			set => SetField(ref _currentEditorUser, value);
 		}
 
 		public virtual string NumOrders { get; set; }

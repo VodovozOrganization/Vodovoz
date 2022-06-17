@@ -15,6 +15,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly OrderStatus[] _orderUndeliveredStatuses;
+		private readonly HashSet<int> addedOrderIdsToAllocate = new HashSet<int>();
 
 		public AutoPaymentMatching(IUnitOfWork uow, IOrderRepository orderRepository)
 		{
@@ -55,9 +56,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 				foreach(var order in orders)
 				{
+					if(addedOrderIdsToAllocate.Contains(order.Id))
+					{
+						return false;
+					}
+					
 					if(paymentSum >= order.OrderSum)
 					{
 						payment.AddPaymentItem(order);
+						addedOrderIdsToAllocate.Add(order.Id);
 						sb.AppendLine(order.Id.ToString());
 						paymentSum -= order.OrderSum;
 					}

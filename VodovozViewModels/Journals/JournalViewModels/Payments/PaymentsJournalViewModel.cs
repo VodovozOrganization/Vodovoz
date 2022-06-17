@@ -15,6 +15,7 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Filters.ViewModels;
@@ -110,8 +111,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			PaymentItem paymentItemAlias2 = null;
 			ProfitCategory profitCategoryAlias = null;
 			Counterparty counterpartyAlias = null;
+			CashlessMovementOperation incomeOperationAlias = null;
 
 			var paymentQuery = uow.Session.QueryOver(() => paymentAlias)
+				.Left.JoinAlias(p => p.CashlessMovementOperation, () => incomeOperationAlias,
+					cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Left.JoinAlias(p => p.Organization, () => organizationAlias)
 				.Left.JoinAlias(p => p.ProfitCategory, () => profitCategoryAlias)
 				.Left.JoinAlias(p => p.PaymentItems, () => paymentItemAlias)
@@ -123,15 +127,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				Projections.Property(() => paymentItemAlias.Order.Id),
 				Projections.Constant("\n"));
 
-			var unAllocatedSumProjection = Projections.Conditional(
-				Restrictions.Eq(Projections.Property(() => paymentAlias.Status), PaymentState.Cancelled),
-				Projections.Constant(0m),
+			var unAllocatedSumProjection = 
 				Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),
+					new SQLFunctionTemplate(NHibernateUtil.Decimal,
+						"CASE " +
+						$"WHEN ?1 = '{PaymentState.Cancelled}' OR ?1 = '{PaymentState.undistributed}' AND ?2 IS NOT NULL THEN ?6 " +
+						$"WHEN ?1 = '{PaymentState.undistributed}' AND ?2 IS NULL THEN ?3 " +
+						"ELSE IFNULL(?4, ?6) - IFNULL(?5, ?6) END"),
 					NHibernateUtil.Decimal,
+					Projections.Property(() => paymentAlias.Status),
+					Projections.Property(() => paymentAlias.RefundPaymentFromOrderId),
 					Projections.Property(() => paymentAlias.Total),
+					Projections.Property(() => incomeOperationAlias.Income),
 					Projections.Sum(() => paymentItemAlias2.Sum),
-					Projections.Constant(0)));
+					Projections.Constant(0));
 			
 			var unAllocatedSum = QueryOver.Of(() => paymentItemAlias2)
 				.Where(pi => pi.Payment.Id == paymentAlias.Id)

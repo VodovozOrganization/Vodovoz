@@ -123,6 +123,14 @@ namespace Vodovoz.EntityRepositories.Payments
 				.SingleOrDefault();
 		}
 		
+		public IList<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.QueryOver<Payment>()
+				.Where(p => p.RefundPaymentFromOrderId == orderId)
+				.And(p => p.Status != PaymentState.Cancelled)
+				.List();
+		}
+		
 		public IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments)
 		{
