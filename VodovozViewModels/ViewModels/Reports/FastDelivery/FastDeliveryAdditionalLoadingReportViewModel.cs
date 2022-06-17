@@ -33,6 +33,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			Title = "Отчёт по дозагрузке МЛ";
+
+			CreateDateFrom = DateTime.Now.Date;
+			CreateDateTo = DateTime.Now.Date.Add(new TimeSpan(0, 23, 59, 59));
 		}
 
 		private IList<FastDeliveryAdditionalLoadingReportRow> GenerateReportRows()
@@ -52,7 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			if(CreateDateFrom != null && CreateDateTo != null)
 			{
-				itemsQuery.Where(() => routeListAlias.Date >= CreateDateFrom.Value.Date.Add(new TimeSpan(0, 0, 0, 0)) 
+				itemsQuery.Where(() => routeListAlias.Date >= CreateDateFrom.Value.Date
 				                       && routeListAlias.Date <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 			}
 
