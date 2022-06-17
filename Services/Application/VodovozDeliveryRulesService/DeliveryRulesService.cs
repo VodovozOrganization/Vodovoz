@@ -9,6 +9,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Models;
 using Vodovoz.Services;
 
 namespace VodovozDeliveryRulesService
@@ -348,13 +349,18 @@ namespace VodovozDeliveryRulesService
 				})
 				.ToList();
 
-			return _deliveryRepository.FastDeliveryAvailable(
+			var fastDeliveryVerification = _deliveryRepository.GetRouteListsForFastDelivery(
 				uow,
-				(double)latitude,
-				(double)longitude,
+				(double) latitude,
+				(double) longitude,
+				isGetClosestByRoute: false,
 				_deliveryRulesParametersProvider,
-				nomenclatureNodes
-			);
+				nomenclatureNodes);
+
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
+
+			return fastDeliveryVerification.FastDeliveryAvailabilityHistory.Items.Any(x => x.IsValidToFastDelivery);
 		}
 	}
 }

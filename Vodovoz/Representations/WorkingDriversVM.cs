@@ -23,8 +23,6 @@ namespace Vodovoz.ViewModel
 {
 	public class WorkingDriversVM : RepresentationModelEntityBase<RouteList, WorkingDriverVMNode>
 	{
-		private bool _isFastDeliveryOnly;
-
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes()
@@ -68,45 +66,53 @@ namespace Vodovoz.ViewModel
 
 			#region Water19LReserve
 
-			Nomenclature water19LLeftNomenclatureAlias = null;
-			Nomenclature water19LNomenclatureDeliveredAlias = null;
-			CarLoadDocumentItem carLoadDocumentItemAlias = null;
-			CarLoadDocument carLoadDocumentAlias = null;
-			OrderItem water19LOrderItemsAlias = null;
-			Order water19LOrderAlias = null;
-			RouteListItem water19LRouteListItemAlias = null;
-			RouteListItem water19LTransferedToAlias = null;
+			RouteListItem routeListItemAlias = null;
+			RouteListItem transferedToAlias = null;
+			OrderItem orderItemAlias = null;
+			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
+			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
 
-			var loadedWater19L = QueryOver.Of<CarLoadDocumentItem>(() => carLoadDocumentItemAlias)
-				.JoinAlias(() => carLoadDocumentItemAlias.Nomenclature, () => water19LLeftNomenclatureAlias)
-				.JoinAlias(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias)
-				.Where(() => carLoadDocumentAlias.RouteList.Id == routeListAlias.Id)
-				.And(() => water19LLeftNomenclatureAlias.Category == NomenclatureCategory.water)
-				.And(() => water19LLeftNomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.Select(Projections.Sum(() => carLoadDocumentItemAlias.Amount));
+			var ownOrdersPrjection = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => (!orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
+				             || (routeListItemAlias.WasTransfered))
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
+				            nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(()=> routeListItemAlias.RouteList.Id == routeListAlias.Id)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
 
-			var water19LToDelivery = QueryOver.Of<OrderItem>(() => water19LOrderItemsAlias)
-				.JoinAlias(() => water19LOrderItemsAlias.Order, () => water19LOrderAlias)
-				.JoinAlias(() => water19LOrderItemsAlias.Nomenclature, () => water19LNomenclatureDeliveredAlias)
-				.Left.JoinAlias(() => water19LRouteListItemAlias.TransferedTo, () => water19LTransferedToAlias)
-				.JoinEntityAlias(() => water19LRouteListItemAlias, () => water19LRouteListItemAlias.Order.Id == water19LOrderAlias.Id)
-				.Where(() => water19LRouteListItemAlias.RouteList.Id == routeListAlias.Id)
-				.And(Restrictions.And(Restrictions.Not(Restrictions.In(Projections.Property(() => water19LRouteListItemAlias.Status),
-					new ArrayList { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue })),
-					Restrictions.Disjunction()
-							.Add(() => water19LRouteListItemAlias.Status != RouteListItemStatus.Transfered)
-							.Add(() => water19LTransferedToAlias.NeedToReload)))
-				.And(() => water19LNomenclatureDeliveredAlias.Category == NomenclatureCategory.water)
-				.And(() => water19LNomenclatureDeliveredAlias.TareVolume == TareVolume.Vol19L)
-				.Select(Projections.Sum(() => water19LOrderItemsAlias.Count));
+			var additionalBalanceProjection = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
+				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
+				             nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
+				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
+
+			var deliveredOrdersProjection = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => transferedToAlias)
+				.Where(() => routeListItemAlias.Status != RouteListItemStatus.Canceled
+				             && routeListItemAlias.Status != RouteListItemStatus.Overdue
+				             && (routeListItemAlias.Status != RouteListItemStatus.Transfered || !transferedToAlias.NeedToReload))
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
+				           nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var water19LReserveProjection =
-				Projections.Conditional(Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null), Projections.Constant(0m),
+				Projections.Conditional(Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
+					Projections.Constant(0m),
 					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"), // 
 						NHibernateUtil.Decimal,
-						Projections.SubQuery(loadedWater19L),
-						Projections.SubQuery(water19LToDelivery)));
+						Projections.SubQuery(ownOrdersPrjection),
+						Projections.SubQuery(additionalBalanceProjection),
+						Projections.SubQuery(deliveredOrdersProjection)));
 
 			#endregion
 
