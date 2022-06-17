@@ -180,14 +180,19 @@ namespace Vodovoz.Controllers
 			}
 
 			var payment = paymentItems.Select(x => x.Payment).First();
+			var orderSum = order.OrderSum;
+			decimal sum;
+
+			if(orderSum > 0)
+			{
+				sum = allocatedSum <= orderSum ? allocatedSum : orderSum;
+			}
+			else
+			{
+				sum = allocatedSum;
+			}
 			
-			var newPayment =
-				payment.CreatePaymentForReturnAllocatedSumToClientBalance(
-					allocatedSum <= order.OrderSum
-						? allocatedSum
-						: order.OrderSum,
-					order.Id,
-					refundPaymentReason);
+			var newPayment = payment.CreatePaymentForReturnAllocatedSumToClientBalance(sum, order.Id, refundPaymentReason);
 
 			if(order.OrderPaymentStatus != OrderPaymentStatus.UnPaid)
 			{

@@ -290,20 +290,20 @@ namespace Vodovoz
 			if (item.Status == RouteListItemStatus.Transfered)
 			{
 				if(item.TransferedTo != null)
-					return String.Format("Заказ был перенесен в МЛ №{0} водителя {1}.", 
-				                     item.TransferedTo.RouteList.Id,
-				                     item.TransferedTo.RouteList.Driver.ShortName
-				                    );
+					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.", 
+						item.TransferedTo.RouteList.Id, 
+						item.TransferedTo.RouteList.Driver.ShortName, 
+						item.TransferedTo.NeedToReload ? "с погрузкой" : "без поргрузки");
 				else
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
 			if (item.WasTransfered) {
 				var transferedFrom = _routeListItemRepository.GetTransferedFrom(UoW, item);
 				if (transferedFrom != null)
-					return String.Format ("Заказ из МЛ №{0} водителя {1}.",
-										 transferedFrom.RouteList.Id,
-										 transferedFrom.RouteList.Driver.ShortName
-										);
+					return String.Format("Заказ из МЛ №{0} водителя {1} {2}.", 
+						transferedFrom.RouteList.Id, 
+						transferedFrom.RouteList.Driver.ShortName, 
+						transferedFrom.TransferedTo.NeedToReload ? "с погрузкой" : "без поргрузки");
 				else
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
