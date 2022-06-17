@@ -100,7 +100,7 @@ namespace Vodovoz.Tools.Orders
 			return nomenclatureNodes
 				.Select(x => new FastDeliveryOrderItemHistory
 				{
-					Nomenclature = x.Nomenclature,
+					Nomenclature = new Nomenclature { Id = x.NomenclatureId },
 					Count = x.Amount,
 					FastDeliveryAvailabilityHistory = fastDeliveryAvailabilityHistory
 				})
