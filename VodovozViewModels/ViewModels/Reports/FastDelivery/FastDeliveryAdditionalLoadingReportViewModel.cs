@@ -57,7 +57,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			var ownOrdersAmountSubquery = QueryOver.Of(() => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
-				.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
+				//.Where(() => (routeListItemAlias.Status != RouteListItemStatus.Canceled
+				//              && routeListItemAlias.Status != RouteListItemStatus.Overdue
+				//              && (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload))
+				//             || (routeListItemAlias.Status == RouteListItemStatus.Transfered && !routeListItemAlias.NeedToReload))
+				.Where(() => routeListItemAlias.Status != RouteListItemStatus.Canceled 
+				             && routeListItemAlias.Status != RouteListItemStatus.Overdue 
+				             && routeListItemAlias.Status != RouteListItemStatus.Transfered)
+				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
 				.And(() => !orderAlias.IsFastDelivery)
 				.Select(Projections.Count(Projections.Id()));
 

@@ -2600,4 +2600,12 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.AddTab(viewModel);
 	}
+
+	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
+	{
+	}
+
+	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
+	{
+	}
 }
