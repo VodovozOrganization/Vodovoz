@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
@@ -23,7 +24,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 		#region MyRegion
 
-		FastDeliveryVerificationDTO GetRouteListsForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool isGetClosestByRoute,
+		FastDeliveryAvailabilityHistory GetRouteListsForFastDelivery(IUnitOfWork uow, double latitude, double longitude, bool isGetClosestByRoute,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IEnumerable<NomenclatureAmountNode> nomenclatureNodes,
 			Order fastDeliveryOrder = null);
 

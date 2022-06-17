@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Delivery;
@@ -14,41 +15,27 @@ namespace Vodovoz.Models
 	public class FastDeliveryAvailabilityHistoryModel
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ILogger _logger;
 
-		public FastDeliveryAvailabilityHistoryModel(IUnitOfWorkFactory unitOfWorkFactory)
+		public FastDeliveryAvailabilityHistoryModel(IUnitOfWorkFactory unitOfWorkFactory, ILogger logger)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_logger = logger ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
-		public void SaveFastDeliveryAvailabilityHistory(FastDeliveryVerificationDTO fastDeliveryVerificationDTO)
+		public void SaveFastDeliveryAvailabilityHistory(FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("SaveFastDeliveryAvailabilityHistory"))
 			{
-				var fastDeliveryAvailabilityHistory = fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory;
-
-				var order = fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory.Order;
-				if(order != null)
+				try
 				{
-					fastDeliveryAvailabilityHistory.Order = order.Id == 0 ? null : order;
-					fastDeliveryAvailabilityHistory.Author = order.Author;
-					fastDeliveryAvailabilityHistory.DeliveryPoint = order.DeliveryPoint;
-					fastDeliveryAvailabilityHistory.District = order.DeliveryPoint.District;
-					fastDeliveryAvailabilityHistory.Counterparty = order.Client;
+					uow.Save(fastDeliveryAvailabilityHistory);
+					uow.Commit();
 				}
-
-				var fastDeliveryHistoryItemConverter = new FastDeliveryHistoryConverter();
-
-				fastDeliveryAvailabilityHistory.Items =
-					fastDeliveryHistoryItemConverter.ConvertVerificationDetailsNodesToAvailabilityHistoryItems(
-						fastDeliveryVerificationDTO.FastDeliveryVerificationDetailsNodes, fastDeliveryAvailabilityHistory);
-
-				var distributions = uow.GetAll<AdditionalLoadingNomenclatureDistribution>();
-				fastDeliveryAvailabilityHistory.NomenclatureDistributionHistoryItems =
-					fastDeliveryHistoryItemConverter.ConvertNomenclatureDistributionToDistributionHistory(distributions, fastDeliveryAvailabilityHistory);
-
-
-				uow.Save(fastDeliveryAvailabilityHistory);
-				uow.Commit();
+				catch(Exception e)
+				{
+					_logger.Error(e, "Не удалось сохранить историю проверки экспресс-доставки.");
+				}
 			}
 		}
 
@@ -65,12 +52,19 @@ namespace Vodovoz.Models
 					.Where(x => x.VerificationDate < DateTime.Now.Date.AddDays(-fastDeliveryAvailabilityHistoryParameterProvider.FastDeliveryHistoryStorageDays))
 					.ToList();
 
-				foreach(var history in availabilityHistories)
+				try
 				{
-					uow.Delete(history);
-				}
+					foreach(var history in availabilityHistories)
+					{
+						uow.Delete(history);
+					}
 
-				uow.Commit();
+					uow.Commit();
+				}
+				catch(Exception e)
+				{
+					_logger.Error(e, "Не удалось очистить журнал истории проверки экспресс-доставки.");
+				}
 			}
 
 			fastDeliveryAvailabilityHistoryParameterProvider.UpdateFastDeliveryHistoryClearDate(DateTime.Now.Date.ToString());

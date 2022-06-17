@@ -130,7 +130,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 		#region Fast Delivery
 
-		public FastDeliveryVerificationDTO GetRouteListsForFastDelivery(
+		public FastDeliveryAvailabilityHistory GetRouteListsForFastDelivery(
 			IUnitOfWork uow,
 			double latitude,
 			double longitude,
@@ -152,34 +152,45 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var driverUnloadTime = (int)deliveryRulesParametersProvider.DriverUnloadTime.TotalMinutes;
 			var specificTimeForFastOrdersCount = (int)deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
 
-			var fastDeliveryVerificationDTO = new FastDeliveryVerificationDTO
+			var fastDeliveryAvailabilityHistory = new FastDeliveryAvailabilityHistory
 			{
-				FastDeliveryAvailabilityHistory = new FastDeliveryAvailabilityHistory
-				{
-					IsGetClosestByRoute = isGetClosestByRoute,
-					Order = fastDeliveryOrder,
-					MaxDistanceToLatestTrackPointKm = maxDistanceToTrackPoint,
-					DriverGoodWeightLiftPerHandInKg = driverGoodWeightLiftPerHand,
-					MaxFastOrdersPerSpecificTime = maxFastOrdersPerSpecificTime,
-					MaxTimeForFastDelivery = maxTimeForFastDeliveryTimespan,
-					MinTimeForNewFastDeliveryOrder = deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder,
-					DriverUnloadTime = deliveryRulesParametersProvider.DriverUnloadTime,
-					SpecificTimeForMaxFastOrdersCount = deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount,
-				}
+				IsGetClosestByRoute = isGetClosestByRoute,
+				Order = fastDeliveryOrder,
+				MaxDistanceToLatestTrackPointKm = maxDistanceToTrackPoint,
+				DriverGoodWeightLiftPerHandInKg = driverGoodWeightLiftPerHand,
+				MaxFastOrdersPerSpecificTime = maxFastOrdersPerSpecificTime,
+				MaxTimeForFastDelivery = maxTimeForFastDeliveryTimespan,
+				MinTimeForNewFastDeliveryOrder = deliveryRulesParametersProvider.MinTimeForNewFastDeliveryOrder,
+				DriverUnloadTime = deliveryRulesParametersProvider.DriverUnloadTime,
+				SpecificTimeForMaxFastOrdersCount = deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount,
 			};
 
+			var order = fastDeliveryAvailabilityHistory.Order;
+			if(order != null)
+			{
+				fastDeliveryAvailabilityHistory.Order = order.Id == 0 ? null : order;
+				fastDeliveryAvailabilityHistory.Author = order.Author;
+				fastDeliveryAvailabilityHistory.DeliveryPoint = order.DeliveryPoint;
+				fastDeliveryAvailabilityHistory.District = order.DeliveryPoint.District;
+				fastDeliveryAvailabilityHistory.Counterparty = order.Client;
+			}
+
 			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter();
-			fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory.OrderItemsHistory =
-				fastDeliveryHistoryConverter.ConvertNomenclatureAmountNodesToOrderItemsHistory(nomenclatureNodes,
-					fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory);
+
+			fastDeliveryAvailabilityHistory.OrderItemsHistory =
+				fastDeliveryHistoryConverter.ConvertNomenclatureAmountNodesToOrderItemsHistory(nomenclatureNodes, fastDeliveryAvailabilityHistory);
+
+			var distributions = uow.GetAll<AdditionalLoadingNomenclatureDistribution>();
+			fastDeliveryAvailabilityHistory.NomenclatureDistributionHistoryItems =
+				fastDeliveryHistoryConverter.ConvertNomenclatureDistributionToDistributionHistory(distributions, fastDeliveryAvailabilityHistory);
 
 			var district = GetDistrict(uow, (decimal)latitude, (decimal)longitude);
 			if(district?.TariffZone == null || !district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
 			{
-				fastDeliveryVerificationDTO.AdditionalInformation =
+				fastDeliveryAvailabilityHistory.AdditionalInformation =
 					new List<string> {"Не найден район или у района отсутствует тарифная зона"};
 
-				return fastDeliveryVerificationDTO;
+				return fastDeliveryAvailabilityHistory;
 			}
 
 			var neededNomenclatures = nomenclatureNodes.ToDictionary(x => x.NomenclatureId, x => x.Amount);
@@ -459,9 +470,10 @@ namespace Vodovoz.EntityRepositories.Delivery
 				}
 			}
 
-			fastDeliveryVerificationDTO.FastDeliveryVerificationDetailsNodes = routeListNodes;
+			fastDeliveryAvailabilityHistory.Items = fastDeliveryHistoryConverter
+				.ConvertVerificationDetailsNodesToAvailabilityHistoryItems(routeListNodes, fastDeliveryAvailabilityHistory);
 
-			return fastDeliveryVerificationDTO;
+			return fastDeliveryAvailabilityHistory;
 		}
 
 		private class RouteListNomenclatureAmount
@@ -540,12 +552,5 @@ namespace Vodovoz.EntityRepositories.Delivery
 	{
 		public T ParameterValue { get; set; }
 		public bool IsValidParameter { get; set; }
-	}
-
-	public class FastDeliveryVerificationDTO
-	{
-		public IEnumerable<FastDeliveryVerificationDetailsNode> FastDeliveryVerificationDetailsNodes { get; set; }
-		public IEnumerable<string> AdditionalInformation { get; set; }
-		public FastDeliveryAvailabilityHistory FastDeliveryAvailabilityHistory { get; set; }
 	}
 }

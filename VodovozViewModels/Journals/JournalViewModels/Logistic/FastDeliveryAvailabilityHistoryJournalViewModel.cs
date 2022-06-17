@@ -24,6 +24,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using NLog;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -35,17 +36,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly ILogger _logger;
 
 		public FastDeliveryAvailabilityHistoryJournalViewModel(FastDeliveryAvailabilityFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IFileDialogService fileDialogService,
-			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider)
+			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider,
+			ILogger logger)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			var availabilityHistoryParameterProvider = fastDeliveryAvailabilityHistoryParameterProvider
 			                                                        ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
 
@@ -59,7 +63,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				);
 
 			
-			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory);
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory, _logger);
 			fastDeliveryAvailabilityHistoryModel.ClearFastDeliveryAvailabilityHistory(availabilityHistoryParameterProvider);
 
 			_timer = new Timer(_interval);
