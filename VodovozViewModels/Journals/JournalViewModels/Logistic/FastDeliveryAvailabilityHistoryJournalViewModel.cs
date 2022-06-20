@@ -4,15 +4,13 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
-using System.Collections;
-using System.Linq;
 using System.Timers;
-using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -47,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			var availabilityHistoryParameterProvider = fastDeliveryAvailabilityHistoryParameterProvider
-			                                                        ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
+			                                           ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
 
 			TabName = "Журнал истории проверок экспресс-доставок";
 
