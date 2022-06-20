@@ -72,33 +72,36 @@ namespace Vodovoz.ViewModel
 			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
 			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
 
-			var ownOrdersPrjection = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+			var ownOrdersSubquery = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => (!orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
-				             || (routeListItemAlias.WasTransfered))
-				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
-				            nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.And(()=> routeListItemAlias.RouteList.Id == routeListAlias.Id)
+				.Where(() => !orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water
+				           && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
-			var additionalBalanceProjection = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
+			var additionalBalanceSubquery = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
 				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
-				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
-				             nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water
+				             && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
 				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
 
-			var deliveredOrdersProjection = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+			var deliveredOrdersSubquery =QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => transferedToAlias)
-				.Where(() => routeListItemAlias.Status != RouteListItemStatus.Canceled
-				             && routeListItemAlias.Status != RouteListItemStatus.Overdue
-				             && (routeListItemAlias.Status != RouteListItemStatus.Transfered || !transferedToAlias.NeedToReload))
+				.Where(() =>
+					//не отменённые и не недовозы
+					routeListItemAlias.Status != RouteListItemStatus.Canceled && routeListItemAlias.Status != RouteListItemStatus.Overdue
+					// и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
+					&& (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload || orderAlias.IsFastDelivery)
+					// и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
+					&& (routeListItemAlias.Status != RouteListItemStatus.Transfered || (!transferedToAlias.NeedToReload && !orderAlias.IsFastDelivery)))
 				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
 				           nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
@@ -110,9 +113,9 @@ namespace Vodovoz.ViewModel
 					Projections.SqlFunction(
 						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"), // 
 						NHibernateUtil.Decimal,
-						Projections.SubQuery(ownOrdersPrjection),
-						Projections.SubQuery(additionalBalanceProjection),
-						Projections.SubQuery(deliveredOrdersProjection)));
+						Projections.SubQuery(ownOrdersSubquery),
+						Projections.SubQuery(additionalBalanceSubquery),
+						Projections.SubQuery(deliveredOrdersSubquery)));
 
 			#endregion
 
