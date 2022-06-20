@@ -44,9 +44,9 @@ namespace DriverAPI.Library.Converters
 					              || (rla.WasTransfered))
 					.Sum(rla => rla.Order.Total19LBottlesToDeliver);
 
-				var additionalBalance = routeList.AdditionalLoadingDocument.Items
+				var additionalBalance = routeList.AdditionalLoadingDocument?.Items
 					.Where(ai => ai.Nomenclature.IsWater19L)
-					.Sum(ai => ai.Amount);
+					.Sum(ai => ai.Amount) ?? 0;
 
 				var deliveredOrders = routeList.Addresses
 					.Where(rla => rla.Status != RouteListItemStatus.Canceled
