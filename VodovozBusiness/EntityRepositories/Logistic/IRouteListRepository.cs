@@ -22,6 +22,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(IUnitOfWork uow, RouteList routeList, ISubdivisionRepository subdivisionRepository = null, Warehouse warehouse = null);
 		IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList);
 		IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uoW, int routeListId, RouteListItemStatus [] excludeAddressStatuses = null);
+		int Get19LWaterInRLCount(IUnitOfWork uow, int routeListId);
 		GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse);
 		IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList);
 		IList<GoodsInRouteListResult> AllGoodsLoaded(IUnitOfWork uow, RouteList routeList, CarLoadDocument excludeDoc = null);
