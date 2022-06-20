@@ -147,6 +147,7 @@ using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2588,6 +2589,26 @@ public partial class MainWindow : Gtk.Window
 
 		var viewModel = new CostCarExploitationReportViewModel(
 			uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliverySalesReportViewModel viewModel = new FastDeliverySalesReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
 
 		tdiMain.AddTab(viewModel);
 	}
