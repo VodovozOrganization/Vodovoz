@@ -7,40 +7,40 @@ using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.ViewModels.Widgets
 {
 	public class FastDeliveryVerificationViewModel : WidgetViewModelBase
 	{
-		private readonly FastDeliveryVerificationDTO _fastDeliveryVerificationDTO;
 		private DelegateCommand _saveLogisticiaCommentCommand;
 		private readonly Employee _logistician;
 		private readonly IUnitOfWork _uow;
 
-		public FastDeliveryVerificationViewModel(FastDeliveryVerificationDTO fastDeliveryVerificationDTO)
+		public FastDeliveryVerificationViewModel(FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory)
 		{
-			_fastDeliveryVerificationDTO = fastDeliveryVerificationDTO ?? throw new ArgumentNullException(nameof(fastDeliveryVerificationDTO));
-
-			var order = fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory.Order;
-			var deliveryPoint = fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory.DeliveryPoint;
+			var order = fastDeliveryAvailabilityHistory.Order;
+			var deliveryPoint = fastDeliveryAvailabilityHistory.DeliveryPoint;
 			DetailsTitle = $"Детализация по заказу №{order?.Id ?? 0}, адрес: {deliveryPoint?.ShortAddress}";
 
-			FastDeliveryAvailabilityHistory = fastDeliveryVerificationDTO.FastDeliveryAvailabilityHistory;
+			FastDeliveryAvailabilityHistory = fastDeliveryAvailabilityHistory ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistory)); ;
 
-			Nodes = _fastDeliveryVerificationDTO.FastDeliveryVerificationDetailsNodes.ToList();
+			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter();
+
+			Nodes = fastDeliveryHistoryConverter.ConvertAvailabilityHistoryItemsToVerificationDetailsNodes(fastDeliveryAvailabilityHistory.Items);
 
 			Message = Nodes.Any(x => x.IsValidRLToFastDelivery)
 				? "Есть доступные водители для быстрой доставки"
 				: "Нет доступных водителей для быстрой доставки";
 
-			if(_fastDeliveryVerificationDTO.AdditionalInformation != null)
+			if(fastDeliveryAvailabilityHistory.AdditionalInformation != null)
 			{
-				Message += string.Join("\n", _fastDeliveryVerificationDTO.AdditionalInformation);
+				Message += string.Join("\n", fastDeliveryAvailabilityHistory.AdditionalInformation);
 			}
 		}
 
-		public FastDeliveryVerificationViewModel(FastDeliveryVerificationDTO fastDeliveryVerificationDTO, IUnitOfWork uow, Employee logistician)
-			: this(fastDeliveryVerificationDTO)
+		public FastDeliveryVerificationViewModel(FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory, IUnitOfWork uow, Employee logistician)
+			: this(fastDeliveryAvailabilityHistory)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_logistician = logistician ?? throw new ArgumentNullException(nameof(logistician));

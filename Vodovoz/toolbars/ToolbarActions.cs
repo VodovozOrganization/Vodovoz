@@ -1203,8 +1203,7 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			fileDialogService,
-			fastDeliveryAvailabilityHistoryParameterProvider
-			)
+			fastDeliveryAvailabilityHistoryParameterProvider)
 		);
 	}
 }
