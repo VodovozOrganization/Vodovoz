@@ -893,7 +893,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var fastDeliveryVerification = _deliveryRepository.GetRouteListsForFastDelivery(
+			var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
 				UoW,
 				(double)Entity.DeliveryPoint.Latitude.Value,
 				(double)Entity.DeliveryPoint.Longitude.Value,
@@ -904,9 +904,9 @@ namespace Vodovoz
 			);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
-			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
+			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
-			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryVerification);
+			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
 			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
 				null, fastDeliveryVerificationViewModel);
 		}
@@ -1551,7 +1551,7 @@ namespace Vodovoz
 					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
 				}
 
-				var fastDeliveryVerification = _deliveryRepository.GetRouteListsForFastDelivery(
+				var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
 					UoW,
 					(double)Entity.DeliveryPoint.Latitude.Value,
 					(double)Entity.DeliveryPoint.Longitude.Value,
@@ -1562,16 +1562,15 @@ namespace Vodovoz
 				);
 
 				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
-				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
+				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
-				routeListToAddOrderTo = fastDeliveryVerification
-					.FastDeliveryVerificationDetailsNodes
-					.FirstOrDefault(x => x.IsValidRLToFastDelivery)
+				routeListToAddOrderTo = fastDeliveryAvailabilityHistory.Items
+					.FirstOrDefault(x => x.IsValidToFastDelivery)
 					?.RouteList;
 
 				if(routeListToAddOrderTo == null)
 				{
-					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryVerification);
+					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
 					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
 						null, UoW, fastDeliveryVerificationViewModel);
 

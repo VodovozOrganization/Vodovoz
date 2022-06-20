@@ -21,18 +21,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			var logistician = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
-			FastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(GetFastDeliveryVerification(), UoW, logistician);
-		}
-
-		private FastDeliveryVerificationDTO GetFastDeliveryVerification()
-		{
-			var fastDeliveryHistoryItemConverter = new FastDeliveryHistoryConverter();
-
-			return new FastDeliveryVerificationDTO
-			{
-				FastDeliveryVerificationDetailsNodes = fastDeliveryHistoryItemConverter.ConvertAvailabilityHistoryItemsToVerificationDetailsNodes(Entity.Items),
-				FastDeliveryAvailabilityHistory = Entity
-			};
+			FastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(Entity, UoW, logistician);
 		}
 
 		public override bool HasChanges => false;
