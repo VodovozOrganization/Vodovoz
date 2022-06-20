@@ -34,17 +34,24 @@ namespace Vodovoz.Views.Reports
 				.AddBinding(ViewModel, vm => vm.ProgressText, w => w.LabelProp)
 				.InitializeFromSource();
 
-			ybtnRunReport.Clicked += YbtnRunReport_Clicked;
+			ybtnRunReport.Clicked += OnYbtnRunReportClicked;
 			ybtnExport.Clicked += (sender, args) => ViewModel.ExportCommand.Execute();
 
 			ConfigureReportTreeView();
 		}
 
-		private async void YbtnRunReport_Clicked(object sender, System.EventArgs e)
+		private async void OnYbtnRunReportClicked(object sender, System.EventArgs e)
 		{
 			await Task.Run(() =>
 			{
-				ViewModel.GenerateCommand.Execute();
+				try
+				{
+					ViewModel.GenerateCommand.Execute();
+				}
+				catch(Exception ex)
+				{
+					Application.Invoke((s, eventArgs) => throw ex);
+				}
 
 				Application.Invoke((s, a) =>
 				{

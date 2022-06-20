@@ -46,6 +46,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 		private IList<FastDeliverySalesReportRow> GenerateReportRows()
 		{
+			if(!IsHasDates)
+			{
+				return new List<FastDeliverySalesReportRow>();
+			}
+
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
 			Order orderAlias = null;
@@ -66,17 +71,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 					.JoinAlias(() => orderAlias.DeliverySchedule, () => deliveryScheduleAlias)
 					.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-					.Where(() => orderAlias.IsFastDelivery);
-
-			if(CreateDateFrom != null && CreateDateTo != null)
-			{
-				itemsQuery.Where(() => orderAlias.CreateDate >= CreateDateFrom.Value.Date
-									   && orderAlias.CreateDate <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
-			}
+					.Where(() => orderAlias.IsFastDelivery)
+					.And(() => orderAlias.CreateDate >= CreateDateFrom.Value.Date
+								   && orderAlias.CreateDate <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 
 			var amountPrjection = Projections.Conditional(Restrictions.IsNull(
 					Projections.Property(() => orderItemAlias.ActualCount)),
-					Projections.Property(() => orderItemAlias.Count),
+				Projections.Property(() => orderItemAlias.Count),
 				Projections.Property(() => orderItemAlias.ActualCount));
 
 			var sumProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * ?2 - ?3)"),
@@ -157,6 +158,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		{
 			get
 			{
+				if(!IsHasDates)
+				{
+					return "Не был выбран период";
+				}
+
 				if(IsRunning)
 				{
 					return "Отчёт формируется...";
@@ -184,7 +190,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		}
 
 		[PropertyChangedAlso(nameof(ProgressText))]
-		public bool IsHasRows => Report != null && Report.Rows.Any();
+		public bool IsHasRows => Report != null && Report.Rows != null && Report.Rows.Any();
+
+		public bool IsHasDates => CreateDateFrom != null && CreateDateTo != null;
 	}
 
 	public class FastDeliverySalesReport

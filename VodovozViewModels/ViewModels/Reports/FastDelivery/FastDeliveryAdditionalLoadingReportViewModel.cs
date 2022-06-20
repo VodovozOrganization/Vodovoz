@@ -40,6 +40,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 		private IList<FastDeliveryAdditionalLoadingReportRow> GenerateReportRows()
 		{
+			if(!IsHasDates)
+			{
+				return new List<FastDeliveryAdditionalLoadingReportRow>();
+			}
+
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
 			Order orderAlias = null;
@@ -51,13 +56,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			var itemsQuery = UoW.Session.QueryOver(() => additionalLoadingDocumentItemAlias)
 				.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
 				.JoinEntityAlias(() => routeListAlias, () => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias);
-
-			if(CreateDateFrom != null && CreateDateTo != null)
-			{
-				itemsQuery.Where(() => routeListAlias.Date >= CreateDateFrom.Value.Date
-				                       && routeListAlias.Date <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
-			}
+				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => routeListAlias.Date >= CreateDateFrom.Value.Date
+									   && routeListAlias.Date <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 
 			var ownOrdersAmountSubquery = QueryOver.Of(() => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
@@ -139,6 +140,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		{
 			get
 			{
+				if(!IsHasDates)
+				{
+					return "Не был выбран период";
+				}
+
 				if(IsRunning)
 				{
 					return "Отчёт формируется...";
@@ -166,7 +172,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		}
 
 		[PropertyChangedAlso(nameof(ProgressText))]
-		public bool IsHasRows => Report != null && Report.Rows.Any();
+		public bool IsHasRows => Report != null && Report.Rows != null && Report.Rows.Any();
+
+		public bool IsHasDates => CreateDateFrom != null && CreateDateTo != null;
 	}
 
 	public class FastDeliveryAdditionalLoadingReport
