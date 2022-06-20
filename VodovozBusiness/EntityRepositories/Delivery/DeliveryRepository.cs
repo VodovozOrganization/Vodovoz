@@ -206,6 +206,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 			Employee e = null;
 
 			RouteListItem rla = null;
+			RouteListItem rlaTransfered = null;
 			Order o = null;
 			OrderItem oi = null;
 			OrderEquipment oe = null;
@@ -393,9 +394,13 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var orderItemsToDeliver = uow.Session.QueryOver<RouteListItem>(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Inner.JoinAlias(() => o.OrderItems, () => oi)
+				.Left.JoinAlias(() => rla.TransferedTo, () => rlaTransfered)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
-				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
+				.Where(() => (rla.Status != RouteListItemStatus.Canceled
+							&& rla.Status != RouteListItemStatus.Overdue
+							&& (!rla.WasTransfered || rla.NeedToReload))
+							|| (rla.Status == RouteListItemStatus.Transfered && !rlaTransfered.NeedToReload))
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
 					.SelectGroup(() => oi.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
@@ -407,9 +412,13 @@ namespace Vodovoz.EntityRepositories.Delivery
 			var orderEquipmentsToDeliver = uow.Session.QueryOver<RouteListItem>(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Inner.JoinAlias(() => o.OrderEquipments, () => oe)
+				.Left.JoinAlias(() => rla.TransferedTo, () => rlaTransfered)
 				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
 				.WhereRestrictionOn(() => oe.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
-				.WhereRestrictionOn(() => rla.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
+				.Where(() => (rla.Status != RouteListItemStatus.Canceled
+							  && rla.Status != RouteListItemStatus.Overdue
+							 && (!rla.WasTransfered || rla.NeedToReload))
+							 || (rla.Status == RouteListItemStatus.Transfered && !rlaTransfered.NeedToReload))
 				.And(() => oe.Direction == Direction.Deliver)
 				.SelectList(list => list
 					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
