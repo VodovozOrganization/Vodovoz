@@ -1566,6 +1566,16 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Время реакции в\nчасах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
 					.Finish()
 			);
+
+			//UnsubscribingReasonJournalViewModel
+			TreeViewColumnsConfigFactory.Register<UnsubscribingReasonJournalViewModel>(
+				() => FluentColumnsConfig<UnsubscribingReasonJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Архивный").AddToggleRenderer(node => node.IsArchive)
+					.AddColumn("")
+					.Finish()
+			);
 		}
 	}
 }

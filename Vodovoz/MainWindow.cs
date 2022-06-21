@@ -2612,4 +2612,11 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.AddTab(viewModel);
 	}
+
+	protected void OnUnsubscribingReasonsActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new UnsubscribingReasonJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices));
+	}
 }

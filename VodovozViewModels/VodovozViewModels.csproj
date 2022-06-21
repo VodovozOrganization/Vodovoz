@@ -115,6 +115,7 @@
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\UnsubscribingReasonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DebtorJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\FastDeliveryAvailabilityHistoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\TariffZoneJournalNode.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="Journals\JournalViewModels\Cash\SalaryByEmployeeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\DeliveryPointByClientJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\DeliveryPointJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\UnsubscribingReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintResults\ComplaintResultsOfEmployeesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
@@ -220,6 +222,7 @@
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintResultOfEmployeesViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\UnsubscribingReasonViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\RoboAtsCounterpartyNameViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\RoboAtsCounterpartyPatronymicViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
