@@ -62,6 +62,8 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public bool AddressHasAlreadyBeenUsedForPromo(IUnitOfWork uow, DeliveryPoint deliveryPoint)
 		{
+			string building = GetBuildingNumber(deliveryPoint.Building);
+
 			VodovozOrder ordersAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			PromotionalSet promotionalSetAlias = null;
@@ -71,7 +73,7 @@ namespace Vodovoz.EntityRepositories.Orders
 									.JoinAlias(() => ordersAlias.PromotionalSets, () => promotionalSetAlias)
 									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
 											   && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
-											   && deliveryPointAlias.Building.IsLike(deliveryPoint.Building, MatchMode.Anywhere)
+											   && deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
 											   && deliveryPointAlias.Room.IsLike(deliveryPoint.Room, MatchMode.Anywhere)
 											   && !promotionalSetAlias.CanBeReorderedWithoutRestriction
 											   && ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses()))
@@ -79,9 +81,16 @@ namespace Vodovoz.EntityRepositories.Orders
 			return result.Count() != 0;
 		}
 
+		private static string GetBuildingNumber(string building)
+		{
+			string buildingNumber = building;
+
+			return new string(building.Where(char.IsDigit).ToArray());
+		}
+
 		private static OrderStatus[] GetAcceptableStatuses()
 		{
-			return new[] 
+			return new[]
 			{
 				OrderStatus.Accepted,
 				OrderStatus.InTravelList,
