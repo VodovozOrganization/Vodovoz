@@ -32,6 +32,14 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref subdivision, value, () => Subdivision);
 		}
 
+		private DateTime startSubdivisionDate;
+		[Display(Name = "Дата подключения подразделение")]
+		public virtual DateTime StartSubdivisionDate
+		{
+			get => startSubdivisionDate;
+			set => SetField(ref startSubdivisionDate, value, () => StartSubdivisionDate);
+		}
+
 		private DateTime plannedCompletionDate;
 		[Display(Name = "Предполагаемая дата завершения")]
 		public virtual DateTime PlannedCompletionDate {
