@@ -42,7 +42,7 @@ namespace Vodovoz.Views.Orders
 			ycheckForTheFirstOrderOnlyToTheAddress.Binding.AddBinding(ViewModel.Entity, e => e.CanBeReorderedWithoutRestriction, w => w.Active)
 														  .AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
 														  .InitializeFromSource();
-			ycheckForTheFirstOrderOnlyToTheAddress.Visible = ycheckForTheFirstOrderOnlyToTheAddress.Sensitive = ViewModel.CanChangeType;
+			ycheckForTheFirstOrderOnlyToTheAddress.Sensitive = ViewModel.CanChangeType;
 
 			widgetcontainerview.Binding.AddBinding(ViewModel, vm => vm.SelectedActionViewModel, w => w.WidgetViewModel);
 
