@@ -21,7 +21,7 @@ namespace Vodovoz.Views.Complaints
 		private void ConfigureDlg()
 		{
 			ylabelSubdivision.Binding.AddFuncBinding(ViewModel.Entity, e => $"<b>{e.Subdivision.Name}</b>", w => w.LabelProp).InitializeFromSource();
-			ylabelConnectTime.Binding.AddFuncBinding(ViewModel.Entity, e => $"подключен {e.StartSubdivisionDate:dd.MM.yy HH:mm}", w => w.LabelProp).InitializeFromSource(); // 13.06.22 12:40
+			ylabelConnectTime.Binding.AddFuncBinding(ViewModel.Entity, e => $"подключен {e.StartSubdivisionDate:dd.MM.yy HH:mm}", w => w.LabelProp).InitializeFromSource();
 
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.Sensitive).InitializeFromSource();

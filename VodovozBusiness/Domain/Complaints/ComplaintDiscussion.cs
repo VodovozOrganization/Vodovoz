@@ -37,7 +37,7 @@ namespace Vodovoz.Domain.Complaints
 		public virtual DateTime StartSubdivisionDate
 		{
 			get => startSubdivisionDate;
-			set => SetField(ref startSubdivisionDate, value, () => StartSubdivisionDate);
+			set => SetField(ref startSubdivisionDate, value);
 		}
 
 		private DateTime plannedCompletionDate;
