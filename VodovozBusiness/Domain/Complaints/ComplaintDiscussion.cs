@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		private DateTime startSubdivisionDate;
-		[Display(Name = "Дата подключения подразделение")]
+		[Display(Name = "Дата подключения подразделения")]
 		public virtual DateTime StartSubdivisionDate
 		{
 			get => startSubdivisionDate;
