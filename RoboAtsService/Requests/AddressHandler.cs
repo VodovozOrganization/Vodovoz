@@ -91,7 +91,7 @@ namespace RoboAtsService.Requests
 			else
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.GetDeliveryPoints,
-					$"Для контрагента {counterpartyId} не найдены подходящие точки доставки");
+					$"Для контрагента {counterpartyId} не найдены подходящие точки доставки или последний заказ(ы) не соответствует параметрам выборки робота");
 				return "NO DATA";
 			}
 		}

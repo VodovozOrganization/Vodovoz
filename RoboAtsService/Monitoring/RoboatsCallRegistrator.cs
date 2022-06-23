@@ -5,16 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
+using Vodovoz.Factories;
 
 namespace RoboAtsService.Monitoring
 {
 	public class RoboatsCallRegistrator
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IRoboatsCallFactory _roboatsCallFactory;
 
-		public RoboatsCallRegistrator(IUnitOfWorkFactory uowFactory)
+		public RoboatsCallRegistrator(IUnitOfWorkFactory uowFactory, IRoboatsCallFactory roboatsCallFactory)
 		{
-			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_roboatsCallFactory = roboatsCallFactory ?? throw new ArgumentNullException(nameof(roboatsCallFactory));
 		}
 
 		public RoboatsCall RegisterCall(string phone)
@@ -32,19 +35,10 @@ namespace RoboAtsService.Monitoring
 			call.Status = RoboatsCallStatus.Fail;
 			call.Result = RoboatsCallResult.Nothing;
 
-			var callDetail = new RoboatsCallDetail
-			{
-				Call = call,
-				OperationTime = DateTime.Now,
-				FailType = failType,
-				Operation = operation,
-				Description = description
-			};
-
+			var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, failType, operation, description);
 			call.CallDetails.Add(callDetail);
 
-			uow.Save(call);
-			uow.Commit();
+			Save(uow, call);
 		}
 
 		public void RegisterTerminatingFail(string phone, RoboatsCallFailType failType, RoboatsCallOperation operation, string description)
@@ -55,19 +49,10 @@ namespace RoboAtsService.Monitoring
 			call.Status = RoboatsCallStatus.Aborted;
 			call.Result = RoboatsCallResult.Nothing;
 
-			var callDetail = new RoboatsCallDetail
-			{
-				Call = call,
-				OperationTime = DateTime.Now,
-				FailType = failType,
-				Operation = operation,
-				Description = description
-			};
-
+			var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, failType, operation, description);
 			call.CallDetails.Add(callDetail);
 
-			uow.Save(call);
-			uow.Commit();
+			Save(uow, call);
 		}
 
 		public void RegisterAborted(string phone, RoboatsCallOperation operation, string description = null)
@@ -78,18 +63,10 @@ namespace RoboAtsService.Monitoring
 			call.Status = RoboatsCallStatus.Aborted;
 			call.Result = RoboatsCallResult.OrderCreated;
 
-			var callDetail = new RoboatsCallDetail
-			{
-				Call = call,
-				OperationTime = DateTime.Now,
-				Operation = operation,
-				Description = description
-			};
-
+			var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, operation, description);
 			call.CallDetails.Add(callDetail);
 
-			uow.Save(call);
-			uow.Commit();
+			Save(uow, call);
 		}
 
 		public void RegisterSuccess(string phone, string description = null)
@@ -100,18 +77,10 @@ namespace RoboAtsService.Monitoring
 			call.Status = RoboatsCallStatus.Success;
 			call.Result = RoboatsCallResult.OrderAccepted;
 
-			var callDetail = new RoboatsCallDetail
-			{
-				Call = call,
-				OperationTime = DateTime.Now,
-				Operation = RoboatsCallOperation.CreateOrder,
-				Description = description
-			};
-
+			var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, RoboatsCallOperation.CreateOrder, description);
 			call.CallDetails.Add(callDetail);
 
-			uow.Save(call);
-			uow.Commit();
+			Save(uow, call);
 		}
 
 		private string NormalizePhone(string phone)
@@ -126,7 +95,7 @@ namespace RoboAtsService.Monitoring
 			var currentCall = activeCalls.OrderByDescending(x => x.CallTime).FirstOrDefault();
 			if(currentCall == null)
 			{
-				return CreateNewCall(phone);
+				return _roboatsCallFactory.GetNewRoboatsCall(phone);
 			}
 			else if(currentCall.CallTime > DateTime.Now.AddMinutes(-10))
 			{
@@ -134,20 +103,11 @@ namespace RoboAtsService.Monitoring
 			}
 			else
 			{
-				currentCall = CreateNewCall(phone);
+				currentCall = _roboatsCallFactory.GetNewRoboatsCall(phone);
 			}
 
 			CloseStaleCalls(activeCalls);
 			return currentCall;
-		}
-
-		private RoboatsCall CreateNewCall(string phone)
-		{
-			return new RoboatsCall
-			{
-				Phone = phone,
-				CallTime = DateTime.Now
-			};
 		}
 
 		private IEnumerable<RoboatsCall> LoadActiveCalls(string phone)
@@ -173,6 +133,12 @@ namespace RoboAtsService.Monitoring
 				call.Status = RoboatsCallStatus.Aborted;
 				uow.Save(call);
 			}
+			uow.Commit();
+		}
+
+		private void Save(IUnitOfWork uow, RoboatsCall call)
+		{
+			uow.Save(call);
 			uow.Commit();
 		}
 	}

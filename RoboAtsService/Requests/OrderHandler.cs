@@ -283,7 +283,7 @@ namespace RoboAtsService.Requests
 			}
 
 			var maxBanknoteForReturn = _roboatsSettings.MaxBanknoteForReturn;
-			if((banknoteForReturn > maxBanknoteForReturn || banknoteForReturn <= 0) && isFullOrder && payment == RoboAtsOrderPayment.Cash)
+			if((banknoteForReturn > maxBanknoteForReturn || banknoteForReturn < 0) && isFullOrder && payment == RoboAtsOrderPayment.Cash)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.UnknownIsTerminalValue, RoboatsCallOperation.CreateOrder,
 					$"Указанная сдача с, должна быть меньше лимита ({maxBanknoteForReturn}). Сдача с: {RequestDto.BanknoteForReturn}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}");

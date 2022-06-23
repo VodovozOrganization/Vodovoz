@@ -316,7 +316,9 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
+    <Compile Include="Factories\IRoboatsCallFactory.cs" />
     <Compile Include="Factories\OsrmClientFactory.cs" />
+    <Compile Include="Factories\RoboatsCallFactory.cs" />
     <Compile Include="Factories\RoboatsFileStorageFactory.cs" />
     <Compile Include="HibernateMapping\Cash\CashlessRequestFileMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />

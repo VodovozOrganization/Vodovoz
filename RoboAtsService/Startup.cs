@@ -23,6 +23,7 @@ using System.Reflection;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Factories;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
@@ -64,6 +65,7 @@ namespace RoboAtsService
 			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
+			builder.RegisterType<RoboatsCallFactory>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsSettings>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();
