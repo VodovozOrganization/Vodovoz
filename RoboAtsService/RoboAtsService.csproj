@@ -23,7 +23,6 @@
 		<ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
 		<ProjectReference Include="..\..\QSProjects\QS.Attachments\QS.Attachments.csproj" />
 		<ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
-		<ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj" />
 		<ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj" />
 		<ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
 		<ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj" />
