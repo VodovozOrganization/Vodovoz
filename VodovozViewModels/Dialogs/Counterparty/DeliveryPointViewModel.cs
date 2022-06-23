@@ -25,7 +25,6 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -44,7 +43,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
-		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -60,8 +58,9 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			NomenclatureFixedPriceController nomenclatureFixedPriceController,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleJournalFactory deliveryScheduleSelectorFactory,
-			IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -120,8 +119,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			DeliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory;
-
-			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
 
 			Entity.PropertyChanged += (sender, e) =>
 			{
