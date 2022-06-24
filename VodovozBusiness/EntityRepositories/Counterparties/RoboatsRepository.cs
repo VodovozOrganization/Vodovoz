@@ -188,7 +188,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 								Projections.Property(() => orderAlias.OrderStatus),
 								acceptedOrderStatuses
 						)
-					);
+					)
+					.And(() => !orderAlias.SelfDelivery);
 				
 				if(deliveryPoint.HasValue)
 				{

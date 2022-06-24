@@ -168,11 +168,16 @@ namespace RoboAtsService.Requests
 				result = GetCorpusNumber(deliveryPointBuilding);
 			}
 
-			if(string.IsNullOrWhiteSpace(deliveryPointBuilding) || string.IsNullOrWhiteSpace(result))
+			if(string.IsNullOrWhiteSpace(deliveryPointBuilding))
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.CorpusNotFound, RoboatsCallOperation.GetCorpusNumber,
-					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер корпуса");
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.HouseNotFound, RoboatsCallOperation.GetCorpusNumber,
+					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер дома");
 				return "NO DATA";
+			}
+
+			if(string.IsNullOrWhiteSpace(result))
+			{
+				return "NO DATA"; //решили не писать в базу т.к. есть адреса без корпусов, а сообщение сохранялось
 			}
 
 			return result;
@@ -180,7 +185,7 @@ namespace RoboAtsService.Requests
 
 		private string GetCorpusNumber(string fullBuildingNumber)
 		{
-			Regex regex = new Regex(@"((к[ ]*[.]?[ ]*\d+)|(кор[ ]*[.]?[ ]*\d+)|(корпус[ ]*[.]?[ ]*\d+)){1,}");
+			Regex regex = new Regex(@"((к[ ]*[.]?[ ]*\d+)|(кор[ ]*[.]?[ ]*\d+)|(корп[ ]*[.]?[ ]*\d+)|(корпус[ ]*[.]?[ ]*\d+)){1,}"); //на всякий решили добавить поиск по корп
 			var match = regex.Match(fullBuildingNumber);
 
 			Regex regexDigits = new Regex(@"\d{1,}");
