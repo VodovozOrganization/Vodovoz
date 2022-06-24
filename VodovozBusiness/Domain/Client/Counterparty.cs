@@ -1065,7 +1065,7 @@ namespace Vodovoz.Domain.Client
 						string.Format("Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {0}", CurrencyWorks.GetShortCurrencyString(deposit)));
 				}
 
-				var bottles = bottlesRepository.GetBottlesAtCounterparty(UoW, this);
+				var bottles = bottlesRepository.GetBottlesDebtAtCounterparty(UoW, this);
 				
 				if(bottles != 0)
 				{

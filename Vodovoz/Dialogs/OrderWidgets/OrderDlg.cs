@@ -97,6 +97,8 @@ using Vodovoz.Models.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz
 {
@@ -541,8 +543,10 @@ namespace Vodovoz
 			var excludedPaymentFromIds = new[]
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
+				_orderParametersProvider.GetPaymentByCardFromAvangardId,
 				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
-				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode
+				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode,
+				_orderParametersProvider.PaymentByCardFromOnlineStoreId
 			};
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
 			{
@@ -649,10 +653,11 @@ namespace Vodovoz
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
 
 			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
-			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
-			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
-			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
+			textManagerComments.Binding.AddBinding(Entity, e => e.CommentManager, w => w.Buffer.Text).InitializeFromSource();
+			textDriverCommentFromMobile.Binding.AddBinding(Entity, e => e.DriverMobileAppComment, w => w.Buffer.Text).InitializeFromSource();
 
+			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
+			enumDiverCallType.Binding.AddBinding(Entity, e => e.DriverCallType, w => w.SelectedItem).InitializeFromSource();
 			driverCallId.Binding.AddFuncBinding(Entity, e => e.DriverCallId == null ? "" : e.DriverCallId.ToString(), w => w.LabelProp).InitializeFromSource();
 
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
@@ -690,8 +695,11 @@ namespace Vodovoz
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
+			bool showEshop = Entity.EShopOrder == null;
+			labelEShop.Visible = !showEshop;
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
 			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
+			yvalidatedentryEShopOrder.Visible = !showEshop;
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
@@ -857,22 +865,50 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Для выбора доставки за час необходимо корректно заполнить координаты точки доставки");
 				return;
 			}
-			
+
+			var district = Entity.DeliveryPoint.District;
+
+			if(district == null)
+			{
+				MessageDialogHelper.RunWarningDialog($"Для точки доставки не указан район");
+				return;
+			}
+
+			if(district.TariffZone == null)
+			{
+				MessageDialogHelper.RunWarningDialog($"Для района точки доставки не указана тарифная зона");
+				return;
+			}
+
+			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+			{
+				MessageDialogHelper.RunWarningDialog(
+					$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в {district.TariffZone.FastDeliveryTimeFrom:hh\\:mm}");
+				return;
+			}
+
 			if(Entity.Total19LBottlesToDeliver == 0)
 			{
 				MessageDialogHelper.RunWarningDialog("В доставке за час нет 19л воды!!!");
 				return;
 			}
 
-			var verificationData =
-				new FastDeliveryVerificationData(
-					Entity.Id,
-					Entity.DeliveryPoint.ShortAddress,
-					(double)Entity.DeliveryPoint.Latitude.Value,
-					(double)Entity.DeliveryPoint.Longitude.Value,
-					Entity.GetAllGoodsToDeliver());
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
-				null, UoW, verificationData);
+			var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
+				UoW,
+				(double)Entity.DeliveryPoint.Latitude.Value,
+				(double)Entity.DeliveryPoint.Longitude.Value,
+				isGetClosestByRoute: false,
+				_deliveryRulesParametersProvider,
+				Entity.GetAllGoodsToDeliver(),
+				Entity
+			);
+
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
+
+			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
+			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
+				null, fastDeliveryVerificationViewModel);
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1292,8 +1328,12 @@ namespace Vodovoz
 		private void OldFieldsConfigure()
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
-			hbxTareComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
-			hbxTareComments.Sensitive = CanEditByPermission && !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			var tareVisible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			textTaraComments.Sensitive = CanEditByPermission && !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+
+			labelTaraComments.Visible = tareVisible;
+			textTaraComments.Visible = tareVisible;
+			GtkScrolledWindow4.Visible = tareVisible;
 
 			if (Entity.Client != null)
 			{
@@ -1306,8 +1346,12 @@ namespace Vodovoz
 				}
 				else
 				{
-					hbxODZComments.Visible = false;
-					hbxOPComments.Visible = false;
+					textOPComments.Visible = false;
+					labelOPComments.Visible = false;
+					GtkScrolledWindow6.Visible = false;
+					labelODZComments.Visible = false;
+					textODZComments.Visible = false;
+					GtkScrolledWindow8.Visible = false;
 				}
 			}
 			
@@ -1481,23 +1525,55 @@ namespace Vodovoz
 					throw new InvalidOperationException(
 						"В доставке за час обязательно должна быть точка доставки с заполненными координатами");
 				}
-				
+
+				var district = Entity.DeliveryPoint.District;
+
+				if(district == null)
+				{
+					throw new InvalidOperationException($"Для точки доставки не указан район");
+				}
+
+				if(district.TariffZone == null)
+				{
+					throw new InvalidOperationException($"Для района точки доставки не указана тарифная зона");
+				}
+
+				if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
+				{
+					MessageDialogHelper.RunWarningDialog(
+						$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в {district.TariffZone.FastDeliveryTimeFrom:hh\\:mm}");
+					
+					return false;
+				}
+
 				if(Entity.Total19LBottlesToDeliver == 0)
 				{
 					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
 				}
 
-				routeListToAddOrderTo = _deliveryRepository.GetRouteListForFastDelivery(
+				var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
 					UoW,
 					(double)Entity.DeliveryPoint.Latitude.Value,
 					(double)Entity.DeliveryPoint.Longitude.Value,
-					true,
+					isGetClosestByRoute: true,
 					_deliveryRulesParametersProvider,
-					Entity.GetAllGoodsToDeliver()
+					Entity.GetAllGoodsToDeliver(),
+					Entity
 				);
+
+				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
+
+				routeListToAddOrderTo = fastDeliveryAvailabilityHistory.Items
+					.FirstOrDefault(x => x.IsValidToFastDelivery)
+					?.RouteList;
+
 				if(routeListToAddOrderTo == null)
 				{
-					MessageDialogHelper.RunWarningDialog("Не удалось подобрать МЛ для доставки за час");
+					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
+					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
+						null, UoW, fastDeliveryVerificationViewModel);
+
 					return false;
 				}
 			}

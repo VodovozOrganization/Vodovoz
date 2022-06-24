@@ -24,6 +24,7 @@ namespace Vodovoz.Services
 		int MaxFastOrdersPerSpecificTime { get; }
 		TimeSpan SpecificTimeForMaxFastOrdersCount { get; }
 		double MaxDistanceToLatestTrackPointKm { get; }
+		void UpdateFastDeliveryMaxDistanceParameter(string value);
 
 		#endregion
 	}

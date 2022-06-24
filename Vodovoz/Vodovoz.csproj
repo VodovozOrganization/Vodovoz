@@ -158,6 +158,7 @@
     <EmbeddedResource Include="icons\map\GreenCar.png" />
     <EmbeddedResource Include="icons\map\BlueCar.png" />
     <EmbeddedResource Include="icons\map\BlackCar.png" />
+	<EmbeddedResource Include="icons\map\RedCar.png" />
     <EmbeddedResource Include="icons\buttons\window-new.png" />
     <EmbeddedResource Include="toolbars\archive.xml">
       <LogicalName>archive.xml</LogicalName>
@@ -392,6 +393,7 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
+    <Compile Include="Additions\Logistic\CustomPolygons.cs" />
     <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
@@ -422,6 +424,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePriceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />
+    <Compile Include="Infrastructure\Converters\DoubleToStringConverter.cs" />
     <Compile Include="JournalNodes\CarModelJournalNode.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
@@ -1696,6 +1699,24 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RouteListTrackFilterView.cs" />
     <Compile Include="Views\Reports\IncomingCallsAnalysisReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncomingCallsAnalysisReportView.cs" />
+    <Compile Include="Views\Logistic\TariffZoneView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.TariffZoneView.cs" />
+    <Compile Include="Filters\GtkViews\FastDeliveryAvailabilityFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FastDeliveryAvailabilityFilterView.cs" />
+    <Compile Include="ViewWidgets\Logistics\FastDeliveryVerificationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.FastDeliveryVerificationView.cs" />
+    <Compile Include="Views\Logistic\FastDeliveryAvailabilityHistoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryAvailabilityHistoryView.cs" />
+    <Compile Include="Views\ImportPaymentsFromAvangardSbpView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ImportPaymentsFromAvangardSbpView.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromAvangardReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromAvangardReport.cs" />
+    <Compile Include="Views\Reports\CostCarExploitationReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.CostCarExploitationReportView.cs" />
+    <Compile Include="Views\Reports\FastDeliverySalesReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliverySalesReportView.cs" />
+    <Compile Include="Views\Reports\FastDeliveryAdditionalLoadingReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryAdditionalLoadingReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2099,7 +2120,7 @@
     </PackageReference>
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
-    <PackageReference Include="SSH.NET" Version="2020.0.1" />
+    <PackageReference Include="SSH.NET" Version="2020.0.2" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />

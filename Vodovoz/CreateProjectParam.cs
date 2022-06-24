@@ -163,6 +163,7 @@ using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Views.Payments;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
+using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 
 namespace Vodovoz
 {
@@ -282,6 +283,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<GeneralSettingsViewModel, GeneralSettingsView>()
 				.RegisterWidgetForTabViewModel<RoboAtsCounterpartyNameViewModel, RoboAtsCounterpartyNameView>()
 				.RegisterWidgetForTabViewModel<RoboAtsCounterpartyPatronymicViewModel, RoboAtsCounterpartyPatronymicView>()
+				.RegisterWidgetForTabViewModel<TariffZoneViewModel, TariffZoneView>()
+				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
 				;
 
             //Регистрация виджетов
@@ -349,6 +352,10 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveryTransferAbsenceReasonJournalFilterViewModel, UndeliveryTransferAbsenceReasonJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProductionWarehouseMovementReportViewModel, ProductionWarehouseMovementReportView>()
 				.RegisterWidgetForWidgetViewModel<TrackPointJournalFilterViewModel, TrackPointJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<FastDeliveryAvailabilityFilterViewModel, FastDeliveryAvailabilityFilterView>()
+				.RegisterWidgetForWidgetViewModel<CostCarExploitationReportViewModel, CostCarExploitationReportView>()
+				.RegisterWidgetForWidgetViewModel<FastDeliverySalesReportViewModel, FastDeliverySalesReportView>()
+				.RegisterWidgetForWidgetViewModel<FastDeliveryAdditionalLoadingReportViewModel, FastDeliveryAdditionalLoadingReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -513,6 +520,7 @@ namespace Vodovoz
 
 			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
 			builder.RegisterType<CarVersionsViewModelFactory>().As<ICarVersionsViewModelFactory>();
+			builder.RegisterType<PaymentFromAvangardFactory>().As<IPaymentFromAvangardFactory>();
 
 			#endregion
 

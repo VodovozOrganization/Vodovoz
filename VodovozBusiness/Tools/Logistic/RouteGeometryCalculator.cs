@@ -10,6 +10,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -23,6 +25,7 @@ namespace Vodovoz.Tools.Logistic
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
 
@@ -297,7 +300,7 @@ namespace Vodovoz.Tools.Logistic
 			CachedDistance.GetLatLon(distance.ToGeoHash, out latitude, out longitude);
 			points.Add(new PointOnEarth(latitude, longitude));
 			bool ok = false;
-			var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Full);
+			var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
 			ok = result?.Code == "Ok";
 			if(ok && result.Routes.Any()) {
 				distance.DistanceMeters = result.Routes.First().TotalDistance;

@@ -67,7 +67,6 @@ namespace Vodovoz
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 		private static readonly IOrderParametersProvider _orderParametersProvider = new OrderParametersProvider(_parametersProvider);
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(_parametersProvider);
-		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
@@ -546,8 +545,7 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository,
-							_nomenclatureParametersProvider
+							_categoryRepository
 						)
 					);
 					break;
@@ -569,8 +567,7 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository,
-							_nomenclatureParametersProvider
+							_categoryRepository
 						)
 					);
 					break;

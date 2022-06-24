@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -24,6 +25,9 @@ using Vodovoz.Services;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Gtk;
+using Vodovoz.EntityRepositories.Sale;
+using Layout = Pango.Layout;
 
 namespace Vodovoz
 {
@@ -34,6 +38,8 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IChatRepository _chatRepository;
 		private readonly ITrackRepository _trackRepository;
+		private readonly IRouteListRepository _routeListRepository;
+		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
 
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee _currentEmployee;
@@ -41,6 +47,8 @@ namespace Vodovoz
 		private const uint carRefreshInterval = 10000;
 		private readonly GMapOverlay carsOverlay = new GMapOverlay("cars");
 		private readonly GMapOverlay tracksOverlay = new GMapOverlay("tracks");
+		private readonly GMapOverlay _fastDeliveryOverlay = new GMapOverlay("fast delivery");
+		private readonly GMapOverlay _districtsOverlay = new GMapOverlay("districts") { IsVisibile = false};
 		private Dictionary<int, CarMarker> carMarkers;
 		private Dictionary<int, CarMarkerType> lastSelectedDrivers = new Dictionary<int, CarMarkerType>();
 		private Gtk.Window mapWindow;
@@ -48,16 +56,21 @@ namespace Vodovoz
 		private readonly TimeSpan _fastDeliveryTime;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICommonServices _commonServices;
+		private readonly double _fastDeliveryMaxDistanceKm;
 
 		public RouteListTrackDlg(IEmployeeRepository employeeRepository, IChatRepository chatRepository, ITrackRepository trackRepository,
+			IRouteListRepository routeListRepository, IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_fastDeliveryTime =
 				(deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider)))
 				.MaxTimeForFastDelivery;
+			_fastDeliveryMaxDistanceKm = deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			Build();
@@ -65,6 +78,20 @@ namespace Vodovoz
 			yTreeViewDrivers.RepresentationModel = new WorkingDriversVM(uow, routelisttrackfilterview1.FilterViewModel);
 			yTreeViewDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
+
+			routelisttrackfilterview1.FilterViewModel.PropertyChanged += (sender, args) =>
+			{
+				if(args.PropertyName == nameof(routelisttrackfilterview1.FilterViewModel.IsFastDeliveryOnly))
+				{
+					Application.Invoke((s, a) => UpdateCarPosition());
+				}
+				if(args.PropertyName == nameof(routelisttrackfilterview1.FilterViewModel.ShowFastDeliveryCircle))
+				{
+					_districtsOverlay.IsVisibile = routelisttrackfilterview1.FilterViewModel.ShowFastDeliveryCircle;
+					Application.Invoke((s, a) => UpdateCarPosition());
+				}
+			};
+
 			buttonChat.Visible = buttonSendMessage.Visible = false;
 			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(uow);
 			
@@ -78,8 +105,10 @@ namespace Vodovoz
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			//MapWidget.HasFrame = true;
+			gmapWidget.Overlays.Add(_districtsOverlay);
 			gmapWidget.Overlays.Add(carsOverlay);
 			gmapWidget.Overlays.Add(tracksOverlay);
+			gmapWidget.Overlays.Add(_fastDeliveryOverlay);
 			gmapWidget.ExposeEvent += GmapWidget_ExposeEvent;
 			gmapWidget.OnMarkerEnter += GmapWidgetOnMarkerEnter;
 			UpdateCarPosition();
@@ -87,6 +116,26 @@ namespace Vodovoz
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			yenumcomboMapType.SelectedItem = MapProviders.GoogleMap;
+			
+			LoadFastDeliveryDistrictsGeometry();
+		}
+
+		private void LoadFastDeliveryDistrictsGeometry()
+		{
+			_districtsOverlay.Clear();
+			var districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDelivery(uow);
+			
+			foreach(var district in districts)
+			{
+				var polygon = new GMapPolygon(
+					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
+					district.DistrictName)
+				{
+					Fill = new SolidBrush(System.Drawing.Color.Transparent)
+				};
+
+				_districtsOverlay.Polygons.Add(polygon);
+			}
 		}
 
 		private void GmapWidgetOnMarkerEnter(GMapMarker item)
@@ -216,6 +265,8 @@ namespace Vodovoz
 			try {
 				var routesIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
 				.SelectMany(x => x.RouteListsIds.Keys).ToArray();
+				var driversWithAdditionalLoading = _routeListRepository.GetDriversWithAdditionalLoading(uow, routesIds)
+					.Select(x => x.Id).ToArray();
 				var start = DateTime.Now;
 				var lastPoints = _trackRepository.GetLastPointForRouteLists(uow, routesIds);
 
@@ -223,6 +274,7 @@ namespace Vodovoz
 				var ere20Minuts = _trackRepository.GetLastPointForRouteLists(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
 				logger.Debug("Время запроса точек: {0}", DateTime.Now - start);
 				carsOverlay.Clear();
+				_fastDeliveryOverlay.Clear();
 				carMarkers = new Dictionary<int, CarMarker>();
 				foreach(var pointsForDriver in lastPoints.GroupBy(x => x.DriverId)) {
 					var lastPoint = pointsForDriver.OrderBy(x => x.Time).Last();
@@ -258,6 +310,13 @@ namespace Vodovoz
 							: $"\nБыл виден: {lastPoint.Time:g} ";
 					marker.ToolTipText = text;
 					carsOverlay.Markers.Add(marker);
+
+					if(routelisttrackfilterview1.FilterViewModel.ShowFastDeliveryCircle && driversWithAdditionalLoading.Contains(pointsForDriver.Key))
+					{
+						CustomPolygons.CreateRoundPolygon(_fastDeliveryOverlay, lastPoint.Latitude, lastPoint.Longitude, radiusInKm: _fastDeliveryMaxDistanceKm,
+							segmentsPointsCount: 30, borderWidth: 1, color: System.Drawing.Color.OrangeRed, fillAlpha: 30);
+					}
+
 					carMarkers.Add(lastPoint.DriverId, marker);
 				}
 			} catch(Exception ex) {

@@ -51,7 +51,7 @@ namespace SmsPaymentService.PaymentControllers
                     httpClient.DefaultRequestHeaders.Accept.Clear();
                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-                    HttpResponseMessage httpResponse = await httpClient.PostAsync($"{baseAddress}/vodovoz/handler.php", httpContent);
+                    HttpResponseMessage httpResponse = await httpClient.PostAsync($"{baseAddress}/vodovoz/handlernew.php", httpContent);
                 
                     var responseContent = httpResponse.Content.ReadAsStringAsync().Result;
                     logger.Info($"Битрикс вернул http код: {httpResponse.StatusCode} Content: {responseContent}");

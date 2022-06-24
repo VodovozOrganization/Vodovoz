@@ -59,9 +59,10 @@ namespace FastPaymentsAPI.Library.Models
 		public string ValidateOnlineOrder(decimal onlineOrderSum) => _fastPaymentValidator.ValidateOnlineOrder(onlineOrderSum);
 		public string GetPayUrlForOnlineOrder(Guid fastPaymentGuid) => _orderRequestManager.GetVodovozFastPayUrl(fastPaymentGuid);
 
-		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null)
+		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null,
+			bool isQr = true)
 		{
-			return _orderRequestManager.RegisterOrder(order, fastPaymentGuid, phoneNumber);
+			return _orderRequestManager.RegisterOrder(order, fastPaymentGuid, phoneNumber, isQr);
 		}
 		
 		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(RequestRegisterOnlineOrderDTO registerOnlineOrderDto)

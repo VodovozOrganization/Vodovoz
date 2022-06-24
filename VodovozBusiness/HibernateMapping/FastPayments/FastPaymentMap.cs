@@ -21,7 +21,8 @@ namespace Vodovoz.HibernateMapping.FastPayments
 			Map(x => x.PhoneNumber).Column("phone_number");
 			Map(x => x.FastPaymentGuid).Column("payment_guid");
 			Map(x => x.OnlineOrderId).Column("online_order_id");
-            
+			Map(x => x.FastPaymentPayType).Column("pay_type").CustomType<FastPaymentPayTypeStringType>();
+
 			References(x => x.Order).Column("order_id");
 		}
 	}

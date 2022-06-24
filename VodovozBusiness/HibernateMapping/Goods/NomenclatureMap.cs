@@ -34,7 +34,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.SumOfDamage).Column("sum_of_damage");
 			Map(x => x.ShortName).Column("short_name");
 			Map(x => x.Hide).Column("hide");
-			Map(x => x.NoDelivey).Column("no_delivery");
+			Map(x => x.NoDelivery).Column("no_delivery");
 			Map(x => x.IsNewBottle).Column("is_new_bottle");
 			Map(x => x.IsDefectiveBottle).Column("is_defective_bottle");
 			Map(x => x.IsShabbyBottle).Column("is_shabby_bottle");

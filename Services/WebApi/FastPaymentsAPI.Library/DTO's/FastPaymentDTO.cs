@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Domain.FastPayments;
 
 namespace FastPaymentsAPI.Library.DTO_s
 {
@@ -10,5 +11,6 @@ namespace FastPaymentsAPI.Library.DTO_s
 		public string QRPngBase64 { get; set; }
 		public int ExternalId { get; set; }
 		public Guid FastPaymentGuid { get; set; }
+		public FastPaymentPayType FastPaymentPayType{ get; set; }
 	}
 }

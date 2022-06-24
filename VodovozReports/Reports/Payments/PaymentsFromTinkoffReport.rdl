@@ -1184,18 +1184,7 @@ FROM
         JOIN payments_by_card_online p_online on p_online.number = o_online.online_order
             AND p_online.date_and_time &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
             AND p_online.date_and_time &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
-            AND p_online.payment_by_card_from IN ('FromVodovozWebSite', 'FromTinkoff')
-
-        UNION
-
-        Select
-            o_e_shop.id as order_id,
-            p_e_shop.*
-        From orders o_e_shop
-        JOIN payments_by_card_online p_e_shop on p_e_shop.number = o_e_shop.e_shop_order
-            AND p_e_shop.date_and_time &gt; DATE_ADD(o_e_shop.create_date, INTERVAL -10 DAY)
-            AND p_e_shop.date_and_time &lt; DATE_ADD(o_e_shop.create_date, INTERVAL 10 DAY)
-            AND p_e_shop.payment_by_card_from = 'FromEShop'
+            AND p_online.payment_by_card_from IN ('FromVodovozWebSite', 'FromEShop', 'FromTinkoff')
 
         UNION
 
@@ -1225,11 +1214,12 @@ FROM
             i.order_id
     ) o_sum ON o_sum.id = o.id
 WHERE
-    o.payment_type = 'ByCard' 
-    AND o.online_order IS NOT NULL
-    AND o.delivery_date &gt;= @startDate
-    AND o.delivery_date &lt;= @endDate
-    AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
+  o.payment_type = 'ByCard'
+  AND o.online_order IS NOT NULL
+  AND o.payment_from_id not in (10, 11) #убираем платежи из авангарда
+  AND o.delivery_date &gt;= @startDate
+  AND o.delivery_date &lt;= @endDate
+  AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
 ORDER BY order_satus_numbered DESC
 ;</CommandText>
         <QueryParameters>
@@ -1317,37 +1307,28 @@ ORDER BY order_satus_numbered DESC
         <Timeout>120</Timeout>
         <CommandText>SELECT *
 FROM payments_by_card_online pbco
-WHERE 
+WHERE
 (
-    (   
+    (
         number NOT IN(
-            SELECT online_order
-            FROM orders
-            WHERE online_order IS NOT NULL 
-                AND delivery_date &gt;= @startDate
-        )
-        AND payment_by_card_from IN ('FromVodovozWebSite', 'FromTinkoff')
+        SELECT online_order
+        FROM orders
+        WHERE online_order IS NOT NULL
+          AND payment_from_id NOT IN (10, 11) #убираем платежи из авангарда
+          AND delivery_date &gt;= @startDate
+    )
+        AND payment_by_card_from IN ('FromVodovozWebSite', 'FromEShop', 'FromTinkoff')
     )
     OR
     (
         number NOT IN(
-            SELECT id
-            FROM orders
-            WHERE online_order IS NOT NULL
-                AND delivery_date &gt;= @startDate
-        )
+        SELECT id
+        FROM orders
+        WHERE online_order IS NOT NULL
+          AND payment_from_id NOT IN (10, 11) #убираем платежи из авангарда
+          AND delivery_date &gt;= @startDate
+    )
         AND payment_by_card_from = 'FromSMS'
-    )
-    OR
-    (
-        NOT EXISTS(
-            SELECT e_shop_order
-            FROM orders o
-            WHERE online_order IS NOT NULL
-                AND delivery_date &gt;= @startDate
-                AND o.e_shop_order = pbco.number
-        )
-        AND payment_by_card_from = 'FromEShop'
     )
 )
 AND pbco.date_and_time &gt;= @startDate
