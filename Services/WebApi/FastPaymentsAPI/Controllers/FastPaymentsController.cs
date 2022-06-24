@@ -5,6 +5,7 @@ using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.DTO_s;
 using FastPaymentsAPI.Library.DTO_s.Requests;
 using FastPaymentsAPI.Library.DTO_s.Responses;
+using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
 using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,7 @@ namespace FastPaymentsAPI.Controllers
 		private readonly IFastPaymentOrderModel _fastPaymentOrderModel;
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly IDriverAPIService _driverApiService;
+		private readonly IVodovozSiteNotificator _vodovozSiteNotificator;
 		private readonly IResponseCodeConverter _responseCodeConverter;
 
 		public FastPaymentsController(
@@ -28,12 +30,14 @@ namespace FastPaymentsAPI.Controllers
 			IFastPaymentOrderModel fastPaymentOrderModel,
 			IFastPaymentModel fastPaymentModel,
 			IDriverAPIService driverApiService,
+			IVodovozSiteNotificator vodovozSiteNotificator,
 			IResponseCodeConverter responseCodeConverter)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fastPaymentOrderModel = fastPaymentOrderModel ?? throw new ArgumentNullException(nameof(fastPaymentOrderModel));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_driverApiService = driverApiService ?? throw new ArgumentNullException(nameof(driverApiService));
+			_vodovozSiteNotificator = vodovozSiteNotificator ?? throw new ArgumentNullException(nameof(vodovozSiteNotificator));
 			_responseCodeConverter = responseCodeConverter ?? throw new ArgumentNullException(nameof(responseCodeConverter));
 		}
 
@@ -429,7 +433,8 @@ namespace FastPaymentsAPI.Controllers
 				_logger.LogError(e, "Ошибка при парсинге ответа по успешной оплате");
 				return StatusCode(500);
 			}
-			
+
+			FastPayment fastPayment;
 			try
 			{
 				_logger.LogInformation("Проверяем подпись");
@@ -438,7 +443,7 @@ namespace FastPaymentsAPI.Controllers
 					var signature = paidOrderInfoDto.Signature;
 					var orderNumber = paidOrderInfoDto.OrderNumber;
 					_logger.LogError($"Ответ по оплате заказа №{orderNumber} пришел с неверной подписью {signature}");
-					
+
 					try
 					{
 						_fastPaymentOrderModel.NotifyEmployee(orderNumber, signature);
@@ -452,7 +457,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation($"Обновляем статус оплаты платежа с ticket: {paidOrderInfoDto.Ticket}");
-				_fastPaymentModel.UpdateFastPaymentStatus(paidOrderInfoDto);
+				fastPayment = _fastPaymentModel.UpdateFastPaymentStatus(paidOrderInfoDto);
 			}
 			catch(Exception e)
 			{
@@ -460,17 +465,26 @@ namespace FastPaymentsAPI.Controllers
 					$"Ошибка при обработке поступившего платежа (ticket: {paidOrderInfoDto.Ticket}, status: {paidOrderInfoDto.Status})");
 				return StatusCode(500);
 			}
-			
-			try
-			{
-				_logger.LogInformation($"Уведомляем водителя о изменении статуса оплаты заказа: {paidOrderInfoDto.OrderNumber}");
-				_driverApiService.NotifyOfFastPaymentStatusChangedAsync(int.Parse(paidOrderInfoDto.OrderNumber));
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Не удалось уведомить службу DriverApi об изменении статуса оплаты заказа");
-			}
+
+			NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
+			_vodovozSiteNotificator.NotifyVodovozSite(fastPayment?.OnlineOrderId, paidOrderInfoDto.Amount, true);
 			return new AcceptedResult();
+		}
+
+		private void NotifyDriver(FastPayment fastPayment, string orderNumber)
+		{
+			if(fastPayment?.Order != null)
+			{
+				try
+				{
+					_logger.LogInformation($"Уведомляем водителя о изменении статуса оплаты заказа: {orderNumber}");
+					_driverApiService.NotifyOfFastPaymentStatusChangedAsync(int.Parse(orderNumber));
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, $"Не удалось уведомить службу DriverApi об изменении статуса оплаты заказа {orderNumber}");
+				}
+			}
 		}
 
 		/// <summary>

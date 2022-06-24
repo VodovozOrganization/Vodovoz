@@ -88,6 +88,12 @@ namespace FastPaymentsAPI
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
 
+			services.AddHttpClient<IVodovozSiteNotificationService, VodovozSiteNotificationService>(c =>
+			{
+				c.BaseAddress = new Uri(Configuration.GetSection("VodovozSiteNotificationService").GetValue<string>("BaseUrl"));
+				c.DefaultRequestHeaders.Add("Accept", "application/json");
+			});
+
 			//backgroundServices
 			services.AddHostedService<FastPaymentStatusUpdater>();
 			services.AddHostedService<CachePaymentManager>();
@@ -126,6 +132,7 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IFastPaymentManager, FastPaymentManager>();
 			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
 			services.AddScoped<IOrderRequestManager, OrderRequestManager>();
+			services.AddScoped<IVodovozSiteNotificator, VodovozSiteNotificator>();
 		}
 		
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

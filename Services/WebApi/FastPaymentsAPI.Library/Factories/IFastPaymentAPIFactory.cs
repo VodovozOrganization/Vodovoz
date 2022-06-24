@@ -28,5 +28,7 @@ namespace FastPaymentsAPI.Library.Factories
 			string phoneNumber = null,
 			int? onlineOrderId = null);
 		FastPayment GetFastPayment(Order order, FastPaymentDTO paymentDto);
+		VodovozSiteNotificationPaymentRequestDto GetVodovozSiteNotificationPaymentDto(
+			int onlineOrderId, decimal amount, bool paymentSucceeded);
 	}
 }

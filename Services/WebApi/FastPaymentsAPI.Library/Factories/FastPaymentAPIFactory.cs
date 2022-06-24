@@ -138,5 +138,28 @@ namespace FastPaymentsAPI.Library.Factories
 				FastPaymentPayType = paymentDto.FastPaymentPayType
 			};
 		}
+
+		public VodovozSiteNotificationPaymentRequestDto GetVodovozSiteNotificationPaymentDto(
+			int onlineOrderId, decimal amount, bool paymentSucceeded)
+		{
+			return new VodovozSiteNotificationPaymentRequestDto
+			{
+				PaymentDetails = GetNewOnlinePaymentDetailsDto(onlineOrderId, amount),
+				PaymentStatus = paymentSucceeded ? nameof(VodovozSitePaymentStatus.succeeded) : nameof(VodovozSitePaymentStatus.canceled)
+			};
+		}
+
+		private OnlinePaymentDetailsDto GetNewOnlinePaymentDetailsDto(int onlineOrderId, decimal amount) =>
+			new OnlinePaymentDetailsDto
+			{
+				OnlineOrderId = onlineOrderId,
+				PaymentSumDetails = GetNewOnlinePaymentSumDetailsDto(amount)
+			};
+
+		private OnlinePaymentSumDetailsDto GetNewOnlinePaymentSumDetailsDto(decimal amount) =>
+			new OnlinePaymentSumDetailsDto
+			{
+				PaymentSum = amount
+			};
 	}
 }

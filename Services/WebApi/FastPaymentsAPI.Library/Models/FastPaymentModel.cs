@@ -133,14 +133,16 @@ namespace FastPaymentsAPI.Library.Models
 			return _signatureManager.Validate(paidOrderInfoDto.Signature, signatureParameters);
 		}
 		
-		public void UpdateFastPaymentStatus(PaidOrderInfoDTO paidOrderInfoDto)
+		public FastPayment UpdateFastPaymentStatus(PaidOrderInfoDTO paidOrderInfoDto)
 		{
 			var fastPayment = _fastPaymentRepository.GetFastPaymentByTicket(_uow, paidOrderInfoDto.Ticket);
 
 			if(fastPayment != null && (int)paidOrderInfoDto.Status != (int)fastPayment.FastPaymentStatus)
 			{
 				UpdateFastPaymentStatus(fastPayment, paidOrderInfoDto.Status, paidOrderInfoDto.StatusDate);
+				return fastPayment;
 			}
+			return null;
 		}
 		
 		public void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate)
