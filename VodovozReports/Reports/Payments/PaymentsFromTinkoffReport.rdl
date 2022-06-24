@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -1216,7 +1216,7 @@ FROM
 WHERE
   o.payment_type = 'ByCard'
   AND o.online_order IS NOT NULL
-  AND o.payment_from_id not in (10, 11) #убираем платежи из авангарда
+  AND o.payment_from_id not in (10, 11, 12) #убираем платежи из авангарда
   AND o.delivery_date &gt;= @startDate
   AND o.delivery_date &lt;= @endDate
   AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
@@ -1314,7 +1314,7 @@ WHERE
         SELECT online_order
         FROM orders
         WHERE online_order IS NOT NULL
-          AND payment_from_id NOT IN (10, 11) #убираем платежи из авангарда
+          AND payment_from_id NOT IN (10, 11, 12) #убираем платежи из авангарда
           AND delivery_date &gt;= @startDate
     )
         AND payment_by_card_from IN ('FromVodovozWebSite', 'FromEShop', 'FromTinkoff')
@@ -1325,7 +1325,7 @@ WHERE
         SELECT id
         FROM orders
         WHERE online_order IS NOT NULL
-          AND payment_from_id NOT IN (10, 11) #убираем платежи из авангарда
+          AND payment_from_id NOT IN (10, 11, 12) #убираем платежи из авангарда
           AND delivery_date &gt;= @startDate
     )
         AND payment_by_card_from = 'FromSMS'
