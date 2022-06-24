@@ -349,7 +349,7 @@ namespace VodovozDeliveryRulesService
 				})
 				.ToList();
 
-			var fastDeliveryVerification = _deliveryRepository.GetRouteListsForFastDelivery(
+			var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
 				uow,
 				(double) latitude,
 				(double) longitude,
@@ -358,9 +358,10 @@ namespace VodovozDeliveryRulesService
 				nomenclatureNodes);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
-			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryVerification);
+			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
-			return fastDeliveryVerification.FastDeliveryAvailabilityHistory.Items.Any(x => x.IsValidToFastDelivery);
+			var allowedRouteLists = fastDeliveryAvailabilityHistory.Items;
+			return allowedRouteLists != null && allowedRouteLists.Any(x => x.IsValidToFastDelivery);
 		}
 	}
 }

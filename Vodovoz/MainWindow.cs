@@ -147,6 +147,7 @@ using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -333,7 +334,7 @@ public partial class MainWindow : Gtk.Window
 			ActionBookkeepping.Visible =
 			ActionCashMenubar.Visible = // Касса
 			ActionRetailMenubar.Visible =
-			ActionCarMenubar.Visible =
+			ActionTransportMenuBar.Visible =
 			ActionProduction.Visible = !userIsSalesRepresentative;// Производство
 
 		// Отчеты в Продажи
@@ -2590,7 +2591,7 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionCostCarExploitationReport(object sender, EventArgs e)
+	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = autofacScope.Resolve<IInteractiveService>();
@@ -2611,6 +2612,26 @@ public partial class MainWindow : Gtk.Window
 
 		var viewModel = new CostCarExploitationReportViewModel(
 			uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliverySalesReportViewModel viewModel = new FastDeliverySalesReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
 
 		tdiMain.AddTab(viewModel);
 	}
