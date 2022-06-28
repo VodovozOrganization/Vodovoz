@@ -1025,7 +1025,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -1121,7 +1121,7 @@ FROM
             fp.pay_type as pay_type
         From orders o_online
                  JOIN payments_from_avangard p_avangard on p_avangard.order_num = o_online.online_order
-                 JOIN fast_payments fp on fp.external_id = p_avangard.order_num
+                 JOIN fast_payments fp on fp.external_id = p_avangard.order_num  and fp.payment_status = 'Performed'
             AND p_avangard.paid_date &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
             AND p_avangard.paid_date &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
     ) as p on p.order_id = o.id
@@ -1165,7 +1165,7 @@ ORDER BY order_satus_numbered DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1237,7 +1237,7 @@ ORDER BY order_satus_numbered DESC;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -1271,7 +1271,7 @@ ORDER BY pfa.paid_date DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
