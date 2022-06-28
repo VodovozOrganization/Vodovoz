@@ -2179,8 +2179,7 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			bool forTheFirstOrderOnlyToTheAddress = PromotionalSets.Any(x => !x.CanBeReorderedWithoutRestriction);
-			if(forTheFirstOrderOnlyToTheAddress && CanUsedPromo(promotionalSetRepository))
+			if(proSet.CanBeReorderedWithoutRestriction && CanUsedPromo(promotionalSetRepository))
 			{
 				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
@@ -2189,7 +2188,7 @@ namespace Vodovoz.Domain.Orders
 
 			var proSetDict = promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
 			
-			if(!forTheFirstOrderOnlyToTheAddress && !proSetDict.Any())
+			if(proSet.CanBeReorderedWithoutRestriction | !proSetDict.Any())
 			{
 				return true;
 			}

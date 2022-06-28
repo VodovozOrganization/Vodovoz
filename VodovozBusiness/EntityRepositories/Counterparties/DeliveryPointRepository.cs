@@ -128,8 +128,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
 											  && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
 											  && deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
-											  && deliveryPointAlias.Room.IsLike(deliveryPoint.Room, MatchMode.Anywhere)
-											   )
+											  && deliveryPointAlias.Room == deliveryPoint.Room)
 									.List<DeliveryPoint>();
 
 			return result.Count() == 0;
@@ -137,9 +136,24 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 		private string GetBuildingNumber(string building)
 		{
-			string buildingNumber = building;
+			string buildingNumber = string.Empty;
 
-			return new string(building.Where(char.IsDigit).ToArray());
+			foreach(var ch in building)
+			{
+				if(char.IsDigit(ch))
+				{
+					buildingNumber += ch;
+				}
+				else
+				{
+					if(buildingNumber != string.Empty)
+					{
+						break;
+					}
+				}
+			}
+
+			return buildingNumber;
 		}
 	}
 }
