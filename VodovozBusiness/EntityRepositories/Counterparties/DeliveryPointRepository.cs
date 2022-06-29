@@ -128,7 +128,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
 											  && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
 											  && deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
-											  && deliveryPointAlias.Room == deliveryPoint.Room)
+											  && deliveryPointAlias.Room == deliveryPoint.Room
+											  && deliveryPointAlias.Id != deliveryPoint.Id)
 									.List<DeliveryPoint>();
 
 			return result.Count() == 0;
