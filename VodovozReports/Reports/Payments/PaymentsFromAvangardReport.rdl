@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -19,7 +19,7 @@
       <Textbox Name="Textbox2">
         <Height>19.57pt</Height>
         <Width>814.05pt</Width>
-        <Value>='Отчет по оплатам СБП Авангарда c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
+        <Value>='Отчет по оплатам Авангарда c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.8pt</Left>
         <Top>0.6pt</Top>
@@ -1025,7 +1025,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -1165,7 +1165,7 @@ ORDER BY order_satus_numbered DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
