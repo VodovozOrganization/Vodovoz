@@ -235,7 +235,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					return false;
 				}
 
-				if(!_deliveryPointRepository.CheckingAnAddressForDeliveryForNewCustomers(UoW, Entity))
+				if(UoW.IsNew && !_deliveryPointRepository.CheckingAnAddressForDeliveryForNewCustomers(UoW, Entity))
 				{
 					var createDeliveryPoint = AskQuestion($"Уточните с клиентом: Данный адрес уже используется контрагентом. Вы уверены, что хотите создать точку доставки?");
 					if(!createDeliveryPoint)

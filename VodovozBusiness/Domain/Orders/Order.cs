@@ -2179,7 +2179,7 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			if(proSet.CanBeReorderedWithoutRestriction && CanUsedPromo(promotionalSetRepository))
+			if(!proSet.CanBeReorderedWithoutRestriction && CanUsedPromo(promotionalSetRepository))
 			{
 				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
