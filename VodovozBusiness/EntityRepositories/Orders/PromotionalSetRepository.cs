@@ -74,18 +74,33 @@ namespace Vodovoz.EntityRepositories.Orders
 									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
 											   && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
 											   && deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
-											   && deliveryPointAlias.Room.IsLike(deliveryPoint.Room, MatchMode.Anywhere)
+											   && deliveryPointAlias.Room == deliveryPoint.Room
 											   && !promotionalSetAlias.CanBeReorderedWithoutRestriction
 											   && ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses()))
 									.List<VodovozOrder>();
 			return result.Count() != 0;
 		}
 
-		private static string GetBuildingNumber(string building)
+		private string GetBuildingNumber(string building)
 		{
-			string buildingNumber = building;
+			string buildingNumber = string.Empty;
 
-			return new string(building.Where(char.IsDigit).ToArray());
+			foreach(var ch in building)
+			{
+				if(char.IsDigit(ch))
+				{
+					buildingNumber += ch;
+				}
+				else
+				{
+					if(buildingNumber != string.Empty)
+					{
+						break;
+					}
+				}
+			}
+
+			return buildingNumber;
 		}
 
 		private static OrderStatus[] GetAcceptableStatuses()
