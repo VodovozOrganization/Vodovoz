@@ -70,7 +70,11 @@ namespace Vodovoz.Views.Mango
 			int i = 0;
 			var incomings = ViewModel.MangoManager.RingingCalls.ToArray();
 			foreach(IncomingView view in vboxIncomings.Children) {
-				view.Time = incomings[i].StageDuration.Value;
+				if(i < incomings.Length)
+				{
+					view.Time = incomings[i].StageDuration.Value;
+				}
+
 				i++;
 			}
 		}
