@@ -508,7 +508,7 @@ namespace Vodovoz.Views.Logistic
 				{
 					addressesWithoutCoordinats++;
 				}
-				else if(!orderRls.Any())
+				else if(!orderRls.Any() || ViewModel.ShowCompleted)
 				{
 					bool overdueOrder = false;
 
