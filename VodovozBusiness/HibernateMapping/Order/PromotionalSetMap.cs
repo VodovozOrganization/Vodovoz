@@ -16,6 +16,7 @@ namespace Vodovoz.HibernateMapping.Orders
 			Map(x => x.DiscountReasonInfo).Column("discount_reason_info");
 			Map(x => x.CanEditNomenclatureCount).Column("can_edit_nomenclature_count");
 			Map(x => x.CanBeAddedWithOtherPromoSets).Column("can_be_added_with_other_promosets");
+			Map(x => x.CanBeReorderedWithoutRestriction).Column("can_be_reordered_without_restriction");
 			HasMany(x => x.PromotionalSetItems).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("promotional_set_id");
 			HasManyToMany(x => x.Orders).Table("promotional_sets_to_orders")
 								.ParentKeyColumn("promotional_set_id")
