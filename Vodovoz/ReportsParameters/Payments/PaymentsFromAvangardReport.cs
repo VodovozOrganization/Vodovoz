@@ -32,7 +32,7 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		#region IParametersWidget implementation
 
-		public string Title => "Отчет по оплатам СБП Авангарда";
+		public string Title => "Отчет по оплатам Авангарда";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
