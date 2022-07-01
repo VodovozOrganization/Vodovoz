@@ -2216,7 +2216,8 @@ namespace Vodovoz.Domain.Orders
 		/// <c>false</c> если нельзя.</returns>
 		public virtual bool CanUsedPromo(IPromotionalSetRepository promotionalSetRepository)
 		{
-			return Client.PersonType == PersonType.natural
+			return !SelfDelivery
+				&& Client.PersonType == PersonType.natural
 				&& ((DeliveryPoint.RoomType == RoomType.Office) || (DeliveryPoint.RoomType == RoomType.Store))
 				&& promotionalSetRepository.AddressHasAlreadyBeenUsedForPromo(UoW, deliveryPoint);
 		}
