@@ -1494,6 +1494,8 @@ namespace Vodovoz
 			if(Entity.DeliveryPoint != null) {
 				phones.AddRange(Entity.DeliveryPoint.Phones);
 			}
+
+			bool hasPromoInOrders = Entity.PromotionalSets.Count != 0;
 			bool canBeReorderedWithoutRestriction = Entity.PromotionalSets.Any(x => x.CanBeReorderedWithoutRestriction);
 
 			if(!canBeReorderedWithoutRestriction && Entity.OrderItems.Any(x => x.PromoSet != null))
@@ -1503,7 +1505,9 @@ namespace Vodovoz
 					return false;
 				}
 			}
-			if(!canBeReorderedWithoutRestriction && Entity.CanUsedPromo(_promotionalSetRepository))
+			if( hasPromoInOrders
+			    && !canBeReorderedWithoutRestriction 
+				&& Entity.CanUsedPromo(_promotionalSetRepository))
 			{
 				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n" +
 								 "Пожалуйста удалите промо набор или поменяйте адрес доставки.";
