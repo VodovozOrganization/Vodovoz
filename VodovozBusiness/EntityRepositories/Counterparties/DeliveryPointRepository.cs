@@ -57,7 +57,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var bottlesOrdered = notConfirmedQueryResult.FirstOrDefault().GetValueOrDefault()
 				+ confirmedQueryResult.FirstOrDefault().GetValueOrDefault();
 
-			return (int) bottlesOrdered;
+			return (int)bottlesOrdered;
 		}
 
 		public decimal GetAvgBottlesOrdered(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
@@ -82,7 +82,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var list = confirmedQueryResult.Select(Projections.Group<Order>(x => x.Id),
 				Projections.Sum(() => orderItemAlias.Count)).List<object[]>();
 
-			return list.Count > 0 ? list.Average(x => (decimal) x[1]) : 0;
+			return list.Count > 0 ? list.Average(x => (decimal)x[1]) : 0;
 		}
 
 		public IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow)
@@ -110,11 +110,51 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				result = uow.Session.QueryOver<NomenclatureFixedPrice>(() => fixedPriceAlias)
 					.Inner.JoinAlias(() => fixedPriceAlias.DeliveryPoint, () => deliveryPointAlias)
 					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
-					.SelectList( list => list.SelectGroup( () => deliveryPointAlias.ShortAddress ) )
+					.SelectList(list => list.SelectGroup(() => deliveryPointAlias.ShortAddress))
 					.List<string>();
 			}
 
 			return result;
+		}
+
+		public bool CheckingAnAddressForDeliveryForNewCustomers(IUnitOfWork uow, DeliveryPoint deliveryPoint)
+		{
+			string building = GetBuildingNumber(deliveryPoint.Building);
+			DeliveryPoint deliveryPointAlias = null;
+			Counterparty counterpartyAlias = null;
+
+			var result = uow.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias)
+									.JoinAlias(() => deliveryPointAlias.Counterparty, () => counterpartyAlias)
+									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
+											  && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
+											  && deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
+											  && deliveryPointAlias.Room == deliveryPoint.Room
+											  && deliveryPointAlias.Id != deliveryPoint.Id)
+									.List<DeliveryPoint>();
+
+			return result.Count() == 0;
+		}
+
+		private string GetBuildingNumber(string building)
+		{
+			string buildingNumber = string.Empty;
+
+			foreach(var ch in building)
+			{
+				if(char.IsDigit(ch))
+				{
+					buildingNumber += ch;
+				}
+				else
+				{
+					if(buildingNumber != string.Empty)
+					{
+						break;
+					}
+				}
+			}
+
+			return buildingNumber;
 		}
 	}
 }

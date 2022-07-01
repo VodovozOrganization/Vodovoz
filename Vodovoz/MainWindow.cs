@@ -153,6 +153,7 @@ using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -316,6 +317,7 @@ public partial class MainWindow : Gtk.Window
 			ActionBookkeepping.Visible =
 			ActionCashMenubar.Visible = // Касса
 			ActionRetailMenubar.Visible =
+			ActionTransportMenuBar.Visible =
 			ActionProduction.Visible = !userIsSalesRepresentative;// Производство
 
 		// Отчеты в Продажи
@@ -1649,8 +1651,8 @@ public partial class MainWindow : Gtk.Window
 	protected void OnImageListOpenActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<StoredImageResource>(),
-			() => new OrmReference(typeof(StoredImageResource))
+			OrmReference.GenerateHashName<StoredResource>(),
+			() => new OrmReference(typeof(StoredResource))
 		);
 	}
 
@@ -2083,8 +2085,9 @@ public partial class MainWindow : Gtk.Window
 
 		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
-		NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory>
-			(null, employeeJournalFactory, OpenPageOptions.IgnoreHash);
+		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory, bool>
+			(null, employeeJournalFactory, false, OpenPageOptions.IgnoreHash);
+		page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 	}
 
 	protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)
@@ -2624,5 +2627,58 @@ public partial class MainWindow : Gtk.Window
     {
 		var viewModel = autofacScope.Resolve<RoboatsCatalogExportViewModel>();
 		tdiMain.OpenTab(nameof(RoboatsCatalogExportViewModel), () => viewModel);
+	}
+
+	protected void OnActionPaymentsFromAvangardReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromAvangardReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromAvangardReport())
+		);
+	}
+
+	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
+	{
+		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
+		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+		IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
+			= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
+				() =>
+				{
+					var filter = new CarJournalFilterViewModel(new CarModelJournalFactory())
+					{
+						Archive = false
+					};
+					filter.SetFilterSensitivity(false);
+					filter.CanChangeRestrictedCarOwnTypes = true;
+					return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices);
+				}
+			);
+
+		var viewModel = new CostCarExploitationReportViewModel(
+			uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliverySalesReportViewModel viewModel = new FastDeliverySalesReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
 	}
 }

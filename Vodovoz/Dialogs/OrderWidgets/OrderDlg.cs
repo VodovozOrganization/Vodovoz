@@ -100,6 +100,8 @@ using Vodovoz.ViewModels.Orders;
 using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz
 {
@@ -544,8 +546,10 @@ namespace Vodovoz
 			var excludedPaymentFromIds = new[]
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
+				_orderParametersProvider.GetPaymentByCardFromAvangardId,
 				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
-				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode
+				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode,
+				_orderParametersProvider.PaymentByCardFromOnlineStoreId
 			};
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
 			{
@@ -655,10 +659,11 @@ namespace Vodovoz
 			labelCashToReceive.Binding.AddFuncBinding(Entity, e => CurrencyWorks.GetShortCurrencyString(e.OrderCashSum), w => w.LabelProp).InitializeFromSource();
 
 			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
-			textManagerComments.Binding.AddBinding(Entity, s => s.CommentManager, w => w.Buffer.Text).InitializeFromSource();
-			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
-			enumDiverCallType.Binding.AddBinding(Entity, s => s.DriverCallType, w => w.SelectedItem).InitializeFromSource();
+			textManagerComments.Binding.AddBinding(Entity, e => e.CommentManager, w => w.Buffer.Text).InitializeFromSource();
+			textDriverCommentFromMobile.Binding.AddBinding(Entity, e => e.DriverMobileAppComment, w => w.Buffer.Text).InitializeFromSource();
 
+			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
+			enumDiverCallType.Binding.AddBinding(Entity, e => e.DriverCallType, w => w.SelectedItem).InitializeFromSource();
 			driverCallId.Binding.AddFuncBinding(Entity, e => e.DriverCallId == null ? "" : e.DriverCallId.ToString(), w => w.LabelProp).InitializeFromSource();
 
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
@@ -696,8 +701,11 @@ namespace Vodovoz
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
+			bool showEshop = Entity.EShopOrder == null;
+			labelEShop.Visible = !showEshop;
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
 			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
+			yvalidatedentryEShopOrder.Visible = !showEshop;
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
@@ -891,15 +899,22 @@ namespace Vodovoz
 				return;
 			}
 
-			var verificationData =
-				new FastDeliveryVerificationData(
-					Entity.Id,
-					Entity.DeliveryPoint.ShortAddress,
-					(double)Entity.DeliveryPoint.Latitude.Value,
-					(double)Entity.DeliveryPoint.Longitude.Value,
-					Entity.GetAllGoodsToDeliver());
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationData>(
-				null, UoW, verificationData);
+			var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
+				UoW,
+				(double)Entity.DeliveryPoint.Latitude.Value,
+				(double)Entity.DeliveryPoint.Longitude.Value,
+				isGetClosestByRoute: false,
+				_deliveryRulesParametersProvider,
+				Entity.GetAllGoodsToDeliver(),
+				Entity
+			);
+
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
+
+			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
+			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
+				null, fastDeliveryVerificationViewModel);
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1319,8 +1334,12 @@ namespace Vodovoz
 		private void OldFieldsConfigure()
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
-			hbxTareComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
-			hbxTareComments.Sensitive = CanEditByPermission && !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			var tareVisible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			textTaraComments.Sensitive = CanEditByPermission && !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+
+			labelTaraComments.Visible = tareVisible;
+			textTaraComments.Visible = tareVisible;
+			GtkScrolledWindow4.Visible = tareVisible;
 
 			if (Entity.Client != null)
 			{
@@ -1333,8 +1352,12 @@ namespace Vodovoz
 				}
 				else
 				{
-					hbxODZComments.Visible = false;
-					hbxOPComments.Visible = false;
+					textOPComments.Visible = false;
+					labelOPComments.Visible = false;
+					GtkScrolledWindow6.Visible = false;
+					labelODZComments.Visible = false;
+					textODZComments.Visible = false;
+					GtkScrolledWindow8.Visible = false;
 				}
 			}
 
@@ -1477,12 +1500,25 @@ namespace Vodovoz
 			if(Entity.DeliveryPoint != null) {
 				phones.AddRange(Entity.DeliveryPoint.Phones);
 			}
-			if(Entity.OrderItems.Any(x => x.PromoSet != null))
+
+			bool hasPromoInOrders = Entity.PromotionalSets.Count != 0;
+			bool canBeReorderedWithoutRestriction = Entity.PromotionalSets.Any(x => x.CanBeReorderedWithoutRestriction);
+
+			if(!canBeReorderedWithoutRestriction && Entity.OrderItems.Any(x => x.PromoSet != null))
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones))
 				{
 					return false;
 				}
+			}
+			if( hasPromoInOrders
+			    && !canBeReorderedWithoutRestriction 
+				&& Entity.CanUsedPromo(_promotionalSetRepository))
+			{
+				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n" +
+								 "Пожалуйста удалите промо набор или поменяйте адрес доставки.";
+				MessageDialogHelper.RunWarningDialog( message );
+				return false;
 			}
 
 			PrepareSendBillInformation();
@@ -1534,17 +1570,29 @@ namespace Vodovoz
 					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
 				}
 
-				routeListToAddOrderTo = _deliveryRepository.GetRouteListForFastDelivery(
+				var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
 					UoW,
 					(double)Entity.DeliveryPoint.Latitude.Value,
 					(double)Entity.DeliveryPoint.Longitude.Value,
-					true,
+					isGetClosestByRoute: true,
 					_deliveryRulesParametersProvider,
-					Entity.GetAllGoodsToDeliver()
+					Entity.GetAllGoodsToDeliver(),
+					Entity
 				);
+
+				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
+				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
+
+				routeListToAddOrderTo = fastDeliveryAvailabilityHistory.Items
+					.FirstOrDefault(x => x.IsValidToFastDelivery)
+					?.RouteList;
+
 				if(routeListToAddOrderTo == null)
 				{
-					MessageDialogHelper.RunWarningDialog("Не удалось подобрать МЛ для доставки за час");
+					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
+					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
+						null, UoW, fastDeliveryVerificationViewModel);
+
 					return false;
 				}
 			}

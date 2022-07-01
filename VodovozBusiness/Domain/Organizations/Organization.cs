@@ -4,6 +4,7 @@ using DataAnnotationsExtensions;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.StoredResources;
@@ -14,6 +15,7 @@ namespace Vodovoz.Domain.Organizations
         NominativePlural = "организации",
         Nominative = "организация")]
     [EntityPermission]
+	[HistoryTrace]
     public class Organization : AccountOwnerBase, IDomainObject
     {
         public Organization()
@@ -147,9 +149,9 @@ namespace Vodovoz.Domain.Organizations
             set => SetField(ref withoutVAT, value);
         }
 
-        private StoredImageResource stamp;
+        private StoredResource stamp;
         [Display(Name = "Печать")]
-        public virtual StoredImageResource Stamp
+        public virtual StoredResource Stamp
         {
             get => stamp;
             set => SetField(ref stamp, value);

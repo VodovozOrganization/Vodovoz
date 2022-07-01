@@ -685,6 +685,7 @@ namespace Vodovoz
 					Save();
 					UpdateButtonStatus();
 					createroutelistitemsview1.SubscribeOnChanges();
+					UpdateAdditionalLoadingWidgets();
 
 					return;
 				}

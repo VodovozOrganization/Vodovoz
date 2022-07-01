@@ -123,6 +123,14 @@ namespace Vodovoz.EntityRepositories.Payments
 				.SingleOrDefault();
 		}
 		
+		public IList<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.QueryOver<Payment>()
+				.Where(p => p.RefundPaymentFromOrderId == orderId)
+				.And(p => p.Status != PaymentState.Cancelled)
+				.List();
+		}
+		
 		public IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments)
 		{
@@ -258,6 +266,17 @@ namespace Vodovoz.EntityRepositories.Payments
 				.OrderBy(balanceProjection).Desc
 				.TransformUsing(Transformers.AliasToBean<UnallocatedBalancesJournalNode>())
 				.SetTimeout(180);
+		}
+		
+		public bool PaymentFromAvangardExists(IUnitOfWork uow, DateTime paidDate, int orderNum, decimal orderSum)
+		{
+			var payment = uow.Session.QueryOver<PaymentFromAvangard>()
+				.Where(p => p.OrderNum == orderNum)
+				.And(p => p.PaidDate == paidDate)
+				.And(p => p.TotalSum == orderSum)
+				.SingleOrDefault<PaymentFromAvangard>();
+			
+			return payment != null;
 		}
 	}
 	

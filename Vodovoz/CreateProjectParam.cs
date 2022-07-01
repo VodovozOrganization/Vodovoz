@@ -166,7 +166,11 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
-//using Vodovoz.ViewModels.Dialogs.Organization;
+using Vodovoz.ViewModels.ViewModels.Payments;
+using Vodovoz.Views.Payments;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.Project.Services.FileDialog;
+using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 
 namespace Vodovoz
 {
@@ -291,6 +295,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboatsCatalogExportViewModel, RoboatsCatalogExportView>()
 				.RegisterWidgetForTabViewModel<RoboatsWaterTypeViewModel, RoboatsWaterTypeView>()
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
+				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
 				;
 
             //Регистрация виджетов
@@ -358,6 +363,10 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveryTransferAbsenceReasonJournalFilterViewModel, UndeliveryTransferAbsenceReasonJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProductionWarehouseMovementReportViewModel, ProductionWarehouseMovementReportView>()
 				.RegisterWidgetForWidgetViewModel<TrackPointJournalFilterViewModel, TrackPointJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<FastDeliveryAvailabilityFilterViewModel, FastDeliveryAvailabilityFilterView>()
+				.RegisterWidgetForWidgetViewModel<CostCarExploitationReportViewModel, CostCarExploitationReportView>()
+				.RegisterWidgetForWidgetViewModel<FastDeliverySalesReportViewModel, FastDeliverySalesReportView>()
+				.RegisterWidgetForWidgetViewModel<FastDeliveryAdditionalLoadingReportViewModel, FastDeliveryAdditionalLoadingReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -533,6 +542,8 @@ namespace Vodovoz
 				.AsSelf()
 				.AsImplementedInterfaces()
 				.SingleInstance();
+				
+			builder.RegisterType<PaymentFromAvangardFactory>().As<IPaymentFromAvangardFactory>();
 
 			#endregion
 

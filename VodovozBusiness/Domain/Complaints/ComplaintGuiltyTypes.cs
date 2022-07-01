@@ -13,7 +13,9 @@ namespace Vodovoz.Domain.Complaints
 		[Display(Name = "Сотрудник")]
 		Employee,
 		[Display(Name = "Поставщик")]
-		Supplier
+		Supplier,
+		[Display( Name = "Износ" )]
+		Depreciation
 	}
 
 	public class ComplaintGuiltyTypesStringType : NHibernate.Type.EnumStringType

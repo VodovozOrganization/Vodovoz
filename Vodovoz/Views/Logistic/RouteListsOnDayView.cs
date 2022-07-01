@@ -504,11 +504,23 @@ namespace Vodovoz.Views.Logistic
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
+				if(!order.DeliveryPoint.Latitude.HasValue || !order.DeliveryPoint.Longitude.HasValue)
+				{
+					addressesWithoutCoordinats++;
+				}
+				else if(!orderRls.Any() || ViewModel.ShowCompleted)
 				{
 					bool overdueOrder = false;
-					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
-						x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department);
+
+					List<UndeliveryOrderNode> undeliveryOrderNodes = new List<UndeliveryOrderNode>();
+
+					if(ViewModel.UndeliveredOrdersOnDay != null)
+					{
+						undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay
+							.Where(x => x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department)
+							.ToList();
+					}
+
 					if(undeliveryOrderNodes.Any(x => x.NewOrderId == order.Id))
 					{
 						overdueOrder = true;
@@ -520,11 +532,8 @@ namespace Vodovoz.Views.Logistic
 						type = PointMarkerType.white;
 
 					var addressMarker = FillAddressMarker(order, type, shape, addressesOverlay, route);
-
 					addressesOverlay.Markers.Add(addressMarker);
 				}
-				else
-					addressesWithoutCoordinats++;
 			}
 			
 			UpdateOrdersInfo();

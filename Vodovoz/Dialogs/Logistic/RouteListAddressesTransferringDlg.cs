@@ -44,7 +44,6 @@ namespace Vodovoz
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IEmployeeService _employeeService;
@@ -70,15 +69,13 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository,
-			INomenclatureParametersProvider nomenclatureParametersProvider)
+			ICategoryRepository categoryRepository)
 		{
 			Build();
 			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
 				?? throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
 			_terminalNomenclatureProvider = terminalNomenclatureProvider
 				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -98,8 +95,7 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository,
-			INomenclatureParametersProvider nomenclatureParametersProvider)
+			ICategoryRepository categoryRepository)
 			: this(
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
@@ -107,8 +103,7 @@ namespace Vodovoz
 				routeListItemRepository,
 				employeeService,
 				commonServices,
-				categoryRepository,
-				nomenclatureParametersProvider)
+				categoryRepository)
 		{
 			var rl = UoW.GetById<RouteList>(routeListId);
 
@@ -221,16 +216,12 @@ namespace Vodovoz
 			else
 			{
 				config.AddColumn("Нужна загрузка")
-					  .AddToggleRenderer(x => x.LeftNeedToReload).Radio()
-					  .AddSetter((c, x) => c.Activatable = !x.IsFastDelivery)
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-					  .AddTextRenderer(x => "Да")
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-					  .AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
-					  .AddSetter((c, x) => c.Activatable = !x.IsFastDelivery)
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-					  .AddTextRenderer(x => "Нет")
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered);
+					.AddToggleRenderer(x => x.LeftNeedToReload).Radio()
+					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery)
+					.AddTextRenderer(x => (x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery) ? "Да" : "")
+					.AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
+					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery)
+					.AddTextRenderer(x => (x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery) ? "Нет" : "");
 			}
 
 			return config.AddColumn("Нужен терминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
@@ -412,7 +403,7 @@ namespace Vodovoz
 				if(row.IsFastDelivery)
 				{
 					var hasEnoughQuantityForFastDelivery = _routeListItemRepository
-						.HasEnoughQuantityForFastDelivery(UoW, row.RouteListItem, routeListTo, _nomenclatureParametersProvider.FastDeliveryNomenclatureId);
+						.HasEnoughQuantityForFastDelivery(UoW, row.RouteListItem, routeListTo);
 
 					if(!hasEnoughQuantityForFastDelivery)
 					{

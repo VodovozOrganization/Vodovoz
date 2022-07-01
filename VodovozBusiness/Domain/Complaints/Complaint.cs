@@ -294,6 +294,7 @@ namespace Vodovoz.Domain.Complaints
 			}
 
 			ComplaintDiscussion newDiscussion = new ComplaintDiscussion();
+			newDiscussion.StartSubdivisionDate = DateTime.Now;
 			newDiscussion.PlannedCompletionDate = DateTime.Today;
 			newDiscussion.Complaint = this;
 			newDiscussion.Subdivision = subdivision;

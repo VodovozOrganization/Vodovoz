@@ -13,6 +13,8 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.Project.Services.FileDialog;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
@@ -58,6 +60,7 @@ using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -106,6 +109,7 @@ public partial class MainWindow : Window
 	Action ActionBottleDebtors;
 	Action ActionIncomingCallsAnalysisReport;
 	Action ActionRoboatsCallsRegistry;
+	Action ActionDriversTareMessages;
 
 	//Логистика
 	Action ActionRouteListTable;
@@ -116,6 +120,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListKeeping;
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
+	Action ActionFastDeliveryAvailabilityJournal;
 
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
@@ -138,6 +143,7 @@ public partial class MainWindow : Window
 	Action ActionImportPaymentsByCard;
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionUnallocatedBalancesJournal;
+	Action ActionImportPaymentsFromAvangard;
 
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
@@ -181,6 +187,7 @@ public partial class MainWindow : Window
 		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
 		ActionRoboatsCallsRegistry = new Action(nameof(ActionRoboatsCallsRegistry), "Реестр звонков Roboats", null, "table");
 
+		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
 
@@ -201,7 +208,7 @@ public partial class MainWindow : Window
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
-
+		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "Доставка за час", null, "table");
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -225,6 +232,7 @@ public partial class MainWindow : Window
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
+		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -272,6 +280,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionBottleDebtors, null);
 		w1.Add(ActionIncomingCallsAnalysisReport, null);
 		w1.Add(ActionRoboatsCallsRegistry, null);
+		w1.Add(ActionDriversTareMessages, null);
 
 		//Логистика
 		w1.Add(ActionRouteListTable, null);
@@ -288,6 +297,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionCarProxiesJournal, null);
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
+		w1.Add(ActionFastDeliveryAvailabilityJournal, null);
 
 		//Бухгалтерия
 		w1.Add(ActionTransferBankDocs, null);
@@ -301,6 +311,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionImportPaymentsByCard, null);
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionUnallocatedBalancesJournal, null);
+		w1.Add(ActionImportPaymentsFromAvangard, null);
 
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
@@ -358,6 +369,7 @@ public partial class MainWindow : Window
 		ActionIncomingCallsAnalysisReport.Activated += OnActionIncomingCallsAnalysisReportActivated;
 		ActionRoboatsCallsRegistry.Activated += ActionRoboatsCallsRegistryActivated;
 
+		ActionDriversTareMessages.Activated += OnActionDriversTareMessagesActivated;
 		//Логистика
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		ActionAtWorks.Activated += ActionAtWorks_Activated;
@@ -367,6 +379,7 @@ public partial class MainWindow : Window
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
+		ActionFastDeliveryAvailabilityJournal.Activated += ActionFastDeliveryAvailabilityJournal_Activated;
 
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
@@ -386,6 +399,7 @@ public partial class MainWindow : Window
 		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
+		ActionImportPaymentsFromAvangard.Activated += OnActionImportPaymentsFromAvangardActivated;
 
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
@@ -428,6 +442,10 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<IncomingCallsAnalysisReportViewModel>(null);
 	}
 
+	private void OnActionDriversTareMessagesActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriverTareMessagesJournalViewModel>(null);
+	}
 	private void ActionSalariesJournal_Activated(object sender, EventArgs e)
 	{
 		var filter = new SalaryByEmployeeJournalFilterViewModel(new SubdivisionRepository(new ParametersProvider()), EmployeeStatus.IsWorking);
@@ -527,7 +545,6 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
-		var nomenclatureParameterProvider = new NomenclatureParametersProvider(parametersProvider);
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
 		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
@@ -541,8 +558,7 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider),
-				nomenclatureParameterProvider
+				new CategoryRepository(parametersProvider)
 			)
 		);
 	}
@@ -679,6 +695,11 @@ public partial class MainWindow : Window
 	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
+	}
+	
+	private void OnActionImportPaymentsFromAvangardActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ImportPaymentsFromAvangardSbpViewModel>(null);
 	}
 
 	private void OnActionUnallocatedBalancesJournalActivated(object sender, EventArgs e)
@@ -952,11 +973,16 @@ public partial class MainWindow : Window
 		var employeeRepository = new EmployeeRepository();
 		var chatRepository = new ChatRepository();
 		var trackRepository = new TrackRepository();
+		var stockRepository = new StockRepository();
+		var terminalNomenclatureProvider = new BaseParametersProvider(new ParametersProvider());
+		var routeListRepository = new RouteListRepository(stockRepository, terminalNomenclatureProvider);
+		var scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		var deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
+			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, routeListRepository, scheduleRestrictionRepository,
+				deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
 		);
 	}
 
@@ -1154,7 +1180,8 @@ public partial class MainWindow : Window
 		var carEventFilter = new CarEventFilterViewModel(
 			carJournalFactory,
 			carEventTypeJournalFactory,
-			new EmployeeJournalFactory()) { HidenByDefault = true };
+			new EmployeeJournalFactory())
+		{ HidenByDefault = true };
 
 		tdiMain.OpenTab(() => new CarEventJournalViewModel(
 			carEventFilter,
@@ -1164,6 +1191,32 @@ public partial class MainWindow : Window
 			carEventTypeJournalFactory,
 			VodovozGtkServicesConfig.EmployeeService,
 			employeeFactory)
+		);
+	}
+
+	void ActionFastDeliveryAvailabilityJournal_Activated(object sender, EventArgs e)
+	{
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		IFileDialogService fileDialogService = new FileDialogService();
+		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
+			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
+
+		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
+		{
+			HidenByDefault = true,
+			VerificationDateFrom = DateTime.Now.Date,
+			VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23,59,59))
+		};
+
+		tdiMain.OpenTab(() => new FastDeliveryAvailabilityHistoryJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
+			fileDialogService,
+			fastDeliveryAvailabilityHistoryParameterProvider)
 		);
 	}
 }

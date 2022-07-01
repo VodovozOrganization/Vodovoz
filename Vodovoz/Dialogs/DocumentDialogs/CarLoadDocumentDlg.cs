@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -172,9 +173,21 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(Entity.Items.Any(x => x.Amount == 0)) {
-				if(MessageDialogHelper.RunQuestionDialog("<span foreground=\"red\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>"))
-					Entity.ClearItemsFromZero();
+			if(Entity.Items.Any(x => x.Amount == 0))
+			{
+				var res = MessageDialogHelper.RunQuestionYesNoCancelDialog(
+					"<span foreground=\"red\">В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?</span>");
+				switch(res)
+				{
+					case -4:			//DeleteEvent
+					case -6:			//Cancel
+						return false;
+					case -8:			//Yes
+						Entity.ClearItemsFromZero();
+						break;
+					case -9:			//No
+						break;
+				}
 			}
 
 			Entity.UpdateOperations(UoW);
@@ -226,8 +239,20 @@ namespace Vodovoz
 
 		protected void OnEnumPrintEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
-			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(CarLoadDocument), "талона"))
-				Save();
+			if(UoWGeneric.HasChanges)
+			{
+				if(CommonDialogs.SaveBeforePrint(typeof(CarLoadDocument), "талона"))
+				{
+					if(!Save())
+					{
+						return;
+					}
+				}
+				else
+				{
+					return;
+				}
+			}
 
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,

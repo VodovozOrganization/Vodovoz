@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -44,5 +46,9 @@ namespace Vodovoz.Domain.Logistic
 		private GenericObservableList<AdditionalLoadingDocumentItem> _observableItems;
 		public virtual GenericObservableList<AdditionalLoadingDocumentItem> ObservableItems =>
 			_observableItems ?? (_observableItems = new GenericObservableList<AdditionalLoadingDocumentItem>(Items));
+
+		public virtual bool HasItemsNeededToLoad => Items.Any(item =>
+			!Nomenclature.GetCategoriesNotNeededToLoad().Contains(item.Nomenclature.Category)
+			&& !item.Nomenclature.NoDelivery);
 	}
 }

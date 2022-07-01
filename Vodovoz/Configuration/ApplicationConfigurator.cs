@@ -312,7 +312,7 @@ namespace Vodovoz.Configuration
                 .OrderAsc(x => x.IsArchive)
                 .OrderAsc(x => x.Id)
                 .End();
-            OrmMain.AddObjectDescription<StoredImageResource>().Dialog<ImageLoaderDlg>().DefaultTableView()
+            OrmMain.AddObjectDescription<StoredResource>().Dialog<ImageLoaderDlg>().DefaultTableView()
                 .SearchColumn("Номер", x => x.Id.ToString())
                 .SearchColumn("Название", x => x.Name)
                 .End();

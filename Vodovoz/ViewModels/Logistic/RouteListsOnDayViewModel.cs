@@ -144,7 +144,39 @@ namespace Vodovoz.ViewModels.Logistic
 			CreateCommands();
 			LoadAddressesTypesDefaults();
 		}
-		
+
+		private void AddAddressTypeFilter(IQueryOver<Order, Order> query)
+		{
+			foreach(var node in OrderAddressTypes)
+			{
+				if(node.Selected)
+				{
+					continue;
+				}
+
+				if(node.IsFastDelivery)
+				{
+					query.Where(x => !x.IsFastDelivery);
+				}
+				else if(node.OrderAddressType == OrderAddressType.Delivery)
+				{
+					var isFastDeliveryChecked = OrderAddressTypes.SingleOrDefault(x => x.IsFastDelivery && x.Selected) != null;
+					if(isFastDeliveryChecked)
+					{
+						query.Where(x => x.IsFastDelivery);
+					}
+					else
+					{
+						query.Where(x => x.OrderAddressType != node.OrderAddressType);
+					}
+				}
+				else
+				{
+					query.Where(x => x.OrderAddressType != node.OrderAddressType);
+				}
+			}
+		}
+
 		public ICommonServices CommonServices { get; }
 		public ICarRepository CarRepository { get; }
 		public IList<GeographicGroup> GeographicGroupsExceptEast { get; }
@@ -604,6 +636,7 @@ namespace Vodovoz.ViewModels.Logistic
 		#endregion
 
 		public IEnumerable<OrderAddressTypeNode> OrderAddressTypes { get; } = new[] {
+			new OrderAddressTypeNode(isFastDelivery:true),
 			new OrderAddressTypeNode(OrderAddressType.Delivery),
 			new OrderAddressTypeNode(OrderAddressType.Service),
 			new OrderAddressTypeNode(OrderAddressType.ChainStore),
@@ -1170,17 +1203,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 				var baseOrderQuery = query.GetExecutableQueryOver(UoW.Session);
 
-				#region AddressTypeFilter
-
-				foreach(var elem in OrderAddressTypes)
-				{
-					if(!elem.Selected)
-					{
-						baseOrderQuery.Where(x => x.OrderAddressType != elem.OrderAddressType);
-					}
-				}
-
-				#endregion
+				AddAddressTypeFilter(baseOrderQuery);
 
 				if(selectedGeographicGroup.Any())
 				{
@@ -1221,6 +1244,14 @@ namespace Vodovoz.ViewModels.Logistic
 								.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
 								.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
 								.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
+								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+								.Distinct().ToList()
+							;
+						break;
+					case DeliveryScheduleFilterType.OrderCreateDate:
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+								.Where(x => x.CreateDate.Value.TimeOfDay >= DeliveryFromTime)
+								.Where(x => x.CreateDate.Value.TimeOfDay <= DeliveryToTime)
 								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
 								.Distinct().ToList()
 							;
@@ -1409,13 +1440,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.And(o => o.OrderAddressType != OrderAddressType.Service);
 			if(OrderAddressTypes.Any(x => x.Selected))
 			{
-				foreach(var elem in OrderAddressTypes)
-				{
-					if(!elem.Selected)
-					{
-						baseQuery.Where(x => x.OrderAddressType != elem.OrderAddressType);
-					}
-				}
+				AddAddressTypeFilter(baseQuery);
 
 				var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 				

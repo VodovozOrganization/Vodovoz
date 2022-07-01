@@ -19,6 +19,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -44,6 +45,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
+		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public DeliveryPointViewModel(
@@ -202,7 +204,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 				if(_isBuildingsInLoadingProcess)
 				{
-					ShowWarningMessage( "Программа загружает координаты, попробуйте повторно сохранить точку доставки.");
+					ShowWarningMessage("Программа загружает координаты, попробуйте повторно сохранить точку доставки.");
 					return false;
 				}
 
@@ -226,7 +228,17 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				{
 					return false;
 				}
-				if (UoW.IsNew)
+
+				if(!_deliveryPointRepository.CheckingAnAddressForDeliveryForNewCustomers(UoW, Entity))
+				{
+					var createDeliveryPoint = AskQuestion($"Уточните с клиентом: Данный адрес уже используется контрагентом. Вы уверены, что хотите создать точку доставки?");
+					if(!createDeliveryPoint)
+					{
+						return false;
+					}
+				}
+
+				if(UoW.IsNew)
 				{
 					ShowAddressesWithFixedPrices();
 				}
@@ -388,7 +400,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				_isBuildingsInLoadingProcess = true;
 
-				var address = $"{Entity.LocalityType} {Entity.City}, {Entity.Street} {Entity.StreetType}, {Entity.Building}";
+				var address = $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict} {Entity.Street} {Entity.StreetType}, {Entity.Building}";
 				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
 				if(findedByGeoCoder != null)
 				{
