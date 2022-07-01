@@ -36,7 +36,7 @@ namespace RoboAtsService.Requests
 			{
 				_logger.LogError(ex, "При обработке запроса информации об адресе возникло исключение");
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnAddressHandle,
-						$"При обработке запроса информации об адресе возникло исключение: {ex.Message}");
+						$"При обработке запроса информации об адресе возникло исключение: {ex.Message}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 		}
@@ -50,12 +50,12 @@ namespace RoboAtsService.Requests
 				if(counterpartyCount > 1)
 				{
 					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck,
-						$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}");
+						$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				}
 				else
 				{
 					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
-						$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}");
+						$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				}
 
 				return ErrorMessage;
@@ -91,7 +91,7 @@ namespace RoboAtsService.Requests
 			else
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.GetDeliveryPoints,
-					$"Для контрагента {counterpartyId} не найдены подходящие точки доставки или последний заказ(ы) не соответствует параметрам выборки робота");
+					$"Для контрагента {counterpartyId} не найдены подходящие точки доставки или последние заказы не соответствуют условиям.");
 				return "NO DATA";
 			}
 		}
@@ -101,7 +101,7 @@ namespace RoboAtsService.Requests
 			if(!int.TryParse(RequestDto.AddressId, out int addressId))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectAddressId, RoboatsCallOperation.GetStreetId,
-					$"Некорректный код точки доставки {RequestDto.AddressId}");
+					$"Некорректный код точки доставки {RequestDto.AddressId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
@@ -114,7 +114,7 @@ namespace RoboAtsService.Requests
 			else
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.StreetNotFound, RoboatsCallOperation.GetStreetId,
-					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найдена улица в справочнике Roboats");
+					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найдена улица в справочнике Roboats. Проверьте справочник улиц Roboats.");
 				return "NO DATA";
 			}
 		}
@@ -124,7 +124,7 @@ namespace RoboAtsService.Requests
 			if(!int.TryParse(RequestDto.AddressId, out int addressId))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectAddressId, RoboatsCallOperation.GetHouseNumber,
-					$"Некорректный код точки доставки {RequestDto.AddressId}");
+					$"Некорректный код точки доставки {RequestDto.AddressId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
@@ -138,7 +138,7 @@ namespace RoboAtsService.Requests
 			if(string.IsNullOrWhiteSpace(deliveryPointBuilding) || string.IsNullOrWhiteSpace(result))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.HouseNotFound, RoboatsCallOperation.GetHouseNumber,
-					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер дома");
+					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер дома.");
 				return "NO DATA";
 			}
 
@@ -157,7 +157,7 @@ namespace RoboAtsService.Requests
 			if(!int.TryParse(RequestDto.AddressId, out int addressId))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectAddressId, RoboatsCallOperation.GetCorpusNumber,
-					$"Некорректный код точки доставки {RequestDto.AddressId}");
+					$"Некорректный код точки доставки {RequestDto.AddressId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 			string result = string.Empty;
@@ -171,13 +171,14 @@ namespace RoboAtsService.Requests
 			if(string.IsNullOrWhiteSpace(deliveryPointBuilding))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.HouseNotFound, RoboatsCallOperation.GetCorpusNumber,
-					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер дома");
+					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер дома.");
 				return "NO DATA";
 			}
 
 			if(string.IsNullOrWhiteSpace(result))
 			{
-				return "NO DATA"; //решили не писать в базу т.к. есть адреса без корпусов, а сообщение сохранялось
+				//решили не писать в мониторинг roboats т.к. есть адреса без корпусов
+				return "NO DATA"; 
 			}
 
 			return result;
@@ -198,7 +199,7 @@ namespace RoboAtsService.Requests
 			if(!int.TryParse(RequestDto.AddressId, out int addressId))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectAddressId, RoboatsCallOperation.GetStreetId,
-					$"Некорректный код точки доставки {RequestDto.AddressId}");
+					$"Некорректный код точки доставки {RequestDto.AddressId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
@@ -213,7 +214,7 @@ namespace RoboAtsService.Requests
 			if(string.IsNullOrWhiteSpace(deliveryPointApartment) || string.IsNullOrWhiteSpace(result))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ApartmentNotFound, RoboatsCallOperation.GetApartmentNumber,
-					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер квартиры");
+					$"Для контрагента {counterpartyId} по точке доставки {addressId} не найден номер квартиры.");
 				return "NO DATA";
 			}
 

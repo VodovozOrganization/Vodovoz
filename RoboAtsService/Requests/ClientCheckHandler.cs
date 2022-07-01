@@ -26,7 +26,7 @@ namespace RoboAtsService.Requests
 			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
 			if(requestDto.RequestType != _requestType)
 			{
-				throw new InvalidOperationException($"Обработчик {nameof(ClientCheckHandler)} может обрабатывать только запросы с типом {_requestType}");
+				throw new InvalidOperationException($"Обработчик {nameof(ClientCheckHandler)} может обрабатывать только запросы с типом {_requestType}. Обратитесь в отдел разработки.");
 			}
 		}
 		public override string Execute()
@@ -39,7 +39,7 @@ namespace RoboAtsService.Requests
 			{
 				_logger.LogError(ex, "При обработке запроса информации о клиенте возникло исключение");
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnClientHandle,
-						$"При обработке запроса информации о клиенте возникло исключение: {ex.Message}");
+						$"При обработке запроса информации о клиенте возникло исключение: {ex.Message}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 		}
@@ -51,7 +51,7 @@ namespace RoboAtsService.Requests
 			if(counterpartyCount > 1)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck, 
-					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}");
+					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				return ErrorMessage;
 			}
 
@@ -77,14 +77,14 @@ namespace RoboAtsService.Requests
 			if(!counterpartyId.HasValue)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientName, 
-					$"Для телефона {ClientPhone} не найден контрагент");
+					$"Для телефона {ClientPhone} не найден контрагент.");
 				return "NO DATA";
 			}
 			var nameId = _roboatsRepository.GetRoboatsCounterpartyNameId(counterpartyId.Value, ClientPhone);
 			if(nameId == 0)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNameNotFound, RoboatsCallOperation.GetClientName, 
-					$"У контрагента {counterpartyId.Value} не найдено имя");
+					$"У контрагента {counterpartyId.Value} не найдено имя.");
 				return "NO DATA";
 			}
 			return $"{nameId}";
@@ -95,14 +95,14 @@ namespace RoboAtsService.Requests
 			if(!counterpartyId.HasValue)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientPatronymic,
-					$"Для телефона {ClientPhone} не найден контрагент");
+					$"Для телефона {ClientPhone} не найден контрагент.");
 				return "NO DATA";
 			}
 			var patronymicId = _roboatsRepository.GetRoboatsCounterpartyPatronymicId(counterpartyId.Value, ClientPhone);
 			if(patronymicId == 0)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientPatronymicNotFound, RoboatsCallOperation.GetClientPatronymic,
-					$"У контрагента {counterpartyId.Value} не найдено отчество");
+					$"У контрагента {counterpartyId.Value} не найдено отчество.");
 				return "NO DATA";
 			}
 			return $"{patronymicId}";

@@ -37,7 +37,7 @@ namespace RoboAtsService.Requests
 			{
 				_logger.LogError(ex, "При обработке запроса информации о доступных типах воды возникло исключение");
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnWaterTypeHandle,
-						$"При обработке запроса информации о доступных типах воды возникло исключение: {ex.Message}");
+						$"При обработке запроса информации о доступных типах воды возникло исключение: {ex.Message}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 		}
@@ -47,7 +47,7 @@ namespace RoboAtsService.Requests
 			if(RequestDto.RequestSubType != "quantity")
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.OnWaterTypeHandle,
-					$"Неизвестный тип запроса {RequestDto.RequestSubType}");
+					$"Неизвестный тип запроса {RequestDto.RequestSubType}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
@@ -55,7 +55,7 @@ namespace RoboAtsService.Requests
 			if(!waterTypes.Any())
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AvailableWatersNotFound, RoboatsCallOperation.OnWaterTypeHandle,
-					$"Не найдены доступные для заказа типы воды");
+					$"Не найдены доступные для заказа типы воды. Проверьте справочник типов воды для Roboats.");
 				return ErrorMessage;
 			}
 

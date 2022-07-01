@@ -54,7 +54,7 @@ namespace RoboAtsService.Requests
 			{
 				_logger.LogError(ex, "При обработке запроса информации о последнем заказе возникло исключение");
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnLastOrderHandle,
-						$"При обработке запроса информации о последнем заказе возникло исключение: {ex.Message}");
+						$"При обработке запроса информации о последнем заказе возникло исключение: {ex.Message}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 		}
@@ -66,7 +66,7 @@ namespace RoboAtsService.Requests
 			if(counterpartyCount > 1)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.OnLastOrderHandle,
-					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}");
+					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				return ErrorMessage;
 			}
 
@@ -78,7 +78,7 @@ namespace RoboAtsService.Requests
 			else
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.OnLastOrderHandle,
-					$"Для телефона {ClientPhone} не найден контрагент");
+					$"Для телефона {ClientPhone} не найден контрагент.");
 				return ErrorMessage;
 			}
 
@@ -94,7 +94,7 @@ namespace RoboAtsService.Requests
 					return GetBottlesReturn(counterpartyId);
 				default:
 					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.OnLastOrderHandle,
-						$"Неизвестный тип запроса: {RequestType}");
+						$"Неизвестный тип запроса: {RequestType}. Обратитесь в отдел разработки.");
 					return ErrorMessage;
 			}
 		}
@@ -110,7 +110,7 @@ namespace RoboAtsService.Requests
 			if(!AddressId.HasValue)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AddressIdNotSpecified, RoboatsCallOperation.GetLastOrderId,
-					$"В запросе не указан код точки доставки: {nameof(AddressId)}");
+					$"В запросе не указан код точки доставки, возможно звонок прерван в момент выбора точки доставки.");
 				return ErrorMessage;
 			}
 
@@ -118,7 +118,7 @@ namespace RoboAtsService.Requests
 			if(deliveryPointIds.All(x => x != AddressId))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.GetLastOrderId,
-						$"Для контрагента {counterpartyId} не найдена точка доставки {AddressId}");
+					$"Для контрагента {counterpartyId} не найдена точка доставки {AddressId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
@@ -126,7 +126,7 @@ namespace RoboAtsService.Requests
 			if(order == null)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderId,
-					$"Для точки доставки {AddressId} не найден последний заказ, либо он не удовлетворяет требованиям");
+					$"Для точки доставки {AddressId} не найден последний заказ, либо он не удовлетворяет требованиям.");
 				return "NO DATA";
 			}
 
@@ -138,7 +138,7 @@ namespace RoboAtsService.Requests
 			if(!int.TryParse(RequestDto.OrderId, out int orderId))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectOrderId, RoboatsCallOperation.GetWaterInfo,
-					$"Некорректный номер заказа {RequestDto.OrderId}");
+					$"Некорректный номер заказа (Номер заказа: {RequestDto.OrderId}). Контрагент: {counterpartyId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
@@ -146,7 +146,7 @@ namespace RoboAtsService.Requests
 			if(!availableWaters.Any())
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AvailableWatersNotFound, RoboatsCallOperation.GetWaterInfo,
-					$"Не найдены доступные для заказа типы воды");
+					$"Не найдены доступные для заказа типы воды в справочнике. Проверьте справочник типов воды для Roboats.");
 				return ErrorMessage;
 			}
 
@@ -165,7 +165,7 @@ namespace RoboAtsService.Requests
 				if(roboatsWaterInfo == null)
 				{
 					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.WaterNotSupported, RoboatsCallOperation.GetWaterInfo,
-						$"Вода {roboatsWaterInfo.Nomenclature.Id} в заказе {orderId} не доступна для заказа (не найдена в списке доступной воды)");
+						$"Вода Id {waterItem.NomenclatureId} в заказе {orderId} не доступна для заказа (не найдена в справочнике воды для Roboats)");
 					return ErrorMessage;
 				}
 
@@ -182,7 +182,7 @@ namespace RoboAtsService.Requests
 			if(!int.TryParse(RequestDto.OrderId, out int orderId))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectOrderId, RoboatsCallOperation.GetBottlesReturn,
-					$"Некорректный номер заказа {RequestDto.OrderId}");
+					$"Некорректный номер заказа (Номер заказа: {RequestDto.OrderId}). Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 

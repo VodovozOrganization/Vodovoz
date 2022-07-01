@@ -36,7 +36,7 @@ namespace RoboAtsService.Requests
 			{
 				_logger.LogError(ex, "При обработке запроса информации об интервалах доставки возникло исключение");
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnDeliveryIntervalsHandle,
-						$"При обработке запроса информации об интервалах доставки возникло исключение: {ex.Message}");
+						$"При обработке запроса информации об интервалах доставки возникло исключение: {ex.Message}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 		}
@@ -70,7 +70,7 @@ namespace RoboAtsService.Requests
 			else
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryIntervalsNotFound, RoboatsCallOperation.GetDeliveryIntervals,
-					$"Не найдены интервалы доставки");
+					$"Не найдены интервалы доставки. Проверьте справочник интервалов доставки для Roboats.");
 				return "NO DATA";
 			}
 		}
