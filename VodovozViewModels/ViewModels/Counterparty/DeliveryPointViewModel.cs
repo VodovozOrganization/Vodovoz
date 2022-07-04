@@ -235,9 +235,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					return false;
 				}
 
-				if(!_deliveryPointRepository.CheckingAnAddressForDeliveryForNewCustomers(UoW, Entity))
+				if(Entity.Counterparty.PersonType == PersonType.natural 
+					&& ((Entity.RoomType == RoomType.Office) || (Entity.RoomType == RoomType.Store))
+					&& !_deliveryPointRepository.CheckingAnAddressForDeliveryForNewCustomers(UoW, Entity))
 				{
-					var createDeliveryPoint = AskQuestion($"Уточните с клиентом: Данный адрес уже используется контрагентом. Вы уверены, что хотите создать точку доставки?");
+					var createDeliveryPoint = AskQuestion($"Уточните с клиентом: по данному адресу находится юр.лицо. Вы уверены, что хотите сохранить этот адрес для физ.лица?");
 					if(!createDeliveryPoint)
 					{
 						return false;
