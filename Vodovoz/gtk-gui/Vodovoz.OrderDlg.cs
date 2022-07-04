@@ -724,7 +724,7 @@ namespace Vodovoz
 			this.entityVMEntryClient.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryClient.Name = "entityVMEntryClient";
 			this.entityVMEntryClient.CanEditReference = false;
-			this.entityVMEntryClient.OpenWithoutTabParent = false;
+			this.entityVMEntryClient.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryClient);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryClient]));
 			w19.TopAttach = ((uint)(2));
@@ -783,7 +783,7 @@ namespace Vodovoz
 			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.evmeAuthor.Name = "evmeAuthor";
 			this.evmeAuthor.CanEditReference = true;
-			this.evmeAuthor.OpenWithoutTabParent = false;
+			this.evmeAuthor.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeAuthor);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeAuthor]));
 			w23.TopAttach = ((uint)(1));
@@ -797,7 +797,7 @@ namespace Vodovoz
 			this.evmeDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDeliveryPoint.Name = "evmeDeliveryPoint";
 			this.evmeDeliveryPoint.CanEditReference = false;
-			this.evmeDeliveryPoint.OpenWithoutTabParent = false;
+			this.evmeDeliveryPoint.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeDeliveryPoint);
 			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDeliveryPoint]));
 			w24.TopAttach = ((uint)(3));
@@ -879,7 +879,7 @@ namespace Vodovoz
 			this.entryDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.entryDeliverySchedule.Name = "entryDeliverySchedule";
 			this.entryDeliverySchedule.CanEditReference = false;
-			this.entryDeliverySchedule.OpenWithoutTabParent = false;
+			this.entryDeliverySchedule.CanOpenWithoutTabParent = false;
 			this.hbox8.Add(this.entryDeliverySchedule);
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.entryDeliverySchedule]));
 			w32.Position = 1;

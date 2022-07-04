@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Organization
 				.AddBinding(ViewModel.Entity, e => e.Nomenclature, w => w.Subject)
 				.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			entryNomenclature.OpenWithoutTabParent = true;
+			entryNomenclature.CanOpenWithoutTabParent = true;
 
 			buttonSave.Clicked += (s, e) => ViewModel.Save(true);
 			buttonSave.Sensitive = ViewModel.CanEdit;

@@ -268,7 +268,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias).Fetch(SelectMode.Fetch, () => nomenclatureAlias)
 					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
 					.Select(Projections.Distinct(Projections.RootEntity()))
-					.OrderByAlias(() => orderAlias.DeliveryDate).Desc()
+					.OrderByAlias(() => orderAlias.Id).Desc()
 					.List();
 
 				foreach(var order in orders)

@@ -198,7 +198,7 @@ namespace Vodovoz.ViewWidgets
 			this.evmeOldUndeliveredOrder.Events = ((global::Gdk.EventMask)(256));
 			this.evmeOldUndeliveredOrder.Name = "evmeOldUndeliveredOrder";
 			this.evmeOldUndeliveredOrder.CanEditReference = true;
-			this.evmeOldUndeliveredOrder.OpenWithoutTabParent = false;
+			this.evmeOldUndeliveredOrder.CanOpenWithoutTabParent = false;
 			this.hbxUndelivery.Add(this.evmeOldUndeliveredOrder);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbxUndelivery[this.evmeOldUndeliveredOrder]));
 			w9.Position = 1;
@@ -247,7 +247,7 @@ namespace Vodovoz.ViewWidgets
 			this.entryNewDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.entryNewDeliverySchedule.Name = "entryNewDeliverySchedule";
 			this.entryNewDeliverySchedule.CanEditReference = false;
-			this.entryNewDeliverySchedule.OpenWithoutTabParent = false;
+			this.entryNewDeliverySchedule.CanOpenWithoutTabParent = false;
 			this.tblUndeliveryFields.Add(this.entryNewDeliverySchedule);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.entryNewDeliverySchedule]));
 			w13.TopAttach = ((uint)(5));
@@ -261,7 +261,7 @@ namespace Vodovoz.ViewWidgets
 			this.evmeRegisteredBy.Events = ((global::Gdk.EventMask)(256));
 			this.evmeRegisteredBy.Name = "evmeRegisteredBy";
 			this.evmeRegisteredBy.CanEditReference = true;
-			this.evmeRegisteredBy.OpenWithoutTabParent = false;
+			this.evmeRegisteredBy.CanOpenWithoutTabParent = false;
 			this.tblUndeliveryFields.Add(this.evmeRegisteredBy);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tblUndeliveryFields[this.evmeRegisteredBy]));
 			w14.TopAttach = ((uint)(6));
