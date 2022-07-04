@@ -76,7 +76,8 @@ namespace Vodovoz.EntityRepositories.Orders
 											   && deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
 											   && deliveryPointAlias.Room == deliveryPoint.Room
 											   && !promotionalSetAlias.CanBeReorderedWithoutRestriction
-											   && ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses()))
+											   && ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses())
+											   && deliveryPointAlias.Id != deliveryPoint.Id)
 									.List<VodovozOrder>();
 			return result.Count() != 0;
 		}
