@@ -20,6 +20,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -47,6 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
+		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public DeliveryPointViewModel(
@@ -101,7 +103,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
 			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, roboAtsCounterpartyJournalFactory, CommonServices)
 			{
-				PhonesList = Entity.ObservablePhones, 
+				PhonesList = Entity.ObservablePhones,
 				DeliveryPoint = Entity,
 				ReadOnly = !CanEdit
 			};
@@ -208,7 +210,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 				if(_isBuildingsInLoadingProcess)
 				{
-					ShowWarningMessage( "Программа загружает координаты, попробуйте повторно сохранить точку доставки.");
+					ShowWarningMessage("Программа загружает координаты, попробуйте повторно сохранить точку доставки.");
 					return false;
 				}
 
@@ -232,7 +234,17 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				{
 					return false;
 				}
-				if (UoW.IsNew)
+
+				if(!_deliveryPointRepository.CheckingAnAddressForDeliveryForNewCustomers(UoW, Entity))
+				{
+					var createDeliveryPoint = AskQuestion($"Уточните с клиентом: Данный адрес уже используется контрагентом. Вы уверены, что хотите создать точку доставки?");
+					if(!createDeliveryPoint)
+					{
+						return false;
+					}
+				}
+
+				if(UoW.IsNew)
 				{
 					ShowAddressesWithFixedPrices();
 				}
@@ -345,7 +357,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		}
 
 		#endregion
-		
+
 		#region IAskSaveOnCloseViewModel
 
 		public bool AskSaveOnClose => CanEdit;
