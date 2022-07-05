@@ -3,6 +3,7 @@ using RoboAtsService.Monitoring;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Counterparties;
 
@@ -44,35 +45,57 @@ namespace RoboAtsService.Requests
 		public string ExecuteRequest()
 		{
 			var intervals = _roboatsRepository.GetRoboatsAvailableDeliveryIntervals();
-			if(intervals.Any())
-			{
-				var dates = new List<DateTime>();
-				if(DateTime.Now.Hour < 12)
-				{
-					dates.Add(DateTime.Today);
-				}
-				dates.Add(DateTime.Today.AddDays(1));
-
-				string result = "";
-
-				foreach(var date in dates)
-				{
-					if(!string.IsNullOrWhiteSpace(result))
-					{
-						result += "|";
-					}
-					var formattedDate = date.ToString("yyyy-MM-dd");
-					result += string.Join('|', intervals.Select(x => $"{formattedDate}\\{x}"));
-				}
-
-				return result;
-			}
-			else
+			if(!intervals.Any())
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryIntervalsNotFound, RoboatsCallOperation.GetDeliveryIntervals,
 					$"Не найдены интервалы доставки. Проверьте справочник интервалов доставки для Roboats.");
 				return "NO DATA";
 			}
+
+			string todayIntervals = GetTodayIntervals(intervals);
+
+			string result = todayIntervals;
+
+			var dates = new List<DateTime>();
+			dates.Add(DateTime.Today.AddDays(1));
+			foreach(var date in dates)
+			{
+				if(!string.IsNullOrWhiteSpace(result))
+				{
+					result += "|";
+				}
+				result += GetOutputIntervalString(date, intervals.Select(x => x.Id));
+			}
+
+			return result;
+		}
+
+		private string GetTodayIntervals(IEnumerable<DeliverySchedule> intervals)
+		{
+
+			IEnumerable<int> availableIntevalIds = null;
+
+			if(DateTime.Now.Hour < 12)
+			{
+				availableIntevalIds = intervals.Where(x => x.From.Hours > 12).Select(x => x.Id);
+			}
+			else if(DateTime.Now.Hour < 17)
+			{
+				availableIntevalIds = intervals.Where(x => x.From.Hours > 17).Select(x => x.Id);
+			}
+			else
+			{
+				return string.Empty;
+			}
+
+			var result = GetOutputIntervalString(DateTime.Today, availableIntevalIds);
+			return result;
+		}
+
+		private string GetOutputIntervalString(DateTime date, IEnumerable<int> intervals)
+		{
+			var formattedDate = date.ToString("yyyy-MM-dd");
+			return string.Join('|', intervals.Select(x => $"{formattedDate}\\{x}"));
 		}
 	}
 }

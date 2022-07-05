@@ -1,4 +1,5 @@
-﻿using NHibernate.Criterion;
+﻿using Microsoft.Extensions.Logging;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QS.Utilities.Numeric;
 using System;
@@ -11,11 +12,13 @@ namespace RoboAtsService.Monitoring
 {
 	public class RoboatsCallRegistrator
 	{
+		private readonly ILogger<RoboatsCallRegistrator> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IRoboatsCallFactory _roboatsCallFactory;
 
-		public RoboatsCallRegistrator(IUnitOfWorkFactory uowFactory, IRoboatsCallFactory roboatsCallFactory)
+		public RoboatsCallRegistrator(ILogger<RoboatsCallRegistrator> logger, IUnitOfWorkFactory uowFactory, IRoboatsCallFactory roboatsCallFactory)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_roboatsCallFactory = roboatsCallFactory ?? throw new ArgumentNullException(nameof(roboatsCallFactory));
 		}
@@ -29,58 +32,86 @@ namespace RoboAtsService.Monitoring
 
 		public void RegisterFail(string phone, RoboatsCallFailType failType, RoboatsCallOperation operation, string description)
 		{
-			using var uow = _uowFactory.CreateWithoutRoot();
+			try
+			{
+				using var uow = _uowFactory.CreateWithoutRoot();
 
-			var call = RegisterCall(phone);
-			call.Status = RoboatsCallStatus.Fail;
-			call.Result = RoboatsCallResult.Nothing;
+				var call = RegisterCall(phone);
+				call.Status = RoboatsCallStatus.Fail;
+				call.Result = RoboatsCallResult.Nothing;
 
-			var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, failType, operation, description);
-			call.CallDetails.Add(callDetail);
+				var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, failType, operation, description);
+				call.CallDetails.Add(callDetail);
 
-			Save(uow, call);
+				Save(uow, call);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
+			}
 		}
 
 		public void RegisterTerminatingFail(string phone, RoboatsCallFailType failType, RoboatsCallOperation operation, string description)
 		{
-			using var uow = _uowFactory.CreateWithoutRoot();
+			try
+			{
+				using var uow = _uowFactory.CreateWithoutRoot();
 
-			var call = RegisterCall(phone);
-			call.Status = RoboatsCallStatus.Aborted;
-			call.Result = RoboatsCallResult.Nothing;
+				var call = RegisterCall(phone);
+				call.Status = RoboatsCallStatus.Aborted;
+				call.Result = RoboatsCallResult.Nothing;
 
-			var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, failType, operation, description);
-			call.CallDetails.Add(callDetail);
+				var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, failType, operation, description);
+				call.CallDetails.Add(callDetail);
 
-			Save(uow, call);
+				Save(uow, call);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
+			}
 		}
 
 		public void RegisterAborted(string phone, RoboatsCallOperation operation, string description = null)
 		{
-			using var uow = _uowFactory.CreateWithoutRoot();
+			try
+			{
+				using var uow = _uowFactory.CreateWithoutRoot();
 
-			var call = RegisterCall(phone);
-			call.Status = RoboatsCallStatus.Aborted;
-			call.Result = RoboatsCallResult.OrderCreated;
+				var call = RegisterCall(phone);
+				call.Status = RoboatsCallStatus.Aborted;
+				call.Result = RoboatsCallResult.OrderCreated;
 
-			var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, operation, description);
-			call.CallDetails.Add(callDetail);
+				var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, operation, description);
+				call.CallDetails.Add(callDetail);
 
-			Save(uow, call);
+				Save(uow, call);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
+			}
 		}
 
 		public void RegisterSuccess(string phone, string description = null)
 		{
-			using var uow = _uowFactory.CreateWithoutRoot();
+			try
+			{
+				using var uow = _uowFactory.CreateWithoutRoot();
 
-			var call = RegisterCall(phone);
-			call.Status = RoboatsCallStatus.Success;
-			call.Result = RoboatsCallResult.OrderAccepted;
+				var call = RegisterCall(phone);
+				call.Status = RoboatsCallStatus.Success;
+				call.Result = RoboatsCallResult.OrderAccepted;
 
-			var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, RoboatsCallOperation.CreateOrder, description);
-			call.CallDetails.Add(callDetail);
+				var callDetail = _roboatsCallFactory.GetNewRoboatsCallDetail(call, RoboatsCallOperation.CreateOrder, description);
+				call.CallDetails.Add(callDetail);
 
-			Save(uow, call);
+				Save(uow, call);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
+			}
 		}
 
 		private string NormalizePhone(string phone)

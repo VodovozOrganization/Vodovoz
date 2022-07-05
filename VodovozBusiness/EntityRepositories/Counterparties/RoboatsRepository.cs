@@ -216,7 +216,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 		}
 
-		public IEnumerable<int> GetRoboatsAvailableDeliveryIntervals()
+		public IEnumerable<DeliverySchedule> GetRoboatsAvailableDeliveryIntervals()
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
@@ -224,9 +224,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 				var query = uow.Session.QueryOver(() => deliveryScheduleAlias)
 					.Where(Restrictions.IsNotNull(Projections.Property(() => deliveryScheduleAlias.RoboatsAudiofile)))
-					.OrderBy(Projections.Property(() => deliveryScheduleAlias.From)).Asc()
-					.Select(Projections.Property(() => deliveryScheduleAlias.Id));
-				var result = query.List<int>();
+					.OrderBy(Projections.Property(() => deliveryScheduleAlias.From)).Asc();
+				var result = query.List<DeliverySchedule>();
 
 				return result;
 			}

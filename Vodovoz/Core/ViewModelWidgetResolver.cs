@@ -8,11 +8,12 @@ using QS.RepresentationModel;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.ViewModels;
+using QS.Views.Resolve;
 using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Core
 {
-	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver
+	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver, IGtkViewResolver 
 	{
 		private static ViewModelWidgetResolver instance;
 		public static ViewModelWidgetResolver Instance {

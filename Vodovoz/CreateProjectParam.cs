@@ -171,6 +171,7 @@ using Vodovoz.Views.Payments;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Roboats;
 
 namespace Vodovoz
 {
@@ -367,6 +368,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CostCarExploitationReportViewModel, CostCarExploitationReportView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliverySalesReportViewModel, FastDeliverySalesReportView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryAdditionalLoadingReportViewModel, FastDeliveryAdditionalLoadingReportView>()
+				.RegisterWidgetForWidgetViewModel<RoboatsCallsFilterViewModel, RoboatsCallsFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
