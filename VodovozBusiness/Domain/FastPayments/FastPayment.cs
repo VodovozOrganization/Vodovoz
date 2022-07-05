@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
@@ -24,6 +25,7 @@ namespace Vodovoz.Domain.FastPayments
 		private string _qrPngBase64;
 		private string _phoneNumber;
 		private Order _order;
+		private Organization _organization;
 		private DateTime _creationDate;
 		private DateTime? _paidDate;
 		private FastPaymentStatus _fastPaymentStatus;
@@ -34,7 +36,7 @@ namespace Vodovoz.Domain.FastPayments
 		private FastPaymentPayType _fastPaymentPayType;
 
 		public virtual int Id { get; set; }
-        
+		
 		[Display(Name = "Статус оплаты")]
 		public virtual FastPaymentStatus FastPaymentStatus
 		{
@@ -55,7 +57,14 @@ namespace Vodovoz.Domain.FastPayments
 			get => _order;
 			set => SetField(ref _order, value);
 		}
-		
+
+		[Display(Name = "Организация")]
+		public virtual Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
+		}
+
 		[Display(Name = "Сессия оплаты")]
 		public virtual string Ticket
 		{
@@ -77,7 +86,7 @@ namespace Vodovoz.Domain.FastPayments
 			get => _creationDate;
 			set => SetField(ref _creationDate, value);
 		}
-        
+		
 		[Display(Name = "Дата оплаты")]
 		public virtual DateTime? PaidDate
 		{
@@ -124,7 +133,7 @@ namespace Vodovoz.Domain.FastPayments
 		public virtual void SetPerformedStatusForOrder(
 			IUnitOfWork uow,
 			DateTime paidDate,
-			PaymentFrom paymentByCardFromId,
+			PaymentFrom paymentByCardFrom,
 			IStandartNomenclatures standartNomenclatures,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
@@ -132,7 +141,7 @@ namespace Vodovoz.Domain.FastPayments
 		{
 			FastPaymentStatus = FastPaymentStatus.Performed;
 
-			if (Order.PaymentType == PaymentType.cash
+			if(Order.PaymentType == PaymentType.cash
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& Order.PayAfterShipment)
@@ -146,7 +155,7 @@ namespace Vodovoz.Domain.FastPayments
 				Order.IsSelfDeliveryPaid = true;
 			}
 
-			if (Order.PaymentType == PaymentType.cash
+			if(Order.PaymentType == PaymentType.cash
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& !Order.PayAfterShipment)
@@ -154,14 +163,14 @@ namespace Vodovoz.Domain.FastPayments
 				Order.ChangeStatus(OrderStatus.OnLoading);
 				Order.IsSelfDeliveryPaid = true;
 			}
-            
+			
 			PaidDate = paidDate;
 			Order.OnlineOrder = ExternalId;
 			Order.PaymentType = PaymentType.ByCard;
-			Order.PaymentByCardFrom = paymentByCardFromId;
+			Order.PaymentByCardFrom = paymentByCardFrom;
 			Order.ForceUpdateContract();
 
-			foreach (var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
+			foreach(var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
 			{
 				routeListItem.RecalculateTotalCash();
 				uow.Save(routeListItem);
