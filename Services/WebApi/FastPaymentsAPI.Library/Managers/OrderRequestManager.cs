@@ -126,13 +126,17 @@ namespace FastPaymentsAPI.Library.Managers
 		private int GetShopIdFromOrganization(Organization organization)
 		{
 			int shopId;
-			if(organization == null || !organization.AvangardShopId.HasValue)
+			if(organization == null)
 			{
 				shopId = _fastPaymentParametersProvider.GetDefaultShopId;
 			}
-			else
+			else if(organization.AvangardShopId.HasValue)
 			{
 				shopId = organization.AvangardShopId.Value;
+			}
+			else
+			{
+				shopId = default(int);
 			}
 
 			return shopId;
