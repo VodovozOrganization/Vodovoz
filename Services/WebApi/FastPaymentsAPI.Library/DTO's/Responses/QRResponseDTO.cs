@@ -2,7 +2,7 @@
 
 namespace FastPaymentsAPI.Library.DTO_s.Responses
 {
-	public class QRResponseDTO
+	public class QRResponseDTO : IErrorResponse
 	{
 		public string QRCode { get; set; }
 		public string ErrorMessage { get; set; }

@@ -2,7 +2,9 @@
 using Gamma.Utilities;
 using QS.Utilities;
 using Vodovoz.Domain.FastPayments;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace PayPageAPI.Models
 {
@@ -12,11 +14,17 @@ namespace PayPageAPI.Models
 		private FastPaymentStatus _fastPaymentStatus;
 
 		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
-		
-		public PayViewModel(IFastPaymentParametersProvider fastPaymentParametersProvider, FastPayment fastPayment)
+		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+
+		public PayViewModel(
+			IFastPaymentParametersProvider fastPaymentParametersProvider,
+			IOrganizationParametersProvider organizationParametersProvider,
+			FastPayment fastPayment)
 		{
 			_fastPaymentParametersProvider =
 				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
+			_organizationParametersProvider =
+				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
 
 			if(fastPayment == null)
 			{
@@ -37,6 +45,7 @@ namespace PayPageAPI.Models
 		public bool IsNotProcessingStatus => _fastPaymentStatus != FastPaymentStatus.Processing;
 		public bool IsPerformedStatus => _fastPaymentStatus == FastPaymentStatus.Performed;
 		public string PayOrderTitle => IsOnlineOrder ? $"Оплата онлайн-заказа №{OrderNum}" : $"Оплата заказа №{OrderNum}";
+		public string OfertaUrl { get; private set; } 
 		
 		private void Initialize(FastPayment fastPayment)
 		{
@@ -52,6 +61,19 @@ namespace PayPageAPI.Models
 			
 			Ticket = fastPayment.Ticket;
 			_fastPaymentStatus = fastPayment.FastPaymentStatus;
+			FillOfertaUrl(fastPayment.Organization);
+		}
+
+		private void FillOfertaUrl(Organization organization)
+		{
+			if(organization == null || organization.Id == _organizationParametersProvider.VodovozNorthOrganizationId)
+			{
+				OfertaUrl = "pdf/Оферта_ВВ_Север.pdf";
+			}
+			else
+			{
+				OfertaUrl = "pdf/Оферта_ВВ_Юг.pdf";
+			}
 		}
 
 		private void FillOrderData(int orderId, DateTime? orderDate, decimal ordersum)
