@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModels.Dialogs.Organizations
 			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_openDialogCommand = new OpenViewModelCommand(OpenDialog);
 
-			var canEdit = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_roboats_catalogs");
+			var canEdit = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_roboats");
 			if(!canEdit)
 			{
 				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нет права работать со справочниками для Roboats", "Доступ запрещен");
