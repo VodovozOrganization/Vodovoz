@@ -19,6 +19,17 @@ namespace Vodovoz.Parameters
 		public string CounterpartyNameAudiofilesFolder => _parametersProvider.GetStringValue("roboats_counterparty_name_audiofiles_path");
 		public string CounterpartyPatronymicAudiofilesFolder => _parametersProvider.GetStringValue("roboats_counterparty_patronymic_audiofiles_path");
 		public int MaxBanknoteForReturn => _parametersProvider.GetIntValue("roboats_max_banknote_for_return");
-		public bool RoboatsEnabled => _parametersProvider.GetBoolValue("roboats_enabled");
+		public bool RoboatsEnabled
+		{
+			get
+			{
+				return _parametersProvider.GetBoolValue("roboats_enabled");
+			}
+
+			set
+			{
+				_parametersProvider.CreateOrUpdateParameter("roboats_enabled", value ? "True" : "False");
+			}
+		}
 	}
 }

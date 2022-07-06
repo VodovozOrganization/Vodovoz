@@ -11,5 +11,15 @@ namespace Vodovoz.Views.Settings
 		{
 			this.Build();
 		}
+
+		protected override void ConfigureWidget()
+		{
+			base.ConfigureWidget();
+
+			ycheckbuttonRoboatsEnabled.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.RoboatsServiceEnabled, w => w.Active)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+		}
 	}
 }
