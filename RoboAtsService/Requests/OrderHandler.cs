@@ -250,7 +250,7 @@ namespace RoboAtsService.Requests
 			if(!DateTime.TryParseExact(RequestDto.Date, "yyyy-MM-dd", new DateTimeFormatInfo(), DateTimeStyles.None, out DateTime date))
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectOrderDate, RoboatsCallOperation.CreateOrder,
-					$"Некорректная дата. Дата: {RequestDto.Date}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
+					$"Невозможно создать заказ. Не заполнена или заполнена некорректно дата доставки (Дата: {RequestDto.Time}), возможно звонок прерван на выборе интервала доставки. Контрагент {counterpartyId}, точка доставки {deliveryPointId}.");
 				return ErrorMessage;
 			}
 
