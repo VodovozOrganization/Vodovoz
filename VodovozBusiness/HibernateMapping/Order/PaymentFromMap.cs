@@ -8,8 +8,12 @@ namespace Vodovoz.HibernateMapping
 		public PaymentFromMap()
 		{
 			Table("payments_from");
+			
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			
 			Map(x => x.Name).Column("name");
+
+			References(x => x.OrganizationForAvangardPayments).Column("organization_for_avangard_payments");
 		}
 	}
 }
