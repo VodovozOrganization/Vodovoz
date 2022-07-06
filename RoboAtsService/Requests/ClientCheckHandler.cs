@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Parameters;
 
 namespace RoboAtsService.Requests
 {
@@ -14,14 +15,16 @@ namespace RoboAtsService.Requests
 	{
 		const string _requestType = "client";
 		private readonly ILogger<ClientCheckHandler> _logger;
+		private readonly RoboatsSettings _roboatsSettings;
 		private readonly RoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public override string Request => RoboatsRequestType.ClientCheck;
 
-		public ClientCheckHandler(ILogger<ClientCheckHandler> logger, RoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public ClientCheckHandler(ILogger<ClientCheckHandler> logger, RoboatsSettings roboatsSettings, RoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
 			if(requestDto.RequestType != _requestType)
@@ -68,8 +71,18 @@ namespace RoboAtsService.Requests
 				case "patronymic":
 					return GetCounterpartyPatronymicId(counterpartyId);
 				default:
-					return counterpartyId != null ? "1" : "0";
+					return GetCounterpartyAvailability(counterpartyId);
 			}
+		}
+
+		private string GetCounterpartyAvailability(int? counterpartyId)
+		{
+			if(!_roboatsSettings.RoboatsEnabled)
+			{
+				return "Service disabled";
+			}
+			var result = counterpartyId != null ? "1" : "0";
+			return result;
 		}
 
 		private string GetCounterpartyNameId(int? counterpartyId)

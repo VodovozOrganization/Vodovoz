@@ -4,8 +4,7 @@ using Microsoft.Extensions.Logging;
 using RoboAtsService.Monitoring;
 using RoboAtsService.Requests;
 using System.Diagnostics;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Models.Orders;
+using Vodovoz.Parameters;
 
 namespace RoboAtsService.Controllers
 {
@@ -15,18 +14,13 @@ namespace RoboAtsService.Controllers
 	{
 		private readonly ILogger<RoboATSController> _logger;
 
-		private readonly RoboatsRepository _roboatsRepository;
-		private readonly RoboatsOrderModel _roboatsOrderModel;
 		private readonly RequestHandlerFactory _handlerFactory;
-		private readonly RoboatsCallRegistrator _callRegistrator;
+		private readonly RoboatsSettings _roboatsSettings;
 
-		public RoboATSController(ILogger<RoboATSController> logger, RoboatsRepository repository, RoboatsOrderModel orderModel, RequestHandlerFactory handlerFactory, RoboatsCallRegistrator callRegistrator)
+		public RoboATSController(ILogger<RoboATSController> logger, RequestHandlerFactory handlerFactory)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_roboatsRepository = repository ?? throw new System.ArgumentNullException(nameof(repository));
-			_roboatsOrderModel = orderModel ?? throw new System.ArgumentNullException(nameof(orderModel));
 			_handlerFactory = handlerFactory ?? throw new System.ArgumentNullException(nameof(handlerFactory));
-			_callRegistrator = callRegistrator ?? throw new System.ArgumentNullException(nameof(callRegistrator));
 		}
 
 		[HttpGet]
