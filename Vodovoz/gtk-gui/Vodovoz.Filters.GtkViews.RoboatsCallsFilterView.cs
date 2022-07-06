@@ -43,6 +43,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.hboxFilter.Add(this.dateperiodOrders);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxFilter[this.dateperiodOrders]));
 			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child hboxFilter.Gtk.Box+BoxChild
 			this.ylabelStatus = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelStatus.Name = "ylabelStatus";
