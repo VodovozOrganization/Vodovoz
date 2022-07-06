@@ -480,6 +480,7 @@
     <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
     <Compile Include="ViewModels\Reports\IncomingCallsAnalysisReportViewModel.cs" />
     <Compile Include="Widgets\FastDeliveryVerificationViewModel.cs" />
+    <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

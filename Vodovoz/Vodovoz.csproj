@@ -1730,6 +1730,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.DriversWageBalanceReport.cs" />
     <Compile Include="Filters\GtkViews\RoboatsCallsFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RoboatsCallsFilterView.cs" />
+    <Compile Include="Views\Settings\RoboatsSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Settings.RoboatsSettingsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

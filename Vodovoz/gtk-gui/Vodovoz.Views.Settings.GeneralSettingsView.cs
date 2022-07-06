@@ -24,6 +24,14 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckCanAddForwardersToLargus;
 
+		private global::Gtk.Frame frame1;
+
+		private global::Gtk.Alignment GtkAlignment;
+
+		private global::Vodovoz.Views.Settings.RoboatsSettingsView roboatssettingsview1;
+
+		private global::Gtk.Label GtkLabel3;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -123,6 +131,30 @@ namespace Vodovoz.Views.Settings
 			w9.Position = 0;
 			w9.Expand = false;
 			w9.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.frame1 = new global::Gtk.Frame();
+			this.frame1.Name = "frame1";
+			this.frame1.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frame1.Gtk.Container+ContainerChild
+			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment.Name = "GtkAlignment";
+			this.GtkAlignment.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment.Gtk.Container+ContainerChild
+			this.roboatssettingsview1 = new global::Vodovoz.Views.Settings.RoboatsSettingsView();
+			this.roboatssettingsview1.Events = ((global::Gdk.EventMask)(256));
+			this.roboatssettingsview1.Name = "roboatssettingsview1";
+			this.GtkAlignment.Add(this.roboatssettingsview1);
+			this.frame1.Add(this.GtkAlignment);
+			this.GtkLabel3 = new global::Gtk.Label();
+			this.GtkLabel3.Name = "GtkLabel3";
+			this.GtkLabel3.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройки Roboats</b>");
+			this.GtkLabel3.UseMarkup = true;
+			this.frame1.LabelWidget = this.GtkLabel3;
+			this.vboxMain.Add(this.frame1);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frame1]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
