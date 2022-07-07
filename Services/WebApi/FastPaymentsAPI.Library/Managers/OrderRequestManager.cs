@@ -5,6 +5,7 @@ using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Services;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Parameters;
 
 namespace FastPaymentsAPI.Library.Managers
@@ -32,34 +33,39 @@ namespace FastPaymentsAPI.Library.Managers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 		}
 
-		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null,
-			bool isQr = true)
+		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, Organization organization,
+			string phoneNumber = null, bool isQr = true)
 		{
-			var orderDTO = GetOrderRegistrationRequestDTO(order, fastPaymentGuid, phoneNumber, isQr);
+			var shopId = GetShopIdFromOrganization(organization);
+			var orderDTO = GetOrderRegistrationRequestDTO(order, fastPaymentGuid, shopId, phoneNumber, isQr);
 			var xmlStringFromOrderDTO = _dtoManager.GetXmlStringFromDTO(orderDTO);
 
 			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
 		}
 		
-		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(RequestRegisterOnlineOrderDTO registerOnlineOrderDto)
+		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(
+			RequestRegisterOnlineOrderDTO registerOnlineOrderDto, Organization organization)
 		{
-			var orderDTO = GetOrderRegistrationRequestDTO(registerOnlineOrderDto);
+			var shopId = GetShopIdFromOrganization(organization);
+			var orderDTO = GetOrderRegistrationRequestDTO(registerOnlineOrderDto, shopId);
 			var xmlStringFromOrderDTO = _dtoManager.GetXmlStringFromDTO(orderDTO);
 
 			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
 		}
 
-		public Task<OrderInfoResponseDTO> GetOrderInfo(string ticket)
+		public Task<OrderInfoResponseDTO> GetOrderInfo(string ticket, Organization organization)
 		{
-			var orderInfoDTO = _fastPaymentApiFactory.GetOrderInfoRequestDTO(ticket);
+			var shopId = GetShopIdFromOrganization(organization);
+			var orderInfoDTO = _fastPaymentApiFactory.GetOrderInfoRequestDTO(ticket, shopId);
 			var xmlStringFromOrderInfoDTO = _dtoManager.GetXmlStringFromDTO(orderInfoDTO);
 
 			return _orderService.GetOrderInfoAsync(xmlStringFromOrderInfoDTO);
 		}
 
-		public Task<CancelPaymentResponseDTO> CancelPayment(string ticket)
+		public Task<CancelPaymentResponseDTO> CancelPayment(string ticket, Organization organization)
 		{
-			var cancelPaymentRequestDto = _fastPaymentApiFactory.GetCancelPaymentRequestDTO(ticket);
+			var shopId = GetShopIdFromOrganization(organization);
+			var cancelPaymentRequestDto = _fastPaymentApiFactory.GetCancelPaymentRequestDTO(ticket, shopId);
 			var xmlStringFromCancelPaymentRequestDTO = _dtoManager.GetXmlStringFromDTO(cancelPaymentRequestDto);
 
 			return _orderService.CancelPaymentAsync(xmlStringFromCancelPaymentRequestDTO);
@@ -70,12 +76,12 @@ namespace FastPaymentsAPI.Library.Managers
 			return $"{_fastPaymentParametersProvider.GetVodovozFastPayBaseUrl}/{fastPaymentGuid}";
 		}
 
-		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(Order order, Guid fastPaymentGuid, string phoneNumber = null,
+		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(Order order, Guid fastPaymentGuid, int shopId, string phoneNumber = null,
 			bool isQr = true)
 		{
-			var signatureParameters = _fastPaymentApiFactory.GetSignatureParamsForRegisterOrder(order.Id, order.OrderSum);
+			var signatureParameters = _fastPaymentApiFactory.GetSignatureParamsForRegisterOrder(order.Id, order.OrderSum, shopId);
 			var signature = _signatureManager.GenerateSignature(signatureParameters);
-			var orderRegistrationRequestDTO = _fastPaymentApiFactory.GetOrderRegistrationRequestDTO(order.Id, signature, order.OrderSum);
+			var orderRegistrationRequestDTO = _fastPaymentApiFactory.GetOrderRegistrationRequestDTO(order.Id, signature, order.OrderSum, shopId);
 
 			if(phoneNumber == null)
 			{
@@ -101,13 +107,13 @@ namespace FastPaymentsAPI.Library.Managers
 			return orderRegistrationRequestDTO;
 		}
 
-		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(RequestRegisterOnlineOrderDTO registerOnlineOrderDto)
+		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(RequestRegisterOnlineOrderDTO registerOnlineOrderDto, int shopId)
 		{
 			var signatureParameters =
-				_fastPaymentApiFactory.GetSignatureParamsForRegisterOrder(registerOnlineOrderDto.OrderId, registerOnlineOrderDto.OrderSum);
+				_fastPaymentApiFactory.GetSignatureParamsForRegisterOrder(registerOnlineOrderDto.OrderId, registerOnlineOrderDto.OrderSum, shopId);
 			var signature = _signatureManager.GenerateSignature(signatureParameters);
 			var orderRegistrationRequestDTO =
-				_fastPaymentApiFactory.GetOrderRegistrationRequestDTOForOnlineOrder(registerOnlineOrderDto, signature);
+				_fastPaymentApiFactory.GetOrderRegistrationRequestDTOForOnlineOrder(registerOnlineOrderDto, signature, shopId);
 			
 			orderRegistrationRequestDTO.QRTtl = _fastPaymentParametersProvider.GetOnlinePayByQRLifetime;
 			orderRegistrationRequestDTO.BackUrl = registerOnlineOrderDto.BackUrl;
@@ -115,6 +121,25 @@ namespace FastPaymentsAPI.Library.Managers
 			orderRegistrationRequestDTO.BackUrlFail = registerOnlineOrderDto.BackUrlFail;
 
 			return orderRegistrationRequestDTO;
+		}
+
+		private int GetShopIdFromOrganization(Organization organization)
+		{
+			int shopId;
+			if(organization == null)
+			{
+				shopId = _fastPaymentParametersProvider.GetDefaultShopId;
+			}
+			else if(organization.AvangardShopId.HasValue)
+			{
+				shopId = organization.AvangardShopId.Value;
+			}
+			else
+			{
+				shopId = default(int);
+			}
+
+			return shopId;
 		}
 	}
 }
