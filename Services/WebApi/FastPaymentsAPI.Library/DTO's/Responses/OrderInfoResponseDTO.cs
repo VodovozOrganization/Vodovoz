@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 namespace FastPaymentsAPI.Library.DTO_s.Responses
 {
 	[XmlRoot(ElementName = "order_info")]
-	public class OrderInfoResponseDTO
+	public class OrderInfoResponseDTO : IAvangardResponseDetails
 	{
 		[XmlElement(ElementName = "id")]
 		public long Id { get; set; }

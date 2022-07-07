@@ -19,6 +19,7 @@ using QS.Project.DB;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace PayPageAPI
 {
@@ -80,6 +81,7 @@ namespace PayPageAPI
 			services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
+			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
 			
 			//repositories
 			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
