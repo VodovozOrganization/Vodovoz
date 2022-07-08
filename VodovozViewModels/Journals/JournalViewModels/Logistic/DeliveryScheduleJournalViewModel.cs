@@ -231,6 +231,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 	public class DeliveryScheduleJournalNode : JournalEntityNodeBase<DeliverySchedule>
 	{
+		public override string Title => DeliveryTime;
 		public string Name { get; set; }
 		public TimeSpan TimeFrom { get; set; }
 		public TimeSpan TimeTo { get; set; }
