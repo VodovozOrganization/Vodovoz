@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping
 			
 			Map(x => x.Name).Column("name");
 
-			References(x => x.OrganizationForAvangardPayments).Column("organization_for_avangard_payments");
+			References(x => x.OrganizationForAvangardPayments).Column("organization_for_avangard_payments_id");
 		}
 	}
 }

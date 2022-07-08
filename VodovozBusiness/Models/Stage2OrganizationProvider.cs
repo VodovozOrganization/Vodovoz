@@ -188,18 +188,17 @@ namespace Vodovoz.Models
 			{
 				return _organizationParametersProvider.VodovozNorthOrganizationId;
 			}
-			if(paymentFrom.Id == _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId
-				|| paymentFrom.Id == _orderParametersProvider.GetPaymentByCardFromAvangardId)
+			if(_orderParametersProvider.PaymentsByCardFromAvangard.Contains(paymentFrom.Id))
 			{
 				if(!onlineOrderId.HasValue)
 				{
-					return _organizationParametersProvider.VodovozSouthOrganizationId;
+					return paymentFrom.OrganizationForAvangardPayments?.Id ?? _organizationParametersProvider.VodovozSouthOrganizationId;
 				}
 
 				var fastPayment = _fastPaymentRepository.GetPerformedFastPaymentByExternalId(uow, onlineOrderId.Value);
 				if(fastPayment == null)
 				{
-					return _organizationParametersProvider.VodovozSouthOrganizationId;
+					return paymentFrom.OrganizationForAvangardPayments?.Id ?? _organizationParametersProvider.VodovozSouthOrganizationId;
 				}
 
 				return fastPayment.Organization?.Id ?? _organizationParametersProvider.VodovozNorthOrganizationId;

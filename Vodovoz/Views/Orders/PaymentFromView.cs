@@ -1,10 +1,10 @@
 ﻿using QS.Navigation;
-using QS.Views;
-using Vodovoz.ViewModels.ViewModels.Orders;
+using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
 {
-	public partial class PaymentFromView : ViewBase<PaymentFromViewModel>
+	public partial class PaymentFromView : TabViewBase<PaymentFromViewModel>
 	{
 		public PaymentFromView(PaymentFromViewModel viewModel) : base(viewModel)
 		{
@@ -22,12 +22,17 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 
 			entryName.Binding
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
+			lblOrganizationForAvangardPayments.Visible = ViewModel.CanShowOrganization;
 			entryOrganizationForAvangardPayments.SetEntityAutocompleteSelectorFactory(ViewModel.OrganizationSelectorFactory);
 			entryOrganizationForAvangardPayments.Binding
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(vm => vm.CanShowOrganization, w => w.Visible)
+				.AddBinding(ViewModel.Entity, e => e.OrganizationForAvangardPayments, w => w.Subject)
 				.InitializeFromSource();
 		}
 	}

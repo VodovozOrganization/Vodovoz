@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using NHibernate;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -9,25 +9,24 @@ using QS.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
-using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
 	public class PaymentsFromJournalViewModel : EntityJournalViewModelBase<PaymentFrom, PaymentFromViewModel, PaymentFromJournalNode>
 	{
-		private readonly ICommonServices _commonServices;
-
 		public PaymentsFromJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices,
+			IInteractiveService interactiveService,
+			ICurrentPermissionService currentPermissionService,
 			INavigationManager navigationManager)
 			: base(unitOfWorkFactory,
-				commonServices?.InteractiveService,
+				interactiveService,
 				navigationManager,
 				null,
-				commonServices?.CurrentPermissionService)
+				currentPermissionService)
 		{
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			TabName = "Источники оплат по картам";
 		}
 
 		protected override IQueryOver<PaymentFrom> ItemsQuery(IUnitOfWork uow)
@@ -48,7 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		
 		protected override void CreateNodeActions()
 		{
-			base.CreateNodeActions();
+			NodeActionsList.Clear();
 
 			var paymentFromPermissions = CurrentPermissionService.ValidateEntityPermission(typeof(PaymentFrom));
 			

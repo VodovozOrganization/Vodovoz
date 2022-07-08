@@ -26,6 +26,7 @@ namespace Vodovoz.Domain.FastPayments
 		private string _phoneNumber;
 		private Order _order;
 		private Organization _organization;
+		private PaymentFrom _paymentByCardFrom;
 		private DateTime _creationDate;
 		private DateTime? _paidDate;
 		private FastPaymentStatus _fastPaymentStatus;
@@ -63,6 +64,13 @@ namespace Vodovoz.Domain.FastPayments
 		{
 			get => _organization;
 			set => SetField(ref _organization, value);
+		}
+		
+		[Display(Name = "Источник оплаты по карте")]
+		public virtual PaymentFrom PaymentByCardFrom
+		{
+			get => _paymentByCardFrom;
+			set => SetField(ref _paymentByCardFrom, value);
 		}
 
 		[Display(Name = "Сессия оплаты")]
@@ -133,7 +141,6 @@ namespace Vodovoz.Domain.FastPayments
 		public virtual void SetPerformedStatusForOrder(
 			IUnitOfWork uow,
 			DateTime paidDate,
-			PaymentFrom paymentByCardFrom,
 			IStandartNomenclatures standartNomenclatures,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
@@ -167,7 +174,7 @@ namespace Vodovoz.Domain.FastPayments
 			PaidDate = paidDate;
 			Order.OnlineOrder = ExternalId;
 			Order.PaymentType = PaymentType.ByCard;
-			Order.PaymentByCardFrom = paymentByCardFrom;
+			Order.PaymentByCardFrom = PaymentByCardFrom;
 			Order.ForceUpdateContract();
 
 			foreach(var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))

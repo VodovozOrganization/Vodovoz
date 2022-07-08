@@ -14,6 +14,7 @@ namespace Vodovoz.Services
 		int GetPaymentByCardFromSiteByQrCode { get; }
 		int[] PaymentsByCardFromNotToSendSalesReceipts { get; }
 		int[] PaymentsByCardFromForNorthOrganization { get; }
+		int[] PaymentsByCardFromAvangard { get; }
 		int GetDiscountReasonStockBottle10PercentsId { get; }
 		int GetDiscountReasonStockBottle20PercentsId { get; }
     }
