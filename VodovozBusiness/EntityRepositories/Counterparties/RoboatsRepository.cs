@@ -247,6 +247,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					.Where(() => orderAlias.Client.Id == clientId)
 					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
 					.Where(() => !orderAlias.IsBottleStock)
+					.Where(() => deliveryPointAlias.RoomType == RoomType.Apartment)
 					.Where(
 						Restrictions.In(
 								Projections.Property(() => orderAlias.OrderStatus),

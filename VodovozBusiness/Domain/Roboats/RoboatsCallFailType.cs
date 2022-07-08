@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using NHibernate.Type;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Roboats
 {
@@ -6,6 +7,10 @@ namespace Vodovoz.Domain.Roboats
 	{
 		[Display (Name = "Нет")]
 		None,
+		[Display(Name = "Служба отключена")]
+		ServiceDisabled,
+		[Display(Name = "Неизвестный запрос")]
+		UnknownRequest,
 		[Display (Name = "Найдено более 1 клиента")]
 		ClientDuplicate,
 		[Display (Name = "Не найден клиент")]
@@ -60,10 +65,5 @@ namespace Vodovoz.Domain.Roboats
 		UnknownIsTerminalValue
 	}
 
-	public class RoboatsCallFailTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public RoboatsCallFailTypeStringType() : base(typeof(RoboatsCallFailType))
-		{
-		}
-	}
+	public class RoboatsCallFailTypeStringType : EnumStringType<RoboatsCallFailType> { }
 }

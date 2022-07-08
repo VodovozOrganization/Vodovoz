@@ -53,7 +53,7 @@ namespace RoboAtsService.Requests
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "При обработке запроса информации о последнем заказе возникло исключение");
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnLastOrderHandle,
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.GetLastOrderCheck,
 						$"При обработке запроса информации о последнем заказе возникло исключение: {ex.Message}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
@@ -65,7 +65,7 @@ namespace RoboAtsService.Requests
 			var counterpartyCount = counterpartyIds.Count();
 			if(counterpartyCount > 1)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.OnLastOrderHandle,
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.GetLastOrderCheck,
 					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				return ErrorMessage;
 			}
@@ -77,8 +77,8 @@ namespace RoboAtsService.Requests
 			}
 			else
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.OnLastOrderHandle,
-					$"Для телефона {ClientPhone} не найден контрагент.");
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetLastOrderCheck,
+					$"Не найден контрагент.");
 				return ErrorMessage;
 			}
 
@@ -93,7 +93,7 @@ namespace RoboAtsService.Requests
 				case LastOrderRequestType.BottlesReturn:
 					return GetBottlesReturn(counterpartyId);
 				default:
-					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.OnLastOrderHandle,
+					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.GetLastOrderCheck,
 						$"Неизвестный тип запроса: {RequestType}. Обратитесь в отдел разработки.");
 					return ErrorMessage;
 			}
@@ -102,7 +102,16 @@ namespace RoboAtsService.Requests
 		private string GetLastOrderCheck(int counterpartyId)
 		{
 			var order = _roboatsRepository.GetLastOrder(counterpartyId);
-			return order != null ? "1" : "0";
+			if(order != null)
+			{
+				return "1";
+			}
+			else
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderCheck,
+					$"Для контрагента {counterpartyId} не найден подходящий заказ.");
+				return "0";
+			}
 		}
 
 		private string GetLastOrderId(int counterpartyId)

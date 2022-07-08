@@ -102,6 +102,7 @@ using QS.Dialog.GtkUI.FileDialog;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz
 {

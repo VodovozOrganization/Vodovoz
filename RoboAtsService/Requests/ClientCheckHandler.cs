@@ -79,10 +79,21 @@ namespace RoboAtsService.Requests
 		{
 			if(!_roboatsSettings.RoboatsEnabled)
 			{
-				return "Service disabled";
+				_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ServiceDisabled, RoboatsCallOperation.ClientCheck,
+					$"Невозможно проверить контрагента, потому что служба отключена.");
+				return "0";
 			}
-			var result = counterpartyId != null ? "1" : "0";
-			return result;
+
+			if(counterpartyId != null)
+			{
+				return "1";
+			}
+			else
+			{
+				_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
+					$"Не найден контрагент.");
+				return "0";
+			}
 		}
 
 		private string GetCounterpartyNameId(int? counterpartyId)
@@ -90,7 +101,7 @@ namespace RoboAtsService.Requests
 			if(!counterpartyId.HasValue)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientName, 
-					$"Для телефона {ClientPhone} не найден контрагент.");
+					$"Не найден контрагент.");
 				return "NO DATA";
 			}
 			var nameId = _roboatsRepository.GetRoboatsCounterpartyNameId(counterpartyId.Value, ClientPhone);
@@ -108,7 +119,7 @@ namespace RoboAtsService.Requests
 			if(!counterpartyId.HasValue)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientPatronymic,
-					$"Для телефона {ClientPhone} не найден контрагент.");
+					$"Не найден контрагент.");
 				return "NO DATA";
 			}
 			var patronymicId = _roboatsRepository.GetRoboatsCounterpartyPatronymicId(counterpartyId.Value, ClientPhone);

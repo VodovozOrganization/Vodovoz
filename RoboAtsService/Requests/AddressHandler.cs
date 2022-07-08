@@ -50,12 +50,12 @@ namespace RoboAtsService.Requests
 				if(counterpartyCount > 1)
 				{
 					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck,
-						$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
+						$"Найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				}
 				else
 				{
 					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
-						$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
+						$"Не найден контрагент.");
 				}
 
 				return ErrorMessage;

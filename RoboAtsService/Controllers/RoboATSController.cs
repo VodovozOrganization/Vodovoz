@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RoboAtsService.Monitoring;
 using RoboAtsService.Requests;
 using System.Diagnostics;
+using Vodovoz.Domain.Roboats;
 using Vodovoz.Parameters;
 
 namespace RoboAtsService.Controllers
@@ -15,12 +16,13 @@ namespace RoboAtsService.Controllers
 		private readonly ILogger<RoboATSController> _logger;
 
 		private readonly RequestHandlerFactory _handlerFactory;
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly RoboatsCallRegistrator _roboatsCallRegistrator;
 
-		public RoboATSController(ILogger<RoboATSController> logger, RequestHandlerFactory handlerFactory)
+		public RoboATSController(ILogger<RoboATSController> logger, RequestHandlerFactory handlerFactory, RoboatsCallRegistrator roboatsCallRegistrator)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_handlerFactory = handlerFactory ?? throw new System.ArgumentNullException(nameof(handlerFactory));
+			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new System.ArgumentNullException(nameof(roboatsCallRegistrator));
 		}
 
 		[HttpGet]
@@ -59,11 +61,16 @@ namespace RoboAtsService.Controllers
 				OrderId = orderId
 			};
 
+			_roboatsCallRegistrator.RegisterCall(request.ClientPhone);
+
 			var handler = _handlerFactory.GetHandler(request);
 			if(handler == null)
 			{
+				_roboatsCallRegistrator.RegisterTerminatingFail(request.ClientPhone, RoboatsCallFailType.UnknownRequest, RoboatsCallOperation.OnCreateHandler,
+					"Неизвестный тип запроса. Обратитесь в отдел разработки.");
 				return "null request";
 			}
+
 			var result = handler.Execute();
 			sw.Stop();
 			var query = HttpContext.Request.GetEncodedPathAndQuery();

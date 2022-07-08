@@ -114,7 +114,7 @@ namespace RoboAtsService.Requests
 			else
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.OnOrderHandle,
-					$"Невозможно рассчитать стоимость заказа. Для телефона {ClientPhone} не найден контрагент.");
+					$"Невозможно рассчитать стоимость заказа. Не найден контрагент.");
 				return ErrorMessage;
 			}
 
@@ -178,7 +178,7 @@ namespace RoboAtsService.Requests
 			else
 			{
 				_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.OnOrderHandle,
-					$"Невозможно создать заказ. Для телефона {ClientPhone} не найден контрагент.");
+					$"Невозможно создать заказ. Не найден контрагент.");
 				return ErrorMessage;
 			}
 

@@ -23,11 +23,19 @@ namespace RoboAtsService.Monitoring
 			_roboatsCallFactory = roboatsCallFactory ?? throw new ArgumentNullException(nameof(roboatsCallFactory));
 		}
 
-		public RoboatsCall RegisterCall(string phone)
+		public void RegisterCall(string phone)
 		{
-			phone = NormalizePhone(phone);
-			var currentCall = GetCurrentCall(phone);
-			return currentCall;
+			try
+			{
+				using var uow = _uowFactory.CreateWithoutRoot();
+
+				var call = GetActualCall(phone);
+				Save(uow, call);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
+			}
 		}
 
 		public void RegisterFail(string phone, RoboatsCallFailType failType, RoboatsCallOperation operation, string description)
@@ -36,7 +44,7 @@ namespace RoboAtsService.Monitoring
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = RegisterCall(phone);
+				var call = GetActualCall(phone);
 				call.Status = RoboatsCallStatus.Fail;
 				call.Result = RoboatsCallResult.Nothing;
 
@@ -57,7 +65,7 @@ namespace RoboAtsService.Monitoring
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = RegisterCall(phone);
+				var call = GetActualCall(phone);
 				call.Status = RoboatsCallStatus.Aborted;
 				call.Result = RoboatsCallResult.Nothing;
 
@@ -78,7 +86,7 @@ namespace RoboAtsService.Monitoring
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = RegisterCall(phone);
+				var call = GetActualCall(phone);
 				call.Status = RoboatsCallStatus.Aborted;
 				call.Result = RoboatsCallResult.OrderCreated;
 
@@ -99,7 +107,7 @@ namespace RoboAtsService.Monitoring
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = RegisterCall(phone);
+				var call = GetActualCall(phone);
 				call.Status = RoboatsCallStatus.Success;
 				call.Result = RoboatsCallResult.OrderAccepted;
 
@@ -112,6 +120,13 @@ namespace RoboAtsService.Monitoring
 			{
 				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
 			}
+		}
+
+		private RoboatsCall GetActualCall(string phone)
+		{
+			phone = NormalizePhone(phone);
+			var currentCall = GetCurrentCall(phone);
+			return currentCall;
 		}
 
 		private string NormalizePhone(string phone)

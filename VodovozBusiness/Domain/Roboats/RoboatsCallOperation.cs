@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using NHibernate.Type;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Roboats
 {
 	public enum RoboatsCallOperation
 	{
+		[Display(Name = "Создание обработчика")]
+		OnCreateHandler,
 		[Display (Name = "При обработке запроса клиента")]
 		OnClientHandle,
 		[Display (Name = "Проверка клиента")]
@@ -29,7 +32,7 @@ namespace Vodovoz.Domain.Roboats
 		[Display (Name = "Получение интервалов доставок")]
 		GetDeliveryIntervals,
 		[Display (Name = "При обработке запроса последнего заказа")]
-		OnLastOrderHandle,
+		GetLastOrderCheck,
 		[Display (Name = "Получение кода последнего заказа")]
 		GetLastOrderId,
 		[Display (Name = "Получение информации о воде")]
@@ -46,10 +49,5 @@ namespace Vodovoz.Domain.Roboats
 		CreateOrder
 	}
 
-	public class RoboatsCallOperationStringType : NHibernate.Type.EnumStringType
-	{
-		public RoboatsCallOperationStringType() : base(typeof(RoboatsCallOperation))
-		{
-		}
-	}
+	public class RoboatsCallOperationStringType : EnumStringType<RoboatsCallOperation> { }
 }

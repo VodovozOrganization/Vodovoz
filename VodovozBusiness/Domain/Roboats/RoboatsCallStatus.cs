@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using NHibernate.Type;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Roboats
 {
@@ -14,10 +15,5 @@ namespace Vodovoz.Domain.Roboats
 		Success
 	}
 
-	public class RoboatsCallStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public RoboatsCallStatusStringType() : base(typeof(RoboatsCallStatus))
-		{
-		}
-	}
+	public class RoboatsCallStatusStringType : EnumStringType<RoboatsCallStatus> { }
 }
