@@ -5,17 +5,18 @@ using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Managers;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 
 namespace FastPaymentsAPI.Library.Factories
 {
 	public interface IFastPaymentAPIFactory
 	{
-		OrderInfoRequestDTO GetOrderInfoRequestDTO(string ticket);
-		OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(int orderId, string signature, decimal orderSum);
+		OrderInfoRequestDTO GetOrderInfoRequestDTO(string ticket, int shopId);
+		OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(int orderId, string signature, decimal orderSum, int shopId);
 		OrderRegistrationRequestDTO GetOrderRegistrationRequestDTOForOnlineOrder(
-			RequestRegisterOnlineOrderDTO registerOnlineOrderDto, string signature);
-		CancelPaymentRequestDTO GetCancelPaymentRequestDTO(string ticket);
-		SignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum);
+			RequestRegisterOnlineOrderDTO registerOnlineOrderDto, string signature, int shopId);
+		CancelPaymentRequestDTO GetCancelPaymentRequestDTO(string ticket, int shopId);
+		SignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum, int shopId);
 		SignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto);
 		FastPayment GetFastPayment(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
@@ -24,6 +25,7 @@ namespace FastPaymentsAPI.Library.Factories
 			decimal orderSum,
 			int externalId,
 			FastPaymentPayType payType,
+			Organization organization,
 			Order order = null,
 			string phoneNumber = null,
 			int? onlineOrderId = null);

@@ -75,6 +75,14 @@ namespace Vodovoz.EntityRepositories.FastPayments
 				.And(fp => fp.FastPaymentStatus == FastPaymentStatus.Processing)
 				.SingleOrDefault();
 		}
+
+		public FastPayment GetPerformedFastPaymentByExternalId(IUnitOfWork uow, int externalId)
+		{
+			return uow.Session.QueryOver<FastPayment>()
+				.Where(fp => fp.FastPaymentStatus == FastPaymentStatus.Performed)
+				.And(fp => fp.ExternalId == externalId)
+				.SingleOrDefault();
+		}
 		
 		private IList<FastPayment> GetAllFastPaymentsByOrderOrderByStatusDesc(IUnitOfWork uow, int orderId)
 		{

@@ -37,16 +37,6 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var dp = currOrder.DeliveryPoint;
 			var oId = !ignoreCurrentOrder ? -1 : currOrder.Id;
-			var acceptableStatuses = new[] {
-												OrderStatus.Accepted,
-												OrderStatus.InTravelList,
-												OrderStatus.WaitForPayment,
-												OrderStatus.OnLoading,
-												OrderStatus.OnTheWay,
-												OrderStatus.Shipped,
-												OrderStatus.UnloadingOnStock,
-												OrderStatus.Closed
-											};
 
 			var subQuerySimilarDP = QueryOver.Of(() => deliveryPointAlias)
 											   .Where(p => p.City == dp.City)
@@ -60,7 +50,7 @@ namespace Vodovoz.EntityRepositories.Orders
 									.JoinAlias(() => promotionalSetAlias.Orders, () => ordersAlias)
 									.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
 									.Where(() => ordersAlias.Id != oId)
-									.Where(() => ordersAlias.OrderStatus.IsIn(acceptableStatuses))
+									.Where(() => ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses()))
 									.WithSubquery.WhereProperty(() => deliveryPointAlias.Id).In(subQuerySimilarDP)
 									.SelectList(list => list.Select(() => promotionalSetAlias.Id)
 															.Select(() => ordersAlias.Id))
@@ -68,6 +58,65 @@ namespace Vodovoz.EntityRepositories.Orders
 									.GroupBy(x => (int)x[0])
 									.ToDictionary(g => g.Key, g => g.Select(x => (int)x[1]).ToArray());
 			return result;
+		}
+
+		public bool AddressHasAlreadyBeenUsedForPromo(IUnitOfWork uow, DeliveryPoint deliveryPoint)
+		{
+			string building = GetBuildingNumber(deliveryPoint.Building);
+
+			VodovozOrder ordersAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			PromotionalSet promotionalSetAlias = null;
+
+			var result = uow.Session.QueryOver(() => ordersAlias)
+									.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
+									.JoinAlias(() => ordersAlias.PromotionalSets, () => promotionalSetAlias)
+									.Where(() => deliveryPointAlias.City.IsLike(deliveryPoint.City, MatchMode.Anywhere)
+											   && deliveryPointAlias.Street.IsLike(deliveryPoint.Street, MatchMode.Anywhere)
+											   && deliveryPointAlias.Building.IsLike(building, MatchMode.Anywhere)
+											   && deliveryPointAlias.Room == deliveryPoint.Room
+											   && !promotionalSetAlias.CanBeReorderedWithoutRestriction
+											   && ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses())
+											   && deliveryPointAlias.Id != deliveryPoint.Id)
+									.List<VodovozOrder>();
+			return result.Count() != 0;
+		}
+
+		private string GetBuildingNumber(string building)
+		{
+			string buildingNumber = string.Empty;
+
+			foreach(var ch in building)
+			{
+				if(char.IsDigit(ch))
+				{
+					buildingNumber += ch;
+				}
+				else
+				{
+					if(buildingNumber != string.Empty)
+					{
+						break;
+					}
+				}
+			}
+
+			return buildingNumber;
+		}
+
+		private static OrderStatus[] GetAcceptableStatuses()
+		{
+			return new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.WaitForPayment,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
 		}
 	}
 }

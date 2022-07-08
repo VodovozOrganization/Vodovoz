@@ -4,158 +4,169 @@ using DataAnnotationsExtensions;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.StoredResources;
 
 namespace Vodovoz.Domain.Organizations
 {
-    [Appellative(Gender = GrammaticalGender.Feminine,
-        NominativePlural = "организации",
-        Nominative = "организация")]
-    [EntityPermission]
-    public class Organization : AccountOwnerBase, IDomainObject
-    {
-        public Organization()
-        {
-            Name = "Новая организация";
-            FullName = string.Empty;
-            INN = string.Empty;
-            KPP = string.Empty;
-            OGRN = string.Empty;
-            Email = string.Empty;
-            Address = string.Empty;
-            JurAddress = string.Empty;
-        }
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "организации",
+		Nominative = "организация")]
+	[EntityPermission]
+	[HistoryTrace]
+	public class Organization : AccountOwnerBase, IDomainObject
+	{
+		private int? _avangardShopId;
 
-        #region Свойства
+		public Organization()
+		{
+			Name = "Новая организация";
+			FullName = string.Empty;
+			INN = string.Empty;
+			KPP = string.Empty;
+			OGRN = string.Empty;
+			Email = string.Empty;
+			Address = string.Empty;
+			JurAddress = string.Empty;
+		}
 
-        public virtual int Id { get; set; }
+		#region Свойства
 
-        private string name;
-        [Display(Name = "Название")]
-        [Required(ErrorMessage = "Название организации должно быть заполнено.")]
-        public virtual string Name {
-            get => name;
-            set => SetField(ref name, value);
-        }
+		public virtual int Id { get; set; }
 
-        private string fullName;
-        [Display(Name = "Полное название")]
-        public virtual string FullName {
-            get => fullName;
-            set => SetField(ref fullName, value);
-        }
+		private string _name;
+		[Display(Name = "Название")]
+		[Required(ErrorMessage = "Название организации должно быть заполнено.")]
+		public virtual string Name {
+			get => _name;
+			set => SetField(ref _name, value);
+		}
 
-        private string iNN;
-        [Display(Name = "ИНН")]
-        [Digits(ErrorMessage = "ИНН может содержать только цифры.")]
-        [StringLength(12, MinimumLength = 0, ErrorMessage = "Номер ИНН не должен превышать 12.")]
-        public virtual string INN {
-            get => iNN;
-            set => SetField(ref iNN, value);
-        }
+		private string _fullName;
+		[Display(Name = "Полное название")]
+		public virtual string FullName {
+			get => _fullName;
+			set => SetField(ref _fullName, value);
+		}
 
-        private string kPP;
-        [Display(Name = "КПП")]
-        [Digits(ErrorMessage = "КПП может содержать только цифры.")]
-        [StringLength(9, MinimumLength = 0, ErrorMessage = "Номер КПП не должен превышать 9 цифр.")]
-        public virtual string KPP {
-            get => kPP;
-            set => SetField(ref kPP, value);
-        }
+		private string _iNN;
+		[Display(Name = "ИНН")]
+		[Digits(ErrorMessage = "ИНН может содержать только цифры.")]
+		[StringLength(12, MinimumLength = 0, ErrorMessage = "Номер ИНН не должен превышать 12.")]
+		public virtual string INN {
+			get => _iNN;
+			set => SetField(ref _iNN, value);
+		}
 
-        private string oGRN;
-        [Display(Name = "ОГРН/ОГРНИП")]
-        [Digits(ErrorMessage = "ОГРН/ОГРНИП может содержать только цифры.")]
-        [StringLength(15, MinimumLength = 0, ErrorMessage = "Номер ОГРНИП не должен превышать 15 цифр.")]
-        public virtual string OGRN {
-            get => oGRN;
-            set => SetField(ref oGRN, value);
-        }
+		private string _kPP;
+		[Display(Name = "КПП")]
+		[Digits(ErrorMessage = "КПП может содержать только цифры.")]
+		[StringLength(9, MinimumLength = 0, ErrorMessage = "Номер КПП не должен превышать 9 цифр.")]
+		public virtual string KPP {
+			get => _kPP;
+			set => SetField(ref _kPP, value);
+		}
 
-        private string oKPO;
-        [Display(Name = "ОКПО")]
-        [Digits(ErrorMessage = "ОКПО может содержать только цифры.")]
-        [StringLength(10, MinimumLength = 8, ErrorMessage = "Номер ОКПО не должен превышать 10 цифр.")]
-        public virtual string OKPO {
-            get => oKPO;
-            set => SetField(ref oKPO, value);
-        }
+		private string _oGRN;
+		[Display(Name = "ОГРН/ОГРНИП")]
+		[Digits(ErrorMessage = "ОГРН/ОГРНИП может содержать только цифры.")]
+		[StringLength(15, MinimumLength = 0, ErrorMessage = "Номер ОГРНИП не должен превышать 15 цифр.")]
+		public virtual string OGRN {
+			get => _oGRN;
+			set => SetField(ref _oGRN, value);
+		}
 
-        private string oKVED;
-        [Display(Name = "ОКВЭД")]
-        [StringLength(100, ErrorMessage = "Номера ОКВЭД не должны превышать 100 знаков.")]
-        public virtual string OKVED {
-            get => oKVED;
-            set => SetField(ref oKVED, value);
-        }
+		private string _oKPO;
+		[Display(Name = "ОКПО")]
+		[Digits(ErrorMessage = "ОКПО может содержать только цифры.")]
+		[StringLength(10, MinimumLength = 8, ErrorMessage = "Номер ОКПО не должен превышать 10 цифр.")]
+		public virtual string OKPO {
+			get => _oKPO;
+			set => SetField(ref _oKPO, value);
+		}
 
-        private IList<Phone> phones;
-        [Display(Name = "Телефоны")]
-        public virtual IList<Phone> Phones {
-            get => phones;
-            set => SetField(ref phones, value);
-        }
+		private string _oKVED;
+		[Display(Name = "ОКВЭД")]
+		[StringLength(100, ErrorMessage = "Номера ОКВЭД не должны превышать 100 знаков.")]
+		public virtual string OKVED {
+			get => _oKVED;
+			set => SetField(ref _oKVED, value);
+		}
 
-        private string email;
-        [Display(Name = "E-mail адреса")]
-        public virtual string Email {
-            get => email;
-            set => SetField(ref email, value);
-        }
+		private IList<Phone> _phones;
+		[Display(Name = "Телефоны")]
+		public virtual IList<Phone> Phones {
+			get => _phones;
+			set => SetField(ref _phones, value);
+		}
 
-        private string address;
-        [Display(Name = "Фактический адрес")]
-        public virtual string Address {
-            get => address;
-            set => SetField(ref address, value);
-        }
+		private string _email;
+		[Display(Name = "E-mail адреса")]
+		public virtual string Email {
+			get => _email;
+			set => SetField(ref _email, value);
+		}
 
-        private string jurAddress;
-        [Display(Name = "Юридический адрес")]
-        public virtual string JurAddress {
-            get => jurAddress;
-            set => SetField(ref jurAddress, value);
-        }
+		private string _address;
+		[Display(Name = "Фактический адрес")]
+		public virtual string Address {
+			get => _address;
+			set => SetField(ref _address, value);
+		}
 
-        private Employee leader;
-        [Display(Name = "Руководитель")]
-        public virtual Employee Leader {
-            get => leader;
-            set => SetField(ref leader, value);
-        }
+		private string _jurAddress;
+		[Display(Name = "Юридический адрес")]
+		public virtual string JurAddress {
+			get => _jurAddress;
+			set => SetField(ref _jurAddress, value);
+		}
 
-        private Employee buhgalter;
-        [Display(Name = "Бухгалтер")]
-        public virtual Employee Buhgalter {
-            get => buhgalter;
-            set => SetField(ref buhgalter, value);
-        }
-        
-        private int? cashBoxId;
-        [Display(Name = "ID Кассового аппарата")]
-        public virtual int? CashBoxId {
-            get => cashBoxId;
-            set => SetField(ref cashBoxId, value);
-        }
-        
-        private bool withoutVAT;
-        [Display(Name = "Без НДС")]
-        public virtual bool WithoutVAT {
-            get => withoutVAT;
-            set => SetField(ref withoutVAT, value);
-        }
+		private Employee _leader;
+		[Display(Name = "Руководитель")]
+		public virtual Employee Leader {
+			get => _leader;
+			set => SetField(ref _leader, value);
+		}
 
-        private StoredResource stamp;
-        [Display(Name = "Печать")]
-        public virtual StoredResource Stamp
-        {
-            get => stamp;
-            set => SetField(ref stamp, value);
-        }
+		private Employee _buhgalter;
+		[Display(Name = "Бухгалтер")]
+		public virtual Employee Buhgalter {
+			get => _buhgalter;
+			set => SetField(ref _buhgalter, value);
+		}
+		
+		private int? _cashBoxId;
+		[Display(Name = "ID Кассового аппарата")]
+		public virtual int? CashBoxId {
+			get => _cashBoxId;
+			set => SetField(ref _cashBoxId, value);
+		}
+		
+		private bool _withoutVAT;
+		[Display(Name = "Без НДС")]
+		public virtual bool WithoutVAT {
+			get => _withoutVAT;
+			set => SetField(ref _withoutVAT, value);
+		}
 
-        #endregion
-    }
-    
+		private StoredResource _stamp;
+		[Display(Name = "Печать")]
+		public virtual StoredResource Stamp
+		{
+			get => _stamp;
+			set => SetField(ref _stamp, value);
+		}
+
+		[IgnoreHistoryTrace]
+		[Display(Name = "Id организации в Авангарде")]
+		public virtual int? AvangardShopId
+		{
+			get => _avangardShopId;
+			set => SetField(ref _avangardShopId, value);
+		}
+
+		#endregion
+	}
 }

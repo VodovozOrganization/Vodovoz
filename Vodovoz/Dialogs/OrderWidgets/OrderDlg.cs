@@ -1494,12 +1494,25 @@ namespace Vodovoz
 			if(Entity.DeliveryPoint != null) {
 				phones.AddRange(Entity.DeliveryPoint.Phones);
 			}
-			if(Entity.OrderItems.Any(x => x.PromoSet != null))
+
+			bool hasPromoInOrders = Entity.PromotionalSets.Count != 0;
+			bool canBeReorderedWithoutRestriction = Entity.PromotionalSets.Any(x => x.CanBeReorderedWithoutRestriction);
+
+			if(!canBeReorderedWithoutRestriction && Entity.OrderItems.Any(x => x.PromoSet != null))
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones))
 				{
 					return false;
 				}
+			}
+			if( hasPromoInOrders
+			    && !canBeReorderedWithoutRestriction 
+				&& Entity.CanUsedPromo(_promotionalSetRepository))
+			{
+				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n" +
+								 "Пожалуйста удалите промо набор или поменяйте адрес доставки.";
+				MessageDialogHelper.RunWarningDialog( message );
+				return false;
 			}
 
 			PrepareSendBillInformation();

@@ -18,6 +18,7 @@ namespace FastPaymentsAPI.Library.Managers
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IFastPaymentManager _fastPaymentManager;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IErrorHandler _errorHandler;
 		private bool _isFirstLaunch = true;
 		private int _updatedCount;
 
@@ -25,12 +26,14 @@ namespace FastPaymentsAPI.Library.Managers
 			ILogger<FastPaymentStatusUpdater> logger,
 			IFastPaymentRepository fastPaymentRepository,
 			IFastPaymentManager fastPaymentManager,
-			IServiceScopeFactory serviceScopeFactory)
+			IServiceScopeFactory serviceScopeFactory,
+			IErrorHandler errorHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_fastPaymentManager = fastPaymentManager ?? throw new ArgumentNullException(nameof(fastPaymentManager));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_errorHandler = errorHandler ?? throw new ArgumentNullException(nameof(errorHandler));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -85,8 +88,13 @@ namespace FastPaymentsAPI.Library.Managers
 
 			foreach(var payment in processingFastPayments)
 			{
-				var response = await orderRequestManager.GetOrderInfo(payment.Ticket);
-
+				var ticket = payment.Ticket;
+				var response = await orderRequestManager.GetOrderInfo(ticket, payment.Organization);
+				if(response.ResponseCode != 0)
+				{
+					_errorHandler.LogErrorMessageFromUpdateOrderInfo(response, ticket, _logger);
+					continue;
+				}
 				if((int)response.Status == (int)payment.FastPaymentStatus)
 				{
 					var fastPaymentWithQRNotFromOnline = payment.FastPaymentPayType == FastPaymentPayType.ByQrCode && !payment.OnlineOrderId.HasValue;
@@ -96,14 +104,14 @@ namespace FastPaymentsAPI.Library.Managers
 						continue;
 					}
 
-					_logger.LogInformation($"Отменяем платеж с сессией: {payment.Ticket}");
+					_logger.LogInformation($"Отменяем платеж с сессией: {ticket}");
 					_fastPaymentManager.UpdateFastPaymentStatus(uow, payment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 				}
 				else
 				{
 					var newStatus = response.Status;
 					_logger.LogInformation(
-						$"Обновляем статус платежа с сессией: {payment.Ticket} новый статус: {newStatus}");
+						$"Обновляем статус платежа с сессией: {ticket} новый статус: {newStatus}");
 					_fastPaymentManager.UpdateFastPaymentStatus(uow, payment, newStatus, response.StatusDate);
 				}
 

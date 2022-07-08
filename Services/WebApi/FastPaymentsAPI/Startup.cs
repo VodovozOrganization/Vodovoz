@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
@@ -100,6 +101,7 @@ namespace FastPaymentsAPI
 
 			//repositories
 			services.AddSingleton<IOrderRepository, OrderRepository>();
+			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
 			services.AddSingleton<IStandartNomenclatures, BaseParametersProvider>();
 			services.AddSingleton<IRouteListItemRepository, RouteListItemRepository>();
@@ -110,6 +112,7 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
+			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
 			services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
 
 			//factories
@@ -130,6 +133,7 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IDTOManager, DTOManager>();
 			services.AddSingleton<ISignatureManager, SignatureManager>();
 			services.AddSingleton<IFastPaymentManager, FastPaymentManager>();
+			services.AddSingleton<IErrorHandler, ErrorHandler>();
 			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
 			services.AddScoped<IOrderRequestManager, OrderRequestManager>();
 			services.AddScoped<IVodovozSiteNotificator, VodovozSiteNotificator>();
