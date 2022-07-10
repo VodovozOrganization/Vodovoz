@@ -175,7 +175,7 @@ namespace Vodovoz.Domain.FastPayments
 			Order.OnlineOrder = ExternalId;
 			Order.PaymentType = PaymentType.ByCard;
 			Order.PaymentByCardFrom = PaymentByCardFrom;
-			Order.ForceUpdateContract();
+			Order.ForceUpdateContract(Organization);
 
 			foreach(var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
 			{
