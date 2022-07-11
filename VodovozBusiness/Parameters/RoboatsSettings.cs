@@ -31,5 +31,7 @@ namespace Vodovoz.Parameters
 				_parametersProvider.CreateOrUpdateParameter("roboats_enabled", value ? "True" : "False");
 			}
 		}
+
+		public int NewCallTimeout => _parametersProvider.GetIntValue("roboats_new_call_timeout");
 	}
 }

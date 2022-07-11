@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
 
 namespace RoboAtsService.Monitoring
 {
@@ -15,12 +16,14 @@ namespace RoboAtsService.Monitoring
 		private readonly ILogger<RoboatsCallRegistrator> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IRoboatsCallFactory _roboatsCallFactory;
+		private readonly RoboatsSettings _roboatsSettings;
 
-		public RoboatsCallRegistrator(ILogger<RoboatsCallRegistrator> logger, IUnitOfWorkFactory uowFactory, IRoboatsCallFactory roboatsCallFactory)
+		public RoboatsCallRegistrator(ILogger<RoboatsCallRegistrator> logger, IUnitOfWorkFactory uowFactory, IRoboatsCallFactory roboatsCallFactory, RoboatsSettings roboatsSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_roboatsCallFactory = roboatsCallFactory ?? throw new ArgumentNullException(nameof(roboatsCallFactory));
+			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 		}
 
 		public void RegisterCall(string phone)
@@ -143,7 +146,7 @@ namespace RoboAtsService.Monitoring
 			{
 				return _roboatsCallFactory.GetNewRoboatsCall(phone);
 			}
-			else if(currentCall.CallTime > DateTime.Now.AddMinutes(-10))
+			else if(currentCall.CallTime > DateTime.Now.AddMinutes(-_roboatsSettings.NewCallTimeout))
 			{
 				activeCalls.Remove(currentCall);
 			}
