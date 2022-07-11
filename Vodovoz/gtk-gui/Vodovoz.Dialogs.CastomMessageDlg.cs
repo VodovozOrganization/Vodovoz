@@ -107,8 +107,6 @@ namespace Vodovoz.Dialogs
 			w1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(w1[this.hbox3]));
 			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
 			// Internal child Vodovoz.Dialogs.CastomMessageDlg.ActionArea
 			global::Gtk.HButtonBox w12 = this.ActionArea;
 			w12.Name = "dialog1_ActionArea";
@@ -172,7 +170,7 @@ namespace Vodovoz.Dialogs
 				this.Child.ShowAll();
 			}
 			this.DefaultWidth = 432;
-			this.DefaultHeight = 181;
+			this.DefaultHeight = 122;
 			this.imageInfo.Hide();
 			this.imageWarning.Hide();
 			this.imageQuestion.Hide();
