@@ -7,7 +7,7 @@ namespace Vodovoz.Dialogs
 	{
 		private readonly int _maxStringLengthWithoutScroll = 500;
 		private readonly int _maxLableWidth = 350;
-		public CastomMessageDlg(Window parent_window, DialogFlags flags, MessageType type, ButtonsType bt, string format = null, bool useMarkup = false)
+		public CastomMessageDlg(Window parent_window, DialogFlags flags, MessageType type, ButtonsType bt, string format, bool useMarkup = false)
 		{
 			this.Build();
 			
@@ -82,7 +82,8 @@ namespace Vodovoz.Dialogs
 				label2.LineWrap = true;
 				label2.WidthRequest = _maxLableWidth;
 				label2.Text = format;
-				label2.Visible = true;
+				label2.Visible = GtkScrolledWindow.Visible = true; 
+				
 			}
 			else
 			{

@@ -51,7 +51,6 @@ namespace Vodovoz.Services
 								   message);
 			md.SetPosition(WindowPosition.Center);
 			md.Title = title ?? "Вопрос";
-			md.ShowAll();
 			bool result = md.Run() == (int)ResponseType.Yes;
 			md.Destroy();
 			return result;
