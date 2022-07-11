@@ -1,6 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
-using Vodovoz.Views.Organization;
+using Vodovoz.Views.Roboats;
 
 namespace Vodovoz.Views.Client
 {

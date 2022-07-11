@@ -22,7 +22,6 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Commands;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Dialogs.Logistic;
-using Vodovoz.ViewModels.Dialogs.Organizations;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;

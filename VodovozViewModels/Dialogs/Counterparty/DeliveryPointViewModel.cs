@@ -26,6 +26,7 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -45,6 +46,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly IUserRepository _userRepository;
 		private readonly IFixedPricesModel _fixedPricesModel;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
+		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -63,7 +65,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			Domain.Client.Counterparty client = null)
+			RoboatsJournalsFactory roboatsJournalsFactory,
+		 	Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(client != null && uowBuilder.IsNewEntity)
@@ -90,6 +93,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
 			}
 
+			_roboatsJournalsFactory = roboatsJournalsFactory ?? throw new ArgumentNullException(nameof(roboatsJournalsFactory));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -99,7 +103,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 
 			_fixedPricesModel = new DeliveryPointFixedPricesModel(UoW, Entity, nomenclatureFixedPriceController);
-			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, CommonServices)
+			PhonesViewModel = new PhonesViewModel(phoneRepository, UoW, contactsParameters, _roboatsJournalsFactory, CommonServices)
 			{
 				PhonesList = Entity.ObservablePhones,
 				DeliveryPoint = Entity,
@@ -121,7 +125,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			DeliveryScheduleSelectorFactory = deliveryScheduleSelectorFactory;
-
 			Entity.PropertyChanged += (sender, e) =>
 			{
 				switch(e.PropertyName)

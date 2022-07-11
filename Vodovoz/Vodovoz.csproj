@@ -1704,13 +1704,10 @@
     <Compile Include="Views\Logistic\TariffZoneView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.TariffZoneView.cs" />
     <Compile Include="Views\Roboats\RoboatsCatalogExportView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsCatalogExportView.cs" />
     <Compile Include="Views\Roboats\RoboatsEntityView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsEntityView.cs" />
     <Compile Include="Views\Roboats\RoboatsStreetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsStreetView.cs" />
     <Compile Include="Views\Roboats\RoboatsWaterTypeView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsWaterTypeView.cs" />
     <Compile Include="Filters\GtkViews\FastDeliveryAvailabilityFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FastDeliveryAvailabilityFilterView.cs" />
     <Compile Include="ViewWidgets\Logistics\FastDeliveryVerificationView.cs" />
@@ -1732,6 +1729,9 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RoboatsCallsFilterView.cs" />
     <Compile Include="Views\Settings\RoboatsSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.RoboatsSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsCatalogExportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsEntityView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsWaterTypeView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

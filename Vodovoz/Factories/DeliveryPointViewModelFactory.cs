@@ -18,6 +18,7 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Factories
@@ -28,6 +29,8 @@ namespace Vodovoz.Factories
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleSelectorFactory;
 		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
+
 
 		public DeliveryPointViewModelFactory(IFiasApiClient fiasApiClient)
 		{
@@ -40,6 +43,9 @@ namespace Vodovoz.Factories
 			IFileDialogService fileDialogService = new FileDialogService();
 			_roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
 			_deliveryScheduleSelectorFactory = new DeliveryScheduleJournalFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, _roboatsViewModelFactory);
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, _roboatsViewModelFactory, nomenclatureJournalFactory);
 		}
 
 		public DeliveryPointViewModel GetForOpenDeliveryPointViewModel(int id)
@@ -64,7 +70,9 @@ namespace Vodovoz.Factories
 				_deliveryScheduleSelectorFactory,
 				EntityUoWBuilder.ForOpen(id),
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices);
+				ServicesConfig.CommonServices,
+				_roboatsJournalsFactory
+				);
 
 			return dpViewModel;
 		}
@@ -92,6 +100,7 @@ namespace Vodovoz.Factories
 				EntityUoWBuilder.ForCreate(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
+				_roboatsJournalsFactory,
 				client);
 
 			return dpViewModel;

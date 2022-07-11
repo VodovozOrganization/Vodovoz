@@ -380,6 +380,7 @@ namespace Vodovoz.Views.Client
 			this.entryDefaultDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.entryDefaultDeliverySchedule.Name = "entryDefaultDeliverySchedule";
 			this.entryDefaultDeliverySchedule.CanEditReference = true;
+			this.entryDefaultDeliverySchedule.CanOpenWithoutTabParent = false;
 			this.hbox16.Add(this.entryDefaultDeliverySchedule);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox16[this.entryDefaultDeliverySchedule]));
 			w17.Position = 0;
@@ -576,6 +577,7 @@ namespace Vodovoz.Views.Client
 			this.entryDefaultWater.Events = ((global::Gdk.EventMask)(256));
 			this.entryDefaultWater.Name = "entryDefaultWater";
 			this.entryDefaultWater.CanEditReference = false;
+			this.entryDefaultWater.CanOpenWithoutTabParent = false;
 			this.hbox3.Add(this.entryDefaultWater);
 			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entryDefaultWater]));
 			w35.Position = 2;
