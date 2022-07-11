@@ -6,27 +6,6 @@ namespace RoboAtsService.Requests
 	[Serializable]
 	public enum RequestType
 	{
-		/// <summary>
-		/// Запрос количества бутылей воды в последнем заказе
-		/// </summary>
-		//[DataMember(Name = "lastorderdata_bottles")]
-		//LastOrderDataBottles,
-
-		//[DataMember(Name = "lastorderdata_return")]
-		//LastOrderDataReturn,
-
-		//[DataMember(Name = "lastorderdata_addresshome")]
-		//LastOrderDataAddressHome,
-
-		//[DataMember(Name = "lastorderdata_addressflat")]
-		//LastOrderDataAddressFlat,
-
-		//[DataMember(Name = "lastorderdata_addresscorp")]
-		//LastOrderDataAddressCorp,
-
-		//[DataMember(Name = "lastorderdata_addressofis")]
-		//LastOrderDataAddressOffice,
-
 		[DataMember(Name = "lastorderdata_firstname_code")]
 		LastOrderDataFirstNameCode,
 

@@ -15,6 +15,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
+using QS.Project.Repositories;
 using QS.Services;
 using RoboAtsService.Middleware;
 using RoboAtsService.Monitoring;
@@ -162,14 +163,14 @@ namespace RoboAtsService
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
 				db_config,
-				new System.Reflection.Assembly[]
+				new Assembly[]
 				{
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
-					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
-					System.Reflection.Assembly.GetAssembly(typeof(TypeOfEntity)),
-					System.Reflection.Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Bank)),
+					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(TypeOfEntity)),
+					Assembly.GetAssembly(typeof(Attachment))
 				}
 			);
 
@@ -183,7 +184,7 @@ namespace RoboAtsService
 					.FirstOrDefault();
 			}
 
-			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
+			UserRepository.GetCurrentUserId = () => serviceUserId;
 
 			HistoryMain.Enable();
 		}

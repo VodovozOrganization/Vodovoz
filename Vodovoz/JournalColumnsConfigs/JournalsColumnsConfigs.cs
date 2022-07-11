@@ -52,7 +52,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 

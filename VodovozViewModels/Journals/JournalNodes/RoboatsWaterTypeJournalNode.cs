@@ -1,5 +1,5 @@
 ﻿using QS.Project.Journal;
-using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Roboats;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes
 {

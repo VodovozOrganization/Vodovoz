@@ -109,7 +109,6 @@ using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
-using Vodovoz.ViewModels.Dialogs.Organizations;
 using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
@@ -154,6 +153,7 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using Vodovoz.ViewModels.Dialogs.Roboats;
 
 public partial class MainWindow : Gtk.Window
 {

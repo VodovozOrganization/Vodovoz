@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Project.Services;
-using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Roboats;
 
 namespace Vodovoz.Domain.Logistic
 {

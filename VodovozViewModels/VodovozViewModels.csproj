@@ -49,10 +49,10 @@
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Dialogs\Goods\AdditionalLoadingSettingsViewModel.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureViewModel.cs" />
-    <Compile Include="Dialogs\Organizations\RoboatsEntityViewModel.cs" />
-    <Compile Include="Dialogs\Organizations\RoboatsStreetViewModel.cs" />
+    <Compile Include="Dialogs\Roboats\RoboatsEntityViewModel.cs" />
+    <Compile Include="Dialogs\Roboats\RoboatsStreetViewModel.cs" />
     <Compile Include="Factories\RoboatsViewModelFactory.cs" />
-    <Compile Include="Dialogs\Organizations\RoboatsWaterTypeViewModel.cs" />
+    <Compile Include="Dialogs\Roboats\RoboatsWaterTypeViewModel.cs" />
     <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
     <Compile Include="Dialogs\Logistic\DeliveryScheduleViewModel.cs" />
     <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
@@ -220,7 +220,7 @@
     <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryTransferAbsenceReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Organization\RoboatsStreetJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Roboats\RoboatsStreetJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\UnallocatedBalancesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Roboats\RoboatsCallsRegistryJournalViewModel.cs" />
@@ -321,7 +321,7 @@
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryTransferAbsenceReasonViewModel.cs" />
     <Compile Include="Commands\OpenViewModelCommand.cs" />
-    <Compile Include="Dialogs\Organizations\RoboatsCatalogExportViewModel.cs" />
+    <Compile Include="Dialogs\Roboats\RoboatsCatalogExportViewModel.cs" />
     <Compile Include="ViewModels\Organizations\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />

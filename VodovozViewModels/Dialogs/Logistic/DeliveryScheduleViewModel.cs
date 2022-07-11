@@ -11,7 +11,7 @@ using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.Factories;
-using Vodovoz.ViewModels.Dialogs.Organizations;
+using Vodovoz.ViewModels.Dialogs.Roboats;
 
 namespace Vodovoz.ViewModels.Dialogs.Logistic
 {

@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Roboats;
 
 namespace Vodovoz.HibernateMapping.Organization
 {

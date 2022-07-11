@@ -88,7 +88,6 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Dialogs.Orders;
-using Vodovoz.ViewModels.Dialogs.Organizations;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.FuelDocuments;
@@ -172,6 +171,7 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Roboats;
+using Vodovoz.ViewModels.Dialogs.Roboats;
 
 namespace Vodovoz
 {

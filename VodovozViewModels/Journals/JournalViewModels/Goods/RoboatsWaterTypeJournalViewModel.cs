@@ -8,11 +8,11 @@ using QS.ViewModels;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Commands;
-using Vodovoz.ViewModels.Dialogs.Organizations;
+using Vodovoz.ViewModels.Dialogs.Roboats;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods

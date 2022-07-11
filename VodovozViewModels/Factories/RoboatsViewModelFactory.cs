@@ -1,8 +1,8 @@
 ﻿using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.ViewModels.Dialogs.Organizations;
+using Vodovoz.Domain.Roboats;
+using Vodovoz.ViewModels.Dialogs.Roboats;
 
 namespace Vodovoz.Factories
 {

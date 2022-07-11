@@ -7,7 +7,7 @@ using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {

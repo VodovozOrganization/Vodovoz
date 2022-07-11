@@ -5,7 +5,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Roboats;
 
 namespace Vodovoz.Domain.Client
 {

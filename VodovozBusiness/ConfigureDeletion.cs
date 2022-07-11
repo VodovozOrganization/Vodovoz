@@ -31,6 +31,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Proposal;
+using Vodovoz.Domain.Roboats;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;

@@ -148,7 +148,7 @@
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
-    <Compile Include="Domain\Organizations\IRoboatsEntity.cs" />
+    <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryAvailabilityHistory.cs" />
@@ -173,9 +173,10 @@
     <Compile Include="Domain\Orders\SelectedNomenclaturePlan.cs" />
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\AllocationStatus.cs" />
-    <Compile Include="Domain\Organizations\RoboatsEntityType.cs" />
-    <Compile Include="Domain\Organizations\RoboatsStreet.cs" />
-    <Compile Include="Domain\Organizations\RoboatsWaterType.cs" />
+    <Compile Include="Domain\Roboats\RoboatsCallDetail.cs" />
+    <Compile Include="Domain\Roboats\RoboatsEntityType.cs" />
+    <Compile Include="Domain\Roboats\RoboatsStreet.cs" />
+    <Compile Include="Domain\Roboats\RoboatsWaterType.cs" />
     <Compile Include="Domain\Payments\PaymentFromAvangard.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
@@ -289,9 +290,9 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
-    <Compile Include="EntityRepositories\Organizations\IRoboatsRepository.cs" />
+    <Compile Include="EntityRepositories\Roboats\IRoboatsRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\OrganizationRepository.cs" />
-    <Compile Include="EntityRepositories\Organizations\RoboatsRepository.cs" />
+    <Compile Include="EntityRepositories\Roboats\RoboatsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\IPaymentItemsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\ProfitCategoryRepository.cs" />
     <Compile Include="EntityRepositories\Payments\IProfitCategoryRepository.cs" />

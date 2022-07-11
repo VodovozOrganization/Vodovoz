@@ -6,7 +6,7 @@ using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
-using Vodovoz.ViewModels.Dialogs.Organizations;
+using Vodovoz.ViewModels.Dialogs.Roboats;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
