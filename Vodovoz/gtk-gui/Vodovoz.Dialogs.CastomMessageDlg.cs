@@ -107,6 +107,8 @@ namespace Vodovoz.Dialogs
 			w1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(w1[this.hbox3]));
 			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Internal child Vodovoz.Dialogs.CastomMessageDlg.ActionArea
 			global::Gtk.HButtonBox w12 = this.ActionArea;
 			w12.Name = "dialog1_ActionArea";
@@ -134,7 +136,7 @@ namespace Vodovoz.Dialogs
 			this.buttonNo.UseUnderline = true;
 			this.buttonNo.Label = global::Mono.Unix.Catalog.GetString("_Нет");
 			global::Gtk.Image w15 = new global::Gtk.Image();
-			w15.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			w15.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "stock_stop", global::Gtk.IconSize.Menu);
 			this.buttonNo.Image = w15;
 			this.AddActionWidget(this.buttonNo, -9);
 			global::Gtk.ButtonBox.ButtonBoxChild w16 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w12[this.buttonNo]));
