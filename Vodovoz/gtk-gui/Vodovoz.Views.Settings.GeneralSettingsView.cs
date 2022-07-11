@@ -4,15 +4,21 @@ namespace Vodovoz.Views.Settings
 {
 	public partial class GeneralSettingsView
 	{
+		private global::Gtk.HBox hboxMain;
+
 		private global::Gamma.GtkWidgets.yVBox vboxMain;
 
-		private global::Gtk.Table table1;
+		private global::Gtk.Frame frameLogistic;
 
-		private global::Gamma.GtkWidgets.yButton btnSaveCanAddForwardersToLargus;
+		private global::Gtk.Alignment GtkAlignment1;
+
+		private global::Gtk.VBox vbox3;
+
+		private global::Gtk.HBox hbox2;
+
+		private global::Gtk.VBox vbox2;
 
 		private global::Gamma.GtkWidgets.yButton btnSaveRouteListPrintedPhones;
-
-		private global::Gtk.HSeparator hseparator1;
 
 		private global::Gamma.GtkWidgets.yVBox vboxRouteListPrintedFormPhones;
 
@@ -22,15 +28,23 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yTextView textviewRouteListPrintedFormPhones;
 
+		private global::Gtk.HSeparator hseparator1;
+
+		private global::Gtk.HBox hbox1;
+
+		private global::Gamma.GtkWidgets.yButton btnSaveCanAddForwardersToLargus;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckCanAddForwardersToLargus;
 
-		private global::Gtk.Frame frame1;
+		private global::Gtk.Label frameLogisticLabel;
+
+		private global::Gtk.Frame frameRoboats;
 
 		private global::Gtk.Alignment GtkAlignment;
 
 		private global::Vodovoz.Views.Settings.RoboatsSettingsView roboatssettingsview1;
 
-		private global::Gtk.Label GtkLabel3;
+		private global::Gtk.Label frameRoboatsLabel;
 
 		protected virtual void Build()
 		{
@@ -39,47 +53,51 @@ namespace Vodovoz.Views.Settings
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Settings.GeneralSettingsView";
 			// Container child Vodovoz.Views.Settings.GeneralSettingsView.Gtk.Container+ContainerChild
+			this.hboxMain = new global::Gtk.HBox();
+			this.hboxMain.Name = "hboxMain";
+			this.hboxMain.Spacing = 6;
+			// Container child hboxMain.Gtk.Box+BoxChild
 			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
-			this.table1.Name = "table1";
-			this.table1.RowSpacing = ((uint)(6));
-			this.table1.ColumnSpacing = ((uint)(6));
-			// Container child table1.Gtk.Table+TableChild
-			this.btnSaveCanAddForwardersToLargus = new global::Gamma.GtkWidgets.yButton();
-			this.btnSaveCanAddForwardersToLargus.CanFocus = true;
-			this.btnSaveCanAddForwardersToLargus.Name = "btnSaveCanAddForwardersToLargus";
-			this.btnSaveCanAddForwardersToLargus.UseUnderline = true;
-			this.btnSaveCanAddForwardersToLargus.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			this.table1.Add(this.btnSaveCanAddForwardersToLargus);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.btnSaveCanAddForwardersToLargus]));
-			w1.TopAttach = ((uint)(2));
-			w1.BottomAttach = ((uint)(3));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			this.frameLogistic = new global::Gtk.Frame();
+			this.frameLogistic.Name = "frameLogistic";
+			this.frameLogistic.ShadowType = ((global::Gtk.ShadowType)(1));
+			this.frameLogistic.BorderWidth = ((uint)(1));
+			// Container child frameLogistic.Gtk.Container+ContainerChild
+			this.GtkAlignment1 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment1.Name = "GtkAlignment1";
+			this.GtkAlignment1.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment1.Gtk.Container+ContainerChild
+			this.vbox3 = new global::Gtk.VBox();
+			this.vbox3.Name = "vbox3";
+			this.vbox3.Spacing = 6;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.btnSaveRouteListPrintedPhones = new global::Gamma.GtkWidgets.yButton();
 			this.btnSaveRouteListPrintedPhones.CanFocus = true;
 			this.btnSaveRouteListPrintedPhones.Name = "btnSaveRouteListPrintedPhones";
 			this.btnSaveRouteListPrintedPhones.UseUnderline = true;
 			this.btnSaveRouteListPrintedPhones.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			this.table1.Add(this.btnSaveRouteListPrintedPhones);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.btnSaveRouteListPrintedPhones]));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(0));
-			// Container child table1.Gtk.Table+TableChild
-			this.hseparator1 = new global::Gtk.HSeparator();
-			this.hseparator1.Name = "hseparator1";
-			this.table1.Add(this.hseparator1);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.hseparator1]));
-			w3.TopAttach = ((uint)(1));
-			w3.BottomAttach = ((uint)(2));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			this.vbox2.Add(this.btnSaveRouteListPrintedPhones);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnSaveRouteListPrintedPhones]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			this.hbox2.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.vboxRouteListPrintedFormPhones = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxRouteListPrintedFormPhones.HeightRequest = 80;
 			this.vboxRouteListPrintedFormPhones.Name = "vboxRouteListPrintedFormPhones";
@@ -90,10 +108,10 @@ namespace Vodovoz.Views.Settings
 			this.lblRouteListPrintedFormPhones.Xalign = 0F;
 			this.lblRouteListPrintedFormPhones.LabelProp = global::Mono.Unix.Catalog.GetString("Телефоны для печатной формы МЛ:");
 			this.vboxRouteListPrintedFormPhones.Add(this.lblRouteListPrintedFormPhones);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxRouteListPrintedFormPhones[this.lblRouteListPrintedFormPhones]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxRouteListPrintedFormPhones[this.lblRouteListPrintedFormPhones]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child vboxRouteListPrintedFormPhones.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -104,38 +122,74 @@ namespace Vodovoz.Views.Settings
 			this.textviewRouteListPrintedFormPhones.Name = "textviewRouteListPrintedFormPhones";
 			this.GtkScrolledWindow.Add(this.textviewRouteListPrintedFormPhones);
 			this.vboxRouteListPrintedFormPhones.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxRouteListPrintedFormPhones[this.GtkScrolledWindow]));
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxRouteListPrintedFormPhones[this.GtkScrolledWindow]));
+			w5.Position = 1;
+			this.hbox2.Add(this.vboxRouteListPrintedFormPhones);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vboxRouteListPrintedFormPhones]));
 			w6.Position = 1;
-			this.table1.Add(this.vboxRouteListPrintedFormPhones);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.vboxRouteListPrintedFormPhones]));
-			w7.LeftAttach = ((uint)(1));
-			w7.RightAttach = ((uint)(2));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			w6.Expand = false;
+			w6.Fill = false;
+			this.vbox3.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
+			w7.Position = 0;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.hseparator1 = new global::Gtk.HSeparator();
+			this.hseparator1.Name = "hseparator1";
+			this.vbox3.Add(this.hseparator1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hseparator1]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.btnSaveCanAddForwardersToLargus = new global::Gamma.GtkWidgets.yButton();
+			this.btnSaveCanAddForwardersToLargus.CanFocus = true;
+			this.btnSaveCanAddForwardersToLargus.Name = "btnSaveCanAddForwardersToLargus";
+			this.btnSaveCanAddForwardersToLargus.UseUnderline = true;
+			this.btnSaveCanAddForwardersToLargus.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.hbox1.Add(this.btnSaveCanAddForwardersToLargus);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnSaveCanAddForwardersToLargus]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.ycheckCanAddForwardersToLargus = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckCanAddForwardersToLargus.CanFocus = true;
 			this.ycheckCanAddForwardersToLargus.Name = "ycheckCanAddForwardersToLargus";
 			this.ycheckCanAddForwardersToLargus.Label = global::Mono.Unix.Catalog.GetString("Можно добавлять экспедиторов к ларгусам");
 			this.ycheckCanAddForwardersToLargus.DrawIndicator = true;
 			this.ycheckCanAddForwardersToLargus.UseUnderline = true;
-			this.table1.Add(this.ycheckCanAddForwardersToLargus);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckCanAddForwardersToLargus]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vboxMain.Add(this.table1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.table1]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
+			this.hbox1.Add(this.ycheckCanAddForwardersToLargus);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ycheckCanAddForwardersToLargus]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
+			this.vbox3.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox1]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.GtkAlignment1.Add(this.vbox3);
+			this.frameLogistic.Add(this.GtkAlignment1);
+			this.frameLogisticLabel = new global::Gtk.Label();
+			this.frameLogisticLabel.Name = "frameLogisticLabel";
+			this.frameLogisticLabel.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройки логистики</b>");
+			this.frameLogisticLabel.UseMarkup = true;
+			this.frameLogistic.LabelWidget = this.frameLogisticLabel;
+			this.vboxMain.Add(this.frameLogistic);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameLogistic]));
+			w14.Position = 0;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.frame1 = new global::Gtk.Frame();
-			this.frame1.Name = "frame1";
-			this.frame1.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child frame1.Gtk.Container+ContainerChild
+			this.frameRoboats = new global::Gtk.Frame();
+			this.frameRoboats.Name = "frameRoboats";
+			this.frameRoboats.ShadowType = ((global::Gtk.ShadowType)(1));
+			this.frameRoboats.BorderWidth = ((uint)(1));
+			// Container child frameRoboats.Gtk.Container+ContainerChild
 			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment.Name = "GtkAlignment";
 			this.GtkAlignment.LeftPadding = ((uint)(12));
@@ -144,18 +198,23 @@ namespace Vodovoz.Views.Settings
 			this.roboatssettingsview1.Events = ((global::Gdk.EventMask)(256));
 			this.roboatssettingsview1.Name = "roboatssettingsview1";
 			this.GtkAlignment.Add(this.roboatssettingsview1);
-			this.frame1.Add(this.GtkAlignment);
-			this.GtkLabel3 = new global::Gtk.Label();
-			this.GtkLabel3.Name = "GtkLabel3";
-			this.GtkLabel3.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройки Roboats</b>");
-			this.GtkLabel3.UseMarkup = true;
-			this.frame1.LabelWidget = this.GtkLabel3;
-			this.vboxMain.Add(this.frame1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frame1]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
-			this.Add(this.vboxMain);
+			this.frameRoboats.Add(this.GtkAlignment);
+			this.frameRoboatsLabel = new global::Gtk.Label();
+			this.frameRoboatsLabel.Name = "frameRoboatsLabel";
+			this.frameRoboatsLabel.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройки Roboats</b>");
+			this.frameRoboatsLabel.UseMarkup = true;
+			this.frameRoboats.LabelWidget = this.frameRoboatsLabel;
+			this.vboxMain.Add(this.frameRoboats);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameRoboats]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
+			this.hboxMain.Add(this.vboxMain);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxMain]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
+			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
