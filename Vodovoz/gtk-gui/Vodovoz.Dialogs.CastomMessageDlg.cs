@@ -86,7 +86,6 @@ namespace Vodovoz.Dialogs
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label1]));
 			w6.Position = 4;
 			w6.Expand = false;
-			w6.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -136,7 +135,7 @@ namespace Vodovoz.Dialogs
 			this.buttonNo.UseUnderline = true;
 			this.buttonNo.Label = global::Mono.Unix.Catalog.GetString("_Нет");
 			global::Gtk.Image w15 = new global::Gtk.Image();
-			w15.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "stock_stop", global::Gtk.IconSize.Menu);
+			w15.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
 			this.buttonNo.Image = w15;
 			this.AddActionWidget(this.buttonNo, -9);
 			global::Gtk.ButtonBox.ButtonBoxChild w16 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w12[this.buttonNo]));
