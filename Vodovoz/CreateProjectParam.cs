@@ -521,6 +521,7 @@ namespace Vodovoz
 			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
 			builder.RegisterType<CarVersionsViewModelFactory>().As<ICarVersionsViewModelFactory>();
 			builder.RegisterType<PaymentFromAvangardFactory>().As<IPaymentFromAvangardFactory>();
+			builder.RegisterType<OrganizationJournalFactory>().As<IOrganizationJournalFactory>();
 
 			#endregion
 

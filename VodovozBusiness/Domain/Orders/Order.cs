@@ -1463,7 +1463,7 @@ namespace Vodovoz.Domain.Orders
 			ForceUpdateContract();
 		}
 		
-		public virtual void ForceUpdateContract()
+		public virtual void ForceUpdateContract(Organization organization = null)
 		{
 			if(orderOrganizationProviderFactory == null) {
 				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
@@ -1472,10 +1472,8 @@ namespace Vodovoz.Domain.Orders
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 			}
 			
-			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory, organization);
 		}
-		
-		
 
 		private void UpdateContractDocument()
 		{
@@ -1670,7 +1668,11 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void UpdateOrCreateContract(IUnitOfWork uow, ICounterpartyContractRepository contractRepository, CounterpartyContractFactory contractFactory)
+		public virtual void UpdateOrCreateContract(
+			IUnitOfWork uow,
+			ICounterpartyContractRepository contractRepository,
+			CounterpartyContractFactory contractFactory,
+			Organization organization = null)
 		{
 			if(!NHibernateUtil.IsInitialized(Client))
 			{
@@ -1699,10 +1701,20 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var counterpartyContract = contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
+			CounterpartyContract counterpartyContract;
+			
+			if(organization != null)
+			{
+				counterpartyContract = contractRepository.GetCounterpartyContract(uow, this, organization);
+			}
+			else
+			{
+				counterpartyContract = contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
+			}
+			
 			if(counterpartyContract == null)
 			{
-				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate);
+				counterpartyContract = contractFactory.CreateContract(uow, this, DeliveryDate, organization);
 			}
 			else
 			{

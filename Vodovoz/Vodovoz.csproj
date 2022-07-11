@@ -1717,6 +1717,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliverySalesReportView.cs" />
     <Compile Include="Views\Reports\FastDeliveryAdditionalLoadingReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryAdditionalLoadingReportView.cs" />
+    <Compile Include="Views\Orders\PaymentFromView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.PaymentFromView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -26,6 +26,7 @@ namespace FastPaymentsAPI.Library.Factories
 			int externalId,
 			FastPaymentPayType payType,
 			Organization organization,
+			PaymentFrom paymentByCardFrom,
 			Order order = null,
 			string phoneNumber = null,
 			int? onlineOrderId = null);
