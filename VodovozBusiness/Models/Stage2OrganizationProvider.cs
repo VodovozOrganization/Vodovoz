@@ -119,7 +119,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.cash:
-					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
 				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
@@ -160,7 +160,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.cash:
-					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
 				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
@@ -209,16 +209,7 @@ namespace Vodovoz.Models
 			}
 			if(paymentFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId)
 			{
-				if(geographicGroup == null || orderCreateDate == null)
-				{
-					return _organizationParametersProvider.VodovozNorthOrganizationId;
-				}
-				if(geographicGroup.Id == _geographicGroupParametersProvider.NorthGeographicGroupId
-					&& orderCreateDate.Value.TimeOfDay < _organizationParametersProvider.LatestCreateTimeForSouthOrganizationInByCardOrder)
-				{
-					return _organizationParametersProvider.VodovozSouthOrganizationId;
-				}
-				return _organizationParametersProvider.VodovozNorthOrganizationId;
+				return _organizationParametersProvider.VodovozSouthOrganizationId;
 			}
 			return _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
 				? _organizationParametersProvider.VodovozNorthOrganizationId
