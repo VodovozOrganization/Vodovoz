@@ -59,6 +59,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 
+			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
+
 			if(employeeService == null)
 			{
 				throw new ArgumentNullException(nameof(employeeService));
@@ -171,6 +173,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				() => CanAttachFine
 			);
 			AttachFineCommand.CanExecuteChangedWith(this, x => CanAttachFine);
+		}
+
+		void ObservableFines_ListContentChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(() => FineItems);
 		}
 	}
 }
