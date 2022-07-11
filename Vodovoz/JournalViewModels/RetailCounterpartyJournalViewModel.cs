@@ -54,12 +54,37 @@ namespace Vodovoz.JournalViewModels
                 }
 			}
 
-			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
+			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive)
+			{
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(FilterViewModel?.CounterpartyType != null) {
+			if(FilterViewModel?.CounterpartyType != null)
+			{
 				query.Where(t => t.CounterpartyType == FilterViewModel.CounterpartyType);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
+			{
+				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => counterpartyAlias.Name),
+					$"%{FilterViewModel.CounterpartyName}%"));
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
+			{
+				query.Where(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone);
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
