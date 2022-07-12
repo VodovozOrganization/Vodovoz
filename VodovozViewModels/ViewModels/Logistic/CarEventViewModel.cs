@@ -24,7 +24,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class CarEventViewModel : EntityTabViewModelBase<CarEvent> // : FilterableSingleEntityJournalViewModelBase<CarEvent, CarEventViewModel>
+	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
 	{
 		private readonly ICarEventSettings _carEventSettingsSettings = new CarEventSettings(new ParametersProvider());
 		private DelegateCommand _changeDriverCommand;

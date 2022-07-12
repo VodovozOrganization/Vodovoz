@@ -154,6 +154,7 @@ using QS.DomainModel.Entity;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
+using QS.DomainModel.NotifyChange;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2575,6 +2576,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
+		var entityChangeWatcher = NotifyConfiguration.Instance;
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = autofacScope.Resolve<IInteractiveService>();
 		IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
@@ -2593,7 +2595,7 @@ public partial class MainWindow : Gtk.Window
 			);
 
 		var viewModel = new CostCarExploitationReportViewModel(
-			uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory);
+			uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory, entityChangeWatcher);
 
 		tdiMain.AddTab(viewModel);
 	}
