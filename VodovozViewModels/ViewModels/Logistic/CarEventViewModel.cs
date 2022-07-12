@@ -24,7 +24,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
+	public class CarEventViewModel : EntityTabViewModelBase<CarEvent> // : FilterableSingleEntityJournalViewModelBase<CarEvent, CarEventViewModel>
 	{
 		private readonly ICarEventSettings _carEventSettingsSettings = new CarEventSettings(new ParametersProvider());
 		private DelegateCommand _changeDriverCommand;
@@ -58,7 +58,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
 
 			if(employeeService == null)
