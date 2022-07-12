@@ -63,7 +63,6 @@ namespace Vodovoz.Views.Settings
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.frameLogistic = new global::Gtk.Frame();
 			this.frameLogistic.Name = "frameLogistic";
-			this.frameLogistic.ShadowType = ((global::Gtk.ShadowType)(1));
 			this.frameLogistic.BorderWidth = ((uint)(1));
 			// Container child frameLogistic.Gtk.Container+ContainerChild
 			this.GtkAlignment1 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
@@ -99,7 +98,8 @@ namespace Vodovoz.Views.Settings
 			w2.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.vboxRouteListPrintedFormPhones = new global::Gamma.GtkWidgets.yVBox();
-			this.vboxRouteListPrintedFormPhones.HeightRequest = 80;
+			this.vboxRouteListPrintedFormPhones.WidthRequest = 350;
+			this.vboxRouteListPrintedFormPhones.HeightRequest = 160;
 			this.vboxRouteListPrintedFormPhones.Name = "vboxRouteListPrintedFormPhones";
 			this.vboxRouteListPrintedFormPhones.Spacing = 6;
 			// Container child vboxRouteListPrintedFormPhones.Gtk.Box+BoxChild
@@ -187,7 +187,6 @@ namespace Vodovoz.Views.Settings
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.frameRoboats = new global::Gtk.Frame();
 			this.frameRoboats.Name = "frameRoboats";
-			this.frameRoboats.ShadowType = ((global::Gtk.ShadowType)(1));
 			this.frameRoboats.BorderWidth = ((uint)(1));
 			// Container child frameRoboats.Gtk.Container+ContainerChild
 			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
