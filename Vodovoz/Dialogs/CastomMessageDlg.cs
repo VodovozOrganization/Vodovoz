@@ -80,7 +80,6 @@ namespace Vodovoz.Dialogs
 			if(format?.Length > _maxStringLengthWithoutScroll)
 			{
 				label2.Wrap = true;
-				label2.LineWrap = true;
 				label2.WidthRequest = _maxLableWidth;
 				GtkScrolledWindow.HeightRequest = _maxLableHeight;
 				label2.Text = format;

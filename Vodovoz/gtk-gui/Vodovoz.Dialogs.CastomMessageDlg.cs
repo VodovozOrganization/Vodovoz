@@ -184,8 +184,8 @@ namespace Vodovoz.Dialogs
 			{
 				this.Child.ShowAll();
 			}
-			this.DefaultWidth = 417;
-			this.DefaultHeight = 128;
+			this.DefaultWidth = 436;
+			this.DefaultHeight = 146;
 			this.imageInfo.Hide();
 			this.imageWarning.Hide();
 			this.imageQuestion.Hide();
