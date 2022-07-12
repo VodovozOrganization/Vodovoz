@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool CanAttachFine => CanEdit;
 		public IEmployeeService EmployeeService { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
+		public IList<FineItem> FineItems { get; private set; }
 
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -58,6 +58,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+
+			FineItems = Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
+
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
 
 			if(employeeService == null)
@@ -176,6 +179,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		void ObservableFines_ListContentChanged(object sender, EventArgs e)
 		{
+			FineItems = Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 			OnPropertyChanged(() => FineItems);
 		}
 	}
