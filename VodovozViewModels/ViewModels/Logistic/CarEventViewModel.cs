@@ -84,6 +84,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		public override void Dispose()
+		{
+			Entity.ObservableFines.ListContentChanged -= ObservableFines_ListContentChanged;
+			base.Dispose();
+		}
+
 		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CarEventTypeSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
