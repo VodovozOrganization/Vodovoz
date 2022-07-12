@@ -6,6 +6,8 @@ namespace Vodovoz.Dialogs
 	{
 		private global::Gtk.HBox hbox3;
 
+		private global::Gtk.HBox hbox1;
+
 		private global::Gtk.Image imageInfo;
 
 		private global::Gtk.Image imageWarning;
@@ -43,77 +45,89 @@ namespace Vodovoz.Dialogs
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.imageInfo = new global::Gtk.Image();
 			this.imageInfo.Name = "imageInfo";
 			this.imageInfo.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-info", global::Gtk.IconSize.Dialog);
-			this.hbox3.Add(this.imageInfo);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.imageInfo]));
+			this.hbox1.Add(this.imageInfo);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.imageInfo]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.imageWarning = new global::Gtk.Image();
 			this.imageWarning.Name = "imageWarning";
 			this.imageWarning.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-warning", global::Gtk.IconSize.Dialog);
-			this.hbox3.Add(this.imageWarning);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.imageWarning]));
+			this.hbox1.Add(this.imageWarning);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.imageWarning]));
 			w3.Position = 1;
 			w3.Expand = false;
 			w3.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.imageQuestion = new global::Gtk.Image();
 			this.imageQuestion.Name = "imageQuestion";
 			this.imageQuestion.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-question", global::Gtk.IconSize.Dialog);
-			this.hbox3.Add(this.imageQuestion);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.imageQuestion]));
+			this.hbox1.Add(this.imageQuestion);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.imageQuestion]));
 			w4.Position = 2;
 			w4.Expand = false;
 			w4.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.imageError = new global::Gtk.Image();
 			this.imageError.Name = "imageError";
 			this.imageError.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-error", global::Gtk.IconSize.Dialog);
-			this.hbox3.Add(this.imageError);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.imageError]));
+			this.hbox1.Add(this.imageError);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.imageError]));
 			w5.Position = 3;
 			w5.Expand = false;
 			w5.Fill = false;
+			this.hbox3.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox1]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
+			w6.Padding = ((uint)(1));
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("label1");
 			this.hbox3.Add(this.label1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label1]));
-			w6.Position = 4;
-			w6.Expand = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label1]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
+			w7.Padding = ((uint)(1));
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w7 = new global::Gtk.Viewport();
-			w7.ShadowType = ((global::Gtk.ShadowType)(0));
+			global::Gtk.Viewport w8 = new global::Gtk.Viewport();
+			w8.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("label2");
-			w7.Add(this.label2);
-			this.GtkScrolledWindow.Add(w7);
+			w8.Add(this.label2);
+			this.GtkScrolledWindow.Add(w8);
 			this.hbox3.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.GtkScrolledWindow]));
-			w10.Position = 5;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.GtkScrolledWindow]));
+			w11.Position = 2;
+			w11.Padding = ((uint)(1));
 			w1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(w1[this.hbox3]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(w1[this.hbox3]));
+			w12.Position = 0;
+			w12.Padding = ((uint)(1));
 			// Internal child Vodovoz.Dialogs.CastomMessageDlg.ActionArea
-			global::Gtk.HButtonBox w12 = this.ActionArea;
-			w12.Name = "dialog1_ActionArea";
-			w12.Spacing = 10;
-			w12.BorderWidth = ((uint)(5));
-			w12.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
+			global::Gtk.HButtonBox w13 = this.ActionArea;
+			w13.Name = "dialog1_ActionArea";
+			w13.Spacing = 10;
+			w13.BorderWidth = ((uint)(5));
+			w13.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonYes = new global::Gtk.Button();
 			this.buttonYes.CanDefault = true;
@@ -121,27 +135,27 @@ namespace Vodovoz.Dialogs
 			this.buttonYes.Name = "buttonYes";
 			this.buttonYes.UseUnderline = true;
 			this.buttonYes.Label = global::Mono.Unix.Catalog.GetString("_Да");
-			global::Gtk.Image w13 = new global::Gtk.Image();
-			w13.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
-			this.buttonYes.Image = w13;
+			global::Gtk.Image w14 = new global::Gtk.Image();
+			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
+			this.buttonYes.Image = w14;
 			this.AddActionWidget(this.buttonYes, -8);
-			global::Gtk.ButtonBox.ButtonBoxChild w14 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w12[this.buttonYes]));
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w15 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w13[this.buttonYes]));
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonNo = new global::Gtk.Button();
 			this.buttonNo.CanFocus = true;
 			this.buttonNo.Name = "buttonNo";
 			this.buttonNo.UseUnderline = true;
 			this.buttonNo.Label = global::Mono.Unix.Catalog.GetString("_Нет");
-			global::Gtk.Image w15 = new global::Gtk.Image();
-			w15.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
-			this.buttonNo.Image = w15;
+			global::Gtk.Image w16 = new global::Gtk.Image();
+			w16.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
+			this.buttonNo.Image = w16;
 			this.AddActionWidget(this.buttonNo, -9);
-			global::Gtk.ButtonBox.ButtonBoxChild w16 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w12[this.buttonNo]));
-			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w17 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w13[this.buttonNo]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonCancel = new global::Gtk.Button();
 			this.buttonCancel.CanFocus = true;
@@ -150,10 +164,10 @@ namespace Vodovoz.Dialogs
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = "gtk-cancel";
 			this.AddActionWidget(this.buttonCancel, -6);
-			global::Gtk.ButtonBox.ButtonBoxChild w17 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w12[this.buttonCancel]));
-			w17.Position = 2;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w18 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w13[this.buttonCancel]));
+			w18.Position = 2;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonOk = new global::Gtk.Button();
 			this.buttonOk.CanFocus = true;
@@ -162,16 +176,16 @@ namespace Vodovoz.Dialogs
 			this.buttonOk.UseUnderline = true;
 			this.buttonOk.Label = "gtk-ok";
 			this.AddActionWidget(this.buttonOk, -5);
-			global::Gtk.ButtonBox.ButtonBoxChild w18 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w12[this.buttonOk]));
-			w18.Position = 3;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w19 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w13[this.buttonOk]));
+			w19.Position = 3;
+			w19.Expand = false;
+			w19.Fill = false;
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
-			this.DefaultWidth = 432;
-			this.DefaultHeight = 122;
+			this.DefaultWidth = 417;
+			this.DefaultHeight = 128;
 			this.imageInfo.Hide();
 			this.imageWarning.Hide();
 			this.imageQuestion.Hide();
