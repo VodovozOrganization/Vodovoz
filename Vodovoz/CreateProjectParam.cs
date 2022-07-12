@@ -525,6 +525,7 @@ namespace Vodovoz
 			builder.RegisterType<SalesPlanJournalFactory>().As<ISalesPlanJournalFactory>();
 			builder.RegisterType<ExpenseCategorySelectorFactory>().As<IExpenseCategorySelectorFactory>();
 			builder.RegisterType<CarJournalFactory>().As<ICarJournalFactory>();
+			builder.RegisterType<CarEventTypeJournalFactory>().As<ICarEventTypeJournalFactory>();
 			builder.RegisterType<CarModelJournalFactory>().As<ICarModelJournalFactory>();
 			builder.RegisterType<CarManufacturerJournalFactory>().As<ICarManufacturerJournalFactory>();
 			builder.RegisterType<NomenclatureFixedPriceFactory>().AsSelf();
