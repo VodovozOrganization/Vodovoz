@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Roboats;
 
-namespace Vodovoz.HibernateMapping.Organization
+namespace Vodovoz.HibernateMapping.Organizations
 {
 	public class RoboatsWaterTypeMap : ClassMap<RoboatsWaterType>
 	{

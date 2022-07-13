@@ -401,8 +401,8 @@
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryTransferAbsenceReasonMap.cs" />
-    <Compile Include="HibernateMapping\Organization\RoboatsStreetMap.cs" />
-    <Compile Include="HibernateMapping\Organization\RoboatsWaterTypeMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\RoboatsStreetMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\RoboatsWaterTypeMap.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromAvangardMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
@@ -647,7 +647,7 @@
     <Compile Include="HibernateMapping\Order\OrderEquipmentMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderMap.cs" />
-    <Compile Include="HibernateMapping\Organization\OrganizationMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\OrganizationMap.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimHistoryMap.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimItemMap.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimMap.cs" />
