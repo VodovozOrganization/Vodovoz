@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Roboats;
-using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Roboats;
 
 namespace RoboAtsService.Requests
 {
@@ -15,12 +15,12 @@ namespace RoboAtsService.Requests
 	public class DeliveryIntervalsHandler : GetRequestHandlerBase
 	{
 		private readonly ILogger<DeliveryIntervalsHandler> _logger;
-		private readonly RoboatsRepository _roboatsRepository;
+		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public override string Request => RoboatsRequestType.DateTime;
 
-		public DeliveryIntervalsHandler(ILogger<DeliveryIntervalsHandler> logger, RoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public DeliveryIntervalsHandler(ILogger<DeliveryIntervalsHandler> logger, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));

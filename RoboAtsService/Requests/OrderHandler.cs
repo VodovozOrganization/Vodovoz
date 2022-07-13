@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
-using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 
@@ -14,7 +14,7 @@ namespace RoboAtsService.Requests
 	public partial class OrderHandler : GetRequestHandlerBase
 	{
 		private readonly ILogger<LastOrderHandler> _logger;
-		private readonly RoboatsRepository _roboatsRepository;
+		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsOrderModel _roboatsOrderModel;
 		private readonly RoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallRegistrator _callRegistrator;
@@ -40,7 +40,7 @@ namespace RoboAtsService.Requests
 			}
 		}
 
-		public OrderHandler(ILogger<LastOrderHandler> logger, RoboatsRepository roboatsRepository, RoboatsOrderModel roboatsOrderModel, RequestDto requestDto, RoboatsSettings roboatsSettings, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public OrderHandler(ILogger<LastOrderHandler> logger, IRoboatsRepository roboatsRepository, RoboatsOrderModel roboatsOrderModel, RequestDto requestDto, RoboatsSettings roboatsSettings, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));

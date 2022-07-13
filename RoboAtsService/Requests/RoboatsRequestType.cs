@@ -9,5 +9,4 @@
 		public const string DateTime = "datetime";
 		public const string WaterType = "watertype";
 	}
-
 }

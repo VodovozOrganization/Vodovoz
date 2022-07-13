@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Roboats;
-using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Roboats;
 
 namespace RoboAtsService.Requests
 {
@@ -14,12 +14,12 @@ namespace RoboAtsService.Requests
 	public class AddressHandler : GetRequestHandlerBase
 	{
 		private readonly ILogger<AddressHandler> _logger;
-		private readonly RoboatsRepository _roboatsRepository;
+		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public override string Request => RoboatsRequestType.Address;
 
-		public AddressHandler(ILogger<AddressHandler> logger, RoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public AddressHandler(ILogger<AddressHandler> logger, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));

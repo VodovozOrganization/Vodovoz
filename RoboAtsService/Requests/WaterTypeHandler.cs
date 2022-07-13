@@ -3,7 +3,7 @@ using RoboAtsService.Monitoring;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
-using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Roboats;
 
 namespace RoboAtsService.Requests
 {
@@ -13,12 +13,12 @@ namespace RoboAtsService.Requests
 	public class WaterTypeHandler : GetRequestHandlerBase
 	{
 		private readonly ILogger<WaterTypeHandler> _logger;
-		private readonly RoboatsRepository _roboatsRepository;
+		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public override string Request => RoboatsRequestType.WaterType;
 
-		public WaterTypeHandler(ILogger<WaterTypeHandler> logger, RoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public WaterTypeHandler(ILogger<WaterTypeHandler> logger, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));

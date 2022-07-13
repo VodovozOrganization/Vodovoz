@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
-using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Roboats;
 
 namespace RoboAtsService.Requests
 {
@@ -14,14 +14,14 @@ namespace RoboAtsService.Requests
 	public class LastOrderHandler : GetRequestHandlerBase
 	{
 		private readonly ILogger<LastOrderHandler> _logger;
-		private readonly RoboatsRepository _roboatsRepository;
+		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public LastOrderRequestType RequestType { get; }
 
 		public override string Request => RoboatsRequestType.LastOrder;
 
-		public LastOrderHandler(ILogger<LastOrderHandler> logger, RoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public LastOrderHandler(ILogger<LastOrderHandler> logger, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));

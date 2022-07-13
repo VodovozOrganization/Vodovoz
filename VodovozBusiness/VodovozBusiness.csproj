@@ -247,8 +247,6 @@
     <Compile Include="EntityRepositories\Counterparties\IDeliveryPointRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\IDocTemplateRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\IWaterPricesRepository.cs" />
-    <Compile Include="EntityRepositories\Counterparties\RoboatsRepository.cs" />
-    <Compile Include="EntityRepositories\Counterparties\RoboatsWaterNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPriceNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPricesRepository.cs" />
     <Compile Include="EntityRepositories\DiscountReasons\DiscountReasonRepository.cs" />
@@ -294,6 +292,7 @@
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
     <Compile Include="EntityRepositories\Roboats\IRoboatsRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\OrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Roboats\NomenclatureQuantity.cs" />
     <Compile Include="EntityRepositories\Roboats\RoboatsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\IPaymentItemsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\ProfitCategoryRepository.cs" />
