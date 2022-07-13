@@ -76,14 +76,15 @@ namespace FastPaymentsAPI.Library.Managers
 				case FastPaymentDTOStatus.Performed:
 					if(fastPayment.Order != null)
 					{
-						var paymentFrom = fastPayment.FastPaymentPayType == FastPaymentPayType.ByCard
-							? _orderParametersProvider.GetPaymentByCardFromAvangardId
-							: _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId;
-						
+						//Для старых быстрых платежей, которые могут остаться после обновления
+						if(fastPayment.PaymentByCardFrom == null)
+						{
+							SetPaymentByCardFrom(uow, fastPayment);
+						}
+
 						fastPayment.SetPerformedStatusForOrder(
 							uow,
 							statusDate,
-							uow.GetById<PaymentFrom>(paymentFrom),
 							_standartNomenclatures,
 							_routeListItemRepository,
 							_selfDeliveryRepository,
@@ -100,6 +101,23 @@ namespace FastPaymentsAPI.Library.Managers
 				default:
 					throw new InvalidOperationException("Неизвестный статус оплаты");
 			}
+		}
+
+		private void SetPaymentByCardFrom(IUnitOfWork uow, FastPayment fastPayment)
+		{
+			int paymentFromId;
+			if(fastPayment.Order != null)
+			{
+				paymentFromId = fastPayment.FastPaymentPayType == FastPaymentPayType.ByCard
+					? _orderParametersProvider.GetPaymentByCardFromAvangardId
+					: _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId;
+			}
+			else
+			{
+				paymentFromId = _orderParametersProvider.GetPaymentByCardFromSiteByQrCode;
+			}
+
+			fastPayment.PaymentByCardFrom = uow.GetById<PaymentFrom>(paymentFromId);
 		}
 	}
 }

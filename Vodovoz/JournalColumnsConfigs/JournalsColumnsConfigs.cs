@@ -1635,6 +1635,25 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Время реакции в\nчасах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
 					.Finish()
 			);
+			
+			//PaymentsFromJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PaymentsFromJournalViewModel>(
+				() => FluentColumnsConfig<PaymentFromJournalNode>.Create()
+					.AddColumn("№")
+						.HeaderAlignment(0.5f)
+						.AddNumericRenderer(node => node.Id)
+						.XAlign(0.5f)
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Name)
+						.XAlign(0.5f)
+					.AddColumn("Организация\nдля платежей Авангарда")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.OrganizationName)
+						.XAlign(0.5f)
+					.AddColumn("")
+					.Finish()
+			);
 		}
 	}
 }

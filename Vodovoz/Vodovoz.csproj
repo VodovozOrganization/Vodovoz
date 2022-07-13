@@ -1732,6 +1732,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsCatalogExportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsEntityView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsWaterTypeView.cs" />
+    <Compile Include="Views\Orders\PaymentFromView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.PaymentFromView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -1824,10 +1824,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionPaymentsFromActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<PaymentFrom>(),
-			() => new OrmReference(typeof(PaymentFrom))
-		);
+		NavigationManager.OpenViewModel<PaymentsFromJournalViewModel>(null);
 	}
 
 	protected void OnAction62Activated(object sender, EventArgs e)

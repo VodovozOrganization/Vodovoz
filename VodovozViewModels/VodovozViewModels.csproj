@@ -136,6 +136,7 @@
     <Compile Include="Journals\JournalNodes\Client\RoboAtsCounterpartyPatronymicJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\NomenclatureJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\CarEventTypeJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\PaymentFromJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\PaymentJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\PayoutRequestJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\DeliveryPointByClientJournalNode.cs" />
@@ -226,6 +227,7 @@
     <Compile Include="Journals\JournalViewModels\Roboats\RoboatsCallsRegistryJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Orders\DriverMessageJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DriverTareMessagesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\PaymentsFromJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryTransferAbsenceReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
@@ -319,6 +321,7 @@
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleNode.cs" />
     <Compile Include="ViewModels\Logistic\DriverWorkScheduleSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
+    <Compile Include="ViewModels\Orders\PaymentFromViewModel.cs" />
     <Compile Include="ViewModels\Orders\UndeliveryTransferAbsenceReasonViewModel.cs" />
     <Compile Include="Commands\OpenViewModelCommand.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsCatalogExportViewModel.cs" />

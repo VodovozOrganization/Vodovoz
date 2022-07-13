@@ -285,8 +285,10 @@
     <Compile Include="EntityRepositories\Operations\IWagesMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\WagesMovementRepository.cs" />
     <Compile Include="EntityRepositories\Orders\Export1cMode.cs" />
+    <Compile Include="EntityRepositories\Orders\IPaymentFromRepository.cs" />
     <Compile Include="EntityRepositories\Orders\IPromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\ISmsPaymentRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\PaymentFromRepository.cs" />
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />

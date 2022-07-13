@@ -543,6 +543,7 @@ namespace Vodovoz
 				.SingleInstance();
 				
 			builder.RegisterType<PaymentFromAvangardFactory>().As<IPaymentFromAvangardFactory>();
+			builder.RegisterType<OrganizationJournalFactory>().As<IOrganizationJournalFactory>();
 
 			#endregion
 
