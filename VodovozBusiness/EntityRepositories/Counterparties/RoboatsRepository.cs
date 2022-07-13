@@ -202,7 +202,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					return null;
 				}
 
-				var hasOnlyWaterNomenclatures = HasOnlyWaterNomenclatures(lastOrder);
+				var hasOnlyWaterNomenclatures = WasPassWaterCheck(lastOrder);
 
 				if(hasOnlyWaterNomenclatures)
 				{
@@ -258,7 +258,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 						Projections.GroupProperty(Projections.Property(() => orderAlias.DeliveryPoint.Id)))
 					.List<object[]>().Select(x => (int)x[0]);
 
-
 				OrderItem orderItemAlias = null;
 				Nomenclature nomenclatureAlias = null;
 				
@@ -272,7 +271,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 				foreach(var order in orders)
 				{
-					if(HasOnlyWaterNomenclatures(order))
+					if(WasPassWaterCheck(order))
 					{
 						yield return order.DeliveryPoint.Id;
 					}
@@ -280,11 +279,19 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 		}
 
-		private bool HasOnlyWaterNomenclatures(Order order)
+		private bool WasPassWaterCheck(Order order)
 		{
-			return !order.OrderItems
+			var hasOnlyWater = !order.OrderItems
 				.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
 				.Any(x => x.Nomenclature.Category != NomenclatureCategory.water);
+
+			if(!hasOnlyWater)
+			{
+				return false;
+			}
+
+			var hasWaterRowDuplicate = order.OrderItems.GroupBy(x => x.Nomenclature.Id).Any(x => x.Count() > 1);
+			return !hasWaterRowDuplicate;
 		}
 
 		public int? GetBottlesReturnForOrder(int counterpartyId, int orderId)
