@@ -8,8 +8,8 @@
   <PageWidth>297mm</PageWidth>
   <Width>295mm</Width>
   <TopMargin>5mm</TopMargin>
-  <LeftMargin>1mm</LeftMargin>
-  <RightMargin>1mm</RightMargin>
+  <LeftMargin>4mm</LeftMargin>
+  <RightMargin>4mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <PageHeader>
     <Height>33.4pt</Height>
@@ -56,52 +56,52 @@
             <Width>51.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.5pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.6pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.4pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.0pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.4pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.0pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.1pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.7pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.6pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.6pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.9pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.4pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.9pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.5pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.5pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.9pt</Width>
+            <Width>48pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1242,8 +1242,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>8.0pt</Left>
-        <Top>80.9pt</Top>
+        <Left>0.0pt</Left>
+        <Top>82.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -2337,8 +2337,8 @@
             <Width>1in</Width>
           </TableColumn>
         </TableColumns>
-        <Left>7.7pt</Left>
-        <Top>14.8pt</Top>
+        <Left>0.0pt</Left>
+        <Top>16.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -2535,6 +2535,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>
 SELECT
    T.week_begin,
@@ -2717,6 +2718,7 @@ ORDER BY week_begin</CommandText>
     <DataSet Name="Undeliveries">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>
 SELECT
     count(*) as undeliveries
