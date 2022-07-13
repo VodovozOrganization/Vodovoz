@@ -20,7 +20,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gtk.Label label2;
+		private global::Gtk.TextView textview1;
 
 		private global::Gtk.Button buttonYes;
 
@@ -103,31 +103,27 @@ namespace Vodovoz.Dialogs
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w8 = new global::Gtk.Viewport();
-			w8.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.label2 = new global::Gtk.Label();
-			this.label2.Name = "label2";
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("label2");
-			w8.Add(this.label2);
-			this.GtkScrolledWindow.Add(w8);
+			this.textview1 = new global::Gtk.TextView();
+			this.textview1.CanFocus = true;
+			this.textview1.Name = "textview1";
+			this.textview1.WrapMode = ((global::Gtk.WrapMode)(3));
+			this.GtkScrolledWindow.Add(this.textview1);
 			this.hbox3.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.GtkScrolledWindow]));
-			w11.Position = 2;
-			w11.Padding = ((uint)(1));
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.GtkScrolledWindow]));
+			w9.Position = 2;
+			w9.Padding = ((uint)(1));
 			w1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(w1[this.hbox3]));
-			w12.Position = 0;
-			w12.Padding = ((uint)(1));
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(w1[this.hbox3]));
+			w10.Position = 0;
+			w10.Padding = ((uint)(1));
 			// Internal child Vodovoz.Dialogs.CastomMessageDlg.ActionArea
-			global::Gtk.HButtonBox w13 = this.ActionArea;
-			w13.Name = "dialog1_ActionArea";
-			w13.Spacing = 10;
-			w13.BorderWidth = ((uint)(5));
-			w13.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
+			global::Gtk.HButtonBox w11 = this.ActionArea;
+			w11.Name = "dialog1_ActionArea";
+			w11.Spacing = 10;
+			w11.BorderWidth = ((uint)(5));
+			w11.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonYes = new global::Gtk.Button();
 			this.buttonYes.CanDefault = true;
@@ -135,27 +131,27 @@ namespace Vodovoz.Dialogs
 			this.buttonYes.Name = "buttonYes";
 			this.buttonYes.UseUnderline = true;
 			this.buttonYes.Label = global::Mono.Unix.Catalog.GetString("_Да");
-			global::Gtk.Image w14 = new global::Gtk.Image();
-			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
-			this.buttonYes.Image = w14;
+			global::Gtk.Image w12 = new global::Gtk.Image();
+			w12.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-yes", global::Gtk.IconSize.Menu);
+			this.buttonYes.Image = w12;
 			this.AddActionWidget(this.buttonYes, -8);
-			global::Gtk.ButtonBox.ButtonBoxChild w15 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w13[this.buttonYes]));
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w13 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11[this.buttonYes]));
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonNo = new global::Gtk.Button();
 			this.buttonNo.CanFocus = true;
 			this.buttonNo.Name = "buttonNo";
 			this.buttonNo.UseUnderline = true;
 			this.buttonNo.Label = global::Mono.Unix.Catalog.GetString("_Нет");
-			global::Gtk.Image w16 = new global::Gtk.Image();
-			w16.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
-			this.buttonNo.Image = w16;
+			global::Gtk.Image w14 = new global::Gtk.Image();
+			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-no", global::Gtk.IconSize.Menu);
+			this.buttonNo.Image = w14;
 			this.AddActionWidget(this.buttonNo, -9);
-			global::Gtk.ButtonBox.ButtonBoxChild w17 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w13[this.buttonNo]));
-			w17.Position = 1;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w15 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11[this.buttonNo]));
+			w15.Position = 1;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonCancel = new global::Gtk.Button();
 			this.buttonCancel.CanFocus = true;
@@ -164,10 +160,10 @@ namespace Vodovoz.Dialogs
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = "gtk-cancel";
 			this.AddActionWidget(this.buttonCancel, -6);
-			global::Gtk.ButtonBox.ButtonBoxChild w18 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w13[this.buttonCancel]));
-			w18.Position = 2;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w16 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11[this.buttonCancel]));
+			w16.Position = 2;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonOk = new global::Gtk.Button();
 			this.buttonOk.CanFocus = true;
@@ -176,10 +172,10 @@ namespace Vodovoz.Dialogs
 			this.buttonOk.UseUnderline = true;
 			this.buttonOk.Label = "gtk-ok";
 			this.AddActionWidget(this.buttonOk, -5);
-			global::Gtk.ButtonBox.ButtonBoxChild w19 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w13[this.buttonOk]));
-			w19.Position = 3;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w17 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w11[this.buttonOk]));
+			w17.Position = 3;
+			w17.Expand = false;
+			w17.Fill = false;
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
@@ -191,7 +187,6 @@ namespace Vodovoz.Dialogs
 			this.imageQuestion.Hide();
 			this.imageError.Hide();
 			this.label1.Hide();
-			this.GtkScrolledWindow.Hide();
 			this.buttonYes.Hide();
 			this.buttonNo.Hide();
 			this.buttonCancel.Hide();

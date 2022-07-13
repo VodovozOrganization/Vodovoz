@@ -6,13 +6,12 @@ namespace Vodovoz.Dialogs
 	public partial class CastomMessageDlg : Gtk.Dialog
 	{
 		private readonly int _maxStringLengthWithoutScroll = 500;
-		private readonly int _maxLableWidth = 350;
 		private readonly int _maxLableHeight = 300;
 		public CastomMessageDlg(Window parent_window, DialogFlags flags, MessageType type, ButtonsType bt, string format, bool useMarkup = false)
 		{
 			this.Build();
 			
-			label1.Visible = label2.Visible = GtkScrolledWindow.Visible = false;
+			label1.Visible = textview1.Visible = GtkScrolledWindow.Visible = false;
 			imageInfo.Visible = imageWarning.Visible = imageQuestion.Visible = imageError.Visible = false;
 			buttonOk.Visible = buttonCancel.Visible = buttonYes.Visible = buttonNo.Visible = false;
 
@@ -79,18 +78,15 @@ namespace Vodovoz.Dialogs
 
 			if(format?.Length > _maxStringLengthWithoutScroll)
 			{
-				label2.Wrap = true;
-				label2.WidthRequest = _maxLableWidth;
 				GtkScrolledWindow.HeightRequest = _maxLableHeight;
-				label2.Text = format;
-				label2.Visible = GtkScrolledWindow.Visible = true; 
+				textview1.Buffer.Text = format;
+				textview1.Visible = GtkScrolledWindow.Visible = true; 
 				
 			}
 			else
 			{
 				label1.Wrap = true;
 				label1.LineWrap = true;
-				label1.WidthRequest = _maxLableWidth;
 				label1.Text = format;
 				label1.Visible = true;
 			}
