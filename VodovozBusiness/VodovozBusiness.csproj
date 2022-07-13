@@ -175,6 +175,8 @@
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
     <Compile Include="Domain\Retail\SalesChannel.cs" />
+    <Compile Include="Domain\Roboats\RoboatsStreet.cs" />
+    <Compile Include="Domain\Roboats\RoboatsFiasStreet.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
@@ -234,6 +236,8 @@
     <Compile Include="EntityRepositories\Counterparties\IDeliveryPointRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\IDocTemplateRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\IWaterPricesRepository.cs" />
+    <Compile Include="EntityRepositories\Counterparties\RoboatsRepository.cs" />
+    <Compile Include="EntityRepositories\Counterparties\RoboatsWaterNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPriceNode.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPricesRepository.cs" />
     <Compile Include="EntityRepositories\DiscountReasons\DiscountReasonRepository.cs" />
@@ -379,6 +383,8 @@
     <Compile Include="HibernateMapping\Organization\RoboatsWaterTypeMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
+    <Compile Include="HibernateMapping\Roboats\RoboatsFiasStreetMap.cs" />
+    <Compile Include="HibernateMapping\Roboats\RoboatsStreetMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
@@ -397,6 +403,7 @@
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\Orders\CopyingOrder.cs" />
     <Compile Include="Models\Orders\OrderCopyModel.cs" />
+    <Compile Include="Models\Orders\RoboatsOrderModel.cs" />
     <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />

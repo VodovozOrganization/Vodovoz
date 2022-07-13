@@ -37,7 +37,7 @@ namespace Vodovoz.SidePanel.InfoProviders
 			}
 		}
 
-		private DefaultInfoProvider()
+		public DefaultInfoProvider()
 		{
 			infoWidgets = new PanelViewType[0];
 		}

@@ -1,11 +1,11 @@
-using System.ServiceModel;
+﻿using System.ServiceModel;
 
 namespace SmsPaymentService
 {
     public class SmsPaymentServiceSetting
     {
         private static SmsPaymentServiceSetting settingInstance;
-        
+
         public static bool SendingAllowed => settingInstance != null;
 
         public static ISmsPaymentService GetSmsPaymentService()
@@ -28,10 +28,10 @@ namespace SmsPaymentService
             }
             settingInstance = new SmsPaymentServiceSetting(serviceUrl);
         }
-        
+
         private string serviceUrl;
 
-        private SmsPaymentServiceSetting(string serviceUrl)
+        public SmsPaymentServiceSetting(string serviceUrl)
         {
             this.serviceUrl = serviceUrl;
         }

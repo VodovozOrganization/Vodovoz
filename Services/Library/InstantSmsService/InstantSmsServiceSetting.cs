@@ -31,7 +31,7 @@ namespace InstantSmsService
 
 		private string serviceUrl;
 
-		private InstantSmsServiceSetting(string serviceUrl)
+		public InstantSmsServiceSetting(string serviceUrl)
 		{
 			this.serviceUrl = serviceUrl;
 		}
