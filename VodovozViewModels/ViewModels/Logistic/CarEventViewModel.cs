@@ -156,7 +156,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			AttachFineCommand = new DelegateCommand(
 				() => {
-					var fineFilter = new FineFilterViewModel();
+					var fineFilter = new FineFilterViewModel()
+					{
+						CanEditFineDate = true,
+						CanEditRouteListDate = true,
+						CanEditSubdivision = true
+					};
 					fineFilter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
 					var fineJournalViewModel = new FinesJournalViewModel(
 						fineFilter,
