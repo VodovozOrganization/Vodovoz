@@ -345,56 +345,6 @@ public partial class MainWindow : Gtk.Window
 
 	}
 
-	private void FillCounterpartyNames()
-	{
-		var path = @"C:\Users\Enzo\Desktop\names";
-
-		IEnumerable<RoboAtsCounterpartyName> names;
-
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			names = uow.GetAll<RoboAtsCounterpartyName>().ToList();
-		}
-
-		foreach(var name in names)
-		{
-			var viewModel = autofacScope.Resolve<RoboAtsCounterpartyNameViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(name.Id)));
-
-			var newFile = System.IO.Path.Combine(path, viewModel.Entity.RoboatsAudiofile);
-			if(!File.Exists(newFile))
-			{
-				continue;
-			}
-			viewModel.RoboatsEntityViewModel.SetNewAudioFilePath(newFile);
-			viewModel.Save(false);
-		}
-	}
-
-	private void FillCounterpartyPatronymics()
-	{
-		var path = @"C:\Users\Enzo\Desktop\patronymics";
-
-		IEnumerable<RoboAtsCounterpartyPatronymic> names;
-
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			names = uow.GetAll<RoboAtsCounterpartyPatronymic>().ToList();
-		}
-
-		foreach(var name in names)
-		{
-			var viewModel = autofacScope.Resolve<RoboAtsCounterpartyPatronymicViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(name.Id)));
-
-			var newFile = System.IO.Path.Combine(path, viewModel.Entity.RoboatsAudiofile);
-			if(!File.Exists(newFile))
-			{
-				continue;
-			}
-			viewModel.RoboatsEntityViewModel.SetNewAudioFilePath(newFile);
-			viewModel.Save(false);
-		}
-	}
-
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
 		switch(args.Tab)
