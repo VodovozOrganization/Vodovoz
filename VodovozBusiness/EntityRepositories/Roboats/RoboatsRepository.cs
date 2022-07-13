@@ -271,13 +271,16 @@ namespace Vodovoz.EntityRepositories.Roboats
 				Order orderAlias = null;
 				DeliveryPoint deliveryPointAlias = null;
 				RoboatsFiasStreet roboatsFiasStreetAlias = null;
+				PromotionalSet promotionalSetAlias = null;
 
 				var lastOrdersByDeliveryPoints = uow.Session.QueryOver(() => orderAlias)
 					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+					.Left.JoinAlias(() => orderAlias.PromotionalSets, () => promotionalSetAlias) 
 					.JoinEntityQueryOver(() => roboatsFiasStreetAlias, Restrictions.Where(() => deliveryPointAlias.StreetFiasGuid == roboatsFiasStreetAlias.FiasStreetGuid))
 					.Where(() => orderAlias.Client.Id == clientId)
 					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
 					.Where(() => !orderAlias.IsBottleStock)
+					.Where(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id)))
 					.Where(() => deliveryPointAlias.RoomType == RoomType.Apartment)
 					.Where(
 						Restrictions.In(
