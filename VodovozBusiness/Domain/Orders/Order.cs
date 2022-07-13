@@ -970,6 +970,15 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			//FIXME Убрать эту проверку после 2022-07-21
+			if(DeliveryDate == Convert.ToDateTime("2022-07-20") && PaymentType == PaymentType.Terminal)
+			{
+				yield return new ValidationResult(
+					"Нельзя принимать заказы на 20.07.22 с формой оплаты \"Терминал\". " +
+					"Выберите другую дату или другую форму оплаты",
+					new[] { nameof(DeliveryDate), nameof(PaymentType) });
+			}
+
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
@@ -1695,6 +1704,10 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(Client == null)
+			{
+				return;
+			}
+			if(DeliveryDate == null)
 			{
 				return;
 			}

@@ -43,7 +43,6 @@ namespace Vodovoz.Parameters
 		public int[] PaymentsByCardFromForNorthOrganization =>
 			new[]
 			{
-				PaymentFromTerminalId,
 				PaymentByCardFromMobileAppId,
 				PaymentByCardFromOnlineStoreId,
 				PaymentByCardFromSiteId
