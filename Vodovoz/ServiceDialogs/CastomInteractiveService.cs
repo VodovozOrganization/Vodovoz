@@ -16,7 +16,7 @@ namespace Vodovoz.Services
 
 		public void ShowMessage(ImportanceLevel level, string message, string title = null)
 		{
-			_interactiveMessage.ShowMessage(ImportanceLevel.Info, message, title);
+			_interactiveMessage.ShowMessage(level, message, title);
 		}
 	}
 
