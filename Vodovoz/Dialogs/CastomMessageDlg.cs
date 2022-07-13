@@ -27,7 +27,7 @@ namespace Vodovoz.Dialogs
 				case ButtonsType.None:
 					break;
 				case ButtonsType.Ok:
-					AddButton("Да", ResponseType.Yes);
+					buttonOk.Visible = true;
 					break;
 				case ButtonsType.Close:
 					buttonCancel.Visible = true;
