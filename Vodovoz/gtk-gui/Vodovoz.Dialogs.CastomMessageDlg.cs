@@ -39,11 +39,12 @@ namespace Vodovoz.Dialogs
 			// Internal child Vodovoz.Dialogs.CastomMessageDlg.VBox
 			global::Gtk.VBox w1 = this.VBox;
 			w1.Name = "dialog1_VBox";
-			w1.BorderWidth = ((uint)(3));
+			w1.BorderWidth = ((uint)(6));
 			// Container child dialog1_VBox.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
+			this.hbox3.BorderWidth = ((uint)(3));
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
