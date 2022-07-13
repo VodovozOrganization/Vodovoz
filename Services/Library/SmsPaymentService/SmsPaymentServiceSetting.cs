@@ -31,7 +31,7 @@ namespace SmsPaymentService
 
         private string serviceUrl;
 
-        public SmsPaymentServiceSetting(string serviceUrl)
+        private SmsPaymentServiceSetting(string serviceUrl)
         {
             this.serviceUrl = serviceUrl;
         }

@@ -19,11 +19,11 @@ using QS.Project.Repositories;
 using QS.Services;
 using RoboAtsService.Middleware;
 using RoboAtsService.Monitoring;
+using System;
 using System.Linq;
 using System.Reflection;
 using Vodovoz;
 using Vodovoz.Core.DataService;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.NhibernateExtensions;
@@ -55,8 +55,6 @@ namespace RoboAtsService
 			NLogBuilder.ConfigureNLog("NLog.config");
 
 			CreateBaseConfig();
-
-			//services.AddControllers();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -139,8 +137,6 @@ namespace RoboAtsService
 
 		private void CreateBaseConfig()
 		{
-			//_logger.LogInformation("Настройка параметров Nhibernate...");
-
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
 			var domainDBConfig = Configuration.GetSection("DomainDB");
@@ -175,14 +171,20 @@ namespace RoboAtsService
 				}
 			);
 
-			var serviceUserId = 0;
+			string userLogin = domainDBConfig.GetValue<string>("UserID");
+			int serviceUserId = 0;
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
 				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
-					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
+					.Where(u => u.Login == userLogin)
 					.Select(u => u.Id)
 					.FirstOrDefault();
+			}
+
+			if(serviceUserId == 0)
+			{
+				throw new ApplicationException($"Невозможно получить пользователя по логину: {userLogin}");
 			}
 
 			UserRepository.GetCurrentUserId = () => serviceUserId;

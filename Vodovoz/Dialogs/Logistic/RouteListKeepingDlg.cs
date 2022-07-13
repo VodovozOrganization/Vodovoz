@@ -488,11 +488,6 @@ namespace Vodovoz
 			}
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
-
 		protected void OnButtonSetStatusCompleteClicked(object sender, EventArgs e)
 		{
 			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();

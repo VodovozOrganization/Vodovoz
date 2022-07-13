@@ -1,6 +1,5 @@
 ﻿using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -162,36 +161,6 @@ namespace Vodovoz.Models.Orders
 			order.RecalculateItemsPrice();
 			order.CalculateDeliveryPrice();
 			return order;
-		}
-	}
-
-	public class RoboatsOrderArgs
-	{
-		public int CounterpartyId { get; set; }
-		public int DeliveryPointId { get; set; }
-		public IEnumerable<RoboatsWaterInfo> WatersInfo { get; set; }
-		public int BottlesReturn { get; set; }
-		public DateTime Date { get; set; }
-		public int DeliveryScheduleId { get; set; }
-		public RoboAtsOrderPayment PaymentType { get; set; }
-		public int? BanknoteForReturn { get; set; }
-	}
-
-	public enum RoboAtsOrderPayment
-	{
-		Cash,
-		Terminal
-	}
-
-	public class RoboatsWaterInfo
-	{
-		public int NomenclatureId { get; }
-		public int BottlesCount { get; }
-
-		public RoboatsWaterInfo(int nomenclatureId, int bottlesCount)
-		{
-			NomenclatureId = nomenclatureId;
-			BottlesCount = bottlesCount;
 		}
 	}
 }

@@ -1587,7 +1587,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//RoboatsStreetJournalViewModel
+			//RoboatsWaterTypeJournalViewModel
 			TreeViewColumnsConfigFactory.Register<RoboatsWaterTypeJournalViewModel>(
 				() => FluentColumnsConfig<RoboatsWaterTypeJournalNode>.Create()
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)

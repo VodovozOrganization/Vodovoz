@@ -405,6 +405,7 @@
     <Compile Include="HibernateMapping\Payments\PaymentFromAvangardMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
+    <Compile Include="HibernateMapping\Roboats\RoboatsCallDetailMap.cs" />
     <Compile Include="HibernateMapping\Roboats\RoboatsCallMap.cs" />
     <Compile Include="HibernateMapping\Roboats\RoboatsFiasStreetMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
@@ -426,11 +427,13 @@
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\Orders\CopyingOrder.cs" />
     <Compile Include="Models\Orders\OrderCopyModel.cs" />
+    <Compile Include="Models\Orders\RoboatsOrderArgs.cs" />
     <Compile Include="Models\Orders\RoboatsOrderModel.cs" />
+    <Compile Include="Models\Orders\RoboAtsOrderPayment.cs" />
+    <Compile Include="Models\Orders\RoboatsWaterInfo.cs" />
     <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
-    <Compile Include="Models\RoboatsFilesModel.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />

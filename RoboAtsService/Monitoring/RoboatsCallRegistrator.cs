@@ -166,11 +166,11 @@ namespace RoboAtsService.Monitoring
 			RoboatsCallStatus[] activeStatuses = { RoboatsCallStatus.InProgress, RoboatsCallStatus.Fail };
 
 			RoboatsCall roboatsCallAlias = null;
-			var call = uow.Session.QueryOver(() => roboatsCallAlias)
+			var calls = uow.Session.QueryOver(() => roboatsCallAlias)
 				.Where(() => roboatsCallAlias.Phone == phone)
 				.Where(Restrictions.In(Projections.Property(() => roboatsCallAlias.Status), activeStatuses))
 				.List();
-			return call;
+			return calls;
 		}
 
 		private void CloseStaleCalls(IEnumerable<RoboatsCall> staleCalls)

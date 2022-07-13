@@ -102,7 +102,7 @@ namespace RoboAtsService.Requests
 			if(counterpartyCount > 1)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.OnOrderHandle,
-					$"Невозможно рассчитать стоимость заказа. Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
+					$"Невозможно рассчитать стоимость заказа. Найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				return ErrorMessage;
 			}
 
@@ -166,7 +166,7 @@ namespace RoboAtsService.Requests
 			if(counterpartyCount > 1)
 			{
 				_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.OnOrderHandle,
-					$"Невозможно создать заказ. Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
+					$"Невозможно создать заказ. Найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				return ErrorMessage;
 			}
 
@@ -285,14 +285,6 @@ namespace RoboAtsService.Requests
 			}
 
 			var isFullOrder = RequestDto.IsFullOrder == "1";
-
-			//Подозреваю что эта проверка будет еще нужна. Пока что по итогам теста решили сделать чтобы не указание сдачи приравнивалось к нулю.
-			/*if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn) && isFullOrder && payment == RoboAtsOrderPayment.Cash)
-			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.UnknownIsTerminalValue, RoboatsCallOperation.CreateOrder,
-					$"Для подтверждения наличного заказа необходимо указать сдачу. Сдача с: {RequestDto.BanknoteForReturn}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}");
-				return ErrorMessage;
-			}*/
 			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn))
 			{
 				banknoteForReturn = 0;
@@ -316,11 +308,6 @@ namespace RoboAtsService.Requests
 			orderArgs.Date = date;
 			orderArgs.DeliveryScheduleId = deliverySchedule.Id;
 			orderArgs.PaymentType = payment;
-			//Так же, если не будет замечаний по сдаче удалить при релизе.
-			/*if(banknoteForReturn > 0)
-			{
-				orderArgs.BanknoteForReturn = banknoteForReturn;
-			}*/
 			orderArgs.BanknoteForReturn = banknoteForReturn;
 
 			try
