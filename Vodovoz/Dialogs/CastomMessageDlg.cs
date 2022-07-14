@@ -75,13 +75,11 @@ namespace Vodovoz.Dialogs
 
 		private void FillLable(string format)
 		{
-
 			if(format?.Length > _maxStringLengthWithoutScroll)
 			{
 				GtkScrolledWindow.HeightRequest = _maxLableHeight;
 				textview1.Buffer.Text = format;
-				textview1.Visible = GtkScrolledWindow.Visible = true; 
-				
+				textview1.Visible = GtkScrolledWindow.Visible = true; 			
 			}
 			else
 			{
