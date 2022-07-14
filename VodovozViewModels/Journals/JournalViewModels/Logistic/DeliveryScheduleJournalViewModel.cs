@@ -36,14 +36,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			Title = "Графики доставки";
 
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity(OnEntityChanged, typeof(DeliverySchedule));
+			UpdateOnChanges(typeof(DeliverySchedule));
 		}
-
-		public void OnEntityChanged(EntityChangeEvent[] changeEvents)
-		{
-			Refresh();
-		}
-
 
 		public void SetForRoboatsCatalogExport(OpenViewModelCommand openViewModelCommand)
 		{
