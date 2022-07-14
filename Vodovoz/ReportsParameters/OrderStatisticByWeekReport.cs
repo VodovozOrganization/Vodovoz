@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using Gamma.ColumnConfig;
 using MoreLinq;
+using NHibernate.Exceptions;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -20,7 +22,7 @@ namespace Vodovoz.ReportsParameters
 
 		public OrderStatisticByWeekReport()
 		{
-			this.Build();
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, 1, 1);
@@ -57,7 +59,23 @@ namespace Vodovoz.ReportsParameters
 		private void OnUpdate(bool hide = false) =>
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 
-		private void OnButtonRunClicked(object sender, EventArgs e) => OnUpdate(true);
+		private void OnButtonRunClicked(object sender, EventArgs e)
+		{
+			try
+			{
+				OnUpdate(true);
+			}
+			catch(GenericADOException ex)
+			{
+				if(ex.InnerException?.InnerException?.InnerException?.InnerException?.InnerException is SocketException exception
+					&& exception.SocketErrorCode == SocketError.TimedOut)
+				{
+					MessageDialogHelper.RunWarningDialog("Превышен интервал ожидания ответа от сервера:\n" +
+														"Попробуйте выбрать меньший интервал времени\n" +
+														"или сформируйте отчет чуть позже");
+				}
+			}
+		} 
 
 		private ReportInfo GetReportInfo()
 		{

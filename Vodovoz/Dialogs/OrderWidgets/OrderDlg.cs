@@ -739,7 +739,7 @@ namespace Vodovoz
 
 			UpdateOrderAddressTypeWithUI();
 
-			Entity.InteractiveService = ServicesConfig.InteractiveService;
+			Entity.InteractiveService = new CastomInteractiveService();
 
 			Entity.PropertyChanged += (sender, args) =>
 			{
@@ -1496,7 +1496,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			PromosetDuplicateFinder promosetDuplicateFinder = new PromosetDuplicateFinder(ServicesConfig.InteractiveService);
+			PromosetDuplicateFinder promosetDuplicateFinder = new PromosetDuplicateFinder(new CastomInteractiveService());
 			List<Phone> phones = new List<Phone>();
 			phones.AddRange(Entity.Client.Phones);
 			if(Entity.DeliveryPoint != null) {
