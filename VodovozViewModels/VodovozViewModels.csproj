@@ -165,8 +165,8 @@
     <Compile Include="Journals\JournalNodes\PremiumJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\PremiumTemplateJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RegisteredRMJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\RoboatsWaterTypeJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\RoboatsStreetJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Roboats\RoboatsWaterTypeJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Roboats\RoboatsStreetJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Roboats\RoboatsCallJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />

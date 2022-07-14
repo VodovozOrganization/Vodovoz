@@ -9,6 +9,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 	{
 		private string _callStatus = null;
 		private string _callResult = null;
+		public override string Title => $"{Phone} {Time:dd.MM.yyyy HH:mm:ss}";
 
 		public int Id { get; set; }
 		public DateTime Time { get; set; }
