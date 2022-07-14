@@ -12,6 +12,13 @@ namespace Vodovoz.Domain.Roboats
 	public class RoboatsCall : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
+		private DateTime _callTime;
+		private string _phone;
+		private RoboatsCallStatus _status;
+		private RoboatsCallResult _result;
+		IList<RoboatsCallDetail> _callDetails = new List<RoboatsCallDetail>();
+		GenericObservableList<RoboatsCallDetail> observableCallDetails;
+
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -19,7 +26,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _id, value);
 		}
 
-		private DateTime _callTime;
 		[Display(Name = "Время звонка")]
 		public virtual DateTime CallTime
 		{
@@ -27,7 +33,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _callTime, value);
 		}
 
-		private string _phone;
 		[Display(Name = "Телефон")]
 		public virtual string Phone
 		{
@@ -35,7 +40,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _phone, value);
 		}
 
-		private RoboatsCallStatus _status;
 		[Display(Name = "Статус")]
 		public virtual RoboatsCallStatus Status
 		{
@@ -43,7 +47,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _status, value);
 		}
 
-		private RoboatsCallResult _result;
 		[Display(Name = "Результат звонка")]
 		public virtual RoboatsCallResult Result
 		{
@@ -51,7 +54,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _result, value);
 		}
 
-		IList<RoboatsCallDetail> _callDetails = new List<RoboatsCallDetail>();
 		[Display(Name = "Детали звонка")]
 		public virtual IList<RoboatsCallDetail> CallDetails
 		{
@@ -59,7 +61,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _callDetails, value);
 		}
 
-		GenericObservableList<RoboatsCallDetail> observableCallDetails;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<RoboatsCallDetail> ObservableCallDetails
 		{

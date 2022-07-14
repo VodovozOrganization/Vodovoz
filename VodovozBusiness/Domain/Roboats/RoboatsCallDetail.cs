@@ -10,6 +10,13 @@ namespace Vodovoz.Domain.Roboats
 	public class RoboatsCallDetail : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
+		private DateTime _operationTime;
+		private RoboatsCall _call;
+		private RoboatsCallFailType _failType;
+		private RoboatsCallOperation _operation;
+		private string _description;
+
+
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -17,7 +24,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _id, value);
 		}
 
-		private DateTime _operationTime;
 		[Display(Name = "Время операции")]
 		public virtual DateTime OperationTime
 		{
@@ -25,7 +31,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _operationTime, value);
 		}
 
-		private RoboatsCall _call;
 		[Display(Name = "Звонок")]
 		public virtual RoboatsCall Call
 		{
@@ -33,7 +38,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _call, value);
 		}
 
-		private RoboatsCallFailType _failType;
 		[Display(Name = "Тип проблемы")]
 		public virtual RoboatsCallFailType FailType
 		{
@@ -41,7 +45,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _failType, value);
 		}
 		
-		private RoboatsCallOperation _operation;
 		[Display(Name = "Выполняемое действие")]
 		public virtual RoboatsCallOperation Operation
 		{
@@ -49,7 +52,6 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _operation, value);
 		}
 
-		private string _description;
 		[Display(Name = "Description")]
 		public virtual string Description
 		{
