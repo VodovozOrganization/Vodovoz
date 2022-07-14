@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping.Logistic
@@ -22,6 +23,12 @@ namespace Vodovoz.HibernateMapping.Logistic
 			References(x => x.Author).Column("author_id");
 			References(x => x.Car).Column("car_id");
 			References(x => x.Driver).Column("driver_id");
+
+			HasManyToMany<Fine>(x => x.Fines)
+				.Table("car_event_fines")
+				.ParentKeyColumn("car_event_id")
+				.ChildKeyColumn("fine_id")
+				.LazyLoad();
 		}
 	}
 }

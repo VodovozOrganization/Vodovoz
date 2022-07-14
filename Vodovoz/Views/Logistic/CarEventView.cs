@@ -1,5 +1,8 @@
-﻿using QS.Navigation;
+﻿using Gamma.ColumnConfig;
+using QS.Navigation;
 using QS.Views.GtkUI;
+using QSProjectsLib;
+using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -47,6 +50,19 @@ namespace Vodovoz.Views.Logistic
 			ytextviewFoundation.Binding.AddBinding(ViewModel.Entity, e => e.Foundation, w => w.Buffer.Text).InitializeFromSource();
 
 			ytextviewCommnet.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+
+			ytreeviewFines.ColumnsConfig = FluentColumnsConfig<FineItem>.Create()
+				.AddColumn("№").AddTextRenderer(x => x.Fine.Id.ToString())
+				.AddColumn("Сотрудник").AddTextRenderer(x => x.Employee.ShortName)
+				.AddColumn("Сумма штрафа").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.Money))
+				.Finish();
+			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
+
+			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
+			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
+
+			buttonAttachFine.Clicked += (sender, e) => { ViewModel.AttachFineCommand.Execute(); };
+			buttonAttachFine.Binding.AddBinding(ViewModel, vm => vm.CanAttachFine, w => w.Sensitive).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);

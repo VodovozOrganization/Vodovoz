@@ -89,6 +89,7 @@ using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 public partial class MainWindow : Window
 {
@@ -1190,7 +1191,9 @@ public partial class MainWindow : Window
 			carJournalFactory,
 			carEventTypeJournalFactory,
 			VodovozGtkServicesConfig.EmployeeService,
-			employeeFactory)
+			employeeFactory,
+			new UndeliveredOrdersJournalOpener(),
+			new EmployeeSettings(new ParametersProvider()))
 		);
 	}
 
