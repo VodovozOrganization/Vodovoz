@@ -9,7 +9,6 @@ using Vodovoz.ViewModels.Dialogs.Roboats;
 
 namespace Vodovoz.Views.Roboats
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RoboatsCatalogExportView : TabViewBase<RoboatsCatalogExportViewModel>
 	{
 		public RoboatsCatalogExportView(RoboatsCatalogExportViewModel viewModel) : base(viewModel)

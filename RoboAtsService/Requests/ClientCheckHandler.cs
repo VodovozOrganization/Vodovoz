@@ -19,8 +19,6 @@ namespace RoboAtsService.Requests
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
-		public override string Request => RoboatsRequestType.ClientCheck;
-
 		public ClientCheckHandler(ILogger<ClientCheckHandler> logger, RoboatsSettings roboatsSettings, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -32,6 +30,9 @@ namespace RoboAtsService.Requests
 				throw new InvalidOperationException($"Обработчик {nameof(ClientCheckHandler)} может обрабатывать только запросы с типом {_requestType}. Обратитесь в отдел разработки.");
 			}
 		}
+
+		public override string Request => RoboatsRequestType.ClientCheck;
+
 		public override string Execute()
 		{
 			try

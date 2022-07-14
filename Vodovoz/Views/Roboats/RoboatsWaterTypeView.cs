@@ -5,7 +5,6 @@ using Vodovoz.ViewModels.Dialogs.Roboats;
 
 namespace Vodovoz.Views.Roboats
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RoboatsWaterTypeView : EntityTabViewBase<RoboatsWaterTypeViewModel, RoboatsWaterType>
 	{
 		private RoboatsEntityView _roboatsEntityView;

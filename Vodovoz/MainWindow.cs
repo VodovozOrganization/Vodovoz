@@ -2547,22 +2547,12 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)
 	{
-		var roboatsViewModelFactory = autofacScope.Resolve<RoboatsViewModelFactory>();
-		tdiMain.OpenTab(() => new RoboAtsCounterpartyNameJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			roboatsViewModelFactory,
-			ServicesConfig.CommonServices)
-		);
+		NavigationManager.OpenViewModel<RoboAtsCounterpartyNameJournalViewModel>(null);
 	}
 
 	protected void OnActionRoboAtsCounterpartyPatronymicActivated(object sender, EventArgs e)
 	{
-		var roboatsViewModelFactory =  autofacScope.Resolve<RoboatsViewModelFactory>();
-		tdiMain.OpenTab(() => new RoboAtsCounterpartyPatronymicJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			roboatsViewModelFactory,
-			ServicesConfig.CommonServices)
-		);
+		NavigationManager.OpenViewModel<RoboAtsCounterpartyPatronymicJournalViewModel>(null);
 	}
 
 	protected void OnActionCarModelsActivated(object sender, EventArgs e)
@@ -2572,8 +2562,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnRoboatsExportActionActivated(object sender, EventArgs e)
     {
-		var viewModel = autofacScope.Resolve<RoboatsCatalogExportViewModel>();
-		tdiMain.OpenTab(nameof(RoboatsCatalogExportViewModel), () => viewModel);
+		NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
 	}
 
 	protected void OnActionPaymentsFromAvangardReportActivated(object sender, EventArgs e)
