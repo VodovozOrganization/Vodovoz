@@ -13,7 +13,7 @@ using Vodovoz.Factories;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Commands;
 using Vodovoz.ViewModels.Dialogs.Roboats;
-using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {

@@ -11,7 +11,7 @@ using Vodovoz.Domain.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.ViewModels.Commands;
 using Vodovoz.ViewModels.Dialogs.Roboats;
-using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
