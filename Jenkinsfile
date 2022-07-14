@@ -27,7 +27,7 @@ node('Vod6'){
 		echo "checkout My-FyiReporting"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/QSBuild']],
+			branches: [[name: '*/Vodovoz']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
