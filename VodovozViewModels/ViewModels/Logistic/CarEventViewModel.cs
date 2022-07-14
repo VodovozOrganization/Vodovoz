@@ -124,12 +124,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CreateAddFineCommand();
 		}
 
-		public DelegateCommand<ITdiTab> AddFineCommand { get; private set; }
+		public DelegateCommand AddFineCommand { get; private set; }
 
 		private void CreateAddFineCommand()
 		{
-			AddFineCommand = new DelegateCommand<ITdiTab>(
-				t => {
+			AddFineCommand = new DelegateCommand(
+				() => {
 					FineViewModel fineViewModel = new FineViewModel(
 						EntityUoWBuilder.ForCreate(),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
@@ -143,9 +143,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					fineViewModel.EntitySaved += (sender, e) => {
 						Entity.AddFine(e.Entity as Fine);
 					};
-					t.TabParent.AddSlaveTab(t, fineViewModel);
+					TabParent.AddSlaveTab(this, fineViewModel);
 				},
-				t => CanAddFine
+				() => CanAddFine
 			);
 			AddFineCommand.CanExecuteChangedWith(this, x => CanAddFine);
 		}
