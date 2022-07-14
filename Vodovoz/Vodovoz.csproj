@@ -100,9 +100,6 @@
     <Reference Include="System.ComponentModel" />
     <Reference Include="mscorlib" />
     <Reference Include="System.Numerics" />
-    <Reference Include="GammaBinding">
-      <HintPath>..\..\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
