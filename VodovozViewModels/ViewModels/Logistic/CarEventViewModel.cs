@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 
-			FineItems = Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
+			UpdateFileItems();
 
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
 
@@ -129,22 +129,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void CreateAddFineCommand()
 		{
 			AddFineCommand = new DelegateCommand(
-				() => {
-					FineViewModel fineViewModel = new FineViewModel(
-						EntityUoWBuilder.ForCreate(),
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						_undeliveryViewOpener,
-						EmployeeService,
-						_employeeSelectorFactory,
-						_employeeSettings,
-						CommonServices
-					);
-					fineViewModel.FineReasonString = Entity.GetFineReason();
-					fineViewModel.EntitySaved += (sender, e) => {
-						Entity.AddFine(e.Entity as Fine);
-					};
-					TabParent.AddSlaveTab(this, fineViewModel);
-				},
+				() => CreateAddFine(),
 				() => CanAddFine
 			);
 			AddFineCommand.CanExecuteChangedWith(this, x => CanAddFine);
@@ -155,43 +140,79 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void CreateAttachFineCommand()
 		{
 			AttachFineCommand = new DelegateCommand(
-				() => {
-					var fineFilter = new FineFilterViewModel()
-					{
-						CanEditFineDate = true,
-						CanEditRouteListDate = true,
-						CanEditSubdivision = true
-					};
-					fineFilter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
-					var fineJournalViewModel = new FinesJournalViewModel(
-						fineFilter,
-						_undeliveryViewOpener,
-						EmployeeService,
-						_employeeSelectorFactory,
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						_employeeSettings,
-						CommonServices
-					);
-					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-					fineJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-						var selectedNode = e.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null)
-						{
-							return;
-						}
-						Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
-					};
-					TabParent.AddSlaveTab(this, fineJournalViewModel);
-				},
+				() => CreateAttachFine(),
 				() => CanAttachFine
 			);
 			AttachFineCommand.CanExecuteChangedWith(this, x => CanAttachFine);
 		}
 
+		private void CreateAttachFine()
+		{
+			var fineJournalViewModel = CreateFinesJournalViewModel();
+			fineJournalViewModel.OnEntitySelectedResult += (sender, e) => {
+				var selectedNode = e.SelectedNodes.FirstOrDefault();
+				if(selectedNode == null)
+				{
+					return;
+				}
+				Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
+			};
+			TabParent.AddSlaveTab(this, fineJournalViewModel);
+		}
+
+		private void CreateAddFine()
+		{
+			var fineViewModel = new FineViewModel(
+						   EntityUoWBuilder.ForCreate(),
+						   QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+						   _undeliveryViewOpener,
+						   EmployeeService,
+						   _employeeSelectorFactory,
+						   _employeeSettings,
+						   CommonServices
+					   )
+			{
+				FineReasonString = Entity.GetFineReason()
+			};
+			fineViewModel.EntitySaved += (sender, e) => {
+				Entity.AddFine(e.Entity as Fine);
+			};
+			TabParent.AddSlaveTab(this, fineViewModel);
+		}
+
+		private FinesJournalViewModel CreateFinesJournalViewModel()
+		{
+			var fineFilter = new FineFilterViewModel()
+			{
+				CanEditFineDate = true,
+				CanEditRouteListDate = true,
+				CanEditSubdivision = true,
+				ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray()
+			};
+
+			return new FinesJournalViewModel(
+				fineFilter,
+				_undeliveryViewOpener,
+				EmployeeService,
+				_employeeSelectorFactory,
+				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+				_employeeSettings,
+				CommonServices
+			)
+			{
+				SelectionMode = JournalSelectionMode.Single
+			};
+		}
+
 		void ObservableFines_ListContentChanged(object sender, EventArgs e)
 		{
-			FineItems = Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
+			UpdateFileItems();
 			OnPropertyChanged(() => FineItems);
+		}
+
+		private void UpdateFileItems()
+		{
+			FineItems = Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 		}
 	}
 }

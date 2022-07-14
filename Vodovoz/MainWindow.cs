@@ -2579,23 +2579,16 @@ public partial class MainWindow : Gtk.Window
 		var entityChangeWatcher = NotifyConfiguration.Instance;
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = autofacScope.Resolve<IInteractiveService>();
-		IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
-			= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
-				() =>
-				{
-					var filter = new CarJournalFilterViewModel(new CarModelJournalFactory())
-					{
-						Archive = false
-					};
-					filter.SetFilterSensitivity(false);
-					filter.CanChangeRestrictedCarOwnTypes = true;
-					return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices);
-				}
-			);
+		var carSelectorFactory = new CarJournalFactory(NavigationManager);
+		IFileDialogService fileDialogService = new FileDialogService();
 
 		var viewModel = new CostCarExploitationReportViewModel(
-			uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory, entityChangeWatcher);
+			uowFactory, 
+			interactiveService, 
+			NavigationManager, 
+			carSelectorFactory, 
+			entityChangeWatcher, 
+			fileDialogService);
 
 		tdiMain.AddTab(viewModel);
 	}
