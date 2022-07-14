@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Roboats
 			get => _restrictStartDate;
 			set
 			{
-				if(UpdateFilterField(ref _restrictStartDate, value))
+				if(SetField(ref _restrictStartDate, value))
 				{
 					StartDate = _restrictStartDate;
 					CanChangeStartDate = _restrictStartDate == null;
@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Roboats
 			get => _restrictEndDate;
 			set
 			{
-				if(UpdateFilterField(ref _restrictEndDate, value))
+				if(SetField(ref _restrictEndDate, value))
 				{
 					EndDate = _restrictEndDate;
 					CanChangeEndDate = _restrictEndDate == null;
