@@ -201,7 +201,6 @@
     <Compile Include="Journals\JournalViewModels\Goods\EquipmentKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\NomenclaturesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\ProductGroupJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryScheduleRoboatsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\TariffZoneJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\TrackPointJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\RoboatsWaterTypeJournalViewModel.cs" />

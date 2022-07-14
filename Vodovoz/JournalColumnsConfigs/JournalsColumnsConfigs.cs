@@ -1565,18 +1565,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//DeliveryScheduleRoboatsJournalViewModel
-			TreeViewColumnsConfigFactory.Register<DeliveryScheduleRoboatsJournalViewModel>(
-				() => FluentColumnsConfig<DeliveryScheduleJournalNode>.Create()
-					.AddColumn("Код").AddNumericRenderer(node => node.Id)
-					.AddColumn("Название").AddTextRenderer(node => node.Name)
-					.AddColumn("Время доставки").AddTextRenderer(node => node.DeliveryTime)
-					.AddColumn("Архивный?").AddTextRenderer(node => node.IsArchive ? "Да" : string.Empty)
-					.AddColumn("Готов для Roboats").AddTextRenderer(node => node.ReadyForRoboats ? "Да" : string.Empty)
-					.AddColumn("")
-					.Finish()
-			);
-
 			//RoboatsStreetJournalViewModel
 			TreeViewColumnsConfigFactory.Register<RoboatsStreetJournalViewModel>(
 				() => FluentColumnsConfig<RoboatsStreetJournalNode>.Create()
