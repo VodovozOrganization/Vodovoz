@@ -62,6 +62,18 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinPaymentTotalCarEvent;
 
+		private global::Gtk.Label labelComment4;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow5;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewFines;
+
+		private global::Gtk.HBox hboxFineButtons;
+
+		private global::Gamma.GtkWidgets.yButton buttonAttachFine;
+
+		private global::Gamma.GtkWidgets.yButton buttonAddFine;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -255,7 +267,7 @@ namespace Vodovoz.Views.Logistic
 			this.labelComment1.Name = "labelComment1";
 			this.labelComment1.Xalign = 1F;
 			this.labelComment1.Yalign = 0F;
-			this.labelComment1.LabelProp = global::Mono.Unix.Catalog.GetString("Основание. Номер и дата документа:");
+			this.labelComment1.LabelProp = global::Mono.Unix.Catalog.GetString("Основание:");
 			this.table1.Add(this.labelComment1);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.labelComment1]));
 			w18.TopAttach = ((uint)(9));
@@ -406,6 +418,60 @@ namespace Vodovoz.Views.Logistic
 			w30.Position = 1;
 			w30.Expand = false;
 			w30.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.labelComment4 = new global::Gtk.Label();
+			this.labelComment4.Name = "labelComment4";
+			this.labelComment4.Xalign = 0F;
+			this.labelComment4.Yalign = 0F;
+			this.labelComment4.LabelProp = global::Mono.Unix.Catalog.GetString("Возмещение затрат за счет штрафов:");
+			this.vbox1.Add(this.labelComment4);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelComment4]));
+			w31.Position = 2;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow5 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow5.Name = "GtkScrolledWindow5";
+			this.GtkScrolledWindow5.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow5.Gtk.Container+ContainerChild
+			this.ytreeviewFines = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewFines.CanFocus = true;
+			this.ytreeviewFines.Name = "ytreeviewFines";
+			this.GtkScrolledWindow5.Add(this.ytreeviewFines);
+			this.vbox1.Add(this.GtkScrolledWindow5);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow5]));
+			w33.Position = 3;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hboxFineButtons = new global::Gtk.HBox();
+			this.hboxFineButtons.Name = "hboxFineButtons";
+			this.hboxFineButtons.Spacing = 6;
+			// Container child hboxFineButtons.Gtk.Box+BoxChild
+			this.buttonAttachFine = new global::Gamma.GtkWidgets.yButton();
+			this.buttonAttachFine.CanFocus = true;
+			this.buttonAttachFine.Name = "buttonAttachFine";
+			this.buttonAttachFine.UseUnderline = true;
+			this.buttonAttachFine.Label = global::Mono.Unix.Catalog.GetString("Прикрепить штраф");
+			this.hboxFineButtons.Add(this.buttonAttachFine);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAttachFine]));
+			w34.Position = 0;
+			w34.Expand = false;
+			w34.Fill = false;
+			// Container child hboxFineButtons.Gtk.Box+BoxChild
+			this.buttonAddFine = new global::Gamma.GtkWidgets.yButton();
+			this.buttonAddFine.CanFocus = true;
+			this.buttonAddFine.Name = "buttonAddFine";
+			this.buttonAddFine.UseUnderline = true;
+			this.buttonAddFine.Label = global::Mono.Unix.Catalog.GetString("Добавить штраф");
+			this.hboxFineButtons.Add(this.buttonAddFine);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAddFine]));
+			w35.Position = 1;
+			w35.Expand = false;
+			w35.Fill = false;
+			this.vbox1.Add(this.hboxFineButtons);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxFineButtons]));
+			w36.Position = 4;
+			w36.Expand = false;
+			w36.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
