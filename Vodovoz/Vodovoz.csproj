@@ -1734,6 +1734,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsWaterTypeView.cs" />
     <Compile Include="Views\Orders\PaymentFromView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PaymentFromView.cs" />
+    <Compile Include="Filters\GtkViews\DeliveryScheduleFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryScheduleFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
