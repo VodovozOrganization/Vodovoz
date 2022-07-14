@@ -258,9 +258,9 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 
 		private void CloseDialog()
 		{
-			if(Dialog is IDisposable)
+			if(Dialog is IDisposable dlg)
 			{
-				(Dialog as IDisposable)?.Dispose();
+				dlg?.Dispose();
 			}
 			Dialog = null;
 		}
