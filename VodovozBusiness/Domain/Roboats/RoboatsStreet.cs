@@ -57,14 +57,14 @@ namespace Vodovoz.Domain.Roboats
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Type == null)
+			if(string.IsNullOrWhiteSpace(Type))
 			{
 				yield return new ValidationResult("Необходимо заполнить тип улицы", new[] { nameof(Type) });
 			}
 
-			if(Name == null)
+			if(string.IsNullOrWhiteSpace(Name))
 			{
-				yield return new ValidationResult("Необходимо заполнить тип улицы", new[] { nameof(Type) });
+				yield return new ValidationResult("Необходимо заполнить название улицы", new[] { nameof(Name) });
 			}
 
 			if(string.IsNullOrWhiteSpace(NewRoboatsAudiofile) && string.IsNullOrWhiteSpace(RoboatsAudiofile))
