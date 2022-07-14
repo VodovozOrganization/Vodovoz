@@ -2576,7 +2576,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
-		var entityChangeWatcher = NotifyConfiguration.Instance;
+		var entityChangeWatcher = autofacScope.Resolve<IEntityChangeWatcher>();
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = autofacScope.Resolve<IInteractiveService>();
 		var carSelectorFactory = new CarJournalFactory(NavigationManager);

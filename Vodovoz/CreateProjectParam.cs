@@ -169,6 +169,7 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
+using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz
 {
@@ -488,6 +489,7 @@ namespace Vodovoz
 			#region ViewModels
 
 			builder.Register(x => new AutofacViewModelResolver(AppDIContainer)).As<IViewModelResolver>();
+			builder.Register(с => NotifyConfiguration.Instance).As<IEntityChangeWatcher>();
 			builder.RegisterAssemblyTypes(
 					System.Reflection.Assembly.GetAssembly(typeof(InternalTalkViewModel)),
 					System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
