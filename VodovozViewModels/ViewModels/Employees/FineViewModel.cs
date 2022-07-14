@@ -110,7 +110,7 @@ namespace Vodovoz.ViewModels.Employees
 				UpdateEmployeeList();
 			}
 		}
-		
+
 		public virtual UndeliveredOrder UndeliveredOrder
 		{
 			get => Entity.UndeliveredOrder;
@@ -174,11 +174,11 @@ namespace Vodovoz.ViewModels.Employees
 			}
 		}
 
-		protected override void BeforeSave()
+		protected override bool BeforeSave()
 		{
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
-			base.BeforeSave();
+			return base.BeforeSave();
 		}
 
 		public override bool Save(bool close)

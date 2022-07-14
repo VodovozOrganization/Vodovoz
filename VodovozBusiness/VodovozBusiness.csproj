@@ -148,6 +148,7 @@
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
+    <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryAvailabilityHistory.cs" />
@@ -172,11 +173,21 @@
     <Compile Include="Domain\Orders\SelectedNomenclaturePlan.cs" />
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\AllocationStatus.cs" />
+    <Compile Include="Domain\Roboats\RoboatsCallDetail.cs" />
+    <Compile Include="Domain\Roboats\RoboatsEntityType.cs" />
+    <Compile Include="Domain\Roboats\RoboatsStreet.cs" />
+    <Compile Include="Domain\Roboats\RoboatsWaterType.cs" />
     <Compile Include="Domain\Payments\PaymentFromAvangard.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
     <Compile Include="Domain\Retail\SalesChannel.cs" />
+    <Compile Include="Domain\Roboats\RoboatsCallFailType.cs" />
+    <Compile Include="Domain\Roboats\RoboatsCallOperation.cs" />
+    <Compile Include="Domain\Roboats\RoboatsCallResult.cs" />
+    <Compile Include="Domain\Roboats\RoboatsCallStatus.cs" />
+    <Compile Include="Domain\Roboats\RoboatsFiasStreet.cs" />
+    <Compile Include="Domain\Roboats\RoboatsCall.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
@@ -279,7 +290,10 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Roboats\IRoboatsRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\OrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Roboats\NomenclatureQuantity.cs" />
+    <Compile Include="EntityRepositories\Roboats\RoboatsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\IPaymentItemsRepository.cs" />
     <Compile Include="EntityRepositories\Payments\ProfitCategoryRepository.cs" />
     <Compile Include="EntityRepositories\Payments\IProfitCategoryRepository.cs" />
@@ -310,6 +324,10 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
+    <Compile Include="Factories\IRoboatsCallFactory.cs" />
+    <Compile Include="Factories\OsrmClientFactory.cs" />
+    <Compile Include="Factories\RoboatsCallFactory.cs" />
+    <Compile Include="Factories\RoboatsFileStorageFactory.cs" />
     <Compile Include="Factories\IPaymentFromAvangardFactory.cs" />
     <Compile Include="Factories\OsrmClientFactory.cs" />
     <Compile Include="Factories\PaymentFromAvangardFactory.cs" />
@@ -382,9 +400,14 @@
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryTransferAbsenceReasonMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\RoboatsStreetMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\RoboatsWaterTypeMap.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromAvangardMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
+    <Compile Include="HibernateMapping\Roboats\RoboatsCallDetailMap.cs" />
+    <Compile Include="HibernateMapping\Roboats\RoboatsCallMap.cs" />
+    <Compile Include="HibernateMapping\Roboats\RoboatsFiasStreetMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
@@ -404,9 +427,14 @@
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\Orders\CopyingOrder.cs" />
     <Compile Include="Models\Orders\OrderCopyModel.cs" />
+    <Compile Include="Models\Orders\RoboatsOrderArgs.cs" />
+    <Compile Include="Models\Orders\RoboatsOrderModel.cs" />
+    <Compile Include="Models\Orders\RoboAtsOrderPayment.cs" />
+    <Compile Include="Models\Orders\RoboatsWaterInfo.cs" />
     <Compile Include="Models\PremiumRaskatGAZelleWageModel.cs" />
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
+    <Compile Include="Models\RoboatsFileStorage.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
@@ -440,6 +468,7 @@
     <Compile Include="Services\IEmployeeSettings.cs" />
     <Compile Include="Services\IFastPaymentParametersProvider.cs" />
     <Compile Include="Services\IGlobalSettings.cs" />
+    <Compile Include="Parameters\RoboatsSettings.cs" />
     <Compile Include="Services\INewDriverAdvanceParametersProvider.cs" />
     <Compile Include="Parameters\IParametersProvider.cs" />
     <Compile Include="Parameters\IReportDefaultsProvider.cs" />
@@ -620,7 +649,7 @@
     <Compile Include="HibernateMapping\Order\OrderEquipmentMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderMap.cs" />
-    <Compile Include="HibernateMapping\Organization\OrganizationMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\OrganizationMap.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimHistoryMap.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimItemMap.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimMap.cs" />
@@ -1123,85 +1152,10 @@
     <Compile Include="HibernateMapping\Employees\EmployeePostMap.cs" />
     <Compile Include="Services\IOrderPaymentSettings.cs" />
     <Compile Include="Parameters\OrderPaymentSettings.cs" />
+    <Compile Include="VodovozBusinessAssemblyFinder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="Domain\" />
-    <Folder Include="HibernateMapping\" />
-    <Folder Include="DocTemplates\" />
-    <Folder Include="Attributes\" />
-    <Folder Include="Domain\Chat\" />
-    <Folder Include="HibernateMapping\Chat\" />
-    <Folder Include="Tools\" />
-    <Folder Include="Tools\Logistic\" />
-    <Folder Include="Domain\Sale\" />
-    <Folder Include="HibernateMapping\Sale\" />
-    <Folder Include="Tools\CommerceML\" />
-    <Folder Include="Tools\CommerceML\Nodes\" />
-    <Folder Include="Domain\StoredEmails\" />
-    <Folder Include="HibernateMapping\StoredEmails\" />
-    <Folder Include="Resources\" />
-    <Folder Include="Tools\AdditionalAgreements\" />
-    <Folder Include="Tools\Orders\" />
-    <Folder Include="Domain\Payments\" />
-    <Folder Include="HibernateMapping\Payments\" />
-    <Folder Include="Domain\Permissions\" />
-    <Folder Include="HibernateMapping\Permissions\" />
-    <Folder Include="Domain\StoredResources\" />
-    <Folder Include="Domain\Cash\CashTransfer\" />
-    <Folder Include="HibernateMapping\Cash\Transfer\" />
-    <Folder Include="ViewModelBased\" />
-    <Folder Include="Filters\" />
-    <Folder Include="Domain\Fuel\" />
-    <Folder Include="Services\" />
-    <Folder Include="HibernateMapping\Fuel\" />
-    <Folder Include="EntityRepositories\" />
-    <Folder Include="EntityRepositories\Subdivisions\" />
-    <Folder Include="EntityRepositories\Fuel\" />
-    <Folder Include="EntityRepositories\Operations\" />
-    <Folder Include="EntityRepositories\Goods\" />
-    <Folder Include="EntityRepositories\Logistic\" />
-    <Folder Include="EntityRepositories\Store\" />
-    <Folder Include="EntityRepositories\Cash\" />
-    <Folder Include="Domain\Complaints\" />
-    <Folder Include="HibernateMapping\Complaints\" />
-    <Folder Include="EntityRepositories\Complaints\" />
-    <Folder Include="EntityRepositories\Employees\" />
-    <Folder Include="Domain\Suppliers\" />
-    <Folder Include="HibernateMapping\Suppliers\" />
-    <Folder Include="EntityRepositories\Suppliers\" />
-    <Folder Include="EntityRepositories\CallTasks\" />
-    <Folder Include="Tools\CallTasks\" />
-    <Folder Include="EntityRepositories\Orders\" />
-    <Folder Include="Domain\Subdivisions\" />
-    <Folder Include="HibernateMapping\Subdivisions\" />
-    <Folder Include="HibernateMapping\WageCalculation\" />
-    <Folder Include="Domain\WageCalculation\" />
-    <Folder Include="EntityRepositories\WageCalculation\" />
-    <Folder Include="PermissionExtensions\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
-    <Folder Include="Domain\Sms\" />
-    <Folder Include="HibernateMapping\Sms\" />
-    <Folder Include="Domain\WageCalculation\AdvancedWageParameter\" />
-    <Folder Include="HibernateMapping\WageCalculation\AdvancedWageParameters\" />
-    <Folder Include="Parameters\" />
-    <Folder Include="EntityRepositories\SmsNotifications\" />
-    <Folder Include="Domain\Service\BaseParametersServices\" />
-    <Folder Include="Domain\Contacts\" />
-    <Folder Include="HibernateMapping\Contacts\" />
-    <Folder Include="EntityRepositories\Contacts\" />
-    <Folder Include="EntityRepositories\Permissions\" />
-    <Folder Include="EntityRepositories\Delivery\" />
-    <Folder Include="Tools\ErrorReporting\" />
-    <Folder Include="HibernateMapping\Comments\" />
-    <Folder Include="Domain\Comments\" />
-    <Folder Include="Domain\BusinessTasks\" />
-    <Folder Include="HibernateMapping\BusinessTasks\" />
-    <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
-    <Folder Include="Models\" />
-    <Folder Include="Journal\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
@@ -1301,7 +1255,7 @@
     <PackageReference Include="NHibernate" Version="5.3.11" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog" Version="4.7.14" />
+    <PackageReference Include="NLog" Version="4.7.15" />
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />

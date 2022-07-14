@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -14,16 +14,15 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-    public class WaterJournalViewModel: SingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, WaterJournalNode>
+	public class WaterJournalViewModel : SingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, WaterJournalNode>
 	{
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
@@ -39,7 +38,7 @@ namespace Vodovoz.JournalViewModels
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
-		) : base(unitOfWorkFactory, commonServices) 
+		) : base(unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -57,7 +56,7 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderItem)
 			);
 		}
-		
+
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
@@ -65,7 +64,7 @@ namespace Vodovoz.JournalViewModels
 			CreateEditAction();
 			CreateDefaultDeleteAction();
 		}
-		
+
 		private void CreateEditAction()
 		{
 			var editAction = new JournalAction("Изменить",
@@ -113,7 +112,7 @@ namespace Vodovoz.JournalViewModels
 
 			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias);
-			
+
 			itemsQuery.Where(
 				GetSearchCriterion(
 					() => nomenclatureAlias.Name,
@@ -136,7 +135,7 @@ namespace Vodovoz.JournalViewModels
 			return itemsQuery;
 		};
 
-		protected override Func<NomenclatureViewModel> CreateDialogFunction => () => 
+		protected override Func<NomenclatureViewModel> CreateDialogFunction => () =>
 			throw new NotSupportedException("Не поддерживается создание номенклатуры воды из текущего журнала");
 
 		protected override Func<WaterJournalNode, NomenclatureViewModel> OpenDialogFunction =>

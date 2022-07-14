@@ -14,7 +14,8 @@ namespace Vodovoz.HibernateMapping.Counterparty
 
 			Map(x => x.Patronymic).Column("patronymic");
 			Map(x => x.Accent).Column("accent");
-
+			Map(x => x.RoboatsAudiofile).Column("audio_filename");
+			Map(x => x.FileId).Column("file_id");
 		}
 	}
 }

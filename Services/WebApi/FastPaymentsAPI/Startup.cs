@@ -191,7 +191,7 @@ namespace FastPaymentsAPI
 				{
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
 					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
 					System.Reflection.Assembly.GetAssembly(typeof(Attachment))

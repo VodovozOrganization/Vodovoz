@@ -73,6 +73,7 @@
       <Package>gtk-sharp-2.0</Package>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.ServiceModel" />
@@ -99,6 +100,9 @@
     <Reference Include="System.ComponentModel" />
     <Reference Include="mscorlib" />
     <Reference Include="System.Numerics" />
+    <Reference Include="GammaBinding">
+      <HintPath>..\..\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -431,7 +435,6 @@
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
     <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
-    <Compile Include="JournalNodes\WaterJournalNode.cs" />
     <Compile Include="JournalViewModels\CarModelJournalViewModel.cs" />
     <Compile Include="JournalViewModels\RetailCounterpartyJournalViewModel.cs" />
     <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
@@ -459,8 +462,8 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
-    <Compile Include="Dialogs\DeliveryScheduleDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.DeliveryScheduleDlg.cs" />
+    <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
@@ -512,7 +515,7 @@
     <Compile Include="TempAdapters\CarModelJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\DeliveryPointJournalFactory.cs" />
-    <Compile Include="TempAdapters\DeliveryScheduleSelectorFactory.cs" />
+    <Compile Include="TempAdapters\DeliveryScheduleJournalFactory.cs" />
     <Compile Include="TempAdapters\OrganizationJournalFactory.cs" />
     <Compile Include="TempAdapters\ExpenseCategorySelectorFactory.cs" />
     <Compile Include="TempAdapters\IncomeCategorySelectorFactory.cs" />
@@ -790,7 +793,6 @@
     <Compile Include="ReportsParameters\CashierCommentsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.CashierCommentsReport.cs" />
     <Compile Include="ReportsParameters\DriversWageBalanceReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Reports.DriversWageBalanceReport.cs" />
     <Compile Include="Dialogs\Goods\TransferGoodsBetweenRLDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.TransferGoodsBetweenRLDlg.cs" />
     <Compile Include="Dialogs\FineTemplateDlg.cs" />
@@ -1705,6 +1707,11 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.IncomingCallsAnalysisReportView.cs" />
     <Compile Include="Views\Logistic\TariffZoneView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.TariffZoneView.cs" />
+    <Compile Include="Views\Roboats\RoboatsCatalogExportView.cs" />
+    <Compile Include="Views\Roboats\RoboatsEntityView.cs" />
+    <Compile Include="Views\Roboats\RoboatsStreetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.RoboatsStreetView.cs" />
+    <Compile Include="Views\Roboats\RoboatsWaterTypeView.cs" />
     <Compile Include="Filters\GtkViews\FastDeliveryAvailabilityFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FastDeliveryAvailabilityFilterView.cs" />
     <Compile Include="ViewWidgets\Logistics\FastDeliveryVerificationView.cs" />
@@ -1721,8 +1728,18 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliverySalesReportView.cs" />
     <Compile Include="Views\Reports\FastDeliveryAdditionalLoadingReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryAdditionalLoadingReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.DriversWageBalanceReport.cs" />
+    <Compile Include="Filters\GtkViews\RoboatsCallsFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RoboatsCallsFilterView.cs" />
+    <Compile Include="Views\Settings\RoboatsSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Settings.RoboatsSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsCatalogExportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsEntityView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Roboats.RoboatsWaterTypeView.cs" />
     <Compile Include="Views\Orders\PaymentFromView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PaymentFromView.cs" />
+    <Compile Include="Filters\GtkViews\DeliveryScheduleFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryScheduleFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

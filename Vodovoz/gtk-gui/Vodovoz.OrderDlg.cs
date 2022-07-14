@@ -74,7 +74,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelDeliverySchedule;
 
-		private global::Gamma.Widgets.yEntryReference referenceDeliverySchedule;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDeliverySchedule;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckFastDelivery;
 
@@ -724,6 +724,7 @@ namespace Vodovoz
 			this.entityVMEntryClient.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryClient.Name = "entityVMEntryClient";
 			this.entityVMEntryClient.CanEditReference = false;
+			this.entityVMEntryClient.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryClient);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryClient]));
 			w19.TopAttach = ((uint)(2));
@@ -782,6 +783,7 @@ namespace Vodovoz
 			this.evmeAuthor.Events = ((global::Gdk.EventMask)(256));
 			this.evmeAuthor.Name = "evmeAuthor";
 			this.evmeAuthor.CanEditReference = true;
+			this.evmeAuthor.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeAuthor);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeAuthor]));
 			w23.TopAttach = ((uint)(1));
@@ -795,6 +797,7 @@ namespace Vodovoz
 			this.evmeDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDeliveryPoint.Name = "evmeDeliveryPoint";
 			this.evmeDeliveryPoint.CanEditReference = false;
+			this.evmeDeliveryPoint.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeDeliveryPoint);
 			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDeliveryPoint]));
 			w24.TopAttach = ((uint)(3));
@@ -872,14 +875,14 @@ namespace Vodovoz
 			w31.Expand = false;
 			w31.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.referenceDeliverySchedule = new global::Gamma.Widgets.yEntryReference();
-			this.referenceDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
-			this.referenceDeliverySchedule.Name = "referenceDeliverySchedule";
-			this.hbox8.Add(this.referenceDeliverySchedule);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.referenceDeliverySchedule]));
+			this.entryDeliverySchedule = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
+			this.entryDeliverySchedule.Name = "entryDeliverySchedule";
+			this.entryDeliverySchedule.CanEditReference = false;
+			this.entryDeliverySchedule.CanOpenWithoutTabParent = false;
+			this.hbox8.Add(this.entryDeliverySchedule);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.entryDeliverySchedule]));
 			w32.Position = 1;
-			w32.Expand = false;
-			w32.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.ycheckFastDelivery = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckFastDelivery.CanFocus = true;
@@ -1435,6 +1438,7 @@ namespace Vodovoz
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelOrderAddressType = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOrderAddressType.Name = "ylabelOrderAddressType";
+			this.ylabelOrderAddressType.Xalign = 0F;
 			this.ylabelOrderAddressType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип адреса:");
 			this.table1.Add(this.ylabelOrderAddressType);
 			global::Gtk.Table.TableChild w81 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelOrderAddressType]));
