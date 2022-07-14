@@ -34,22 +34,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			if(organization == null)
 				return null;
 
-			Counterparty counterpartyAlias = null;
-			Organization organizationAlias = null;
-			var result =
-			uow.Session.QueryOver<CounterpartyContract>()
-				.JoinAlias(co => co.Counterparty, () => counterpartyAlias)
-				.JoinAlias(co => co.Organization, () => organizationAlias)
-				.Where(
-					co => (
-						   counterpartyAlias.Id == order.Client.Id &&
-					       !co.IsArchive &&
-					       !co.OnCancellation &&
-					       organizationAlias.Id == organization.Id &&
-					       co.ContractType == contractType
-					)
-				)
-				.OrderBy(x => x.IssueDate).Desc.List();
+			var result = GetCounterpartyContractsOrderByIssueDateDesc(uow, order, organization, contractType);
 			
 			if(result.Count > 1 && errorReporter != null)
 			{
@@ -58,7 +43,17 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 			return result.FirstOrDefault();
 		}
- 
+
+		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, Organization organization)
+		{
+			var personType = order.Client.PersonType;
+			var paymentType = order.PaymentType;
+			var contractType = GetContractTypeForPaymentType(personType, paymentType);
+
+			IList<CounterpartyContract> result = GetCounterpartyContractsOrderByIssueDateDesc(uow, order, organization, contractType);
+			return result.FirstOrDefault();
+		}
+
 		public IList<CounterpartyContract> GetActiveContractsWithOrganization(IUnitOfWork uow, Counterparty counterparty, Organization org, ContractType type)
 		{
 			return uow.Session.QueryOver<CounterpartyContract>()
@@ -89,6 +84,25 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				default:
 					return ContractType.Cashless;
 			}
+		}
+
+		private IList<CounterpartyContract> GetCounterpartyContractsOrderByIssueDateDesc(
+			IUnitOfWork uow, Order order, Organization organization, ContractType contractType)
+		{
+			Counterparty counterpartyAlias = null;
+			Organization organizationAlias = null;
+			var result = uow.Session.QueryOver<CounterpartyContract>()
+				.JoinAlias(co => co.Counterparty, () => counterpartyAlias)
+				.JoinAlias(co => co.Organization, () => organizationAlias)
+				.Where(co => counterpartyAlias.Id == order.Client.Id
+					&& !co.IsArchive
+					&& !co.OnCancellation
+					&& organizationAlias.Id == organization.Id
+					&& co.ContractType == contractType)
+				.OrderBy(x => x.IssueDate)
+				.Desc
+				.List();
+			return result;
 		}
 	}
 }

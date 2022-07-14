@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	        {
 		        throw new ArgumentNullException(nameof(employeeService));
 	        }
-	        
+
             Organizations = UoW.GetAll<Organization>();
             author = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 
@@ -48,12 +48,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
                 Entity.Author = author;
             }
         }
-        protected override void BeforeSave()
+        protected override bool BeforeSave()
         {
 	        if (!HasChanges)
-		        return;
+		        return base.BeforeSave();
 
-            var operationFrom = Entity.OrganisationCashMovementOperationFrom = Entity.OrganisationCashMovementOperationFrom ?? new OrganisationCashMovementOperation { OperationTime = DateTime.Now };
+			var operationFrom = Entity.OrganisationCashMovementOperationFrom = Entity.OrganisationCashMovementOperationFrom ?? new OrganisationCashMovementOperation { OperationTime = DateTime.Now };
             var operationTo = Entity.OrganisationCashMovementOperationTo = Entity.OrganisationCashMovementOperationTo ?? new OrganisationCashMovementOperation { OperationTime = DateTime.Now };
 
             operationFrom.Organisation = Entity.OrganizationFrom;
@@ -66,6 +66,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			UoW.Save(operationFrom);
             UoW.Save(operationTo);
+
+			return base.BeforeSave();
         }
 
         public override bool Save(bool close)

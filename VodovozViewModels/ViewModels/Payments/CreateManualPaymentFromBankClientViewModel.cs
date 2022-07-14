@@ -12,6 +12,7 @@ using QS.Navigation;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -27,7 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private bool _isPaymentForUpdateBalance;
 		private DelegateCommand _saveAndOpenManualPaymentMatchingCommand;
 		private DelegateCommand _changePaymentNumAndPaymentPurposeCommand;
-		
+
 		public CreateManualPaymentFromBankClientViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
@@ -64,7 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			get => _isPaymentForUpdateBalance;
 			set => SetField(ref _isPaymentForUpdateBalance, value);
 		}
-		
+
 		public IEnumerable<ProfitCategory> ProfitCategories { get; private set; }
 		public ILifetimeScope Scope { get; }
 
@@ -80,7 +81,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					}
 				)
 			);
-		
+
 		public DelegateCommand ChangePaymentNumAndPaymentPurposeCommand =>
 			_changePaymentNumAndPaymentPurposeCommand ?? (_changePaymentNumAndPaymentPurposeCommand = new DelegateCommand(
 					() =>
@@ -99,9 +100,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				)
 			);
 
-		protected override void BeforeSave()
+		protected override bool BeforeSave()
 		{
 			Entity.FillPropertiesFromCounterparty();
+			return base.BeforeSave();
 		}
 
 		private void Configure(IProfitCategoryRepository profitCategoryRepository, IProfitCategoryProvider profitCategoryProvider)

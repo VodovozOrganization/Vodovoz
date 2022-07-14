@@ -101,7 +101,7 @@ namespace Vodovoz.ViewModels
 
 		public bool CanEdit => true;
 
-		protected override void BeforeSave()
+		protected override bool BeforeSave()
 		{
 			Entity.LastEditAuthor = CurrentEmployee;
 			Entity.LastEditTime = DateTime.Now;
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels
 				Entity.DeliveryPoint.HaveResidue = true;
 			Entity.UpdateOperations(UoW, bottlesRepository, moneyRepository, depositRepository, CommonServices.ValidationService);
 
-			base.BeforeSave();
+			return base.BeforeSave();
 		}
 
 		private string currentBottlesDebt;
@@ -140,7 +140,7 @@ namespace Vodovoz.ViewModels
 		{
 			if(Entity.Customer == null)
 				return;
-			
+
 			int bottleDebt;
 			if(Entity.DeliveryPoint == null)
 				bottleDebt = bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Customer, Entity.Date);

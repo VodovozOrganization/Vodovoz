@@ -37,7 +37,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private bool _canEdit;
 		private UnallocatedBalancesJournalFilterViewModel _filterViewModel;
-
 		public UnallocatedBalancesJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -65,7 +64,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			
+
 			TabName = "Журнал нераспределенных балансов";
 
 			CreateFilter(filterParams);
@@ -110,7 +109,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 						_closingDocumentDeliveryScheduleId,
 						Items
 					};
-					
+
 					ShowInfoMessage("Будет произведен разнос всех нераспределенных платежей по неоплаченным заказам, начиная с самого раннего");
 					var page = NavigationManager.OpenViewModelTypedArgs<AutomaticallyAllocationBalanceWindowViewModel>(
 						this, ctorTypes, ctorValues, OpenPageOptions.IgnoreHash);
@@ -119,13 +118,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			);
 			NodeActionsList.Add(automaticallyAllocationAction);
 		}
-		
+
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			
+
 			_canEdit = CurrentPermissionService.ValidateEntityPermission(typeof(Payment)).CanUpdate;
-			
+
 			var editAction = new JournalAction("Изменить",
 				(selected) => _canEdit && selected.Any(),
 				(selected) => VisibleEditAction,
@@ -161,7 +160,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
 				.And(cmo => cmo.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(cmo => cmo.Income));
-			
+
 			var expense = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
 				.And(cmo => cmo.Organization.Id == organizationAlias.Id)
@@ -174,7 +173,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 						Projections.SubQuery(expense));
 
 			var orderSumProjection = OrderRepository.GetOrderSumProjection(orderItemAlias);
-			
+
 			var totalNotPaidOrders = QueryOver.Of(() => orderAlias)
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
@@ -197,13 +196,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.And(() => orderAlias2.PaymentType == PaymentType.cashless)
 				.And(() => orderAlias2.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
-			
+
 			var counterpartyDebtProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 - IFNULL(?2, ?3)"),
 				NHibernateUtil.Decimal,
 					Projections.SubQuery(totalNotPaidOrders),
 					Projections.SubQuery(totalPayPartiallyPaidOrders),
 					Projections.Constant(0));
-			
+
 			query.Where(GetSearchCriterion(
 				() => counterpartyAlias.Id,
 				() => counterpartyAlias.Name,
@@ -252,7 +251,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				f => f.IsSortingDescByUnAllocatedSum = true,
 				f => f.HideAllocatedPayments = true
 			};
-			
+
 			NavigationManager.OpenViewModel<PaymentsJournalViewModel, Action<PaymentsJournalFilterViewModel>[]>(
 				this, filterParams, OpenPageOptions.IgnoreHash);
 		}

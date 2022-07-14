@@ -108,7 +108,6 @@ namespace FastPaymentsAPI.Controllers
 				}
 				
 				var order = _fastPaymentOrderModel.GetOrder(orderId);
-				var organization = _fastPaymentModel.GetOrganization();
 				var orderValidationResult = _fastPaymentOrderModel.ValidateOrder(order, orderId);
 				
 				if(orderValidationResult != null)
@@ -118,6 +117,8 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
+				var requestType = RequestFromType.FromDesktopOrDriverAppByQr;
+				var organization = _fastPaymentModel.GetOrganization(requestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
 				try
@@ -141,7 +142,7 @@ namespace FastPaymentsAPI.Controllers
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				_fastPaymentModel.SaveNewTicketForOrder(
-					orderRegistrationResponseDto, orderId, fastPaymentGuid, FastPaymentPayType.ByQrCode, organization);
+					orderRegistrationResponseDto, orderId, fastPaymentGuid, FastPaymentPayType.ByQrCode, organization, requestType);
 
 				response.QRCode = orderRegistrationResponseDto.QRPngBase64;
 				response.FastPaymentStatus = FastPaymentStatus.Processing;
@@ -216,7 +217,6 @@ namespace FastPaymentsAPI.Controllers
 				}
 				
 				var order = _fastPaymentOrderModel.GetOrder(orderId);
-				var organization = _fastPaymentModel.GetOrganization();
 				var orderValidationResult = _fastPaymentOrderModel.ValidateOrder(order, orderId);
 				
 				if(orderValidationResult != null)
@@ -226,6 +226,8 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
+				var requestType = isQr ? RequestFromType.FromDesktopOrDriverAppByQr : RequestFromType.FromDesktopByCard;
+				var organization = _fastPaymentModel.GetOrganization(requestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
 				try
@@ -251,7 +253,7 @@ namespace FastPaymentsAPI.Controllers
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				var payType = isQr ? FastPaymentPayType.ByQrCode : FastPaymentPayType.ByCard;
 				_fastPaymentModel.SaveNewTicketForOrder(
-					orderRegistrationResponseDto, orderId, fastPaymentGuid, payType, organization, phoneNumber);
+					orderRegistrationResponseDto, orderId, fastPaymentGuid, payType, organization, requestType, phoneNumber);
 
 				response.Ticket = orderRegistrationResponseDto.Ticket;
 				response.FastPaymentGuid = fastPaymentGuid;
@@ -373,9 +375,10 @@ namespace FastPaymentsAPI.Controllers
 					response.ErrorMessage = orderValidationResult;
 					return response;
 				}
-
-				var organization = _fastPaymentModel.GetOrganization();
+				
 				var fastPaymentGuid = Guid.NewGuid();
+				var requestType = RequestFromType.FromSiteByQr;
+				var organization = _fastPaymentModel.GetOrganization(requestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
 				try
@@ -403,7 +406,7 @@ namespace FastPaymentsAPI.Controllers
 				{
 					_fastPaymentModel.SaveNewTicketForOnlineOrder(
 						orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum, FastPaymentPayType.ByQrCode,
-						organization);
+						organization, requestType);
 				}
 				catch(Exception e)
 				{

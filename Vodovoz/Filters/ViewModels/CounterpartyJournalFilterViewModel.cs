@@ -15,6 +15,7 @@ namespace Vodovoz.Filters.ViewModels
 		private string _counterpartyName;
 		private string _deliveryPointPhone;
 		private string _counterpartyPhone;
+		private GenericObservableList<SalesChannelSelectableNode> _salesChannels;
 
 		public CounterpartyJournalFilterViewModel()
 		{
@@ -23,18 +24,7 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.RestrictIncludeArchive,
 				x => x.Tag
 			);
-
-            SalesChannel salesChannelAlias = null;
-            SalesChannelSelectableNode salesChannelSelectableNodeAlias = null;
-
-            var list = UoW.Session.QueryOver(() => salesChannelAlias)
-                .SelectList(scList => scList
-                .SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
-                    .Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
-                ).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>();
-
-            SalesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
-        }
+		}
 
 		private CounterpartyType? counterpartyType;
 		public virtual CounterpartyType? CounterpartyType {
@@ -64,43 +54,54 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 
-        private bool? isForRetail;
-        public bool? IsForRetail
-        {
-            get => isForRetail;
+		private bool? isForRetail;
+		public bool? IsForRetail
+		{
+			get => isForRetail;
 			set => SetField(ref isForRetail, value);
-        }
+		}
 
-        private GenericObservableList<SalesChannelSelectableNode> salesChannels = new GenericObservableList<SalesChannelSelectableNode>();
-        public GenericObservableList<SalesChannelSelectableNode> SalesChannels
-        {
-            get => salesChannels;
-            set {
-				UnsubscribeOnCheckChanged();
-				SetField(ref salesChannels, value);
-				SubscribeOnCheckChanged();
+		public GenericObservableList<SalesChannelSelectableNode> SalesChannels
+		{
+			get
+			{
+				if(_salesChannels == null)
+				{
+					SalesChannel salesChannelAlias = null;
+					SalesChannelSelectableNode salesChannelSelectableNodeAlias = null;
+
+					var list = UoW.Session.QueryOver(() => salesChannelAlias)
+						.SelectList(scList => scList
+							.SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
+							.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
+						).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>();
+
+					_salesChannels = new GenericObservableList<SalesChannelSelectableNode>(list);
+					SubscribeOnCheckChanged();
+				}
+				return _salesChannels;
 			}
 		}
 
-        public string CounterpartyName
-        {
-	        get => _counterpartyName;
-	        set => SetField(ref _counterpartyName, value);
-        }
+		public string CounterpartyName
+		{
+			get => _counterpartyName;
+			set => SetField(ref _counterpartyName, value);
+		}
 
-        public string CounterpartyPhone
-        {
-	        get => _counterpartyPhone;
-	        set => SetField(ref _counterpartyPhone, value);
-        }
+		public string CounterpartyPhone
+		{
+			get => _counterpartyPhone;
+			set => SetField(ref _counterpartyPhone, value);
+		}
 
-        public string DeliveryPointPhone
-        {
-	        get => _deliveryPointPhone;
-	        set => SetField(ref _deliveryPointPhone, value);
-        }
+		public string DeliveryPointPhone
+		{
+			get => _deliveryPointPhone;
+			set => SetField(ref _deliveryPointPhone, value);
+		}
 
-        private void UnsubscribeOnCheckChanged()
+		private void UnsubscribeOnCheckChanged()
 		{
 			foreach (SalesChannelSelectableNode selectableSalesChannel in SalesChannels)
 			{

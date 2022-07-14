@@ -1,15 +1,15 @@
-﻿using System;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 {

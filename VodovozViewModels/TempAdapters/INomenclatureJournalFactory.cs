@@ -13,6 +13,7 @@ namespace Vodovoz.TempAdapters
 		IEntitySelector CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector(IEnumerable<int> excludedNomenclatures = null);
 		IEntitySelector CreateNomenclatureSelectorForFuelSelect();
 		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
+		IEntityAutocompleteSelectorFactory GetRoboatsWaterJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(NomenclatureFilterViewModel filter = null);

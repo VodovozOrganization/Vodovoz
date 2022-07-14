@@ -1,7 +1,7 @@
 ﻿using QS.Project.Filter;
 using System;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 {
