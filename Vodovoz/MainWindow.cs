@@ -2331,6 +2331,9 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionNomenclaturePlanReportActivated(object sender, EventArgs e)
 	{
+		var v = new EmailRepository().GetCounterpartyIdByEmailGuidForUnsubscribing(UnitOfWorkFactory.CreateWithoutRoot(),
+			Guid.Parse("2bd26175-4220-4432-9763-4d6e1749567c"));
+
 		IProductGroupJournalFactory productGroupJournalFactory = new ProductGroupJournalFactory();
 		IParametersProvider parametersProvider = new ParametersProvider();
 		INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider = new NomenclaturePlanParametersProvider(parametersProvider);

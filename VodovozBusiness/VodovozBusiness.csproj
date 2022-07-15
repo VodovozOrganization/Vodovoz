@@ -72,8 +72,11 @@
     <Compile Include="Domain\Cash\MissingOrdersWithCashlessPaymentTypeException.cs" />
     <Compile Include="Domain\Cash\OrganizationCashTransferDocument.cs" />
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
+    <Compile Include="Domain\Client\BulkEmailEvent.cs" />
     <Compile Include="Domain\Client\LocalityType.cs" />
     <Compile Include="Domain\Client\RoomType.cs" />
+    <Compile Include="Domain\Client\SubscribingBulkEmailEvent.cs" />
+    <Compile Include="Domain\Client\UnsubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\UnsubscribingReason.cs" />
     <Compile Include="Domain\Complaints\ComplaintObject.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultBase.cs" />
@@ -329,6 +332,7 @@
     <Compile Include="HibernateMapping\Complaints\DriverComplaintReasonMap.cs" />
     <Compile Include="HibernateMapping\Cash\OrganizationCashTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\BulkEmailEventMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\UnsubscribingReasonMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyPatronymicMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyNameMap.cs" />

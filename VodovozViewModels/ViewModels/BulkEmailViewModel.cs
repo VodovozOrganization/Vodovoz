@@ -136,7 +136,7 @@ namespace Vodovoz.ViewModels.ViewModels
 			return email;
 		}
 
-		private void SendEmail(string email, string name, int storedEmailId)
+		private void SendEmail(string email, string name, StoredEmail storedEmail)
 		{
 			var sendEmailMessage = new SendEmailMessage()
 			{
@@ -157,12 +157,16 @@ namespace Vodovoz.ViewModels.ViewModels
 
 				Subject = MailSubject,
 				TextPart = MailTextPart,
-				HTMLPart = MailTextPart,
+				HTMLPart = $"{MailTextPart}\n\n{GetUnsubscribeHtmlPart(storedEmail.Guid.Value)}",
 				Payload = new EmailPayload
 				{
-					Id = storedEmailId,
+					Id = storedEmail.Id,
 					Trackable = true,
 					InstanceId = _instanceId
+				},
+				Headers = new Dictionary<string, string>
+				{
+					{ "List-Unsubscribe" , $"{GetUnsubscribeLink(storedEmail.Guid.Value)}" }
 				}
 			};
 
@@ -193,6 +197,10 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			channel.BasicPublish(_configuration.EmailSendExchange, _configuration.EmailSendKey, false, properties, sendingBody);
 		}
+
+		private string GetUnsubscribeHtmlPart(Guid guid) => $"<a href=\"{GetUnsubscribeLink(guid)}\">Отписаться от рассылки</a>";
+
+		private string GetUnsubscribeLink(Guid guid) => $"{_emailParametersProvider.UnsubscribeUrl}/{guid}";
 
 		#region Commands
 
@@ -235,7 +243,8 @@ namespace Vodovoz.ViewModels.ViewModels
 								SendDate = DateTime.Now,
 								StateChangeDate = DateTime.Now,
 								Subject = MailSubject,
-								RecipientAddress = email.Address
+								RecipientAddress = email.Address,
+								Guid = Guid.NewGuid()
 							};
 
 							unitOfWork.Save(storedEmail);
@@ -250,7 +259,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 							try
 							{
-								SendEmail(email.Address, counterparty.FullName, storedEmail.Id);
+								SendEmail(email.Address, counterparty.FullName, storedEmail);
 								unitOfWork.Commit();
 							}
 							catch(Exception e)

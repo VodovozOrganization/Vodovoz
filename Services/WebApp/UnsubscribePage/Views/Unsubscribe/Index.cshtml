@@ -1,0 +1,74 @@
+﻿@using Vodovoz.Domain.Orders
+@model UnsubscribePage.Models.UnsubscribeViewModel;
+
+@{ ViewBag.Title = "Отписка"; }
+
+@if (Model.CounterpartyId == 0)
+{
+	<p class="btn btn-warning d-flex align-items-center justify-content-center btn-lg">Вы уже отписаны!</p>
+
+	return;
+}
+<p asp-validation-for="CounterpartyId" class="alert-danger"></p>
+
+<form asp-action="Index" asp-controller="Unsubscribe" method="post">
+	<div asp-validation-summary="All" class="text-danger"></div>
+	<input asp-for="EmailEventId" type="hidden" />
+	<input asp-for="CounterpartyId" type="hidden" />
+	<input asp-for="ReasonsListSerialized" type="hidden" value="@Model.ReasonsListSerialized" />
+
+	<table>
+		<tr>
+			<td class="w-50">
+				<div>
+					<img src="img/unsubscribe.jpg" width="100%" />
+				</div>
+			</td>
+			<td class="w-50">
+				<h2>Вы отписаны от рассылки</h2>
+				<p>Нам очень важно знать ваше мнение. Пожалуйста, уделите ещё пару минут и скажите, почему вы решились на этот шаг?</p>
+				<table class="table border table-hover mt-0 ">
+					<tr class="table-warning">
+						<th>
+							Я отписался, потому что:
+							<span asp-validation-for="SelectedReasonId" class="alert-danger"></span>
+						</th>
+					</tr>
+					<tbody>
+						@foreach (var reason in Model.ReasonsList)
+						{
+						<tr>
+							@if (reason.IsOtherReason)
+								{
+							<td>
+								<label class="custom-control custom-radio mb-2">
+									<input type="radio" asp-for="SelectedReasonId" value="@reason.Id">
+									@reason.Name:
+								</label>
+								<input id="other_reason_block" class="w-100" maxlength="255" asp-for="OtherReason" />
+								<span asp-validation-for="OtherReason" class="alert-danger"></span>
+							</td>
+							}
+							else
+							{
+							<td>
+								<label class="custom-control custom-radio mb-2">
+									<input type="radio" asp-for="SelectedReasonId" value="@reason.Id">
+									@reason.Name
+								</label>
+							</td>
+							}
+						</tr>
+						}
+						<tr>
+							<td>
+
+								<input type="submit" value="Отправить" class="btn btn-warning w-100" formmethod="post" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</table>
+</form>
