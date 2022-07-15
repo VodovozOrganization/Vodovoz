@@ -23,6 +23,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarLoadDocument : Document, IValidatableObject
 	{
+		private const int _commentLimit = 255;
+
 		#region Сохраняемые свойства
 		
 		DateTime version;
@@ -263,6 +265,12 @@ namespace Vodovoz.Domain.Documents
 			if(Warehouse == null) {
 				yield return new ValidationResult("Не указан склад погрузки.",
 					new[] { nameof(Warehouse) });
+			}
+			
+			if(Comment?.Length > _commentLimit)
+			{
+				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
+					new[] { nameof(Comment) });
 			}
 
 			var uniqueNomenclaturesIds = Items.Select(x => x.Nomenclature.Id).Distinct();
