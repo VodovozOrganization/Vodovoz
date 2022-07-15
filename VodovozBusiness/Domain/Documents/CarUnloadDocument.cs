@@ -25,7 +25,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarUnloadDocument : Document, IValidatableObject
 	{
-
+		private const int _commentLimit = 255;
+		
 		#region Сохраняемые свойства
 
 		public override DateTime TimeStamp {
@@ -218,6 +219,12 @@ namespace Vodovoz.Domain.Documents
 			if(Warehouse == null)
 				yield return new ValidationResult("Не указан склад разгрузки.",
 					new[] { nameof(Warehouse) });
+
+			if(Comment?.Length > _commentLimit)
+			{
+				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
+					new[] { nameof(Comment) });
+			}
 
 			foreach(var item in Items) {
 				if(item.WarehouseMovementOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.WarehouseMovementOperation.Amount < 0) {
