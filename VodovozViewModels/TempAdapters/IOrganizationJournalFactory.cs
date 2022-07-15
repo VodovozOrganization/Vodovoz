@@ -5,5 +5,6 @@ namespace Vodovoz.ViewModels.TempAdapters
 	public interface IOrganizationJournalFactory
 	{
 		IEntityAutocompleteSelectorFactory CreateOrganizationAutocompleteSelectorFactory();
+		IEntityAutocompleteSelectorFactory CreateOrganizationsForAvangardPaymentsAutocompleteSelectorFactory();
 	}
 }

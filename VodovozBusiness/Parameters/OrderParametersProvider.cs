@@ -30,6 +30,14 @@ namespace Vodovoz.Parameters
 		public int GetDiscountReasonStockBottle20PercentsId =>
 			_parametersProvider.GetIntValue("discount_reason_stock_bottle_20_percents");
 
+		public int[] PaymentsByCardFromAvangard =>
+			new[]
+			{
+				GetPaymentByCardFromFastPaymentServiceId,
+				GetPaymentByCardFromSiteByQrCode,
+				GetPaymentByCardFromAvangardId
+			};
+
 		public int[] PaymentsByCardFromNotToSendSalesReceipts =>
 			new[]
 			{
@@ -43,7 +51,6 @@ namespace Vodovoz.Parameters
 		public int[] PaymentsByCardFromForNorthOrganization =>
 			new[]
 			{
-				PaymentFromTerminalId,
 				PaymentByCardFromMobileAppId,
 				PaymentByCardFromOnlineStoreId,
 				PaymentByCardFromSiteId

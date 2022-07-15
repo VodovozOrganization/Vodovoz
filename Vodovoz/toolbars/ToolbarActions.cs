@@ -50,7 +50,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters.Cash;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -87,6 +87,9 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
+using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.EntityRepositories.Undeliveries;
 
 public partial class MainWindow : Window
 {
@@ -106,6 +109,7 @@ public partial class MainWindow : Window
 	Action ActionCallTasks;
 	Action ActionBottleDebtors;
 	Action ActionIncomingCallsAnalysisReport;
+	Action ActionRoboatsCallsRegistry;
 	Action ActionDriversTareMessages;
 
 	//Логистика
@@ -182,6 +186,8 @@ public partial class MainWindow : Window
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
+		ActionRoboatsCallsRegistry = new Action(nameof(ActionRoboatsCallsRegistry), "Реестр звонков Roboats", null, "table");
+
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
@@ -274,6 +280,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionCallTasks, null);
 		w1.Add(ActionBottleDebtors, null);
 		w1.Add(ActionIncomingCallsAnalysisReport, null);
+		w1.Add(ActionRoboatsCallsRegistry, null);
 		w1.Add(ActionDriversTareMessages, null);
 
 		//Логистика
@@ -361,6 +368,8 @@ public partial class MainWindow : Window
 		ActionCallTasks.Activated += ActionCallTasks_Activate;
 		ActionBottleDebtors.Activated += ActionBottleDebtors_Activate;
 		ActionIncomingCallsAnalysisReport.Activated += OnActionIncomingCallsAnalysisReportActivated;
+		ActionRoboatsCallsRegistry.Activated += ActionRoboatsCallsRegistryActivated;
+
 		ActionDriversTareMessages.Activated += OnActionDriversTareMessagesActivated;
 		//Логистика
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
@@ -422,6 +431,11 @@ public partial class MainWindow : Window
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
 
 		#endregion
+	}
+
+	private void ActionRoboatsCallsRegistryActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RoboatsCallsRegistryJournalViewModel>(null);
 	}
 
 	private void OnActionIncomingCallsAnalysisReportActivated(object sender, EventArgs e)
@@ -521,7 +535,7 @@ public partial class MainWindow : Window
 		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		IEmailRepository emailRepository = new EmailRepository();
 		var debtorsJournal = new DebtorsJournalViewModel(
-			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(), 
+			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(),
 			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory, emailRepository);
 
 		tdiMain.AddTab(debtorsJournal);
@@ -1177,7 +1191,9 @@ public partial class MainWindow : Window
 			carJournalFactory,
 			carEventTypeJournalFactory,
 			VodovozGtkServicesConfig.EmployeeService,
-			employeeFactory)
+			employeeFactory,
+			new UndeliveredOrdersJournalOpener(),
+			new EmployeeSettings(new ParametersProvider()))
 		);
 	}
 

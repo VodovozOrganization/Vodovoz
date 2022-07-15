@@ -15,6 +15,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void ConfigureDlg()
 		{
+			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
 			yentryreferenceSubdivisions.Binding.AddBinding(ViewModel, vm => vm.Subdivision, w => w.Subject).InitializeFromSource();
 			yentryreferenceSubdivisions.Binding.AddBinding(ViewModel, vm => vm.CanEditSubdivision, w => w.Sensitive).InitializeFromSource();
 

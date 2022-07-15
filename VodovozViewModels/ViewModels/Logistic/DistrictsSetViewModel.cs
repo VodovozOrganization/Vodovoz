@@ -17,6 +17,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -28,14 +29,14 @@ namespace Vodovoz.ViewModels.Logistic
             IEntityDeleteWorker entityDeleteWorker,
             IEmployeeRepository employeeRepository,
             IDistrictRuleRepository districtRuleRepository,
-            INavigationManager navigation = null) 
+            INavigationManager navigation = null)
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
             _entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
             DistrictRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
-            
+
             TabName = "Районы с графиками доставки";
-            
+
             CanChangeDistrictWageTypePermissionResult = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_district_wage_type");
 
             if(Entity.Id == 0) {
@@ -85,17 +86,17 @@ namespace Vodovoz.ViewModels.Logistic
             : null;
 
         public GenericObservableList<CommonDistrictRuleItem> CommonDistrictRuleItems => SelectedDistrict.ObservableCommonDistrictRuleItems;
-        
+
         public GenericObservableList<WeekDayDistrictRuleItem> WeekDayDistrictRuleItems => SelectedWeekDayName.HasValue && SelectedDistrict != null
             ? SelectedDistrict.GetWeekDayRuleItemCollectionByWeekDayName(SelectedWeekDayName.Value)
             : null;
-        
+
         private GenericObservableList<PointLatLng> selectedDistrictBorderVertices;
         public GenericObservableList<PointLatLng> SelectedDistrictBorderVertices {
             get => selectedDistrictBorderVertices;
             set => SetField(ref selectedDistrictBorderVertices, value, () => SelectedDistrictBorderVertices);
         }
-        
+
         private GenericObservableList<PointLatLng> newBorderVertices;
         public GenericObservableList<PointLatLng> NewBorderVertices {
             get => newBorderVertices;
@@ -106,9 +107,9 @@ namespace Vodovoz.ViewModels.Logistic
         public District SelectedDistrict {
             get => selectedDistrict;
             set {
-                if(!SetField(ref selectedDistrict, value, () => SelectedDistrict)) 
+                if(!SetField(ref selectedDistrict, value, () => SelectedDistrict))
                     return;
-                
+
                 SelectedDistrictBorderVertices.Clear();
 
                 if(selectedDistrict != null) {
@@ -135,7 +136,7 @@ namespace Vodovoz.ViewModels.Logistic
                 OnPropertyChanged(nameof(SelectedDistrictBorderVertices));
             }
         }
-        
+
         public GeographicGroup SelectedGeoGroup {
             get => SelectedDistrict?.GeographicGroup;
             set {
@@ -145,7 +146,7 @@ namespace Vodovoz.ViewModels.Logistic
                 }
             }
         }
-        
+
         public WageDistrict SelectedWageDistrict {
             get => SelectedDistrict?.WageDistrict;
             set {
@@ -168,25 +169,25 @@ namespace Vodovoz.ViewModels.Logistic
                 }
             }
         }
-        
+
         private CommonDistrictRuleItem selectedCommonDistrictRuleItem;
         public CommonDistrictRuleItem SelectedCommonDistrictRuleItem {
             get => selectedCommonDistrictRuleItem;
             set => SetField(ref selectedCommonDistrictRuleItem, value, () => SelectedCommonDistrictRuleItem);
         }
-        
+
         private WeekDayDistrictRuleItem selectedWeekDayDistrictRuleItem;
         public WeekDayDistrictRuleItem SelectedWeekDayDistrictRuleItem {
             get => selectedWeekDayDistrictRuleItem;
             set => SetField(ref selectedWeekDayDistrictRuleItem, value, () => SelectedWeekDayDistrictRuleItem);
         }
-        
+
         private DeliveryScheduleRestriction selectedScheduleRestriction;
         public DeliveryScheduleRestriction SelectedScheduleRestriction {
             get => selectedScheduleRestriction;
             set => SetField(ref selectedScheduleRestriction, value, () => SelectedScheduleRestriction);
         }
-        
+
         private bool isCreatingNewBorder;
         public bool IsCreatingNewBorder {
             get => isCreatingNewBorder;
@@ -228,7 +229,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             () => SelectedDistrict != null
         ));
-        
+
         private DelegateCommand createBorderCommand;
         public DelegateCommand CreateBorderCommand => createBorderCommand ?? (createBorderCommand = new DelegateCommand(
             () => {
@@ -237,7 +238,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             () => !IsCreatingNewBorder
         ));
-        
+
         private DelegateCommand confirmNewBorderCommand;
         public DelegateCommand ConfirmNewBorderCommand => confirmNewBorderCommand ?? (confirmNewBorderCommand = new DelegateCommand(
             () => {
@@ -252,7 +253,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             () => IsCreatingNewBorder
         ));
-        
+
         private DelegateCommand cancelNewBorderCommand;
         public DelegateCommand CancelNewBorderCommand => cancelNewBorderCommand ?? (cancelNewBorderCommand = new DelegateCommand(
             () => {
@@ -262,7 +263,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             () => IsCreatingNewBorder
         ));
-        
+
         private DelegateCommand removeBorderCommand;
         public DelegateCommand RemoveBorderCommand => removeBorderCommand ?? (removeBorderCommand = new DelegateCommand(
             () => {
@@ -273,7 +274,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             () => !IsCreatingNewBorder
         ));
-        
+
         private DelegateCommand<PointLatLng> addNewVertexCommand;
         public DelegateCommand<PointLatLng> AddNewVertexCommand => addNewVertexCommand ?? (addNewVertexCommand = new DelegateCommand<PointLatLng>(
             point => {
@@ -282,7 +283,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             point => IsCreatingNewBorder
         ));
-        
+
         private DelegateCommand<PointLatLng> removeNewBorderVerteCommand;
         public DelegateCommand<PointLatLng> RemoveNewBorderVertexCommand => removeNewBorderVerteCommand ?? (removeNewBorderVerteCommand = new DelegateCommand<PointLatLng>(
             point => {
@@ -291,20 +292,26 @@ namespace Vodovoz.ViewModels.Logistic
             },
             point => IsCreatingNewBorder && !point.IsEmpty
         ));
-        
-        private DelegateCommand<IEnumerable<DeliverySchedule>> addScheduleRestrictionCommand;
-        public DelegateCommand<IEnumerable<DeliverySchedule>> AddScheduleRestrictionCommand => addScheduleRestrictionCommand ?? (addScheduleRestrictionCommand = new DelegateCommand<IEnumerable<DeliverySchedule>>(
-            schedules => {
-                foreach (var schedule in schedules) {
-                    if(SelectedWeekDayName.HasValue && ScheduleRestrictions.All(x => x.DeliverySchedule.Id != schedule.Id))
-                        ScheduleRestrictions.Add(new DeliveryScheduleRestriction {
-                            District = SelectedDistrict, WeekDay = SelectedWeekDayName.Value, DeliverySchedule = schedule
-                    });
+
+        private DelegateCommand<IEnumerable<DeliveryScheduleJournalNode>> addScheduleRestrictionCommand;
+        public DelegateCommand<IEnumerable<DeliveryScheduleJournalNode>> AddScheduleRestrictionCommand => addScheduleRestrictionCommand ?? (addScheduleRestrictionCommand = new DelegateCommand<IEnumerable<DeliveryScheduleJournalNode>>(
+            scheduleNodes => {
+                foreach (var scheduleNode in scheduleNodes) {
+					if(SelectedWeekDayName.HasValue && ScheduleRestrictions.All(x => x.DeliverySchedule.Id != scheduleNode.Id))
+					{
+						var deliverySchedule = UoW.GetById<DeliverySchedule>(scheduleNode.Id);
+						ScheduleRestrictions.Add(new DeliveryScheduleRestriction
+						{
+							District = SelectedDistrict,
+							WeekDay = SelectedWeekDayName.Value,
+							DeliverySchedule = deliverySchedule
+						});
+					}
                 }
             },
             schedules => schedules.Any()
         ));
-        
+
         private DelegateCommand removeScheduleRestrictionCommand;
         public DelegateCommand RemoveScheduleRestrictionCommand => removeScheduleRestrictionCommand ?? (removeScheduleRestrictionCommand = new DelegateCommand(
             () => {
@@ -312,7 +319,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             () => SelectedScheduleRestriction != null
         ));
-        
+
         private DelegateCommand<IEnumerable<DeliveryPriceRule>> addWeekDayDistrictRuleItemCommand;
         public DelegateCommand<IEnumerable<DeliveryPriceRule>> AddWeekDayDistrictRuleItemCommand => addWeekDayDistrictRuleItemCommand ?? (addWeekDayDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRule>>(
             ruleItems => {
@@ -327,7 +334,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             ruleItems => ruleItems.Any()
         ));
-        
+
         private DelegateCommand removeWeekDayDistrictRuleItemCommand;
         public DelegateCommand RemoveWeekDayDistrictRuleItemCommand => removeWeekDayDistrictRuleItemCommand ?? (removeWeekDayDistrictRuleItemCommand = new DelegateCommand(
             () => {
@@ -335,7 +342,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             () => SelectedWeekDayDistrictRuleItem != null
         ));
-        
+
         private DelegateCommand<IEnumerable<DeliveryPriceRule>> addCommonDistrictRuleItemCommand;
         public DelegateCommand<IEnumerable<DeliveryPriceRule>> AddCommonDistrictRuleItemCommand => addCommonDistrictRuleItemCommand ?? (addCommonDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRule>>(
             ruleItems => {
@@ -349,7 +356,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             ruleItems => ruleItems.Any()
         ));
-        
+
         private DelegateCommand removeCommonDistrictRuleItemCommand;
         public DelegateCommand RemoveCommonDistrictRuleItemCommand => removeCommonDistrictRuleItemCommand ?? (removeCommonDistrictRuleItemCommand = new DelegateCommand(
             () => {
@@ -357,7 +364,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             () => SelectedCommonDistrictRuleItem != null
         ));
-        
+
         private DelegateCommand<AcceptBefore> addAcceptBeforeCommand;
         public DelegateCommand<AcceptBefore> AddAcceptBeforeCommand => addAcceptBeforeCommand ?? (addAcceptBeforeCommand = new DelegateCommand<AcceptBefore>(
             acceptBefore => {
@@ -365,7 +372,7 @@ namespace Vodovoz.ViewModels.Logistic
             },
             acceptBefore => acceptBefore != null && SelectedScheduleRestriction != null
         ));
-        
+
         private DelegateCommand removeAcceptBeforeCommand;
         public DelegateCommand RemoveAcceptBeforeCommand => removeAcceptBeforeCommand ?? (removeAcceptBeforeCommand = new DelegateCommand(
             () => {
@@ -387,9 +394,9 @@ namespace Vodovoz.ViewModels.Logistic
                             break;
                         case 1: (Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]);
                             break;
-                        case 0: 
-                            if(String.Compare(Entity.Districts[j].DistrictName, Entity.Districts[j + 1].DistrictName, StringComparison.InvariantCulture) > 0) 
-                                (Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]); 
+                        case 0:
+                            if(String.Compare(Entity.Districts[j].DistrictName, Entity.Districts[j + 1].DistrictName, StringComparison.InvariantCulture) > 0)
+                                (Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]);
                             break;
                     }
                 }

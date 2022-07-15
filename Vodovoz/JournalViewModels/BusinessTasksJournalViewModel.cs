@@ -45,7 +45,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrganizationProvider organizationProvider;
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
-		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory;
+		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
 		private readonly IContactsParameters _contactsParameters;
 
 		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
@@ -62,7 +62,7 @@ namespace Vodovoz.JournalViewModels
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
-			IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory,
+			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			IContactsParameters contactsParameters
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -82,7 +82,7 @@ namespace Vodovoz.JournalViewModels
 			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
 
 			RegisterTasks();
-			
+
 			var threadLoader = DataLoader as ThreadDataLoader<BusinessTaskJournalNode>;
 
 			FinishJournalConfiguration();
@@ -339,7 +339,7 @@ namespace Vodovoz.JournalViewModels
 						commonServices,
 						_roboAtsCounterpartyJournalFactory
 					),
-					//функция идентификации документа 
+					//функция идентификации документа
 					(BusinessTaskJournalNode node) => {
 						return node.EntityType == typeof(ClientTask);
 					},
@@ -360,7 +360,7 @@ namespace Vodovoz.JournalViewModels
 						UnitOfWorkFactory,
 						commonServices
 					),
-					//функция идентификации документа 
+					//функция идентификации документа
 					(BusinessTaskJournalNode node) => {
 						return node.EntityType == typeof(PaymentTask);
 					},
