@@ -202,51 +202,6 @@ namespace Vodovoz.EntityRepositories.Roboats
 			return resultPhone;
 		}
 
-		public Order GetLastOrder(int counterpartyId, int? deliveryPoint = null)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
-
-				Order orderAlias = null;
-
-				var query = uow.Session.QueryOver(() => orderAlias)
-					.Where(() => orderAlias.Client.Id == counterpartyId)
-					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
-					.Where(() => !orderAlias.IsBottleStock)
-					.Where(
-						Restrictions.In(
-								Projections.Property(() => orderAlias.OrderStatus),
-								acceptedOrderStatuses
-						)
-					)
-					.And(() => !orderAlias.SelfDelivery);
-
-				if(deliveryPoint.HasValue)
-				{
-					query.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Value);
-				}
-
-				query.OrderByAlias(() => orderAlias.CreateDate).Desc.Take(1);
-				var lastOrder = query.SingleOrDefault<Order>();
-				if(lastOrder == null)
-				{
-					return null;
-				}
-
-				var hasOnlyWaterNomenclatures = WasPassWaterCheck(lastOrder);
-
-				if(hasOnlyWaterNomenclatures)
-				{
-					return lastOrder;
-				}
-				else
-				{
-					return null;
-				}
-			}
-		}
-
 		public IEnumerable<DeliverySchedule> GetRoboatsAvailableDeliveryIntervals()
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
@@ -264,6 +219,37 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public IEnumerable<int> GetLastDeliveryPointIds(int clientId)
 		{
+			foreach(var order in GetLastOrders(clientId))
+			{
+				yield return order.DeliveryPoint.Id;
+			}
+		}
+
+		public Order GetLastOrder(int counterpartyId, int? deliveryPointId = null)
+		{
+			foreach(var order in GetLastOrders(counterpartyId))
+			{
+				if(deliveryPointId.HasValue)
+				{
+					if(order.DeliveryPoint.Id == deliveryPointId.Value)
+					{
+						return order;
+					}
+					else
+					{
+						continue;
+					}
+				}
+				else
+				{
+					return order;
+				}
+			}
+			return null;
+		}
+
+		private IEnumerable<Order> GetLastOrders(int counterpartyId)
+		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
 				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
@@ -275,9 +261,9 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 				var lastOrdersByDeliveryPoints = uow.Session.QueryOver(() => orderAlias)
 					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-					.Left.JoinAlias(() => orderAlias.PromotionalSets, () => promotionalSetAlias) 
+					.Left.JoinAlias(() => orderAlias.PromotionalSets, () => promotionalSetAlias)
 					.JoinEntityQueryOver(() => roboatsFiasStreetAlias, Restrictions.Where(() => deliveryPointAlias.StreetFiasGuid == roboatsFiasStreetAlias.FiasStreetGuid))
-					.Where(() => orderAlias.Client.Id == clientId)
+					.Where(() => orderAlias.Client.Id == counterpartyId)
 					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
 					.Where(() => !orderAlias.IsBottleStock)
 					.Where(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id)))
@@ -308,7 +294,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 				{
 					if(WasPassWaterCheck(order))
 					{
-						yield return order.DeliveryPoint.Id;
+						yield return order;
 					}
 				}
 			}
