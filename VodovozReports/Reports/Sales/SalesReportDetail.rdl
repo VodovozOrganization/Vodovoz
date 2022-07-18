@@ -47,25 +47,28 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>27.5pt</Width>
+            <Width>29.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>137.1pt</Width>
+            <Width>140.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>273.0pt</Width>
+            <Width>240.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>71.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>162.0pt</Width>
+            <Width>82.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.1pt</Width>
+            <Width>139.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>44.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>60.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -147,6 +150,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>Телефоны</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox2">
                       <Value>Номенклатура</Value>
                       <Style>
@@ -165,7 +185,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>Количество</Value>
+                      <Value>Кол-во</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -218,7 +238,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -261,6 +281,27 @@
                   <ReportItems>
                     <Textbox Name="Textbox13">
                       <Value>={ord_details}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>={phone}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -333,7 +374,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>4pt</Left>
+        <Left>2.4pt</Left>
         <Top>49.4pt</Top>
         <Footer>
           <TableRows>
@@ -426,6 +467,27 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox8">
                       <Style>
                         <BorderStyle>
@@ -456,6 +518,7 @@
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_count.Value)</Value>
                     </Textbox>
@@ -473,6 +536,7 @@
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_sum.Value)</Value>
                     </Textbox>
@@ -548,7 +612,7 @@
                           </Style>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>6</ColSpan>
+                      <ColSpan>7</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -646,6 +710,27 @@
                     </TableCell>
                     <TableCell>
                       <ReportItems>
+                        <Textbox Name="Textbox43">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>None</Default>
+                              <Left>None</Left>
+                              <Right>None</Right>
+                              <Top>None</Top>
+                              <Bottom>None</Bottom>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
                         <Textbox Name="Textbox14">
                           <Style>
                             <BorderStyle>
@@ -676,6 +761,7 @@
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format >0.00</Format>
                           </Style>
                           <Value>=Sum(Fields!total_count.Value)</Value>
                         </Textbox>
@@ -693,6 +779,7 @@
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format >0.00</Format>
                           </Style>
                           <Value>=Sum(Fields!total_sum.Value)</Value>
                         </Textbox>
@@ -874,12 +961,13 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     T.counterparty_id,
     T.counterparty,
     T.delivery_point,
+    T.phone,
     T.order_id,
     T.order_author,
     T.ord_details,
@@ -896,7 +984,9 @@ FROM
          delivery_points.id AS delivery_points_id,
          orders.id AS orders_id,
          orders.author_employee_id AS orders_author_employee_id,
-         counterparty.name as counterparty,
+         counterparty.name as counterparty,IF(p_dp.id IS NULL,
+         	GROUP_CONCAT(DISTINCT CONCAT('+7', p_client.digits_number) ORDER BY p_client.id DESC SEPARATOR '\n'),
+         	GROUP_CONCAT(DISTINCT CONCAT('+7', p_dp.digits_number) ORDER BY p_dp.id DESC SEPARATOR '\n')) as phone,
          IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) as delivery_point,
          orders.id as order_id,
          IF(
@@ -943,6 +1033,10 @@ FROM
          districts distr ON delivery_points.district_id = distr.id
              LEFT JOIN
          geographic_groups gg ON gg.id = distr.geographic_group_id
+         	 LEFT JOIN
+         phones p_client ON p_client.counterparty_id = counterparty.id 
+     	 LEFT JOIN 
+         phones p_dp ON p_dp.delivery_point_id = delivery_points.id
      WHERE
          (order_status = 'Accepted'
              OR order_status = 'InTravelList'
@@ -1101,7 +1195,7 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1149,6 +1243,10 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
         <Field Name="counterparty_id">
           <DataField>counterparty_id</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="phone">
+          <DataField>phone</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
