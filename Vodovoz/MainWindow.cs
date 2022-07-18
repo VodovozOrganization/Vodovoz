@@ -2622,4 +2622,8 @@ public partial class MainWindow : Gtk.Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices));
 	}
+
+	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
+	{
+	}
 }

@@ -388,9 +388,19 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelFixedPrices;
 
+		private global::Gtk.VBox vbox16;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow16;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewEmails;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxBulkEmailEvent;
+
+		private global::Gtk.Label labelBulkEmailEvent;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelBulkEmailEventDate;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonBulkEmailEvent;
 
 		private global::Gtk.Label labelEmails;
 
@@ -2431,6 +2441,10 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.fixedpricesview, this.labelFixedPrices);
 			this.labelFixedPrices.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
+			this.vbox16 = new global::Gtk.VBox();
+			this.vbox16.Name = "vbox16";
+			this.vbox16.Spacing = 6;
+			// Container child vbox16.Gtk.Box+BoxChild
 			this.GtkScrolledWindow16 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow16.WidthRequest = 320;
 			this.GtkScrolledWindow16.HeightRequest = 200;
@@ -2441,18 +2455,59 @@ namespace Vodovoz
 			this.ytreeviewEmails.CanFocus = true;
 			this.ytreeviewEmails.Name = "ytreeviewEmails";
 			this.GtkScrolledWindow16.Add(this.ytreeviewEmails);
-			this.notebook1.Add(this.GtkScrolledWindow16);
-			global::Gtk.Notebook.NotebookChild w190 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.GtkScrolledWindow16]));
-			w190.Position = 11;
+			this.vbox16.Add(this.GtkScrolledWindow16);
+			global::Gtk.Box.BoxChild w190 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.GtkScrolledWindow16]));
+			w190.Position = 0;
+			// Container child vbox16.Gtk.Box+BoxChild
+			this.yhboxBulkEmailEvent = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxBulkEmailEvent.Name = "yhboxBulkEmailEvent";
+			this.yhboxBulkEmailEvent.Spacing = 6;
+			// Container child yhboxBulkEmailEvent.Gtk.Box+BoxChild
+			this.labelBulkEmailEvent = new global::Gtk.Label();
+			this.labelBulkEmailEvent.Name = "labelBulkEmailEvent";
+			this.labelBulkEmailEvent.LabelProp = global::Mono.Unix.Catalog.GetString("Дата отписки от почтовых рассылок:");
+			this.yhboxBulkEmailEvent.Add(this.labelBulkEmailEvent);
+			global::Gtk.Box.BoxChild w191 = ((global::Gtk.Box.BoxChild)(this.yhboxBulkEmailEvent[this.labelBulkEmailEvent]));
+			w191.Position = 0;
+			w191.Expand = false;
+			w191.Fill = false;
+			// Container child yhboxBulkEmailEvent.Gtk.Box+BoxChild
+			this.ylabelBulkEmailEventDate = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelBulkEmailEventDate.Name = "ylabelBulkEmailEventDate";
+			this.ylabelBulkEmailEventDate.LabelProp = global::Mono.Unix.Catalog.GetString("01.01.0001");
+			this.yhboxBulkEmailEvent.Add(this.ylabelBulkEmailEventDate);
+			global::Gtk.Box.BoxChild w192 = ((global::Gtk.Box.BoxChild)(this.yhboxBulkEmailEvent[this.ylabelBulkEmailEventDate]));
+			w192.Position = 1;
+			w192.Expand = false;
+			w192.Fill = false;
+			// Container child yhboxBulkEmailEvent.Gtk.Box+BoxChild
+			this.ybuttonBulkEmailEvent = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonBulkEmailEvent.CanFocus = true;
+			this.ybuttonBulkEmailEvent.Name = "ybuttonBulkEmailEvent";
+			this.ybuttonBulkEmailEvent.UseUnderline = true;
+			this.ybuttonBulkEmailEvent.Label = global::Mono.Unix.Catalog.GetString("Отписать");
+			this.yhboxBulkEmailEvent.Add(this.ybuttonBulkEmailEvent);
+			global::Gtk.Box.BoxChild w193 = ((global::Gtk.Box.BoxChild)(this.yhboxBulkEmailEvent[this.ybuttonBulkEmailEvent]));
+			w193.Position = 2;
+			w193.Expand = false;
+			w193.Fill = false;
+			this.vbox16.Add(this.yhboxBulkEmailEvent);
+			global::Gtk.Box.BoxChild w194 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.yhboxBulkEmailEvent]));
+			w194.Position = 1;
+			w194.Expand = false;
+			w194.Fill = false;
+			this.notebook1.Add(this.vbox16);
+			global::Gtk.Notebook.NotebookChild w195 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vbox16]));
+			w195.Position = 11;
 			// Notebook tab
 			this.labelEmails = new global::Gtk.Label();
 			this.labelEmails.Name = "labelEmails";
 			this.labelEmails.LabelProp = global::Mono.Unix.Catalog.GetString("Письма");
-			this.notebook1.SetTabLabel(this.GtkScrolledWindow16, this.labelEmails);
+			this.notebook1.SetTabLabel(this.vbox16, this.labelEmails);
 			this.labelEmails.ShowAll();
 			this.vbox2.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w191 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
-			w191.Position = 3;
+			global::Gtk.Box.BoxChild w196 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
+			w196.Position = 3;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
