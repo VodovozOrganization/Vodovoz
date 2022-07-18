@@ -2625,5 +2625,11 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		BulkEmailEventReportViewModel viewModel = new BulkEmailEventReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
 	}
 }

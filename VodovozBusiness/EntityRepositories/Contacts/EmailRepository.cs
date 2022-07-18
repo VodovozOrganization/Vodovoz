@@ -182,6 +182,19 @@ namespace Vodovoz.EntityRepositories
 			return guidCounterpartyEmail.CounterpartyId;
 		}
 
+		public BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId)
+		{
+			BulkEmailEvent bulkEmailEventAlias = null;
+			CounterpartyEmail counterpartyEmailAlias = null;
+
+			return uow.Session.QueryOver(() => bulkEmailEventAlias)
+				.JoinEntityAlias(() => counterpartyEmailAlias,() => counterpartyEmailAlias.Counterparty.Id == bulkEmailEventAlias.Counterparty.Id)
+				.Where(() => counterpartyEmailAlias.Counterparty.Id == counterpartyId)
+				.OrderBy(() => bulkEmailEventAlias.ActionTime).Desc
+				.Take(1)
+				.SingleOrDefault();
+		}
+
 		public IList<UnsubscribingReason> GetUnsubscribingReasons(IUnitOfWork uow)
 		{
 			return uow.GetAll<UnsubscribingReason>()

@@ -93,6 +93,7 @@ namespace Vodovoz
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
+		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
@@ -919,6 +920,24 @@ namespace Vodovoz
 			ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
 
 			EmailDataLoader.LoadData(false);
+
+			//ylabelBulkEmailEventDate.Binding.AddBinding(LastBulkEmailEvent, s => s.ActionTime.ToString(), w => w.LabelProp).InitializeFromSource();
+			//ybuttonBulkEmailEvent
+			RefreshBulkEmailEventStatus();
+		}
+
+		private void RefreshBulkEmailEventStatus()
+		{
+			if(LastBulkEmailEvent == null || LastBulkEmailEvent.Type == BulkEmailEvent.BulkEmailEventType.Subscribing)
+			{
+				ylabelBulkEmailEventDate.LabelProp = "Контрагент подписан на массовую рассылку";
+				ybuttonBulkEmailEvent.Label = "Отписаться";
+				return;
+			}
+
+			ylabelBulkEmailEventDate.LabelProp = LastBulkEmailEvent.ActionTime.ToString();
+			ybuttonBulkEmailEvent.Label = "Подписаться";
+
 		}
 
 		private Func<IUnitOfWork, IQueryOver<CounterpartyEmail>> EmailItemsSourceQueryFunction => (uow) =>
@@ -1499,6 +1518,16 @@ namespace Vodovoz
 			}
 
 			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
+		}
+
+		public BulkEmailEvent LastBulkEmailEvent => _emailRepository.GetLastBulkEmailEvent(UoW, Entity.Id);
+
+		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
+		{
+		}
+
+		protected void OnButtonSubscribeClicked(object sender, EventArgs e)
+		{
 		}
 	}
 

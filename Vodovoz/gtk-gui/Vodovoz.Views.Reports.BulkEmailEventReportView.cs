@@ -42,7 +42,7 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeReportIndicatorsRows;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewReport;
 
 		protected virtual void Build()
 		{
@@ -219,10 +219,10 @@ namespace Vodovoz.Views.Reports
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeReportIndicatorsRows = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeReportIndicatorsRows.CanFocus = true;
-			this.ytreeReportIndicatorsRows.Name = "ytreeReportIndicatorsRows";
-			this.GtkScrolledWindow.Add(this.ytreeReportIndicatorsRows);
+			this.ytreeviewReport = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewReport.CanFocus = true;
+			this.ytreeviewReport.Name = "ytreeviewReport";
+			this.GtkScrolledWindow.Add(this.ytreeviewReport);
 			this.hbox1.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));
 			w19.Position = 1;

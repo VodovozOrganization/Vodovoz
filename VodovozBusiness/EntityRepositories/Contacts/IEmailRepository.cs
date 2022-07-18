@@ -18,6 +18,7 @@ namespace Vodovoz.EntityRepositories
 		int GetCurrentDatabaseId(IUnitOfWork uow);
 		int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid);
 		IList<UnsubscribingReason> GetUnsubscribingReasons(IUnitOfWork uow);
+		BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId);
 
 		#region EmailType
 

@@ -400,7 +400,9 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel ylabelBulkEmailEventDate;
 
-		private global::Gamma.GtkWidgets.yButton ybuttonBulkEmailEvent;
+		private global::Gamma.GtkWidgets.yButton ybuttonSubscribe;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonUnsubscribe;
 
 		private global::Gtk.Label labelEmails;
 
@@ -599,7 +601,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 11;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -2481,24 +2483,35 @@ namespace Vodovoz
 			w192.Expand = false;
 			w192.Fill = false;
 			// Container child yhboxBulkEmailEvent.Gtk.Box+BoxChild
-			this.ybuttonBulkEmailEvent = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonBulkEmailEvent.CanFocus = true;
-			this.ybuttonBulkEmailEvent.Name = "ybuttonBulkEmailEvent";
-			this.ybuttonBulkEmailEvent.UseUnderline = true;
-			this.ybuttonBulkEmailEvent.Label = global::Mono.Unix.Catalog.GetString("Отписать");
-			this.yhboxBulkEmailEvent.Add(this.ybuttonBulkEmailEvent);
-			global::Gtk.Box.BoxChild w193 = ((global::Gtk.Box.BoxChild)(this.yhboxBulkEmailEvent[this.ybuttonBulkEmailEvent]));
+			this.ybuttonSubscribe = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSubscribe.CanFocus = true;
+			this.ybuttonSubscribe.Name = "ybuttonSubscribe";
+			this.ybuttonSubscribe.UseUnderline = true;
+			this.ybuttonSubscribe.Label = global::Mono.Unix.Catalog.GetString("Отписать");
+			this.yhboxBulkEmailEvent.Add(this.ybuttonSubscribe);
+			global::Gtk.Box.BoxChild w193 = ((global::Gtk.Box.BoxChild)(this.yhboxBulkEmailEvent[this.ybuttonSubscribe]));
 			w193.Position = 2;
 			w193.Expand = false;
 			w193.Fill = false;
-			this.vbox16.Add(this.yhboxBulkEmailEvent);
-			global::Gtk.Box.BoxChild w194 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.yhboxBulkEmailEvent]));
-			w194.Position = 1;
+			// Container child yhboxBulkEmailEvent.Gtk.Box+BoxChild
+			this.ybuttonUnsubscribe = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonUnsubscribe.CanFocus = true;
+			this.ybuttonUnsubscribe.Name = "ybuttonUnsubscribe";
+			this.ybuttonUnsubscribe.UseUnderline = true;
+			this.ybuttonUnsubscribe.Label = global::Mono.Unix.Catalog.GetString("Вернуть в рассылку");
+			this.yhboxBulkEmailEvent.Add(this.ybuttonUnsubscribe);
+			global::Gtk.Box.BoxChild w194 = ((global::Gtk.Box.BoxChild)(this.yhboxBulkEmailEvent[this.ybuttonUnsubscribe]));
+			w194.Position = 3;
 			w194.Expand = false;
 			w194.Fill = false;
+			this.vbox16.Add(this.yhboxBulkEmailEvent);
+			global::Gtk.Box.BoxChild w195 = ((global::Gtk.Box.BoxChild)(this.vbox16[this.yhboxBulkEmailEvent]));
+			w195.Position = 1;
+			w195.Expand = false;
+			w195.Fill = false;
 			this.notebook1.Add(this.vbox16);
-			global::Gtk.Notebook.NotebookChild w195 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vbox16]));
-			w195.Position = 11;
+			global::Gtk.Notebook.NotebookChild w196 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vbox16]));
+			w196.Position = 11;
 			// Notebook tab
 			this.labelEmails = new global::Gtk.Label();
 			this.labelEmails.Name = "labelEmails";
@@ -2506,8 +2519,8 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.vbox16, this.labelEmails);
 			this.labelEmails.ShowAll();
 			this.vbox2.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w196 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
-			w196.Position = 3;
+			global::Gtk.Box.BoxChild w197 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
+			w197.Position = 3;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
@@ -2554,6 +2567,8 @@ namespace Vodovoz
 			this.ybuttonAddNom.Clicked += new global::System.EventHandler(this.OnYbuttonAddNomClicked);
 			this.ybuttonRemoveNom.Clicked += new global::System.EventHandler(this.OnYbuttonRemoveNomClicked);
 			this.enumcomboCargoReceiverSource.ChangedByUser += new global::System.EventHandler(this.OnEnumcomboCargoReceiverSourceChangedByUser);
+			this.ybuttonSubscribe.Clicked += new global::System.EventHandler(this.OnButtonUnsubscribeClicked);
+			this.ybuttonUnsubscribe.Clicked += new global::System.EventHandler(this.OnButtonSubscribeClicked);
 		}
 	}
 }
