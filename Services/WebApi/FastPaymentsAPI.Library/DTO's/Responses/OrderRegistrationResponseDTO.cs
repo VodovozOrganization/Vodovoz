@@ -3,7 +3,7 @@
 namespace FastPaymentsAPI.Library.DTO_s.Responses
 {
 	[XmlRoot(ElementName = "order_response")]
-	public class OrderRegistrationResponseDTO
+	public class OrderRegistrationResponseDTO : IAvangardResponseDetails
 	{
 		[XmlElement(ElementName = "id")]
 		public long Id { get; set; }

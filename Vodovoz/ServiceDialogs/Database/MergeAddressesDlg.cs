@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using DiffPlex;
+﻿using DiffPlex;
 using DiffPlex.DiffBuilder;
 using Fias.Service;
 using Gamma.ColumnConfig;
@@ -12,15 +8,14 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Project.Domain;
-using QSProjectsLib;
-using Vodovoz.Domain.Client;
 using QS.Project.Services;
+using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.ServiceDialogs.Database
 {

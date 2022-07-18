@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		public IExpenseCategorySelectorFactory ExpenseSelectorFactory { get; }
 
 		public FuelWriteoffDocumentViewModel(
-			IEntityUoWBuilder uoWBuilder, 
+			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IFuelRepository fuelRepository,
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IReportViewOpener reportViewOpener,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory
-		) 
+		)
 		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -101,19 +101,19 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		{
 			EmployeeAutocompleteSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; private set; }
-		
+
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 
 		#endregion Entries
 
-		protected override void BeforeSave()
-		{
-			Entity.UpdateOperations();
-			base.BeforeSave();
-		}
+		protected override bool BeforeSave()
+        {
+            Entity.UpdateOperations();
+            return base.BeforeSave();
+        }
 
 		public bool CanEdit => true;
 		public bool CanEditDate => CanEdit && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_fuelwriteoff_document_date");

@@ -3,7 +3,7 @@ using Vodovoz.Domain.FastPayments;
 
 namespace FastPaymentsAPI.Library.DTO_s.Responses
 {
-	public class FastPaymentResponseDTO
+	public class FastPaymentResponseDTO : IErrorResponse
 	{
 		public FastPaymentResponseDTO()
 		{

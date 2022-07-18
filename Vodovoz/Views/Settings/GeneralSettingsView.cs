@@ -31,6 +31,8 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.CanAddForwardersToLargus, w => w.Active)
 				.AddBinding(vm => vm.CanEditCanAddForwardersToLargus, w => w.Sensitive)
 				.InitializeFromSource();
+
+			roboatssettingsview1.ViewModel = ViewModel.RoboatsSettingsViewModel;
 		}
 	}
 }

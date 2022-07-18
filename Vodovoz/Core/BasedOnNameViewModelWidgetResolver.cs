@@ -16,7 +16,7 @@ namespace Vodovoz.Core
 		{
 			usedAssemblies = new Assembly[] {
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				Assembly.GetAssembly(typeof(HibernateMapping.OrganizationMap)),
+				Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
 				Assembly.GetAssembly(typeof(Bank)),
 				Assembly.GetAssembly(typeof(HistoryMain)),
 				Assembly.GetAssembly(typeof(MainWindow)),

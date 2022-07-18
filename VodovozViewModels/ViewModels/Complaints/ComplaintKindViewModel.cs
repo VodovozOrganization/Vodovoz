@@ -11,7 +11,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 

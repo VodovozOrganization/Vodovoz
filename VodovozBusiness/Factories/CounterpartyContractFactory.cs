@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models;
 
@@ -9,19 +10,19 @@ namespace Vodovoz.Factories
 {
 	public class CounterpartyContractFactory
 	{
-		private readonly IOrganizationProvider organizationProvider;
-		private readonly ICounterpartyContractRepository counterpartyContractRepository;
+		private readonly IOrganizationProvider _organizationProvider;
+		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
 
 		public CounterpartyContractFactory(IOrganizationProvider organizationProvider, ICounterpartyContractRepository counterpartyContractRepository)
 		{
-			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
-			this.counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
+			_organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
+			_counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 		}
 		
-		public CounterpartyContract CreateContract(IUnitOfWork uow, Order order, DateTime? issueDate)
+		public CounterpartyContract CreateContract(IUnitOfWork uow, Order order, DateTime? issueDate, Organization organization = null)
 		{
-			var contractType = counterpartyContractRepository.GetContractTypeForPaymentType(order.Client.PersonType, order.PaymentType);
-			var org = organizationProvider.GetOrganization(uow, order);
+			var contractType = _counterpartyContractRepository.GetContractTypeForPaymentType(order.Client.PersonType, order.PaymentType);
+			var org = organization ?? _organizationProvider.GetOrganization(uow, order);
 			var contractSubNumber = CounterpartyContract.GenerateSubNumber(order.Client);
 			
 			CounterpartyContract contract = new CounterpartyContract {

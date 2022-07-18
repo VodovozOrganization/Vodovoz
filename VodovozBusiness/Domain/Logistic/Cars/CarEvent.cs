@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using NHibernate.Type;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -109,6 +110,40 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _repairCost;
 			set => SetField( ref _repairCost, value );
+		}
+
+		IList<Fine> fines = new List<Fine>();
+		[Display(Name = "Штрафы")]
+		public virtual IList<Fine> Fines
+		{
+			get => fines;
+			set => SetField(ref fines, value, () => Fines);
+		}
+
+		GenericObservableList<Fine> observableFines;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Fine> ObservableFines
+		{
+			get
+			{
+				if(observableFines == null)
+					observableFines = new GenericObservableList<Fine>(Fines);
+				return observableFines;
+			}
+		}
+
+		public virtual void AddFine(Fine fine)
+		{
+			if(ObservableFines.Contains(fine))
+			{
+				return;
+			}
+			ObservableFines.Add(fine);
+		}
+
+		public virtual string GetFineReason()
+		{
+			return $"Событие №{Id} от {CreateDate.ToShortDateString()}";
 		}
 
 		#endregion

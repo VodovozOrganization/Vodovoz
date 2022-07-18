@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
@@ -94,6 +95,7 @@ namespace FastPaymentsAPI
 
 			//repositories
 			services.AddSingleton<IOrderRepository, OrderRepository>();
+			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
 			services.AddSingleton<IStandartNomenclatures, BaseParametersProvider>();
 			services.AddSingleton<IRouteListItemRepository, RouteListItemRepository>();
@@ -104,6 +106,7 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
+			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
 			services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
 
 			//factories
@@ -112,6 +115,7 @@ namespace FastPaymentsAPI
 			//converters
 			services.AddSingleton<IOrderSumConverter, OrderSumConverter>();
 			services.AddSingleton<IResponseCodeConverter, ResponseCodeConverter>();
+			services.AddSingleton<IRequestFromConverter, RequestFromConverter>();
 
 			//models
 			services.AddScoped<IFastPaymentOrderModel, FastPaymentOrderModel>();
@@ -124,6 +128,7 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IDTOManager, DTOManager>();
 			services.AddSingleton<ISignatureManager, SignatureManager>();
 			services.AddSingleton<IFastPaymentManager, FastPaymentManager>();
+			services.AddSingleton<IErrorHandler, ErrorHandler>();
 			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
 			services.AddScoped<IOrderRequestManager, OrderRequestManager>();
 		}
@@ -186,7 +191,7 @@ namespace FastPaymentsAPI
 				{
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
 					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
 					System.Reflection.Assembly.GetAssembly(typeof(Attachment))

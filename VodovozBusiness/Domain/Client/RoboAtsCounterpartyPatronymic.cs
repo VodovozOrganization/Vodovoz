@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Roboats;
 
 namespace Vodovoz.Domain.Client
 {
@@ -12,10 +14,12 @@ namespace Vodovoz.Domain.Client
 		Nominative = "отчество контрагента")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class RoboAtsCounterpartyPatronymic : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class RoboAtsCounterpartyPatronymic : PropertyChangedBase, IDomainObject, IValidatableObject, IRoboatsEntity
 	{
 		private string _patronymic;
 		private string _accent;
+		private Guid? _fileId;
+		private string _roboatsAudiofile;
 
 		#region Свойства
 
@@ -35,7 +39,26 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _accent, value);
 		}
 
+
+		[Display(Name = "Имя аудиозаписи Roboats")]
+		public virtual string RoboatsAudiofile
+		{
+			get => _roboatsAudiofile;
+			set => SetField(ref _roboatsAudiofile, value);
+		}
+		public virtual string NewRoboatsAudiofile { get; set; }
+
+		[Display(Name = "Идентификатор файла")]
+		public virtual Guid? FileId
+		{
+			get => _fileId;
+			set => SetField(ref _fileId, value);
+		}
+
 		#endregion
+
+		public virtual int? RoboatsId => Id;
+		public virtual RoboatsEntityType RoboatsEntityType => RoboatsEntityType.CounterpartyPatronymic;
 
 		public virtual string Title => Patronymic;
 
@@ -66,8 +89,13 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult($"Превышена максимально допустимая длина ударения ({Accent.Length}/20).",
 					new[] { nameof(Accent) });
 			}
+
+			if(string.IsNullOrWhiteSpace(NewRoboatsAudiofile) && string.IsNullOrWhiteSpace(RoboatsAudiofile))
+			{
+				yield return new ValidationResult("Необходимо выбрать аудиофайл", new[] { nameof(NewRoboatsAudiofile) });
+			}
 		}
-		
+
 		#endregion
 	}
 }

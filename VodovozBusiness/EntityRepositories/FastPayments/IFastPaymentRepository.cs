@@ -15,5 +15,6 @@ namespace Vodovoz.EntityRepositories.FastPayments
 		bool FastPaymentWithTicketExists(IUnitOfWork uow, string ticket);
 		IEnumerable<FastPayment> GetAllProcessingFastPayments(IUnitOfWork uow);
 		FastPayment GetProcessingPaymentForOrder(IUnitOfWork uow, int orderId);
+		FastPayment GetPerformedFastPaymentByExternalId(IUnitOfWork uow, int externalId);
 	}
 }
