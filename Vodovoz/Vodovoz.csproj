@@ -158,7 +158,7 @@
     <EmbeddedResource Include="icons\map\GreenCar.png" />
     <EmbeddedResource Include="icons\map\BlueCar.png" />
     <EmbeddedResource Include="icons\map\BlackCar.png" />
-	<EmbeddedResource Include="icons\map\RedCar.png" />
+    <EmbeddedResource Include="icons\map\RedCar.png" />
     <EmbeddedResource Include="icons\buttons\window-new.png" />
     <EmbeddedResource Include="toolbars\archive.xml">
       <LogicalName>archive.xml</LogicalName>
@@ -1717,8 +1717,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliverySalesReportView.cs" />
     <Compile Include="Views\Reports\FastDeliveryAdditionalLoadingReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryAdditionalLoadingReportView.cs" />
-    <Compile Include="Views\Client\UnsubscribingReasonView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Client.UnsubscribingReasonView.cs" />
+    <Compile Include="Views\Client\BulkEmailEventReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.BulkEmailEventReasonView.cs" />
     <Compile Include="Views\Reports\BulkEmailEventReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.BulkEmailEventReportView.cs" />
   </ItemGroup>

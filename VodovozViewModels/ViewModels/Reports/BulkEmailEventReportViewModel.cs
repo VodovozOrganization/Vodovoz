@@ -12,6 +12,8 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
@@ -32,8 +34,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			INavigationManager navigation, IFileDialogService fileDialogService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			//_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			Title = "Отчёт по дозагрузке МЛ";
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			Title = "Отчёт о событиях рассылки";
 
 			CreateDateFrom = DateTime.Now.Date;
 			CreateDateTo = DateTime.Now.Date.Add(new TimeSpan(0, 23, 59, 59));
@@ -46,44 +48,29 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				return new List<FastDeliveryAdditionalLoadingReportRow>();
 			}
 
-			RouteList routeListAlias = null;
-			RouteListItem routeListItemAlias = null;
-			Order orderAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			FastDeliveryAdditionalLoadingReportRow resultAlias = null;
-			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
-			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
+			BulkEmailEvent bulkEmailEventAlias = null;
+			Domain.Client.Counterparty counterpartyAlias = null;
+			Phone phoneAlias = null;
 
-			var itemsQuery = UoW.Session.QueryOver(() => additionalLoadingDocumentItemAlias)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
-				.JoinEntityAlias(() => routeListAlias, () => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => routeListAlias.Date >= CreateDateFrom.Value.Date
-									   && routeListAlias.Date <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
+			var itemsQuery = UoW.Session.QueryOver(() => bulkEmailEventAlias)
+				.JoinAlias(() => bulkEmailEventAlias.Counterparty, () => counterpartyAlias)
+				.JoinEntityAlias(() => phoneAlias, () => phoneAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => bulkEmailEventAlias.ActionTime >= CreateDateFrom.Value.Date
+				             && bulkEmailEventAlias.ActionTime <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 
-			var ownOrdersAmountSubquery = QueryOver.Of(() => routeListItemAlias)
-				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
-				.WhereRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(new RouteListItemStatus[]
-				{
-					RouteListItemStatus.Canceled,
-					RouteListItemStatus.Overdue,
-					RouteListItemStatus.Transfered
-				})
-				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
-				.And(() => !orderAlias.IsFastDelivery)
-				.Select(Projections.Count(Projections.Id()));
 
-			return itemsQuery
-				.SelectList(list => list
-					.Select(() => routeListAlias.Date).WithAlias(() => resultAlias.RouteListDate)
-					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
-					.SelectSubQuery(ownOrdersAmountSubquery).WithAlias(() => resultAlias.OwnOrdersCount)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.AdditionaLoadingNomenclature)
-					.Select(() => additionalLoadingDocumentItemAlias.Amount).WithAlias(() => resultAlias.AdditionaLoadingAmount)
-				).OrderBy(() => routeListAlias.Date).Desc
-				.ThenBy(() => routeListAlias.Id).Desc
-				.TransformUsing(Transformers.AliasToBean<FastDeliveryAdditionalLoadingReportRow>())
-				.List<FastDeliveryAdditionalLoadingReportRow>();
+			//return itemsQuery
+			//	.SelectList(list => list
+			//		.Select(() => routeListAlias.Date).WithAlias(() => resultAlias.RouteListDate)
+			//		.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
+			//		.SelectSubQuery(ownOrdersAmountSubquery).WithAlias(() => resultAlias.OwnOrdersCount)
+			//		.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.AdditionaLoadingNomenclature)
+			//		.Select(() => additionalLoadingDocumentItemAlias.Amount).WithAlias(() => resultAlias.AdditionaLoadingAmount)
+			//	).OrderBy(() => routeListAlias.Date).Desc
+			//	.ThenBy(() => routeListAlias.Id).Desc
+			//	.TransformUsing(Transformers.AliasToBean<FastDeliveryAdditionalLoadingReportRow>())
+			//	.List<FastDeliveryAdditionalLoadingReportRow>();
+			return null;
 		}
 
 		#region Commands
