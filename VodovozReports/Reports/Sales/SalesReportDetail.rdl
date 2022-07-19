@@ -59,7 +59,7 @@
             <Width>71.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>82.9pt</Width>
+            <Width>84.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>139.3pt</Width>
@@ -518,7 +518,7 @@
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_count.Value)</Value>
                     </Textbox>
@@ -536,7 +536,7 @@
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!total_sum.Value)</Value>
                     </Textbox>
@@ -761,7 +761,7 @@
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <Format >0.00</Format>
+                            <Format>0.00</Format>
                           </Style>
                           <Value>=Sum(Fields!total_count.Value)</Value>
                         </Textbox>
@@ -779,7 +779,7 @@
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <Format >0.00</Format>
+                            <Format>0.00</Format>
                           </Style>
                           <Value>=Sum(Fields!total_sum.Value)</Value>
                         </Textbox>
