@@ -97,6 +97,7 @@ namespace Vodovoz
 		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
+		private readonly IEmailParametersProvider _emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
 		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
@@ -921,23 +922,24 @@ namespace Vodovoz
 
 			EmailDataLoader.LoadData(false);
 
-			//ylabelBulkEmailEventDate.Binding.AddBinding(LastBulkEmailEvent, s => s.ActionTime.ToString(), w => w.LabelProp).InitializeFromSource();
-			//ybuttonBulkEmailEvent
 			RefreshBulkEmailEventStatus();
 		}
 
 		private void RefreshBulkEmailEventStatus()
 		{
-			if(LastBulkEmailEvent == null || LastBulkEmailEvent.Type == BulkEmailEvent.BulkEmailEventType.Subscribing)
+			var lastBulkEmailEvent =_emailRepository.GetLastBulkEmailEvent(UoW, Entity.Id);
+
+			if(lastBulkEmailEvent == null || lastBulkEmailEvent is SubscribingBulkEmailEvent)
 			{
 				ylabelBulkEmailEventDate.LabelProp = "Контрагент подписан на массовую рассылку";
-				ybuttonBulkEmailEvent.Label = "Отписаться";
+				ybuttonSubscribe.Visible = false;
+				ybuttonUnsubscribe.Visible = true;
 				return;
 			}
 
-			ylabelBulkEmailEventDate.LabelProp = LastBulkEmailEvent.ActionTime.ToString();
-			ybuttonBulkEmailEvent.Label = "Подписаться";
-
+			ylabelBulkEmailEventDate.LabelProp = lastBulkEmailEvent.ActionTime.ToString();
+			ybuttonSubscribe.Visible = true;
+			ybuttonUnsubscribe.Visible = false;
 		}
 
 		private Func<IUnitOfWork, IQueryOver<CounterpartyEmail>> EmailItemsSourceQueryFunction => (uow) =>
@@ -1520,14 +1522,44 @@ namespace Vodovoz
 			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
 		}
 
-		public BulkEmailEvent LastBulkEmailEvent => _emailRepository.GetLastBulkEmailEvent(UoW, Entity.Id);
-
 		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
 		{
+			var unsubscribingReason = _emailRepository.GetBulkEmailEventOtherReason(UoW, _emailParametersProvider);
+
+			var unsubscribingEvent = new UnsubscribingBulkEmailEvent
+			{
+				BulkEmailEventReason = unsubscribingReason,
+				OtherReason = $"Установлено оператором {CurrentEmployee.GetPersonNameWithInitials()}",
+				Counterparty = Entity
+			};
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение отписки от массовой рассылки"))
+			{
+				unitOfWork.Save(unsubscribingEvent);
+				unitOfWork.Commit();
+			}
+
+			RefreshBulkEmailEventStatus();
 		}
 
 		protected void OnButtonSubscribeClicked(object sender, EventArgs e)
 		{
+			var subscribingReason = _emailRepository.GetBulkEmailEventOtherReason(UoW, _emailParametersProvider);
+
+			var subscribingEvent = new SubscribingBulkEmailEvent
+			{
+				BulkEmailEventReason = subscribingReason,
+				OtherReason = $"Установлено оператором {CurrentEmployee.GetPersonNameWithInitials()}",
+				Counterparty = Entity
+			};
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение подписки на массовую рассылку"))
+			{
+				unitOfWork.Save(subscribingEvent);
+				unitOfWork.Commit();
+			}
+
+			RefreshBulkEmailEventStatus();
 		}
 	}
 

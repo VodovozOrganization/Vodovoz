@@ -18,5 +18,6 @@ namespace Vodovoz.Parameters
 		public string InvalidSignatureNotificationEmailAddress =>
 			_parametersProvider.GetStringValue("invalid_signature_notification_email");
 		public string UnsubscribeUrl => _parametersProvider.GetStringValue("unsubscribe_url");
+		public int BulkEmailEventOtherReasonId => _parametersProvider.GetIntValue("bulk_email_event_other_reason_id");
 	}
 }

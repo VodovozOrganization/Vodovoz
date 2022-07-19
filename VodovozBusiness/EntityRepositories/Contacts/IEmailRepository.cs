@@ -5,6 +5,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -17,8 +18,9 @@ namespace Vodovoz.EntityRepositories
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
 		int GetCurrentDatabaseId(IUnitOfWork uow);
 		int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid);
-		IList<UnsubscribingReason> GetUnsubscribingReasons(IUnitOfWork uow);
+		IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider);
 		BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId);
+		BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uoW, IEmailParametersProvider emailParametersProvider);
 
 		#region EmailType
 

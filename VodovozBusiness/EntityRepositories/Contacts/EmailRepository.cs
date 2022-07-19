@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Parameters;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
@@ -173,34 +174,33 @@ namespace Vodovoz.EntityRepositories
 				.List<GuidCounterpartyEmailNode>()
 				.SingleOrDefault();
 
-			if(guidCounterpartyEmail == null || guidCounterpartyEmail.BulkEmailEventType == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
-			{
-				return 0;
-
-			}
-
-			return guidCounterpartyEmail.CounterpartyId;
+			return guidCounterpartyEmail == null || guidCounterpartyEmail.BulkEmailEventType == BulkEmailEvent.BulkEmailEventType.Unsubscribing
+			? 0
+			: guidCounterpartyEmail.CounterpartyId;
 		}
 
 		public BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId)
 		{
 			BulkEmailEvent bulkEmailEventAlias = null;
-			CounterpartyEmail counterpartyEmailAlias = null;
 
 			return uow.Session.QueryOver(() => bulkEmailEventAlias)
-				.JoinEntityAlias(() => counterpartyEmailAlias,() => counterpartyEmailAlias.Counterparty.Id == bulkEmailEventAlias.Counterparty.Id)
-				.Where(() => counterpartyEmailAlias.Counterparty.Id == counterpartyId)
+				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyId)
 				.OrderBy(() => bulkEmailEventAlias.ActionTime).Desc
 				.Take(1)
 				.SingleOrDefault();
 		}
 
-		public IList<UnsubscribingReason> GetUnsubscribingReasons(IUnitOfWork uow)
+
+		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
 		{
-			return uow.GetAll<UnsubscribingReason>()
+			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOtherReasonId);
+		}
+
+		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		{
+			return uow.GetAll<BulkEmailEventReason>()
 				.Where(x => !x.IsArchive)
-				.OrderBy(x => x.IsOtherReason)
-				.ThenBy(x => x.Name)
+				.OrderBy(x => x.Id == emailParametersProvider.BulkEmailEventOtherReasonId)
 				.ToList();
 		}
 

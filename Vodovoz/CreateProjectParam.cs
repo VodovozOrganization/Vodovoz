@@ -285,7 +285,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboAtsCounterpartyPatronymicViewModel, RoboAtsCounterpartyPatronymicView>()
 				.RegisterWidgetForTabViewModel<TariffZoneViewModel, TariffZoneView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
-				.RegisterWidgetForTabViewModel<UnsubscribingReasonViewModel, UnsubscribingReasonView>()
+				.RegisterWidgetForTabViewModel<BulekEmailEventReasonViewModel, BulkEmailEventReasonView>()
 				;
 
             //Регистрация виджетов

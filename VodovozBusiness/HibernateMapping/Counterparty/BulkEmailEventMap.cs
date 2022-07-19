@@ -15,8 +15,10 @@ namespace Vodovoz.HibernateMapping.Counterparty
 
 			Map(x => x.Type).Column("type").CustomType<BulkEmailEvent.BulkEmailEventTypeString>().ReadOnly();
 			Map(x => x.ActionTime).Column("action_time").ReadOnly();
+			Map(x => x.OtherReason).Column("other_reason");
 
 			References(x => x.Counterparty).Column("counterparty_id");
+			References(x => x.BulkEmailEventReason).Column("unsubscribing_reason_id");
 		}
 
 		public class SubscribingBulkEmailEventMap : SubclassMap<SubscribingBulkEmailEvent>
@@ -32,8 +34,6 @@ namespace Vodovoz.HibernateMapping.Counterparty
 			public UnsubscribingBulkEmailEventMap()
 			{
 				DiscriminatorValue(nameof(BulkEmailEvent.BulkEmailEventType.Unsubscribing));
-				Map(x => x.OtherReason).Column("other_reason");
-				References(x => x.UnsubscribingReason).Column("unsubscribing_reason_id");
 			}
 		}
 	}

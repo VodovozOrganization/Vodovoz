@@ -77,7 +77,7 @@
     <Compile Include="Domain\Client\RoomType.cs" />
     <Compile Include="Domain\Client\SubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\UnsubscribingBulkEmailEvent.cs" />
-    <Compile Include="Domain\Client\UnsubscribingReason.cs" />
+    <Compile Include="Domain\Client\BulkEmailEventReason.cs" />
     <Compile Include="Domain\Complaints\ComplaintObject.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultBase.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultOfEmployees.cs" />
@@ -333,7 +333,7 @@
     <Compile Include="HibernateMapping\Cash\OrganizationCashTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\BulkEmailEventMap.cs" />
-    <Compile Include="HibernateMapping\Counterparty\UnsubscribingReasonMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\BulkEmailEventReasonMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyPatronymicMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyNameMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyFileMap.cs" />

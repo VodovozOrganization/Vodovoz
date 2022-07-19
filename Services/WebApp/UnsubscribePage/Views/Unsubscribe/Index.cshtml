@@ -15,6 +15,7 @@
 	<div asp-validation-summary="All" class="text-danger"></div>
 	<input asp-for="EmailEventId" type="hidden" />
 	<input asp-for="CounterpartyId" type="hidden" />
+	<input asp-for="OtherReasonId" type="hidden" />
 	<input asp-for="ReasonsListSerialized" type="hidden" value="@Model.ReasonsListSerialized" />
 
 	<table>
@@ -35,37 +36,38 @@
 						</th>
 					</tr>
 					<tbody>
-						@foreach (var reason in Model.ReasonsList)
-						{
+					@foreach (var reason in Model.ReasonsList)
+					{
 						<tr>
-							@if (reason.IsOtherReason)
-								{
-							<td>
-								<label class="custom-control custom-radio mb-2">
-									<input type="radio" asp-for="SelectedReasonId" value="@reason.Id">
-									@reason.Name:
-								</label>
-								<input id="other_reason_block" class="w-100" maxlength="255" asp-for="OtherReason" />
-								<span asp-validation-for="OtherReason" class="alert-danger"></span>
-							</td>
+							@if (reason.Id == Model.OtherReasonId)
+							{
+								<td>
+
+									<label class="custom-control custom-radio mb-2">
+										<input type="radio" asp-for="SelectedReasonId" value="@reason.Id">
+										@reason.Name:
+									</label>
+									<input id="other_reason_block" class="w-100" maxlength="255" asp-for="OtherReason"/>
+									<span asp-validation-for="OtherReason" class="alert-danger"></span>
+								</td>
 							}
 							else
 							{
-							<td>
-								<label class="custom-control custom-radio mb-2">
-									<input type="radio" asp-for="SelectedReasonId" value="@reason.Id">
-									@reason.Name
-								</label>
-							</td>
+								<td>
+
+									<label class="custom-control custom-radio mb-2">
+										<input type="radio" asp-for="SelectedReasonId" value="@reason.Id">
+										@reason.Name
+									</label>
+								</td>
 							}
 						</tr>
-						}
-						<tr>
-							<td>
-
-								<input type="submit" value="Отправить" class="btn btn-warning w-100" formmethod="post" />
-							</td>
-						</tr>
+					}
+					<tr>
+						<td>
+							<input type="submit" value="Отправить" class="btn btn-warning w-100" formmethod="post"/>
+						</td>
+					</tr>
 					</tbody>
 				</table>
 			</td>

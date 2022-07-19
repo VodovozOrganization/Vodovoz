@@ -6,36 +6,39 @@ using System.Linq;
 using System.Text.Json;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Parameters;
 
 namespace UnsubscribePage.Models
 {
 	public class UnsubscribeViewModel : IValidatableObject
 	{
-		private IList<UnsubscribingReason> _reasonsList;
+		private IList<BulkEmailEventReason> _reasonsList;
 
 		public UnsubscribeViewModel() { }
 
-		public UnsubscribeViewModel(Guid guid, IEmailRepository emailRepository)
+		public UnsubscribeViewModel(Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
 		{
-			Initialize(guid, emailRepository);
+			Initialize(guid, emailRepository, emailParametersProvider);
 		}
-		private void Initialize(Guid guid, IEmailRepository emailRepository)
+		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
 		{
+			OtherReasonId = emailParametersProvider.BulkEmailEventOtherReasonId;
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Инициализация страницы отписки"))
 			{
 				CounterpartyId = emailRepository.GetCounterpartyIdByEmailGuidForUnsubscribing(unitOfWork, guid);
-				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork);
+				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailParametersProvider);
+				
 			}
-			ReasonsListSerialized = JsonSerializer.Serialize<IList<UnsubscribingReason>>(_reasonsList);
+			ReasonsListSerialized = JsonSerializer.Serialize<IList<BulkEmailEventReason>>(_reasonsList);
 		}
 
-		public void SaveUnsubscribe(UnsubscribingReason reason = null)
+		public void SaveUnsubscribe(BulkEmailEventReason reason = null)
 		{
 			UnsubscribingBulkEmailEvent unsubscribingEvent = new UnsubscribingBulkEmailEvent
 			{
 				Id = EmailEventId,
-				UnsubscribingReason = reason,
-				OtherReason = OtherReason,
+				BulkEmailEventReason = reason,
+				OtherReason = reason?.Id == OtherReasonId ? OtherReason : null,
 				Counterparty = new Counterparty
 				{
 					Id = CounterpartyId
@@ -57,7 +60,7 @@ namespace UnsubscribePage.Models
 
 			List<ValidationResult> errors = new List<ValidationResult>();
 
-			if(selectedReason != null && selectedReason.IsOtherReason && string.IsNullOrWhiteSpace(OtherReason))
+			if(selectedReason != null && selectedReason.Id == OtherReasonId && string.IsNullOrWhiteSpace(OtherReason))
 			{
 				errors.Add(new ValidationResult("Введите текст в поле для другой причины\"", new[] { nameof(OtherReason) }));
 			}
@@ -74,8 +77,9 @@ namespace UnsubscribePage.Models
 		public int EmailEventId { get; set; }
 		public string ReasonsListSerialized { get; set; }
 		public int SelectedReasonId { get; set; }
+		public int OtherReasonId { get; set; }
 		public string OtherReason { get; set; }
-		public IList<UnsubscribingReason> ReasonsList => 
-			_reasonsList ??= ReasonsListSerialized == null ? null : JsonSerializer.Deserialize<IList<UnsubscribingReason>>(ReasonsListSerialized);
+		public IList<BulkEmailEventReason> ReasonsList => 
+			_reasonsList ??= ReasonsListSerialized == null ? null : JsonSerializer.Deserialize<IList<BulkEmailEventReason>>(ReasonsListSerialized);
 	}
 }

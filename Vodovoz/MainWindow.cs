@@ -2618,7 +2618,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnUnsubscribingReasonsActionActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(() => new UnsubscribingReasonJournalViewModel(
+		tdiMain.OpenTab(() => new BulkEmailEventReasonJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices));
 	}

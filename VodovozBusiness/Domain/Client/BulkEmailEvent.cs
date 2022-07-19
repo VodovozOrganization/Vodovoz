@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Client
 		NominativePlural = "события рассылки"
 	)]
 	[EntityPermission]
-	public abstract class BulkEmailEvent : PropertyChangedBase, IDomainObject
+	public abstract class BulkEmailEvent : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private DateTime _actionTime;
 		private BulkEmailEventType _type;
@@ -40,6 +40,42 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
+		}
+
+		private BulkEmailEventReason _bulkEmailEventReason;
+		private string _otherReason;
+
+		[Display(Name = "Причина отписки")]
+		public virtual BulkEmailEventReason BulkEmailEventReason
+		{
+			get => _bulkEmailEventReason;
+			set => SetField(ref _bulkEmailEventReason, value);
+		}
+
+		[Display(Name = "Текст другой причины")]
+		public virtual string OtherReason
+		{
+			get => _otherReason;
+			set => SetField(ref _otherReason, value);
+		}
+
+		#endregion
+
+		#region IValidatableObject implementation
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrEmpty(OtherReason))
+			{
+				yield return new ValidationResult("Причина должна быть заполнена.",
+					new[] { nameof(ActionTime) });
+			}
+
+			if(OtherReason?.Length > 255)
+			{
+				yield return new ValidationResult($"Превышена максимально допустимая длина причины ({OtherReason.Length}/255).",
+					new[] { nameof(ActionTime) });
+			}
 		}
 
 		#endregion

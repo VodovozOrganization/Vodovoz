@@ -18,6 +18,7 @@ using UnsubscribePage.Models;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.NhibernateExtensions;
+using Vodovoz.Parameters;
 
 namespace UnsubscribePage
 {
@@ -69,13 +70,9 @@ namespace UnsubscribePage
 
 			services.AddOptions();
 
-			//repositories
 			services.AddSingleton<IEmailRepository, EmailRepository>();
-
-			//models
-			//services.AddScoped<IUnsubscribeViewModel, UnsubscribeViewModel>();
-
-			//factories
+			services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
+			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IUnsubscribeViewModelFactory, UnsubscribeViewModelFactory>();
 		}
 
