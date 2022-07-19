@@ -58,7 +58,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.VPaned vpanedOld;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindowChangesets1;
+		private global::Gtk.ScrolledWindow GtkScrolledWindowOldChangesets;
 
 		private global::Gamma.GtkWidgets.yTreeView dataTreeOldChangeSets;
 
@@ -373,19 +373,20 @@ namespace Vodovoz.Dialogs
 			this.vpanedOld = new global::Gtk.VPaned();
 			this.vpanedOld.CanFocus = true;
 			this.vpanedOld.Name = "vpanedOld";
-			this.vpanedOld.Position = 51;
+			this.vpanedOld.Position = 67;
 			// Container child vpanedOld.Gtk.Paned+PanedChild
-			this.GtkScrolledWindowChangesets1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindowChangesets1.Name = "GtkScrolledWindowChangesets1";
-			this.GtkScrolledWindowChangesets1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindowChangesets1.Gtk.Container+ContainerChild
+			this.GtkScrolledWindowOldChangesets = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowOldChangesets.Name = "GtkScrolledWindowOldChangesets";
+			this.GtkScrolledWindowOldChangesets.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowOldChangesets.Gtk.Container+ContainerChild
 			this.dataTreeOldChangeSets = new global::Gamma.GtkWidgets.yTreeView();
 			this.dataTreeOldChangeSets.CanFocus = true;
 			this.dataTreeOldChangeSets.Name = "dataTreeOldChangeSets";
-			this.GtkScrolledWindowChangesets1.Add(this.dataTreeOldChangeSets);
-			this.vpanedOld.Add(this.GtkScrolledWindowChangesets1);
-			global::Gtk.Paned.PanedChild w28 = ((global::Gtk.Paned.PanedChild)(this.vpanedOld[this.GtkScrolledWindowChangesets1]));
+			this.GtkScrolledWindowOldChangesets.Add(this.dataTreeOldChangeSets);
+			this.vpanedOld.Add(this.GtkScrolledWindowOldChangesets);
+			global::Gtk.Paned.PanedChild w28 = ((global::Gtk.Paned.PanedChild)(this.vpanedOld[this.GtkScrolledWindowOldChangesets]));
 			w28.Resize = false;
+			w28.Shrink = false;
 			// Container child vpanedOld.Gtk.Paned+PanedChild
 			this.vboxOldChanges = new global::Gtk.VBox();
 			this.vboxOldChanges.Name = "vboxOldChanges";
@@ -413,6 +414,9 @@ namespace Vodovoz.Dialogs
 			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxOldChanges[this.GtkScrolledWindow2]));
 			w31.Position = 1;
 			this.vpanedOld.Add(this.vboxOldChanges);
+			global::Gtk.Paned.PanedChild w32 = ((global::Gtk.Paned.PanedChild)(this.vpanedOld[this.vboxOldChanges]));
+			w32.Resize = false;
+			w32.Shrink = false;
 			this.vbox2.Add(this.vpanedOld);
 			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vpanedOld]));
 			w33.Position = 3;

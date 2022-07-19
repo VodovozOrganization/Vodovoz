@@ -136,7 +136,8 @@ namespace Vodovoz.Dialogs
 				.AddColumn("Откуда изменялось").AddTextRenderer(x => x.ChangeSet.ActionName)
 				.Finish();
 			dataTreeOldChangeSets.Selection.Changed += OnOldChangeSetSelectionChanged;
-			GtkScrolledWindowChangesets1.Vadjustment.ValueChanged += OnOldVadjustmentValueChanged;
+			GtkScrolledWindowOldChangesets.Vadjustment.ValueChanged += OnOldVadjustmentValueChanged;
+			GtkScrolledWindowOldChangesets.HeightRequest = 50;
 
 			dataTreeOldChanges.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<OldFieldChange>()
 				.AddColumn("Поле").AddTextRenderer(x => x.FieldTitle)
