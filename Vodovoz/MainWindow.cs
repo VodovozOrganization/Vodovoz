@@ -2625,10 +2625,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory = new BulkEmailEventReasonJournalFactory();
+
 		IFileDialogService fileDialogService = new FileDialogService();
 
 		BulkEmailEventReportViewModel viewModel = new BulkEmailEventReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, bulkEmailEventReasonJournalFactory, counterpartyJournalFactory);
 
 		tdiMain.AddTab(viewModel);
 	}

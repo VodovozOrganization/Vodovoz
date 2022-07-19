@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Report;
-using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
@@ -7,71 +6,131 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
-using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports
 {
 	public class BulkEmailEventReportViewModel : DialogTabViewModelBase
 	{
-		private const string _templatePath = @".\Reports\Orders\BulkEmailEventReport.xlsx";
+		private const string _templatePath = @".\Reports\Client\BulkEmailEventReport.xlsx";
 		private readonly IFileDialogService _fileDialogService;
 		private DelegateCommand _generateCommand;
 		private DelegateCommand _exportCommand;
-		private FastDeliveryAdditionalLoadingReport _report;
-		private bool _isRunning;
+		private BulkEmailEventReport _report;
 
 		public BulkEmailEventReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
-			INavigationManager navigation, IFileDialogService fileDialogService)
+			INavigationManager navigation, IFileDialogService fileDialogService, IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+
+			BulkEmailEventReasonSelectorFactory =
+				(bulkEmailEventReasonJournalFactory ?? throw new ArgumentNullException(nameof(bulkEmailEventReasonJournalFactory)))
+				.CreateBulkEmailEventReasonAutocompleteSelectorFactory();
+
+			CounterpartySelectorFactory =
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory();
+
+
 			Title = "Отчёт о событиях рассылки";
 
-			CreateDateFrom = DateTime.Now.Date;
-			CreateDateTo = DateTime.Now.Date.Add(new TimeSpan(0, 23, 59, 59));
+			EventActionTimeFrom = DateTime.Now.Date;
+			EventActionTimeTo = DateTime.Now.Date.Add(new TimeSpan(0, 23, 59, 59));
 		}
 
-		private IList<FastDeliveryAdditionalLoadingReportRow> GenerateReportRows()
+		private IList<BulkEmailEventReportRow> GenerateReportRows()
 		{
 			if(!IsHasDates)
 			{
-				return new List<FastDeliveryAdditionalLoadingReportRow>();
+				return new List<BulkEmailEventReportRow>();
 			}
 
 			BulkEmailEvent bulkEmailEventAlias = null;
+			BulkEmailEventReason bulkEmailEventReasonAlias = null;
 			Domain.Client.Counterparty counterpartyAlias = null;
 			Phone phoneAlias = null;
+			Email emailAlias = null;
+			BulkEmailEventReportRow resultAlias = null;
 
 			var itemsQuery = UoW.Session.QueryOver(() => bulkEmailEventAlias)
 				.JoinAlias(() => bulkEmailEventAlias.Counterparty, () => counterpartyAlias)
-				.JoinEntityAlias(() => phoneAlias, () => phoneAlias.Counterparty.Id == counterpartyAlias.Id)
-				.Where(() => bulkEmailEventAlias.ActionTime >= CreateDateFrom.Value.Date
-				             && bulkEmailEventAlias.ActionTime <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
+				.JoinAlias(() => bulkEmailEventAlias.BulkEmailEventReason, () => bulkEmailEventReasonAlias)
+				.Where(() => bulkEmailEventAlias.ActionTime >= EventActionTimeFrom.Value.Date
+				             && bulkEmailEventAlias.ActionTime <= EventActionTimeTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 
+			if(Counterparty != null)
+			{
+				itemsQuery.Where(() => counterpartyAlias.Id == Counterparty.Id);
+			}
 
-			//return itemsQuery
-			//	.SelectList(list => list
-			//		.Select(() => routeListAlias.Date).WithAlias(() => resultAlias.RouteListDate)
-			//		.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
-			//		.SelectSubQuery(ownOrdersAmountSubquery).WithAlias(() => resultAlias.OwnOrdersCount)
-			//		.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.AdditionaLoadingNomenclature)
-			//		.Select(() => additionalLoadingDocumentItemAlias.Amount).WithAlias(() => resultAlias.AdditionaLoadingAmount)
-			//	).OrderBy(() => routeListAlias.Date).Desc
-			//	.ThenBy(() => routeListAlias.Id).Desc
-			//	.TransformUsing(Transformers.AliasToBean<FastDeliveryAdditionalLoadingReportRow>())
-			//	.List<FastDeliveryAdditionalLoadingReportRow>();
-			return null;
+			if(BulkEmailEventReason != null)
+			{
+				itemsQuery.Where(() => bulkEmailEventReasonAlias.Id == BulkEmailEventReason.Id);
+			}
+
+			var phoneSubquery = QueryOver.Of(() => phoneAlias)
+				.Where(() => phoneAlias.Counterparty.Id == counterpartyAlias.Id)
+				.OrderBy(() => phoneAlias.Id).Desc
+				.SelectList(list => list
+					.Select(() => phoneAlias.Number))
+				.Take(1);
+
+			var emailSubquery = QueryOver.Of(() => emailAlias)
+				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
+				.OrderBy(() => emailAlias.Id).Desc
+				.SelectList(list => list
+					.Select(() => emailAlias.Address))
+				.Take(1);
+
+			return itemsQuery
+				.SelectList(list => list
+					.Select(() => bulkEmailEventAlias.ActionTime).WithAlias(() => resultAlias.ActionDateTime)
+					.Select(() => bulkEmailEventAlias.Type).WithAlias(() => resultAlias.BulkEmailEventType)
+					.Select(() => bulkEmailEventReasonAlias.Name).WithAlias(() => resultAlias.Reason)
+					.Select(() => bulkEmailEventAlias.OtherReason).WithAlias(() => resultAlias.OtherReason)
+					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
+					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.Phone)
+					.SelectSubQuery(emailSubquery).WithAlias(() => resultAlias.Email)
+				).OrderBy(() => bulkEmailEventAlias.ActionTime).Desc
+				.TransformUsing(Transformers.AliasToBean<BulkEmailEventReportRow>())
+				.List<BulkEmailEventReportRow>();
 		}
+
+		private string GenerateSelectedFiltersString()
+		{
+			var selectedFilters = new StringBuilder().AppendLine("Выбранные фильтры:");
+			
+			if(EventActionTimeFrom != null && EventActionTimeTo != null)
+			{
+				selectedFilters.AppendLine(
+					$"Время события: с {EventActionTimeFrom.Value.ToShortDateString()} по {EventActionTimeTo.Value.ToShortDateString()}; ");
+			}
+
+			if(Counterparty != null)
+			{
+				selectedFilters.AppendLine($"Контрагент: {Counterparty.Name}; ");
+			}
+			if(BulkEmailEventReason != null)
+			{
+				selectedFilters.AppendLine($"Причина: {BulkEmailEventReason.Name}; ");
+			}
+
+			return selectedFilters.ToString();
+		}
+
 
 		#region Commands
 
@@ -81,7 +140,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 					var dialogSettings = new DialogSettings();
 					dialogSettings.Title = "Сохранить";
 					dialogSettings.DefaultFileExtention = ".xlsx";
-					dialogSettings.FileName = $"Отчёт по дозагрузке МЛ {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+					dialogSettings.FileName = $"Отчёт о событиях рассылки {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 					if(result.Successful)
@@ -98,86 +157,62 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public DelegateCommand GenerateCommand => _generateCommand ?? (_generateCommand = new DelegateCommand(
 				() =>
 				{
-					Report = null;
-					IsRunning = true;
-
-					Report = new FastDeliveryAdditionalLoadingReport
+					Report = new BulkEmailEventReport
 					{
-						Rows = GenerateReportRows()
+						Rows = GenerateReportRows(),
+						SelectedFilters = GenerateSelectedFiltersString()
 					};
-
-					IsRunning = false;
-					UoW.Session.Clear();
 				},
 				() => true)
 			);
 
 		#endregion
 
-		public DateTime? CreateDateFrom { get; set; }
-		public DateTime? CreateDateTo { get; set; }
-
-		[PropertyChangedAlso(nameof(IsHasRows))]
-		public FastDeliveryAdditionalLoadingReport Report
-		{
-			get => _report;
-			set => SetField(ref _report, value);
-		}
-
-		public string ProgressText
-		{
-			get
-			{
-				if(!IsHasDates)
-				{
-					return "Не был выбран период";
-				}
-
-				if(IsRunning)
-				{
-					return "Отчёт формируется...";
-				}
-
-				if(Report != null && !Report.Rows.Any())
-				{
-					return "По данному запросу отсутствуют записи";
-				}
-
-				if(IsHasRows)
-				{
-					return "Отчёт сформирован";
-				}
-
-				return "";
-			}
-		}
-
-		[PropertyChangedAlso(nameof(ProgressText))]
-		public bool IsRunning
-		{
-			get => _isRunning;
-			set => SetField(ref _isRunning, value);
-		}
-
-		[PropertyChangedAlso(nameof(ProgressText))]
-		public bool IsHasRows => Report != null && Report.Rows != null && Report.Rows.Any();
-
-		public bool IsHasDates => CreateDateFrom != null && CreateDateTo != null;
+		public BulkEmailEventReport Report { get; set; }
+		public DateTime? EventActionTimeFrom { get; set; }
+		public DateTime? EventActionTimeTo { get; set; }
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory BulkEmailEventReasonSelectorFactory { get; }
+		public Domain.Client.Counterparty Counterparty { get; set; }
+		public BulkEmailEventReason BulkEmailEventReason { get; set; }
+		public bool IsHasDates => EventActionTimeFrom != null && EventActionTimeTo != null;
 	}
 
 	public class BulkEmailEventReport
 	{
-		public IList<FastDeliveryAdditionalLoadingReportRow> Rows { get; set; }
+		public IList<BulkEmailEventReportRow> Rows { get; set; }
+		public string SelectedFilters { get; set; }
 	}
 
 	public class BulkEmailEventReportRow
 	{
-		public DateTime RouteListDate { get; set; }
-		public int RouteListId { get; set; }
-		public int OwnOrdersCount { get; set; }
-		public string AdditionaLoadingNomenclature { get; set; }
-		public decimal AdditionaLoadingAmount { get; set; }
-		public string RouteListDateString => RouteListDate.ToShortDateString();
+		public DateTime ActionDateTime { get; set; }
+		public int CounterpartyId { get; set; }
+		public string CounterpartyName { get; set; }
+		public string Phone { get; set; }
+		public string Email { get; set; }
+		public string ActionDatetimeString => ActionDateTime.ToString("g");
+		public BulkEmailEvent.BulkEmailEventType BulkEmailEventType { get; set; }
+		public string BulkEmailEventTypeString => Gamma.Utilities.AttributeUtil.GetEnumTitle(BulkEmailEventType);
+		public string Reason { get; set; }
+		public string OtherReason { get; set; }
+
+		public string FullReasonString
+		{
+			get
+			{
+				var reason = Reason;
+
+				if(!string.IsNullOrWhiteSpace(OtherReason))
+				{
+					reason += $": {OtherReason}";
+				}
+
+				return reason;
+			}
+		}
+
+		public string SelectedFilters { get; set; }
 	}
 }
 

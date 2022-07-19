@@ -102,7 +102,9 @@
     <Compile Include="Journals\FilterViewModels\Retail\SalesChannelJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\BulkEmailEventReasonJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\DistrictJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IBulkEmailEventReasonJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IDistrictJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\RoboAtsCounterpartyJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IRoboAtsCounterpartyJournalFactory.cs" />

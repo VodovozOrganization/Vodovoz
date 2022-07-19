@@ -18,7 +18,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 			Map(x => x.OtherReason).Column("other_reason");
 
 			References(x => x.Counterparty).Column("counterparty_id");
-			References(x => x.BulkEmailEventReason).Column("unsubscribing_reason_id");
+			References(x => x.BulkEmailEventReason).Column("bulk_email_event_reason_id");
 		}
 
 		public class SubscribingBulkEmailEventMap : SubclassMap<SubscribingBulkEmailEvent>
