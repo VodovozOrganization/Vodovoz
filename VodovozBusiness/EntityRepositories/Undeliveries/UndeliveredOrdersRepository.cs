@@ -153,7 +153,7 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 											  Projections.SqlFunction(
 												  new SQLFunctionTemplate(
 													  NHibernateUtil.String,
-													  "GROUP_CONCAT(CASE ?1 WHEN 'Department' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'Driver' THEN 'Водитель' WHEN 'ServiceMan' THEN 'Мастер СЦ' WHEN 'None' THEN 'Нет (не недовоз)' WHEN 'Unknown' THEN 'Неизвестно' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
+													  "GROUP_CONCAT(CASE ?1 WHEN 'Department' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'Driver' THEN 'Водитель' WHEN 'ServiceMan' THEN 'Мастер СЦ' WHEN 'DirectorLO' THEN 'Директор ЛО (Доставка за час)' WHEN 'None' THEN 'Нет (не недовоз)' WHEN 'Unknown' THEN 'Неизвестно' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
 													 ),
 												  NHibernateUtil.String,
 												  Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
