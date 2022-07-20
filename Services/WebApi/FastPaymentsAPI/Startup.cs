@@ -94,6 +94,12 @@ namespace FastPaymentsAPI
 				c.BaseAddress = new Uri(Configuration.GetSection("VodovozSiteNotificationService").GetValue<string>("BaseUrl"));
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
+			
+			services.AddHttpClient<IMobileAppNotificationService, MobileAppNotificationService>(c =>
+			{
+				c.BaseAddress = new Uri(Configuration.GetSection("MobileAppNotificationService").GetValue<string>("BaseUrl"));
+				c.DefaultRequestHeaders.Add("Accept", "application/json");
+			});
 
 			//backgroundServices
 			services.AddHostedService<FastPaymentStatusUpdater>();

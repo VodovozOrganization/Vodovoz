@@ -282,7 +282,7 @@ namespace FastPaymentsAPI.Controllers
 			await RegisterOrder(fastPaymentRequestDto.OrderId, fastPaymentRequestDto.PhoneNumber, fastPaymentRequestDto.IsQr);
 		
 		/// <summary>
-		/// Эндпойнт для регистрации онлайн-заказа и получения ссылки на платежную страницу
+		/// Эндпойнт для регистрации онлайн-заказа с сайта и получения ссылки на платежную страницу
 		/// </summary>
 		/// <param name="requestRegisterOnlineOrderDto">Dto для регистрации онлайн-заказа</param>
 		/// <returns></returns>
@@ -297,10 +297,35 @@ namespace FastPaymentsAPI.Controllers
 				ErrorMessage = "Функция не реализована"
 			};
 			
+			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, RequestFromType.FromSiteByQr);
+		}
+		
+		/// <summary>
+		/// Эндпойнт для регистрации онлайн-заказа мобильного приложения и получения ссылки на платежную страницу
+		/// </summary>
+		/// <param name="requestRegisterOnlineOrderDto">Dto для регистрации онлайн-заказа</param>
+		/// <returns></returns>
+		[HttpPost]
+		[Route("/api/RegisterOnlineOrderFromMobileApp")]
+		public async Task<ResponseRegisterOnlineOrderDTO> RegisterOnlineOrderFromMobileApp(
+			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
+		{
+			/*//Пока нет обновления сайта возвращаем ошибку
+			return new ResponseRegisterOnlineOrderDTO
+			{
+				ErrorMessage = "Функция не реализована"
+			};*/
+
+			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, RequestFromType.FromMobileAppByQr);
+		}
+
+		private async Task<ResponseRegisterOnlineOrderDTO> RegisterNewOnlineOrder(
+			RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto, RequestFromType requestType)
+		{
 			var onlineOrderId = requestRegisterOnlineOrderDto.OrderId;
 			var onlineOrderSum = requestRegisterOnlineOrderDto.OrderSum;
 			_logger.LogInformation($"Поступил запрос регистрации онлайн-заказа №{onlineOrderId}");
-			
+
 			var response = new ResponseRegisterOnlineOrderDTO();
 			var paramsValidationResult =
 				_fastPaymentOrderModel.ValidateParameters(
@@ -308,7 +333,7 @@ namespace FastPaymentsAPI.Controllers
 					requestRegisterOnlineOrderDto.BackUrl,
 					requestRegisterOnlineOrderDto.BackUrlOk,
 					requestRegisterOnlineOrderDto.BackUrlFail);
-			
+
 			if(paramsValidationResult != null)
 			{
 				response.ErrorMessage = paramsValidationResult;
@@ -343,6 +368,7 @@ namespace FastPaymentsAPI.Controllers
 								return _errorHandler.LogAndReturnErrorMessageFromUpdateOrderInfo(
 									response, orderInfoResponseDto, ticket, _logger);
 							}
+
 							if((int)orderInfoResponseDto.Status != (int)fastPayment.FastPaymentStatus)
 							{
 								_fastPaymentModel.UpdateFastPaymentStatus(
@@ -354,6 +380,7 @@ namespace FastPaymentsAPI.Controllers
 								response.ErrorMessage = "Онлайн-заказ уже оплачен";
 								return response;
 							}
+
 							if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
 							{
 								_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
@@ -370,26 +397,25 @@ namespace FastPaymentsAPI.Controllers
 						}
 					}
 				}
-				
+
 				var orderValidationResult = _fastPaymentOrderModel.ValidateOnlineOrder(onlineOrderSum);
-				
+
 				if(orderValidationResult != null)
 				{
 					response.ErrorMessage = orderValidationResult;
 					return response;
 				}
-				
+
 				var fastPaymentGuid = Guid.NewGuid();
-				var requestType = RequestFromType.FromSiteByQr;
 				var organization = _fastPaymentModel.GetOrganization(requestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
-				
+
 				try
 				{
 					_logger.LogInformation($"Регистрируем онлайн-заказ {onlineOrderId} в системе эквайринга");
 					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOnlineOrder(
 						requestRegisterOnlineOrderDto, organization);
-					
+
 					if(orderRegistrationResponseDto.ResponseCode != 0)
 					{
 						return _errorHandler.LogAndReturnErrorMessageFromRegistrationOrder(
@@ -403,7 +429,7 @@ namespace FastPaymentsAPI.Controllers
 					_logger.LogError(e, message);
 					return response;
 				}
-				
+
 				_logger.LogInformation($"Сохраняем новую сессию оплаты для онлайн-заказа №{onlineOrderId}");
 				try
 				{
@@ -418,7 +444,7 @@ namespace FastPaymentsAPI.Controllers
 					_logger.LogError(e, message);
 					return response;
 				}
-				
+
 				response.PayUrl = _fastPaymentOrderModel.GetPayUrlForOnlineOrder(fastPaymentGuid);
 			}
 			catch(Exception e)
@@ -426,10 +452,10 @@ namespace FastPaymentsAPI.Controllers
 				response.ErrorMessage = e.Message;
 				_logger.LogError(e, $"При регистрации онлайн-заказа {onlineOrderId} произошла ошибка");
 			}
-			
+
 			return response;
 		}
-		
+
 		/// <summary>
 		/// Эндпойнт получения инфы об оплаченном заказе
 		/// </summary>
@@ -495,7 +521,10 @@ namespace FastPaymentsAPI.Controllers
 			}
 
 			NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
-			_vodovozSiteNotificator.NotifyVodovozSite(fastPayment.OnlineOrderId, paidOrderInfoDto.Amount, true);
+			_vodovozSiteNotificator.NotifyVodovozSite(
+				fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true);
+			_vodovozSiteNotificator.NotifyMobileApp(
+				fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true);
 			return new AcceptedResult();
 		}
 
