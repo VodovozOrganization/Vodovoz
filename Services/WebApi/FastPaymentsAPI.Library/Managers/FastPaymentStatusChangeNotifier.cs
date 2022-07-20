@@ -5,14 +5,14 @@ using System;
 
 namespace FastPaymentsAPI.Library.Managers
 {
-	public class VodovozSiteNotificator : IVodovozSiteNotificator
+	public class FastPaymentStatusChangeNotifier : IFastPaymentStatusChangeNotifier
 	{
-		private readonly ILogger<VodovozSiteNotificator> _logger;
+		private readonly ILogger<FastPaymentStatusChangeNotifier> _logger;
 		private readonly IFastPaymentAPIFactory _fastPaymentAPIFactory;
 		private readonly IVodovozSiteNotificationService _vodovozSiteNotificationService;
 
-		public VodovozSiteNotificator(
-			ILogger<VodovozSiteNotificator> logger,
+		public FastPaymentStatusChangeNotifier(
+			ILogger<FastPaymentStatusChangeNotifier> logger,
 			IFastPaymentAPIFactory fastPaymentAPIFactory,
 			IVodovozSiteNotificationService vodovozSiteNotificationService)
 		{
@@ -29,7 +29,8 @@ namespace FastPaymentsAPI.Library.Managers
 				try
 				{
 					_logger.LogInformation($"Уведомляем сайт о изменении статуса оплаты заказа: {onlineOrderId.Value}");
-					var notification = _fastPaymentAPIFactory.GetVodovozSiteNotificationPaymentDto(onlineOrderId.Value, amount, paymentSucceeded);
+					var notification = _fastPaymentAPIFactory.GetFastPaymentStatusChangeNotificationDto(onlineOrderId.Value, amount, paymentSucceeded);
+					_logger.LogInformation($"Статус оплаты заказа: {onlineOrderId.Value} {notification.PaymentStatus}");
 					_vodovozSiteNotificationService.NotifyOfFastPaymentStatusChangedAsync(notification);
 				}
 				catch(Exception e)

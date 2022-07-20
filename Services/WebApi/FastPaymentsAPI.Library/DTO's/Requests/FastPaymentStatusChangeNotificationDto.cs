@@ -2,12 +2,12 @@
 
 namespace FastPaymentsAPI.Library.DTO_s.Requests
 {
-	public class VodovozSiteNotificationPaymentRequestDto
+	public class FastPaymentStatusChangeNotificationDto
 	{
 		[JsonPropertyName("type")]
 		public string MessageType => "notification";
 		[JsonPropertyName("event")]
-		public string PaymentStatus { get; set; }
+		public PaymentStatusNotification PaymentStatus { get; set; }
 		[JsonPropertyName("object")]
 		public OnlinePaymentDetailsDto PaymentDetails { get; set; }
 	}
@@ -28,7 +28,7 @@ namespace FastPaymentsAPI.Library.DTO_s.Requests
 		public string Currency => CurrencyType.RUB.ToString();
 	}
 
-	public enum VodovozSitePaymentStatus
+	public enum PaymentStatusNotification
 	{
 		canceled,
 		succeeded

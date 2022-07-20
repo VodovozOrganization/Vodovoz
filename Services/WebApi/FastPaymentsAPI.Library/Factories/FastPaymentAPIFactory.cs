@@ -157,13 +157,13 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
-		public VodovozSiteNotificationPaymentRequestDto GetVodovozSiteNotificationPaymentDto(
+		public FastPaymentStatusChangeNotificationDto GetFastPaymentStatusChangeNotificationDto(
 			int onlineOrderId, decimal amount, bool paymentSucceeded)
 		{
-			return new VodovozSiteNotificationPaymentRequestDto
+			return new FastPaymentStatusChangeNotificationDto
 			{
 				PaymentDetails = GetNewOnlinePaymentDetailsDto(onlineOrderId, amount),
-				PaymentStatus = paymentSucceeded ? nameof(VodovozSitePaymentStatus.succeeded) : nameof(VodovozSitePaymentStatus.canceled)
+				PaymentStatus = paymentSucceeded ? PaymentStatusNotification.succeeded : PaymentStatusNotification.canceled
 			};
 		}
 

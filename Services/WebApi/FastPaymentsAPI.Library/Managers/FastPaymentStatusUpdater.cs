@@ -84,7 +84,7 @@ namespace FastPaymentsAPI.Library.Managers
 			IUnitOfWork uow)
 		{
 			var orderRequestManager = scope.ServiceProvider.GetRequiredService<IOrderRequestManager>();
-			var vodovozSiteNotificator = scope.ServiceProvider.GetRequiredService<IVodovozSiteNotificator>();
+			var vodovozSiteNotificator = scope.ServiceProvider.GetRequiredService<IFastPaymentStatusChangeNotifier>();
 
 			foreach(var payment in processingFastPayments)
 			{
@@ -136,7 +136,7 @@ namespace FastPaymentsAPI.Library.Managers
 			}
 		}
 
-		private void NotifyVodovozSite(IVodovozSiteNotificator notificator, FastPayment payment)
+		private void NotifyVodovozSite(IFastPaymentStatusChangeNotifier notificator, FastPayment payment)
 		{
 			switch(payment.FastPaymentStatus)
 			{

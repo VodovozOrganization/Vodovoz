@@ -22,7 +22,7 @@ namespace FastPaymentsAPI.Controllers
 		private readonly IFastPaymentOrderModel _fastPaymentOrderModel;
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly IDriverAPIService _driverApiService;
-		private readonly IVodovozSiteNotificator _vodovozSiteNotificator;
+		private readonly IFastPaymentStatusChangeNotifier _vodovozSiteNotificator;
 		private readonly IResponseCodeConverter _responseCodeConverter;
 		private readonly IErrorHandler _errorHandler;
 
@@ -31,7 +31,7 @@ namespace FastPaymentsAPI.Controllers
 			IFastPaymentOrderModel fastPaymentOrderModel,
 			IFastPaymentModel fastPaymentModel,
 			IDriverAPIService driverApiService,
-			IVodovozSiteNotificator vodovozSiteNotificator,
+			IFastPaymentStatusChangeNotifier vodovozSiteNotificator,
 			IResponseCodeConverter responseCodeConverter,
 			IErrorHandler errorHandler)
 		{
@@ -492,7 +492,7 @@ namespace FastPaymentsAPI.Controllers
 			}
 
 			NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
-			_vodovozSiteNotificator.NotifyVodovozSite(fastPayment?.OnlineOrderId, paidOrderInfoDto.Amount, true);
+			_vodovozSiteNotificator.NotifyVodovozSite(fastPayment.OnlineOrderId, paidOrderInfoDto.Amount, true);
 			return new AcceptedResult();
 		}
 

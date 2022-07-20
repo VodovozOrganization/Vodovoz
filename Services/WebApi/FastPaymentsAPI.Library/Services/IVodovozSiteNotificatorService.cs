@@ -5,6 +5,6 @@ namespace FastPaymentsAPI.Library.Services
 {
 	public interface IVodovozSiteNotificationService
 	{
-		Task NotifyOfFastPaymentStatusChangedAsync(VodovozSiteNotificationPaymentRequestDto paymentNotificationDto);
+		Task NotifyOfFastPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto);
 	}
 }

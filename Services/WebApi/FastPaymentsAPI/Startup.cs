@@ -136,7 +136,7 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IErrorHandler, ErrorHandler>();
 			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
 			services.AddScoped<IOrderRequestManager, OrderRequestManager>();
-			services.AddScoped<IVodovozSiteNotificator, VodovozSiteNotificator>();
+			services.AddScoped<IFastPaymentStatusChangeNotifier, FastPaymentStatusChangeNotifier>();
 		}
 		
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

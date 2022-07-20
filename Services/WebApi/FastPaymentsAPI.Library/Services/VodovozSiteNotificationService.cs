@@ -17,7 +17,7 @@ namespace FastPaymentsAPI.Library.Services
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		public async Task NotifyOfFastPaymentStatusChangedAsync(VodovozSiteNotificationPaymentRequestDto paymentNotificationDto)
+		public async Task NotifyOfFastPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto)
 		{
 			var response = await _httpClient.PostAsJsonAsync(
 				_configuration.GetSection("VodovozSiteNotificationService").GetValue<string>("NotifyOfFastPaymentStatusChangedURI"), paymentNotificationDto);
