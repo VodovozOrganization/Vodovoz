@@ -462,6 +462,8 @@ namespace Vodovoz
 			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
 			builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
 
+			builder.RegisterType<EntityDeleteWorker>().AsSelf().AsImplementedInterfaces();
+
 			#endregion
 
 			#region Старые общие диалоги

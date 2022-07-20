@@ -1167,9 +1167,7 @@ public partial class MainWindow : Window
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
 		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
-		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices, new EmployeeRepository(), new EntityDeleteWorker(),
-			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
+		NavigationManager.OpenViewModel<DistrictsSetJournalViewModel, DistrictsSetJournalFilterViewModel>(null, filter);
 	}
 
 	void ActionCarEventsJournalActivated(object sender, EventArgs e)

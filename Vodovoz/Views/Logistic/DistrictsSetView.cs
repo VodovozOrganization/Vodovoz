@@ -194,21 +194,8 @@ namespace Vodovoz.Views.Logistic
 			btnSunday.Clicked += (sender, args) => ViewModel.SelectedWeekDayName = WeekDayName.Sunday;
 
 			btnAddSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryScheduleRestriction && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
-			btnAddSchedule.Clicked += (sender, args) => {
-				var selectSchedules = new OrmReference(typeof(DeliverySchedule), ViewModel.UoW) {
-					Mode = OrmReferenceMode.MultiSelect
-				};
-				selectSchedules.ObjectSelected += (o, eventArgs) => {
-					ViewModel.AddScheduleRestrictionCommand.Execute(eventArgs.Subjects.Cast<DeliverySchedule>());
-
-					if(ViewModel.SelectedScheduleRestriction != null) {
-						var iter = ytreeScheduleRestrictions.YTreeModel.IterFromNode(ViewModel.SelectedScheduleRestriction);
-						var path = ytreeScheduleRestrictions.YTreeModel.GetPath(iter);
-						ytreeScheduleRestrictions.ScrollToCell(path, ytreeScheduleRestrictions.Columns.FirstOrDefault(), false, 0, 0);
-					}
-				};
-				Tab.TabParent.AddSlaveTab(this.Tab, selectSchedules);
-			};
+			btnAddSchedule.Clicked += (sender, args) => ViewModel.AddScheduleRestrictionCommand.Execute();
+			ViewModel.AddScheduleRestrictionCommand.CanExecuteChanged += (sender, args) => btnAddSchedule.Sensitive = ViewModel.AddScheduleRestrictionCommand.CanExecute();
 
 			btnRemoveSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryScheduleRestriction && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveSchedule.Clicked += (sender, args) => ViewModel.RemoveScheduleRestrictionCommand.Execute();
@@ -423,11 +410,24 @@ namespace Vodovoz.Views.Logistic
 								}
 							}
 							break;
+						case nameof(ViewModel.ScheduleRestrictions):
+							ScrollToSelectedScheduleRestriction();
+							break;
 					}
 				});
 			};
 		}
-		
+
+		private void ScrollToSelectedScheduleRestriction()
+		{
+			if(ViewModel.SelectedScheduleRestriction != null)
+			{
+				var iter = ytreeScheduleRestrictions.YTreeModel.IterFromNode(ViewModel.SelectedScheduleRestriction);
+				var path = ytreeScheduleRestrictions.YTreeModel.GetPath(iter);
+				ytreeScheduleRestrictions.ScrollToCell(path, ytreeScheduleRestrictions.Columns.FirstOrDefault(), false, 0, 0);
+			}
+		}
+
 		private void ScrollToSelectedDistrict()
 		{
 			if(ViewModel.SelectedDistrict != null) {
