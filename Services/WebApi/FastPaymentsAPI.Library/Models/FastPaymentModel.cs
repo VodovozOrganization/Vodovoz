@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.DTO_s;
 using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Factories;
@@ -29,6 +30,7 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IFastPaymentManager _fastPaymentManager;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IRequestFromConverter _requestFromConverter;
 
 		public FastPaymentModel(
 			ILogger<FastPaymentModel> logger,
@@ -40,7 +42,8 @@ namespace FastPaymentsAPI.Library.Models
 			IFastPaymentAPIFactory fastPaymentApiFactory,
 			IFastPaymentManager fastPaymentManager,
 			IOrganizationRepository organizationRepository,
-			IOrganizationParametersProvider organizationParametersProvider)
+			IOrganizationParametersProvider organizationParametersProvider,
+			IRequestFromConverter requestFromConverter)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -53,11 +56,13 @@ namespace FastPaymentsAPI.Library.Models
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationParametersProvider =
 				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_requestFromConverter = requestFromConverter ?? throw new ArgumentNullException(nameof(requestFromConverter));
 		}
 
-		public Organization GetOrganization()
+		public Organization GetOrganization(RequestFromType requestFromType)
 		{
-			return _organizationRepository.GetOrganizationById(_uow, _organizationParametersProvider.VodovozSouthOrganizationId);
+			var organization = _organizationRepository.GetPaymentFromOrganizationById(_uow, (int)requestFromType);
+			return organization ?? _organizationRepository.GetOrganizationById(_uow, _organizationParametersProvider.VodovozSouthOrganizationId);
 		}
 
 		public FastPayment GetFastPaymentByTicket(string ticket)
@@ -81,11 +86,13 @@ namespace FastPaymentsAPI.Library.Models
 			Guid fastPaymentGuid,
 			FastPaymentPayType payType,
 			Organization organization,
+			RequestFromType requestFromType,
 			string phoneNumber = null)
 		{
 			Order order;
 			var creationDate = DateTime.Now;
-			
+			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, requestFromType);
+
 			try
 			{
 				order = _orderRepository.GetOrder(_uow, orderId);
@@ -93,7 +100,8 @@ namespace FastPaymentsAPI.Library.Models
 			catch(Exception e)
 			{
 				_logger.LogError(e, $"При загрузке заказа№ {orderId} произошла ошибка, записываю в файл...");
-				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid, payType, organization);
+				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid, payType, organization, phoneNumber,
+					paymentByCardFrom);
 				return;
 			}
 
@@ -105,6 +113,7 @@ namespace FastPaymentsAPI.Library.Models
 				orderId,
 				payType,
 				organization,
+				paymentByCardFrom,
 				order,
 				phoneNumber);
 			fastPayment.SetProcessingStatus();
@@ -116,7 +125,8 @@ namespace FastPaymentsAPI.Library.Models
 			catch(Exception e)
 			{
 				_logger.LogError(e, "При сохранении платежа произошла ошибка, записываю в файл...");
-				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid, payType, organization);
+				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid, payType, organization, phoneNumber,
+					paymentByCardFrom);
 			}
 		}
 		
@@ -126,9 +136,11 @@ namespace FastPaymentsAPI.Library.Models
 			int onlineOrderId,
 			decimal onlineOrderSum,
 			FastPaymentPayType payType,
-			Organization organization)
+			Organization organization,
+			RequestFromType requestFromType)
 		{
 			var creationDate = DateTime.Now;
+			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, requestFromType);
 			
 			var fastPayment = _fastPaymentApiFactory.GetFastPayment(
 				orderRegistrationResponseDto,
@@ -138,6 +150,7 @@ namespace FastPaymentsAPI.Library.Models
 				onlineOrderId,
 				payType,
 				organization,
+				paymentByCardFrom,
 				null,
 				null,
 				onlineOrderId);
@@ -174,7 +187,9 @@ namespace FastPaymentsAPI.Library.Models
 			DateTime creationDate,
 			Guid fastPaymentGuid,
 			FastPaymentPayType payType,
-			Organization organization)
+			Organization organization,
+			string phoneNumber,
+			PaymentFrom paymentByCardFrom)
 		{
 			var fastPaymentDTO = new FastPaymentDTO
 			{
@@ -185,7 +200,9 @@ namespace FastPaymentsAPI.Library.Models
 				ExternalId = orderId,
 				FastPaymentGuid = fastPaymentGuid,
 				FastPaymentPayType = payType,
-				Organization = organization
+				Organization = organization,
+				PhoneNumber = phoneNumber,
+				PaymentByCardFrom = paymentByCardFrom
 			};
 
 			_fastPaymentFileCache.WritePaymentCache(fastPaymentDTO);

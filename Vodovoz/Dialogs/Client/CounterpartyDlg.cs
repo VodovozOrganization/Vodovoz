@@ -1,78 +1,77 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
-using NLog;
-using QS.Banks.Domain;
-using Vodovoz.Domain.Contacts;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
-using QSOrmProject;
-using QSProjectsLib;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.SidePanel;
-using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.ViewModel;
-using Gtk;
-using Vodovoz.Domain.Goods;
-using QS.Project.Services;
-using QS.Tdi;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.ViewModels.ViewModels.Goods;
-using Vodovoz.TempAdapters;
-using Vodovoz.Models;
-using Vodovoz.Domain;
-using Vodovoz.Domain.EntityFactories;
-using QS.DomainModel.Entity;
-using Vodovoz.Domain.Retail;
-using System.Data.Bindings.Collections.Generic;
-using NHibernate.Transform;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gtk;
+using NHibernate;
+using NHibernate.Transform;
+using NLog;
+using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
+using QS.Tdi;
+using QS.Utilities;
 using QS.ViewModels.Extension;
+using QSOrmProject;
+using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.EntityFactories;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Retail;
+using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Factories;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Models;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
+using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
-using Vodovoz.ViewWidgets;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Services;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.ViewModels.Contacts;
-using NHibernate;
-using QS.Utilities;
-using QS.Project.Services.FileDialog;
-using QS.Dialog.GtkUI.FileDialog;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.ViewWidgets;
 
 namespace Vodovoz
 {
@@ -96,7 +95,7 @@ namespace Vodovoz
 		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
-		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
+		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
@@ -277,6 +276,13 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			var roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
+			var fileDialogService = new FileDialogService();
+			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
+			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
+
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
 
@@ -574,7 +580,7 @@ namespace Vodovoz
 		private void ConfigureTabContacts()
 		{
 			_phonesViewModel =
-				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboAtsCounterpartyJournalFactory, _commonServices)
+				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboatsJournalsFactory, _commonServices)
 			{
 				PhonesList = Entity.ObservablePhones,
 				Counterparty = Entity,

@@ -31,6 +31,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Proposal;
+using Vodovoz.Domain.Roboats;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
@@ -203,6 +204,9 @@ namespace Vodovoz
 				.AddClearDependence<AdvanceReport>(x => x.Organisation);
 
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
+
+			DeleteConfig.AddHibernateDeleteInfo<RoboatsStreet>();
+			DeleteConfig.AddHibernateDeleteInfo<RoboatsWaterType>();
 
 			#endregion
 
@@ -613,16 +617,16 @@ namespace Vodovoz
 				.AddClearDependence<AtWorkDriver>(x => x.WithForwarder);
 
 			DeleteConfig.AddHibernateDeleteInfo<DriverDistrictPriority>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<DriverDistrictPrioritySet>()
 				.AddDeleteDependence<DriverDistrictPriority>(x => x.DriverDistrictPrioritySet);
 
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryDaySchedule>()
 				.AddDeleteDependence<AtWorkDriver>(x => x.DaySchedule);
 				//.AddClearDependence<Employee>(x => x.DefaultDaySheldule);
-				
+
 			DeleteConfig.AddHibernateDeleteInfo<DriverWorkSchedule>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<DriverWorkScheduleSet>()
 				.AddDeleteDependence<DriverWorkSchedule>(x => x.DriverWorkScheduleSet);
 
@@ -634,7 +638,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<FinancialDistrictsSet>()
 				.AddDeleteDependence<FinancialDistrict>(x => x.FinancialDistrictsSet);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<FinancialDistrict>()
 				.AddClearDependence<FinancialDistrict>(i => i.CopyOf)
 				.AddRemoveFromDependence<FinancialDistrictsSet>(x => x.FinancialDistricts);
@@ -659,10 +663,10 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<CommonDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<WeekDayDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryScheduleRestriction>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<TariffZone>()
 				.AddClearDependence<District>(i => i.TariffZone);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPriceRule>()
 				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.DeliveryPriceRule)
 				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.DeliveryPriceRule);
@@ -681,7 +685,7 @@ namespace Vodovoz
 			#region Order
 
 			//основной класс. не удаляем. в тестах настроен игнор.
-			DeleteConfig.AddHibernateDeleteInfo<Order>() //FIXME : Костыль пока не будет нормального механизма блокировки 
+			DeleteConfig.AddHibernateDeleteInfo<Order>() //FIXME : Костыль пока не будет нормального механизма блокировки
 						.AddDeleteDependence<OrderItem>(item => item.Order)
 						.AddDeleteDependence<OrderEquipment>(x => x.Order)
 						.AddDeleteDependence<OrderDocument>(item => item.Order)
@@ -991,7 +995,7 @@ namespace Vodovoz
 					SqlSelect = "SELECT id, date FROM @tablename ",
 					DisplayString = "Авансовый отчет №{0} от {1:d}",
 					DeleteItems = new List<DeleteDependenceInfo> {
-						DeleteDependenceInfo.Create<AdvanceClosing> (item => item.AdvanceReport), //FIXME Запустить перерасчет калки закрытия. 
+						DeleteDependenceInfo.Create<AdvanceClosing> (item => item.AdvanceReport), //FIXME Запустить перерасчет калки закрытия.
 						DeleteDependenceInfo.Create<AdvanceIncomeCashDistributionDocument> (item => item.AdvanceReport),
 						DeleteDependenceInfo.Create<AdvanceExpenseCashDistributionDocument> (item => item.AdvanceReport)
 					}
@@ -1059,22 +1063,22 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<IncomeCashDistributionDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<ExpenseCashDistributionDocument>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<RouteListItemCashDistributionDocument>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryCashDistributionDocument>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<AdvanceIncomeCashDistributionDocument>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<AdvanceExpenseCashDistributionDocument>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<FuelExpenseCashDistributionDocument>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<OrganisationCashMovementOperation>();
 
 			DeleteConfig.AddHibernateDeleteInfo<CashRequest>()
 				.AddDeleteDependence<CashRequestSumItem>(x => x.CashRequest);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<CashRequestSumItem>()
 				.AddDeleteDependence<Expense>(x => x.CashRequestSumItem);
 
@@ -1139,7 +1143,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryDocument>()
 				.AddDeleteDependenceFromCollection(x => x.Items);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperation);
 
@@ -1149,7 +1153,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<AddressTransferDocument>()
 				.AddDeleteDependenceFromCollection(x => x.AddressTransferDocumentItems);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<AddressTransferDocumentItem>()
 				.AddDeleteDependenceFromCollection(x => x.DriverNomenclatureTransferDocumentItems);
 
@@ -1247,12 +1251,12 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Payment>()
 				.AddDeleteCascadeDependence(p => p.CashlessMovementOperation)
 				.AddDeleteDependence<PaymentItem>(item => item.Payment);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<PaymentItem>()
 				.AddDeleteCascadeDependence(pi => pi.CashlessMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CashlessMovementOperation>();
-			
+
 			#endregion
 
 			logger.Info("Ок");

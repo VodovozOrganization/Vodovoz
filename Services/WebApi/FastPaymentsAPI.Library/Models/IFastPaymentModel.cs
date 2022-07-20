@@ -18,6 +18,7 @@ namespace FastPaymentsAPI.Library.Models
 			Guid fastPaymentGuid,
 			FastPaymentPayType payType,
 			Organization organization,
+			RequestFromType requestFromType,
 			string phoneNumber = null);
 		void SaveNewTicketForOnlineOrder(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
@@ -25,10 +26,11 @@ namespace FastPaymentsAPI.Library.Models
 			int onlineOrderId,
 			decimal onlineOrderSum,
 			FastPaymentPayType payType,
-			Organization organization);
+			Organization organization,
+			RequestFromType requestFromType);
 		void UpdateFastPaymentStatus(PaidOrderInfoDTO operationInfoDto, FastPayment fastPayment);
 		void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
 		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto);
-		Organization GetOrganization();
+		Organization GetOrganization(RequestFromType requestFromType);
 	}
 }

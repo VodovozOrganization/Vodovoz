@@ -121,6 +121,7 @@ namespace FastPaymentsAPI.Library.Factories
 			int externalId,
 			FastPaymentPayType payType,
 			Organization organization,
+			PaymentFrom paymentByCardFrom,
 			Order order = null,
 			string phoneNumber = null,
 			int? onlineOrderId = null)
@@ -131,6 +132,7 @@ namespace FastPaymentsAPI.Library.Factories
 				CreationDate = creationDate,
 				Order = order,
 				Organization = organization,
+				PaymentByCardFrom = paymentByCardFrom,
 				Ticket = orderRegistrationResponseDto.Ticket,
 				QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
 				ExternalId = externalId,
@@ -149,9 +151,11 @@ namespace FastPaymentsAPI.Library.Factories
 				CreationDate = paymentDto.CreationDate,
 				Order = order,
 				Organization = paymentDto.Organization,
+				PaymentByCardFrom = paymentDto.PaymentByCardFrom,
 				Ticket = paymentDto.Ticket,
 				QRPngBase64 = paymentDto.QRPngBase64,
 				ExternalId = paymentDto.ExternalId,
+				PhoneNumber = paymentDto.PhoneNumber,
 				FastPaymentGuid = paymentDto.FastPaymentGuid,
 				FastPaymentPayType = paymentDto.FastPaymentPayType
 			};
