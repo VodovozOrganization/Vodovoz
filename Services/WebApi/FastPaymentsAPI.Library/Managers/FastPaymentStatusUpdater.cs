@@ -84,6 +84,8 @@ namespace FastPaymentsAPI.Library.Managers
 			IUnitOfWork uow)
 		{
 			var orderRequestManager = scope.ServiceProvider.GetRequiredService<IOrderRequestManager>();
+			var vodovozSiteNotificator = scope.ServiceProvider.GetRequiredService<IFastPaymentStatusChangeNotifier>();
+
 			foreach(var payment in processingFastPayments)
 			{
 				var ticket = payment.Ticket;
@@ -95,9 +97,9 @@ namespace FastPaymentsAPI.Library.Managers
 				}
 				if((int)response.Status == (int)payment.FastPaymentStatus)
 				{
-					var fastPaymentWithQR = !string.IsNullOrWhiteSpace(payment.QRPngBase64);
+					var fastPaymentWithQRNotFromOnline = payment.FastPaymentPayType == FastPaymentPayType.ByQrCode && !payment.OnlineOrderId.HasValue;
 					var fastPaymentFromOnline = payment.OnlineOrderId.HasValue;
-					if(!_fastPaymentManager.IsTimeToCancelPayment(payment.CreationDate, fastPaymentWithQR, fastPaymentFromOnline))
+					if(!_fastPaymentManager.IsTimeToCancelPayment(payment.CreationDate, fastPaymentWithQRNotFromOnline, fastPaymentFromOnline))
 					{
 						continue;
 					}
@@ -116,6 +118,7 @@ namespace FastPaymentsAPI.Library.Managers
 				uow.Save(payment);
 				uow.Commit();
 				_updatedCount++;
+				NotifyVodovozSite(vodovozSiteNotificator, payment);
 			}
 		}
 
@@ -130,6 +133,19 @@ namespace FastPaymentsAPI.Library.Managers
 			{
 				_logger.LogInformation("Ждем 25сек");
 				await Task.Delay(25000, stoppingToken);
+			}
+		}
+
+		private void NotifyVodovozSite(IFastPaymentStatusChangeNotifier notificator, FastPayment payment)
+		{
+			switch(payment.FastPaymentStatus)
+			{
+				case FastPaymentStatus.Rejected:
+					notificator.NotifyVodovozSite(payment.OnlineOrderId, payment.Amount, false);
+					break;
+				case FastPaymentStatus.Performed:
+					notificator.NotifyVodovozSite(payment.OnlineOrderId, payment.Amount, true);
+					break;
 			}
 		}
 	}
