@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.StoredEmails;
@@ -50,12 +51,14 @@ namespace Vodovoz.ViewModels.ViewModels
 		private string _mailSubject;
 		private string _mailTextPart;
 		private double _sendingProgressValue;
-		private int[] _alreadySentCounterpartyIds;
+		private IList<int> _alreadySentCounterpartyIds;
 		private int _alreadySentMonthCount;
 		private IList<Domain.Client.Counterparty> _counterpartiesToSent;
 		private readonly IList<DebtorJournalNode> _debtorJournalNodes;
 		private readonly IEmailRepository _emailRepository;
 		private bool _canSend = true;
+		private int _monthsSinceUnsubscribing;
+		private bool _includeOldUnsubscribed;
 
 		public BulkEmailViewModel(INavigationManager navigation, IUnitOfWorkFactory unitOfWorkFactory,
 			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailParametersProvider emailParametersProvider,
@@ -84,6 +87,11 @@ namespace Vodovoz.ViewModels.ViewModels
 
 		private void Init()
 		{
+			_alreadySentMonthCount = _uow.Session.QueryOver<BulkEmail>()
+				.JoinQueryOver(be => be.StoredEmail)
+				.Where(se => se.SendDate > DateTime.Now.AddMonths(-1))
+				.RowCount();
+
 			var debtorIds = _debtorJournalNodes.Select(dbj => dbj.ClientId).ToArray();
 
 			_alreadySentCounterpartyIds = _uow.Session.QueryOver<BulkEmail>()
@@ -92,28 +100,65 @@ namespace Vodovoz.ViewModels.ViewModels
 				.Where(se => se.SendDate > DateTime.Now.AddHours(-2))
 				.And(se => se.State != StoredEmailStates.SendingError)
 				.Select(be => be.Counterparty.Id)
-				.List<int>()
-				.ToArray();
+				.List<int>();
 
-			_alreadySentMonthCount = _uow.Session.QueryOver<BulkEmail>()
-				.JoinQueryOver(be => be.StoredEmail)
-				.Where(se => se.SendDate > DateTime.Now.AddMonths(-1))
-				.RowCount();
-
-			var counterpartiesToSentIds = _debtorJournalNodes
+			var notAlreadySendedCounterpartyIds = _debtorJournalNodes
 				.Where(d => !_alreadySentCounterpartyIds.Contains(d.ClientId))
-				.Select(c => c.ClientId)
+				.Select(d => d.ClientId)
 				.ToArray();
 
-			_counterpartiesToSent = _uow.GetById<Domain.Client.Counterparty>(counterpartiesToSentIds);
+			Domain.Client.Counterparty counterpartyAlias = null;
+			BulkEmailEvent bulkEmailEventAlias = null;
+
+			var query = _uow.Session.QueryOver(() => counterpartyAlias)
+				.WhereRestrictionOn(x => x.Id).IsIn(notAlreadySendedCounterpartyIds);
+
+			var lastBulkEmailEventTypeSubquery = QueryOver.Of<BulkEmailEvent>(() => bulkEmailEventAlias)
+				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
+				.OrderBy(x => x.ActionTime).Desc
+				.Select(Projections.Property<BulkEmailEvent>(p => p.Type))
+				.Take(1);
+
+			if(IncludeOldUnsubscribed)
+			{
+				var lastBulkEmailEventActionTimeSubquery = QueryOver.Of<BulkEmailEvent>(() => bulkEmailEventAlias)
+					.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => bulkEmailEventAlias.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
+					.OrderBy(x => x.ActionTime).Desc
+					.Select(Projections.Property<BulkEmailEvent>(p => p.ActionTime))
+					.Take(1);
+
+				query.Where(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.SubQuery(lastBulkEmailEventTypeSubquery)))
+					.Add(Restrictions.Not(Restrictions.Eq(Projections.SubQuery(lastBulkEmailEventTypeSubquery),
+						BulkEmailEvent.BulkEmailEventType.Unsubscribing.ToString())))
+					.Add(Restrictions.Ge(Projections.SubQuery(lastBulkEmailEventActionTimeSubquery),
+						DateTime.Today.AddMonths(-MonthsSinceUnsubscribing))));
+			}
+			else
+			{
+				query.Where(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.SubQuery(lastBulkEmailEventTypeSubquery)))
+					.Add(Restrictions.Not(Restrictions.Eq(Projections.SubQuery(lastBulkEmailEventTypeSubquery),
+					BulkEmailEvent.BulkEmailEventType.Unsubscribing.ToString()))));
+			}
+
+			_counterpartiesToSent = query.List();
 
 			SendingProgressValue = 0;
 
 			OnPropertyChanged(nameof(RecepientInfoDanger));
+			OnPropertyChanged(nameof(SendingDurationInfo));
 		}
 
 		private void ObservableAttachments_ListContentChanged(object sender, EventArgs e)
 		{
+			if(ObservableAttachments.Count > 0 && !_commonServices.InteractiveService.Question(
+				$"Использование вложений повышает вероятность попадания в спам. Лучше передать информацию в тексте письма.\nВы точно хотите использовать вложения?"))
+			{
+				ObservableAttachments.Clear();
+			}
+
 			_attachmentsSize = 0;
 
 			foreach(var attachment in AttachmentsEmailViewModel.Attachments)
@@ -323,7 +368,6 @@ namespace Vodovoz.ViewModels.ViewModels
 			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(_attachments));
 
 		[PropertyChangedAlso(nameof(SendingDurationInfo), nameof(SendedCountInfo))]
-
 		public double SendingProgressValue
 		{
 			get => _sendingProgressValue;
@@ -350,15 +394,35 @@ namespace Vodovoz.ViewModels.ViewModels
 		}
 
 		public string RecepientInfo =>
-			$"{_counterpartiesToSent.Count} / 1000 за раз ({_alreadySentCounterpartyIds.Length} " +
+			$"{_counterpartiesToSent.Count} / 1000 за раз ({_alreadySentCounterpartyIds.Count} " +
 			$"уже получали письмо массовой рассылки в течение последних 2 часов)" +
 			$"{Environment.NewLine}и {_alreadySentMonthCount} / 20000 в месяц писем вида массовой рассылки";
 
 		[PropertyChangedAlso(nameof(CanExecute))]
 		public bool RecepientInfoDanger =>
-			(_counterpartiesToSent.Count - _alreadySentCounterpartyIds.Length) > 1000 || _alreadySentMonthCount > 20000;
+			(_counterpartiesToSent.Count - _alreadySentCounterpartyIds.Count) > 1000 || _alreadySentMonthCount > 20000;
 
 		public bool CanExecute => !AttachmentsSizeInfoDanger && !MailSubjectInfoDanger && !RecepientInfoDanger;
+
+		public int MonthsSinceUnsubscribing
+		{
+			get => _monthsSinceUnsubscribing;
+			set
+			{
+				SetField(ref _monthsSinceUnsubscribing, value);
+				Init();
+			}
+		}
+
+		public bool IncludeOldUnsubscribed
+		{
+			get => _includeOldUnsubscribed;
+			set
+			{
+				SetField(ref _includeOldUnsubscribed, value);
+				Init();
+			}
+		}
 
 		public EventHandler SendingProgressBarUpdated;
 
