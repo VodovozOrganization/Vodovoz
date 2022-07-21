@@ -11,7 +11,7 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 		{
 			return QueryOver.Of<DeliverySchedule>();
 		}
-		
+
 		public QueryOver<DeliverySchedule> NotArchiveQuery()
 		{
 			return QueryOver.Of<DeliverySchedule>().WhereNot(ds => ds.IsArchive);

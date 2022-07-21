@@ -128,6 +128,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public bool HasEnoughQuantityForFastDelivery(IUnitOfWork uow, RouteListItem routeListItemFrom, RouteList routeListTo)
 		{
 			RouteListItem routeListItemAlias = null;
+			RouteListItem routeListItemTransferedAlias = null;
 			OrderItem orderItemAlias = null;
 			NomenclatureAmountNode nomenclatureAmountAlias = null;
 			Order orderAlias = null;
@@ -142,9 +143,16 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var orderItemsToDeliver = uow.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
 				.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.Inner.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemTransferedAlias)
 				.Where(() => routeListItemAlias.RouteList.Id == routeListTo.Id)
 				.WhereRestrictionOn(() => orderItemAlias.Nomenclature.Id).IsIn(neededIds)
-				.WhereRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
+				.Where(() =>
+					//не отменённые и не недовозы
+					routeListItemAlias.Status != RouteListItemStatus.Canceled && routeListItemAlias.Status != RouteListItemStatus.Overdue
+                    // и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
+                    && (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload || orderAlias.IsFastDelivery)
+                    // и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
+                    && (routeListItemAlias.Status != RouteListItemStatus.Transfered || (!routeListItemTransferedAlias.NeedToReload && !orderAlias.IsFastDelivery)))
 				.SelectList(list => list
 					.SelectGroup(() => orderItemAlias.Nomenclature.Id).WithAlias(() => nomenclatureAmountAlias.NomenclatureId)
 					.SelectSum(() => orderItemAlias.Count).WithAlias(() => nomenclatureAmountAlias.Amount)
@@ -154,9 +162,16 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var orderEquipmentsToDeliver = uow.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
 				.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.Inner.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemTransferedAlias)
 				.Where(() => routeListItemAlias.RouteList.Id == routeListTo.Id)
 				.WhereRestrictionOn(() => orderEquipmentAlias.Nomenclature.Id).IsIn(neededIds)
-				.WhereRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
+				.Where(() =>
+					//не отменённые и не недовозы
+					routeListItemAlias.Status != RouteListItemStatus.Canceled && routeListItemAlias.Status != RouteListItemStatus.Overdue
+                    // и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
+                    && (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload || orderAlias.IsFastDelivery)
+                    // и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
+                    && (routeListItemAlias.Status != RouteListItemStatus.Transfered || (!routeListItemTransferedAlias.NeedToReload && !orderAlias.IsFastDelivery)))
 				.And(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.Deliver)
 				.SelectList(list => list
 					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => nomenclatureAmountAlias.NomenclatureId)

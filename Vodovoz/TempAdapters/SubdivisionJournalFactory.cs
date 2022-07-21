@@ -2,7 +2,7 @@
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.TempAdapters
@@ -18,19 +18,19 @@ namespace Vodovoz.TempAdapters
 		{
 			_filterViewModel = filterViewModel;
 		}
-		
+
 		private void CreateNewDependencies()
 		{
 			_employeeJournalFactory = new EmployeeJournalFactory();
 			_salesPlanJournalFactory = new SalesPlanJournalFactory();
 			_nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory CreateSubdivisionAutocompleteSelectorFactory(
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
 		{
 			CreateNewDependencies();
-			
+
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
 				() => new SubdivisionsJournalViewModel(
@@ -41,12 +41,12 @@ namespace Vodovoz.TempAdapters
 					_salesPlanJournalFactory,
 					_nomenclatureSelectorFactory));
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
 		{
 			CreateNewDependencies();
-			
+
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
 				() => new SubdivisionsJournalViewModel(
@@ -65,7 +65,7 @@ namespace Vodovoz.TempAdapters
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
 		{
 			CreateNewDependencies();
-			
+
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
 				() => new SubdivisionsJournalViewModel(

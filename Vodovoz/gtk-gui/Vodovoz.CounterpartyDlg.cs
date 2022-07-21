@@ -601,7 +601,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 11;
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -727,6 +727,7 @@ namespace Vodovoz
 			this.entryMainCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryMainCounterparty.Name = "entryMainCounterparty";
 			this.entryMainCounterparty.CanEditReference = false;
+			this.entryMainCounterparty.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryMainCounterparty);
 			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.entryMainCounterparty]));
 			w32.TopAttach = ((uint)(6));
@@ -740,6 +741,7 @@ namespace Vodovoz
 			this.entryPreviousCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryPreviousCounterparty.Name = "entryPreviousCounterparty";
 			this.entryPreviousCounterparty.CanEditReference = false;
+			this.entryPreviousCounterparty.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryPreviousCounterparty);
 			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.entryPreviousCounterparty]));
 			w33.TopAttach = ((uint)(7));
@@ -1441,6 +1443,7 @@ namespace Vodovoz
 			this.entryAccountant.Events = ((global::Gdk.EventMask)(256));
 			this.entryAccountant.Name = "entryAccountant";
 			this.entryAccountant.CanEditReference = true;
+			this.entryAccountant.CanOpenWithoutTabParent = false;
 			this.datatable2.Add(this.entryAccountant);
 			global::Gtk.Table.TableChild w98 = ((global::Gtk.Table.TableChild)(this.datatable2[this.entryAccountant]));
 			w98.TopAttach = ((uint)(3));
@@ -1454,6 +1457,7 @@ namespace Vodovoz
 			this.entryBottlesManager.Events = ((global::Gdk.EventMask)(256));
 			this.entryBottlesManager.Name = "entryBottlesManager";
 			this.entryBottlesManager.CanEditReference = false;
+			this.entryBottlesManager.CanOpenWithoutTabParent = false;
 			this.datatable2.Add(this.entryBottlesManager);
 			global::Gtk.Table.TableChild w99 = ((global::Gtk.Table.TableChild)(this.datatable2[this.entryBottlesManager]));
 			w99.TopAttach = ((uint)(4));
@@ -1466,6 +1470,7 @@ namespace Vodovoz
 			this.entrySalesManager.Events = ((global::Gdk.EventMask)(256));
 			this.entrySalesManager.Name = "entrySalesManager";
 			this.entrySalesManager.CanEditReference = true;
+			this.entrySalesManager.CanOpenWithoutTabParent = false;
 			this.datatable2.Add(this.entrySalesManager);
 			global::Gtk.Table.TableChild w100 = ((global::Gtk.Table.TableChild)(this.datatable2[this.entrySalesManager]));
 			w100.TopAttach = ((uint)(2));

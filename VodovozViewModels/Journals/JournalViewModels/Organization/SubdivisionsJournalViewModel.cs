@@ -19,7 +19,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
-namespace Vodovoz.Journals.JournalViewModels.Organization
+namespace Vodovoz.Journals.JournalViewModels.Organizations
 {
 	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel>
 	{

@@ -402,6 +402,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.Select(Projections.Sum(() => cashRequestSumItemAlias.Sum));
 
 			result.Where(GetSearchCriterion(
+				() => cashRequestAlias.Id,
 				() => authorAlias.Id,
 				() => authorProjection,
 				() => accauntableProjection,
@@ -535,6 +536,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			);
 
 			result.Where(GetSearchCriterion(
+				() => cashlessRequestAlias.Id,
 				() => authorAlias.Id,
 				() => authorProjection,
 				() => cashlessRequestAlias.Basis

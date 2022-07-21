@@ -1,13 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
+using Fias.Service;
 using Gtk;
+using MySql.Data.MySqlClient;
+using NetTopologySuite.Operation.OverlayNG;
 using NLog;
 using QS.Banks.Domain;
+using QS.BaseParameters;
+using QS.BaseParameters.ViewModels;
+using QS.BaseParameters.Views;
 using QS.BusinessCommon.Domain;
+using QS.ChangePassword.Views;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs;
@@ -15,20 +21,30 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Repositories;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Project.Versioning;
 using QS.Project.ViewModels;
 using QS.Project.Views;
+using QS.Report.ViewModels;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Tools;
 using QS.Validation;
+using QS.ViewModels;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Vodovoz;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
+using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
@@ -38,116 +54,107 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Journals;
+using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
+using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Payments;
+using Vodovoz.ReportsParameters.Production;
+using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
+using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels;
-using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Users;
-using Vodovoz.ViewWidgets;
-using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
-using Vodovoz.ReportsParameters.Production;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
-using VodovozInfrastructure.Interfaces;
-using Vodovoz.Parameters;
-using Vodovoz.Journals;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
-using Vodovoz.ViewModels.Accounting;
 using Vodovoz.Tools.Logistic;
-using Vodovoz.Infrastructure;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
-using Vodovoz.ReportsParameters.Retail;
-using Vodovoz.Domain.Retail;
-using Vodovoz.Journals.FilterViewModels;
-using System.Runtime.InteropServices;
-using Fias.Service;
-using Vodovoz.ViewModels.Reports;
-using MySql.Data.MySqlClient;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using QS.BaseParameters;
-using QS.BaseParameters.ViewModels;
-using QS.BaseParameters.Views;
-using QS.ChangePassword.Views;
-using QS.Dialog;
-using QS.Project.Repositories;
-using QS.Report.ViewModels;
-using QS.ViewModels;
-using Vodovoz.Core.Journal;
-using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.ReportsParameters.Employees;
-using VodovozInfrastructure.Configuration;
-using VodovozInfrastructure.Passwords;
-using Connection = QS.Project.DB.Connection;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.EntityRepositories.Flyers;
-using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Services;
+using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Accounting;
+using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
-using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Reports;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Users;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Settings;
+using Vodovoz.ViewWidgets;
+using VodovozInfrastructure.Configuration;
+using VodovozInfrastructure.Interfaces;
+using VodovozInfrastructure.Passwords;
+using Connection = QS.Project.DB.Connection;
+using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using Vodovoz.ViewModels.Dialogs.Roboats;
+using QS.DomainModel.NotifyChange;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -336,6 +343,7 @@ public partial class MainWindow : Gtk.Window
 
 		ActionAdditionalLoadSettings.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
+
 	}
 
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
@@ -668,8 +676,10 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveryScheduleActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(DeliverySchedule));
-		tdiMain.AddTab(refWin);
+		var journal = autofacScope.Resolve<DeliveryScheduleJournalViewModel>();
+
+		journal.SelectionMode = JournalSelectionMode.None;
+		tdiMain.AddTab(journal);
 	}
 
 	protected void OnActionUpdateBanksFromCBRActivated(object sender, EventArgs e)
@@ -1765,10 +1775,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionPaymentsFromActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<PaymentFrom>(),
-			() => new OrmReference(typeof(PaymentFrom))
-		);
+		NavigationManager.OpenViewModel<PaymentsFromJournalViewModel>(null);
 	}
 
 	protected void OnAction62Activated(object sender, EventArgs e)
@@ -2544,23 +2551,22 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(() => new RoboAtsCounterpartyNameJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices)
-		);
+		NavigationManager.OpenViewModel<RoboAtsCounterpartyNameJournalViewModel>(null);
 	}
 
 	protected void OnActionRoboAtsCounterpartyPatronymicActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(() => new RoboAtsCounterpartyPatronymicJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices)
-		);
+		NavigationManager.OpenViewModel<RoboAtsCounterpartyPatronymicJournalViewModel>(null);
 	}
 
 	protected void OnActionCarModelsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CarModelJournalViewModel>(null);
+	}
+
+	protected void OnRoboatsExportActionActivated(object sender, EventArgs e)
+    {
+		NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
 	}
 
 	protected void OnActionPaymentsFromAvangardReportActivated(object sender, EventArgs e)
@@ -2573,25 +2579,19 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
+		var entityChangeWatcher = autofacScope.Resolve<IEntityChangeWatcher>();
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = autofacScope.Resolve<IInteractiveService>();
-		IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
-			= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
-				() =>
-				{
-					var filter = new CarJournalFilterViewModel(new CarModelJournalFactory())
-					{
-						Archive = false
-					};
-					filter.SetFilterSensitivity(false);
-					filter.CanChangeRestrictedCarOwnTypes = true;
-					return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices);
-				}
-			);
+		var carSelectorFactory = new CarJournalFactory(NavigationManager);
+		IFileDialogService fileDialogService = new FileDialogService();
 
 		var viewModel = new CostCarExploitationReportViewModel(
-			uowFactory, interactiveService, NavigationManager, carEntityAutocompleteSelectorFactory);
+			uowFactory, 
+			interactiveService, 
+			NavigationManager, 
+			carSelectorFactory, 
+			entityChangeWatcher, 
+			fileDialogService);
 
 		tdiMain.AddTab(viewModel);
 	}

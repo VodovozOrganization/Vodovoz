@@ -19,7 +19,7 @@ namespace Vodovoz.Tools.CallTasks
 			return instance;
 		}
 
-		protected CallTaskSingletonFactory() { }
+		public CallTaskSingletonFactory() { }
 
 		public CallTask CreateCopyTask(IUnitOfWork uow, IEmployeeRepository employeeRepository , CallTask originTask)
 		{
