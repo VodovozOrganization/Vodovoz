@@ -97,7 +97,6 @@ namespace Vodovoz
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
-		private readonly IRoboAtsCounterpartyJournalFactory _roboAtsCounterpartyJournalFactory = new RoboAtsCounterpartyJournalFactory();
 		private readonly IEmailParametersProvider _emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;

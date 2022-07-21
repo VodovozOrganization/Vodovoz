@@ -256,8 +256,8 @@
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintResultOfEmployeesViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\BulkEmailEventReasonViewModel.cs" />
-    <Compile Include="ViewModels\Counterparty\RoboAtsCounterpartyNameViewModel.cs" />
-    <Compile Include="ViewModels\Counterparty\RoboAtsCounterpartyPatronymicViewModel.cs" />
+    <Compile Include="Dialogs\Counterparty\RoboAtsCounterpartyNameViewModel.cs" />
+    <Compile Include="Dialogs\Counterparty\RoboAtsCounterpartyPatronymicViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
