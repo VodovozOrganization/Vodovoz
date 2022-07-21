@@ -48,15 +48,6 @@ namespace UnsubscribePage
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
 				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
-			// Подключение к БД
-			//services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Страница быстрых платежей"));
-			//services.AddControllersWithViews()
-			//	.AddNewtonsoftJson(options =>
-			//	{
-			//		options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-			//	});
-
-
 			// Конфигурация Nhibernate
 			try
 			{

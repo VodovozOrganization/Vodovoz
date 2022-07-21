@@ -43,7 +43,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
 
-
 			Title = "Отчёт о событиях рассылки";
 
 			EventActionTimeFrom = DateTime.Now.Date;
@@ -83,15 +82,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			var phoneSubquery = QueryOver.Of(() => phoneAlias)
 				.Where(() => phoneAlias.Counterparty.Id == counterpartyAlias.Id)
 				.OrderBy(() => phoneAlias.Id).Desc
-				.SelectList(list => list
-					.Select(() => phoneAlias.Number))
+				.Select(Projections.Property(() => phoneAlias.Number))
 				.Take(1);
 
 			var emailSubquery = QueryOver.Of(() => emailAlias)
 				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
 				.OrderBy(() => emailAlias.Id).Desc
-				.SelectList(list => list
-					.Select(() => emailAlias.Address))
+				.Select(Projections.Property(() => emailAlias.Address))
 				.Take(1);
 
 			return itemsQuery
@@ -123,6 +120,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			{
 				selectedFilters.AppendLine($"Контрагент: {Counterparty.Name}; ");
 			}
+
 			if(BulkEmailEventReason != null)
 			{
 				selectedFilters.AppendLine($"Причина: {BulkEmailEventReason.Name}; ");
@@ -130,7 +128,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			return selectedFilters.ToString();
 		}
-
 
 		#region Commands
 

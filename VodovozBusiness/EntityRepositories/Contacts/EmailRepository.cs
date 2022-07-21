@@ -190,7 +190,6 @@ namespace Vodovoz.EntityRepositories
 				.SingleOrDefault();
 		}
 
-
 		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
 		{
 			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOtherReasonId);

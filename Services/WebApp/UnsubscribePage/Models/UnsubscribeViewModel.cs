@@ -20,6 +20,7 @@ namespace UnsubscribePage.Models
 		{
 			Initialize(guid, emailRepository, emailParametersProvider);
 		}
+
 		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
 		{
 			OtherReasonId = emailParametersProvider.BulkEmailEventOtherReasonId;
@@ -27,7 +28,6 @@ namespace UnsubscribePage.Models
 			{
 				CounterpartyId = emailRepository.GetCounterpartyIdByEmailGuidForUnsubscribing(unitOfWork, guid);
 				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailParametersProvider);
-				
 			}
 			ReasonsListSerialized = JsonSerializer.Serialize<IList<BulkEmailEventReason>>(_reasonsList);
 		}

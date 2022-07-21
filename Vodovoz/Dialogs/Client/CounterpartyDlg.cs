@@ -933,7 +933,7 @@ namespace Vodovoz
 
 		private void RefreshBulkEmailEventStatus()
 		{
-			var lastBulkEmailEvent =_emailRepository.GetLastBulkEmailEvent(UoW, Entity.Id);
+			var lastBulkEmailEvent = _emailRepository.GetLastBulkEmailEvent(UoW, Entity.Id);
 
 			if(lastBulkEmailEvent == null || lastBulkEmailEvent is SubscribingBulkEmailEvent)
 			{

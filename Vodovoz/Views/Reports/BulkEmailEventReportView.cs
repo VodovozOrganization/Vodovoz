@@ -15,9 +15,10 @@ namespace Vodovoz.Views.Reports
 
 		private void Configure()
 		{
-			rangeBulkEmailEventDate.Binding.AddSource(ViewModel)
-				.AddBinding(ViewModel, vm => vm.EventActionTimeFrom, w => w.StartDateOrNull)
-				.AddBinding(ViewModel, vm => vm.EventActionTimeTo, w => w.EndDateOrNull)
+			rangeBulkEmailEventDate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.EventActionTimeFrom, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EventActionTimeTo, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
