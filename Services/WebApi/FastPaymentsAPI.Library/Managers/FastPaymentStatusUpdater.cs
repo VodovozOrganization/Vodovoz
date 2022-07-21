@@ -141,9 +141,12 @@ namespace FastPaymentsAPI.Library.Managers
 			switch(payment.FastPaymentStatus)
 			{
 				case FastPaymentStatus.Rejected:
-				case FastPaymentStatus.Performed:
 					notifier.NotifyVodovozSite(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, false);
 					notifier.NotifyMobileApp(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, false);
+					break;
+				case FastPaymentStatus.Performed:
+					notifier.NotifyVodovozSite(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, true);
+					notifier.NotifyMobileApp(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, true);
 					break;
 			}
 		}

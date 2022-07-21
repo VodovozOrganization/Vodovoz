@@ -22,7 +22,7 @@ namespace FastPaymentsAPI.Controllers
 		private readonly IFastPaymentOrderModel _fastPaymentOrderModel;
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly IDriverAPIService _driverApiService;
-		private readonly IFastPaymentStatusChangeNotifier _vodovozSiteNotificator;
+		private readonly IFastPaymentStatusChangeNotifier _fastPaymentStatusChangeNotifier;
 		private readonly IResponseCodeConverter _responseCodeConverter;
 		private readonly IErrorHandler _errorHandler;
 
@@ -31,7 +31,7 @@ namespace FastPaymentsAPI.Controllers
 			IFastPaymentOrderModel fastPaymentOrderModel,
 			IFastPaymentModel fastPaymentModel,
 			IDriverAPIService driverApiService,
-			IFastPaymentStatusChangeNotifier vodovozSiteNotificator,
+			IFastPaymentStatusChangeNotifier fastPaymentStatusChangeNotifier,
 			IResponseCodeConverter responseCodeConverter,
 			IErrorHandler errorHandler)
 		{
@@ -39,7 +39,8 @@ namespace FastPaymentsAPI.Controllers
 			_fastPaymentOrderModel = fastPaymentOrderModel ?? throw new ArgumentNullException(nameof(fastPaymentOrderModel));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_driverApiService = driverApiService ?? throw new ArgumentNullException(nameof(driverApiService));
-			_vodovozSiteNotificator = vodovozSiteNotificator ?? throw new ArgumentNullException(nameof(vodovozSiteNotificator));
+			_fastPaymentStatusChangeNotifier =
+				fastPaymentStatusChangeNotifier ?? throw new ArgumentNullException(nameof(fastPaymentStatusChangeNotifier));
 			_responseCodeConverter = responseCodeConverter ?? throw new ArgumentNullException(nameof(responseCodeConverter));
 			_errorHandler = errorHandler ?? throw new ArgumentNullException(nameof(errorHandler));
 		}
@@ -291,11 +292,11 @@ namespace FastPaymentsAPI.Controllers
 		public async Task<ResponseRegisterOnlineOrderDTO> RegisterOnlineOrder(
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
-			//Пока нет обновления сайта возвращаем ошибку
+			/*//Пока нет обновления сайта возвращаем ошибку
 			return new ResponseRegisterOnlineOrderDTO
 			{
 				ErrorMessage = "Функция не реализована"
-			};
+			};*/
 			
 			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, RequestFromType.FromSiteByQr);
 		}
@@ -385,6 +386,10 @@ namespace FastPaymentsAPI.Controllers
 							{
 								_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
 								_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
+								_fastPaymentStatusChangeNotifier.NotifyVodovozSite(
+									fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, fastPayment.Amount, false);
+								_fastPaymentStatusChangeNotifier.NotifyMobileApp(
+									fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, fastPayment.Amount, false);
 							}
 						}
 						catch(Exception e)
@@ -521,9 +526,9 @@ namespace FastPaymentsAPI.Controllers
 			}
 
 			NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
-			_vodovozSiteNotificator.NotifyVodovozSite(
+			_fastPaymentStatusChangeNotifier.NotifyVodovozSite(
 				fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true);
-			_vodovozSiteNotificator.NotifyMobileApp(
+			_fastPaymentStatusChangeNotifier.NotifyMobileApp(
 				fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true);
 			return new AcceptedResult();
 		}
