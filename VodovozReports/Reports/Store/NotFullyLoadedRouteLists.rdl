@@ -378,8 +378,8 @@ FROM route_lists rl
               aldi.amount AS count,
               rl.id AS rl_id
          FROM additional_loading_documents ald 
-         LEFT JOIN route_lists rl ON rl.additional_loading_document_id = ald.id
-         LEFT JOIN additional_loading_document_items aldi ON aldi.additional_loading_document_id = ald.id
+         INNER JOIN route_lists rl ON rl.additional_loading_document_id = ald.id
+         INNER JOIN additional_loading_document_items aldi ON aldi.additional_loading_document_id = ald.id
          ) AS T
     GROUP BY T.rl_id, T.nom_id
 ) AS nomenclatures_from_rl ON nomenclatures_from_rl.rl_id = rl.id
