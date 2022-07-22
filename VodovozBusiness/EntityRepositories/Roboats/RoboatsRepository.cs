@@ -1,8 +1,10 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NLog;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -18,6 +20,8 @@ namespace Vodovoz.EntityRepositories.Roboats
 {
 	public class RoboatsRepository : IRoboatsRepository
 	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly RoboatsSettings _roboatsSettings;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
@@ -219,15 +223,17 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public IEnumerable<int> GetLastDeliveryPointIds(int clientId)
 		{
-			foreach(var order in GetLastOrders(clientId))
-			{
-				yield return order.DeliveryPoint.Id;
-			}
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			var lastOrders = GetLastOrders(clientId);
+			sw.Stop();
+			return lastOrders.Select(o => o.DeliveryPoint.Id);
 		}
 
 		public Order GetLastOrder(int counterpartyId, int? deliveryPointId = null)
 		{
-			foreach(var order in GetLastOrders(counterpartyId))
+			var lastOrders = GetLastOrders(counterpartyId);
+			foreach(var order in lastOrders)
 			{
 				if(deliveryPointId.HasValue)
 				{
@@ -281,22 +287,112 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 				OrderItem orderItemAlias = null;
 				Nomenclature nomenclatureAlias = null;
-
+				Counterparty counterpartyAlias = null;
 				var orders = uow.Session.QueryOver(() => orderAlias)
-					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias).Fetch(SelectMode.Fetch, () => orderItemAlias)
-					.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias).Fetch(SelectMode.Fetch, () => nomenclatureAlias)
 					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
 					.Select(Projections.Distinct(Projections.RootEntity()))
 					.OrderByAlias(() => orderAlias.Id).Desc()
 					.List();
 
+				var result = new List<Order>();
 				foreach(var order in orders)
 				{
 					if(WasPassWaterCheck(order))
 					{
-						yield return order;
+						result.Add(order);
 					}
 				}
+				return result;
+			}
+		}
+
+		private IEnumerable<Order> GetLastOrders2(int counterpartyId)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
+
+				Order orderAlias = null;
+				DeliveryPoint deliveryPointAlias = null;
+				RoboatsFiasStreet roboatsFiasStreetAlias = null;
+				PromotionalSet promotionalSetAlias = null;
+
+				var lastOrdersByDeliveryPoints = uow.Session.QueryOver(() => orderAlias)
+					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+					.Left.JoinAlias(() => orderAlias.PromotionalSets, () => promotionalSetAlias)
+					.JoinEntityQueryOver(() => roboatsFiasStreetAlias, Restrictions.Where(() => deliveryPointAlias.StreetFiasGuid == roboatsFiasStreetAlias.FiasStreetGuid))
+					.Where(() => orderAlias.Client.Id == counterpartyId)
+					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
+					.Where(() => !orderAlias.IsBottleStock)
+					.Where(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id)))
+					.Where(() => deliveryPointAlias.RoomType == RoomType.Apartment)
+					.Where(
+						Restrictions.In(
+								Projections.Property(() => orderAlias.OrderStatus),
+								acceptedOrderStatuses
+						)
+					)
+					.Select(
+						Projections.Max(Projections.Id()),
+						Projections.GroupProperty(Projections.Property(() => orderAlias.DeliveryPoint.Id)))
+					.List<object[]>().Select(x => (int)x[0]);
+
+				OrderItem orderItemAlias = null;
+				Nomenclature nomenclatureAlias = null;
+				Counterparty counterpartyAlias = null;
+				/*var orders = uow.Session.QueryOver(() => orderAlias)
+					//.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+					//.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias).Fetch(SelectMode.Fetch, () => orderItemAlias)
+					//.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias).Fetch(SelectMode.Fetch, () => nomenclatureAlias)
+					//.Fetch(SelectMode.ChildFetch, () => orderAlias.OrderItems)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
+					.Select(Projections.Distinct(Projections.RootEntity()))
+					.OrderByAlias(() => orderAlias.Id).Desc()
+					.Future<Order>();*/
+
+				var orders1 = uow.Session.QueryOver(() => orderAlias)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
+					.Future<Order>();
+
+				/*var orders2 = uow.Session.QueryOver(() => orderAlias)
+					.Fetch(SelectMode.Fetch, () => orderAlias.DeliveryPoint.DefaultWaterNomenclature.DependsOnNomenclature.Unit)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
+					.Future<Order>();
+
+				var orders3 = uow.Session.QueryOver(() => orderAlias)
+					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+					.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Fetch(SelectMode.Fetch, () => nomenclatureAlias.Unit)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
+					.Future<Order>();
+
+				var orders4 = uow.Session.QueryOver(() => orderAlias)
+					.Fetch(SelectMode.Fetch, () => orderAlias.Contract)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
+					.Future<Order>();
+
+				var orders5 = uow.Session.QueryOver(() => orderAlias)
+					.Fetch(SelectMode.Fetch, () => orderAlias.DeliveryPoint.Category)
+					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
+					.Future<Order>();*/
+
+				Stopwatch sw = new Stopwatch();
+				sw.Start();
+				var orders = orders1.ToList();
+				sw.Stop();
+				logger.Debug($"Загружено за {sw.ElapsedMilliseconds}ms");
+
+				var orderItemsCount = orders[0].OrderItems[0].Count;
+
+				var result = new List<Order>();
+				foreach(var order in orders)
+				{
+					if(WasPassWaterCheck(order))
+					{
+						result.Add(order);
+					}
+				}
+				return result;
 			}
 		}
 
