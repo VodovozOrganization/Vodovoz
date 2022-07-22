@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32407.337
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32414.318
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz", "Vodovoz\Vodovoz.csproj", "{FBD0A975-C275-4C43-9840-9D96C4E4EB21}"
 EndProject
@@ -216,9 +216,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.ErrorReporting.Client", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Osrm", "..\QSProjects\QS.Osrm\QS.Osrm.csproj", "{88B67AA2-14A5-4211-B00C-62E260FEC53E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Updater.Desktop", "..\QSProjects\QS.Updater.Desktop\QS.Updater.Desktop.csproj", "{9ED68A8A-25EE-4B6A-A483-A386BFC2F12B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Updater.Desktop", "..\QSProjects\QS.Updater.Desktop\QS.Updater.Desktop.csproj", "{9ED68A8A-25EE-4B6A-A483-A386BFC2F12B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayPageAPI", "Services\WebApi\PayPageAPI\PayPageAPI.csproj", "{C8E0788C-D182-4022-91EA-CD7879E3AFD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PayPageAPI", "Services\WebApi\PayPageAPI\PayPageAPI.csproj", "{C8E0788C-D182-4022-91EA-CD7879E3AFD5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoboAtsService", "RoboAtsService\RoboAtsService.csproj", "{8D99B77B-F2A2-45BC-95D0-24F1C793D44E}"
 EndProject

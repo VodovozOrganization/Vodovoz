@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using RoboAtsService.Monitoring;
+using RoboAtsService.OrderValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,17 +17,18 @@ namespace RoboAtsService.Requests
 		private readonly ILogger<LastOrderHandler> _logger;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
+		private readonly ValidOrdersProvider _validOrdersProvider;
 
 		public LastOrderRequestType RequestType { get; }
 
 		public override string Request => RoboatsRequestType.LastOrder;
 
-		public LastOrderHandler(ILogger<LastOrderHandler> logger, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public LastOrderHandler(ILogger<LastOrderHandler> logger, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator, ValidOrdersProvider validOrdersProvider) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
-
+			_validOrdersProvider = validOrdersProvider ?? throw new ArgumentNullException(nameof(validOrdersProvider));
 			switch(RequestDto.RequestSubType)
 			{
 				case "order_id":
@@ -77,7 +79,7 @@ namespace RoboAtsService.Requests
 			}
 			else
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetLastOrderCheck,
+				_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetLastOrderCheck,
 					$"Не найден контрагент.");
 				return ErrorMessage;
 			}
@@ -93,7 +95,7 @@ namespace RoboAtsService.Requests
 				case LastOrderRequestType.BottlesReturn:
 					return GetBottlesReturn(counterpartyId);
 				default:
-					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.GetLastOrderCheck,
+					_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.GetLastOrderCheck,
 						$"Неизвестный тип запроса: {RequestType}. Обратитесь в отдел разработки.");
 					return ErrorMessage;
 			}
@@ -101,15 +103,13 @@ namespace RoboAtsService.Requests
 
 		private string GetLastOrderCheck(int counterpartyId)
 		{
-			var order = _roboatsRepository.GetLastOrder(counterpartyId);
-			if(order != null)
+			var deliveryPointIds = _validOrdersProvider.GetLastDeliveryPointIds(ClientPhone, counterpartyId, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderCheck);
+			if(deliveryPointIds.Any())
 			{
 				return "1";
 			}
 			else
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderCheck,
-					$"Для контрагента {counterpartyId} не найден подходящий заказ.");
 				return "0";
 			}
 		}
@@ -123,19 +123,9 @@ namespace RoboAtsService.Requests
 				return ErrorMessage;
 			}
 
-			var deliveryPointIds = _roboatsRepository.GetLastDeliveryPointIds(counterpartyId);
-			if(deliveryPointIds.All(x => x != AddressId))
-			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.GetLastOrderId,
-					$"Для контрагента {counterpartyId} не найдена точка доставки {AddressId}. Обратитесь в отдел разработки.");
-				return ErrorMessage;
-			}
-
-			var order = _roboatsRepository.GetLastOrder(counterpartyId, AddressId.Value);
+			var order = _validOrdersProvider.GetLastOrder(ClientPhone, counterpartyId, AddressId.Value, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderId);
 			if(order == null)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderId,
-					$"Для точки доставки {AddressId} не найден последний заказ, либо он не удовлетворяет требованиям.");
 				return "NO DATA";
 			}
 

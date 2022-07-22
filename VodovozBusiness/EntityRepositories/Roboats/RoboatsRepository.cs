@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NLog;
+using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,15 @@ namespace Vodovoz.EntityRepositories.Roboats
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly RoboatsSettings _roboatsSettings;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+
+		private HashSet<Guid> _roboatsStreetsCache = new HashSet<Guid>();
+		private int _roboatsStreetsCacheTimeoutMinutes = 10;
+		private DateTime _roboatsStreetsCacheLastUpdate;
+
+		private IEnumerable<RoboatsWaterType> _roboatsWatersCache = Enumerable.Empty<RoboatsWaterType>();
+		private int _roboatsWatersCacheTimeoutMinutes = 10;
+		private DateTime _roboatsWatersCacheLastUpdate;
+
 
 		public RoboatsRepository(IUnitOfWorkFactory unitOfWorkFactory, RoboatsSettings roboatsSettings, INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
@@ -108,9 +118,16 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 		public IEnumerable<RoboatsWaterType> GetWaterTypes()
 		{
+			var timeExpired = DateTime.Now - _roboatsWatersCacheLastUpdate;
+			if(timeExpired.TotalMinutes <= _roboatsWatersCacheTimeoutMinutes)
+			{
+				return _roboatsWatersCache;
+			}
+
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				return uow.GetAll<RoboatsWaterType>().ToList();
+				_roboatsWatersCache = uow.GetAll<RoboatsWaterType>().ToList();
+				return _roboatsWatersCache;
 			}
 		}
 
@@ -221,194 +238,80 @@ namespace Vodovoz.EntityRepositories.Roboats
 			}
 		}
 
-		public IEnumerable<int> GetLastDeliveryPointIds(int clientId)
+		public IEnumerable<Order> GetLastOrders(int clientId)
 		{
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
-			var lastOrders = GetLastOrders(clientId);
-			sw.Stop();
-			return lastOrders.Select(o => o.DeliveryPoint.Id);
+			return GetLastOrders(clientId, null);
 		}
 
-		public Order GetLastOrder(int counterpartyId, int? deliveryPointId = null)
+		public Order GetLastOrder(int clientId, int? deliveryPointId = null)
 		{
-			var lastOrders = GetLastOrders(counterpartyId);
-			foreach(var order in lastOrders)
-			{
-				if(deliveryPointId.HasValue)
-				{
-					if(order.DeliveryPoint.Id == deliveryPointId.Value)
-					{
-						return order;
-					}
-					else
-					{
-						continue;
-					}
-				}
-				else
-				{
-					return order;
-				}
-			}
-			return null;
+			var lastOrders = GetLastOrders(clientId, deliveryPointId);
+			return lastOrders.FirstOrDefault();
 		}
 
-		private IEnumerable<Order> GetLastOrders(int counterpartyId)
+		private IEnumerable<Order> GetLastOrders(int counterpartyId, int? deliveryPointId = null)
 		{
+			IList<Order> orders = new List<Order>();
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
-
 				Order orderAlias = null;
-				DeliveryPoint deliveryPointAlias = null;
-				RoboatsFiasStreet roboatsFiasStreetAlias = null;
-				PromotionalSet promotionalSetAlias = null;
-
-				var lastOrdersByDeliveryPoints = uow.Session.QueryOver(() => orderAlias)
-					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-					.Left.JoinAlias(() => orderAlias.PromotionalSets, () => promotionalSetAlias)
-					.JoinEntityQueryOver(() => roboatsFiasStreetAlias, Restrictions.Where(() => deliveryPointAlias.StreetFiasGuid == roboatsFiasStreetAlias.FiasStreetGuid))
-					.Where(() => orderAlias.Client.Id == counterpartyId)
-					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
-					.Where(() => !orderAlias.IsBottleStock)
-					.Where(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id)))
-					.Where(() => deliveryPointAlias.RoomType == RoomType.Apartment)
-					.Where(
-						Restrictions.In(
-								Projections.Property(() => orderAlias.OrderStatus),
-								acceptedOrderStatuses
-						)
-					)
-					.Select(
-						Projections.Max(Projections.Id()),
-						Projections.GroupProperty(Projections.Property(() => orderAlias.DeliveryPoint.Id)))
-					.List<object[]>().Select(x => (int)x[0]);
-
 				OrderItem orderItemAlias = null;
 				Nomenclature nomenclatureAlias = null;
-				Counterparty counterpartyAlias = null;
-				var orders = uow.Session.QueryOver(() => orderAlias)
-					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
-					.Select(Projections.Distinct(Projections.RootEntity()))
-					.OrderByAlias(() => orderAlias.Id).Desc()
-					.List();
+				MeasurementUnits measurementUnitsAlias = null;
 
-				var result = new List<Order>();
-				foreach(var order in orders)
+				var lastOrdersByDeliveryPoints = uow.Session.QueryOver(() => orderAlias)
+					.Where(() => orderAlias.Client.Id == counterpartyId)
+					.Select(
+						Projections.Max(Projections.Id()),
+						Projections.Group(() => orderAlias.DeliveryPoint.Id)
+					)
+					.List<object[]>()
+					.Select(x => (int)x[0])
+				;
+
+				IQueryOver<Order, Order> CreateLastOrdersBaseQuery()
 				{
-					if(WasPassWaterCheck(order))
+					var baseQuery = uow.Session.QueryOver(() => orderAlias)
+						.Where(Restrictions.In(Projections.Property(() => orderAlias.Id),lastOrdersByDeliveryPoints.ToArray()));
+					if(deliveryPointId.HasValue)
 					{
-						result.Add(order);
+						baseQuery.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointId.Value);
 					}
+					return baseQuery;
 				}
-				return result;
-			}
-		}
 
-		private IEnumerable<Order> GetLastOrders2(int counterpartyId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				var acceptedOrderStatuses = new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
+				// Порядок составления запросов важен.
+				// Запрос построен так, чтобы в одном обращении к базе были загружены
+				// все поля, используемые валидаторами Roboats
 
-				Order orderAlias = null;
-				DeliveryPoint deliveryPointAlias = null;
-				RoboatsFiasStreet roboatsFiasStreetAlias = null;
-				PromotionalSet promotionalSetAlias = null;
-
-				var lastOrdersByDeliveryPoints = uow.Session.QueryOver(() => orderAlias)
-					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
-					.Left.JoinAlias(() => orderAlias.PromotionalSets, () => promotionalSetAlias)
-					.JoinEntityQueryOver(() => roboatsFiasStreetAlias, Restrictions.Where(() => deliveryPointAlias.StreetFiasGuid == roboatsFiasStreetAlias.FiasStreetGuid))
-					.Where(() => orderAlias.Client.Id == counterpartyId)
-					.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-4))
-					.Where(() => !orderAlias.IsBottleStock)
-					.Where(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id)))
-					.Where(() => deliveryPointAlias.RoomType == RoomType.Apartment)
-					.Where(
-						Restrictions.In(
-								Projections.Property(() => orderAlias.OrderStatus),
-								acceptedOrderStatuses
-						)
-					)
-					.Select(
-						Projections.Max(Projections.Id()),
-						Projections.GroupProperty(Projections.Property(() => orderAlias.DeliveryPoint.Id)))
-					.List<object[]>().Select(x => (int)x[0]);
-
-				OrderItem orderItemAlias = null;
-				Nomenclature nomenclatureAlias = null;
-				Counterparty counterpartyAlias = null;
-				/*var orders = uow.Session.QueryOver(() => orderAlias)
-					//.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-					//.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias).Fetch(SelectMode.Fetch, () => orderItemAlias)
-					//.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias).Fetch(SelectMode.Fetch, () => nomenclatureAlias)
-					//.Fetch(SelectMode.ChildFetch, () => orderAlias.OrderItems)
-					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
-					.Select(Projections.Distinct(Projections.RootEntity()))
-					.OrderByAlias(() => orderAlias.Id).Desc()
-					.Future<Order>();*/
-
-				var orders1 = uow.Session.QueryOver(() => orderAlias)
-					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
+				var ordersQuery = CreateLastOrdersBaseQuery()
 					.Future<Order>();
 
-				/*var orders2 = uow.Session.QueryOver(() => orderAlias)
-					.Fetch(SelectMode.Fetch, () => orderAlias.DeliveryPoint.DefaultWaterNomenclature.DependsOnNomenclature.Unit)
-					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
-					.Future<Order>();
+				var measurementUnitsQuery = uow.Session.QueryOver(() => measurementUnitsAlias)
+					.Future<MeasurementUnits>();
 
-				var orders3 = uow.Session.QueryOver(() => orderAlias)
+				var orderItemsQuery = CreateLastOrdersBaseQuery()
 					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 					.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Fetch(SelectMode.Fetch, () => nomenclatureAlias.Unit)
-					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
 					.Future<Order>();
 
-				var orders4 = uow.Session.QueryOver(() => orderAlias)
+				var promosetsQuery = CreateLastOrdersBaseQuery()
+					.Fetch(SelectMode.Fetch, () => orderAlias.PromotionalSets)
+					.Future<Order>();
+
+				var contractQuery = CreateLastOrdersBaseQuery()
 					.Fetch(SelectMode.Fetch, () => orderAlias.Contract)
-					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
 					.Future<Order>();
 
-				var orders5 = uow.Session.QueryOver(() => orderAlias)
+				var deliveryPointQuery = CreateLastOrdersBaseQuery()
 					.Fetch(SelectMode.Fetch, () => orderAlias.DeliveryPoint.Category)
-					.Where(Restrictions.In(Projections.Property(() => orderAlias.Id), lastOrdersByDeliveryPoints.ToArray()))
-					.Future<Order>();*/
+					.Future<Order>();
 
-				Stopwatch sw = new Stopwatch();
-				sw.Start();
-				var orders = orders1.ToList();
-				sw.Stop();
-				logger.Debug($"Загружено за {sw.ElapsedMilliseconds}ms");
-
-				var orderItemsCount = orders[0].OrderItems[0].Count;
-
-				var result = new List<Order>();
-				foreach(var order in orders)
-				{
-					if(WasPassWaterCheck(order))
-					{
-						result.Add(order);
-					}
-				}
-				return result;
-			}
-		}
-
-		private bool WasPassWaterCheck(Order order)
-		{
-			var hasOnlyWater = !order.OrderItems
-				.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
-				.Any(x => x.Nomenclature.Category != NomenclatureCategory.water);
-
-			if(!hasOnlyWater)
-			{
-				return false;
+				orders = deliveryPointQuery.ToList();
 			}
 
-			var hasWaterRowDuplicate = order.OrderItems.GroupBy(x => x.Nomenclature.Id).Any(x => x.Count() > 1);
-			return !hasWaterRowDuplicate;
+			return orders;
 		}
 
 		public int? GetBottlesReturnForOrder(int counterpartyId, int orderId)
@@ -468,6 +371,30 @@ namespace Vodovoz.EntityRepositories.Roboats
 				}
 
 				return result;
+			}
+		}
+
+		public HashSet<Guid> GetAvailableForRoboatsFiasStreetGuids()
+		{
+			var timeExpired = DateTime.Now - _roboatsStreetsCacheLastUpdate;
+			if(timeExpired.TotalMinutes <= _roboatsStreetsCacheTimeoutMinutes)
+			{
+				return _roboatsStreetsCache;
+			}
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				RoboatsStreet roboatsStreetAlias = null;
+				RoboatsFiasStreet roboatsFiasStreetAlias = null;
+
+				var query = uow.Session.QueryOver(() => roboatsStreetAlias)
+					.JoinEntityQueryOver(() => roboatsFiasStreetAlias, Restrictions.Where(() => roboatsStreetAlias.Id == roboatsFiasStreetAlias.RoboatsAddress.Id))
+					.Where(Restrictions.IsNotNull(Projections.Property(() => roboatsStreetAlias.FileId)))
+					.SelectList(list => list
+						.Select(() => roboatsFiasStreetAlias.FiasStreetGuid)
+					);
+				_roboatsStreetsCache = new HashSet<Guid>(query.List<Guid>());
+				return _roboatsStreetsCache;
 			}
 		}
 
