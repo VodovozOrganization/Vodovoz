@@ -2627,7 +2627,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
-		/// <param name="guilty">Виновный в недовезении заказа</param>
+		/// <param name="guilty">Ответственный в недовезении заказа</param>
 		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, CallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);

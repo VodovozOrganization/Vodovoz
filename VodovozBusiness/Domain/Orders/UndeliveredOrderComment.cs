@@ -122,7 +122,7 @@ namespace Vodovoz.Domain.Orders
 		Registrator,
 		[Display(Name = "Автор недовоза")]
 		UndeliveryAuthor,
-		[Display(Name = "Виновный")]
+		[Display(Name = "Ответственный")]
 		Guilty,
 		[Display(Name = "Оштрафованные")]
 		FinedPeople,
