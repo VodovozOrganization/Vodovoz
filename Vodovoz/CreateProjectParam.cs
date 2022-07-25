@@ -171,6 +171,7 @@ using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 
 namespace Vodovoz
 {
@@ -296,7 +297,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboatsWaterTypeViewModel, RoboatsWaterTypeView>()
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
-				.RegisterWidgetForTabViewModel<BulekEmailEventReasonViewModel, BulkEmailEventReasonView>()
+				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
 				;
 
             //Регистрация виджетов

@@ -11,7 +11,7 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 {
-	public class BulkEmailEventReasonJournalViewModel : SingleEntityJournalViewModelBase<BulkEmailEventReason, BulekEmailEventReasonViewModel,
+	public class BulkEmailEventReasonJournalViewModel : SingleEntityJournalViewModelBase<BulkEmailEventReason, BulkEmailEventReasonViewModel,
 		BulkEmailEventReasonJournalNode>
 	{
 		public BulkEmailEventReasonJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
@@ -45,10 +45,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			return itemsQuery;
 		};
 
-		protected override Func<BulekEmailEventReasonViewModel> CreateDialogFunction => () =>
-			new BulekEmailEventReasonViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+		protected override Func<BulkEmailEventReasonViewModel> CreateDialogFunction => () =>
+			new BulkEmailEventReasonViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
 
-		protected override Func<BulkEmailEventReasonJournalNode, BulekEmailEventReasonViewModel> OpenDialogFunction =>
-			(node) => new BulekEmailEventReasonViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
+		protected override Func<BulkEmailEventReasonJournalNode, BulkEmailEventReasonViewModel> OpenDialogFunction =>
+			(node) => new BulkEmailEventReasonViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
 	}
 }

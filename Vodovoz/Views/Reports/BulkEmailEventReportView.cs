@@ -1,7 +1,9 @@
 ﻿using Gamma.ColumnConfig;
-using Pango;
+using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Reports
 {
@@ -54,6 +56,17 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("Телефон").AddTextRenderer(r => r.Phone)
 				.AddColumn("")
 				.Finish();
+		}
+
+		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			parametersContainer.Visible = !parametersContainer.Visible;
+			UpdateSliderArrow();
+		}
+
+		private void UpdateSliderArrow()
+		{
+			arrowSlider.ArrowType = parametersContainer.Visible ? ArrowType.Left : ArrowType.Right;
 		}
 	}
 }

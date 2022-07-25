@@ -243,7 +243,7 @@ namespace Vodovoz.ViewModels.ViewModels
 			channel.BasicPublish(_configuration.EmailSendExchange, _configuration.EmailSendKey, false, properties, sendingBody);
 		}
 
-		private string GetUnsubscribeHtmlPart(Guid guid) => $"<a href=\"{GetUnsubscribeLink(guid)}\">Отписаться от рассылки</a>";
+		private string GetUnsubscribeHtmlPart(Guid guid) => $"<br/><br/><a href=\"{GetUnsubscribeLink(guid)}\">Отписаться от рассылки</a>";
 
 		private string GetUnsubscribeLink(Guid guid) => $"{_emailParametersProvider.UnsubscribeUrl}/{guid}";
 

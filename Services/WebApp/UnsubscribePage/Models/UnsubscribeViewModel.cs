@@ -32,6 +32,15 @@ namespace UnsubscribePage.Models
 			ReasonsListSerialized = JsonSerializer.Serialize<IList<BulkEmailEventReason>>(_reasonsList);
 		}
 
+		public int CounterpartyId { get; set; }
+		public int EmailEventId { get; set; }
+		public string ReasonsListSerialized { get; set; }
+		public int SelectedReasonId { get; set; }
+		public int OtherReasonId { get; set; }
+		public string OtherReason { get; set; }
+		public IList<BulkEmailEventReason> ReasonsList =>
+			_reasonsList ??= ReasonsListSerialized == null ? null : JsonSerializer.Deserialize<IList<BulkEmailEventReason>>(ReasonsListSerialized);
+
 		public void SaveUnsubscribe(BulkEmailEventReason reason = null)
 		{
 			UnsubscribingBulkEmailEvent unsubscribingEvent = new UnsubscribingBulkEmailEvent
@@ -72,14 +81,5 @@ namespace UnsubscribePage.Models
 
 			return errors;
 		}
-
-		public int CounterpartyId { get; set; }
-		public int EmailEventId { get; set; }
-		public string ReasonsListSerialized { get; set; }
-		public int SelectedReasonId { get; set; }
-		public int OtherReasonId { get; set; }
-		public string OtherReason { get; set; }
-		public IList<BulkEmailEventReason> ReasonsList => 
-			_reasonsList ??= ReasonsListSerialized == null ? null : JsonSerializer.Deserialize<IList<BulkEmailEventReason>>(ReasonsListSerialized);
 	}
 }

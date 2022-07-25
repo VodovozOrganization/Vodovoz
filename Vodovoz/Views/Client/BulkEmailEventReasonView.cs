@@ -4,9 +4,9 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Views.Client
 {
-	public partial class BulkEmailEventReasonView : TabViewBase<BulekEmailEventReasonViewModel>
+	public partial class BulkEmailEventReasonView : TabViewBase<BulkEmailEventReasonViewModel>
 	{
-		public BulkEmailEventReasonView(BulekEmailEventReasonViewModel viewModel) : base(viewModel)
+		public BulkEmailEventReasonView(BulkEmailEventReasonViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();

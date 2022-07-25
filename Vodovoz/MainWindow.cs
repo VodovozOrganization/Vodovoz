@@ -155,6 +155,7 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 
 public partial class MainWindow : Gtk.Window
 {

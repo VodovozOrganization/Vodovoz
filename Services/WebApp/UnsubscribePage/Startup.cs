@@ -11,6 +11,8 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using System;
+using System.Reflection;
+using Autofac;
 using Newtonsoft.Json;
 using QS.Attachments.Domain;
 using UnsubscribePage.Controllers;
@@ -19,6 +21,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
+using Vodovoz;
 
 namespace UnsubscribePage
 {
@@ -35,15 +38,6 @@ namespace UnsubscribePage
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddControllersWithViews();
-
-
-			services.AddLogging(
-				logging =>
-				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-				});
 
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
 				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
@@ -59,33 +53,42 @@ namespace UnsubscribePage
 				throw;
 			}
 
-			services.AddOptions();
+			services.AddControllersWithViews();
+		}
 
-			services.AddSingleton<IEmailRepository, EmailRepository>();
-			services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<IUnsubscribeViewModelFactory, UnsubscribeViewModelFactory>();
+		public void ConfigureContainer(ContainerBuilder builder)
+		{
+			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly)
+				.Where(t => t.Name.EndsWith("Provider"))
+				.AsSelf()
+				.AsImplementedInterfaces();
+
+			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly)
+				.Where(t => t.Name.EndsWith("Repository"))
+				.AsSelf()
+				.AsImplementedInterfaces();
+
+			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly, Assembly.GetExecutingAssembly())
+				.Where(t => t.Name.EndsWith("Factory"))
+				.AsSelf()
+				.AsImplementedInterfaces();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			if (env.IsDevelopment())
+			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
-				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-				app.UseHsts();
 			}
-			app.UseHttpsRedirection();
+
 			app.UseStaticFiles();
 
 			app.UseRouting();
-
-			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{
@@ -114,7 +117,9 @@ namespace UnsubscribePage
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString);
+				.ConnectionString(connectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>();
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(

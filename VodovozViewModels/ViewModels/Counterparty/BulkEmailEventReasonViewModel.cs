@@ -6,9 +6,9 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty
 {
-	public class BulekEmailEventReasonViewModel : EntityTabViewModelBase<BulkEmailEventReason>
+	public class BulkEmailEventReasonViewModel : EntityTabViewModelBase<BulkEmailEventReason>
 	{
-		public BulekEmailEventReasonViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+		public BulkEmailEventReasonViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Причина отписки от рассылки";
