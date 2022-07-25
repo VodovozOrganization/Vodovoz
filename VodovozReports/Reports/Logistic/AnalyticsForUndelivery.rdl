@@ -657,7 +657,7 @@ First({bottles},'bottles_addresses_set')
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>Ответственных:</Value>
+                      <Value>ответственных:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Left</TextAlign>
                         <BorderStyle>
@@ -878,7 +878,7 @@ First({bottles},'bottles_addresses_set')
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>Ответственный</Value>
+                      <Value>ответственный</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>

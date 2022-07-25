@@ -66,7 +66,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void DrawRefreshed(UndeliveredOrdersFilterViewModel undeliveredOrdersFilter)
 		{
-			lblCaption.Markup = "<u><b>Сводка по недовозам\nСписок Ответственных:</b></u>";
+			lblCaption.Markup = "<u><b>Сводка по недовозам\nСписок ответственных:</b></u>";
 
 			yTreeView.ItemsDataSource = guilties;
 

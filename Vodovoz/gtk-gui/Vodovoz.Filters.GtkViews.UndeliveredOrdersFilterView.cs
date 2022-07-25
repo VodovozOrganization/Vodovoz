@@ -387,7 +387,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.ylabelGuilty = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelGuilty.Name = "ylabelGuilty";
 			this.ylabelGuilty.Xalign = 1F;
-			this.ylabelGuilty.LabelProp = global::Mono.Unix.Catalog.GetString("Ответственные:");
+			this.ylabelGuilty.LabelProp = global::Mono.Unix.Catalog.GetString("Ответственный:");
 			this.table1.Add(this.ylabelGuilty);
 			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelGuilty]));
 			w26.TopAttach = ((uint)(1));
