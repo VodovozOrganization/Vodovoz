@@ -231,7 +231,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>Ответственный</Value>
+                      <Value>Отв-ный</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>

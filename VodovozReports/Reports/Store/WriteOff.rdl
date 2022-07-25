@@ -312,7 +312,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Ответственные лица</Value>
+                      <Value>Отв. лица</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
