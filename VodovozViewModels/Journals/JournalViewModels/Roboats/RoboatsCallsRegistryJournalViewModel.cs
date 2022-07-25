@@ -199,7 +199,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 					)
 				).WithAlias(() => resultAlias.Details)
 			)
-			.OrderByAlias(() => callAlias.CallTime).Desc()
+			.OrderByAlias(() => callAlias.Id).Desc()
 			.TransformUsing(Transformers.AliasToBean<RoboatsCallJournalNode>());
 
 			return query;
