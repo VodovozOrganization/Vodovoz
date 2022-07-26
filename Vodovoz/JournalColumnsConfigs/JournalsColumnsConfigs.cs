@@ -1639,6 +1639,15 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.OrganizationName)
 						.XAlign(0.5f)
+					.Finish()
+			);
+
+			//BulkEmailEventReasonJournalViewModel
+			TreeViewColumnsConfigFactory.Register<BulkEmailEventReasonJournalViewModel>(
+				() => FluentColumnsConfig<BulkEmailEventReasonJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Архивный").AddToggleRenderer(node => node.IsArchive)
 					.AddColumn("")
 					.Finish()
 			);

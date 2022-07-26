@@ -7,5 +7,8 @@
 		string DocumentEmailSenderAddress { get; }
 		string DocumentEmailSenderName { get; }
 		string InvalidSignatureNotificationEmailAddress { get; }
+		string UnsubscribeUrl { get; }
+		int BulkEmailEventOtherReasonId { get; }
+		int BulkEmailEventOperatorReasonId { get; }
 	}
 }
