@@ -202,7 +202,9 @@ namespace Vodovoz.EntityRepositories
 
 		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider, bool isForUnsubscribePage = false)
 		{
-			var query = uow.GetAll<BulkEmailEventReason>()
+			BulkEmailEventReason bulkEmailEventReasonAlias = null;
+
+			var query = uow.Session.QueryOver(() => bulkEmailEventReasonAlias)
 				.Where(x => !x.IsArchive);
 
 			if(isForUnsubscribePage)
@@ -212,7 +214,7 @@ namespace Vodovoz.EntityRepositories
 
 			query.OrderBy(x => x.Id == emailParametersProvider.BulkEmailEventOtherReasonId);
 
-			return query.ToList();
+			return query.List();
 		}
 
 		#region EmailType
