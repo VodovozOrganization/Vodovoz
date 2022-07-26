@@ -21,6 +21,7 @@ namespace Vodovoz.EntityRepositories
 		IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider);
 		BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId);
 		BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uoW, IEmailParametersProvider emailParametersProvider);
+		BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uoW, IEmailParametersProvider emailParametersProvider);
 
 		#region EmailType
 

@@ -195,6 +195,11 @@ namespace Vodovoz.EntityRepositories
 			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOtherReasonId);
 		}
 
+		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		{
+			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOperatorReasonId);
+		}
+
 		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
 		{
 			return uow.GetAll<BulkEmailEventReason>()

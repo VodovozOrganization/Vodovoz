@@ -15,10 +15,10 @@ namespace Vodovoz.HibernateMapping.Counterparty
 
 			Map(x => x.Type).Column("type").CustomType<BulkEmailEvent.BulkEmailEventTypeString>().ReadOnly();
 			Map(x => x.ActionTime).Column("action_time").ReadOnly();
-			Map(x => x.OtherReason).Column("other_reason");
+			Map(x => x.ReasonDetail).Column("reason_detail");
 
 			References(x => x.Counterparty).Column("counterparty_id");
-			References(x => x.BulkEmailEventReason).Column("bulk_email_event_reason_id");
+			References(x => x.Reason).Column("bulk_email_event_reason_id");
 		}
 
 		public class SubscribingBulkEmailEventMap : SubclassMap<SubscribingBulkEmailEvent>

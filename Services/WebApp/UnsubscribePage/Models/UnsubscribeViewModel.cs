@@ -46,8 +46,8 @@ namespace UnsubscribePage.Models
 			UnsubscribingBulkEmailEvent unsubscribingEvent = new UnsubscribingBulkEmailEvent
 			{
 				Id = EmailEventId,
-				BulkEmailEventReason = reason,
-				OtherReason = reason?.Id == OtherReasonId ? OtherReason : null,
+				Reason = reason,
+				ReasonDetail = reason?.Id == OtherReasonId ? OtherReason : null,
 				Counterparty = new Counterparty
 				{
 					Id = CounterpartyId

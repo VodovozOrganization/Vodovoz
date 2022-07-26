@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 
 			var itemsQuery = UoW.Session.QueryOver(() => bulkEmailEventAlias)
 				.JoinAlias(() => bulkEmailEventAlias.Counterparty, () => counterpartyAlias)
-				.Left.JoinAlias(() => bulkEmailEventAlias.BulkEmailEventReason, () => bulkEmailEventReasonAlias)
+				.Left.JoinAlias(() => bulkEmailEventAlias.Reason, () => bulkEmailEventReasonAlias)
 				.Where(() => bulkEmailEventAlias.ActionTime >= EventActionTimeFrom.Value.Date
 				             && bulkEmailEventAlias.ActionTime <= EventActionTimeTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 
@@ -93,7 +93,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 					.Select(() => bulkEmailEventAlias.ActionTime).WithAlias(() => resultAlias.ActionDateTime)
 					.Select(() => bulkEmailEventAlias.Type).WithAlias(() => resultAlias.BulkEmailEventType)
 					.Select(() => bulkEmailEventReasonAlias.Name).WithAlias(() => resultAlias.Reason)
-					.Select(() => bulkEmailEventAlias.OtherReason).WithAlias(() => resultAlias.OtherReason)
+					.Select(() => bulkEmailEventAlias.ReasonDetail).WithAlias(() => resultAlias.OtherReason)
 					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.Phone)

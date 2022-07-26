@@ -1530,12 +1530,12 @@ namespace Vodovoz
 
 		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
 		{
-			var unsubscribingReason = _emailRepository.GetBulkEmailEventOtherReason(UoW, _emailParametersProvider);
+			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
 
 			var unsubscribingEvent = new UnsubscribingBulkEmailEvent
 			{
-				BulkEmailEventReason = unsubscribingReason,
-				OtherReason = $"Установлено оператором {CurrentEmployee.GetPersonNameWithInitials()}",
+				Reason = unsubscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
 				Counterparty = Entity
 			};
 
@@ -1550,12 +1550,12 @@ namespace Vodovoz
 
 		protected void OnButtonSubscribeClicked(object sender, EventArgs e)
 		{
-			var subscribingReason = _emailRepository.GetBulkEmailEventOtherReason(UoW, _emailParametersProvider);
+			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
 
 			var subscribingEvent = new SubscribingBulkEmailEvent
 			{
-				BulkEmailEventReason = subscribingReason,
-				OtherReason = $"Установлено оператором {CurrentEmployee.GetPersonNameWithInitials()}",
+				Reason = subscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
 				Counterparty = Entity
 			};
 

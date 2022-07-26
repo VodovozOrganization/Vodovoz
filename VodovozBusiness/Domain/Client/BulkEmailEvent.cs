@@ -42,21 +42,21 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _counterparty, value);
 		}
 
-		private BulkEmailEventReason _bulkEmailEventReason;
-		private string _otherReason;
+		private BulkEmailEventReason _reason;
+		private string _reasonDetail;
 
 		[Display(Name = "Причина отписки")]
-		public virtual BulkEmailEventReason BulkEmailEventReason
+		public virtual BulkEmailEventReason Reason
 		{
-			get => _bulkEmailEventReason;
-			set => SetField(ref _bulkEmailEventReason, value);
+			get => _reason;
+			set => SetField(ref _reason, value);
 		}
 
-		[Display(Name = "Текст другой причины")]
-		public virtual string OtherReason
+		[Display(Name = "Детализация причины")]
+		public virtual string ReasonDetail
 		{
-			get => _otherReason;
-			set => SetField(ref _otherReason, value);
+			get => _reasonDetail;
+			set => SetField(ref _reasonDetail, value);
 		}
 
 		#endregion
@@ -65,15 +65,15 @@ namespace Vodovoz.Domain.Client
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(string.IsNullOrEmpty(OtherReason))
+			if(string.IsNullOrEmpty(ReasonDetail))
 			{
 				yield return new ValidationResult("Причина должна быть заполнена.",
 					new[] { nameof(ActionTime) });
 			}
 
-			if(OtherReason?.Length > 255)
+			if(ReasonDetail?.Length > 500)
 			{
-				yield return new ValidationResult($"Превышена максимально допустимая длина причины ({OtherReason.Length}/255).",
+				yield return new ValidationResult($"Превышена максимально допустимая длина причины ({ReasonDetail.Length}/500).",
 					new[] { nameof(ActionTime) });
 			}
 		}
