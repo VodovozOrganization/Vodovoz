@@ -13,6 +13,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 
 			Map(x => x.Name).Column("name");
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.HideForUnsubscribePage).Column("hide_for_unsubscribe_page");
 		}
 	}
 }

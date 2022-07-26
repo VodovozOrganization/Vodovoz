@@ -200,12 +200,19 @@ namespace Vodovoz.EntityRepositories
 			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOperatorReasonId);
 		}
 
-		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider, bool isForUnsubscribePage = false)
 		{
-			return uow.GetAll<BulkEmailEventReason>()
-				.Where(x => !x.IsArchive)
-				.OrderBy(x => x.Id == emailParametersProvider.BulkEmailEventOtherReasonId)
-				.ToList();
+			var query = uow.GetAll<BulkEmailEventReason>()
+				.Where(x => !x.IsArchive);
+
+			if(isForUnsubscribePage)
+			{
+				query.Where(x => !x.HideForUnsubscribePage);
+			}
+
+			query.OrderBy(x => x.Id == emailParametersProvider.BulkEmailEventOtherReasonId);
+
+			return query.ToList();
 		}
 
 		#region EmailType

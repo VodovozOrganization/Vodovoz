@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.Client
 	{
 		private string _name;
 		private bool _isArchive;
+		private bool _hideForUnsubscribePage;
 
 		#region Свойства
 
@@ -33,6 +34,13 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+
+		[Display(Name = "Скрывать на странице отписки?")]
+		public virtual bool HideForUnsubscribePage
+		{
+			get => _hideForUnsubscribePage;
+			set => SetField(ref _hideForUnsubscribePage, value);
 		}
 
 		#endregion

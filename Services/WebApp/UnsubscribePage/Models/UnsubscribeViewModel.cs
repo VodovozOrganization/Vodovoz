@@ -27,7 +27,7 @@ namespace UnsubscribePage.Models
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Инициализация страницы отписки"))
 			{
 				CounterpartyId = emailRepository.GetCounterpartyIdByEmailGuidForUnsubscribing(unitOfWork, guid);
-				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailParametersProvider);
+				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailParametersProvider, isForUnsubscribePage: true);
 			}
 			ReasonsListSerialized = JsonSerializer.Serialize<IList<BulkEmailEventReason>>(_reasonsList);
 		}
