@@ -29,7 +29,6 @@ namespace Vodovoz.Filters.GtkViews
 
 			yenumcomboboxCurrentSubdivisionStatus.ItemsEnum = typeof(ComplaintStatuses);
 			yenumcomboboxCurrentSubdivisionStatus.Binding.AddBinding(ViewModel, x => x.ComplaintDiscussionStatus, v => v.SelectedItemOrNull).InitializeFromSource();
-			ylabelEmployeeSubdivisionStatus.Text = $"Статус в отделе {ViewModel.CurrentUserSubdivision?.ShortName}:";
 
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
@@ -39,8 +38,13 @@ namespace Vodovoz.Filters.GtkViews
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
+
 			//FIXME заменить на evme когда будут новые журналы с рекурсией
-			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
+			yCmbCurrentSubdivision.ItemsList = ViewModel.AllDepartments;
+			yCmbCurrentSubdivision.Binding.AddBinding(ViewModel, s => s.CurrentUserSubdivision, w => w.SelectedItem).InitializeFromSource();
+			yCmbCurrentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChangeSubdivision, w => w.Sensitive).InitializeFromSource();
+			yCmbCurrentSubdivision.SetSizeRequest(250, 30);
+
 			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();
 
 			daterangepicker.Binding.AddBinding(ViewModel, x => x.StartDate, w => w.StartDateOrNull).InitializeFromSource();
