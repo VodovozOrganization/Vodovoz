@@ -272,7 +272,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
 				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
+				.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()))
+				.And(() => !orderAlias.IsFastDelivery);
 
 			return orderitemsQuery.SelectList(list => list
 				.Select(

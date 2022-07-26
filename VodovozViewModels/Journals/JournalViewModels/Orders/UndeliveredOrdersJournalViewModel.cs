@@ -189,6 +189,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 							$"WHEN '{nameof(GuiltyTypes.Department)}' THEN 'Отд' " +
 							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
 							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN 'Директор ЛО (Доставка за час)' " +
 							$"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
 							"ELSE 'Неизвестно' " +
 							"END, " +

@@ -19,6 +19,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class TransferOperationDocument : Document, IValidatableObject, IDomainObject
 	{
+		private const int _commentLimit = 255; 
+		
 		[Display(Name = "Дата")]
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
@@ -254,19 +256,31 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(FromClient == null)
-				yield return new ValidationResult(String.Format("Клиент-отправитель не указан."),
-												  new[] { this.GetPropertyName(o => o.FromClient) });
+			{
+				yield return new ValidationResult("Клиент-отправитель не указан.",
+					new[] { nameof(FromClient) });
+			}
 
 			if(ToClient == null)
-				yield return new ValidationResult(String.Format("Клиент-получатель не указан."),
-												  new[] { this.GetPropertyName(o => o.ToClient) });
+			{
+				yield return new ValidationResult("Клиент-получатель не указан.",
+					new[] { nameof(ToClient) });
+			}
 
 			if(FromDeliveryPoint != null && ToDeliveryPoint != null && FromDeliveryPoint == ToDeliveryPoint)
-				yield return new ValidationResult(String.Format("Точки доставки отправителя и получателя одинаковые."),
-												  new[] { this.GetPropertyName(o => o.FromDeliveryPoint), this.GetPropertyName(o => o.ToDeliveryPoint) });
+			{
+				yield return new ValidationResult("Точки доставки отправителя и получателя одинаковые.",
+					new[] { nameof(FromDeliveryPoint), nameof(ToDeliveryPoint) });
+			}
+
+			if(Comment?.Length > _commentLimit)
+			{
+				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
+					new[] { nameof(Comment) });
+			}
 		}
 	}
 }
