@@ -429,9 +429,156 @@ namespace Vodovoz.Journals.JournalViewModels
 			return query;
 		}
 
+		private int GetItemsCount(IUnitOfWork uow)
+		{
+			Complaint complaintAlias = null;
+			Employee authorAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			ComplaintGuiltyItem complaintGuiltyItemAlias = null;
+			Employee guiltyEmployeeAlias = null;
+			Subdivision guiltySubdivisionAlias = null;
+			Fine fineAlias = null;
+			Order orderAlias = null;
+			ComplaintDiscussion discussionAlias = null;
+			Subdivision subdivisionAlias = null;
+			ComplaintKind complaintKindAlias = null;
+			Subdivision superspecialAlias = null;
+			ComplaintObject complaintObjectAlias = null;
+
+			var query = uow.Session.QueryOver(() => complaintAlias)
+				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
+				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
+				.Left.JoinAlias(() => complaintAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
+				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
+				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
+				.Left.JoinAlias(() => complaintGuiltyItemAlias.Employee, () => guiltyEmployeeAlias)
+				.Left.JoinAlias(() => guiltyEmployeeAlias.Subdivision, () => superspecialAlias)
+				.Left.JoinAlias(() => complaintGuiltyItemAlias.Subdivision, () => guiltySubdivisionAlias)
+				.Left.JoinAlias(() => complaintKindAlias.ComplaintObject, () => complaintObjectAlias);
+
+			#region Filter
+
+			if(FilterViewModel != null)
+			{
+				if(FilterViewModel.IsForRetail != null)
+				{
+					query.Where(() => counterpartyAlias.IsForRetail == FilterViewModel.IsForRetail);
+				}
+
+				FilterViewModel.EndDate = FilterViewModel.EndDate.Date.AddHours(23).AddMinutes(59);
+				if(FilterViewModel.StartDate.HasValue)
+					FilterViewModel.StartDate = FilterViewModel.StartDate.Value.Date;
+
+				QueryOver<ComplaintDiscussion, ComplaintDiscussion> dicussionQuery = null;
+
+				if(FilterViewModel.Subdivision != null)
+				{
+					dicussionQuery = QueryOver.Of(() => discussionAlias)
+						.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
+						.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
+						.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
+				}
+
+				if(FilterViewModel.StartDate.HasValue)
+				{
+					switch(FilterViewModel.FilterDateType)
+					{
+						case DateFilterType.PlannedCompletionDate:
+							if(dicussionQuery == null)
+							{
+								query = query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
+									.And(() => FilterViewModel.StartDate == null || complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
+							}
+							else
+							{
+								dicussionQuery = dicussionQuery
+									.And(() => FilterViewModel.StartDate == null || discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
+									.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
+							}
+							break;
+						case DateFilterType.ActualCompletionDate:
+							query = query.Where(() => complaintAlias.ActualCompletionDate <= FilterViewModel.EndDate)
+								.And(() => FilterViewModel.StartDate == null || complaintAlias.ActualCompletionDate >= FilterViewModel.StartDate.Value);
+							break;
+						case DateFilterType.CreationDate:
+							query = query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate)
+								.And(() => FilterViewModel.StartDate == null || complaintAlias.CreationDate >= FilterViewModel.StartDate.Value);
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+				}
+
+				if(dicussionQuery != null)
+					query.WithSubquery.WhereExists(dicussionQuery);
+				if(FilterViewModel.ComplaintType != null)
+					query = query.Where(() => complaintAlias.ComplaintType == FilterViewModel.ComplaintType);
+				if(FilterViewModel.ComplaintStatus != null)
+					query = query.Where(() => complaintAlias.Status == FilterViewModel.ComplaintStatus);
+				if(FilterViewModel.Employee != null)
+					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
+				if(FilterViewModel.Counterparty != null)
+				{
+					query = query.Where(() => complaintAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
+				}
+
+				if(FilterViewModel.CurrentUserSubdivision != null
+					&& FilterViewModel.ComplaintDiscussionStatus != null)
+				{
+					query = query.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.CurrentUserSubdivision.Id)
+						.And(() => discussionAlias.Status == FilterViewModel.ComplaintDiscussionStatus);
+				}
+
+				if(FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null)
+				{
+					var subquery = QueryOver.Of<ComplaintGuiltyItem>()
+											.Where(g => g.GuiltyType == FilterViewModel.GuiltyItemVM.Entity.GuiltyType.Value);
+					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType)
+					{
+						case ComplaintGuiltyTypes.None:
+						case ComplaintGuiltyTypes.Client:
+						case ComplaintGuiltyTypes.Depreciation:
+						case ComplaintGuiltyTypes.Supplier:
+							break;
+						case ComplaintGuiltyTypes.Employee:
+							if(FilterViewModel.GuiltyItemVM.Entity.Employee != null)
+								subquery.Where(g => g.Employee.Id == FilterViewModel.GuiltyItemVM.Entity.Employee.Id);
+							break;
+						case ComplaintGuiltyTypes.Subdivision:
+							if(FilterViewModel.GuiltyItemVM.Entity.Subdivision != null)
+								subquery.Where(g => g.Subdivision.Id == FilterViewModel.GuiltyItemVM.Entity.Subdivision.Id);
+							break;
+						default:
+							break;
+					}
+					query.WithSubquery.WhereProperty(x => x.Id).In(subquery.Select(x => x.Complaint));
+				}
+
+				if(FilterViewModel.ComplaintKind != null)
+					query.Where(() => complaintAlias.ComplaintKind.Id == FilterViewModel.ComplaintKind.Id);
+
+				if(FilterViewModel.ComplaintObject != null)
+				{
+					query.Where(() => complaintObjectAlias.Id == FilterViewModel.ComplaintObject.Id);
+				}
+			}
+
+			#endregion Filter
+
+			query.Select(Projections.GroupProjection(() => complaintAlias.Id));
+
+			return query.List<int>().Count;
+			
+		}
+
 		private void RegisterComplaints()
 		{
-			var complaintConfig = RegisterEntity<Complaint>(GetComplaintQuery)
+			var complaintConfig = RegisterEntity<Complaint>(GetComplaintQuery, GetItemsCount)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new CreateComplaintViewModel(
