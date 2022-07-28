@@ -57,6 +57,8 @@ namespace Vodovoz.Reports
 		{
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			buttonInfo.Clicked += (sender, args) => ShowInfoWindow();
+			ycheckbuttonDetail.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("generate_detailed_sales_report");
 			SetupFilter();
 		}
 

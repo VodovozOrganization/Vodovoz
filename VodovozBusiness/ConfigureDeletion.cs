@@ -544,6 +544,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<RoboAtsCounterpartyName>();
 			DeleteConfig.AddHibernateDeleteInfo<RoboAtsCounterpartyPatronymic>();
 
+			DeleteConfig.AddHibernateDeleteInfo<BulkEmailEventReason>();
+
 			#endregion
 
 			#region Logistics

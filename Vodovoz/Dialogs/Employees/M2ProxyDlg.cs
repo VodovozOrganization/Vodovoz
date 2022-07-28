@@ -130,7 +130,12 @@ namespace Vodovoz.Dialogs.Employees
 				Entity.Date = order.DeliveryDate != null ? order.DeliveryDate.Value : DateTime.Now;
 				Entity.ExpirationDate = Entity.Date.AddDays(10);
 				Entity.Supplier = order.Client;
-				Entity.Organization = order.Contract.Organization;
+
+				if(Entity.Id == 0)
+				{
+					Entity.Organization = order.Contract.Organization;
+				}
+				
 				yTWEquipment.ItemsDataSource = equipmentList;
 			} else {
 				yDPDatesRange.StartDateOrNull = DateTime.Today;

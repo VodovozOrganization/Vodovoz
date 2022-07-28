@@ -1737,6 +1737,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PaymentFromView.cs" />
     <Compile Include="Filters\GtkViews\DeliveryScheduleFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryScheduleFilterView.cs" />
+    <Compile Include="Views\Client\BulkEmailEventReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.BulkEmailEventReasonView.cs" />
+    <Compile Include="Views\Reports\BulkEmailEventReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.BulkEmailEventReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -113,7 +113,9 @@
     <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\RoboatsJournalsFactory.cs" />
+    <Compile Include="Journals\JournalFactories\BulkEmailEventReasonJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\DistrictJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IBulkEmailEventReasonJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IDistrictJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
@@ -124,6 +126,7 @@
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\BulkEmailEventReasonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DebtorJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\TariffZoneJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\TrackPointJournalNode.cs" />
@@ -187,6 +190,7 @@
     <Compile Include="Journals\JournalViewModels\Cash\SalaryByEmployeeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\DeliveryPointByClientJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\DeliveryPointJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\BulkEmailEventReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintResults\ComplaintResultsOfEmployeesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
@@ -252,6 +256,7 @@
     <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintResultOfEmployeesViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\BulkEmailEventReasonViewModel.cs" />
     <Compile Include="Dialogs\Counterparty\RoboAtsCounterpartyNameViewModel.cs" />
     <Compile Include="Dialogs\Counterparty\RoboAtsCounterpartyPatronymicViewModel.cs" />
     <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
@@ -336,6 +341,9 @@
     <Compile Include="ViewModels\Payments\PaymentLoaderViewModel.cs" />
     <Compile Include="ViewModels\Payments\TransferDocumentsFromBankParser.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
+    <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReport.cs" />
+    <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
+    <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDeliveryAvailabilityHistoryReport.cs" />
     <Compile Include="ViewModels\Reports\CostCarExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAdditionalLoadingReportViewModel.cs" />

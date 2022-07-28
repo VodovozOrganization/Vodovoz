@@ -162,6 +162,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => deliveryScheduleAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
 					.Select(() => deliveryScheduleAlias.RoboatsAudiofile).WithAlias(() => resultAlias.RoboatsAudioFileName)
 				)
+				.OrderBy(x => x.From).Asc
+				.OrderBy(x => x.To).Asc
 				.TransformUsing(Transformers.AliasToBean(typeof(DeliveryScheduleJournalNode)));
 
 			return itemsQuery;

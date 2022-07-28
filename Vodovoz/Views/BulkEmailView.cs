@@ -57,6 +57,12 @@ namespace Vodovoz.Views
 				.AddBinding(vm => vm.IsInSendingProcess, w => w.Visible)
 				.InitializeFromSource();
 
+			ycheckbuttonLongUnsubscribed.Binding.AddBinding(_bulkEmailViewModel, vm => vm.IncludeOldUnsubscribed, w => w.Active).InitializeFromSource();
+
+			yspinbuttonMonthsSinceUnsubscribing.Binding.AddSource(_bulkEmailViewModel)
+				.AddBinding(vm => vm.IncludeOldUnsubscribed, w => w.Sensitive)
+				.AddBinding(vm => vm.MonthsSinceUnsubscribing, w => w.ValueAsInt)
+				.InitializeFromSource();
 
 			attachmentsEmailView.ViewModel = _bulkEmailViewModel.AttachmentsEmailViewModel;
 

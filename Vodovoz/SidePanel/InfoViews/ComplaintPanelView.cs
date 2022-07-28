@@ -39,7 +39,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		void ConfigureWidget()
 		{
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object>()
-				.AddColumn("Виновный")
+				.AddColumn("Ответственный")
 					.AddTextRenderer(n => GetNodeText(n))
 					.AddSetter((c ,n) => c.Alignment = GetAlignment(n))
 					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
@@ -158,7 +158,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			IList<ClosedComplaintResultNode> resultsOfCounterparty,
 			IList<ClosedComplaintResultNode> resultsOfEmployees)
 		{
-			lblCaption.Markup = string.Format("<u><b>Сводка по рекламациям\nСписок виновных:</b></u>");
+			lblCaption.Markup = string.Format("<u><b>Сводка по рекламациям\nСписок ответственных:</b></u>");
 			lblUnclosedCount.Markup = string.Format(
 				"<b>Не закрыто <span foreground='{2}'>{0}</span> рекламаций,\nиз них просрочено <span foreground='{2}'>{1}</span> шт.</b>",
 				totalCount,

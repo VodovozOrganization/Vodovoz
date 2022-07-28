@@ -2,6 +2,7 @@
 using Fias.Service;
 using Gtk;
 using MySql.Data.MySqlClient;
+using NetTopologySuite.Operation.OverlayNG;
 using NLog;
 using QS.Banks.Domain;
 using QS.BaseParameters;
@@ -39,6 +40,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Vodovoz;
@@ -73,6 +75,7 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
@@ -109,6 +112,7 @@ using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Roboats;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
@@ -149,6 +153,14 @@ using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using QS.Project.Services.FileDialog;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.DomainModel.Entity;
+using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using Vodovoz.ViewModels.Dialogs.Roboats;
+using QS.DomainModel.NotifyChange;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2603,6 +2615,25 @@ public partial class MainWindow : Gtk.Window
 
 		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnUnsubscribingReasonsActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new BulkEmailEventReasonJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices));
+	}
+
+	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
+	{
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory = new BulkEmailEventReasonJournalFactory();
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		BulkEmailEventReportViewModel viewModel = new BulkEmailEventReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, bulkEmailEventReasonJournalFactory, counterpartyJournalFactory);
 
 		tdiMain.AddTab(viewModel);
 	}
