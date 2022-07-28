@@ -13,5 +13,6 @@ namespace Mailjet.Api.Abstractions
 		public ICollection<InlinedEmailAttachment> InlinedAttachments { get; set; }
 		public string CustomId { get; set; }
 		public string EventPayload { get; set; }
+		public Dictionary<string, string> Headers { get; set; }
 	}
 }
