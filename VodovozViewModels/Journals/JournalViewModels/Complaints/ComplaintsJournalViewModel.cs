@@ -578,7 +578,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 		private void RegisterComplaints()
 		{
-			var complaintConfig = RegisterEntity<Complaint>(GetComplaintQuery, GetItemsCount)
+			var complaintConfig = RegisterEntity<Complaint>(GetComplaintQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new CreateComplaintViewModel(
