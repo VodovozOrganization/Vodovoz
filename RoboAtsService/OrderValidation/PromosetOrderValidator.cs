@@ -8,7 +8,7 @@ namespace RoboAtsService.OrderValidation
 	{
 		public override IEnumerable<string> GetProblemMessages(IEnumerable<Order> orders)
 		{
-			var result = orders.Where(x => !IsValid(x)).Select(x => $"В заказа №{x.Id} добавлен промонабор");
+			var result = orders.Where(x => !IsValid(x)).Select(x => $"В заказе №{x.Id} добавлен промонабор");
 			return result;
 		}
 

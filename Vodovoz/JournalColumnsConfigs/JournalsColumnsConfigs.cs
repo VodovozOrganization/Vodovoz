@@ -1,11 +1,13 @@
-﻿using System;
-using System.Globalization;
+﻿using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using System;
+using System.Globalization;
+using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
@@ -13,47 +15,47 @@ using Vodovoz.Domain.Proposal;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.JournalNodes;
+using Vodovoz.Journals;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.JournalViewModels.Suppliers;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
-using Vodovoz.Representations;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Journals.JournalNodes;
-using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
-using Vodovoz.ViewModels.Journals.Nodes.Cash;
-using WrapMode = Pango.WrapMode;
-using Vodovoz.Journals;
 using Vodovoz.Journals.Nodes.Rent;
+using Vodovoz.JournalViewModels;
+using Vodovoz.JournalViewModels.Suppliers;
+using Vodovoz.Representations;
+using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
-using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.JournalViewModels;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints.ComplaintResults;
-using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
+using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
-using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
-using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.Nodes.Cash;
+using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -1596,13 +1598,25 @@ namespace Vodovoz.JournalColumnsConfigs
 
 			//RoboatsCallsRegistryJournalViewModel
 			TreeViewColumnsConfigFactory.Register<RoboatsCallsRegistryJournalViewModel>(
-				() => FluentColumnsConfig<RoboatsCallJournalNode>.Create()
-					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+				(vm) => FluentColumnsConfig<RoboatsCallJournalNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<RoboatsCallJournalNode>(vm.Items.Cast<RoboatsCallJournalNode>(), vm.RecuresiveConfig))
+					.AddColumn("Код").AddNumericRenderer(node => node.EntityId)
 					.AddColumn("Время").AddTextRenderer(node => node.Time.ToString("dd.MM.yyyy HH:mm:ss"))
 					.AddColumn("Телефон").AddTextRenderer(node => node.Phone)
 					.AddColumn("Статус").AddTextRenderer(node => node.CallStatus)
 					.AddColumn("Результат").AddTextRenderer(node => node.CallResult)
-					.AddColumn("Детали звонка").AddTextRenderer(node => node.Details)
+					.AddColumn("Детали звонка").AddTextRenderer(node => node.Description)
+					.RowCells()
+					.AddSetter<CellRenderer>(
+						(cell, node) => {
+							var color = _colorWhite;
+							if(node.NodeType == RoboatsCallNodeType.RoboatsCallDetail)
+							{
+								color = _colorLightGrey;
+							}
+							cell.CellBackgroundGdk = color;
+						}
+					)
 					.Finish()
 			);
 

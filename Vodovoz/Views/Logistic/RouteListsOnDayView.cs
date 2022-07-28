@@ -27,6 +27,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Gamma.Binding.Core.LevelTreeConfig;
 
 namespace Vodovoz.Views.Logistic
 {
