@@ -3,11 +3,16 @@ using System.Text;
 
 namespace VodovozInfrastructure.Cryptography
 {
-	public static class MD5HexHashFromString
+	public class MD5HexHashFromString : IMD5HexHashFromString
 	{
-		private static readonly StringBuilder _sb = new StringBuilder();
+		private readonly StringBuilder _sb;
+
+		public MD5HexHashFromString()
+		{
+			_sb = new StringBuilder();
+		}
 		
-		public static string GetMD5HexHashFromString(string value)
+		public string GetMD5HexHashFromString(string value)
 		{
 			_sb.Clear();
 			byte[] bytes = Encoding.UTF8.GetBytes(value);
