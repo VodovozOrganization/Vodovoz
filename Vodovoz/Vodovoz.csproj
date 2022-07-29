@@ -1741,8 +1741,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.BulkEmailEventReasonView.cs" />
     <Compile Include="Views\Reports\BulkEmailEventReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.BulkEmailEventReportView.cs" />
-    <Compile Include="Views\Reports\ComplaintsJournalReportView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Reports.ComplaintsJournalReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
