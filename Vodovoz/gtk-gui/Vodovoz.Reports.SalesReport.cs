@@ -100,6 +100,7 @@ namespace Vodovoz.Reports
 			w6.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ycheckbuttonPhones = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonPhones.Sensitive = false;
 			this.ycheckbuttonPhones.CanFocus = true;
 			this.ycheckbuttonPhones.Name = "ycheckbuttonPhones";
 			this.ycheckbuttonPhones.Label = global::Mono.Unix.Catalog.GetString("С телефонами");
