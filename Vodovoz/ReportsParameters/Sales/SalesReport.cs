@@ -66,8 +66,6 @@ namespace Vodovoz.Reports
 				ycheckbuttonPhones.Sensitive = _canSeePhones && ycheckbuttonDetail.Active;
 			};
 
-			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("phones_in_detailed_sales_report");
-
 			SetupFilter();
 		}
 
