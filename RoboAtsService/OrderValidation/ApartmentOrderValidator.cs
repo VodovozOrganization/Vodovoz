@@ -17,7 +17,7 @@ namespace RoboAtsService.OrderValidation
 		{
 			foreach(var order in orders)
 			{
-				if(order.DeliveryPoint?.RoomType == RoomType.Apartment)
+				if(order.DeliveryPoint.RoomType == RoomType.Apartment)
 				{
 					AddValidOrder(order);
 				}

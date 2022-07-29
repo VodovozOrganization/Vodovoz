@@ -30,11 +30,6 @@ namespace RoboAtsService.OrderValidation
 		{
 			foreach(var order in orders)
 			{
-				if(order.DeliveryPoint == null)
-				{
-					continue;
-				}
-
 				if(order.DeliveryPoint.StreetFiasGuid.HasValue && _availableFiasStreetGuids.Contains(order.DeliveryPoint.StreetFiasGuid.Value))
 				{
 					AddValidOrder(order);

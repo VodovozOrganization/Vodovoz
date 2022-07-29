@@ -261,6 +261,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 				var lastOrdersByDeliveryPoints = uow.Session.QueryOver(() => orderAlias)
 					.Where(() => orderAlias.Client.Id == counterpartyId)
+					.Where(Restrictions.IsNotNull(Projections.Property(() => orderAlias.DeliveryPoint)))
 					.Select(
 						Projections.Max(Projections.Id()),
 						Projections.Group(() => orderAlias.DeliveryPoint.Id)
