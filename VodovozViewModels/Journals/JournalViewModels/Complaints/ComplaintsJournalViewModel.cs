@@ -33,6 +33,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Journals.JournalViewModels
@@ -48,7 +49,6 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
-		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
@@ -81,7 +81,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintFilterViewModel filterViewModel,
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
-			IReportViewOpener reportViewOpener,
 			IGtkTabsOpener gtkDialogsOpener,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
@@ -104,7 +103,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -192,6 +190,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintKind complaintKindAlias = null;
 			Subdivision superspecialAlias = null;
 			ComplaintObject complaintObjectAlias = null;
+			ComplaintResultOfCounterparty resultOfCounterpartyAlias = null;
+			ComplaintResultOfEmployees resultOfEmployeesAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -276,6 +276,14 @@ namespace Vodovoz.Journals.JournalViewModels
 				NHibernateUtil.String,
 				Projections.Property(() => fineAlias.TotalMoney),
 				Projections.Constant("\n"));
+
+			var resultOfCounterpartySubquery = QueryOver.Of(() => resultOfCounterpartyAlias)
+				.Where(() => resultOfCounterpartyAlias.Id == complaintAlias.ComplaintResultOfCounterparty.Id)
+				.Select(Projections.Property(() => resultOfCounterpartyAlias.Name));
+
+			var resultOfEmployeesSubquery = QueryOver.Of(() => resultOfEmployeesAlias)
+				.Where(() => resultOfEmployeesAlias.Id == complaintAlias.ComplaintResultOfEmployees.Id)
+				.Select(Projections.Property(() => resultOfEmployeesAlias.Name));
 
 			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
@@ -420,6 +428,9 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintAlias.ResultText).WithAlias(() => resultAlias.ResultText)
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
+				.Select(() => complaintAlias.Arrangement).WithAlias(() => resultAlias.ArrangementText)
+				.SelectSubQuery(resultOfCounterpartySubquery).WithAlias(() => resultAlias.ResultOfCounterparty)
+				.SelectSubQuery(resultOfEmployeesSubquery).WithAlias(() => resultAlias.ResultOfEmployees)
 			);
 
 			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
@@ -432,33 +443,15 @@ namespace Vodovoz.Journals.JournalViewModels
 		private int GetItemsCount(IUnitOfWork uow)
 		{
 			Complaint complaintAlias = null;
-			Employee authorAlias = null;
 			Counterparty counterpartyAlias = null;
-			DeliveryPoint deliveryPointAlias = null;
-			ComplaintGuiltyItem complaintGuiltyItemAlias = null;
-			Employee guiltyEmployeeAlias = null;
-			Subdivision guiltySubdivisionAlias = null;
-			Fine fineAlias = null;
-			Order orderAlias = null;
 			ComplaintDiscussion discussionAlias = null;
-			Subdivision subdivisionAlias = null;
 			ComplaintKind complaintKindAlias = null;
-			Subdivision superspecialAlias = null;
 			ComplaintObject complaintObjectAlias = null;
 
 			var query = uow.Session.QueryOver(() => complaintAlias)
-				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
-				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
-				.Left.JoinAlias(() => complaintAlias.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
-				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
-				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
-				.Left.JoinAlias(() => complaintGuiltyItemAlias.Employee, () => guiltyEmployeeAlias)
-				.Left.JoinAlias(() => guiltyEmployeeAlias.Subdivision, () => superspecialAlias)
-				.Left.JoinAlias(() => complaintGuiltyItemAlias.Subdivision, () => guiltySubdivisionAlias)
 				.Left.JoinAlias(() => complaintKindAlias.ComplaintObject, () => complaintObjectAlias);
 
 			#region Filter
@@ -840,13 +833,19 @@ namespace Vodovoz.Journals.JournalViewModels
 			CreateDefaultAddActions();
 			CreateEditAction();
 			CreateDefaultDeleteAction();
-			CreateOpenPrintFormAction();
+			CreateExportAction();
 		}
 
-		private void CreateOpenPrintFormAction()
+		private void CreateExportAction()
 		{
-			NodeActionsList.Add(new JournalAction("Открыть печатную форму", x => true, x => true,
-				selectedItems => _reportViewOpener.OpenReportInSlaveTab(this, FilterViewModel.GetReportInfo())));
+			NodeActionsList.Add(new JournalAction("Экспорт в Excel", x => true, x => true,
+				selectedItems =>
+				{
+					var nodes = GetComplaintQuery(UoW).List<ComplaintJournalNode>();
+
+					var report = new ComplaintJournalReport(nodes, _fileDialogService);
+					report.Export();
+				}));
 		}
 
 		protected void CreateEditAction()
