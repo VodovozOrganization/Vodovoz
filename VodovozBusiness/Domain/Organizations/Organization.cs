@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using DataAnnotationsExtensions;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
@@ -7,6 +8,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.StoredResources;
 
 namespace Vodovoz.Domain.Organizations
@@ -19,6 +21,7 @@ namespace Vodovoz.Domain.Organizations
 	public class Organization : AccountOwnerBase, IDomainObject
 	{
 		private int? _avangardShopId;
+		private IList<OrganizationVersion> _organizationVersions;
 
 		public Organization()
 		{
@@ -138,6 +141,51 @@ namespace Vodovoz.Domain.Organizations
 			get => _avangardShopId;
 			set => SetField(ref _avangardShopId, value);
 		}
+
+		private string _address;
+		[Display(Name = "Фактический адрес")]
+		public virtual string Address
+		{
+			get => _address;
+			set => SetField(ref _address, value);
+		}
+
+		private string _jurAddress;
+		[Display(Name = "Юридический адрес")]
+		public virtual string JurAddress
+		{
+			get => _jurAddress;
+			set => SetField(ref _jurAddress, value);
+		}
+
+		private Employee _leader;
+		[Display(Name = "Руководитель")]
+		public virtual Employee Leader
+		{
+			get => _leader;
+			set => SetField(ref _leader, value);
+		}
+
+		private Employee _buhgalter; //todo Art8m УБРАТЬ вместе с остльаным ненужным
+		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
+
+		[Display(Name = "Бухгалтер")]
+		public virtual Employee Buhgalter
+		{
+			get => _buhgalter;
+			set => SetField(ref _buhgalter, value);
+		}
+
+		public virtual IList<OrganizationVersion> OrganizationVersions
+		{
+			get => _organizationVersions;
+			set => SetField(ref _organizationVersions, value);
+		}
+
+		public virtual GenericObservableList<OrganizationVersion> ObservableOrganizationVersions => _observableOrganizationVersions
+			?? (_observableOrganizationVersions = new GenericObservableList<OrganizationVersion>(OrganizationVersions));
+
+
 
 		#endregion
 	}

@@ -30,6 +30,7 @@ namespace Vodovoz.HibernateMapping.Organizations
 
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
+			HasMany(x => x.OrganizationVersions).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("organization_id");
 		}
 	}
 }

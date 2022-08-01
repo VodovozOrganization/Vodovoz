@@ -10,12 +10,19 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Factories;
+using QS.Project.Services;
+using Vodovoz.ViewModels.Widgets.Organizations;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
 	public partial class OrganizationDlg : QS.Dialog.Gtk.EntityDialogBase<Organization>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
+			= new OrganizationVersionsViewModelFactory(ServicesConfig.CommonServices);
+
 		public override bool HasChanges {
 			get {
 				phonesview1.RemoveEmpty();
@@ -78,6 +85,11 @@ namespace Vodovoz
 			if (UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone> ();
 			phonesview1.Phones = UoWGeneric.Root.Phones;
+
+			var organizationVersionsViewModel = _organizationVersionsViewModelFactory?.CreateOrganizationVersionsViewModel(Entity, employeeFactory, NavigationManagerProvider.NavigationManager);
+			versionsView.ViewModel = organizationVersionsViewModel;
+
+			//yhboxVersionEdit.Binding.AddBinding(versionsView.ViewModel, vm=>vm.)
 		}
 
 		public override bool Save ()

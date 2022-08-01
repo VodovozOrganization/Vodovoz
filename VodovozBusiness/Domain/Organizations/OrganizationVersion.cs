@@ -3,6 +3,7 @@ using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Logistic.Organizations
 {
@@ -18,9 +19,16 @@ namespace Vodovoz.Domain.Logistic.Organizations
 		private Employee _accountant;
 		private DateTime _startDate;
 		private DateTime? _endDate;
+		private Organization _organization;
 
 		public virtual int Id { get; set; }
 
+		[Display(Name = "Организация")]
+		public virtual Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
+		}
 
 		[Display(Name = "Фактический адрес")]
 		public virtual string Address
@@ -65,6 +73,9 @@ namespace Vodovoz.Domain.Logistic.Organizations
 		}
 
 		public override string ToString() => $"Версия организации №{Id}";
+
+		public virtual string LeaderShortName => Leader?.ShortName;
+		public virtual string AccountantShortName => Accountant?.ShortName;
 	}
 
 }
