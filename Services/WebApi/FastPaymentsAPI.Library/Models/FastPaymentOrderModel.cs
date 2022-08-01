@@ -88,12 +88,12 @@ namespace FastPaymentsAPI.Library.Models
 			return (PaidOrderInfoDTO)new XmlSerializer(typeof(PaidOrderInfoDTO)).Deserialize(reader);
 		}
 
-		public void NotifyEmployee(string orderNumber, string signature)
+		public void NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature)
 		{
 			var configuration = _uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
-			string messageText = $"Оповещение о пришедшей оплате с неверной подписью: {signature}" +
-								$"для платежа по заказу №{orderNumber}";
+			string messageText = $"Оповещение о пришедшей оплате с неверной подписью: {bankSignature}" +
+				$" для платежа по заказу №{orderNumber}, shopId {shopId}, рассчитанная подпись {paymentSignature}";
 
 			var sendEmailMessage = new SendEmailMessage
 			{
