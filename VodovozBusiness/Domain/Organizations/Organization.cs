@@ -108,34 +108,6 @@ namespace Vodovoz.Domain.Organizations
 			get => _email;
 			set => SetField(ref _email, value);
 		}
-
-		private string _address;
-		[Display(Name = "Фактический адрес")]
-		public virtual string Address {
-			get => _address;
-			set => SetField(ref _address, value);
-		}
-
-		private string _jurAddress;
-		[Display(Name = "Юридический адрес")]
-		public virtual string JurAddress {
-			get => _jurAddress;
-			set => SetField(ref _jurAddress, value);
-		}
-
-		private Employee _leader;
-		[Display(Name = "Руководитель")]
-		public virtual Employee Leader {
-			get => _leader;
-			set => SetField(ref _leader, value);
-		}
-
-		private Employee _buhgalter;
-		[Display(Name = "Бухгалтер")]
-		public virtual Employee Buhgalter {
-			get => _buhgalter;
-			set => SetField(ref _buhgalter, value);
-		}
 		
 		private int? _cashBoxId;
 		[Display(Name = "ID Кассового аппарата")]
