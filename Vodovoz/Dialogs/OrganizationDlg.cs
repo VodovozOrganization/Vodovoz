@@ -60,19 +60,19 @@ namespace Vodovoz
 			dataentryOKPO.Binding.AddBinding(Entity, e => e.OKPO, w => w.Text).InitializeFromSource();
 			dataentryOKVED.Binding.AddBinding(Entity, e => e.OKVED, w => w.Text).InitializeFromSource();
 
-			datatextviewAddress.Binding.AddBinding(Entity, e => e.Address, w => w.Buffer.Text).InitializeFromSource();
-			datatextviewJurAddress.Binding.AddBinding(Entity, e => e.JurAddress, w => w.Buffer.Text).InitializeFromSource();
+			//datatextviewAddress.Binding.AddBinding(Entity, e => e.Address, w => w.Buffer.Text).InitializeFromSource();
+			//datatextviewJurAddress.Binding.AddBinding(Entity, e => e.JurAddress, w => w.Buffer.Text).InitializeFromSource();
 
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 			accountsview1.SetAccountOwner(UoW, Entity);
 
 			var employeeFactory = new EmployeeJournalFactory();
-			evmeAccountant.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
-			evmeAccountant.Binding.AddBinding(Entity, e => e.Buhgalter, w => w.Subject).InitializeFromSource();
+			//evmeAccountant.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			//evmeAccountant.Binding.AddBinding(Entity, e => e.Buhgalter, w => w.Subject).InitializeFromSource();
 
-			evmeLeader.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
-			evmeLeader.Binding.AddBinding(Entity, e => e.Leader, w => w.Subject).InitializeFromSource();
+			//evmeLeader.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			//evmeLeader.Binding.AddBinding(Entity, e => e.Leader, w => w.Subject).InitializeFromSource();
 
 			phonesview1.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Phones == null)
