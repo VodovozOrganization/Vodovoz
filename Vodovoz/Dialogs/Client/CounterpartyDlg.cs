@@ -1071,7 +1071,6 @@ namespace Vodovoz
 				filter,
 				FilePickerService,
 				SubdivisionRepository,
-				new GtkReportViewOpener(),
 				new GtkTabsOpener(),
 				NomenclatureRepository,
 				_userRepository,
