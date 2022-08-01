@@ -159,10 +159,10 @@ namespace FastPaymentsAPI.Library.Models
 			Save(fastPayment);
 		}
 
-		public bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto)
+		public bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto, out string paymentSignature)
 		{
 			var signatureParameters = _fastPaymentApiFactory.GetSignatureParamsForValidate(paidOrderInfoDto);
-			return _signatureManager.Validate(paidOrderInfoDto.Signature, signatureParameters);
+			return _signatureManager.Validate(paidOrderInfoDto.Signature, signatureParameters, out paymentSignature);
 		}
 		
 		public void UpdateFastPaymentStatus(PaidOrderInfoDTO paidOrderInfoDto, FastPayment fastPayment)
