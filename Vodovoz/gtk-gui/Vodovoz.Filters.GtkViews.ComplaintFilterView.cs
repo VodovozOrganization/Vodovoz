@@ -68,8 +68,6 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yLabel ylabelEmployeeSubdivisionStatus;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelEmployeeSubdivisionStatus1;
-
 		private global::Gamma.Widgets.ySpecComboBox yspeccomboboxComplaintObject;
 
 		private global::Gtk.HSeparator hseparator1;
@@ -407,17 +405,6 @@ namespace Vodovoz.Filters.GtkViews
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ylabelEmployeeSubdivisionStatus1 = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelEmployeeSubdivisionStatus1.Name = "ylabelEmployeeSubdivisionStatus1";
-			this.ylabelEmployeeSubdivisionStatus1.Xalign = 0F;
-			this.ylabelEmployeeSubdivisionStatus1.LabelProp = global::Mono.Unix.Catalog.GetString(":");
-			this.table1.Add(this.ylabelEmployeeSubdivisionStatus1);
-			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelEmployeeSubdivisionStatus1]));
-			w29.LeftAttach = ((uint)(3));
-			w29.RightAttach = ((uint)(4));
-			w29.XOptions = ((global::Gtk.AttachOptions)(4));
-			w29.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.yspeccomboboxComplaintObject = new global::Gamma.Widgets.ySpecComboBox();
 			this.yspeccomboboxComplaintObject.Name = "yspeccomboboxComplaintObject";
 			this.yspeccomboboxComplaintObject.AddIfNotExist = false;
@@ -425,31 +412,31 @@ namespace Vodovoz.Filters.GtkViews
 			this.yspeccomboboxComplaintObject.ShowSpecialStateAll = false;
 			this.yspeccomboboxComplaintObject.ShowSpecialStateNot = false;
 			this.table1.Add(this.yspeccomboboxComplaintObject);
-			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table1[this.yspeccomboboxComplaintObject]));
-			w30.TopAttach = ((uint)(2));
-			w30.BottomAttach = ((uint)(3));
-			w30.LeftAttach = ((uint)(1));
-			w30.RightAttach = ((uint)(2));
-			w30.XOptions = ((global::Gtk.AttachOptions)(4));
-			w30.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table1[this.yspeccomboboxComplaintObject]));
+			w29.TopAttach = ((uint)(2));
+			w29.BottomAttach = ((uint)(3));
+			w29.LeftAttach = ((uint)(1));
+			w29.RightAttach = ((uint)(2));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.table1]));
-			w31.Position = 4;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.table1]));
+			w30.Position = 4;
+			w30.Expand = false;
+			w30.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w31.Position = 0;
 			w31.Expand = false;
 			w31.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w32.Position = 0;
-			w32.Expand = false;
-			w32.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vbox1.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
-			w33.Position = 1;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
+			w32.Position = 1;
+			w32.Expand = false;
+			w32.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
