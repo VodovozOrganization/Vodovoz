@@ -243,7 +243,7 @@ namespace Vodovoz
 			Entity.Employee = rl.Driver;
 			Entity.Description = $"Закрытие МЛ №{rl.Id} от {rl.Date:d}";
 			Entity.RouteListClosing = rl;
-			Entity.RelatedToSubdivision = rl.ClosingSubdivision;
+			//Entity.RelatedToSubdivision = rl.ClosingSubdivision;
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)

@@ -312,9 +312,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(RouteList.ClosingSubdivision == null) {
+			/*if(RouteList.ClosingSubdivision == null) {
 				yield return new ValidationResult("Касса в маршрутном листе должна быть заполнена");
-			}
+			}*/
 
 			if(Subdivision == null) {
 				yield return new ValidationResult("Необходимо выбрать кассу, с которой будет списываться топливо");

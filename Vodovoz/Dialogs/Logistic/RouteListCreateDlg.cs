@@ -124,10 +124,10 @@ namespace Vodovoz
 			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
 			yspeccomboboxCashSubdivision.ItemSelected += OnYSpecCmbCashSubdivisionItemSelected;
 
-			if(Entity.ClosingSubdivision != null && subdivisions.Any(x => x.Id == Entity.ClosingSubdivision.Id))
+			/*if(Entity.ClosingSubdivision != null && subdivisions.Any(x => x.Id == Entity.ClosingSubdivision.Id))
 			{
 				yspeccomboboxCashSubdivision.SelectedItem = Entity.ClosingSubdivision;
-			}
+			}*/
 
 			return true;
 		}
@@ -403,7 +403,7 @@ namespace Vodovoz
 
 		private void OnYSpecCmbCashSubdivisionItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			Entity.ClosingSubdivision = yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
+			//Entity.ClosingSubdivision = yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
 		}
 
 		private void PrintSelectedDocument(RouteListPrintableDocuments choise)

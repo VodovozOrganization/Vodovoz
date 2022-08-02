@@ -55,7 +55,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.DriverWageOperation).Column("driver_wages_movement_operations_id");
 			References(x => x.ForwarderWageOperation).Column("forwarder_wages_movement_operations_id");
 			References(x => x.ClosedBy).Column("closed_by_employee_id");
-			References(x => x.ClosingSubdivision).Column("closing_subdivision_id");
+			//References(x => x.ClosingSubdivision).Column("closing_subdivision_id");
 			References(x => x.LogisticiansCommentAuthor).Column("logisticians_comment_author_id");
 			References(x => x.AdditionalLoadingDocument).Column("additional_loading_document_id").Cascade.AllDeleteOrphan();
 

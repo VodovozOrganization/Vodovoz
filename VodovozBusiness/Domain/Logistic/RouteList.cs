@@ -496,12 +496,12 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref closedBy, value, () => ClosedBy);
 		}
 
-		private Subdivision closingSubdivision;
+		/*private Subdivision closingSubdivision;
 		[Display(Name = "Сдается в подразделение")]
 		public virtual Subdivision ClosingSubdivision {
 			get => closingSubdivision;
 			set => SetField(ref closingSubdivision, value, () => ClosingSubdivision);
-		}
+		}*/
 		
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
 		[Display(Name = "Группа района")]
@@ -1581,9 +1581,9 @@ namespace Vodovoz.Domain.Logistic
 						new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
 					);
 
-			if(ClosingSubdivision == null)
+			/*if(ClosingSubdivision == null)
 				yield return new ValidationResult("Не выбрана касса в которую должен будет сдаваться водитель.",
-					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ClosingSubdivision) });
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ClosingSubdivision) });*/
 
 			if(Driver == null)
 				yield return new ValidationResult("Не заполнен водитель.",

@@ -94,13 +94,13 @@ namespace Vodovoz.JournalViewModels
 			CarVersion carVersionAlias = null;
 			CarModel carModelAlias = null;
 			Employee driverAlias = null;
-			Subdivision subdivisionAlias = null;
+			//Subdivision subdivisionAlias = null;
 			GeographicGroup geographicalGroupAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
 				.Left.JoinAlias(o => o.Car, () => carAlias)
-				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
+				//.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.Left.JoinAlias(o => o.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinEntityAlias(() => carVersionAlias,
@@ -232,7 +232,7 @@ namespace Vodovoz.JournalViewModels
 					   .Select(() => driverAlias.Comment).WithAlias(() => routeListJournalNodeAlias.DriverComment)
 					   .Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
 					   .Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
-					   .Select(() => subdivisionAlias.Name).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
+					   //.Select(() => subdivisionAlias.Name).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
 					   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => routeListJournalNodeAlias.NotFullyLoaded)
 					   .Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => routeListJournalNodeAlias.CarTypeOfUse)
 					   .Select(() => carVersionAlias.CarOwnType).WithAlias(() => routeListJournalNodeAlias.CarOwnType)

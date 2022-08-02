@@ -1121,12 +1121,12 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 			//Перестраиваем все маршруты
 			RebuildAllRoutes();
-			RoutesOnDay.ToList().ForEach(
+			/*RoutesOnDay.ToList().ForEach(
 				x => {
 					x.ClosingSubdivision = ClosingSubdivision;
 					UoW.Save(x);
 				}
-			);
+			);*/
 			UoW.Commit();
 			HasNoChanges = true;
 			AutoroutingResultsSaved?.Invoke(this, EventArgs.Empty);
