@@ -21,7 +21,7 @@ using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {

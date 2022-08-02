@@ -170,6 +170,8 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 
 namespace Vodovoz
 {
@@ -295,6 +297,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboatsWaterTypeViewModel, RoboatsWaterTypeView>()
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
+				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
 				;
 
             //Регистрация виджетов
@@ -368,6 +371,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<FastDeliveryAdditionalLoadingReportViewModel, FastDeliveryAdditionalLoadingReportView>()
 				.RegisterWidgetForWidgetViewModel<RoboatsCallsFilterViewModel, RoboatsCallsFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryScheduleFilterViewModel, DeliveryScheduleFilterView>()
+				.RegisterWidgetForWidgetViewModel<BulkEmailEventReportViewModel, BulkEmailEventReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

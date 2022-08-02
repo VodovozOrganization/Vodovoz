@@ -1,10 +1,10 @@
-﻿using QS.Project.Services.FileDialog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using ClosedXML.Report;
+using QS.Project.Services.FileDialog;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 
-namespace Vodovoz.ViewModels.ViewModels.Reports
+namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 {
 	public class FastDeliveryAvailabilityHistoryReport
 	{
@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				Rows = rows;
 			}
 
-			public IList<FastDeliveryAvailabilityHistoryJournalNode> Rows { get; set; }
+			public IList<FastDeliveryAvailabilityHistoryJournalNode> Rows { get; }
 		}
 	}
 }
