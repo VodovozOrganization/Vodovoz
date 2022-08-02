@@ -45,6 +45,7 @@ namespace Vodovoz.Filters.GtkViews
 			yCmbCurrentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChangeSubdivision, w => w.Sensitive).InitializeFromSource();
 			yCmbCurrentSubdivision.SetSizeRequest(250, 30);
 
+			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
 			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();
 
 			daterangepicker.Binding.AddBinding(ViewModel, x => x.StartDate, w => w.StartDateOrNull).InitializeFromSource();
