@@ -55,7 +55,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 			{
 				if(ProblemsCount > 0)
 				{
-					return $"Проблемы: {ProblemsCount}";
+					return $"Деталей: {ProblemsCount}";
 				}
 				else
 				{
