@@ -1,9 +1,8 @@
 ﻿using Gamma.ColumnConfig;
-using Gdk;
 using Pango;
+using QS.Utilities;
 using QS.Views.GtkUI;
 using System.ComponentModel;
-using System.Linq;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.ViewModels.Widgets.Organizations;
 using Color = Gdk.Color;
@@ -44,7 +43,7 @@ namespace Vodovoz.Views.Organization
 
 			ytreeVersions.ItemsDataSource = ViewModel.Entity.ObservableOrganizationVersions;
 			ytreeVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedOrganizationVersion, w => w.SelectedRow).InitializeFromSource();
-			ytreeVersions.RowActivated += (sender, args) => ViewModel.EditCommand.Execute();
+			ytreeVersions.RowActivated += (sender, args) => ViewModel.EditVersionCommand.Execute();
 
 			evmeLeader.SetEntityAutocompleteSelectorFactory(ViewModel.LeaderSelectorFactory);
 			evmeLeader.Binding.AddBinding(ViewModel, vm => vm.Leader, w => w.Subject).InitializeFromSource();
@@ -56,21 +55,22 @@ namespace Vodovoz.Views.Organization
 			datatextviewJurAddress.Binding.AddBinding(ViewModel, vm => vm.JurAddress, w => w.Buffer.Text).InitializeFromSource();
 
 			buttonNewVersion.Binding.AddBinding(ViewModel, vm => vm.CanAddNewVersion, w => w.Sensitive).InitializeFromSource();
-			buttonNewVersion.Clicked += (sender, args) => ViewModel.AddNewOrganizationVersion();
+			buttonNewVersion.Clicked += (sender, args) =>
+			{
+				ViewModel.AddNewVersionCommand.Execute();
+				GtkHelper.WaitRedraw();
+				ytreeVersions.Vadjustment.Value = 0;
+			};
 
 			buttonChangeVersionDate.Binding.AddBinding(ViewModel, vm => vm.CanChangeVersionDate, w => w.Sensitive).InitializeFromSource();
-			buttonChangeVersionDate.Clicked += (sender, args) => ViewModel.ChangeVersionStartDate();
+			buttonChangeVersionDate.Clicked += (sender, args) => ViewModel.ChangeVersionStartDateCommand.Execute();
 
-			buttonCancel.Clicked += (sender, args) => ViewModel.CancelEditCommand.Execute();
+			buttonCancel.Clicked += (sender, args) => ViewModel.CancelEditingVersionCommand.Execute();
 
 			buttonEditVersion.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
-			buttonEditVersion.Clicked += (sender, args) => ViewModel.EditCommand.Execute();
+			buttonEditVersion.Clicked += (sender, args) => ViewModel.EditVersionCommand.Execute();
 
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveEditCommand.Execute(); //ViewModel.Save(/*ytreeVersions.GetSelectedObjects().OfType<OrganizationVersion>().FirstOrDefault()*/);
-
-			//organizationVersionView.ViewModel = ViewModel.OrganizationVersionViewModel;
-
-			Visible = ViewModel.CanRead;
+			buttonSave.Clicked += (sender, args) => ViewModel.SaveEditingVersionCommand.Execute();
 		}
 	}
 }

@@ -1,13 +1,9 @@
-﻿using System;
+﻿using MoreLinq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MoreLinq;
-using QS.DomainModel.UoW;
-using QS.Utilities.Enums;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Controllers
 {
@@ -48,11 +44,11 @@ namespace Vodovoz.Controllers
 		}
 
 		///  <summary>
-		///  Добавляет новую версию автомобиля в список версий автомобиля контроллера.
+		///  Добавляет новую версию организации в список версий организации контроллера.
 		///  Если предыдущая версия не имела дату окончания или заканчивалась позже даты начала новой версии,
-		///  то этой версии выставляется дата окончания, равная дате начала новой версии минус 1 миллисекунду
+		///  то в этой версии выставляется дата окончания, равная дате начала новой версии минус 1 миллисекунду
 		///  </summary>
-		///  <param name="newOrganizationVersion">Новая версия автомобиля. Свойство StartDate в newOrganizationVersion игнорируется</param>
+		///  <param name="newOrganizationVersion">Новая версия организации. Свойство StartDate в newOrganizationVersion игнорируется</param>
 		///  <param name="startDate">
 		/// 	Дата начала действия новой версии. Должна быть минимум на день позже, чем дата начала действия предыдущей версии.
 		/// 	Время должно равняться 00:00:00
@@ -96,17 +92,15 @@ namespace Vodovoz.Controllers
 			{
 				throw new ArgumentNullException(nameof(version));
 			}
-			//if(version.Organization == null || version.Organization.Id != Organization.Id)
-			//{
-			//	throw new ArgumentException("Неверно заполнена организация в переданной версии");
-			//}
 
 			var previousVersion = GetPreviousVersionOrNull(version);
+
 			if(previousVersion != null)
 			{
 				var newEndDate = newStartDate.AddMilliseconds(-1);
 				previousVersion.EndDate = newEndDate;
 			}
+
 			version.StartDate = newStartDate;
 		}
 
@@ -114,17 +108,21 @@ namespace Vodovoz.Controllers
 		{
 			if(version == null)
 			{
-				throw new ArgumentNullException(nameof(version));
+				return false;
 			}
+
 			if(version.StartDate == newStartDate)
 			{
 				return false;
 			}
+
 			if(newStartDate >= version.EndDate)
 			{
 				return false;
 			}
+
 			var previousVersion = GetPreviousVersionOrNull(version);
+
 			return previousVersion == null || newStartDate > previousVersion.StartDate;
 		}
 

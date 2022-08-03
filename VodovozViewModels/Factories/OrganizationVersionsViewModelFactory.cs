@@ -1,6 +1,4 @@
-﻿using QS.Navigation;
-using QS.Services;
-using QS.Tdi;
+﻿using QS.Services;
 using System;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Organizations;
@@ -12,15 +10,17 @@ namespace Vodovoz.ViewModels.Factories
 	public class OrganizationVersionsViewModelFactory : IOrganizationVersionsViewModelFactory
 	{
 		private readonly ICommonServices _commonServices;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
-		public OrganizationVersionsViewModelFactory(ICommonServices commonServices)
+		public OrganizationVersionsViewModelFactory(ICommonServices commonServices, IEmployeeJournalFactory employeeJournalFactory)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)); ;
 		}
 
-		public OrganizationVersionsViewModel CreateOrganizationVersionsViewModel(Organization organization, IEmployeeJournalFactory employeeJournalFactory, INavigationManager navigationManager)
+		public OrganizationVersionsViewModel CreateOrganizationVersionsViewModel(Organization organization)
 		{
-			return new OrganizationVersionsViewModel(organization, _commonServices, new OrganizationVersionsController(organization), employeeJournalFactory, navigationManager/*parentTab*/);
+			return new OrganizationVersionsViewModel(organization, _commonServices, new OrganizationVersionsController(organization), _employeeJournalFactory);
 		}
 	}
 }

@@ -73,7 +73,6 @@ namespace Vodovoz.Domain.Logistic.Organizations
 		}
 
 		public override string ToString() => $"Версия организации №{Id}";
-
 		public virtual string LeaderShortName => Leader?.ShortName;
 		public virtual string AccountantShortName => Accountant?.ShortName;
 	}
