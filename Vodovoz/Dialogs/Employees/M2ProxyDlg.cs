@@ -145,6 +145,29 @@ namespace Vodovoz.Dialogs.Employees
 
 		void Templatewidget_BeforeOpen(object sender, EventArgs e)
 		{
+			var organizationVersion = Entity.Organization.OrganizationVersionOnDate(Entity.Date);
+
+			if(organizationVersion == null)
+			{
+				MessageDialogHelper.RunErrorDialog($"На дату М-2 доверенности {Entity.Date.ToString("G")} отсутствует версия организации. Создайте версию организации.");
+				templatewidget.CanOpenDocument = false;
+				return;
+			}
+
+			if(organizationVersion.Leader == null)
+			{
+				MessageDialogHelper.RunErrorDialog($"Не выбран руководитель в версии №{organizationVersion.Id} организации \"{Entity.Organization.Name}\"");
+				templatewidget.CanOpenDocument = false;
+				return;
+			}
+
+			if(organizationVersion.Accountant == null)
+			{
+				MessageDialogHelper.RunErrorDialog($"Не выбран бухгалтер в версии №{organizationVersion.Id} организации \"{Entity.Organization.Name}\"");
+				templatewidget.CanOpenDocument = false;
+				return;
+			}
+
 			if(UoW.HasChanges) {
 				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
 					UoWGeneric.Save();

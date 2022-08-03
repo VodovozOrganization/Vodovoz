@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using DataAnnotationsExtensions;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
@@ -22,6 +24,7 @@ namespace Vodovoz.Domain.Organizations
 	{
 		private int? _avangardShopId;
 		private IList<OrganizationVersion> _organizationVersions;
+		private OrganizationVersion _activeOrganizationVersion;
 
 		public Organization()
 		{
@@ -31,8 +34,6 @@ namespace Vodovoz.Domain.Organizations
 			KPP = string.Empty;
 			OGRN = string.Empty;
 			Email = string.Empty;
-			Address = string.Empty;
-			JurAddress = string.Empty;
 		}
 
 		#region Свойства
@@ -111,14 +112,14 @@ namespace Vodovoz.Domain.Organizations
 			get => _email;
 			set => SetField(ref _email, value);
 		}
-		
+
 		private int? _cashBoxId;
 		[Display(Name = "ID Кассового аппарата")]
 		public virtual int? CashBoxId {
 			get => _cashBoxId;
 			set => SetField(ref _cashBoxId, value);
 		}
-		
+
 		private bool _withoutVAT;
 		[Display(Name = "Без НДС")]
 		public virtual bool WithoutVAT {
@@ -142,39 +143,9 @@ namespace Vodovoz.Domain.Organizations
 			set => SetField(ref _avangardShopId, value);
 		}
 
-		private string _address;
-		[Display(Name = "Фактический адрес")]
-		public virtual string Address
-		{
-			get => _address;
-			set => SetField(ref _address, value);
-		}
+		#endregion
 
-		private string _jurAddress;
-		[Display(Name = "Юридический адрес")]
-		public virtual string JurAddress
-		{
-			get => _jurAddress;
-			set => SetField(ref _jurAddress, value);
-		}
-
-		private Employee _leader;
-		[Display(Name = "Руководитель")]
-		public virtual Employee Leader
-		{
-			get => _leader;
-			set => SetField(ref _leader, value);
-		}
-
-		private Employee _buhgalter; //todo Art8m УБРАТЬ вместе с остльаным ненужным
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
-
-		[Display(Name = "Бухгалтер")]
-		public virtual Employee Buhgalter
-		{
-			get => _buhgalter;
-			set => SetField(ref _buhgalter, value);
-		}
 
 		public virtual IList<OrganizationVersion> OrganizationVersions
 		{
@@ -185,8 +156,17 @@ namespace Vodovoz.Domain.Organizations
 		public virtual GenericObservableList<OrganizationVersion> ObservableOrganizationVersions => _observableOrganizationVersions
 			?? (_observableOrganizationVersions = new GenericObservableList<OrganizationVersion>(OrganizationVersions));
 
+		public virtual OrganizationVersion OrganizationVersionOnDate(DateTime dateTime) =>
+			ObservableOrganizationVersions.SingleOrDefault(x =>
+				x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));
 
+		[Display(Name = "Активная версия")]
+		public virtual OrganizationVersion ActiveOrganizationVersion =>
+			_activeOrganizationVersion ?? OrganizationVersionOnDate(DateTime.Now);
 
-		#endregion
+		public virtual void SetActiveOrganizationVersion(OrganizationVersion organizationVersion)
+		{
+			_activeOrganizationVersion = organizationVersion;
+		}
 	}
 }

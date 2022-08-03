@@ -302,8 +302,6 @@ namespace Vodovoz
 				.AddClearDependence<ServiceClaim>(x => x.Engineer)
 				.AddClearDependence<ServiceClaimHistory>(x => x.Employee)
 				.AddClearDependence<WriteoffDocument>(item => item.ResponsibleEmployee)
-				.AddClearDependence<Organization>(item => item.Leader)
-				.AddClearDependence<Organization>(item => item.Buhgalter)
 				.AddClearDependence<Income>(item => item.Employee)
 				.AddClearDependence<Expense>(item => item.Employee)
 				.AddClearDependence<AccountExpense>(item => item.Employee)

@@ -18,14 +18,10 @@ namespace Vodovoz.HibernateMapping.Organizations
 			Map(x => x.OKPO).Column("OKPO");
 			Map(x => x.OKVED).Column("OKVED");
 			Map(x => x.Email).Column("email");
-			Map(x => x.Address).Column("address");
-			Map(x => x.JurAddress).Column("jur_address");
 			Map(x => x.WithoutVAT).Column("without_vat").ReadOnly();
 			Map(x => x.CashBoxId).Column("cash_box_id");
 			Map(x => x.AvangardShopId).Column("avangard_shop_id");
 
-			References(x => x.Leader).Column("leader_id");
-			References(x => x.Buhgalter).Column("buhgalter_id");
 			References(x => x.Stamp).Column("stamp_id");
 
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
