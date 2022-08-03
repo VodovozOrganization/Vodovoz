@@ -11,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -34,7 +34,7 @@
 	counterparty.full_name AS client_name,
 	counterparty.address AS client_address,
 	organizations.full_name AS org_name,
-	organizations.address AS org_address,
+	ov.address AS org_address,
 	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
 	FROM phones 
 	WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
@@ -64,6 +64,14 @@ FROM
  AND orders.counterparty_contract_id = counterparty_contract.id
 		LEFT JOIN
 	organizations ON organizations.id = counterparty_contract.organization_id
+	    LEFT JOIN
+	organization_versions ov
+        ON
+            organizations.id = ov.organization_id 
+        AND
+            ov.start_date &lt;= orders.bill_date  
+        AND
+            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)	
 		LEFT JOIN
 	delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
 		LEFT JOIN
@@ -80,7 +88,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>

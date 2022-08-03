@@ -91,7 +91,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -120,7 +120,7 @@ WHERE
     client_bank.cor_account AS client_bank_cor_account,
 
     organizations.full_name AS org_name,
-    organizations.jur_address as org_address,
+    ov.jur_address as org_address,
     organizations.INN AS org_inn,
     organizations.KPP as org_kpp,
         (SELECT phones.number FROM phones WHERE phones.org_id = organizations.id LIMIT 1) AS org_phone_number,
@@ -145,8 +145,16 @@ FROM orders
     LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id
     LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
     LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
-    LEFT JOIN employees leader ON leader.id = organizations.leader_id
-    LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id
+    LEFT JOIN organization_versions ov
+        ON
+            organizations.id = ov.organization_id 
+        AND
+            ov.start_date &lt;= orders.bill_date 
+        AND
+            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+   
+    LEFT JOIN employees leader ON leader.id = organizations.id
+    LEFT JOIN employees buhgalter ON buhgalter.id = ov.accountant_id
     LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
     LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
     LEFT JOIN accounts client_account ON client_account.id = counterparty.default_account_id
@@ -160,7 +168,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2590,7 +2598,7 @@ WHERE
               <BorderWidth />
               <FontSize>10pt</FontSize>
             </Style>
-            <CanGrow >true</CanGrow>
+            <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox41" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
