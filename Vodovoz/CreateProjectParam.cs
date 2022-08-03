@@ -172,6 +172,8 @@ using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.Infrastructure;
+using Vodovoz.Reports;
 
 namespace Vodovoz
 {
@@ -518,6 +520,8 @@ namespace Vodovoz
 		{
 			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
 
+			builder.RegisterType<ConnectionStringProvider>().AsSelf().AsImplementedInterfaces();
+
 			#region Adapters & Factories
 
 			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
@@ -542,6 +546,7 @@ namespace Vodovoz
 			builder.RegisterType<CarVersionsViewModelFactory>().As<ICarVersionsViewModelFactory>();
 			builder.RegisterType<RoboatsFileStorageFactory>().AsSelf();
 			builder.RegisterType<DeliveryScheduleJournalFactory>().AsImplementedInterfaces().AsSelf();
+			builder.RegisterType<ReportFactory>().AsSelf().AsImplementedInterfaces();
 
 			builder.RegisterAssemblyTypes(
 					Assembly.GetExecutingAssembly(),

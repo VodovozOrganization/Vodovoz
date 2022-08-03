@@ -156,6 +156,8 @@ using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.Reports;
+using QSReport;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1044,9 +1046,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
 	{
+		var employeeRepository = autofacScope.Resolve<IEmployeeRepository>();
+		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+		var reportFactory = autofacScope.Resolve<ReportFactory>();
+
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(new EmployeeRepository(), ServicesConfig.InteractiveService))
+			ReportViewDlg.GenerateHashName<SalesReport>(),
+			() => new ReportViewDlg(new SalesReport(reportFactory, employeeRepository, interactiveService))
 		);
 	}
 

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Vodovoz.Reports</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -591,6 +592,8 @@
     <None Include="Reports\Bookkeeping\NotPaidOrders.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <ProjectReference Include="..\..\QSProjects\QS.Report\QS.Report.csproj" />
+    <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj" />
     <None Update="Reports\Wages\DriverWage.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

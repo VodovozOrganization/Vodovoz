@@ -9,6 +9,11 @@
     <FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Events\**" />
+    <EmbeddedResource Remove="Events\**" />
+    <None Remove="Events\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="MySql.Data" Version="8.0.28" />
     <PackageReference Include="NHibernate" Version="5.3.11" />
@@ -19,8 +24,5 @@
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj" />
     <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
     <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Events\" />
   </ItemGroup>
 </Project>

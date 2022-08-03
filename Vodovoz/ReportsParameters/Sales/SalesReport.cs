@@ -31,6 +31,7 @@ namespace Vodovoz.Reports
 	{
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
+		private readonly ReportFactory _reportFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly bool _canSeePhones;
@@ -38,8 +39,9 @@ namespace Vodovoz.Reports
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 		public string Title => "Отчет по продажам";
 
-		public SalesReport(IEmployeeRepository employeeRepository, IInteractiveService interactiveService)
+		public SalesReport(ReportFactory reportFactory, IEmployeeRepository employeeRepository, IInteractiveService interactiveService)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
@@ -124,11 +126,11 @@ namespace Vodovoz.Reports
 				parameters.Add(item.Key, item.Value);
 			}
 
-			return new ReportInfo
-			{
-				Identifier = ycheckbuttonDetail.Active ? "Sales.SalesReportDetail" : "Sales.SalesReport",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = ycheckbuttonDetail.Active ? "Sales.SalesReportDetail" : "Sales.SalesReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
