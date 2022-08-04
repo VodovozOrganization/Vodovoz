@@ -397,7 +397,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.ylabelEmployeeSubdivisionStatus = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelEmployeeSubdivisionStatus.Name = "ylabelEmployeeSubdivisionStatus";
 			this.ylabelEmployeeSubdivisionStatus.Xalign = 0F;
-			this.ylabelEmployeeSubdivisionStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус в отделе");
+			this.ylabelEmployeeSubdivisionStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус в отделе:");
 			this.table1.Add(this.ylabelEmployeeSubdivisionStatus);
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelEmployeeSubdivisionStatus]));
 			w28.LeftAttach = ((uint)(2));
