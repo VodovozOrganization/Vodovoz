@@ -1633,6 +1633,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("ФИО логиста").AddTextRenderer(node => node.LogisticianNameWithInitials)
 					.AddColumn("Дата и время последнего\nсохранения комментария").AddTextRenderer(node => node.LogisticianCommentVersionString)
 					.AddColumn("Время реакции в\nчасах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
+					.AddColumn("")
 					.Finish()
 			);
 			

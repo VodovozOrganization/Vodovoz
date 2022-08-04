@@ -33,6 +33,10 @@ namespace Vodovoz.Filters.GtkViews
 
 			nullablecheckVerificationSuccess.RenderMode = RenderMode.Icon;
 			nullablecheckVerificationSuccess.Binding.AddBinding(ViewModel, vm => vm.IsValid, w => w.Active).InitializeFromSource();
+
+			nullablecheckAssortmentStock.RenderMode = RenderMode.Icon;
+
+			nullablecheckVerificatinFromSite.RenderMode = RenderMode.Icon;
 		}
 	}
 }
