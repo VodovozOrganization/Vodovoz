@@ -71,7 +71,7 @@ namespace Vodovoz
 				UoWGeneric.Root.Phones = new List<Phone> ();
 			phonesview1.Phones = UoWGeneric.Root.Phones;
 
-			var organizationVersionsViewModel = _organizationVersionsViewModelFactory?.CreateOrganizationVersionsViewModel(Entity);
+			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity);
 			versionsView.ViewModel = organizationVersionsViewModel;
 		}
 

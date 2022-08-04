@@ -18,7 +18,6 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		private OrganizationVersion _selectedOrganizationVersion;
 		private bool _isEditVisible;
 		private readonly IOrganizationVersionsController _organizationVersionsController;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private Employee _leader;
 		private Employee _accountant;
 		private string _address;
@@ -37,7 +36,6 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			: base(entity, commonServices)
 		{
 			_organizationVersionsController = organizationVersionsController ?? throw new ArgumentNullException(nameof(organizationVersionsController));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
 			if(IsNewOrganization)
 			{

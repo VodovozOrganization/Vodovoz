@@ -9,17 +9,9 @@ namespace Vodovoz.Controllers
 {
 	public class OrganizationVersionsController : IOrganizationVersionsController
 	{
-		private readonly Dictionary<int, (DateTime StartDate, DateTime? EndDate)> _organizationVersionPeriodsCache;
-
 		public OrganizationVersionsController(Organization organization)
 		{
 			Organization = organization ?? throw new ArgumentNullException(nameof(organization));
-
-			_organizationVersionPeriodsCache = new Dictionary<int, (DateTime StartDate, DateTime? EndDate)>();
-			foreach(var version in Organization.OrganizationVersions)
-			{
-				_organizationVersionPeriodsCache.Add(version.Id, (version.StartDate, version.EndDate));
-			}
 		}
 
 		public Organization Organization { get; }
@@ -71,12 +63,14 @@ namespace Vodovoz.Controllers
 			if(Organization.OrganizationVersions.Any())
 			{
 				var currentLatestVersion = Organization.OrganizationVersions.MaxBy(x => x.StartDate);
+
 				if(startDate < currentLatestVersion.StartDate.AddDays(1))
 				{
 					throw new ArgumentException(
 						"Дата начала действия новой версии должна быть минимум на день позже, чем дата начала действия предыдущей версии",
 						nameof(startDate));
 				}
+
 				currentLatestVersion.EndDate = startDate.AddMilliseconds(-1);
 			}
 

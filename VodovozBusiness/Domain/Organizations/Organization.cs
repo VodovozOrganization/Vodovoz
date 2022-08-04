@@ -25,6 +25,7 @@ namespace Vodovoz.Domain.Organizations
 		private int? _avangardShopId;
 		private IList<OrganizationVersion> _organizationVersions;
 		private OrganizationVersion _activeOrganizationVersion;
+		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
 
 		public Organization()
 		{
@@ -144,8 +145,6 @@ namespace Vodovoz.Domain.Organizations
 		}
 
 		#endregion
-
-		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
 
 		public virtual IList<OrganizationVersion> OrganizationVersions
 		{

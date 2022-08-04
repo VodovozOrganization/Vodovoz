@@ -151,8 +151,7 @@ FROM orders
         AND
             ov.start_date &lt;= orders.bill_date 
         AND
-            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
-   
+            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)   
     LEFT JOIN employees leader ON leader.id = organizations.id
     LEFT JOIN employees buhgalter ON buhgalter.id = ov.accountant_id
     LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id

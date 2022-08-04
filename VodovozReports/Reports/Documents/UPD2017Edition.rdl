@@ -154,8 +154,8 @@ FROM
 	counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
 		LEFT JOIN
 	organizations ON organizations.id = counterparty_contract.organization_id
-        LEFT JOIN
-    organization_versions ov
+                LEFT JOIN
+        organization_versions ov
             ON
                 organizations.id = ov.organization_id 
             AND
