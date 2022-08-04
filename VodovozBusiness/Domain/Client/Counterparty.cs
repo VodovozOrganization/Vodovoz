@@ -1135,7 +1135,9 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Покупатель")]
 		Buyer,
 		[Display(Name = "Поставщик")]
-		Supplier
+		Supplier,
+		[Display(Name = "Дилер")]
+		Dealer
 	}
 
 	public class CounterpartyTypeStringType : NHibernate.Type.EnumStringType
