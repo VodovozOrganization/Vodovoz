@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -133,6 +134,19 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<PointDTO>("/api/GetCoordinatesByGeoCoder", requestParams);
+			return requestSender.GetResponseAsync(cancellationToken);
+		}
+
+		public Task<string> GetAddressByGeoCoder(decimal latitude, decimal longitude, CancellationToken cancellationToken)
+		{
+			var inputParams = new Dictionary<string, string>
+			{
+				{ "latitude", latitude.ToString(CultureInfo.InvariantCulture) },
+				{ "longitude", longitude.ToString(CultureInfo.InvariantCulture) }
+			};
+			
+			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
+			var requestSender = new RequestSender<string>("/api/GetAddressByGeoCoder", requestParams);
 			return requestSender.GetResponseAsync(cancellationToken);
 		}
 	}

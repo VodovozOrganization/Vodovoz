@@ -1626,7 +1626,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Автор заказа").AddTextRenderer(node => node.AuthorString)
 					.AddColumn("№ заказа").AddNumericRenderer(node => node.Order)
 					.AddColumn("Имя контрагента").AddTextRenderer(node => node.Counterparty)
-					.AddColumn("Адрес доставки").AddTextRenderer(node => node.Address)
+					.AddColumn("Адрес доставки").AddTextRenderer(node => node.AddressString)
 					.AddColumn("Район").AddTextRenderer(node => node.District)
 					.AddColumn("Доступно\nдля заказа").AddTextRenderer(node => node.IsValidString)
 					.AddColumn("Комментарий логиста /\nПринятые меры").AddTextRenderer(node => node.LogisticianComment)

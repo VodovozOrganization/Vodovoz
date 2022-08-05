@@ -13,7 +13,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string AuthorPatronymic { get; set; }
 		public int Order { get; set; }
 		public string Counterparty { get; set; }
-		public string Address { get; set; }
+		public string AddressFromDeliveryPoint { get; set; }
+		public string AddressWithoutDeliveryPoint { get; set; }
 		public string District { get; set; }
 		public bool IsValid { get; set; }
 		public string LogisticianName { get; set; }
@@ -31,6 +32,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string AuthornNameWithInitials => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic);
 
 		public string LogisticianNameWithInitials => PersonHelper.PersonNameWithInitials(LogisticianLastName, LogisticianName, LogisticianPatronymic);
+
+		public string AddressString => AddressFromDeliveryPoint ?? AddressWithoutDeliveryPoint;
 
 		public string LogisticianCommentVersionString => LogisticianCommentVersion > DateTime.MinValue
 			? LogisticianCommentVersion.ToString("dd.MM.yy HH:mm:ss")

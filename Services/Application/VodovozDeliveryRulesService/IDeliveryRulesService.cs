@@ -1,5 +1,6 @@
 ﻿using System.ServiceModel;
 using System.ServiceModel.Web;
+using System.Threading.Tasks;
 
 namespace VodovozDeliveryRulesService
 {
@@ -12,7 +13,7 @@ namespace VodovozDeliveryRulesService
 
 		[WebInvoke(ResponseFormat = WebMessageFormat.Json)]
 		[OperationContract]
-		DeliveryRulesDTO GetRulesByDistrictAndNomenclatures(DeliveryRulesRequest request);
+		Task<DeliveryRulesDTO> GetRulesByDistrictAndNomenclatures(DeliveryRulesRequest request);
 
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]
 		[OperationContract]
