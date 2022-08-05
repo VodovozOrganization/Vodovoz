@@ -170,7 +170,7 @@ FROM
     organizations
         LEFT JOIN
     (SELECT ov.* FROM organization_versions ov
-   	    INNER JOIN bills_without_shipment_for_advance_payment bill
+   	    INNER JOIN bills_without_shipment_for_debt bill
             ON
                 bill.id = @bill_ws_for_debt_id
             AND

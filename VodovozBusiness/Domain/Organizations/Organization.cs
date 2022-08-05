@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Organizations
 	public class Organization : AccountOwnerBase, IDomainObject
 	{
 		private int? _avangardShopId;
-		private IList<OrganizationVersion> _organizationVersions;
+		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private OrganizationVersion _activeOrganizationVersion;
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
 

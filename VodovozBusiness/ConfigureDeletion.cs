@@ -24,6 +24,7 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -193,6 +194,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Organization>()
 				.AddDeleteDependenceFromCollection(item => item.Phones)
+				.AddDeleteDependenceFromCollection(item => item.OrganizationVersions)
 				.AddDeleteDependenceFromCollection(item => item.Accounts)
 				.AddDeleteDependence<CounterpartyContract>(item => item.Organization)
 				.AddDeleteDependence<AccountIncome>(item => item.Organization)
@@ -203,8 +205,8 @@ namespace Vodovoz
 				.AddClearDependence<Expense>(x => x.Organisation)
 				.AddClearDependence<AdvanceReport>(x => x.Organisation);
 
+			DeleteConfig.AddHibernateDeleteInfo<OrganizationVersion>();
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
-
 			DeleteConfig.AddHibernateDeleteInfo<RoboatsStreet>();
 			DeleteConfig.AddHibernateDeleteInfo<RoboatsWaterType>();
 
