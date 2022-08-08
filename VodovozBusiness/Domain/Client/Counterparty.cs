@@ -945,6 +945,7 @@ namespace Vodovoz.Domain.Client
 			FullName = string.Empty;
 			Comment = string.Empty;
 			INN = string.Empty;
+			OGRN = string.Empty;
 			KPP = string.Empty;
 			JurAddress = string.Empty;
 			PhoneFrom1c = string.Empty;

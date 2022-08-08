@@ -88,7 +88,7 @@ namespace Vodovoz.Domain.Employees
 			List<string> dealers = new List<string>();
 			foreach(var dealer in counterpartyRepository.GetDealers())
 			{
-				dealers.Add($"{dealer.FullName} ({dealer.INN})");
+				dealers.Add($"{dealer.FullName} (ОГРН {dealer.OGRN})");
 			}
 
 			return string.Join(", ", dealers);
