@@ -17,7 +17,7 @@
       <Textbox Name="Textbox2">
         <Height>15.01pt</Height>
         <Width>575.96pt</Width>
-        <Value>="ДОГОВОР №" + {?contract_id}</Value>
+        <Value>=")ДОГОВОР №" + {?contract_id}</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>93.4pt</Top>
@@ -1590,7 +1590,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>              ________________ /Сосновцев С.С.</Value>
+                      <Value>="              ________________ /"+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "."</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1703,6 +1703,9 @@
 	ifnull(counterparty.full_name, counterparty.name) as count_name,
 	ifnull(counterparty.address,'') as count_address,
 	ifnull(counterparty.phone_from_1c,'') as count_phone,
+	leader.last_name AS leader_last_name,
+    LEFT(leader.name, 1) AS leader_name,
+    LEFT(leader.patronymic, 1) AS leader_patronymic,
 	concat(
 		substring_index(ifnull(counterparty.full_name, counterparty.name), ' ', 1),
 		' ',
@@ -1729,7 +1732,9 @@ LEFT JOIN
         AND
             ov.start_date &lt;= counterparty_contract.issue_date 
         AND
-            (ov.end_date is null OR ov.end_date &gt;= counterparty_contract.issue_date )
+            (ov.end_date is null OR ov.end_date &gt;= counterparty_contract.issue_date)
+LEFT JOIN
+     employees leader ON leader.id = ov.leader_id
 where
 	counterparty_contract.id = @contract_id
 limit 1</CommandText>
@@ -1778,6 +1783,18 @@ limit 1</CommandText>
         </Field>
         <Field Name="count_shortened">
           <DataField>count_shortened</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_last_name">
+          <DataField>leader_last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_name">
+          <DataField>leader_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_patronymic">
+          <DataField>leader_patronymic</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

@@ -53,11 +53,36 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		public IEntityAutocompleteSelectorFactory AccountantSelectorFactory { get; }
 		public bool IsEditAvailable => SelectedOrganizationVersion != null;
 		public bool IsNewOrganization => Entity.Id == 0;
-		public Employee Leader { get => _leader; set => SetField(ref _leader, value); }
-		public Employee Accountant { get => _accountant; set => SetField(ref _accountant, value); }
-		public string Address { get => _address; set => SetField(ref _address, value); }
-		public string JurAddress { get => _jurAddress; set => SetField(ref _jurAddress, value); }
-		public bool IsEditVisible { get => _isEditVisible; set => SetField(ref _isEditVisible, value); }
+
+		public Employee Leader
+		{
+			get => _leader;
+			set => SetField(ref _leader, value);
+		}
+
+		public Employee Accountant
+		{
+			get => _accountant;
+			set => SetField(ref _accountant, value);
+		}
+
+		public string Address
+		{
+			get => _address;
+			set => SetField(ref _address, value);
+		}
+
+		public string JurAddress
+		{
+			get => _jurAddress;
+			set => SetField(ref _jurAddress, value);
+		}
+
+		public bool IsEditVisible
+		{
+			get => _isEditVisible;
+			set => SetField(ref _isEditVisible, value);
+		}
 
 		public virtual DateTime? SelectedDate
 		{
@@ -172,7 +197,7 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			Leader = null;
 			Accountant = null;
 			Address = string.Empty;
-			JurAddress = string.Empty; ;
+			JurAddress = string.Empty;
 		}
 	}
 }

@@ -17,7 +17,7 @@
       <Textbox Name="Textbox2">
         <Height>15.01pt</Height>
         <Width>575.96pt</Width>
-        <Value>="ДОГОВОР №" + {?contract_id}</Value>
+        <Value>="!ДОГОВОР №" + {?contract_id}</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>93.4pt</Top>
@@ -1562,7 +1562,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>              ________________ /Сосновцев С.С.</Value>
+                      <Value>="              ________________ /"
++{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "."</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1680,7 +1681,10 @@
 	ifnull(accounts.number,'') as count_account,
 	ifnull(banks.cor_account,'') as count_cor,
 	ifnull(banks.bik,'') as count_bik,
-	ifnull(banks.name,'') as count_bank
+	ifnull(banks.name,'') as count_bank,
+	leader.last_name AS leader_last_name,
+    LEFT(leader.name, 1) AS leader_name,
+    LEFT(leader.patronymic, 1) AS leader_patronymic
 from
 	counterparty_contract
 left join
@@ -1689,12 +1693,14 @@ left join
 	organizations on organizations.id = counterparty_contract.organization_id
 LEFT JOIN
     organization_versions ov
-    ON
-        organizations.id = ov.organization_id 
-    AND
-        ov.start_date &lt;= counterparty_contract.issue_date 
-    AND
-        (ov.end_date is null OR ov.end_date &gt;= counterparty_contract.issue_date )
+        ON
+            organizations.id = ov.organization_id 
+        AND
+            ov.start_date &lt;= counterparty_contract.issue_date 
+        AND
+            (ov.end_date is null OR ov.end_date &gt;= counterparty_contract.issue_date)
+LEFT JOIN
+     employees leader ON leader.id = ov.leader_id      
 left join
 	accounts on accounts.counterparty_id = counterparty.id
 left join
@@ -1763,6 +1769,18 @@ limit 1</CommandText>
         </Field>
         <Field Name="count_bank">
           <DataField>count_bank</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_last_name">
+          <DataField>leader_last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_name">
+          <DataField>leader_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_patronymic">
+          <DataField>leader_patronymic</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

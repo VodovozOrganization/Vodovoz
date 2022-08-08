@@ -49,7 +49,10 @@
                 '',
                 CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
     orders.trifle AS trifle,
-    IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time
+    IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
+	leader.last_name AS leader_last_name,
+    LEFT(leader.name, 1) AS leader_name,
+    LEFT(leader.patronymic, 1) AS leader_patronymic
 FROM
     orders
         LEFT JOIN
@@ -75,6 +78,8 @@ FROM
     districts ON delivery_points.district_id = districts.id
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
+ LEFT JOIN
+     employees leader ON leader.id = ov.leader_id
 WHERE
     orders.id = @order_id;</CommandText>
         <QueryParameters>
@@ -162,6 +167,18 @@ WHERE
         </Field>
         <Field Name="lunch_time">
           <DataField>lunch_time</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_last_name">
+          <DataField>leader_last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_name">
+          <DataField>leader_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_patronymic">
+          <DataField>leader_patronymic</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -961,9 +978,10 @@ payment_type='ToClient'</CommandText>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
             <Width>308.52pt</Width>
-            <Value>Отпуск разрешил:__________________/Сосновцев С.С./</Value>
+            <Value>="Отпуск разрешил:__________________/"
++{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "./"</Value>
             <ZIndex>1</ZIndex>
-            <Left>89.2pt</Left>
+            <Left>90.0pt</Left>
             <Top>29.9pt</Top>
             <Style>
               <BorderStyle />
