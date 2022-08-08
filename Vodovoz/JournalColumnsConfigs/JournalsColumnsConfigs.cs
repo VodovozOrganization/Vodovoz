@@ -316,6 +316,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Дата").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.DateString)
 						.XAlign(0.5f)
+					.AddColumn("Время").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.TimeString)
+						.XAlign(0.5f)
 					.AddColumn("Статус").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.StatusString)
 						.XAlign(0.5f)
@@ -329,7 +332,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(node => node.ClientNameWithAddress)
 						.WrapWidth(300).WrapMode(WrapMode.WordChar)
 						.XAlign(0f)
-					.AddColumn("Виновный").HeaderAlignment(0.5f)
+					.AddColumn("Ответственный").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.Guilties)
 						.XAlign(0f)
 					.AddColumn("Проблема").HeaderAlignment(0.5f)
@@ -358,6 +361,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Дни").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.DaysInWork)
 						.XAlign(0.5f)
+					.AddColumn("Мероприятия").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ArrangementText)
+						.XAlign(0f)
+					.AddColumn("Результат по клиенту").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ResultOfCounterparty)
+						.XAlign(0f)
+					.AddColumn("Результат по сотруднику").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ResultOfEmployees)
+						.XAlign(0f)
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
@@ -1308,7 +1320,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.WrapWidth(75).WrapMode(WrapMode.WordChar)
 				.AddColumn("Статус\nначальный ➔\n ➔ текущий").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldOrderStatus)
 					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Виновный").HeaderAlignment(0.5f).AddTextRenderer(node => node.Guilty)
+				.AddColumn("Ответственный").HeaderAlignment(0.5f).AddTextRenderer(node => node.Guilty)
 					.WrapWidth(450).WrapMode(WrapMode.WordChar)
 				.AddColumn("Причина").HeaderAlignment(0.5f).AddTextRenderer(node => node.Reason)
 					.WrapWidth(200).WrapMode(WrapMode.WordChar)
@@ -1639,6 +1651,15 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.OrganizationName)
 						.XAlign(0.5f)
+					.Finish()
+			);
+
+			//BulkEmailEventReasonJournalViewModel
+			TreeViewColumnsConfigFactory.Register<BulkEmailEventReasonJournalViewModel>(
+				() => FluentColumnsConfig<BulkEmailEventReasonJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Архивный").AddToggleRenderer(node => node.IsArchive)
 					.AddColumn("")
 					.Finish()
 			);

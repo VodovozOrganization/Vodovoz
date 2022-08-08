@@ -643,8 +643,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeDocumentsPermissionsSet = _commonServices.PermissionService
 				.ValidateUserPermission(typeof(EmployeeDocument), _commonServices.UserService.CurrentUserId);
 
-			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
-			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
+			var isAdmin = _commonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+			var canWorkWithOnlyDriverDocuments = _commonServices.CurrentPermissionService.ValidatePresetPermission("work_with_only_driver_documents");
+			var canWorkWithDocuments = (Entity.Category == EmployeeCategory.driver && canWorkWithOnlyDriverDocuments) || !canWorkWithOnlyDriverDocuments || isAdmin;
+			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead && canWorkWithDocuments;
+			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate && canWorkWithDocuments;
 
 			CanEditEmployee = _employeePermissionSet.CanUpdate || (_employeePermissionSet.CanCreate && Entity.Id == 0);
 			CanReadEmployee = _employeePermissionSet.CanRead;

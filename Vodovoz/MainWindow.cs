@@ -155,6 +155,7 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1047,7 +1048,6 @@ public partial class MainWindow : Gtk.Window
 			},
 			fileDialogService,
 			subdivisionRepository,
-			new GtkReportViewOpener(),
 			new GtkTabsOpener(),
 			nomenclatureRepository,
 			userRepository,
@@ -2171,7 +2171,6 @@ public partial class MainWindow : Gtk.Window
 					{ IsForRetail = true },
 					fileDialogService,
 					subdivisionRepository,
-					new GtkReportViewOpener(),
 					new GtkTabsOpener(),
 					nomenclatureRepository,
 					userRepository,
@@ -2632,6 +2631,25 @@ public partial class MainWindow : Gtk.Window
 
 		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnUnsubscribingReasonsActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new BulkEmailEventReasonJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices));
+	}
+
+	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
+	{
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory = new BulkEmailEventReasonJournalFactory();
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		BulkEmailEventReportViewModel viewModel = new BulkEmailEventReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, bulkEmailEventReasonJournalFactory, counterpartyJournalFactory);
 
 		tdiMain.AddTab(viewModel);
 	}

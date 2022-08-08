@@ -8,6 +8,7 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Services;
 using QS.Utilities.Text;
 using QS.ViewModels;
@@ -18,6 +19,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -29,13 +31,15 @@ namespace Vodovoz.ViewModels.Logistic
             IEntityDeleteWorker entityDeleteWorker,
             IEmployeeRepository employeeRepository,
             IDistrictRuleRepository districtRuleRepository,
-            INavigationManager navigation = null)
+			IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
+			INavigationManager navigation = null)
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
             _entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
             DistrictRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
+			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
 
-            TabName = "Районы с графиками доставки";
+			TabName = "Районы с графиками доставки";
 
             CanChangeDistrictWageTypePermissionResult = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_district_wage_type");
 
@@ -69,7 +73,8 @@ namespace Vodovoz.ViewModels.Logistic
         }
 
         private readonly IEntityDeleteWorker _entityDeleteWorker;
-        private readonly GeometryFactory _geometryFactory;
+		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
+		private readonly GeometryFactory _geometryFactory;
 
         public readonly bool CanChangeDistrictWageTypePermissionResult;
         public readonly bool CanEditDistrict;
@@ -293,26 +298,54 @@ namespace Vodovoz.ViewModels.Logistic
             point => IsCreatingNewBorder && !point.IsEmpty
         ));
 
-        private DelegateCommand<IEnumerable<DeliveryScheduleJournalNode>> addScheduleRestrictionCommand;
-        public DelegateCommand<IEnumerable<DeliveryScheduleJournalNode>> AddScheduleRestrictionCommand => addScheduleRestrictionCommand ?? (addScheduleRestrictionCommand = new DelegateCommand<IEnumerable<DeliveryScheduleJournalNode>>(
-            scheduleNodes => {
-                foreach (var scheduleNode in scheduleNodes) {
-					if(SelectedWeekDayName.HasValue && ScheduleRestrictions.All(x => x.DeliverySchedule.Id != scheduleNode.Id))
-					{
-						var deliverySchedule = UoW.GetById<DeliverySchedule>(scheduleNode.Id);
-						ScheduleRestrictions.Add(new DeliveryScheduleRestriction
-						{
-							District = SelectedDistrict,
-							WeekDay = SelectedWeekDayName.Value,
-							DeliverySchedule = deliverySchedule
-						});
-					}
-                }
-            },
-            schedules => schedules.Any()
-        ));
+        private DelegateCommand _addScheduleRestrictionCommand;
+        public DelegateCommand AddScheduleRestrictionCommand
+		{
+			get
+			{
+				if(_addScheduleRestrictionCommand == null)
+				{
+					_addScheduleRestrictionCommand = new DelegateCommand(AddScheduleRestriction);
+				}
+				return _addScheduleRestrictionCommand;
+			}
+		}
 
-        private DelegateCommand removeScheduleRestrictionCommand;
+		private void AddScheduleRestriction()
+		{
+			var journal = _deliveryScheduleJournalFactory.CreateJournal(JournalSelectionMode.Multiple);
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			TabParent.AddSlaveTab(this, journal);
+		}
+
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var selectedNodes = e.SelectedNodes.OfType<DeliveryScheduleJournalNode>();
+			if(!selectedNodes.Any())
+			{
+				return;
+			}
+
+			foreach(var selectedNode in selectedNodes)
+			{
+				if(!SelectedWeekDayName.HasValue || ScheduleRestrictions.Any(x => x.DeliverySchedule.Id == selectedNode.Id))
+				{
+					continue;
+				}
+
+				var deliverySchedule = UoW.GetById<DeliverySchedule>(selectedNode.Id);
+				ScheduleRestrictions.Add(new DeliveryScheduleRestriction
+				{
+					District = SelectedDistrict,
+					WeekDay = SelectedWeekDayName.Value,
+					DeliverySchedule = deliverySchedule
+				});
+
+				OnPropertyChanged(nameof(ScheduleRestrictions));
+			}
+		}
+
+		private DelegateCommand removeScheduleRestrictionCommand;
         public DelegateCommand RemoveScheduleRestrictionCommand => removeScheduleRestrictionCommand ?? (removeScheduleRestrictionCommand = new DelegateCommand(
             () => {
                 ScheduleRestrictions.Remove(SelectedScheduleRestriction);

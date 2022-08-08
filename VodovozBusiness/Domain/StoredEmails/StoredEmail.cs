@@ -15,6 +15,7 @@ namespace Vodovoz.Domain.StoredEmails
 	public class StoredEmail : BusinessObjectBase<StoredEmail>, IDomainObject
 	{
 		private string _subject;
+		private Guid? _guid;
 
 		public virtual int Id { get; set; }
 
@@ -74,6 +75,13 @@ namespace Vodovoz.Domain.StoredEmails
 		{
 			get { return _subject; }
 			set { SetField(ref _subject, value); }
+		}
+
+		[Display(Name = "Guid")]
+		public virtual Guid? Guid
+		{
+			get { return _guid; }
+			set { SetField(ref _guid, value); }
 		}
 
 		public virtual void AddDescription(string description)
