@@ -7,6 +7,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 {
 	public class FastDeliveryAvailabilityHistoryJournalNode : JournalEntityNodeBase<FastDeliveryAvailabilityHistory>
 	{
+		public int SequenceNumber { get; set; }
 		public DateTime VerificationDate { get; set; }
 		public string AuthorName { get; set; }
 		public string AuthorLastName { get; set; }
@@ -22,7 +23,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string LogisticianPatronymic { get; set; }
 		public string LogisticianComment { get; set; }
 		public DateTime LogisticianCommentVersion { get; set; }
-
 		public string IsValidString => IsValid ? "Да" : "Нет";
 
 		public string VerificationDateString => VerificationDate.ToString("dd.MM.yy HH:mm:ss");
@@ -52,6 +52,5 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 				return reactionTimeString;
 			}
 		}
-
 	}
 }

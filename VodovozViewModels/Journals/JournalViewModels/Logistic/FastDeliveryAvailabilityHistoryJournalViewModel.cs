@@ -10,6 +10,9 @@ using QS.Project.Journal;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -29,10 +32,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryJournalNode, FastDeliveryAvailabilityFilterViewModel>
 	{
 		private readonly Timer _timer;
-		private const double _interval = 30 * 1000; //5 минут
+		private const double _interval = 30 * 60000; //5 минут
 
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
+		private IList<FastDeliveryAvailabilityHistoryJournalNode> _sequenceNodes;
 
 		public FastDeliveryAvailabilityHistoryJournalViewModel(FastDeliveryAvailabilityFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -45,7 +49,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			var availabilityHistoryParameterProvider = fastDeliveryAvailabilityHistoryParameterProvider
-			                                           ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
+													   ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
 
 			TabName = "Журнал истории проверок экспресс-доставок";
 
@@ -56,13 +60,48 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(FastDeliveryOrderItemHistory)
 				);
 
-			
+
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory);
 			fastDeliveryAvailabilityHistoryModel.ClearFastDeliveryAvailabilityHistory(availabilityHistoryParameterProvider);
 
 			_timer = new Timer(_interval);
 			_timer.Elapsed += TimerOnElapsed;
 			_timer.Start();
+
+			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
+
+			_sequenceNodes = SequenceItemsSourceQueryFunction(UoW).List<FastDeliveryAvailabilityHistoryJournalNode>();
+
+			FilterViewModel.PropertyChanged += FilterViewModelPropertyChanged;
+		}
+
+		private void FilterViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			_sequenceNodes = SequenceItemsSourceQueryFunction(UoW).List<FastDeliveryAvailabilityHistoryJournalNode>();
+		}
+
+		protected void BeforeItemsUpdated(IList items, uint start)
+		{
+			var grouppedByDateNodes = _sequenceNodes.GroupBy(x => x.VerificationDate.Date)
+				  .Select(group =>
+						new
+						{
+							Date = group.Key,
+							Nodes = group
+						});
+
+			foreach(var grouppedNode in grouppedByDateNodes)
+			{
+				foreach(var node in grouppedNode.Nodes.OrderBy(x => x.Id))
+				{
+					var sequenceNum = grouppedNode.Nodes.ToList().IndexOf(node) + 1;
+					var journalNode = items.OfType<FastDeliveryAvailabilityHistoryJournalNode>().FirstOrDefault(x => x.Id == node.Id);
+					if(journalNode != null)
+					{
+						journalNode.SequenceNumber = sequenceNum;
+					}
+				}
+			}
 		}
 
 		private void TimerOnElapsed(object sender, ElapsedEventArgs e)
@@ -110,7 +149,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			var itemsQuery = uow.Session.QueryOver(() => fastDeliveryAvailabilityHistoryAlias)
 				.JoinEntityAlias(() => fastDeliveryNomenclatureDistributionHistoryAlias,
-					() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id ==fastDeliveryAvailabilityHistoryAlias.Id,
+					() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id,
 					JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => fastDeliveryOrderItemHistoryAlias,
 					() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id,
@@ -192,6 +231,118 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => logisticianAlias.Patronymic).WithAlias(() => resultAlias.LogisticianPatronymic)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.LogisticianCommentVersion).WithAlias(() => resultAlias.LogisticianCommentVersion)
 				).OrderBy(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate).Desc
+				.TransformUsing(Transformers.AliasToBean<FastDeliveryAvailabilityHistoryJournalNode>());
+
+			return itemsQuery;
+		};
+
+		private Func<IUnitOfWork, IQueryOver<FastDeliveryAvailabilityHistory>> SequenceItemsSourceQueryFunction => (uow) =>
+		{
+			FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistoryAlias = null;
+			FastDeliveryAvailabilityHistoryItem fastDeliveryAvailabilityHistoryItemAlias = null;
+			FastDeliveryNomenclatureDistributionHistory fastDeliveryNomenclatureDistributionHistoryAlias = null;
+			FastDeliveryOrderItemHistory fastDeliveryOrderItemHistoryAlias = null;
+			Employee authorAlias = null;
+			Employee logisticianAlias = null;
+			Order orderAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			District districtAlias = null;
+			Counterparty counterpartyAlias = null;
+			FastDeliveryAvailabilityHistoryJournalNode resultAlias = null;
+
+			var authorProjection = CustomProjections.Concat_WS(
+				"",
+				Projections.Property(() => authorAlias.LastName),
+				Projections.Property(() => authorAlias.Name),
+				Projections.Property(() => authorAlias.Patronymic)
+			);
+
+			var logisticianProjection = CustomProjections.Concat_WS(
+				"",
+				Projections.Property(() => logisticianAlias.LastName),
+				Projections.Property(() => logisticianAlias.Name),
+				Projections.Property(() => logisticianAlias.Patronymic)
+			);
+
+			var isValidSubquery = QueryOver.Of(() => fastDeliveryAvailabilityHistoryItemAlias)
+				.Where(() => fastDeliveryAvailabilityHistoryItemAlias.FastDeliveryAvailabilityHistory.Id ==
+							 fastDeliveryAvailabilityHistoryAlias.Id)
+				.And(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidToFastDelivery)
+				.Select(Projections.Conditional(Restrictions.Gt(Projections.RowCount(), 0),
+					Projections.Constant(true),
+					Projections.Constant(false)));
+
+
+			var itemsQuery = uow.Session.QueryOver(() => fastDeliveryAvailabilityHistoryAlias)
+				.JoinEntityAlias(() => fastDeliveryNomenclatureDistributionHistoryAlias,
+					() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id,
+					JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => fastDeliveryOrderItemHistoryAlias,
+					() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id,
+					JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Order, () => orderAlias)
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.District, () => districtAlias)
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Logistician, () => logisticianAlias)
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Counterparty, () => counterpartyAlias);
+
+			if(FilterViewModel.VerificationDateFrom != null && FilterViewModel.VerificationDateTo != null)
+			{
+				itemsQuery.Where(x => x.VerificationDate >= FilterViewModel.VerificationDateFrom.Value.Date.Add(new TimeSpan(0, 0, 0, 0))
+									  && x.VerificationDate <= FilterViewModel.VerificationDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
+			}
+
+			if(FilterViewModel.Counterparty != null)
+			{
+				itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
+			}
+
+			if(FilterViewModel.District != null)
+			{
+				itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.District.Id == FilterViewModel.District.Id);
+			}
+
+			if(FilterViewModel.Logistician != null)
+			{
+				itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.Logistician.Id == FilterViewModel.Logistician.Id);
+			}
+
+			if(FilterViewModel.IsValid != null)
+			{
+				itemsQuery.Where(Restrictions.Eq(Projections.SubQuery(isValidSubquery), FilterViewModel.IsValid));
+			}
+
+			if(FilterViewModel.LogisticianReactionTimeMinutes > 0)
+			{
+				var timestampDiff = new SQLFunctionTemplate(NHibernateUtil.Int32, "TIMESTAMPDIFF(MINUTE, ?1, ?2)");
+
+				var timestampProjection = Projections.SqlFunction(timestampDiff, NHibernateUtil.Int32,
+					Projections.Property(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate),
+					Projections.Property(() => fastDeliveryAvailabilityHistoryAlias.LogisticianCommentVersion));
+
+				itemsQuery.Where(Restrictions.Ge(timestampProjection, FilterViewModel.LogisticianReactionTimeMinutes));
+			}
+
+			itemsQuery.Where(GetSearchCriterion(
+				() => fastDeliveryAvailabilityHistoryAlias.Id,
+				() => fastDeliveryAvailabilityHistoryAlias.Order.Id,
+				() => authorProjection,
+				() => logisticianProjection,
+				() => counterpartyAlias.Name,
+				() => deliveryPointAlias.ShortAddress,
+				() => districtAlias.DistrictName,
+				() => fastDeliveryAvailabilityHistoryAlias.LogisticianComment,
+				() => fastDeliveryAvailabilityHistoryAlias.VerificationDate,
+				() => fastDeliveryAvailabilityHistoryAlias.LogisticianCommentVersion
+				)
+			);
+
+			itemsQuery
+				.SelectList(list => list
+					.SelectGroup(() => fastDeliveryAvailabilityHistoryAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate).WithAlias(() => resultAlias.VerificationDate)
+				)
 				.TransformUsing(Transformers.AliasToBean<FastDeliveryAvailabilityHistoryJournalNode>());
 
 			return itemsQuery;
