@@ -224,6 +224,14 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref kPP, value, () => KPP);
 		}
 
+		string oGRN;
+
+		[Display(Name = "ОГРН")]
+		public virtual string OGRN {
+			get => oGRN;
+			set => SetField(ref oGRN, value, () => OGRN);
+		}
+
 		string jurAddress;
 
 		[Display(Name = "Юридический адрес")]
@@ -1076,6 +1084,10 @@ namespace Vodovoz.Domain.Client
 
 			if(Id == 0 && CameFrom == null) {
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Откуда клиент\"");
+			}
+
+			if (CounterpartyType == CounterpartyType.Dealer && string.IsNullOrEmpty(OGRN)) {
+				yield return new ValidationResult("Для дилеров необходимо заполнить поле \"ОГРН\"");
 			}
 			
 			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
