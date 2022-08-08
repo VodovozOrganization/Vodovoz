@@ -670,10 +670,11 @@ namespace Vodovoz
 		private void ConfigureTabRequisites()
 		{
 			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
-
+			
 			validatedOGRN.Binding
 				.AddBinding(Entity, e => e.OGRN, w => w.Text)
 				.InitializeFromSource();
+			validatedOGRN.MaxLength = 13;
 			validatedOGRN.IsEditable = CanEdit;
 
 			validatedINN.Binding
@@ -1266,7 +1267,6 @@ namespace Vodovoz
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
-			validatedOGRN.Visible = labelOGRN.Visible = HasOgrn;
 		}
 
 		private void OnEnumCounterpartyTypeChangedByUser(object sender, EventArgs e)
