@@ -39,14 +39,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private string _fuelCardNumber;
 		private double _fuelConsumption;
 		private FuelType _fuelType;
-		private IList<GeographicGroup> _geographicGroups = new List<GeographicGroup>();
+		private IList<GeoGroup> _geographicGroups = new List<GeoGroup>();
 		private string _manufactureYear;
 		private int _maxBottles;
 		private int _maxBottlesFromAddress;
 		private int _minBottles;
 		private int _minBottlesFromAddress;
 		private string _motorNumber;
-		private GenericObservableList<GeographicGroup> _observableGeographicGroups;
+		private GenericObservableList<GeoGroup> _observableGeographicGroups;
 		private int? _orderNumber;
 		private byte[] _photo;
 		private string _registrationNumber = String.Empty;
@@ -251,7 +251,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		}
 
 		[Display(Name = "Группа района")]
-		public virtual IList<GeographicGroup> GeographicGroups
+		public virtual IList<GeoGroup> GeographicGroups
 		{
 			get => _geographicGroups;
 			set => SetField(ref _geographicGroups, value);
@@ -265,8 +265,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups =>
-			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups));
+		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups =>
+			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Attachment> ObservableAttachments =>

@@ -128,7 +128,7 @@ namespace Vodovoz.ViewModels.Logistic
 				geographicGroupRepository.GeographicGroupsWithCoordinatesExceptEast(UoW, geographicGroupParametersProvider);
 			var geographicGroups = geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
 			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(geographicGroups.Select(x => new GeographicGroupNode(x)).ToList());
-			GeographicGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
+			GeoGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
 			if(employeeGeographicGroup != null) {
 				var foundGeoGroup = GeographicGroupNodes.FirstOrDefault(x => x.GeographicGroup.Id == employeeGeographicGroup.Id);
 				if(foundGeoGroup != null)
@@ -179,7 +179,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public ICommonServices CommonServices { get; }
 		public ICarRepository CarRepository { get; }
-		public IList<GeographicGroup> GeographicGroupsExceptEast { get; }
+		public IList<GeoGroup> GeographicGroupsExceptEast { get; }
 		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
 		public ICarModelJournalFactory CarModelJournalFactory { get; }
 		public IOrderRepository OrderRepository { get; }
@@ -1181,7 +1181,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
 
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
@@ -1288,7 +1288,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.GetExecutableQueryOver(UoW.Session);
 			if(!ShowCompleted)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
-			GeographicGroup routeGeographicGroupAlias = null;
+			GeoGroup routeGeographicGroupAlias = null;
 			if(selectedGeographicGroup.Any())
 			{
 				routesQuery1
@@ -1429,7 +1429,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliverySummaryNode resultAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
 
 			ObservableDeliverySummary.Clear();

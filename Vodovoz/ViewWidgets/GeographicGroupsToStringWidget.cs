@@ -28,8 +28,8 @@ namespace Vodovoz.ViewWidgets
 			set => lblName.LabelProp = value;
 		}
 
-		GenericObservableList<GeographicGroup> items;
-		public GenericObservableList<GeographicGroup> Items {
+		GenericObservableList<GeoGroup> items;
+		public GenericObservableList<GeoGroup> Items {
 			get => items;
 			set {
 				items = value;
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewWidgets
 		protected void OnBtnChangeListClicked(object sender, EventArgs e)
 		{
 			var selectedGeographicGroups = new OrmReference(
-				QueryOver.Of<GeographicGroup>().Where(gg => gg.Id != eastGeographicGroupId))
+				QueryOver.Of<GeoGroup>().Where(gg => gg.Id != eastGeographicGroupId))
 			{
 				Mode = OrmReferenceMode.MultiSelect,
 				ButtonMode = ReferenceButtonMode.None
@@ -85,7 +85,7 @@ namespace Vodovoz.ViewWidgets
 		void SelectedGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			foreach(var item in e.Subjects) {
-				if(item is GeographicGroup group && !Items.Any(x => x.Id == group.Id))
+				if(item is GeoGroup group && !Items.Any(x => x.Id == group.Id))
 					Items.Add(group);
 			}
 			UpdateText();
@@ -94,7 +94,7 @@ namespace Vodovoz.ViewWidgets
 		protected void OnBtnRemoveClicked(object sender, EventArgs e)
 		{
 			var ids = Items.Select(x => x.Id).ToArray();
-			var selectGeographicGroups = new OrmReference(QueryOver.Of<GeographicGroup>().Where(x => x.Id.IsIn(ids))) {
+			var selectGeographicGroups = new OrmReference(QueryOver.Of<GeoGroup>().Where(x => x.Id.IsIn(ids))) {
 				Mode = OrmReferenceMode.MultiSelect,
 				ButtonMode = ReferenceButtonMode.None
 			};
@@ -110,7 +110,7 @@ namespace Vodovoz.ViewWidgets
 		void RemovingGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			foreach(var item in e.Subjects) {
-				if(item is GeographicGroup removingGroup && Items.Any(x => x.Id == removingGroup.Id))
+				if(item is GeoGroup removingGroup && Items.Any(x => x.Id == removingGroup.Id))
 					Items.Remove(Items.FirstOrDefault(x => x.Id == removingGroup.Id));
 			}
 			UpdateText();

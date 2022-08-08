@@ -243,7 +243,7 @@ namespace Vodovoz.Configuration
 
             #region Простые справочники
 
-            OrmMain.AddObjectDescription<GeographicGroup>()
+            OrmMain.AddObjectDescription<GeoGroup>()
                 .Dialog<GeographicGroupDlg>()
                 .DefaultTableView()
                 .SearchColumn("Название", x => x.Name)

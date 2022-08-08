@@ -12,7 +12,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class FuelConsumptionReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		GenericObservableList<GeographicGroup> geographicGroups;
+		GenericObservableList<GeoGroup> geographicGroups;
 
 		public FuelConsumptionReport(bool orderById = false)
 		{
@@ -25,9 +25,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			geographicGroup.UoW = UoW;
 			geographicGroup.Label = "Часть города:";
-			geographicGroups = new GenericObservableList<GeographicGroup>();
+			geographicGroups = new GenericObservableList<GeoGroup>();
 			geographicGroup.Items = geographicGroups;
-			foreach(var gg in UoW.Session.QueryOver<GeographicGroup>().List())
+			foreach(var gg in UoW.Session.QueryOver<GeoGroup>().List())
 				geographicGroups.Add(gg);
 		}
 

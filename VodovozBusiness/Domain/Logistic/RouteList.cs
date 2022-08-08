@@ -503,19 +503,19 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref closingSubdivision, value, () => ClosingSubdivision);
 		}*/
 		
-		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
+		IList<GeoGroup> geographicGroups = new List<GeoGroup>();
 		[Display(Name = "Группа района")]
-		public virtual IList<GeographicGroup> GeographicGroups {
+		public virtual IList<GeoGroup> GeographicGroups {
 			get => geographicGroups;
 			set => SetField(ref geographicGroups, value, () => GeographicGroups);
 		}
 
-		GenericObservableList<GeographicGroup> observableGeographicGroups;
+		GenericObservableList<GeoGroup> observableGeographicGroups;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups {
+		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups {
 			get {
 				if(observableGeographicGroups == null)
-					observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups);
+					observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups);
 				return observableGeographicGroups;
 			}
 		}

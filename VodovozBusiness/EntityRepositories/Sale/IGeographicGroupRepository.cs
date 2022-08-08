@@ -7,9 +7,9 @@ namespace Vodovoz.EntityRepositories.Sale
 {
 	public interface IGeographicGroupRepository
 	{
-		GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source);
-		IList<GeographicGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow);
-		IList<GeographicGroup> GeographicGroupsWithCoordinatesExceptEast(
+		GeoGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source);
+		IList<GeoGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow);
+		IList<GeoGroup> GeographicGroupsWithCoordinatesExceptEast(
 			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider);
 	}
 }

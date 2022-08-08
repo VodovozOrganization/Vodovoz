@@ -222,7 +222,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от базы до точки.
 		/// </summary>
-		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(GeoGroup fromBase, DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
@@ -232,7 +232,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от точки до базы.
 		/// </summary>
-		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
 			var toBaseHash = CachedDistance.GetHash(toBase);
@@ -252,7 +252,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Время пути в секундах от базы до точки
 		/// </summary>
-		public int TimeFromBaseSec(GeographicGroup fromBase, DeliveryPoint toDP)
+		public int TimeFromBaseSec(GeoGroup fromBase, DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
@@ -262,7 +262,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Время пути в секундах от точки до базы.
 		/// </summary>
-		public int TimeToBaseSec(DeliveryPoint fromDP, GeographicGroup toBase)
+		public int TimeToBaseSec(DeliveryPoint fromDP, GeoGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
 			var toBaseHash = CachedDistance.GetHash(toBase);

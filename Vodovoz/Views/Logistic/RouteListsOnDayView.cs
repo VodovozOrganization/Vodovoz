@@ -567,7 +567,7 @@ namespace Vodovoz.Views.Logistic
 				type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
 		}
 
-		private PointMarker FillBaseMarker(GeographicGroup baseMarker)
+		private PointMarker FillBaseMarker(GeoGroup baseMarker)
 		{
 			var addressMarker = new PointMarker(
 				new PointLatLng(

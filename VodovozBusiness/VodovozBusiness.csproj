@@ -194,6 +194,7 @@
     <Compile Include="Domain\Roboats\RoboatsCall.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
+    <Compile Include="Domain\Sale\GeoGroupVersion.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\Security\RegisteredRM.cs" />
@@ -418,6 +419,7 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
+    <Compile Include="HibernateMapping\Sale\GeoGroupVersionMap.cs" />
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
@@ -835,8 +837,8 @@
     <Compile Include="Domain\Permissions\EntitiesWithPermissionFinder.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermission.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionOnlyPermission.cs" />
-    <Compile Include="Domain\Sale\GeographicGroup.cs" />
-    <Compile Include="HibernateMapping\Sale\GeographicGroupMap.cs" />
+    <Compile Include="Domain\Sale\GeoGroup.cs" />
+    <Compile Include="HibernateMapping\Sale\GeoGroupMap.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermissionValidator.cs" />
     <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
     <Compile Include="Domain\Certificate.cs" />

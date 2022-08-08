@@ -71,7 +71,7 @@ namespace Vodovoz.ViewModel
 			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			//Subdivision subdivisionAlias = null;
-			GeographicGroup geographicGroupsAlias = null;
+			GeoGroup geographicGroupsAlias = null;
 
 			var query = UoW.Session.QueryOver(() => routeListAlias);
 

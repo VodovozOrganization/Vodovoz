@@ -148,13 +148,13 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			GeographicGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
+			GeoGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
 
 			ytreeviewGeographicGroup.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing()
 				.AddColumn("Район города").AddTextRenderer(x => x.GeographicGroup.Name)
 				.Finish();
-			geographicGroupNodes = new GenericObservableList<GeographicGroupNode>(UoW.GetAll<GeographicGroup>().ToList().Select(x => new GeographicGroupNode(x)).ToList());
+			geographicGroupNodes = new GenericObservableList<GeographicGroupNode>(UoW.GetAll<GeoGroup>().ToList().Select(x => new GeographicGroupNode(x)).ToList());
 
 			if(employeeGeographicGroup != null) {
 				var foundGeoGroup = geographicGroupNodes.FirstOrDefault(x => x.GeographicGroup.Id == employeeGeographicGroup.Id);
@@ -696,7 +696,7 @@ namespace Vodovoz
 
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 
 			var baseOrderQuery = _orderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session);
@@ -752,7 +752,7 @@ namespace Vodovoz
 				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
-			GeographicGroup routeGeographicGroupAlias = null;
+			GeoGroup routeGeographicGroupAlias = null;
 			if(selectedGeographicGroup.Any()) {
 				routesQuery1
 				.Left.JoinAlias(x => x.GeographicGroups, () => routeGeographicGroupAlias)

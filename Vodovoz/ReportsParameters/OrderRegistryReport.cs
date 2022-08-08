@@ -14,7 +14,7 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderRegistryReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		GenericObservableList<GeographicGroup> geographicGroups;
+		GenericObservableList<GeoGroup> geographicGroups;
 
 		public OrderRegistryReport()
 		{
@@ -28,9 +28,9 @@ namespace Vodovoz.ReportsParameters
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			geograficGroup.UoW = UoW;
 			geograficGroup.Label = "Часть города:";
-			geographicGroups = new GenericObservableList<GeographicGroup>();
+			geographicGroups = new GenericObservableList<GeoGroup>();
 			geograficGroup.Items = geographicGroups;
-			foreach(var gg in UoW.Session.QueryOver<GeographicGroup>().List())
+			foreach(var gg in UoW.Session.QueryOver<GeoGroup>().List())
 				geographicGroups.Add(gg);
 		}
 

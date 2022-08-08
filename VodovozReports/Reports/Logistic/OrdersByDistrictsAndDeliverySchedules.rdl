@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -20,7 +20,7 @@
 FROM
     districts distr
         INNER JOIN
-    geographic_groups gg ON distr.geographic_group_id = gg.id 
+    geo_groups gg ON distr.geo_group_id = gg.id 
         INNER JOIN
     districts_sets ds ON ds.id = distr.districts_set_id AND ds.status ='Active'
         LEFT JOIN  
@@ -95,7 +95,7 @@ FROM
         GROUP BY dp.district_id
     ) ord ON ord.district_id = distr.id
        WHERE
-    (@geographic_group_id = '' OR distr.geographic_group_id = @geographic_group_id)
+    (@geographic_group_id = '' OR distr.geo_group_id = @geographic_group_id)
     AND (@tariff_zone_id = '' OR distr.tariff_zone_id = @tariff_zone_id)
 GROUP BY distr.id
 ORDER BY d_name;</CommandText>

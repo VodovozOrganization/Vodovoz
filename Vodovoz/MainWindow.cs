@@ -1579,8 +1579,8 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<GeographicGroup>(),
-			() => new OrmReference(typeof(GeographicGroup))
+			OrmReference.GenerateHashName<GeoGroup>(),
+			() => new OrmReference(typeof(GeoGroup))
 		);
 	}
 

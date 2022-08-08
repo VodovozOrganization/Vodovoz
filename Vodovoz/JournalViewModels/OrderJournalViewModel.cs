@@ -208,7 +208,7 @@ namespace Vodovoz.JournalViewModels
 			District districtAlias = null;
 			CounterpartyContract contractAlias = null;
 			PaymentFrom paymentFromAlias = null;
-			GeographicGroup geographicalGroupAlias = null;
+			GeoGroup geographicalGroupAlias = null;
 
 			Nomenclature sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 

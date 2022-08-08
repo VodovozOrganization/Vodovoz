@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -552,7 +552,7 @@ FROM at_work_drivers awd
 LEFT JOIN employees e on  e.id = awd.employee_id
 LEFT JOIN employees reason_author on reason_author.id = awd.author_removed_driver
 LEFT JOIN employees comment_author on comment_author.id = awd.comment_last_edited_author_id
-LEFT JOIN geographic_groups gg on awd.geographic_group_id = gg.id
+LEFT JOIN geo_groups gg on awd.geo_group_id = gg.id
 LEFT JOIN cars c on awd.car_id = c.id
 INNER JOIN car_models cm ON c.model_id = cm.id
 INNER JOIN

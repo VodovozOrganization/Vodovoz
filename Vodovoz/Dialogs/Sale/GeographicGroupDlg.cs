@@ -13,7 +13,7 @@ using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.Dialogs.Sale
 {
-	public partial class GeographicGroupDlg : EntityDialogBase<GeographicGroup>
+	public partial class GeographicGroupDlg : EntityDialogBase<GeoGroup>
 	{
 		readonly GMapOverlay addressOverlay = new GMapOverlay();
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -23,18 +23,18 @@ namespace Vodovoz.Dialogs.Sale
 		public GeographicGroupDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<GeographicGroup>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<GeoGroup>();
 			ConfigureDlg();
 		}
 
 		public GeographicGroupDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<GeographicGroup>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<GeoGroup>(id);
 			ConfigureDlg();
 		}
 
-		public GeographicGroupDlg(GeographicGroup sub) : this(sub.Id) { }
+		public GeographicGroupDlg(GeoGroup sub) : this(sub.Id) { }
 
 		void ConfigureDlg()
 		{
@@ -155,7 +155,7 @@ namespace Vodovoz.Dialogs.Sale
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<GeographicGroup>(UoWGeneric.Root);
+			var valid = new QSValidator<GeoGroup>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 			UoWGeneric.Save();

@@ -74,7 +74,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds)
 		{
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 
 			var query = QueryOver.Of<RouteList>()
 								 .Where(x => x.Date == date)

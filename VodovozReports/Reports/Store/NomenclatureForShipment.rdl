@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -49,11 +49,11 @@ FROM
                     LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
                     LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
                     LEFT JOIN districts ON districts.id = delivery_points.district_id
-                    LEFT JOIN geographic_groups ON geographic_groups.id = districts.geographic_group_id
+                    LEFT JOIN geo_groups ON geo_groups.id = districts.geo_group_id
             WHERE
                     orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
               AND orders.delivery_date = DATE(@date)
-              AND geographic_groups.id = @district
+              AND geo_groups.id = @district
             GROUP BY (nomenclature.id)
         ) as ShippingNomenclature ON ShippingNomenclature.NomenclatureId = nomenclature.id
 
@@ -67,11 +67,11 @@ FROM
                      LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
                      LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
                      LEFT JOIN districts ON districts.id = delivery_points.district_id
-                     LEFT JOIN geographic_groups ON geographic_groups.id = districts.geographic_group_id
+                     LEFT JOIN geo_groups ON geo_groups.id = districts.geo_group_id
             WHERE
                     orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
               AND order_equipment.direction = 'Deliver'
-              AND geographic_groups.id = @district
+              AND geo_groups.id = @district
               AND orders.delivery_date = DATE(@date)
             GROUP BY nomenclature.id
         ) as Equipment On Equipment.NomenclatureId = nomenclature.id
@@ -90,12 +90,12 @@ FROM
                     LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
                     LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
                     LEFT JOIN cars ON cars.id = route_lists.car_id
-                    LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.car_id = cars.id
+                    LEFT JOIN geo_groups_to_entities ON geo_groups_to_entities.car_id = cars.id
             WHERE
                     orders.order_status IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
               AND route_list_addresses.transfered_to_id IS NULL
               AND route_lists.date &gt;  ADDDATE(CURTIME() , -14)
-              AND geographic_groups_to_entities.geographic_group_id = @district
+              AND geo_groups_to_entities.geo_group_id = @district
               AND NOT EXISTS
                 (
                     SELECT
@@ -119,7 +119,7 @@ FROM
                      LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
             WHERE
                     writeoff_warehouse_id IS NOT NULL
-                    #AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
                     AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
             GROUP BY nomenclature_id
 
@@ -134,7 +134,7 @@ FROM
                      LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
             WHERE
                     incoming_warehouse_id IS NOT NULL
-                    #AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
                     AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
             GROUP BY nomenclature_id
         ) AS StockBalance ON StockBalance.nom_id = nomenclature.id
@@ -156,7 +156,7 @@ FROM
 
             WHERE
                         store_movement_document.transportation_status = 'Submerged'
-                    #AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
                     AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
                 AND store_movement_document.time_stamp &gt;  ADDDATE(CURTIME() ,INTERVAL -14 DAY)
 
@@ -246,11 +246,11 @@ FROM
                     LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
                     LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
                     LEFT JOIN districts ON districts.id = delivery_points.district_id
-                    LEFT JOIN geographic_groups ON geographic_groups.id = districts.geographic_group_id
+                    LEFT JOIN geo_groups ON geo_groups.id = districts.geo_group_id
             WHERE
                     orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
               AND orders.delivery_date = DATE(@date)
-              AND geographic_groups.id = @district
+              AND geo_groups.id = @district
             GROUP BY (nomenclature.id)
         ) as ShippingNomenclature ON ShippingNomenclature.NomenclatureId = nomenclature.id
 
@@ -264,11 +264,11 @@ FROM
                      LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
                      LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
                      LEFT JOIN districts ON districts.id = delivery_points.district_id
-                     LEFT JOIN geographic_groups ON geographic_groups.id = districts.geographic_group_id
+                     LEFT JOIN geo_groups ON geo_groups.id = districts.geo_group_id
             WHERE
                     orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
               AND order_equipment.direction = 'Deliver'
-              AND geographic_groups.id = @district
+              AND geo_groups.id = @district
               AND orders.delivery_date = DATE(@date)
             GROUP BY nomenclature.id
         ) as Equipment On Equipment.NomenclatureId = nomenclature.id
@@ -287,12 +287,12 @@ FROM
                     LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
                     LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
                     LEFT JOIN cars ON cars.id = route_lists.car_id
-                    LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.car_id = cars.id
+                    LEFT JOIN geo_groups_to_entities ON geo_groups_to_entities.car_id = cars.id
             WHERE
                     orders.order_status IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
               AND route_list_addresses.transfered_to_id IS NULL
               AND route_lists.date &gt;  ADDDATE(CURTIME() , -14)
-              AND geographic_groups_to_entities.geographic_group_id = @district
+              AND geo_groups_to_entities.geo_group_id = @district
               AND NOT EXISTS
                 (
                     SELECT
@@ -316,7 +316,7 @@ FROM
                      LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
             WHERE
                     writeoff_warehouse_id IS NOT NULL
-                    #AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
                     AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
             GROUP BY nomenclature_id
 
@@ -331,7 +331,7 @@ FROM
                      LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
             WHERE
                     incoming_warehouse_id IS NOT NULL
-                    #AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
                     AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
             GROUP BY nomenclature_id
         ) AS StockBalance ON StockBalance.nom_id = nomenclature.id
@@ -353,7 +353,7 @@ FROM
 
             WHERE
                         store_movement_document.transportation_status = 'Submerged'
-                    #AND geographic_groups_to_entities.geographic_group_id = @district После обновления раскоментить 
+                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
                     AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
                 AND store_movement_document.time_stamp &gt;  ADDDATE(CURTIME() ,INTERVAL -14 DAY)
 

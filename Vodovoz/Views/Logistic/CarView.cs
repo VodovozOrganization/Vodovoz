@@ -82,7 +82,7 @@ namespace Vodovoz.Views.Logistic
 			maxBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
 
 			yTreeGeographicGroups.Selection.Mode = Gtk.SelectionMode.Single;
-			yTreeGeographicGroups.ColumnsConfig = FluentColumnsConfig<GeographicGroup>.Create()
+			yTreeGeographicGroups.ColumnsConfig = FluentColumnsConfig<GeoGroup>.Create()
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.Finish();
 			yTreeGeographicGroups.ItemsDataSource = ViewModel.Entity.ObservableGeographicGroups;
@@ -126,7 +126,7 @@ namespace Vodovoz.Views.Logistic
 		protected void OnBtnAddGeographicGroupClicked(object sender, EventArgs e)
 		{
 			var selectGeographicGroups = new OrmReference(
-				QueryOver.Of<GeographicGroup>().Where(gg => gg.Id != ViewModel.EastGeographicGroupId))
+				QueryOver.Of<GeoGroup>().Where(gg => gg.Id != ViewModel.EastGeographicGroupId))
 			{
 				Mode = OrmReferenceMode.MultiSelect
 			};
@@ -140,7 +140,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			foreach(var item in e.Subjects)
 			{
-				if(item is GeographicGroup group && ViewModel.Entity.ObservableGeographicGroups.All(x => x.Id != group.Id))
+				if(item is GeoGroup group && ViewModel.Entity.ObservableGeographicGroups.All(x => x.Id != group.Id))
 				{
 					ViewModel.Entity.ObservableGeographicGroups.Add(group);
 				}
@@ -149,7 +149,7 @@ namespace Vodovoz.Views.Logistic
 
 		protected void OnBtnRemoveGeographicGroupClicked(object sender, EventArgs e)
 		{
-			if(yTreeGeographicGroups.GetSelectedObject() is GeographicGroup selectedObj)
+			if(yTreeGeographicGroups.GetSelectedObject() is GeoGroup selectedObj)
 			{
 				ViewModel.Entity.ObservableGeographicGroups.Remove(selectedObj);
 			}

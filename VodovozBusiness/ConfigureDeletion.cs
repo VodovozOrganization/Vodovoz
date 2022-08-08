@@ -596,7 +596,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
 
-			DeleteConfig.AddHibernateDeleteInfo<GeographicGroup>()
+			DeleteConfig.AddHibernateDeleteInfo<GeoGroup>()
 						.AddDeleteDependence<AtWorkDriver>(x => x.GeographicGroup)
 						.AddDeleteDependence<Subdivision>(x => x.GeographicGroup)
 						.AddRemoveFromDependence<Car>(x => x.GeographicGroups)

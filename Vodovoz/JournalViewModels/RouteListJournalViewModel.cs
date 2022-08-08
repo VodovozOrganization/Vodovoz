@@ -155,7 +155,7 @@ namespace Vodovoz.JournalViewModels
 			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			//Subdivision subdivisionAlias = null;
-			GeographicGroup geographicalGroupAlias = null;
+			GeoGroup geographicalGroupAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)

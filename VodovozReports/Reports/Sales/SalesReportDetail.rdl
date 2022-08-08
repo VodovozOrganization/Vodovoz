@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -1032,7 +1032,7 @@ FROM
              LEFT JOIN
          districts distr ON delivery_points.district_id = distr.id
              LEFT JOIN
-         geographic_groups gg ON gg.id = distr.geographic_group_id
+         geo_groups gg ON gg.id = distr.geo_group_id
          	 LEFT JOIN
          phones p_client ON p_client.counterparty_id = counterparty.id 
      	 LEFT JOIN 
@@ -1542,7 +1542,7 @@ FROM
                 LEFT JOIN counterparty ON counterparty.id = orders.client_id
                 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
                 LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-                LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+                LEFT JOIN geo_groups gg ON gg.id = distr.geo_group_id
                 LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
                 LEFT JOIN employees ON employees.id = orders.author_employee_id
                 LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -97,7 +97,7 @@ FROM
                                  LEFT JOIN measurement_units On n.unit_id = measurement_units.id
                                  LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
                                  LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-                                 LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+                                 LEFT JOIN geo_groups gg ON gg.id = distr.geo_group_id
                         WHERE
                             (
                                         o.order_status = 'Accepted'
@@ -243,7 +243,7 @@ WHERE warehouses.id = @warehouse_id</CommandText>
         <CommandText>SELECT
 	name
 FROM
-	geographic_groups
+	geo_groups
 WHERE 
 	id IN (@geographic_group_id)</CommandText>
         <QueryParameters>

@@ -87,7 +87,7 @@ namespace Vodovoz.Models
 		}
 
 		private Organization GetOrganizationForOrderParameters(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,
-			DateTime? orderCreateDate, IEnumerable<OrderItem> orderItems, PaymentFrom paymentFrom, GeographicGroup geographicGroup,
+			DateTime? orderCreateDate, IEnumerable<OrderItem> orderItems, PaymentFrom paymentFrom, GeoGroup geographicGroup,
 			int? onlineOrderId)
 		{
 			if(uow == null)
@@ -108,7 +108,7 @@ namespace Vodovoz.Models
 		}
 
 		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
-			PaymentFrom paymentFrom, GeographicGroup geographicGroup, int? onlineOrderId)
+			PaymentFrom paymentFrom, GeoGroup geographicGroup, int? onlineOrderId)
 		{
 			int organizationId;
 			switch(paymentType)
@@ -147,7 +147,7 @@ namespace Vodovoz.Models
 		}
 
 		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
-			PaymentFrom paymentFrom, GeographicGroup geographicGroup, int? onlineOrderId)
+			PaymentFrom paymentFrom, GeoGroup geographicGroup, int? onlineOrderId)
 		{
 			int organizationId;
 			switch(paymentType)
@@ -177,7 +177,7 @@ namespace Vodovoz.Models
 				x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderParametersProvider.OldInternalOnlineStoreId);
 		}
 
-		private int GetOrganizationIdForByCard(IUnitOfWork uow, PaymentFrom paymentFrom, GeographicGroup geographicGroup,
+		private int GetOrganizationIdForByCard(IUnitOfWork uow, PaymentFrom paymentFrom, GeoGroup geographicGroup,
 			DateTime? orderCreateDate, int? onlineOrderId)
 		{
 			if(paymentFrom == null)

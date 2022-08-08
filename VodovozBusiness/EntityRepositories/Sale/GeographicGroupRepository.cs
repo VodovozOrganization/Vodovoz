@@ -10,14 +10,14 @@ namespace Vodovoz.EntityRepositories.Sale
 {
 	public class GeographicGroupRepository : IGeographicGroupRepository
 	{
-		private QueryOver<GeographicGroup> GeographicGroupsWithCoordinatesQuery()
+		private QueryOver<GeoGroup> GeographicGroupsWithCoordinatesQuery()
 		{
-			return QueryOver.Of<GeographicGroup>().Where(x => x.BaseLatitude != null && x.BaseLongitude != null);
+			return QueryOver.Of<GeoGroup>().Where(x => x.BaseLatitude != null && x.BaseLongitude != null);
 		}
 		
-		public GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
+		public GeoGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
 		{
-			GeographicGroup gg = null;
+			GeoGroup gg = null;
 			
 			if(lat.HasValue && lon.HasValue)
 			{
@@ -29,17 +29,17 @@ namespace Vodovoz.EntityRepositories.Sale
 			return gg;
 		}
 
-		public IList<GeographicGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow)
+		public IList<GeoGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow)
 		{
 			return GeographicGroupsWithCoordinatesQuery()
 							.GetExecutableQueryOver(uow.Session)
 							.List();
 		}
 		
-		public IList<GeographicGroup> GeographicGroupsWithCoordinatesExceptEast(
+		public IList<GeoGroup> GeographicGroupsWithCoordinatesExceptEast(
 			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider)
 		{
-			return uow.Session.QueryOver<GeographicGroup>()
+			return uow.Session.QueryOver<GeoGroup>()
 				.Where(gg => gg.BaseLatitude != null && gg.BaseLongitude != null)
 				.And(gg => gg.Id != geographicGroupParametersProvider.EastGeographicGroupId)
 				.List();
