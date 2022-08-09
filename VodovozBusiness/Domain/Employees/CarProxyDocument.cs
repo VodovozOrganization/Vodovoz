@@ -17,6 +17,8 @@ namespace Vodovoz.Domain.Employees
 	[EntityPermission]
 	public class CarProxyDocument : ProxyDocument, IValidatableObject
 	{
+		ICounterpartyRepository counterpartyRepository = new CounterpartyRepository();
+
 		public virtual string Title {
 			get {
 				return String.Format("Доверенность на ТС № {0}", Id);
@@ -79,6 +81,17 @@ namespace Vodovoz.Domain.Employees
 				return;
 			}
 			DocumentTemplate = docTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.CarProxy, Organization);
+		}
+
+		public virtual string GetDealers()
+		{
+			List<string> dealers = new List<string>();
+			foreach(var dealer in counterpartyRepository.GetDealers())
+			{
+				dealers.Add($"{dealer.FullName} (ОГРН {dealer.OGRN})");
+			}
+
+			return string.Join(", ", dealers);
 		}
 
 		#region IValidatableObject implementation
