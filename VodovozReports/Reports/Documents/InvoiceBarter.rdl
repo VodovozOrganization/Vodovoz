@@ -978,8 +978,7 @@ payment_type='ToClient'</CommandText>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
             <Width>308.52pt</Width>
-            <Value>="Отпуск разрешил:__________________/"
-+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "./"</Value>
+            <Value>="Отпуск разрешил:__________________/"+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "./"</Value>
             <ZIndex>1</ZIndex>
             <Left>90.0pt</Left>
             <Top>29.9pt</Top>

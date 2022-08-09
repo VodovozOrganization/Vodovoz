@@ -436,8 +436,7 @@ WHERE orders.id = @order_id</CommandText>
         <Value>="От Фирмы
 
 
-______________ /"
-+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "./
+______________ /"+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic} + "./
 
 М.П."</Value>
         <ZIndex>1</ZIndex>

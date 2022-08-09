@@ -1214,8 +1214,7 @@ WHERE stored_resource.id = @id21</CommandText>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
             <Width>308.52pt</Width>
-            <Value>="Отпуск разрешил:__________________/"
-+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "./"
+            <Value>="Отпуск разрешил:__________________/"+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "./"
 </Value>
             <ZIndex>0</ZIndex>
             <Left>86.00pt</Left>

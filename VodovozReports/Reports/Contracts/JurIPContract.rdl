@@ -17,7 +17,7 @@
       <Textbox Name="Textbox2">
         <Height>15.01pt</Height>
         <Width>575.96pt</Width>
-        <Value>="!ДОГОВОР №" + {?contract_id}</Value>
+        <Value>="ДОГОВОР №" + {?contract_id}</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>93.4pt</Top>
@@ -1562,8 +1562,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>="              ________________ /"
-+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "."</Value>
+                      <Value>="              ________________ /"+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "."</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
