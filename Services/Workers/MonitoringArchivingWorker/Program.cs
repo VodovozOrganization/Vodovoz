@@ -14,8 +14,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using QS.Attachments.Domain;
-using Vodovoz.HibernateMapping;
 using Microsoft.Extensions.Configuration;
+using Vodovoz.HibernateMapping.Organizations;
 
 namespace MonitoringArchivingWorker
 {
