@@ -20,6 +20,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private Employee _logistician;
 		private District _district;
 		private bool? _isValid;
+		private bool? _isVerificationFromSite;
+		private bool? _isNomenclatureNotInStock;
 		private int _logisticianReactionTimeMinutes;
 
 		public FastDeliveryAvailabilityFilterViewModel(
@@ -42,6 +44,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			CounterpartySelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
+
+			IsValid = false;
 		}
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
@@ -76,6 +80,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			get => _isValid;
 			set => UpdateFilterField(ref _isValid, value);
+		}
+
+		public bool? IsVerificationFromSite
+		{
+			get => _isVerificationFromSite;
+			set => UpdateFilterField(ref _isVerificationFromSite, value);
+		}
+
+		public bool? IsNomenclatureNotInStock
+		{
+			get => _isNomenclatureNotInStock; 
+			set => UpdateFilterField(ref _isNomenclatureNotInStock, value);
 		}
 
 		public Employee Logistician

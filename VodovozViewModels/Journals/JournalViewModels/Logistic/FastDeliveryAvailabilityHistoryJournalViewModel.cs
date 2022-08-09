@@ -16,6 +16,7 @@ using System.Linq;
 using System.Timers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure.Services;
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private IList<FastDeliveryAvailabilityHistoryJournalNode> _sequenceNodes;
 
 		public FastDeliveryAvailabilityHistoryJournalViewModel(FastDeliveryAvailabilityFilterViewModel filterViewModel,
@@ -43,11 +45,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IFileDialogService fileDialogService,
-			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider)
+			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider,
+			INomenclatureParametersProvider nomenclatureParametersProvider)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			var availabilityHistoryParameterProvider = fastDeliveryAvailabilityHistoryParameterProvider
 													   ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
 
@@ -118,7 +122,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			FastDeliveryOrderItemHistory fastDeliveryOrderItemHistoryAlias = null;
 			Employee authorAlias = null;
 			Employee logisticianAlias = null;
-			Order orderAlias = null;
+			Nomenclature nomenclatureAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
 			Counterparty counterpartyAlias = null;
@@ -146,16 +150,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					Projections.Constant(true),
 					Projections.Constant(false)));
 
+			var nomenclatureDistributionSubquery = QueryOver.Of(() => fastDeliveryNomenclatureDistributionHistoryAlias)
+			.Where(() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
+			.Where(()=> fastDeliveryOrderItemHistoryAlias.Nomenclature.Id == fastDeliveryNomenclatureDistributionHistoryAlias.Nomenclature.Id)
+			.Select(Projections.Property(() => fastDeliveryNomenclatureDistributionHistoryAlias.Nomenclature.Id));
+
+			var nomenclatureNotInStockSubquery = QueryOver.Of(() => fastDeliveryOrderItemHistoryAlias)
+			.JoinAlias(() => fastDeliveryOrderItemHistoryAlias.Nomenclature, () => nomenclatureAlias)
+			.Where(() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
+			.Where(() => nomenclatureAlias.ProductGroup.Id != _nomenclatureParametersProvider.PromotionalNomenclatureGroupId)
+			.WithSubquery.WhereNotExists(nomenclatureDistributionSubquery)
+			.Select(Projections.Conditional(
+				Restrictions.Gt(
+					Projections.Max(Projections.Property(() => fastDeliveryOrderItemHistoryAlias.Nomenclature.Id)), 0),
+					Projections.Constant(true),
+					Projections.Constant(false))
+			);
 
 			var itemsQuery = uow.Session.QueryOver(() => fastDeliveryAvailabilityHistoryAlias)
-				.JoinEntityAlias(() => fastDeliveryNomenclatureDistributionHistoryAlias,
-					() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id,
-					JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => fastDeliveryOrderItemHistoryAlias,
-					() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id,
-					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Logistician, () => logisticianAlias)
@@ -185,6 +198,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			if(FilterViewModel.IsValid != null)
 			{
 				itemsQuery.Where(Restrictions.Eq(Projections.SubQuery(isValidSubquery), FilterViewModel.IsValid));
+			}
+
+			if(FilterViewModel.IsVerificationFromSite != null)
+			{
+				if(FilterViewModel.IsVerificationFromSite.Value)
+				{
+					itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.Author == null);
+				}
+				else
+				{
+					itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.Author != null);
+				}
+			}
+
+			if(FilterViewModel.IsNomenclatureNotInStock != null)
+			{
+				itemsQuery.Where(Restrictions.Eq(Projections.SubQuery(nomenclatureNotInStockSubquery), FilterViewModel.IsNomenclatureNotInStock));
 			}
 
 			if(FilterViewModel.LogisticianReactionTimeMinutes > 0)
@@ -230,6 +260,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => logisticianAlias.Name).WithAlias(() => resultAlias.LogisticianName)
 					.Select(() => logisticianAlias.Patronymic).WithAlias(() => resultAlias.LogisticianPatronymic)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.LogisticianCommentVersion).WithAlias(() => resultAlias.LogisticianCommentVersion)
+					.SelectSubQuery(nomenclatureNotInStockSubquery).WithAlias(() => resultAlias.IsNomenclatureNotInStockSubquery)
 				).OrderBy(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate).Desc
 				.TransformUsing(Transformers.AliasToBean<FastDeliveryAvailabilityHistoryJournalNode>());
 

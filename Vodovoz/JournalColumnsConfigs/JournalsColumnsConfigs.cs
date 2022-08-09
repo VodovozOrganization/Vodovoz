@@ -1622,6 +1622,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			TreeViewColumnsConfigFactory.Register<FastDeliveryAvailabilityHistoryJournalViewModel>(
 				() => FluentColumnsConfig<FastDeliveryAvailabilityHistoryJournalNode>.Create()
 					.AddColumn("№").AddNumericRenderer(node => node.SequenceNumber)
+					.AddColumn("Id").AddNumericRenderer(node => node.Id)
 					.AddColumn("Дата и время\nпроверки").AddTextRenderer(node => node.VerificationDateString)
 					.AddColumn("Автор заказа").AddTextRenderer(node => node.AuthorString)
 					.AddColumn("№ заказа").AddNumericRenderer(node => node.Order)
@@ -1633,6 +1634,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("ФИО логиста").AddTextRenderer(node => node.LogisticianNameWithInitials)
 					.AddColumn("Дата и время последнего\nсохранения комментария").AddTextRenderer(node => node.LogisticianCommentVersionString)
 					.AddColumn("Время реакции в\nчасах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
+					.AddColumn("Ассортимент\nне в запасе").AddTextRenderer(node => node.IsNomenclatureNotInStockSubqueryString)
 					.AddColumn("")
 					.Finish()
 			);

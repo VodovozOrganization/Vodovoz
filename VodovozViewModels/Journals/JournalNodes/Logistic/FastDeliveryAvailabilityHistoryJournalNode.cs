@@ -18,13 +18,14 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string AddressWithoutDeliveryPoint { get; set; }
 		public string District { get; set; }
 		public bool IsValid { get; set; }
+		public bool IsNomenclatureNotInStockSubquery { get; set; }
 		public string LogisticianName { get; set; }
 		public string LogisticianLastName { get; set; }
 		public string LogisticianPatronymic { get; set; }
 		public string LogisticianComment { get; set; }
 		public DateTime LogisticianCommentVersion { get; set; }
 		public string IsValidString => IsValid ? "Да" : "Нет";
-
+		public string IsNomenclatureNotInStockSubqueryString => IsNomenclatureNotInStockSubquery ? "Да" : "Нет";
 		public string VerificationDateString => VerificationDate.ToString("dd.MM.yy HH:mm:ss");
 
 		public string AuthorString => string.IsNullOrEmpty(AuthornNameWithInitials) ? "Сайт" : AuthornNameWithInitials;
