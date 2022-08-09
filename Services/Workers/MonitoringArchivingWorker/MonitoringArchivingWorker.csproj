@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>dotnet-MonitoringArchivingWorker-19647D3C-4E6A-46A4-81E9-16F86559FE6F</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentNHibernate" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
+    <PackageReference Include="MySql.Data" Version="8.0.28" />
+    <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj" />
+    <ProjectReference Include="..\..\..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
+    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

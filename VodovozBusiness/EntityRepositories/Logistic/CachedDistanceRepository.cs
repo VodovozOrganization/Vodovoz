@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
+using NHibernate.Persister.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Tools.Logistic;
@@ -29,5 +32,29 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query.Where(disjunction).List();
 		}
 
+		public CachedDistance GetFirstCacheByCreateDate(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<CachedDistance>()
+				.OrderBy(cd => cd.Created).Asc
+				.Take(1)
+				.SingleOrDefault();
+		}
+
+		#region Удаление кэша
+
+		public static void DeleteCachedDistance(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo)
+		{
+			var factory = uow.Session.SessionFactory;
+			var cdPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(CachedDistance));
+
+			var createdColumn = cdPersister.GetPropertyColumnNames(nameof(CachedDistance.Created)).First();
+
+			var query = $"DELETE "
+				+ $"FROM {cdPersister.TableName} "
+				+ $"WHERE {cdPersister.TableName}.{createdColumn} BETWEEN '{dateFrom:yyyy-MM-dd}' AND '{dateTo:yyyy-MM-dd HH:mm:ss}';";
+			uow.Session.CreateSQLQuery(query).SetTimeout(180).ExecuteUpdate();
+		}
+
+		#endregion
 	}
 }

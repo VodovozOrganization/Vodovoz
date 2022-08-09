@@ -22,32 +22,33 @@ using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals;
 using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Dialogs
 {
-    [System.ComponentModel.DisplayName("Просмотр журнала изменений")]
-    [WidgetWindow(DefaultWidth = 852, DefaultHeight = 600)]
-    public partial class HistoryView : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
-    {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-        List<ChangedEntity> _changedEntities;
+	[System.ComponentModel.DisplayName("Просмотр журнала изменений")]
+	[WidgetWindow(DefaultWidth = 852, DefaultHeight = 600)]
+	public partial class HistoryView : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
+	{
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		List<ChangedEntity> _changedEntities;
 		List<OldChangedEntity> _oldChangedEntities;
 		bool _canUpdate = false;
-        private int _pageSize = 250;
+		private int _pageSize = 250;
 		private int _takenRows = 0;
 		private int _takenOldRows = 0;
 		private bool _takenAll = false;
 		private bool _takenAllOld = false;
-        private bool _needToHideProperties = true;
+		private bool _needToHideProperties = true;
 		private bool _isSearchFromOldMonitoring;
-        private IDiffFormatter _diffFormatter = new PangoDiffFormater();
-        private HistoryTracePropertyJournalViewModel _historyTracePropertyJournalViewModel;
+		private IDiffFormatter _diffFormatter = new PangoDiffFormater();
+		private HistoryTracePropertyJournalViewModel _historyTracePropertyJournalViewModel;
 
-        public IUnitOfWork UoW { get; private set; }
+		public IUnitOfWork UoW { get; private set; }
 
-        public HistoryView()
+		public HistoryView()
 		{
 			this.Build();
 
@@ -76,17 +77,18 @@ namespace Vodovoz.Dialogs
 
 			entryProperty.ChangedByUser += (sender, e) => UpdateJournal();
 
+			var archiveSettings = new ArchiveDataSettings(new ParametersProvider());
 			selectperiod.ActiveRadio = SelectPeriod.Period.Today;
-			selectperiod.AddCustomPeriodInDays(60, "архив (медленно)");
+			selectperiod.AddCustomPeriodInDays(archiveSettings.GetMonitoringPeriodAvailableInDays, "архив (медленно)");
 			selectperiod.Show3Month = false;
 			selectperiod.ShowCustomPeriod = true;
 			vpanedOld.Visible = false;
+			vpanedOld.PositionSet = false;
 			selectperiod.EarlyCustomDateToggled += OnEarlyCustomDateToggled;
 
 			ConfigureDataTrees();
 
 			_canUpdate = true;
-			UpdateJournal();
 		}
 
 		private void OnEarlyCustomDateToggled(bool value)
@@ -117,7 +119,7 @@ namespace Vodovoz.Dialogs
 				.AddColumn("Откуда изменялось").AddTextRenderer(x => x.ChangeSet.ActionName)
 				.Finish();
 			datatreeChangesets.Selection.Changed += OnChangeSetSelectionChanged;
-			GtkScrolledWindowChangesets.Vadjustment.ValueChanged += Vadjustment_ValueChanged;
+			GtkScrolledWindowChangesets.Vadjustment.ValueChanged += OnVadjustmentValueChanged;
 
 			datatreeChanges.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<FieldChange>()
 				.AddColumn("Поле").AddTextRenderer(x => x.FieldTitle)
@@ -137,7 +139,6 @@ namespace Vodovoz.Dialogs
 				.Finish();
 			dataTreeOldChangeSets.Selection.Changed += OnOldChangeSetSelectionChanged;
 			GtkScrolledWindowOldChangesets.Vadjustment.ValueChanged += OnOldVadjustmentValueChanged;
-			GtkScrolledWindowOldChangesets.HeightRequest = 50;
 
 			dataTreeOldChanges.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<OldFieldChange>()
 				.AddColumn("Поле").AddTextRenderer(x => x.FieldTitle)
@@ -147,18 +148,18 @@ namespace Vodovoz.Dialogs
 				.Finish();
 		}
 
-		void Vadjustment_ValueChanged(object sender, EventArgs e)
-        {
-            if(_takenAll || datatreeChangesets.Vadjustment.Value + datatreeChangesets.Vadjustment.PageSize < datatreeChangesets.Vadjustment.Upper)
+		void OnVadjustmentValueChanged(object sender, EventArgs e)
+		{
+			if(_takenAll || datatreeChangesets.Vadjustment.Value + datatreeChangesets.Vadjustment.PageSize < datatreeChangesets.Vadjustment.Upper)
 			{
 				return;
 			}
 
 			var lastPos = datatreeChangesets.Vadjustment.Value;
-            UpdateJournal(true);
-            QSMain.WaitRedraw();
-            datatreeChangesets.Vadjustment.Value = lastPos;
-        }
+			UpdateJournal(true);
+			QSMain.WaitRedraw();
+			datatreeChangesets.Vadjustment.Value = lastPos;
+		}
 
 		private void OnOldVadjustmentValueChanged(object sender, EventArgs e)
 		{
@@ -175,26 +176,17 @@ namespace Vodovoz.Dialogs
 		}
 
 		private void OnChangeSetSelectionChanged(object sender, EventArgs e)
-        {
-            var selected = (ChangedEntity)datatreeChangesets.GetSelectedObject();
+		{
+			var selected = (ChangedEntity)datatreeChangesets.GetSelectedObject();
 
-            if(selected != null)
+			if(selected != null)
 			{
-                List<FieldChange> changes;
-
-				if (_needToHideProperties)
-                {
-                    changes = selected.Changes.Where(FieldChangeNotNeedToBeHided).ToList();
-                } 
-				else
-                {
-                    changes = selected.Changes.ToList();
-                }
-
-                changes.ForEach(x => x.DiffFormatter = _diffFormatter);
-
-                datatreeChanges.ItemsDataSource = changes;
-            }
+				var changes = _needToHideProperties
+					? selected.Changes.Where(FieldChangeNotNeedToBeHided).ToList()
+					: selected.Changes.ToList();
+				changes.ForEach(x => x.DiffFormatter = _diffFormatter);
+				datatreeChanges.ItemsDataSource = changes;
+			}
 			else
 			{
 				datatreeChanges.ItemsDataSource = null;
@@ -207,19 +199,10 @@ namespace Vodovoz.Dialogs
 
 			if(selected != null)
 			{
-				List<OldFieldChange> changes;
-
-				if(_needToHideProperties)
-				{
-					changes = selected.Changes.Where(OldFieldChangeNotNeedToBeHided).ToList();
-				}
-				else
-				{
-					changes = selected.Changes.ToList();
-				}
-
+				var changes = _needToHideProperties
+					? selected.Changes.Where(OldFieldChangeNotNeedToBeHided).ToList()
+					: selected.Changes.ToList();
 				changes.ForEach(x => x.DiffFormatter = _diffFormatter);
-
 				dataTreeOldChanges.ItemsDataSource = changes;
 			}
 			else
@@ -253,28 +236,28 @@ namespace Vodovoz.Dialogs
 		}
 
 		private void UpdateJournal(bool nextPage = false)
-        {
-            DateTime startTime = DateTime.Now;
-            if(!nextPage)
-            {
-                _takenRows = 0;
-                _takenAll = false;
-            }
+		{
+			DateTime startTime = DateTime.Now;
+			if(!nextPage)
+			{
+				_takenRows = 0;
+				_takenAll = false;
+			}
 
-            if(!_canUpdate)
+			if(!_canUpdate)
 			{
 				return;
 			}
 
 			_logger.Info("Получаем журнал изменений{0}...", _takenRows > 0 ? $"({_takenRows}+)" : "");
-            ChangeSet changeSetAlias = null;
+			ChangeSet changeSetAlias = null;
 
-            var query = UoW.Session.QueryOver<ChangedEntity>()
-                .JoinAlias(ce => ce.ChangeSet, () => changeSetAlias)
-                .Fetch(SelectMode.Fetch, x => x.ChangeSet)
-                .Fetch(SelectMode.Fetch, x => x.ChangeSet.User);
+			var query = UoW.Session.QueryOver<ChangedEntity>()
+				.JoinAlias(ce => ce.ChangeSet, () => changeSetAlias)
+				.Fetch(SelectMode.Fetch, x => x.ChangeSet)
+				.Fetch(SelectMode.Fetch, x => x.ChangeSet.User);
 
-            if(!selectperiod.IsAllTime)
+			if(!selectperiod.IsAllTime)
 			{
 				query.Where(ce => ce.ChangeTime >= selectperiod.DateBegin && ce.ChangeTime < selectperiod.DateEnd);
 			}
@@ -295,74 +278,74 @@ namespace Vodovoz.Dialogs
 			}
 
 			if(!string.IsNullOrWhiteSpace(entrySearchEntity.Text))
-            {
-                var pattern = $"%{entrySearchEntity.Text}%";
-                query.Where(ce => ce.EntityTitle.IsLike(pattern));
-            }
+			{
+				var pattern = $"%{entrySearchEntity.Text}%";
+				query.Where(ce => ce.EntityTitle.IsLike(pattern));
+			}
 
-            if(!string.IsNullOrWhiteSpace(entSearchId.Text))
-            {
-                if(int.TryParse(entSearchId.Text, out int id))
+			if(!string.IsNullOrWhiteSpace(entSearchId.Text))
+			{
+				if(int.TryParse(entSearchId.Text, out int id))
 				{
 					query.Where(ce => ce.EntityId == id);
 				}
 			}
 
 			if(!string.IsNullOrWhiteSpace(entrySearchValue.Text) || entryProperty.Subject is HistoryTracePropertyNode)
-            {
-                FieldChange fieldChangeAlias = null;
-                query.JoinAlias(ce => ce.Changes, () => fieldChangeAlias);
+			{
+				FieldChange fieldChangeAlias = null;
+				query.JoinAlias(ce => ce.Changes, () => fieldChangeAlias);
 
-                if(entryProperty.Subject is HistoryTracePropertyNode selectedProperty)
+				if(entryProperty.Subject is HistoryTracePropertyNode selectedProperty)
 				{
 					query.Where(() => fieldChangeAlias.Path == selectedProperty.PropertyPath);
 				}
 
 				if(!string.IsNullOrWhiteSpace(entrySearchValue.Text))
 				{
-                    var pattern = $"%{entrySearchValue.Text}%";
-                    query.Where(() => fieldChangeAlias.OldValue.IsLike(pattern) || fieldChangeAlias.NewValue.IsLike(pattern));
-                }
-            }
+					var pattern = $"%{entrySearchValue.Text}%";
+					query.Where(() => fieldChangeAlias.OldValue.IsLike(pattern) || fieldChangeAlias.NewValue.IsLike(pattern));
+				}
+			}
 
-            try
-            {
-                var taked = query.OrderBy(x => x.ChangeTime).Desc
-                             .Skip(_takenRows)
-                             .Take(_pageSize)
-                             .List();
+			try
+			{
+				var taked = query.OrderBy(x => x.ChangeTime).Desc
+							 .Skip(_takenRows)
+							 .Take(_pageSize)
+							 .List();
 
-                if(_takenRows > 0)
-                {
-                    _changedEntities.AddRange(taked);
-                    datatreeChangesets.YTreeModel.EmitModelChanged();
-                }
-                else
-                {
-                    _changedEntities = taked.ToList();
-                    datatreeChangesets.ItemsDataSource = _changedEntities;
-                }
+				if(_takenRows > 0)
+				{
+					_changedEntities.AddRange(taked);
+					datatreeChangesets.YTreeModel.EmitModelChanged();
+				}
+				else
+				{
+					_changedEntities = taked.ToList();
+					datatreeChangesets.ItemsDataSource = _changedEntities;
+				}
 
-                if(taked.Count < _pageSize)
+				if(taked.Count < _pageSize)
 				{
 					_takenAll = true;
 				}
 			}
 			catch (GenericADOException ex)
 			{
-                if(ex?.InnerException?.InnerException?.InnerException?.InnerException?.InnerException is System.Net.Sockets.SocketException exception 
-                    && exception.SocketErrorCode == System.Net.Sockets.SocketError.TimedOut){
-                    MessageDialogHelper.RunWarningDialog("Превышен интервал ожидания ответа от сервера:\n" +
-                        "Попробуйте выбрать меньший интервал времени\n" +
-                        "или уточнить условия поиска");
-                }
-            }
+				if(ex?.InnerException?.InnerException?.InnerException?.InnerException?.InnerException is System.Net.Sockets.SocketException exception 
+					&& exception.SocketErrorCode == System.Net.Sockets.SocketError.TimedOut){
+					MessageDialogHelper.RunWarningDialog("Превышен интервал ожидания ответа от сервера:\n" +
+						"Попробуйте выбрать меньший интервал времени\n" +
+						"или уточнить условия поиска");
+				}
+			}
 
-            _takenRows = _changedEntities.Count;
+			_takenRows = _changedEntities.Count;
 
-            _logger.Debug("Время запроса {0}", DateTime.Now - startTime);
-            _logger.Info(NumberToTextRus.FormatCase(_changedEntities.Count, "Загружено изменение {0}{1} объекта.", "Загружено изменение {0}{1} объектов.", "Загружено изменение {0}{1} объектов.", _takenAll ? "" : "+"));
-        }
+			_logger.Debug("Время запроса {0}", DateTime.Now - startTime);
+			_logger.Info(NumberToTextRus.FormatCase(_changedEntities.Count, "Загружено изменение {0}{1} объекта.", "Загружено изменение {0}{1} объектов.", "Загружено изменение {0}{1} объектов.", _takenAll ? "" : "+"));
+		}
 
 		private void UpdateJournalOld(bool nextPage = false)
 		{
@@ -478,47 +461,47 @@ namespace Vodovoz.Dialogs
 		}
 
 		private void OnObjectChangedByUser(object sender, EventArgs e)
-        {
-            _historyTracePropertyJournalViewModel.ObjectType = entryObject3.Subject is HistoryTraceObjectNode node ? node.ObjectType : null;
+		{
+			_historyTracePropertyJournalViewModel.ObjectType = entryObject3.Subject is HistoryTraceObjectNode node ? node.ObjectType : null;
 			UpdateNodes();
-        }
+		}
 
-        protected void OnButtonSearchClicked(object sender, EventArgs e)
-        {
+		protected void OnButtonSearchClicked(object sender, EventArgs e)
+		{
 			UpdateNodes();
-        }
+		}
 
-        protected void OnSelectperiodDatesChanged(object sender, EventArgs e)
-        {
+		protected void OnSelectperiodDatesChanged(object sender, EventArgs e)
+		{
 			UpdateNodes();
-        }
+		}
 
-        protected void OnEntrySearchValueActivated(object sender, EventArgs e)
-        {
-            buttonSearch.Click();
-        }
+		protected void OnEntrySearchValueActivated(object sender, EventArgs e)
+		{
+			buttonSearch.Click();
+		}
 
-        protected void OnComboActionChanged(object sender, EventArgs e)
-        {
+		protected void OnComboActionChanged(object sender, EventArgs e)
+		{
 			UpdateNodes();
-        }
+		}
 
-        public override void Destroy()
-        {
-            UoW.Dispose();
-            base.Destroy();
-        }
+		public override void Destroy()
+		{
+			UoW.Dispose();
+			base.Destroy();
+		}
 
-        protected void OnEntrySearchEntityActivated(object sender, EventArgs e)
-        {
+		protected void OnEntrySearchEntityActivated(object sender, EventArgs e)
+		{
 			UpdateNodes();
-        }
+		}
 
-        protected void OnBtnFilterClicked(object sender, EventArgs e)
-        {
-            tblSettings.Visible = !tblSettings.Visible;
-            btnFilter.Label = tblSettings.Visible ? "Скрыть фильтр" : "Показать фильтр";
-        }
+		protected void OnBtnFilterClicked(object sender, EventArgs e)
+		{
+			tblSettings.Visible = !tblSettings.Visible;
+			btnFilter.Label = tblSettings.Visible ? "Скрыть фильтр" : "Показать фильтр";
+		}
 
 		private void UpdateNodes()
 		{

@@ -163,6 +163,7 @@ using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Views.Payments;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
+using Vodovoz.ReportsParameters.Orders;
 
 namespace Vodovoz
 {
@@ -571,6 +572,7 @@ namespace Vodovoz
 			#region Reports
 
 			builder.RegisterType<CounterpartyCashlessDebtsReport>().AsSelf();
+			builder.RegisterType<OrderChangesReport>().AsSelf();
 
 			#endregion
 

@@ -9,5 +9,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		IList<CachedDistance> GetCache(IUnitOfWork uow, long[] hash);
 		IList<CachedDistance> GetCache(IUnitOfWork uow, WayHash[] hashes);
+		CachedDistance GetFirstCacheByCreateDate(IUnitOfWork uow);
 	}
 }
