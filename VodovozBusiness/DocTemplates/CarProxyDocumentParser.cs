@@ -1,4 +1,5 @@
 ﻿using QS.DocTemplates;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.DocTemplates
@@ -55,6 +56,8 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.EmployeeDocument.PassportIssuedOrg, PatternFieldType.FString);
 			AddField(x => x.EmployeeDocument.PassportIssuedDate.HasValue ? x.EmployeeDocument.PassportIssuedDate.Value.ToString("dd.MM.yyyy") : "", "Водитель.ДатаВыдачиПаспорта", PatternFieldType.FString);
 			AddField(x => x.Driver.AddressRegistration, PatternFieldType.FString);
+
+			AddField(x => x.GetDealers(), "Дилеры", PatternFieldType.FString);
 
 			SortFields();
 		}
