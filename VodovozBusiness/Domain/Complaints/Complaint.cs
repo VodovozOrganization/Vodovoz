@@ -218,7 +218,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		IList<ComplaintGuiltyItem> guilties = new List<ComplaintGuiltyItem>();
-		[Display(Name = "Виновные в рекламации")]
+		[Display(Name = "Ответственные в рекламации")]
 		public virtual IList<ComplaintGuiltyItem> Guilties {
 			get => guilties;
 			set => SetField(ref guilties, value, () => Guilties);
@@ -294,6 +294,7 @@ namespace Vodovoz.Domain.Complaints
 			}
 
 			ComplaintDiscussion newDiscussion = new ComplaintDiscussion();
+			newDiscussion.StartSubdivisionDate = DateTime.Now;
 			newDiscussion.PlannedCompletionDate = DateTime.Today;
 			newDiscussion.Complaint = this;
 			newDiscussion.Subdivision = subdivision;

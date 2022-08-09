@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +19,7 @@ using QS.Project.DB;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace PayPageAPI
 {
@@ -80,6 +81,7 @@ namespace PayPageAPI
 			services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
+			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
 			
 			//repositories
 			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
@@ -146,7 +148,7 @@ namespace PayPageAPI
 				{
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
 					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
 					System.Reflection.Assembly.GetAssembly(typeof(Attachment))

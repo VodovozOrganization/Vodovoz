@@ -19,7 +19,7 @@
       <Textbox Name="Textbox2">
         <Height>19.57pt</Height>
         <Width>814.05pt</Width>
-        <Value>='Отчет по оплатам СБП Авангарда c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
+        <Value>='Отчет по оплатам Авангарда c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.8pt</Left>
         <Top>0.6pt</Top>
@@ -64,13 +64,16 @@
             <Width>38.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>133.4pt</Width>
+            <Width>119.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>172.4pt</Width>
+            <Width>150.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.9pt</Width>
+            <Width>48.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.5pt</Width>
@@ -165,6 +168,24 @@
                   <ReportItems>
                     <Textbox Name="Textbox19">
                       <Value>Номер оплаты</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Тип оплаты</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -441,6 +462,38 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>={pay_type}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BackgroundColor>=Iif(
+    {underpayment} = 'Отсутствует оплата',
+    'Lightpink',
+    Iif(
+        {underpayment} = 'Переплата',
+        'Yellowgreen',
+        Iif(
+            {underpayment} = 'Недоплата',
+            'Yellow',
+            'White'
+        )
+    )
+)</BackgroundColor>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox22">
                       <Value>=Replace(
     Iif(
@@ -603,7 +656,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>13.0pt</Top>
+        <Top>12.2pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="future_order">
@@ -652,7 +705,7 @@
                           <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>10</ColSpan>
+                      <ColSpan>11</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -706,7 +759,7 @@
                           <Value>={underpayment}</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>10</ColSpan>
+                      <ColSpan>11</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -747,6 +800,9 @@
             <Width>61.3pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>61.3pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>68.7pt</Width>
           </TableColumn>
         </TableColumns>
@@ -777,6 +833,23 @@
                     <Textbox Name="Textbox26">
                       <Value>Номер оплаты</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>Тип оплаты</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -844,6 +917,26 @@
                       <Value>={order_num}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>={pay_type}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -932,7 +1025,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -1008,7 +1101,14 @@
             END
         ) AS underpayment_number,
     o.delivery_date &gt; @endDate AS is_future_order,
-    p.order_num AS number
+    p.order_num AS number,
+    (
+        CASE p.pay_type
+            WHEN 'Unknown' THEN 'Неизвестно'
+            WHEN 'ByCard' THEN 'По карте'
+            WHEN 'ByQrCode' THEN 'По Qr коду'
+            END
+    ) AS pay_type
     #для отладки на тестовых БД. Для того, чтоб увидеть заказы на будущие даты
     #o.delivery_date &gt; '2018-10-03' AS is_future_order
 FROM
@@ -1017,9 +1117,11 @@ FROM
     (
         Select
             o_online.id as order_id,
-            p_avangard.*
+            p_avangard.*,
+            fp.pay_type as pay_type
         From orders o_online
-        JOIN payments_from_avangard p_avangard on p_avangard.order_num = o_online.online_order
+                 JOIN payments_from_avangard p_avangard on p_avangard.order_num = o_online.online_order
+                 JOIN fast_payments fp on fp.external_id = p_avangard.order_num  and fp.payment_status = 'Performed'
             AND p_avangard.paid_date &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
             AND p_avangard.paid_date &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
     ) as p on p.order_id = o.id
@@ -1038,19 +1140,21 @@ FROM
             orders o_sub
         JOIN
             order_items i ON o_sub.id = i.order_id
-        WHERE 
+        WHERE
             o_sub.payment_type = 'ByCard'
-                AND o_sub.online_order IS NOT NULL
-                AND o_sub.delivery_date &gt;= @startDate
-                AND o_sub.delivery_date &lt;= @endDate
+          AND o_sub.online_order IS NOT NULL
+          AND o_sub.payment_from_id IN (10, 11, 12)
+          AND o_sub.delivery_date &gt;= @startDate
+          AND o_sub.delivery_date &lt;= @endDate
         GROUP BY
             i.order_id
     ) o_sum ON o.id = o_sum.order_id
 WHERE
     o.payment_type = 'ByCard'
-        AND o.online_order IS NOT NULL
-        AND o.delivery_date &gt;= @startDate
-        AND o.delivery_date &lt;= @endDate
+  AND o.online_order IS NOT NULL
+  AND o.payment_from_id IN (10, 11, 12)
+  AND o.delivery_date &gt;= @startDate
+  AND o.delivery_date &lt;= @endDate
 ORDER BY order_satus_numbered DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -1061,7 +1165,7 @@ ORDER BY order_satus_numbered DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1126,26 +1230,37 @@ ORDER BY order_satus_numbered DESC;</CommandText>
           <DataField>number</DataField>
           <TypeName>System.Int64</TypeName>
         </Field>
+        <Field Name="pay_type">
+          <DataField>pay_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
-        <CommandText>SELECT *
-FROM payments_from_avangard pfa
-WHERE
+        <CommandText>SELECT
+    pfa.*,
     (
-        order_num NOT IN
-        (      
-            SELECT online_order
-            FROM orders
-            WHERE online_order IS NOT NULL
-              AND delivery_date &gt;= @startDate
-        )
-    )
-  AND pfa.paid_date &gt;= @startDate
-  AND pfa.paid_date &lt;= @endDate
+        Select
+            CASE fp.pay_type
+                WHEN 'Unknown' THEN 'Неизвестно'
+                WHEN 'ByCard' THEN 'По карте'
+                WHEN 'ByQrCode' THEN 'По Qr коду'
+                END
+        From fast_payments fp
+        Where fp.external_id = pfa.order_num
+          and date(fp.paid_date) = date(pfa.paid_date)
+    ) AS pay_type
+FROM payments_from_avangard pfa
+LEFT JOIN orders o ON o.online_order = pfa.order_num
+    AND payment_from_id IN (10, 11, 12)
+    AND delivery_date &gt;= @startDate
+WHERE
+    o.id is null
+    AND pfa.paid_date &gt;= @startDate
+    AND pfa.paid_date &lt;= @endDate
 ORDER BY pfa.paid_date DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -1156,7 +1271,7 @@ ORDER BY pfa.paid_date DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1173,6 +1288,10 @@ ORDER BY pfa.paid_date DESC;</CommandText>
           <DataField>paid_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
+        <Field Name="pay_type">
+          <DataField>pay_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -1187,7 +1306,7 @@ ORDER BY pfa.paid_date DESC;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>

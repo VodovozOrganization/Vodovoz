@@ -35,13 +35,14 @@ namespace Vodovoz.EntityRepositories.Stock
 
 			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And(() => operationAddAlias.IncomingWarehouse.Id != null)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-				
 
 			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And(() => operationRemoveAlias.WriteoffWarehouse.Id != null)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-			
+
 			var amountProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?1 - ?2 )"),
 				NHibernateUtil.Int32, new IProjection[] {
 					Projections.SubQuery(subqueryAdd),

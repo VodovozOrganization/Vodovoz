@@ -10,9 +10,11 @@ namespace Vodovoz.Services
 		int OldInternalOnlineStoreId { get; }
 		int GetPaymentByCardFromMarketplaceId { get; }
 		int GetPaymentByCardFromFastPaymentServiceId { get; }
+		int GetPaymentByCardFromAvangardId { get; }
 		int GetPaymentByCardFromSiteByQrCode { get; }
 		int[] PaymentsByCardFromNotToSendSalesReceipts { get; }
 		int[] PaymentsByCardFromForNorthOrganization { get; }
+		int[] PaymentsByCardFromAvangard { get; }
 		int GetDiscountReasonStockBottle10PercentsId { get; }
 		int GetDiscountReasonStockBottle20PercentsId { get; }
     }

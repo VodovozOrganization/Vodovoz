@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
@@ -24,6 +25,8 @@ namespace Vodovoz.Domain.FastPayments
 		private string _qrPngBase64;
 		private string _phoneNumber;
 		private Order _order;
+		private Organization _organization;
+		private PaymentFrom _paymentByCardFrom;
 		private DateTime _creationDate;
 		private DateTime? _paidDate;
 		private FastPaymentStatus _fastPaymentStatus;
@@ -31,9 +34,10 @@ namespace Vodovoz.Domain.FastPayments
 		private int _externalId;
 		private int? _onlineOrderId;
 		private Guid _fastPaymnetGuid;
+		private FastPaymentPayType _fastPaymentPayType;
 
 		public virtual int Id { get; set; }
-        
+		
 		[Display(Name = "Статус оплаты")]
 		public virtual FastPaymentStatus FastPaymentStatus
 		{
@@ -54,7 +58,21 @@ namespace Vodovoz.Domain.FastPayments
 			get => _order;
 			set => SetField(ref _order, value);
 		}
+
+		[Display(Name = "Организация")]
+		public virtual Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
+		}
 		
+		[Display(Name = "Источник оплаты по карте")]
+		public virtual PaymentFrom PaymentByCardFrom
+		{
+			get => _paymentByCardFrom;
+			set => SetField(ref _paymentByCardFrom, value);
+		}
+
 		[Display(Name = "Сессия оплаты")]
 		public virtual string Ticket
 		{
@@ -76,7 +94,7 @@ namespace Vodovoz.Domain.FastPayments
 			get => _creationDate;
 			set => SetField(ref _creationDate, value);
 		}
-        
+		
 		[Display(Name = "Дата оплаты")]
 		public virtual DateTime? PaidDate
 		{
@@ -109,6 +127,12 @@ namespace Vodovoz.Domain.FastPayments
 			set => SetField(ref _fastPaymnetGuid, value);
 		}
 
+		public virtual FastPaymentPayType FastPaymentPayType
+		{
+			get => _fastPaymentPayType;
+			set => SetField(ref _fastPaymentPayType, value);
+		}
+
 		public virtual void SetProcessingStatus()
 		{
 			FastPaymentStatus = FastPaymentStatus.Processing;
@@ -117,7 +141,6 @@ namespace Vodovoz.Domain.FastPayments
 		public virtual void SetPerformedStatusForOrder(
 			IUnitOfWork uow,
 			DateTime paidDate,
-			PaymentFrom paymentByCardFromQrId,
 			IStandartNomenclatures standartNomenclatures,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
@@ -125,7 +148,7 @@ namespace Vodovoz.Domain.FastPayments
 		{
 			FastPaymentStatus = FastPaymentStatus.Performed;
 
-			if (Order.PaymentType == PaymentType.cash
+			if(Order.PaymentType == PaymentType.cash
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& Order.PayAfterShipment)
@@ -139,7 +162,7 @@ namespace Vodovoz.Domain.FastPayments
 				Order.IsSelfDeliveryPaid = true;
 			}
 
-			if (Order.PaymentType == PaymentType.cash
+			if(Order.PaymentType == PaymentType.cash
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& !Order.PayAfterShipment)
@@ -147,14 +170,14 @@ namespace Vodovoz.Domain.FastPayments
 				Order.ChangeStatus(OrderStatus.OnLoading);
 				Order.IsSelfDeliveryPaid = true;
 			}
-            
+			
 			PaidDate = paidDate;
 			Order.OnlineOrder = ExternalId;
 			Order.PaymentType = PaymentType.ByCard;
-			Order.PaymentByCardFrom = paymentByCardFromQrId;
-			Order.ForceUpdateContract();
+			Order.PaymentByCardFrom = PaymentByCardFrom;
+			Order.ForceUpdateContract(Organization);
 
-			foreach (var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
+			foreach(var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
 			{
 				routeListItem.RecalculateTotalCash();
 				uow.Save(routeListItem);
@@ -174,4 +197,5 @@ namespace Vodovoz.Domain.FastPayments
 	}
 
 	public class FastPaymentStatusStringType : EnumStringType<FastPaymentStatus> { }
+	public class FastPaymentPayTypeStringType : EnumStringType<FastPaymentPayType> { }
 }

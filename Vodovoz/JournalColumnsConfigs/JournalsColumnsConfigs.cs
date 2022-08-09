@@ -15,7 +15,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.Representations;
@@ -52,6 +51,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
+using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -314,6 +316,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Дата").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.DateString)
 						.XAlign(0.5f)
+					.AddColumn("Время").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.TimeString)
+						.XAlign(0.5f)
 					.AddColumn("Статус").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.StatusString)
 						.XAlign(0.5f)
@@ -327,7 +332,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(node => node.ClientNameWithAddress)
 						.WrapWidth(300).WrapMode(WrapMode.WordChar)
 						.XAlign(0f)
-					.AddColumn("Виновный").HeaderAlignment(0.5f)
+					.AddColumn("Ответственный").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.Guilties)
 						.XAlign(0f)
 					.AddColumn("Проблема").HeaderAlignment(0.5f)
@@ -356,6 +361,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Дни").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.DaysInWork)
 						.XAlign(0.5f)
+					.AddColumn("Мероприятия").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ArrangementText)
+						.XAlign(0f)
+					.AddColumn("Результат по клиенту").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ResultOfCounterparty)
+						.XAlign(0f)
+					.AddColumn("Результат по сотруднику").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ResultOfEmployees)
+						.XAlign(0f)
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
@@ -1281,6 +1295,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Водитель").AddTextRenderer(node => node.DriverFullName)
 					.AddColumn("Дата начала").AddTextRenderer(node => node.StartDate.ToString("d"))
 					.AddColumn("Дата окончания").AddTextRenderer(node => node.EndDate.ToString("d"))
+					.AddColumn("Стоимость").AddTextRenderer(node => node.RepairCost.ToString("0.##"))
 					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment).WrapWidth(400).WrapMode(WrapMode.WordChar)
 					.AddColumn("Автор").AddTextRenderer(node => node.AuthorFullName)
 					.Finish()
@@ -1305,7 +1320,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.WrapWidth(75).WrapMode(WrapMode.WordChar)
 				.AddColumn("Статус\nначальный ➔\n ➔ текущий").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldOrderStatus)
 					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Виновный").HeaderAlignment(0.5f).AddTextRenderer(node => node.Guilty)
+				.AddColumn("Ответственный").HeaderAlignment(0.5f).AddTextRenderer(node => node.Guilty)
 					.WrapWidth(450).WrapMode(WrapMode.WordChar)
 				.AddColumn("Причина").HeaderAlignment(0.5f).AddTextRenderer(node => node.Reason)
 					.WrapWidth(200).WrapMode(WrapMode.WordChar)
@@ -1479,6 +1494,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Имя").AddTextRenderer(node => node.Name)
 					.AddColumn("Ударение").AddTextRenderer(node => node.Accent)
+					.AddColumn("Готов для Roboats").AddTextRenderer(node => node.ReadyForRoboats ? "Да" : string.Empty)
 					.Finish()
 			);
 
@@ -1488,9 +1504,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Отчество").AddTextRenderer(node => node.Patronymic)
 					.AddColumn("Ударение").AddTextRenderer(node => node.Accent)
+					.AddColumn("Готов для Roboats").AddTextRenderer(node => node.ReadyForRoboats ? "Да" : string.Empty)
 					.Finish()
 			);
-			
+
 			//UnAllocatedBalancesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<UnallocatedBalancesJournalViewModel>(
 				() => FluentColumnsConfig<UnallocatedBalancesJournalNode>.Create()
@@ -1538,7 +1555,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			
 			//TariffZoneJournalViewModel
 			TreeViewColumnsConfigFactory.Register<TariffZoneJournalViewModel>(
 				() => FluentColumnsConfig<TariffZoneJournalNode>.Create()
@@ -1546,6 +1562,105 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("Доступна\nдоставка за час").AddTextRenderer(node => node.IsFastDeliveryAvailable ? "Да" : "").XAlign(0.5f)
 					.AddColumn("Время работы\nдоставки за час").AddTextRenderer(node => node.FastDeliveryAvailableTime)
+					.Finish()
+			);
+			
+			//DeliveryScheduleJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DeliveryScheduleJournalViewModel>(
+				() => FluentColumnsConfig<DeliveryScheduleJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Время доставки").AddTextRenderer(node => node.DeliveryTime)
+					.AddColumn("Архивный?").AddTextRenderer(node => node.IsArchive ? "Да" : string.Empty)
+					.AddColumn("Готов для Roboats").AddTextRenderer(node => node.ReadyForRoboats ? "Да" : string.Empty)
+					.AddColumn("")
+					.Finish()
+			);
+
+			//RoboatsStreetJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RoboatsStreetJournalViewModel>(
+				() => FluentColumnsConfig<RoboatsStreetJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Улица").AddTextRenderer(node => node.Name)
+					.AddColumn("Готов для Roboats").AddTextRenderer(node => node.ReadyForRoboats ? "Да" : string.Empty)
+					.AddColumn("")
+					.Finish()
+			);
+
+			//RoboatsWaterTypeJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RoboatsWaterTypeJournalViewModel>(
+				() => FluentColumnsConfig<RoboatsWaterTypeJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Номенклатура").AddTextRenderer(node => node.Nomenclature)
+					.AddColumn("Готов для Roboats").AddTextRenderer(node => node.ReadyForRoboats ? "Да" : string.Empty)
+					.AddColumn("")
+					.Finish()
+			);
+
+			//RoboatsWaterNomenclatureJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RoboatsWaterNomenclatureJournalViewModel>(
+				() => FluentColumnsConfig<WaterJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Номенклатура").AddTextRenderer(node => node.Title)
+					.AddColumn("")
+					.Finish()
+			);
+
+			//RoboatsCallsRegistryJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RoboatsCallsRegistryJournalViewModel>(
+				() => FluentColumnsConfig<RoboatsCallJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Время").AddTextRenderer(node => node.Time.ToString("dd.MM.yyyy HH:mm:ss"))
+					.AddColumn("Телефон").AddTextRenderer(node => node.Phone)
+					.AddColumn("Статус").AddTextRenderer(node => node.CallStatus)
+					.AddColumn("Результат").AddTextRenderer(node => node.CallResult)
+					.AddColumn("Детали звонка").AddTextRenderer(node => node.Details)
+					.Finish()
+			);
+
+			//FastDeliveryAvailabilityHistoryJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FastDeliveryAvailabilityHistoryJournalViewModel>(
+				() => FluentColumnsConfig<FastDeliveryAvailabilityHistoryJournalNode>.Create()
+					.AddColumn("№").AddNumericRenderer(node => node.Id)
+					.AddColumn("Дата и время\nпроверки").AddTextRenderer(node => node.VerificationDateString)
+					.AddColumn("Автор заказа").AddTextRenderer(node => node.AuthorString)
+					.AddColumn("№ заказа").AddNumericRenderer(node => node.Order)
+					.AddColumn("Имя контрагента").AddTextRenderer(node => node.Counterparty)
+					.AddColumn("Адрес доставки").AddTextRenderer(node => node.Address)
+					.AddColumn("Район").AddTextRenderer(node => node.District)
+					.AddColumn("Доступно\nдля заказа").AddTextRenderer(node => node.IsValidString)
+					.AddColumn("Комментарий логиста /\nПринятые меры").AddTextRenderer(node => node.LogisticianComment)
+					.AddColumn("ФИО логиста").AddTextRenderer(node => node.LogisticianNameWithInitials)
+					.AddColumn("Дата и время последнего\nсохранения комментария").AddTextRenderer(node => node.LogisticianCommentVersionString)
+					.AddColumn("Время реакции в\nчасах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
+					.Finish()
+			);
+			
+			//PaymentsFromJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PaymentsFromJournalViewModel>(
+				() => FluentColumnsConfig<PaymentFromJournalNode>.Create()
+					.AddColumn("№")
+						.HeaderAlignment(0.5f)
+						.AddNumericRenderer(node => node.Id)
+						.XAlign(0.5f)
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Name)
+						.XAlign(0.5f)
+					.AddColumn("Организация\nдля платежей Авангарда")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.OrganizationName)
+						.XAlign(0.5f)
+					.Finish()
+			);
+
+			//BulkEmailEventReasonJournalViewModel
+			TreeViewColumnsConfigFactory.Register<BulkEmailEventReasonJournalViewModel>(
+				() => FluentColumnsConfig<BulkEmailEventReasonJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Архивный").AddToggleRenderer(node => node.IsArchive)
+					.AddColumn("")
 					.Finish()
 			);
 		}

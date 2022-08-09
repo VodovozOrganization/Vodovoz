@@ -10,6 +10,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -22,8 +23,6 @@ namespace Vodovoz.ViewModel
 {
 	public class WorkingDriversVM : RepresentationModelEntityBase<RouteList, WorkingDriverVMNode>
 	{
-		private bool _isFastDeliveryOnly;
-
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes()
@@ -65,43 +64,58 @@ namespace Vodovoz.ViewModel
 				Projections.Constant(true),
 				Projections.Constant(false));
 
-			#region Additional19LWaterLeft
+			#region Water19LReserve
 
-			Nomenclature additionalNomenclatureAlias = null;
-			Nomenclature additionalNomenclatureDeliveredAlias = null;
+			RouteListItem routeListItemAlias = null;
+			RouteListItem transferedToAlias = null;
+			OrderItem orderItemAlias = null;
 			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
-			OrderItem additionalOrderItemsAlias = null;
-			Order additionalOrderAlias = null;
-			RouteListItem additionalRouteListItemAlias = null;
+			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
 
-			var additional19LWaterAllSubquery = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => additionalNomenclatureAlias)
-				.Where(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument.Id == routeListAlias.AdditionalLoadingDocument.Id)
-				.And(() => additionalNomenclatureAlias.Category == NomenclatureCategory.water)
-				.And(() => additionalNomenclatureAlias.TareVolume == TareVolume.Vol19L)
+			var ownOrdersSubquery = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => !orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water
+				           && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
+
+			var additionalBalanceSubquery = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
+				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water
+				             && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
 				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
 
-			var additional19LWaterDeliveredSubquery = QueryOver.Of<OrderItem>(() => additionalOrderItemsAlias)
-				.JoinAlias(() => additionalOrderItemsAlias.Order, () => additionalOrderAlias)
-				.JoinAlias(() => additionalOrderItemsAlias.Nomenclature, () => additionalNomenclatureDeliveredAlias)
-				.JoinEntityAlias(() => additionalRouteListItemAlias, () => additionalRouteListItemAlias.Order.Id == additionalOrderAlias.Id)
-				.Where(() => additionalRouteListItemAlias.RouteList.Id == routeListAlias.Id)
-				.And(() => additionalOrderAlias.IsFastDelivery)
-				.And(Restrictions.Or(Restrictions.Not(Restrictions.In(Projections.Property(() => additionalRouteListItemAlias.Status),
-					new ArrayList { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })),
-					Restrictions.Conjunction()
-							.Add(() => additionalRouteListItemAlias.WasTransfered)
-							.Add(() => additionalRouteListItemAlias.NeedToReload)))
-				.And(() => additionalNomenclatureDeliveredAlias.Category == NomenclatureCategory.water)
-				.And(() => additionalNomenclatureDeliveredAlias.TareVolume == TareVolume.Vol19L)
-				.Select(Projections.Sum(() => additionalOrderItemsAlias.Count));
+			var deliveredOrdersSubquery =QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => transferedToAlias)
+				.Where(() =>
+					//не отменённые и не недовозы
+					routeListItemAlias.Status != RouteListItemStatus.Canceled && routeListItemAlias.Status != RouteListItemStatus.Overdue
+					// и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
+					&& (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload || orderAlias.IsFastDelivery)
+					// и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
+					&& (routeListItemAlias.Status != RouteListItemStatus.Transfered || (!transferedToAlias.NeedToReload && !orderAlias.IsFastDelivery)))
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
+				           nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
 
-			var additional19LWaterLeftProjection =
-				Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
-					NHibernateUtil.Decimal,
-					Projections.SubQuery(additional19LWaterAllSubquery),
-					Projections.SubQuery(additional19LWaterDeliveredSubquery));
+			var water19LReserveProjection =
+				Projections.Conditional(Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
+					Projections.Constant(0m),
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"), // 
+						NHibernateUtil.Decimal,
+						Projections.SubQuery(ownOrdersSubquery),
+						Projections.SubQuery(additionalBalanceSubquery),
+						Projections.SubQuery(deliveredOrdersSubquery)));
 
 			#endregion
 
@@ -134,7 +148,7 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
 					.SelectSubQuery(trackSubquery).WithAlias(() => resultAlias.TrackId)
 					.SelectSubQuery(uncompletedBottlesSubquery).WithAlias(() => resultAlias.BottlesLeft)
-					.Select(additional19LWaterLeftProjection).WithAlias(() => resultAlias.Additional19LWaterLeft)
+					.Select(water19LReserveProjection).WithAlias(() => resultAlias.Water19LReserve)
 					)
 				.TransformUsing(Transformers.AliasToBean<WorkingDriverVMNode>())
 				.List<WorkingDriverVMNode>();
@@ -147,7 +161,7 @@ namespace Vodovoz.ViewModel
 				savedRow.RouteListsIds = driver.ToDictionary(x => x.RouteListNumber, x => x.TrackId);
 				savedRow.AddressesAll = driver.Sum(x => x.AddressesAll);
 				savedRow.AddressesCompleted = driver.Sum(x => x.AddressesCompleted);
-				savedRow.Additional19LWaterLeft = driver.Sum(x => x.Additional19LWaterLeft);
+				savedRow.Water19LReserve = driver.Sum(x => x.Water19LReserve);
 				savedRow.RowNumber = ++rowNum;
 				summaryResult.Add(savedRow);
 			}
@@ -163,7 +177,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)
 			.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
-			.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Additional19LWaterLeft:N0}")
+			.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Water19LReserve:N0}")
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
@@ -219,7 +233,7 @@ namespace Vodovoz.ViewModel
 
 		public decimal BottlesLeft { get; set; } // @Дима
 
-		public decimal Additional19LWaterLeft { get; set; }
+		public decimal Water19LReserve { get; set; }
 
 		public int CompletedPercent {
 			get {

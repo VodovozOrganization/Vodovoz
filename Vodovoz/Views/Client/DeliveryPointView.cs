@@ -11,7 +11,7 @@ using System;
 using System.ComponentModel;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 
 namespace Vodovoz.Views.Client
 {
@@ -464,7 +464,7 @@ namespace Vodovoz.Views.Client
 				});
 			}
 		}
-		
+
 
 		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
 		{

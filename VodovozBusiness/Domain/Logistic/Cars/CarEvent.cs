@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using NHibernate.Type;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -25,6 +27,9 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime _startDate;
 		private DateTime _endDate;
 		private string _comment;
+		private string _foundation;
+		private bool _doNotShowInOperation;
+		private decimal _repairCost;
 
 		#region Свойства
 
@@ -86,6 +91,61 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _comment, value);
 		}
 
+		[Display(Name = "Основание")]
+		public virtual string Foundation
+		{
+			get => _foundation;
+			set => SetField(ref _foundation, value);
+		}		
+
+		[Display( Name = "Не отражать в эксплуатации ТС" )]
+		public virtual bool DoNotShowInOperation
+		{
+			get => _doNotShowInOperation;
+			set => SetField( ref _doNotShowInOperation, value );
+		}
+
+		[Display( Name = "Стоимость ремонта" )]
+		public virtual decimal RepairCost
+		{
+			get => _repairCost;
+			set => SetField( ref _repairCost, value );
+		}
+
+		IList<Fine> fines = new List<Fine>();
+		[Display(Name = "Штрафы")]
+		public virtual IList<Fine> Fines
+		{
+			get => fines;
+			set => SetField(ref fines, value, () => Fines);
+		}
+
+		GenericObservableList<Fine> observableFines;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Fine> ObservableFines
+		{
+			get
+			{
+				if(observableFines == null)
+					observableFines = new GenericObservableList<Fine>(Fines);
+				return observableFines;
+			}
+		}
+
+		public virtual void AddFine(Fine fine)
+		{
+			if(ObservableFines.Contains(fine))
+			{
+				return;
+			}
+			ObservableFines.Add(fine);
+		}
+
+		public virtual string GetFineReason()
+		{
+			return $"Событие №{Id} от {CreateDate.ToShortDateString()}";
+		}
+
 		#endregion
 
 		public override string ToString()
@@ -125,6 +185,18 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult("Дата окончания должна быть больше даты начала.",
 					new[] { nameof(StartDate), nameof(EndDate) });
+			}
+
+			if(string.IsNullOrEmpty(Foundation))
+			{
+				yield return new ValidationResult($"Основание должено быть заполнено.",
+					new[] { nameof(Comment) });
+			}
+
+			if(Foundation?.Length > 255)
+			{
+				yield return new ValidationResult($"Превышена максимально допустимая длина основания ({Comment.Length}/255).",
+					new[] { nameof(Comment) });
 			}
 
 			if(CarEventType != null && CarEventType.NeedComment && string.IsNullOrEmpty(Comment))

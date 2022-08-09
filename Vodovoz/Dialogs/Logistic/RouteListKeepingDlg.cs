@@ -9,10 +9,13 @@ using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Tdi;
 using QS.ViewModels.Extension;
 using QSOrmProject;
@@ -22,11 +25,13 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
@@ -34,6 +39,8 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz
@@ -42,7 +49,7 @@ namespace Vodovoz
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		
+
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
 		private readonly bool _logisticanEditing;
@@ -116,7 +123,7 @@ namespace Vodovoz
 		private void ConfigureDlg()
 		{
 			buttonSave.Sensitive = _allEditing;
-			
+
 			Entity.ObservableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
 			Entity.ObservableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
 			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged;
@@ -294,16 +301,16 @@ namespace Vodovoz
 			string bottles = null;
 			int completedBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.Completed)
 												   .Sum(x => x.Order.Total19LBottlesToDeliver);
-			
+
 			int canceledBottles = Entity.Addresses.Where(
 				  x => x != null && (x.Status == RouteListItemStatus.Canceled
 					|| x.Status == RouteListItemStatus.Overdue
 					|| x.Status == RouteListItemStatus.Transfered)
 				).Sum(x => x.Order.Total19LBottlesToDeliver);
-			
+
 			int enrouteBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.EnRoute)
 												 .Sum(x => x.Order.Total19LBottlesToDeliver);
-			
+
 			bottles = string.Format("<b>Всего 19л. бутылей в МЛ:</b>\n");
 			bottles += string.Format("Выполнено: <b>{0}</b>\n", completedBottles);
 			bottles += string.Format(" Отменено: <b>{0}</b>\n", canceledBottles);
@@ -376,9 +383,9 @@ namespace Vodovoz
 		public void OnSelectionChanged(object sender, EventArgs args)
 		{
 			buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any() && _allEditing;
-			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 
+			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1
 													&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistic_changedeliverytime")
-													&& _allEditing;								
+													&& _allEditing;
 		}
 
 		void ReferenceForwarder_Changed(object sender, EventArgs e)
@@ -428,7 +435,7 @@ namespace Vodovoz
 					MessageDialogHelper.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
 					return true;
 				}
-				
+
 				return true;
 			} finally {
 				SetSensetivity(true);
@@ -456,19 +463,28 @@ namespace Vodovoz
 					.Cast<RouteListKeepingItemNode>()
 					.FirstOrDefault();
 
-				OrmReference SelectDialog;
-
-				ICriteria ItemsCriteria = UoWGeneric.Session.CreateCriteria(typeof(DeliverySchedule));
-				SelectDialog = new OrmReference(typeof(DeliverySchedule), UoWGeneric, ItemsCriteria) {
-					Mode = OrmReferenceMode.Select
-				};
-				SelectDialog.ObjectSelected += (selectSender, selectE) => {
-					if(selectedAddress.RouteListItem.Order.DeliverySchedule != (DeliverySchedule)selectE.Subject) {
-						selectedAddress.RouteListItem.Order.DeliverySchedule = (DeliverySchedule)selectE.Subject;
+				RoboatsSettings roboatsSettings = new RoboatsSettings(new ParametersProvider());
+				RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
+				IDeliveryScheduleRepository deliveryScheduleRepository = new DeliveryScheduleRepository();
+				IFileDialogService fileDialogService = new FileDialogService();
+				RoboatsViewModelFactory roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
+				var journal = new DeliveryScheduleJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, roboatsViewModelFactory);
+				journal.SelectionMode = JournalSelectionMode.Single;
+				journal.OnEntitySelectedResult += (s, args) => {
+					var selectedResult = args.SelectedNodes.First() as DeliveryScheduleJournalNode;
+					if(selectedResult == null)
+					{
+						return;
+					}
+					var selectedEntity = UoW.GetById<DeliverySchedule>(selectedResult.Id);
+					if(selectedAddress.RouteListItem.Order.DeliverySchedule.Id != selectedEntity.Id)
+					{
+						selectedAddress.RouteListItem.Order.DeliverySchedule = selectedEntity;
 						selectedAddress.ChangedDeliverySchedule = true;
 					}
 				};
-				TabParent.AddSlaveTab(this, SelectDialog);
+
+				TabParent.AddSlaveTab(this, journal);
 			}
 		}
 

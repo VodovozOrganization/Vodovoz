@@ -1,18 +1,17 @@
-﻿using System;
+﻿using QS.Commands;
+using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
+using QS.Services;
+using QS.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.Commands;
-using QS.DomainModel.UoW;
-using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using QS.Project.Journal.EntitySelector;
-using QS.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
@@ -60,16 +59,16 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			CreateCommands();
 		}
 
-		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters, IRoboAtsCounterpartyJournalFactory roboAtsCounterpartyJournalFactory, 
+		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters, RoboatsJournalsFactory roboatsJournalsFactory,
 			ICommonServices commonServices) : this(phoneRepository, uow, contactsParameters, commonServices)
 		{
-			if(roboAtsCounterpartyJournalFactory == null)
+			if(roboatsJournalsFactory == null)
 			{
-				throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
+				throw new ArgumentNullException(nameof(roboatsJournalsFactory));
 			}
 
-			RoboAtsCounterpartyNameSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyNameAutocompleteSelectorFactory();
-			RoboAtsCounterpartyPatronymicSelectorFactory = roboAtsCounterpartyJournalFactory.CreateRoboAtsCounterpartyPatronymicAutocompleteSelectorFactory();
+			RoboAtsCounterpartyNameSelectorFactory = roboatsJournalsFactory.CreateCounterpartyNameSelectorFactory();
+			RoboAtsCounterpartyPatronymicSelectorFactory = roboatsJournalsFactory.CreateCounterpartyPatronymicSelectorFactory();
 		}
 
 		IContactsParameters contactsParameters;

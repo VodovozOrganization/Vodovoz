@@ -1092,7 +1092,7 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
 
 			StringBuilder phonesValidationStringBuilder = new StringBuilder();
-
+			
 			foreach(var phone in Phones)
 			{
 				if(phone.RoboAtsCounterpartyName == null)

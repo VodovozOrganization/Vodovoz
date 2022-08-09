@@ -4,10 +4,14 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
+using NHibernate.SqlCommand;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Parameters;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
@@ -150,6 +154,69 @@ namespace Vodovoz.EntityRepositories
 				.FirstOrDefault());
 		}
 
+		public int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid)
+		{
+			BulkEmailEvent bulkEmailEventAlias = null;
+			CounterpartyEmail counterpartyEmailAlias = null;
+			StoredEmail storedEmailAlias = null;
+			GuidCounterpartyEmailNode resultAlias = null;
+
+			var guidCounterpartyEmail = uow.Session.QueryOver(() => counterpartyEmailAlias)
+				.JoinEntityAlias(() => bulkEmailEventAlias, () => counterpartyEmailAlias.Counterparty.Id == bulkEmailEventAlias.Counterparty.Id, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
+				.Where(() => storedEmailAlias.Guid == emailGuid)
+				.OrderBy(() => bulkEmailEventAlias.ActionTime).Desc
+				.SelectList(list => list
+					.Select(() => counterpartyEmailAlias.Counterparty.Id).WithAlias(() => resultAlias.CounterpartyId)
+					.Select(() => bulkEmailEventAlias.Type).WithAlias(() => resultAlias.BulkEmailEventType))
+				.TransformUsing(Transformers.AliasToBean<GuidCounterpartyEmailNode>())
+				.Take(1)
+				.List<GuidCounterpartyEmailNode>()
+				.SingleOrDefault();
+
+			return guidCounterpartyEmail == null || guidCounterpartyEmail.BulkEmailEventType == BulkEmailEvent.BulkEmailEventType.Unsubscribing
+			? 0
+			: guidCounterpartyEmail.CounterpartyId;
+		}
+
+		public BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId)
+		{
+			BulkEmailEvent bulkEmailEventAlias = null;
+
+			return uow.Session.QueryOver(() => bulkEmailEventAlias)
+				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyId)
+				.OrderBy(() => bulkEmailEventAlias.ActionTime).Desc
+				.Take(1)
+				.SingleOrDefault();
+		}
+
+		public BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		{
+			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOtherReasonId);
+		}
+
+		public BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider)
+		{
+			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOperatorReasonId);
+		}
+
+		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider, bool isForUnsubscribePage = false)
+		{
+			BulkEmailEventReason bulkEmailEventReasonAlias = null;
+
+			var query = uow.Session.QueryOver(() => bulkEmailEventReasonAlias)
+				.Where(x => !x.IsArchive);
+
+			if(isForUnsubscribePage)
+			{
+				query.Where(x => !x.HideForUnsubscribePage);
+			}
+
+			query.OrderBy(x => x.Id == emailParametersProvider.BulkEmailEventOtherReasonId);
+
+			return query.List();
+		}
+
 		#region EmailType
 
 		public IList<EmailType> GetEmailTypes(IUnitOfWork uow)
@@ -165,5 +232,11 @@ namespace Vodovoz.EntityRepositories
 		}
 
 		#endregion
+
+		private class GuidCounterpartyEmailNode
+		{
+			public int CounterpartyId { get; set; }
+			public BulkEmailEvent.BulkEmailEventType? BulkEmailEventType { get; set; }
+		}
 	}
 }

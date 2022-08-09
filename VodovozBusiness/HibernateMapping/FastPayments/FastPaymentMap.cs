@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.FastPayments
 			Table("fast_payments");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-            
+			
 			Map(x => x.FastPaymentStatus).Column("payment_status").CustomType<FastPaymentStatusStringType>();
 			Map(x => x.Amount).Column("amount");
 			Map(x => x.CreationDate).Column("creation_date");
@@ -21,8 +21,11 @@ namespace Vodovoz.HibernateMapping.FastPayments
 			Map(x => x.PhoneNumber).Column("phone_number");
 			Map(x => x.FastPaymentGuid).Column("payment_guid");
 			Map(x => x.OnlineOrderId).Column("online_order_id");
-            
+			Map(x => x.FastPaymentPayType).Column("pay_type").CustomType<FastPaymentPayTypeStringType>();
+
 			References(x => x.Order).Column("order_id");
+			References(x => x.Organization).Column("organization_id");
+			References(x => x.PaymentByCardFrom).Column("payment_from_id");
 		}
 	}
 }

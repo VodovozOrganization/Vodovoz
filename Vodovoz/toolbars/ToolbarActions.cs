@@ -13,6 +13,8 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.Project.Services.FileDialog;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
@@ -48,7 +50,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters.Cash;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -58,6 +60,7 @@ using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -84,6 +87,7 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 
 public partial class MainWindow : Window
 {
@@ -103,6 +107,7 @@ public partial class MainWindow : Window
 	Action ActionCallTasks;
 	Action ActionBottleDebtors;
 	Action ActionIncomingCallsAnalysisReport;
+	Action ActionRoboatsCallsRegistry;
 	Action ActionDriversTareMessages;
 
 	//Логистика
@@ -114,6 +119,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListKeeping;
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
+	Action ActionFastDeliveryAvailabilityJournal;
 
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
@@ -178,6 +184,8 @@ public partial class MainWindow : Window
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
+		ActionRoboatsCallsRegistry = new Action(nameof(ActionRoboatsCallsRegistry), "Реестр звонков Roboats", null, "table");
+
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
@@ -199,7 +207,7 @@ public partial class MainWindow : Window
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
-
+		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "Доставка за час", null, "table");
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -270,6 +278,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionCallTasks, null);
 		w1.Add(ActionBottleDebtors, null);
 		w1.Add(ActionIncomingCallsAnalysisReport, null);
+		w1.Add(ActionRoboatsCallsRegistry, null);
 		w1.Add(ActionDriversTareMessages, null);
 
 		//Логистика
@@ -287,6 +296,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionCarProxiesJournal, null);
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
+		w1.Add(ActionFastDeliveryAvailabilityJournal, null);
 
 		//Бухгалтерия
 		w1.Add(ActionTransferBankDocs, null);
@@ -356,6 +366,8 @@ public partial class MainWindow : Window
 		ActionCallTasks.Activated += ActionCallTasks_Activate;
 		ActionBottleDebtors.Activated += ActionBottleDebtors_Activate;
 		ActionIncomingCallsAnalysisReport.Activated += OnActionIncomingCallsAnalysisReportActivated;
+		ActionRoboatsCallsRegistry.Activated += ActionRoboatsCallsRegistryActivated;
+
 		ActionDriversTareMessages.Activated += OnActionDriversTareMessagesActivated;
 		//Логистика
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
@@ -366,6 +378,7 @@ public partial class MainWindow : Window
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
+		ActionFastDeliveryAvailabilityJournal.Activated += ActionFastDeliveryAvailabilityJournal_Activated;
 
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
@@ -416,6 +429,11 @@ public partial class MainWindow : Window
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
 
 		#endregion
+	}
+
+	private void ActionRoboatsCallsRegistryActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RoboatsCallsRegistryJournalViewModel>(null);
 	}
 
 	private void OnActionIncomingCallsAnalysisReportActivated(object sender, EventArgs e)
@@ -515,7 +533,7 @@ public partial class MainWindow : Window
 		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		IEmailRepository emailRepository = new EmailRepository();
 		var debtorsJournal = new DebtorsJournalViewModel(
-			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(), 
+			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(),
 			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory, emailRepository);
 
 		tdiMain.AddTab(debtorsJournal);
@@ -526,7 +544,6 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
-		var nomenclatureParameterProvider = new NomenclatureParametersProvider(parametersProvider);
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
 		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
@@ -540,8 +557,7 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider),
-				nomenclatureParameterProvider
+				new CategoryRepository(parametersProvider)
 			)
 		);
 	}
@@ -564,11 +580,10 @@ public partial class MainWindow : Window
 
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.RevisionBottlesAndDeposits>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
-				new OrderRepository(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory()))
-		);
+		var reportViewDlg = new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				new OrderRepository(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory()));
+
+		tdiMain.AddTab(reportViewDlg);
 	}
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
@@ -1149,9 +1164,7 @@ public partial class MainWindow : Window
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
 		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
-		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices, new EmployeeRepository(), new EntityDeleteWorker(),
-			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
+		NavigationManager.OpenViewModel<DistrictsSetJournalViewModel, DistrictsSetJournalFilterViewModel>(null, filter);
 	}
 
 	void ActionCarEventsJournalActivated(object sender, EventArgs e)
@@ -1163,7 +1176,8 @@ public partial class MainWindow : Window
 		var carEventFilter = new CarEventFilterViewModel(
 			carJournalFactory,
 			carEventTypeJournalFactory,
-			new EmployeeJournalFactory()) { HidenByDefault = true };
+			new EmployeeJournalFactory())
+		{ HidenByDefault = true };
 
 		tdiMain.OpenTab(() => new CarEventJournalViewModel(
 			carEventFilter,
@@ -1172,7 +1186,35 @@ public partial class MainWindow : Window
 			carJournalFactory,
 			carEventTypeJournalFactory,
 			VodovozGtkServicesConfig.EmployeeService,
-			employeeFactory)
+			employeeFactory,
+			new UndeliveredOrdersJournalOpener(),
+			new EmployeeSettings(new ParametersProvider()))
+		);
+	}
+
+	void ActionFastDeliveryAvailabilityJournal_Activated(object sender, EventArgs e)
+	{
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		IFileDialogService fileDialogService = new FileDialogService();
+		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
+			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
+
+		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
+		{
+			HidenByDefault = true,
+			VerificationDateFrom = DateTime.Now.Date,
+			VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23,59,59))
+		};
+
+		tdiMain.OpenTab(() => new FastDeliveryAvailabilityHistoryJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
+			fileDialogService,
+			fastDeliveryAvailabilityHistoryParameterProvider)
 		);
 	}
 }

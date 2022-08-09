@@ -22,10 +22,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public GeneralSettingsViewModel(
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
 			ICommonServices commonServices,
+			RoboatsSettingsViewModel roboatsSettingsViewModel,
 			INavigationManager navigation = null) : base(commonServices?.InteractiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-
+			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
 			_generalSettingsParametersProvider =
 				generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
 
@@ -101,6 +102,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 				})
 			);
+
+		public RoboatsSettingsViewModel RoboatsSettingsViewModel { get; }
 
 		#endregion
 	}

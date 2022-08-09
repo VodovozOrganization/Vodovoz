@@ -14,12 +14,14 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -30,6 +32,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private IEmployeeSettings _employeeSettings;
 
 		public CarEventJournalViewModel(
 			CarEventFilterViewModel filterViewModel,
@@ -38,7 +42,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
 			IEmployeeService employeeService,
-			IEmployeeJournalFactory employeeJournalFactory)
+			IEmployeeJournalFactory employeeJournalFactory,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
+			IEmployeeSettings employeeSettings)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
@@ -47,6 +53,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 
 			UpdateOnChanges(
 				typeof(CarEvent),
@@ -149,12 +157,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				() => driverProjection)
 			);
 
+			itemsQuery.OrderBy(() => carEventAlias.CreateDate).Desc();
+
 			itemsQuery
 				.SelectList(list => list
 					.SelectGroup(() => carEventAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => carEventAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 					.Select(() => carEventAlias.StartDate).WithAlias(() => resultAlias.StartDate)
 					.Select(() => carEventAlias.EndDate).WithAlias(() => resultAlias.EndDate)
+					.Select(() => carEventAlias.RepairCost).WithAlias(() => resultAlias.RepairCost)
 					.Select(() => carEventAlias.Comment).WithAlias(() => resultAlias.Comment)
 					.Select(() => carEventTypeAlias.Name).WithAlias(() => resultAlias.CarEventTypeName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegistrationNumber)
@@ -178,7 +189,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
 				_employeeService,
-				_employeeJournalFactory);
+				_employeeJournalFactory,
+				_undeliveryViewOpener,
+				_employeeSettings);
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
 			node => new CarEventViewModel(
@@ -188,6 +201,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
 				_employeeService,
-				_employeeJournalFactory);
+				_employeeJournalFactory,
+				_undeliveryViewOpener,
+				_employeeSettings);
 	}
 }

@@ -272,7 +272,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
 				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
+				.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()))
+				.And(() => !orderAlias.IsFastDelivery);
 
 			return orderitemsQuery.SelectList(list => list
 				.Select(
@@ -453,40 +454,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Union(equipment.List<GoodsInRouteListResult>()));
 
 			return goodsInRouteListResults;
-		}
-
-		public int Get19LWaterInRLCount(IUnitOfWork uow, int routeListId)
-		{
-			VodovozOrder orderAlias = null;
-			OrderItem orderItemsAlias = null;
-			RouteListItem routeListItemAlias = null;
-			RouteList routeListAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
-
-			var orderItems19LWater = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
-				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
-				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
-				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
-				.Where(() => routeListItemAlias.RouteList.Id == routeListId)
-				.And(() => !routeListItemAlias.WasTransfered || (routeListItemAlias.WasTransfered && routeListItemAlias.NeedToReload))
-				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water)
-				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.And(() => !orderAlias.IsFastDelivery)
-				.Select(Projections.Sum(() => orderItemsAlias.Count))
-				.SingleOrDefault<decimal>();
-
-			var additionalItems19LWater = uow.Session.QueryOver<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
-				.JoinEntityAlias(() => routeListAlias,
-					() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentItemAlias.AdditionalLoadingDocument.Id)
-				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
-				.And(() => nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.And(() => routeListAlias.Id == routeListId)
-				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount))
-				.SingleOrDefault<decimal>();
-
-			return (int)(orderItems19LWater + additionalItems19LWater);
 		}
 
 		public DriverAttachedTerminalDocumentBase GetLastTerminalDocumentForEmployee(IUnitOfWork uow, Employee employee)

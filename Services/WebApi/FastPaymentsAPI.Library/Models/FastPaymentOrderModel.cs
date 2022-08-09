@@ -18,6 +18,7 @@ using QS.DomainModel.UoW;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using VodovozInfrastructure.Configuration;
@@ -59,25 +60,26 @@ namespace FastPaymentsAPI.Library.Models
 		public string ValidateOnlineOrder(decimal onlineOrderSum) => _fastPaymentValidator.ValidateOnlineOrder(onlineOrderSum);
 		public string GetPayUrlForOnlineOrder(Guid fastPaymentGuid) => _orderRequestManager.GetVodovozFastPayUrl(fastPaymentGuid);
 
-		public Task<OrderRegistrationResponseDTO> RegisterOrder(Order order, Guid fastPaymentGuid, string phoneNumber = null,
-			bool isQr = true)
+		public Task<OrderRegistrationResponseDTO> RegisterOrder(
+			Order order, Guid fastPaymentGuid, Organization organization, string phoneNumber = null, bool isQr = true)
 		{
-			return _orderRequestManager.RegisterOrder(order, fastPaymentGuid, phoneNumber, isQr);
+			return _orderRequestManager.RegisterOrder(order, fastPaymentGuid, organization, phoneNumber, isQr);
 		}
 		
-		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(RequestRegisterOnlineOrderDTO registerOnlineOrderDto)
+		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(
+			RequestRegisterOnlineOrderDTO registerOnlineOrderDto, Organization organization)
 		{
-			return _orderRequestManager.RegisterOnlineOrder(registerOnlineOrderDto);
+			return _orderRequestManager.RegisterOnlineOrder(registerOnlineOrderDto, organization);
 		}
 
-		public Task<OrderInfoResponseDTO> GetOrderInfo(string ticket)
+		public Task<OrderInfoResponseDTO> GetOrderInfo(string ticket, Organization organization)
 		{
-			return _orderRequestManager.GetOrderInfo(ticket);
+			return _orderRequestManager.GetOrderInfo(ticket, organization);
 		}
 		
-		public Task<CancelPaymentResponseDTO> CancelPayment(string ticket)
+		public Task<CancelPaymentResponseDTO> CancelPayment(string ticket, Organization organization)
 		{
-			return _orderRequestManager.CancelPayment(ticket);
+			return _orderRequestManager.CancelPayment(ticket, organization);
 		}
 		
 		public PaidOrderInfoDTO GetPaidOrderInfo(string data)
@@ -86,12 +88,12 @@ namespace FastPaymentsAPI.Library.Models
 			return (PaidOrderInfoDTO)new XmlSerializer(typeof(PaidOrderInfoDTO)).Deserialize(reader);
 		}
 
-		public void NotifyEmployee(string orderNumber, string signature)
+		public void NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature)
 		{
 			var configuration = _uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
-			string messageText = $"Оповещение о пришедшей оплате с неверной подписью: {signature}" +
-								$"для платежа по заказу №{orderNumber}";
+			string messageText = $"Оповещение о пришедшей оплате с неверной подписью: {bankSignature}" +
+				$" для платежа по заказу №{orderNumber}, shopId {shopId}, рассчитанная подпись {paymentSignature}";
 
 			var sendEmailMessage = new SendEmailMessage
 			{

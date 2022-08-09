@@ -6,8 +6,10 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Goods;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Logistic
@@ -123,77 +125,64 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return uow.GetById<RouteListItem>(routeListAddressId);
 		}
 
-		public bool HasEnoughQuantityForFastDelivery(IUnitOfWork uow, RouteListItem routeListItemFrom, RouteList routeListTo, int fastDeliveryNomenclatureId)
+		public bool HasEnoughQuantityForFastDelivery(IUnitOfWork uow, RouteListItem routeListItemFrom, RouteList routeListTo)
 		{
 			RouteListItem routeListItemAlias = null;
+			RouteListItem routeListItemTransferedAlias = null;
 			OrderItem orderItemAlias = null;
-			TransferNomenclature transferNomenclatureAlias = null;
+			NomenclatureAmountNode nomenclatureAmountAlias = null;
 			Order orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			CarLoadDocument carLoadDocumentAlias = null;
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 
-			var neededNomenclatures = uow.Session.QueryOver<OrderItem>(() => orderItemAlias)
-				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderItemAlias.Order.Id)
-				.Where(() => routeListItemAlias.Id == routeListItemFrom.Id)
-				.And(() => orderItemAlias.Nomenclature.Id != fastDeliveryNomenclatureId)
-				.SelectList(list => list
-					.SelectGroup(() => orderItemAlias.Nomenclature.Id).WithAlias(() => transferNomenclatureAlias.NomenclatureId)
-					.SelectSum(() => orderItemAlias.Count).WithAlias(() => transferNomenclatureAlias.Amount)
-				).TransformUsing(Transformers.AliasToBean<TransferNomenclature>())
-			.Future<TransferNomenclature>();
+			var nomenclaturesToDeliver = routeListItemFrom.Order.GetAllGoodsToDeliver();
 
-			var neededEquipments = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
-				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderEquipmentAlias.Order.Id)
-				.Where(() => routeListItemAlias.Id == routeListItemFrom.Id)
-				.SelectList(list => list
-					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => transferNomenclatureAlias.NomenclatureId)
-					.Select(Projections.Cast(NHibernateUtil.Decimal, Projections.Sum(Projections.Property(() => orderEquipmentAlias.Count)))).WithAlias(() => transferNomenclatureAlias.Amount)
-				).TransformUsing(Transformers.AliasToBean<TransferNomenclature>())
-				.Future<TransferNomenclature>();
-
-			var allNeeded = neededNomenclatures
-				.Union(neededEquipments)
-				.GroupBy(x => new { x.NomenclatureId })
-				.Select(group => new TransferNomenclature()
-				{
-					NomenclatureId = group.Key.NomenclatureId,
-					Amount = group.Sum(x => x.Amount)
-				})
-				.ToList();
-
-			var neededIds = allNeeded.Select(x => x.NomenclatureId).ToArray();
+			var neededIds = nomenclaturesToDeliver.Select(x => x.NomenclatureId).ToArray();
 
 			var orderItemsToDeliver = uow.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
 				.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.Inner.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemTransferedAlias)
 				.Where(() => routeListItemAlias.RouteList.Id == routeListTo.Id)
-				.And(() => orderItemAlias.Nomenclature.Id != fastDeliveryNomenclatureId)
 				.WhereRestrictionOn(() => orderItemAlias.Nomenclature.Id).IsIn(neededIds)
-				.WhereRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
+				.Where(() =>
+					//не отменённые и не недовозы
+					routeListItemAlias.Status != RouteListItemStatus.Canceled && routeListItemAlias.Status != RouteListItemStatus.Overdue
+                    // и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
+                    && (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload || orderAlias.IsFastDelivery)
+                    // и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
+                    && (routeListItemAlias.Status != RouteListItemStatus.Transfered || (!routeListItemTransferedAlias.NeedToReload && !orderAlias.IsFastDelivery)))
 				.SelectList(list => list
-					.SelectGroup(() => orderItemAlias.Nomenclature.Id).WithAlias(() => transferNomenclatureAlias.NomenclatureId)
-					.SelectSum(() => orderItemAlias.Count).WithAlias(() => transferNomenclatureAlias.Amount)
-				).TransformUsing(Transformers.AliasToBean<TransferNomenclature>())
-				.Future<TransferNomenclature>();
+					.SelectGroup(() => orderItemAlias.Nomenclature.Id).WithAlias(() => nomenclatureAmountAlias.NomenclatureId)
+					.SelectSum(() => orderItemAlias.Count).WithAlias(() => nomenclatureAmountAlias.Amount)
+				).TransformUsing(Transformers.AliasToBean<NomenclatureAmountNode>())
+				.Future<NomenclatureAmountNode>();
 
 			var orderEquipmentsToDeliver = uow.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
 				.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.Inner.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemTransferedAlias)
 				.Where(() => routeListItemAlias.RouteList.Id == routeListTo.Id)
 				.WhereRestrictionOn(() => orderEquipmentAlias.Nomenclature.Id).IsIn(neededIds)
-				.WhereRestrictionOn(() => routeListItemAlias.Status).Not.IsIn(new RouteListItemStatus[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue, RouteListItemStatus.Transfered })
+				.Where(() =>
+					//не отменённые и не недовозы
+					routeListItemAlias.Status != RouteListItemStatus.Canceled && routeListItemAlias.Status != RouteListItemStatus.Overdue
+                    // и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
+                    && (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload || orderAlias.IsFastDelivery)
+                    // и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
+                    && (routeListItemAlias.Status != RouteListItemStatus.Transfered || (!routeListItemTransferedAlias.NeedToReload && !orderAlias.IsFastDelivery)))
 				.And(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.Deliver)
 				.SelectList(list => list
-					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => transferNomenclatureAlias.NomenclatureId)
-					.Select(Projections.Cast(NHibernateUtil.Decimal, Projections.Sum(Projections.Property(() => orderEquipmentAlias.Count)))).WithAlias(() => transferNomenclatureAlias.Amount)
-				).TransformUsing(Transformers.AliasToBean<TransferNomenclature>())
-				.Future<TransferNomenclature>();
+					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => nomenclatureAmountAlias.NomenclatureId)
+					.Select(Projections.Cast(NHibernateUtil.Decimal, Projections.Sum(Projections.Property(() => orderEquipmentAlias.Count)))).WithAlias(() => nomenclatureAmountAlias.Amount)
+				).TransformUsing(Transformers.AliasToBean<NomenclatureAmountNode>())
+				.Future<NomenclatureAmountNode>();
 
 			var allToDeliver = orderItemsToDeliver
 			.Union(orderEquipmentsToDeliver)
 			.GroupBy(x => new { x.NomenclatureId })
-			.Select(group => new TransferNomenclature()
+			.Select(group => new NomenclatureAmountNode()
 			{
 				NomenclatureId = group.Key.NomenclatureId,
 				Amount = group.Sum(x => x.Amount)
@@ -205,12 +194,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Where(() => carLoadDocumentAlias.RouteList.Id == routeListTo.Id)
 				.WhereRestrictionOn(() => carLoadDocumentItemAlias.Nomenclature.Id).IsIn(neededIds)
 				.SelectList(list => list
-					.SelectGroup(() => carLoadDocumentItemAlias.Nomenclature.Id).WithAlias(() => transferNomenclatureAlias.NomenclatureId)
-					.SelectSum(() => carLoadDocumentItemAlias.Amount).WithAlias(() => transferNomenclatureAlias.Amount)
-				).TransformUsing(Transformers.AliasToBean<TransferNomenclature>())
-			.List<TransferNomenclature>();
+					.SelectGroup(() => carLoadDocumentItemAlias.Nomenclature.Id).WithAlias(() => nomenclatureAmountAlias.NomenclatureId)
+					.SelectSum(() => carLoadDocumentItemAlias.Amount).WithAlias(() => nomenclatureAmountAlias.Amount)
+				).TransformUsing(Transformers.AliasToBean<NomenclatureAmountNode>())
+			.List<NomenclatureAmountNode>();
 
-			foreach(var need in allNeeded)
+			foreach(var need in nomenclaturesToDeliver)
 			{
 				var toDeliver = allToDeliver.FirstOrDefault(x => x.NomenclatureId == need.NomenclatureId)?.Amount ?? 0;
 				var loaded = allLoaded.FirstOrDefault(x => x.NomenclatureId == need.NomenclatureId)?.Amount ?? 0;
@@ -224,15 +213,4 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return true;
 		}
 	}
-
-	#region DTO
-
-	public class TransferNomenclature
-	{
-		public int NomenclatureId { get; set; }
-		public decimal Amount { get; set; }
-
-	}
-
-	#endregion
 }

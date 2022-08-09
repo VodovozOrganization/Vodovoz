@@ -20,4 +20,7 @@
     <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
     <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Events\" />
+  </ItemGroup>
 </Project>

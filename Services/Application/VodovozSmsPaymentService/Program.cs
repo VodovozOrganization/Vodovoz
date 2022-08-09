@@ -95,7 +95,7 @@ namespace VodovozSmsPaymentService
 				OrmConfig.ConfigureOrm(dbConfig,
 					new[]
 					{
-						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),

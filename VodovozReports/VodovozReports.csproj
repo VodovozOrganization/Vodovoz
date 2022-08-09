@@ -45,6 +45,9 @@
     <None Update="Reports\Bottles\ShortfallBattlesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Reports\Cars\ReportOnTheCostsOfOperatingCars.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Reports\Cash\AccountFlowDetail.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -135,6 +138,9 @@
     <None Update="Reports\Client\BottleDebtorsJournal.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Reports\Client\BulkEmailEventReport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Reports\Client\DebtorsBottles.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -156,7 +162,10 @@
     <None Update="Reports\Client\ZeroDebtClient.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Reports\Complaints.rdl">
+    <None Update="Reports\Complaints\Complaints.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\Complaints\ComplaintsJournalReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Reports\Documents\AssemblyList.rdl">
@@ -393,11 +402,20 @@
     <None Update="Reports\Orders\EShopSalesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Reports\Orders\FastDeliveryAdditionalLoadingReport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\Orders\FastDeliveryAvailabilityHistoryReport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\Orders\FastDeliverySalesReport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Reports\Orders\FirstClients.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Reports\Orders\NomenclaturePlanReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Reports\Orders\NotDeliveredOrders.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

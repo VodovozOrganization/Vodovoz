@@ -46,7 +46,8 @@ namespace Vodovoz.ViewModels.Orders
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			
+			CanChangeType = commonServices.CurrentPermissionService.ValidatePresetPermission( "can_change_the_type_of_promo_set" );
+
 			if(!CanRead)
 				AbortOpening("У вас недостаточно прав для просмотра");
 
@@ -57,20 +58,20 @@ namespace Vodovoz.ViewModels.Orders
 
 		public string CreationDate => Entity.Id != 0 ? Entity.CreateDate.ToString("dd-MM-yyyy") : String.Empty;
 
-		private PromotionalSetItem selectedPromoItem;
+		private PromotionalSetItem _selectedPromoItem;
 		public PromotionalSetItem SelectedPromoItem {
-			get => selectedPromoItem;
+			get => _selectedPromoItem;
 			set {
-				SetField(ref selectedPromoItem, value);
+				SetField(ref _selectedPromoItem, value);
 				OnPropertyChanged(nameof(CanRemoveNomenclature));
 			}
 		}
 
-		private PromotionalSetActionBase selectedAction;
+		private PromotionalSetActionBase _selectedAction;
 		public PromotionalSetActionBase SelectedAction {
-			get => selectedAction;
+			get => _selectedAction;
 			set {
-				SetField(ref selectedAction, value);
+				SetField(ref _selectedAction, value);
 				OnPropertyChanged(nameof(CanRemoveAction));
 			}
 		}
@@ -92,7 +93,9 @@ namespace Vodovoz.ViewModels.Orders
 
 		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
 		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanUpdate;
-		public bool CanRemoveAction => selectedAction != null && CanDelete && Entity.Id == 0;
+		public bool CanRemoveAction => _selectedAction != null && CanDelete && Entity.Id == 0;
+
+		public bool CanChangeType { get; }
 
 		#endregion
 

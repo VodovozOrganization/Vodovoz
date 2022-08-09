@@ -82,6 +82,7 @@ namespace Vodovoz.Domain.Logistic
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository = new CarLoadDocumentRepository(_routeListRepository);
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		private CarVersion _carVersion;
 		private Car _car;
@@ -2364,7 +2365,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 				}
 
-				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 
 				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
@@ -2390,7 +2391,7 @@ namespace Vodovoz.Domain.Logistic
 			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
 			pointsToBase.Add(pointsToRecalculate.First());
 
-			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full);
+			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 
 			RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
