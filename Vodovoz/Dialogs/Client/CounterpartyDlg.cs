@@ -1267,6 +1267,11 @@ namespace Vodovoz
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
+			validatedOGRN.Visible = labelOGRN.Visible = HasOgrn;
+			if (Entity.CounterpartyType == CounterpartyType.Dealer)
+			{
+				Entity.PersonType = PersonType.legal;
+			}
 		}
 
 		private void OnEnumCounterpartyTypeChangedByUser(object sender, EventArgs e)
