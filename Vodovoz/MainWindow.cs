@@ -2088,10 +2088,15 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
 	{
+		var paramProvider = new ParametersProvider();
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
 			() => new QSReport.ReportViewDlg(
-				new OrderChangesReport(new ReportDefaultsProvider(new ParametersProvider()), ServicesConfig.InteractiveService))
+				new OrderChangesReport(
+					new ReportDefaultsProvider(paramProvider),
+					ServicesConfig.InteractiveService,
+					new ArchiveDataSettings(paramProvider)))
 		);
 	}
 
