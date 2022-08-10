@@ -16,6 +16,12 @@ namespace Vodovoz.DocTemplates
 		public override void UpdateFields()
 		{
 			fieldsList.Clear();
+
+			if(RootObject != null)
+			{
+				RootObject.Contract.Organization.SetActiveOrganizationVersion(RootObject.Contract.Organization.OrganizationVersionOnDate(RootObject.Contract.IssueDate));
+			}
+
 			//Сам договор
 			AddField(x => x.Contract.IssueDate, PatternFieldType.FDate);
 			AddField(x => x.Contract.Counterparty.FullName,  PatternFieldType.FString);
@@ -23,6 +29,7 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Contract.Number, PatternFieldType.FString);
 			AddField(x => x.Contract.Counterparty.SignatoryFIO, PatternFieldType.FString);
 			AddField(x => x.Contract.Counterparty.SignatoryPost, PatternFieldType.FString);
+			AddField(x => x.Contract.Organization.ActiveOrganizationVersion.Leader.ShortName, PatternFieldType.FString);
 			//Само соглашение
 			AddField(x => x.FullNumberText, PatternFieldType.FString);
 			AddField(x => x.StartDate, PatternFieldType.FDate);

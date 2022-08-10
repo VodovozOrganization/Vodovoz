@@ -24,7 +24,7 @@ namespace Vodovoz.FilterViewModels
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
-		
+
 		public ISubdivisionParametersProvider SubdivisionParametersProvider { get; set; }
 		public IEmployeeService EmployeeService { get; set; }
 		
@@ -43,7 +43,8 @@ namespace Vodovoz.FilterViewModels
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
 				x => x.ComplaintDiscussionStatus,
-				x => x.ComplaintObject
+				x => x.ComplaintObject,
+				x => x.CurrentUserSubdivision
 			);
 		}
 
@@ -53,6 +54,7 @@ namespace Vodovoz.FilterViewModels
 			IEmployeeJournalFactory employeeSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory
 		) {
+
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
@@ -68,6 +70,9 @@ namespace Vodovoz.FilterViewModels
 				UoW,
 				true
 			);
+
+			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
+			CanChangeSubdivision = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_subdivision_on_complaint");
 
 			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => {
 				if (GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Employee)
@@ -90,9 +95,12 @@ namespace Vodovoz.FilterViewModels
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
 				x => x.ComplaintDiscussionStatus,
-				x => x.ComplaintObject
+				x => x.ComplaintObject,
+				x => x.CurrentUserSubdivision
 			);
 		}
+
+		public virtual bool CanChangeSubdivision { get; }
 
 		GuiltyItemViewModel guiltyItemVM;
 		public virtual GuiltyItemViewModel GuiltyItemVM {
@@ -104,6 +112,13 @@ namespace Vodovoz.FilterViewModels
 		public virtual ComplaintKind ComplaintKind {
 			get => complaintKind;
 			set => SetField(ref complaintKind, value);
+		}
+
+		private IList<Subdivision> allDepartments;
+		public IList<Subdivision> AllDepartments
+		{
+			get => allDepartments;
+			private set => SetField(ref allDepartments, value);
 		}
 
 		public virtual ComplaintObject ComplaintObject
