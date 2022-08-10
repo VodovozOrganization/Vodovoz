@@ -82,7 +82,6 @@ namespace Vodovoz.Dialogs
 
 			var archiveSettings = new ArchiveDataSettings(new ParametersProvider());
 
-			var db = UoW.Session.Connection.Database;
 			if(archiveSettings.GetDatabaseNameForOldMonitoringAvailable == UoW.Session.Connection.Database)
 			{
 				selectperiod.AddCustomPeriodInDays(archiveSettings.GetMonitoringPeriodAvailableInDays, "архив (медленно)");
