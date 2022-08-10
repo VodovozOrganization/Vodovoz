@@ -206,6 +206,7 @@
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForPaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForAdvancePaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForDebtEmail.cs" />
+    <Compile Include="Domain\Versions\VersionEntityBase.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />

@@ -8,6 +8,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Domain;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
@@ -190,7 +191,18 @@ namespace Vodovoz
 
 		#endregion
 
-		public Subdivision() { }
+		public virtual bool IsCashSubdivision
+		{
+			get
+			{
+				return DocumentTypes.Any(x => 
+					x.Type == nameof(Income) ||
+					x.Type == nameof(Expense) ||
+					x.Type == nameof(AdvanceReport)
+				);
+			}
+		}
+
 
 		#region IValidatableObject implementation
 
