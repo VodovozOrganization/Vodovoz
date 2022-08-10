@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Data.Bindings.Utilities;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -47,6 +49,11 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
+		public virtual GeoGroupVersion GetActualVersionOrNull()
+		{
+			var activeVersion = Versions.FirstOrDefault(x => x.Status == VersionStatus.Active);
+			return activeVersion;
+		}
 
 		#region IValidatableObject implementation
 

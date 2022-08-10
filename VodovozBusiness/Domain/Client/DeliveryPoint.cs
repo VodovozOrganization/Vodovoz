@@ -721,9 +721,14 @@ namespace Vodovoz.Domain.Client
 
 			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
 				return true;
-			var gg = District.GeographicGroup;
+			var geoGroupVersion = District.GeographicGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {District.GeographicGroup.Name}");
+			}
+
 			var route = new List<PointOnEarth>(2) {
-				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),
+				new PointOnEarth(geoGroupVersion.BaseLatitude.Value, geoGroupVersion.BaseLongitude.Value),
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 			

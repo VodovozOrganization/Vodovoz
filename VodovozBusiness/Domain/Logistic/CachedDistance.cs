@@ -26,7 +26,15 @@ namespace Vodovoz.Domain.Logistic
 
 		public static long GetHash(DeliveryPoint point) => GetHash((double)point.Latitude.Value, (double)point.Longitude.Value);
 
-		public static long GetHash(GeoGroup point) => GetHash((double)point.BaseLatitude.Value, (double)point.BaseLongitude.Value);
+		public static long GetHash(GeoGroup geoGroup)
+		{
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if (geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+			return GetHash((double)geoGroupVersion.BaseLatitude.Value, (double)geoGroupVersion.BaseLongitude.Value);
+		}
 
 		public static long GetHash(double latitude, double longitude)
 		{

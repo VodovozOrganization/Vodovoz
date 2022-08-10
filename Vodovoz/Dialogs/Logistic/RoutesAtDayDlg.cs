@@ -791,16 +791,23 @@ namespace Vodovoz
 			bottlesWithoutRL = 0;
 			addressesOverlay.Clear();
 			//добавляем маркеры складов
-			foreach(var b in _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW)) {
+			foreach(var geoGroup in _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW)) 
+			{
+				var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+				if(geoGroupVersion == null)
+				{
+					throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+				}
+
 				var addressMarker = new PointMarker(
 					new PointLatLng(
-						(double)b.BaseLatitude,
-						(double)b.BaseLongitude
+						(double)geoGroupVersion.BaseLatitude,
+						(double)geoGroupVersion.BaseLongitude
 					),
 					PointMarkerType.vodonos,
 					PointMarkerShape.custom
 				) {
-					Tag = b
+					Tag = geoGroup
 				};
 				addressesOverlay.Markers.Add(addressMarker);
 			}

@@ -12,8 +12,6 @@ namespace Vodovoz.Tools.Logistic
 	/// </summary>
 	public class DistanceCalculator : IDistanceCalculator
 	{
-		//public static PointLatLng BasePoint = new PointLatLng(Constants.BaseLatitude, Constants.BaseLongitude);
-
 		public static double GetDistance(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
 			return GetDistance(fromDP.GmapPoint, toDP.GmapPoint);
@@ -26,14 +24,26 @@ namespace Vodovoz.Tools.Logistic
 
 		public static double GetDistanceFromBase(GeoGroup fromBase, DeliveryPoint toDP)
 		{
-			var basePoint = new PointLatLng((double)fromBase.BaseLatitude.Value, (double)fromBase.BaseLongitude.Value);
+			var geoGroupVersion = GetGeoGroupVersion(fromBase);
+			var basePoint = new PointLatLng((double)geoGroupVersion.BaseLatitude.Value, (double)geoGroupVersion.BaseLongitude.Value);
 			return (int)GetDistance(basePoint, toDP.GmapPoint);
 		}
 
 		public static double GetDistanceToBase(DeliveryPoint fromDP, GeoGroup toBase)
 		{
-			var basePoint = new PointLatLng((double)toBase.BaseLatitude.Value, (double)toBase.BaseLongitude.Value);
+			var geoGroupVersion = GetGeoGroupVersion(toBase);
+			var basePoint = new PointLatLng((double)geoGroupVersion.BaseLatitude.Value, (double)geoGroupVersion.BaseLongitude.Value);
 			return (int)GetDistance(fromDP.GmapPoint, basePoint);
+		}
+
+		private static GeoGroupVersion GetGeoGroupVersion(GeoGroup geoGroup)
+		{
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+			return geoGroupVersion;
 		}
 
 		public static PointLatLng FindPointByDistanceAndRadians(PointLatLng startPoint, double initialRadians, double distanceKilometers)

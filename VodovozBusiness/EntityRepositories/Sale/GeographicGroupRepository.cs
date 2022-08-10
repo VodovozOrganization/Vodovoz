@@ -10,11 +10,6 @@ namespace Vodovoz.EntityRepositories.Sale
 {
 	public class GeographicGroupRepository : IGeographicGroupRepository
 	{
-		private QueryOver<GeoGroup> GeographicGroupsWithCoordinatesQuery()
-		{
-			return QueryOver.Of<GeoGroup>().Where(x => x.BaseLatitude != null && x.BaseLongitude != null);
-		}
-		
 		public GeoGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
 		{
 			GeoGroup gg = null;
@@ -31,18 +26,34 @@ namespace Vodovoz.EntityRepositories.Sale
 
 		public IList<GeoGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow)
 		{
-			return GeographicGroupsWithCoordinatesQuery()
-							.GetExecutableQueryOver(uow.Session)
-							.List();
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
+
+			var query = uow.Session.QueryOver(() => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias)
+				.Where(
+					Restrictions.Conjunction()
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLatitude)))
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLongitude)))
+				);
+			return query.List();
 		}
 		
 		public IList<GeoGroup> GeographicGroupsWithCoordinatesExceptEast(
 			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider)
 		{
-			return uow.Session.QueryOver<GeoGroup>()
-				.Where(gg => gg.BaseLatitude != null && gg.BaseLongitude != null)
-				.And(gg => gg.Id != geographicGroupParametersProvider.EastGeographicGroupId)
-				.List();
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
+
+			var query = uow.Session.QueryOver(() => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias)
+				.Where(
+					Restrictions.Conjunction()
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLatitude)))
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLongitude)))
+				)
+				.Where(gg => gg.Id != geographicGroupParametersProvider.EastGeographicGroupId);
+			return query.List();
 		}
 	}
 }

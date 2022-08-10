@@ -567,17 +567,23 @@ namespace Vodovoz.Views.Logistic
 				type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
 		}
 
-		private PointMarker FillBaseMarker(GeoGroup baseMarker)
+		private PointMarker FillBaseMarker(GeoGroup geoGroup)
 		{
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+
 			var addressMarker = new PointMarker(
 				new PointLatLng(
-					(double)baseMarker.BaseLatitude,
-					(double)baseMarker.BaseLongitude
+					(double)geoGroupVersion.BaseLatitude,
+					(double)geoGroupVersion.BaseLongitude
 				),
 				PointMarkerType.vodonos,
 				PointMarkerShape.custom
 			) {
-				Tag = baseMarker
+				Tag = geoGroup
 			};
 			return addressMarker;
 		}
