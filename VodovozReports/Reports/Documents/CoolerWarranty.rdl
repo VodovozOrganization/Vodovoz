@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>15.69in</PageHeight>
   <PageWidth>8.27in</PageWidth>
   <Width>.1pt</Width>
@@ -13,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, 
@@ -28,7 +26,7 @@ WHERE orders.id = @order_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -114,22 +112,35 @@ IF(@agreement_id=-1, order_items.additional_agreement_id IS NULL, order_items.ad
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-organizations.full_name, organizations.INN, organizations.KPP, organizations.jur_address AS address, organizations.email AS email, 
+organizations.full_name, organizations.INN, organizations.KPP, ov.jur_address AS address, organizations.email AS email, 
 phones.number AS phone, 
 banks.name AS bank, banks.bik, banks.cor_account, banks.city,
 accounts.number,
 leader.last_name AS leader_last_name, leader.name AS leader_name, leader.patronymic AS leader_patronymic,
 buh.last_name AS buh_last_name, buh.name AS buh_name, buh.patronymic AS buh_patronymic
-FROM organizations 
+FROM organizations
+LEFT JOIN
+    (SELECT ov.* FROM organization_versions ov
+   	    INNER JOIN orders o
+            ON
+                o.id = @order_id
+            AND
+                ov.start_date &lt;= o.bill_date
+            AND
+                (ov.end_date is null OR ov.end_date &gt;= o.bill_date)
+    ) AS ov ON organizations.id = ov.organization_id
 LEFT JOIN accounts ON accounts.id = organizations.default_account_id
 LEFT JOIN banks ON banks.id = accounts.bank_id
-LEFT JOIN employees leader ON leader.id = organizations.leader_id
-LEFT JOIN employees buh ON buh.id = organizations.buhgalter_id
+LEFT JOIN employees leader ON leader.id = ov.leader_id
+LEFT JOIN employees buh ON buh.id = ov.accountant_id
 LEFT JOIN phones ON organizations.id = phones.org_id
 WHERE organizations.id = @organization_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="organization_id">
             <Value>=Parameters!organization_id.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -906,7 +917,7 @@ o Не рекомендуется устанавливать кулер рядо
           </BorderWidth>
         </Style>
       </Textbox>
-      <List Name="List3" >
+      <List Name="List3">
         <Height>30.13pt</Height>
         <Width>118.28pt</Width>
         <Left>479.00pt</Left>
@@ -1393,8 +1404,7 @@ o Не рекомендуется устанавливать кулер рядо
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="agreement_id">
       <DataType>Integer</DataType>
@@ -1406,8 +1416,7 @@ o Не рекомендуется устанавливать кулер рядо
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_id">
       <DataType>Integer</DataType>
@@ -1419,8 +1428,7 @@ o Не рекомендуется устанавливать кулер рядо
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="warranty_full_number">
       <DataType>String</DataType>
@@ -1432,8 +1440,7 @@ o Не рекомендуется устанавливать кулер рядо
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -1445,8 +1452,7 @@ o Не рекомендуется устанавливать кулер рядо
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

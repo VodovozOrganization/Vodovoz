@@ -9,6 +9,11 @@ namespace Vodovoz.DocTemplates
 		{
 			fieldsList.Clear();
 
+			if(RootObject != null)
+			{
+				RootObject.Organization.SetActiveOrganizationVersion(RootObject.Organization.OrganizationVersionOnDate(RootObject.ContractDate));
+			}
+
 			AddField(x => x.Document.PassportSeria, PatternFieldType.FString);
 			AddField(x => x.Document.PassportNumber, PatternFieldType.FString);
 			AddField(x => x.Document.PassportIssuedOrg, PatternFieldType.FString);
@@ -25,7 +30,7 @@ namespace Vodovoz.DocTemplates
 
 			AddField(x => x.Organization.Name, PatternFieldType.FString);
 			AddField(x => x.Organization.FullName, PatternFieldType.FString);
-			AddField(x => x.Organization.JurAddress, PatternFieldType.FString);
+			AddField(x => x.Organization.ActiveOrganizationVersion.JurAddress, PatternFieldType.FString);
 			AddField(x => x.Organization.INN, PatternFieldType.FString);
 			AddField(x => x.Organization.KPP, PatternFieldType.FString);
 

@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using NLog;
-using QS.Banks.Domain;
-using Vodovoz.Domain.Contacts;
+﻿using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
-using QSOrmProject;
-using Vodovoz.Domain;
+using System;
+using System.Collections.Generic;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
 	public partial class OrganizationDlg : QS.Dialog.Gtk.EntityDialogBase<Organization>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory 
+			= new OrganizationVersionsViewModelFactory(ServicesConfig.CommonServices, new EmployeeJournalFactory());
+
 		public override bool HasChanges {
 			get {
 				phonesview1.RemoveEmpty();
@@ -60,24 +62,17 @@ namespace Vodovoz
 			dataentryOKPO.Binding.AddBinding(Entity, e => e.OKPO, w => w.Text).InitializeFromSource();
 			dataentryOKVED.Binding.AddBinding(Entity, e => e.OKVED, w => w.Text).InitializeFromSource();
 
-			datatextviewAddress.Binding.AddBinding(Entity, e => e.Address, w => w.Buffer.Text).InitializeFromSource();
-			datatextviewJurAddress.Binding.AddBinding(Entity, e => e.JurAddress, w => w.Buffer.Text).InitializeFromSource();
-
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 			accountsview1.SetAccountOwner(UoW, Entity);
-
-			var employeeFactory = new EmployeeJournalFactory();
-			evmeAccountant.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
-			evmeAccountant.Binding.AddBinding(Entity, e => e.Buhgalter, w => w.Subject).InitializeFromSource();
-
-			evmeLeader.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
-			evmeLeader.Binding.AddBinding(Entity, e => e.Leader, w => w.Subject).InitializeFromSource();
 
 			phonesview1.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone> ();
 			phonesview1.Phones = UoWGeneric.Root.Phones;
+
+			var organizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity);
+			versionsView.ViewModel = organizationVersionsViewModel;
 		}
 
 		public override bool Save ()
