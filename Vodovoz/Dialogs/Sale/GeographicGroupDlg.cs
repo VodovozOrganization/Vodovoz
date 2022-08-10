@@ -39,14 +39,14 @@ namespace Vodovoz.Dialogs.Sale
 		void ConfigureDlg()
 		{
 			yEntryName.Binding.AddBinding(Entity, x => x.Name, w => w.Text).InitializeFromSource();
-			lblCoordinatesValue.Binding.AddBinding(
+			/*lblCoordinatesValue.Binding.AddBinding(
 				Entity,
 				x => x.CoordinatesText,
 				w => w.Text
-			).InitializeFromSource();
+			).InitializeFromSource();*/
 
 			gMapWidget.MapProvider = GMapProviders.GoogleMap;
-			gMapWidget.Position = Entity.BaseCoordinatesExist ? new PointLatLng((double)Entity.BaseLatitude.Value, (double)Entity.BaseLongitude.Value) : new PointLatLng(59.93900, 30.31646);
+			gMapWidget.Position = /*Entity.BaseCoordinatesExist ? new PointLatLng((double)Entity.BaseLatitude.Value, (double)Entity.BaseLongitude.Value) :*/ new PointLatLng(59.93900, 30.31646);
 			gMapWidget.MinZoom = 0;
 			gMapWidget.MaxZoom = 24;
 			gMapWidget.Zoom = 9;
@@ -81,7 +81,7 @@ namespace Vodovoz.Dialogs.Sale
 				addressMoving = false;
 				var newPoint = gMapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
 				UpdateAddressOnMap();
-				Entity.SetСoordinates((decimal)newPoint.Lat, (decimal)newPoint.Lng);
+				//Entity.SetСoordinates((decimal)newPoint.Lat, (decimal)newPoint.Lng);
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Vodovoz.Dialogs.Sale
 						PointMarkerType.vodonos,
 						PointMarkerShape.custom
 					) {
-						ToolTipText = Entity.CoordinatesText
+						//ToolTipText = Entity.CoordinatesText
 					};
 					addressOverlay.Markers.Add(addressMarker);
 				} else
@@ -109,16 +109,16 @@ namespace Vodovoz.Dialogs.Sale
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == Entity.GetPropertyName(x => x.BaseLatitude) || e.PropertyName == Entity.GetPropertyName(x => x.BaseLongitude)) {
+			/*if(e.PropertyName == Entity.GetPropertyName(x => x.BaseLatitude) || e.PropertyName == Entity.GetPropertyName(x => x.BaseLongitude)) {
 				UpdateMapPosition();
 				UpdateAddressOnMap();
 			}
-			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));*/
 		}
 
 		void UpdateMapPosition()
 		{
-			if(Entity.BaseCoordinatesExist) {
+			/*if(Entity.BaseCoordinatesExist) {
 				var position = new PointLatLng((double)Entity.BaseLatitude.Value, (double)Entity.BaseLongitude.Value);
 				if(!gMapWidget.ViewArea.Contains(position)) {
 					gMapWidget.Position = position;
@@ -127,12 +127,12 @@ namespace Vodovoz.Dialogs.Sale
 			} else {
 				gMapWidget.Position = new PointLatLng(59.93900, 30.31646);
 				gMapWidget.Zoom = 9;
-			}
+			}*/
 		}
 
 		void UpdateAddressOnMap()
 		{
-			if(addressMarker != null) {
+			/*if(addressMarker != null) {
 				addressOverlay.Markers.Clear();
 				addressMarker = null;
 			}
@@ -150,7 +150,7 @@ namespace Vodovoz.Dialogs.Sale
 				};
 
 				addressOverlay.Markers.Add(addressMarker);
-			}
+			}*/
 		}
 
 		public override bool Save()
