@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Tools.Logistic;
@@ -10,5 +11,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IList<CachedDistance> GetCache(IUnitOfWork uow, long[] hash);
 		IList<CachedDistance> GetCache(IUnitOfWork uow, WayHash[] hashes);
 		CachedDistance GetFirstCacheByCreateDate(IUnitOfWork uow);
+		void DeleteCachedDistance(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo);
 	}
 }

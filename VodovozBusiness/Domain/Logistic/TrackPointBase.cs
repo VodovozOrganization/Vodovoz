@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Logistic
 {
-	public class TrackPointBase : PropertyChangedBase, IDomainObject
+	public abstract class TrackPointBase : PropertyChangedBase, IDomainObject
 	{
 		private Track _track;
 		private double _latitude;

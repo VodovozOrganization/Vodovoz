@@ -7,22 +7,22 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
-	public class OldTrackPointRepository : IOldTrackPointRepository
+	public class ArchiveTrackPointRepository : IArchiveTrackPointRepository
 	{
 		public DateTime GetMaxOldTrackPointDate(IUnitOfWork uow)
 		{
-			return uow.Session.QueryOver<OldTrackPoint>()
-				.Select(Projections.Max<OldTrackPoint>(otp => otp.TimeStamp))
+			return uow.Session.QueryOver<ArchiveTrackPoint>()
+				.Select(Projections.Max<ArchiveTrackPoint>(otp => otp.TimeStamp))
 				.SingleOrDefault<DateTime>();
 		}
 
 		#region Архивация track_points
 
-		public void TrackPointsArchiving(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
+		public void ArchiveTrackPoints(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
 			var factory = uow.Session.SessionFactory;
 			var tpPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(TrackPoint));
-			var oldTpPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldTrackPoint));
+			var oldTpPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveTrackPoint));
 
 			var timeStampColumn = tpPersister.GetPropertyColumnNames(nameof(TrackPoint.TimeStamp)).First();
 

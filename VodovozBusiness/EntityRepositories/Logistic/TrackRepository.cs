@@ -78,7 +78,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Any();
 		}
 
-		public static void DeleteTrackPoints(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo)
+		public void DeleteTrackPoints(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo)
 		{
 			var factory = uow.Session.SessionFactory;
 			var tpPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(TrackPoint));

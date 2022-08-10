@@ -3,7 +3,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping
 {
-	public class OldTrackPointMap : ClassMap<OldTrackPoint>
+	public class OldTrackPointMap : ClassMap<ArchiveTrackPoint>
 	{
 		public OldTrackPointMap()
 		{

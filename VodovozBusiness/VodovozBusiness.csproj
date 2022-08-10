@@ -134,7 +134,6 @@
     <Compile Include="Domain\Goods\NomenclaturePurchasePrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
-    <Compile Include="Domain\HistoryChanges\UserForOldMonitoring.cs" />
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
     <Compile Include="Domain\FlyerActionTime.cs" />
     <Compile Include="Domain\Flyer.cs" />
@@ -158,7 +157,7 @@
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryAvailabilityHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryAvailabilityHistoryItem.cs" />
-    <Compile Include="Domain\Logistic\OldTrackPoint.cs" />
+    <Compile Include="Domain\Logistic\ArchiveTrackPoint.cs" />
     <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
     <Compile Include="Domain\Logistic\TrackPointBase.cs" />
     <Compile Include="Domain\Logistic\UndeliveryOrderNode.cs" />
@@ -271,18 +270,18 @@
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
     <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
-    <Compile Include="EntityRepositories\HistoryChanges\IOldHistoryChangesRepository.cs" />
-    <Compile Include="EntityRepositories\HistoryChanges\OldHistoryChangesRepository.cs" />
+    <Compile Include="EntityRepositories\HistoryChanges\IArchiveHistoryChangesRepository.cs" />
+    <Compile Include="EntityRepositories\HistoryChanges\ArchiveHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
     <Compile Include="EntityRepositories\Logistic\ICachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IDeliveryShiftRepository.cs" />
-    <Compile Include="EntityRepositories\Logistic\IOldTrackPointRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IArchiveTrackPointRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteColumnRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ITrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
-    <Compile Include="EntityRepositories\Logistic\OldTrackPointRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\ArchiveTrackPointRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\RouteColumnRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\TrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\WayBillDocumentRepository.cs" />
@@ -384,7 +383,6 @@
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
     <Compile Include="HibernateMapping\FlyerMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
-    <Compile Include="HibernateMapping\HistoryChanges\UserForOldMonitoringMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventMap.cs" />
@@ -737,6 +735,8 @@
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
+    <Compile Include="Tools\DataArchiver.cs" />
+    <Compile Include="Tools\IDataArchiver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
@@ -1170,12 +1170,12 @@
     <Compile Include="Services\IOrderPaymentSettings.cs" />
     <Compile Include="Parameters\OrderPaymentSettings.cs" />
     <Compile Include="VodovozBusinessAssemblyFinder.cs" />
-    <Compile Include="Domain\HistoryChanges\OldChangedEntity.cs" />
-    <Compile Include="Domain\HistoryChanges\OldChangeSet.cs" />
-    <Compile Include="Domain\HistoryChanges\OldFieldChange.cs" />
-    <Compile Include="HibernateMapping\HistoryChanges\OldFieldChangeMap.cs" />
-    <Compile Include="HibernateMapping\HistoryChanges\OldChangeSetMap.cs" />
-    <Compile Include="HibernateMapping\HistoryChanges\OldChangedEntityMap.cs" />
+    <Compile Include="Domain\HistoryChanges\ArchiveChangedEntity.cs" />
+    <Compile Include="Domain\HistoryChanges\ArchiveChangeSet.cs" />
+    <Compile Include="Domain\HistoryChanges\ArchiveFieldChange.cs" />
+    <Compile Include="HibernateMapping\HistoryChanges\ArchiveFieldChangeMap.cs" />
+    <Compile Include="HibernateMapping\HistoryChanges\ArchiveChangeSetMap.cs" />
+    <Compile Include="HibernateMapping\HistoryChanges\ArchiveChangedEntityMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

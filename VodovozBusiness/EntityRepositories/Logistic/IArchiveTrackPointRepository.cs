@@ -3,9 +3,9 @@ using System;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
-	public interface IOldTrackPointRepository
+	public interface IArchiveTrackPointRepository
 	{
 		DateTime GetMaxOldTrackPointDate(IUnitOfWork uow);
-		void TrackPointsArchiving(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo);
+		void ArchiveTrackPoints(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo);
 	}
 }

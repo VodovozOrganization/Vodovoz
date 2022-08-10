@@ -4,9 +4,9 @@ using Vodovoz.Domain.HistoryChanges;
 
 namespace Vodovoz.HibernateMapping.HistoryChanges
 {
-	public class OldChangedEntityMap : ClassMap<OldChangedEntity>
+	public class ArchiveChangedEntityMap : ClassMap<ArchiveChangedEntity>
 	{
-		public OldChangedEntityMap()
+		public ArchiveChangedEntityMap()
 		{
 			Schema("Vodovoz_old_monitoring");
 			Table("history_changed_entities");

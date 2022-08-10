@@ -16,6 +16,9 @@ using Vodovoz.Parameters;
 using QS.Attachments.Domain;
 using Microsoft.Extensions.Configuration;
 using Vodovoz.HibernateMapping.Organizations;
+using Vodovoz.Tools;
+using Autofac.Extensions.DependencyInjection;
+using Autofac;
 
 namespace MonitoringArchivingWorker
 {
@@ -28,6 +31,19 @@ namespace MonitoringArchivingWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+				.ConfigureContainer<ContainerBuilder>(builder =>
+				{
+					builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<ParametersProvider>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<ArchiveDataSettings>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<TrackRepository>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<ArchiveTrackPointRepository>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<ArchiveHistoryChangesRepository>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<CachedDistanceRepository>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<DataArchiver>().AsImplementedInterfaces().SingleInstance();
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.AddLogging(loggingBuilder =>
@@ -36,16 +52,7 @@ namespace MonitoringArchivingWorker
 						loggingBuilder.AddNLog("NLog.config");
 					});
 
-					services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
-					services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-					services.AddSingleton<IParametersProvider, ParametersProvider>();
-					services.AddSingleton<IArchiveDataSettings, ArchiveDataSettings>();
-					services.AddSingleton<ITrackRepository, TrackRepository>();
-					services.AddSingleton<IOldTrackPointRepository, OldTrackPointRepository>();
-					services.AddSingleton<IOldHistoryChangesRepository, OldHistoryChangesRepository>();
-					services.AddSingleton<ICachedDistanceRepository, CachedDistanceRepository>();
 					services.AddHostedService<MonitoringArchivingWorker>();
-
 					CreateBaseConfig(hostContext.Configuration);
 				});
 

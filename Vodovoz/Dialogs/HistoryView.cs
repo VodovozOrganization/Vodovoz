@@ -34,8 +34,9 @@ namespace Vodovoz.Dialogs
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		List<ChangedEntity> _changedEntities;
-		List<OldChangedEntity> _oldChangedEntities;
+		List<ArchiveChangedEntity> _oldChangedEntities;
 		bool _canUpdate = false;
+		bool _canSearchFromArchive = false; 
 		private int _pageSize = 250;
 		private int _takenRows = 0;
 		private int _takenOldRows = 0;
@@ -77,18 +78,25 @@ namespace Vodovoz.Dialogs
 
 			entryProperty.ChangedByUser += (sender, e) => UpdateJournal();
 
-			var archiveSettings = new ArchiveDataSettings(new ParametersProvider());
-			selectperiod.ActiveRadio = SelectPeriod.Period.Today;
-			selectperiod.AddCustomPeriodInDays(archiveSettings.GetMonitoringPeriodAvailableInDays, "архив (медленно)");
-			selectperiod.Show3Month = false;
-			selectperiod.ShowCustomPeriod = true;
-			vpanedOld.Visible = false;
-			vpanedOld.PositionSet = false;
-			selectperiod.EarlyCustomDateToggled += OnEarlyCustomDateToggled;
-
 			ConfigureDataTrees();
 
+			var archiveSettings = new ArchiveDataSettings(new ParametersProvider());
+
+			var db = UoW.Session.Connection.Database;
+			if(archiveSettings.GetDatabaseNameForOldMonitoringAvailable == UoW.Session.Connection.Database)
+			{
+				selectperiod.AddCustomPeriodInDays(archiveSettings.GetMonitoringPeriodAvailableInDays, "архив (медленно)");
+				selectperiod.Show3Month = false;
+				selectperiod.ShowCustomPeriod = true;
+				_canSearchFromArchive = true;
+				
+				selectperiod.EarlyCustomDateToggled += OnEarlyCustomDateToggled;
+			}
+
 			_canUpdate = true;
+			vpanedOld.Visible = false;
+			vpanedOld.PositionSet = false;
+			selectperiod.ActiveRadio = SelectPeriod.Period.Today;
 		}
 
 		private void OnEarlyCustomDateToggled(bool value)
@@ -128,7 +136,7 @@ namespace Vodovoz.Dialogs
 				.AddColumn("Старое значение").AddTextRenderer(x => x.OldFormatedDiffText, useMarkup: true)
 				.Finish();
 
-			dataTreeOldChangeSets.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<OldChangedEntity>()
+			dataTreeOldChangeSets.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ArchiveChangedEntity>()
 				.AddColumn("Время").AddTextRenderer(x => x.ChangeTimeText)
 				.AddColumn("Пользователь").AddTextRenderer(x => x.ChangeSet.UserName)
 				.AddColumn("Действие").AddTextRenderer(x => x.OperationText)
@@ -140,7 +148,7 @@ namespace Vodovoz.Dialogs
 			dataTreeOldChangeSets.Selection.Changed += OnOldChangeSetSelectionChanged;
 			GtkScrolledWindowOldChangesets.Vadjustment.ValueChanged += OnOldVadjustmentValueChanged;
 
-			dataTreeOldChanges.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<OldFieldChange>()
+			dataTreeOldChanges.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ArchiveFieldChange>()
 				.AddColumn("Поле").AddTextRenderer(x => x.FieldTitle)
 				.AddColumn("Операция").AddTextRenderer(x => x.TypeText)
 				.AddColumn("Новое значение").AddTextRenderer(x => x.NewFormatedDiffText, useMarkup: true)
@@ -195,7 +203,7 @@ namespace Vodovoz.Dialogs
 
 		private void OnOldChangeSetSelectionChanged(object sender, EventArgs e)
 		{
-			var selected = (OldChangedEntity)dataTreeOldChangeSets.GetSelectedObject();
+			var selected = (ArchiveChangedEntity)dataTreeOldChangeSets.GetSelectedObject();
 
 			if(selected != null)
 			{
@@ -223,7 +231,7 @@ namespace Vodovoz.Dialogs
 				.Contains(restrictedToShowPropertyAttribute) ?? false;
 		}
 
-		private bool OldFieldChangeNotNeedToBeHided(OldFieldChange oldFieldChange)
+		private bool OldFieldChangeNotNeedToBeHided(ArchiveFieldChange oldFieldChange)
 		{
 			var restrictedToShowPropertyAttribute = new RestrictedHistoryProperty();
 
@@ -356,15 +364,15 @@ namespace Vodovoz.Dialogs
 				_takenAllOld = false;
 			}
 
-			if(!_canUpdate)
+			if(!_canUpdate || !_canSearchFromArchive)
 			{
 				return;
 			}
 
 			_logger.Info("Получаем журнал изменений{0}...", _takenOldRows > 0 ? $"({_takenOldRows}+)" : "");
-			OldChangeSet changeSetAlias = null;
+			ArchiveChangeSet changeSetAlias = null;
 
-			var query = UoW.Session.QueryOver<OldChangedEntity>()
+			var query = UoW.Session.QueryOver<ArchiveChangedEntity>()
 				.JoinAlias(ce => ce.ChangeSet, () => changeSetAlias)
 				.Fetch(SelectMode.Fetch, x => x.ChangeSet)
 				.Fetch(SelectMode.Fetch, x => x.ChangeSet.User);
@@ -405,7 +413,7 @@ namespace Vodovoz.Dialogs
 
 			if(!string.IsNullOrWhiteSpace(entrySearchValue.Text) || entryProperty.Subject is HistoryTracePropertyNode)
 			{
-				OldFieldChange fieldChangeAlias = null;
+				ArchiveFieldChange fieldChangeAlias = null;
 				query.JoinAlias(ce => ce.Changes, () => fieldChangeAlias);
 
 				if(entryProperty.Subject is HistoryTracePropertyNode selectedProperty)
@@ -423,11 +431,11 @@ namespace Vodovoz.Dialogs
 			try
 			{
 				var taked = query.OrderBy(x => x.ChangeTime).Desc
-							 .Skip(_takenRows)
+							 .Skip(_takenOldRows)
 							 .Take(_pageSize)
 							 .List();
 
-				if(_takenRows > 0)
+				if(_takenOldRows > 0)
 				{
 					_oldChangedEntities.AddRange(taked);
 					dataTreeOldChangeSets.YTreeModel.EmitModelChanged();

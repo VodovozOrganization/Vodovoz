@@ -8,31 +8,30 @@ using Vodovoz.Domain.HistoryChanges;
 
 namespace Vodovoz.EntityRepositories.HistoryChanges
 {
-	public class OldHistoryChangesRepository : IOldHistoryChangesRepository
+	public class ArchiveHistoryChangesRepository : IArchiveHistoryChangesRepository
 	{
-		private const string _changedEntityAlias = "hce";
-		private const string _changeSetAlias = "hcs";
-		private const string _fieldChangeAlias = "hc";
-		
-		public OldChangedEntity GetLastOldChangedEntity(IUnitOfWork uow)
+		public ArchiveChangedEntity GetLastOldChangedEntity(IUnitOfWork uow)
 		{
-			var lastOldChangedEntityId = uow.Session.QueryOver<OldChangedEntity>()
-				.Select(Projections.Max<OldChangedEntity>(oce => oce.Id))
+			var lastOldChangedEntityId = uow.Session.QueryOver<ArchiveChangedEntity>()
+				.Select(Projections.Max<ArchiveChangedEntity>(oce => oce.Id))
 				.SingleOrDefault<int>();
 			
 			return lastOldChangedEntityId == 0
 				? null
-				: uow.GetById<OldChangedEntity>(lastOldChangedEntityId);
+				: uow.GetById<ArchiveChangedEntity>(lastOldChangedEntityId);
 		}
 
 		#region Архивация мониторинга
 
-		public void ChangeSetsArchiving(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
+		public void ArchiveChangeSets(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
+			var _changedEntityAlias = "hce";
+			var _changeSetAlias = "hcs";
+
 			var factory = uow.Session.SessionFactory;
 			var hcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ChangedEntity));
 			var hcsPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ChangeSet));
-			var oldhcsPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldChangeSet));
+			var oldhcsPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveChangeSet));
 
 			var changeSetColumn = hcePersister.GetPropertyColumnNames(nameof(ChangedEntity.ChangeSet)).First();
 			var dateTimeColumn = hcePersister.GetPropertyColumnNames(nameof(ChangedEntity.ChangeTime)).First();
@@ -45,11 +44,13 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 			uow.Session.CreateSQLQuery(query).SetTimeout(180).ExecuteUpdate();
 		}
 		
-		public void ChangedEntitiesArchiving(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
+		public void ArchiveChangedEntities(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
+			var _changedEntityAlias = "hce";
+
 			var factory = uow.Session.SessionFactory;
 			var hcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ChangedEntity));
-			var oldhcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldChangedEntity));
+			var oldhcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveChangedEntity));
 
 			var dateTimeColumn = hcePersister.GetPropertyColumnNames(nameof(ChangedEntity.ChangeTime)).First();
 
@@ -60,12 +61,15 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 			uow.Session.CreateSQLQuery(query).SetTimeout(180).ExecuteUpdate();
 		}
 
-		public void FieldChangesArchiving(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
+		public void ArchiveFieldChanges(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
+			var _changedEntityAlias = "hce";
+			var _fieldChangeAlias = "hc";
+
 			var factory = uow.Session.SessionFactory;
 			var hcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ChangedEntity));
 			var hcPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(FieldChange));
-			var oldhcPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldFieldChange));
+			var oldhcPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveFieldChange));
 
 			var changedEntityColumn = hcPersister.GetPropertyColumnNames(nameof(FieldChange.Entity)).First();
 			var dateTimeColumn = hcePersister.GetPropertyColumnNames(nameof(ChangedEntity.ChangeTime)).First();
@@ -80,15 +84,18 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 
 		#region Для теста
 
-		public void ChangeSetsArchivingTest(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
+		public void ArchiveChangeSetsTest(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
-			var factory = uow.Session.SessionFactory;
-			var oldhcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldChangedEntity));
-			var hcsPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ChangeSet));
-			var oldhcsPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldChangeSet));
+			var _changedEntityAlias = "hce";
+			var _changeSetAlias = "hcs";
 
-			var changeSetColumn = oldhcePersister.GetPropertyColumnNames(nameof(OldChangedEntity.ChangeSet)).First();
-			var dateTimeColumn = oldhcePersister.GetPropertyColumnNames(nameof(OldChangedEntity.ChangeTime)).First();
+			var factory = uow.Session.SessionFactory;
+			var oldhcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveChangedEntity));
+			var hcsPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ChangeSet));
+			var oldhcsPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveChangeSet));
+
+			var changeSetColumn = oldhcePersister.GetPropertyColumnNames(nameof(ArchiveChangedEntity.ChangeSet)).First();
+			var dateTimeColumn = oldhcePersister.GetPropertyColumnNames(nameof(ArchiveChangedEntity.ChangeTime)).First();
 
 			var query = $"INSERT INTO {hcsPersister.TableName} "
 				+ $"(SELECT DISTINCT {_changeSetAlias}.* "
@@ -98,13 +105,15 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 			uow.Session.CreateSQLQuery(query).SetTimeout(180).ExecuteUpdate();
 		}
 
-		public void ChangedEntitiesArchivingTest(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
+		public void ArchiveChangedEntitiesTest(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
+			var _changedEntityAlias = "hce";
+
 			var factory = uow.Session.SessionFactory;
 			var hcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ChangedEntity));
-			var oldhcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldChangedEntity));
+			var oldhcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveChangedEntity));
 
-			var dateTimeColumn = hcePersister.GetPropertyColumnNames(nameof(OldChangedEntity.ChangeTime)).First();
+			var dateTimeColumn = hcePersister.GetPropertyColumnNames(nameof(ArchiveChangedEntity.ChangeTime)).First();
 
 			var query = $"INSERT INTO {hcePersister.TableName} "
 				+ $"(SELECT * "
@@ -113,15 +122,18 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 			uow.Session.CreateSQLQuery(query).SetTimeout(180).ExecuteUpdate();
 		}
 
-		public void FieldChangesArchivingTest(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
+		public void ArchiveFieldChangesTest(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo)
 		{
-			var factory = uow.Session.SessionFactory;
-			var oldhcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldChangedEntity));
-			var hcPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(FieldChange));
-			var oldhcPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldFieldChange));
+			var _changedEntityAlias = "hce";
+			var _fieldChangeAlias = "hc";
 
-			var changedEntityColumn = oldhcPersister.GetPropertyColumnNames(nameof(OldFieldChange.Entity)).First();
-			var dateTimeColumn = oldhcePersister.GetPropertyColumnNames(nameof(OldChangedEntity.ChangeTime)).First();
+			var factory = uow.Session.SessionFactory;
+			var oldhcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveChangedEntity));
+			var hcPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(FieldChange));
+			var oldhcPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveFieldChange));
+
+			var changedEntityColumn = oldhcPersister.GetPropertyColumnNames(nameof(ArchiveFieldChange.Entity)).First();
+			var dateTimeColumn = oldhcePersister.GetPropertyColumnNames(nameof(ArchiveChangedEntity.ChangeTime)).First();
 
 			var query = $"INSERT INTO {hcPersister.TableName} "
 				+ $"(SELECT DISTINCT {_fieldChangeAlias}.* "
@@ -133,14 +145,18 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 
 		public void DeleteHistoryChangesTest(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo)
 		{
-			var factory = uow.Session.SessionFactory;
-			var oldHcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldChangedEntity));
-			var oldHcsPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldChangeSet));
-			var oldHcPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(OldFieldChange));
+			var _changedEntityAlias = "hce";
+			var _changeSetAlias = "hcs";
+			var _fieldChangeAlias = "hc";
 
-			var changeSetColumn = oldHcePersister.GetPropertyColumnNames(nameof(OldChangedEntity.ChangeSet)).First();
-			var changeTimeColumn = oldHcePersister.GetPropertyColumnNames(nameof(OldChangedEntity.ChangeTime)).First();
-			var changedEntityColumn = oldHcPersister.GetPropertyColumnNames(nameof(OldFieldChange.Entity)).First();
+			var factory = uow.Session.SessionFactory;
+			var oldHcePersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveChangedEntity));
+			var oldHcsPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveChangeSet));
+			var oldHcPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(ArchiveFieldChange));
+
+			var changeSetColumn = oldHcePersister.GetPropertyColumnNames(nameof(ArchiveChangedEntity.ChangeSet)).First();
+			var changeTimeColumn = oldHcePersister.GetPropertyColumnNames(nameof(ArchiveChangedEntity.ChangeTime)).First();
+			var changedEntityColumn = oldHcPersister.GetPropertyColumnNames(nameof(ArchiveFieldChange.Entity)).First();
 
 			var query = $"DELETE {_fieldChangeAlias}, {_changedEntityAlias}, {_changeSetAlias} "
 				+ $"FROM {oldHcePersister.TableName} AS {_changedEntityAlias} "

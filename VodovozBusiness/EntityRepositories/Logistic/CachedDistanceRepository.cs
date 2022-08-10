@@ -42,7 +42,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		#region Удаление кэша
 
-		public static void DeleteCachedDistance(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo)
+		public void DeleteCachedDistance(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo)
 		{
 			var factory = uow.Session.SessionFactory;
 			var cdPersister = (AbstractEntityPersister)factory.GetClassMetadata(typeof(CachedDistance));

@@ -13,5 +13,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IList<DriverPosition> GetLastPointForRouteLists(IUnitOfWork uow, int[] routeListsIds, DateTime? beforeTime = null);
 		DateTime GetMinTrackPointDate(IUnitOfWork uow);
 		bool TrackPointsExists(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo);
+		void DeleteTrackPoints(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo);
 	}
 }
