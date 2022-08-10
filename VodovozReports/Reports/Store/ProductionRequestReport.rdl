@@ -17,6 +17,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     M.*,
+    M.total as inWay,
     # Заявка на производство
     IF((M.norm - M.total) &gt;= 0, M.norm - M.total, 0) as request,
     # Остаток на завтра
@@ -28,9 +29,9 @@ FROM
         SELECT
             Tab.*,
             # Итого
-            Tab.store_balance - (Tab.sold - Tab.shipped) as total,
+            Tab.store_balance + Tab.in_way - (Tab.sold - Tab.shipped) as total,
             # Норма
-            Tab.max_shipped * 1.2 as norm
+            Tab.max_shipped * (1 + @stock_rate / 100) as norm
         FROM
             (
                 SELECT
@@ -80,7 +81,16 @@ FROM
                                   AND wmo.operation_time BETWEEN @today AND @currently),
                             0) AS shipped,
                     # Макс. продажи за день
-                    IFNULL(max_shipping.max_shipped, 0) as max_shipped
+                    IFNULL(max_shipping.max_shipped, 0) as max_shipped,
+                    IFNULL(
+                    		(
+                                SELECT SUM(smdi.sended_amount)
+                                FROM store_movement_document smd 
+								LEFT JOIN store_movement_document_items smdi ON smd.id = smdi.movement_document_id  
+								WHERE smd.status = 'Sended'                                      
+                                  AND smdi.nomenclature_id = n.id
+                                  AND smd.send_time  BETWEEN '2022-08-09T00:00:00.0000000+03:00' AND '2022-08-09T00:28:08.0079612+03:00')
+                    , 0) as in_way
                 From
                     nomenclature n
                         LEFT JOIN
@@ -167,6 +177,9 @@ HAVING store_balance &gt; 0 OR sold &gt; 0 OR shipped &gt; 0</CommandText>
           <QueryParameter Name="currently">
             <Value>=Parameters!currently</Value>
           </QueryParameter>
+          <QueryParameter Name="stock_rate">
+            <Value>=Parameters!stock_rate</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
@@ -213,6 +226,10 @@ HAVING store_balance &gt; 0 OR sold &gt; 0 OR shipped &gt; 0</CommandText>
         <Field Name="bottle_cap_color">
           <DataField>bottle_cap_color</DataField>
           <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="in_way">
+          <DataField>in_way</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -309,16 +326,19 @@ WHERE
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>136.5pt</Width>
+            <Width>133.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.9pt</Width>
+            <Width>49.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.7pt</Width>
+            <Width>52.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.3pt</Width>
+            <Width>59.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>54.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.4pt</Width>
@@ -333,10 +353,10 @@ WHERE
             <Width>82.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>82.5pt</Width>
+            <Width>61.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>82.5pt</Width>
+            <Width>81.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -400,6 +420,23 @@ WHERE
                     <Textbox Name="Textbox6">
                       <Value>Отгружено</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>В пути</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -609,6 +646,26 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>={in_way}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>N2</Format>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <BackgroundColor>=Iif(Fields!bottle_cap_color.IsMissing, "", {bottle_cap_color})</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox13">
                       <Value>={total}</Value>
                       <CanGrow>true</CanGrow>
@@ -792,7 +849,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -853,10 +910,19 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="currently">
       <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="stock_rate">
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
