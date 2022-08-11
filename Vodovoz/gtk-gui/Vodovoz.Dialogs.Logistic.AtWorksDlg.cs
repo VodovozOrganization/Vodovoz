@@ -310,7 +310,6 @@ namespace Vodovoz.Dialogs.Logistic
 			this.hideForwaders = new global::Gamma.Widgets.SidePanels.HideHorizontalSeparator();
 			this.hideForwaders.Events = ((global::Gdk.EventMask)(256));
 			this.hideForwaders.Name = "hideForwaders";
-			this.hideForwaders.Label = "Экспедиторы на работе";
 			this.vbox2.Add(this.hideForwaders);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hideForwaders]));
 			w29.Position = 3;
@@ -421,7 +420,6 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonDriverSelectAuto.Clicked += new global::System.EventHandler(this.OnButtonDriverSelectAutoClicked);
 			this.buttonOpenCar.Clicked += new global::System.EventHandler(this.OnButtonOpenCarClicked);
 			this.buttonEditDistricts.Clicked += new global::System.EventHandler(this.OnButtonEditDistrictsClicked);
-			this.hideForwaders.Toggled += new global::Gtk.ToggledHandler(this.OnHideForwadersToggled);
 			this.buttonAddForwarder.Clicked += new global::System.EventHandler(this.OnButtonAddForwarderClicked);
 			this.buttonRemoveForwarder.Clicked += new global::System.EventHandler(this.OnButtonRemoveForwarderClicked);
 			this.buttonAppointForwarders.Clicked += new global::System.EventHandler(this.OnButtonAppointForwardersClicked);
