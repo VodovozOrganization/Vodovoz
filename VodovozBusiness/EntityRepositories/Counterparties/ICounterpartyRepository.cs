@@ -20,5 +20,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		bool IsCashPayment(PaymentType payment);
 		bool IsCashlessPayment(PaymentType payment);
 		IList<CounterpartyTo1CNode> GetCounterpartiesWithInnAndAnyContact(IUnitOfWork uow);
+		IList<Counterparty> GetDealers();
 	}
 }

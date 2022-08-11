@@ -1,4 +1,5 @@
 ﻿using QS.DocTemplates;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.DocTemplates
@@ -13,14 +14,20 @@ namespace Vodovoz.DocTemplates
 		{
 			fieldsList.Clear();
 
+			if(RootObject != null)
+			{
+				RootObject.Organization.SetActiveOrganizationVersion(RootObject.Organization.OrganizationVersionOnDate(RootObject.Date));
+			}
+
 			AddField(x => x.Id, "НомерДоверенности",PatternFieldType.FString);
 			AddField(x => x.Date.ToString("dd.MM.yyyy"), "ДатаДоверенности", PatternFieldType.FString);
 			AddField(x => x.ExpirationDate.ToString("dd.MM.yyyy"), "ДатаОкончания", PatternFieldType.FString);
-
+			
 			AddField(x => x.Organization.Name, PatternFieldType.FString);
 			AddField(x => x.Organization.FullName, PatternFieldType.FString);
-			AddField(x => x.Organization.Address, PatternFieldType.FString);
-			AddField(x => x.Organization.JurAddress, PatternFieldType.FString);
+
+			AddField(x => x.Organization.ActiveOrganizationVersion.Address, PatternFieldType.FString);
+			AddField(x => x.Organization.ActiveOrganizationVersion.JurAddress, PatternFieldType.FString);
 			AddField(x => x.Organization.INN, PatternFieldType.FString);
 			AddField(x => x.Organization.KPP, PatternFieldType.FString);
 			AddField(x => x.Organization.OKPO, PatternFieldType.FString);
@@ -30,10 +37,10 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Organization.DefaultAccount.InBank.Bik, PatternFieldType.FString);
 			AddField(x => x.Organization.DefaultAccount.InBank.Name, PatternFieldType.FString);
 			AddField(x => x.Organization.DefaultAccount.BankCorAccount.CorAccountNumber, PatternFieldType.FString);
-			AddField(x => x.Organization.Leader.FullName, PatternFieldType.FString);
-			AddField(x => x.Organization.Leader.ShortName, PatternFieldType.FString);
-			AddField(x => x.Organization.Buhgalter.FullName, PatternFieldType.FString);
-			AddField(x => x.Organization.Buhgalter.ShortName, PatternFieldType.FString);
+			AddField(x => x.Organization.ActiveOrganizationVersion.Leader.FullName, PatternFieldType.FString);
+			AddField(x => x.Organization.ActiveOrganizationVersion.Leader.ShortName, PatternFieldType.FString);
+			AddField(x => x.Organization.ActiveOrganizationVersion.Accountant.FullName, PatternFieldType.FString);
+			AddField(x => x.Organization.ActiveOrganizationVersion.Accountant.ShortName, PatternFieldType.FString);
 
 			AddField(x => x.Car.CarModel.Name, PatternFieldType.FString);
 			AddField(x => x.Car.RegistrationNumber, PatternFieldType.FString);
@@ -55,6 +62,8 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.EmployeeDocument.PassportIssuedOrg, PatternFieldType.FString);
 			AddField(x => x.EmployeeDocument.PassportIssuedDate.HasValue ? x.EmployeeDocument.PassportIssuedDate.Value.ToString("dd.MM.yyyy") : "", "Водитель.ДатаВыдачиПаспорта", PatternFieldType.FString);
 			AddField(x => x.Driver.AddressRegistration, PatternFieldType.FString);
+
+			AddField(x => x.GetDealers(), "Дилеры", PatternFieldType.FString);
 
 			SortFields();
 		}

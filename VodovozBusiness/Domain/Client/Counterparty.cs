@@ -224,6 +224,14 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref kPP, value, () => KPP);
 		}
 
+		string oGRN;
+
+		[Display(Name = "ОГРН")]
+		public virtual string OGRN {
+			get => oGRN;
+			set => SetField(ref oGRN, value, () => OGRN);
+		}
+
 		string jurAddress;
 
 		[Display(Name = "Юридический адрес")]
@@ -937,6 +945,7 @@ namespace Vodovoz.Domain.Client
 			FullName = string.Empty;
 			Comment = string.Empty;
 			INN = string.Empty;
+			OGRN = string.Empty;
 			KPP = string.Empty;
 			JurAddress = string.Empty;
 			PhoneFrom1c = string.Empty;
@@ -1077,6 +1086,10 @@ namespace Vodovoz.Domain.Client
 			if(Id == 0 && CameFrom == null) {
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Откуда клиент\"");
 			}
+
+			if (CounterpartyType == CounterpartyType.Dealer && string.IsNullOrEmpty(OGRN)) {
+				yield return new ValidationResult("Для дилеров необходимо заполнить поле \"ОГРН\"");
+			}
 			
 			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
@@ -1135,7 +1148,9 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Покупатель")]
 		Buyer,
 		[Display(Name = "Поставщик")]
-		Supplier
+		Supplier,
+		[Display(Name = "Дилер")]
+		Dealer
 	}
 
 	public class CounterpartyTypeStringType : NHibernate.Type.EnumStringType

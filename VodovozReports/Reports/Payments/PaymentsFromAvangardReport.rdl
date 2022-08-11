@@ -1122,8 +1122,6 @@ FROM
         From orders o_online
                  JOIN payments_from_avangard p_avangard on p_avangard.order_num = o_online.online_order
                  JOIN fast_payments fp on fp.external_id = p_avangard.order_num  and fp.payment_status = 'Performed'
-            AND p_avangard.paid_date &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
-            AND p_avangard.paid_date &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
     ) as p on p.order_id = o.id
         LEFT JOIN
     counterparty c ON c.id = o.client_id
