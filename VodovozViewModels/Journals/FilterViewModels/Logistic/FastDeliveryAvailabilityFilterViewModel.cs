@@ -46,6 +46,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				.CreateCounterpartyAutocompleteSelectorFactory();
 
 			IsValid = false;
+			IsVerificationFromSite = false;
+			IsNomenclatureNotInStock = false;
 		}
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }

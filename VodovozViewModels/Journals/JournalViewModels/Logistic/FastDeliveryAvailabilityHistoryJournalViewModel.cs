@@ -64,7 +64,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(FastDeliveryOrderItemHistory)
 				);
 
-
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory);
 			fastDeliveryAvailabilityHistoryModel.ClearFastDeliveryAvailabilityHistory(availabilityHistoryParameterProvider);
 
@@ -73,19 +72,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_timer.Start();
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
-
-			_sequenceNodes = SequenceItemsSourceQueryFunction(UoW).List<FastDeliveryAvailabilityHistoryJournalNode>();
-
-			FilterViewModel.PropertyChanged += FilterViewModelPropertyChanged;
-		}
-
-		private void FilterViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			_sequenceNodes = SequenceItemsSourceQueryFunction(UoW).List<FastDeliveryAvailabilityHistoryJournalNode>();
 		}
 
 		protected void BeforeItemsUpdated(IList items, uint start)
 		{
+			_sequenceNodes = SequenceItemsSourceQueryFunction(UoW).List<FastDeliveryAvailabilityHistoryJournalNode>();
+
 			var grouppedByDateNodes = _sequenceNodes.GroupBy(x => x.VerificationDate.Date)
 				  .Select(group =>
 						new
@@ -96,7 +88,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			foreach(var grouppedNode in grouppedByDateNodes)
 			{
-				foreach(var node in grouppedNode.Nodes.OrderBy(x => x.Id))
+				foreach(var node in grouppedNode.Nodes)
 				{
 					var sequenceNum = grouppedNode.Nodes.ToList().IndexOf(node) + 1;
 					var journalNode = items.OfType<FastDeliveryAvailabilityHistoryJournalNode>().FirstOrDefault(x => x.Id == node.Id);
@@ -420,6 +412,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				{
 					var rows = ItemsSourceQueryFunction.Invoke(UoW)
 						.List<FastDeliveryAvailabilityHistoryJournalNode>();
+
+					var grouppedByDateNodes = rows.OrderBy(x => x.Id).GroupBy(x => x.VerificationDate.Date)
+					.Select(group =>
+							new
+							{
+								Date = group.Key,
+								Nodes = group
+							});
+
+					foreach(var grouppedNode in grouppedByDateNodes)
+					{
+						foreach(var node in grouppedNode.Nodes)
+						{
+							node.SequenceNumber = grouppedNode.Nodes.ToList().IndexOf(node) + 1;
+						}
+					}
 
 					var report = new FastDeliveryAvailabilityHistoryReport(rows, _fileDialogService);
 					report.Export();
