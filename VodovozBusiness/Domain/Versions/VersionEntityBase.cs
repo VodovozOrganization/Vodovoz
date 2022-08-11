@@ -5,7 +5,7 @@ using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.Domain.Versions
 {
-	public abstract class VersionEntityBase : PropertyChangedBase, IVersionEntity
+	public abstract class VersionEntityBase : PropertyChangedBase
 	{
 		private int _id;
 		private DateTime _dateCreated;

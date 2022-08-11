@@ -1741,6 +1741,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.BulkEmailEventReasonView.cs" />
     <Compile Include="Views\Reports\BulkEmailEventReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.BulkEmailEventReportView.cs" />
+    <Compile Include="Views\Sale\GeoGroupView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Sale.GeoGroupView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2076,6 +2078,7 @@
     <Folder Include="Views\ReportsParameters\" />
     <Folder Include="Views\ReportsParameters\Cash\" />
     <Folder Include="Views\Settings\" />
+    <Folder Include="Views\Sale\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
