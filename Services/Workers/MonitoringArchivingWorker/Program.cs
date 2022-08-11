@@ -39,8 +39,8 @@ namespace MonitoringArchivingWorker
 					builder.RegisterType<ParametersProvider>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<ArchiveDataSettings>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<TrackRepository>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<ArchiveTrackPointRepository>().AsImplementedInterfaces().SingleInstance();
-					builder.RegisterType<ArchiveHistoryChangesRepository>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<ArchivedTrackPointRepository>().AsImplementedInterfaces().SingleInstance();
+					builder.RegisterType<ArchivedHistoryChangesRepository>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<CachedDistanceRepository>().AsImplementedInterfaces().SingleInstance();
 					builder.RegisterType<DataArchiver>().AsImplementedInterfaces().SingleInstance();
 				})

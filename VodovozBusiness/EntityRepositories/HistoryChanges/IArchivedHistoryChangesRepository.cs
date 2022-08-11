@@ -4,9 +4,9 @@ using Vodovoz.Domain.HistoryChanges;
 
 namespace Vodovoz.EntityRepositories.HistoryChanges
 {
-	public interface IArchiveHistoryChangesRepository
+	public interface IArchivedHistoryChangesRepository
 	{
-		ArchiveChangedEntity GetLastOldChangedEntity(IUnitOfWork uow);
+		ArchivedChangedEntity GetLastOldChangedEntity(IUnitOfWork uow);
 		void ArchiveChangeSets(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo);
 		void ArchiveChangedEntities(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo);
 		void ArchiveFieldChanges(IUnitOfWork uow, DateTime dateTimeFrom, DateTime dateTimeTo);

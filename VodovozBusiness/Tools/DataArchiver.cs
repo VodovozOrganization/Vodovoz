@@ -16,9 +16,9 @@ namespace Vodovoz.Tools
 		private const string _distanceCacheName = "кэша расстояний";
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IArchiveDataSettings _archiveDataSettings;
-		private readonly IArchiveHistoryChangesRepository _oldHistoryChangesRepository;
+		private readonly IArchivedHistoryChangesRepository _oldHistoryChangesRepository;
 		private readonly ITrackRepository _trackRepository;
-		private readonly IArchiveTrackPointRepository _oldTrackPointRepository;
+		private readonly IArchivedTrackPointRepository _oldTrackPointRepository;
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private DateTime? _archiveMonitoringDate = null;
 		private DateTime? _archiveTrackPointsDate = null;
@@ -27,9 +27,9 @@ namespace Vodovoz.Tools
 		public DataArchiver(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IArchiveDataSettings archiveDataSettings,
-			IArchiveHistoryChangesRepository oldHistoryChangesRepository,
+			IArchivedHistoryChangesRepository oldHistoryChangesRepository,
 			ITrackRepository trackRepository,
-			IArchiveTrackPointRepository oldTrackPointRepository,
+			IArchivedTrackPointRepository oldTrackPointRepository,
 			ICachedDistanceRepository cachedDistanceRepository)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

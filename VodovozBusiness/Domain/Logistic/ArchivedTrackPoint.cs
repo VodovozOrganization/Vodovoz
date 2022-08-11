@@ -5,7 +5,7 @@ namespace Vodovoz.Domain.Logistic
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "архивные точки трека",
 		Nominative = "архивная точка трека")]
-	public class ArchiveTrackPoint : TrackPointBase
+	public class ArchivedTrackPoint : TrackPointBase
 	{
 
 	}

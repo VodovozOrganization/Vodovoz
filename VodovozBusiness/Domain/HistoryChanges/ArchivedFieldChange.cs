@@ -9,7 +9,7 @@ using QS.Project.DB;
 
 namespace Vodovoz.Domain.HistoryChanges
 {
-	public class ArchiveFieldChange : FieldChangeBase
+	public class ArchivedFieldChange : FieldChangeBase
 	{
 		#region Конфигурация
 
@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.HistoryChanges
 
 		#region Свойства
 
-		public virtual ArchiveChangedEntity Entity { get; set; }
+		public virtual ArchivedChangedEntity Entity { get; set; }
 
 		#endregion
 
@@ -90,7 +90,7 @@ namespace Vodovoz.Domain.HistoryChanges
 
 		#region Методы сравнения для разных типов
 
-		private static bool StringCompare(ref ArchiveFieldChange change, string valueOld, string valueNew)
+		private static bool StringCompare(ref ArchivedFieldChange change, string valueOld, string valueNew)
 		{
 			if(string.IsNullOrWhiteSpace(valueNew) && string.IsNullOrWhiteSpace(valueOld))
 			{
@@ -102,7 +102,7 @@ namespace Vodovoz.Domain.HistoryChanges
 				return false;
 			}
 
-			change = new ArchiveFieldChange
+			change = new ArchivedFieldChange
 			{
 				OldValue = valueOld,
 				NewValue = valueNew
@@ -110,14 +110,14 @@ namespace Vodovoz.Domain.HistoryChanges
 			return true;
 		}
 
-		private static bool EntityCompare(ref ArchiveFieldChange change, object valueOld, object valueNew)
+		private static bool EntityCompare(ref ArchivedFieldChange change, object valueOld, object valueNew)
 		{
 			if(DomainHelper.EqualDomainObjects(valueOld, valueNew))
 			{
 				return false;
 			}
 
-			change = new ArchiveFieldChange();
+			change = new ArchivedFieldChange();
 			if(valueOld != null)
 			{
 				change.OldValue = GetObjectTitle(valueOld);
@@ -131,7 +131,7 @@ namespace Vodovoz.Domain.HistoryChanges
 			return true;
 		}
 
-		private static bool DateTimeCompare(ref ArchiveFieldChange change, PropertyInfo info, object valueOld, object valueNew)
+		private static bool DateTimeCompare(ref ArchivedFieldChange change, PropertyInfo info, object valueOld, object valueNew)
 		{
 			var dateOld = valueOld as DateTime?;
 			var dateNew = valueNew as DateTime?;
@@ -143,7 +143,7 @@ namespace Vodovoz.Domain.HistoryChanges
 
 			var dateOnly = info.GetCustomAttributes(typeof(HistoryDateOnlyAttribute), true).Length > 0;
 
-			change = new ArchiveFieldChange();
+			change = new ArchivedFieldChange();
 			if(dateOld != null)
 			{
 				change.OldValue = dateOnly ? dateOld.Value.ToShortDateString() : dateOld.Value.ToString();
@@ -156,7 +156,7 @@ namespace Vodovoz.Domain.HistoryChanges
 			return true;
 		}
 
-		private static bool DecimalCompare(ref ArchiveFieldChange change, PropertyInfo info, object valueOld, object valueNew)
+		private static bool DecimalCompare(ref ArchivedFieldChange change, PropertyInfo info, object valueOld, object valueNew)
 		{
 			var numberOld = valueOld as decimal?;
 			var numberNew = valueNew as decimal?;
@@ -166,7 +166,7 @@ namespace Vodovoz.Domain.HistoryChanges
 				return false;
 			}
 
-			change = new ArchiveFieldChange();
+			change = new ArchivedFieldChange();
 			if(numberOld != null)
 			{
 				change.OldValue = numberOld.Value.ToString("G20");
@@ -179,7 +179,7 @@ namespace Vodovoz.Domain.HistoryChanges
 			return true;
 		}
 
-		private static bool IntCompare<TNumber>(ref ArchiveFieldChange change, PropertyInfo info, object valueOld, object valueNew)
+		private static bool IntCompare<TNumber>(ref ArchivedFieldChange change, PropertyInfo info, object valueOld, object valueNew)
 			where TNumber : struct
 		{
 			var numberOld = valueOld as TNumber?;
@@ -190,7 +190,7 @@ namespace Vodovoz.Domain.HistoryChanges
 				return false;
 			}
 
-			change = new ArchiveFieldChange();
+			change = new ArchivedFieldChange();
 			if(numberOld != null)
 			{
 				change.OldValue = string.Format("{0:D}", numberOld);
@@ -203,7 +203,7 @@ namespace Vodovoz.Domain.HistoryChanges
 			return true;
 		}
 
-		private static bool BooleanCompare(ref ArchiveFieldChange change, PropertyInfo info, object valueOld, object valueNew)
+		private static bool BooleanCompare(ref ArchivedFieldChange change, PropertyInfo info, object valueOld, object valueNew)
 		{
 			var boolOld = valueOld as bool?;
 			var boolNew = valueNew as bool?;
@@ -213,7 +213,7 @@ namespace Vodovoz.Domain.HistoryChanges
 				return false;
 			}
 
-			change = new ArchiveFieldChange();
+			change = new ArchivedFieldChange();
 			if(boolOld != null)
 			{
 				change.OldValue = boolOld.Value.ToString();
@@ -226,14 +226,14 @@ namespace Vodovoz.Domain.HistoryChanges
 			return true;
 		}
 
-		protected static bool EnumCompare(ref ArchiveFieldChange change, PropertyInfo info, object valueOld, object valueNew)
+		protected static bool EnumCompare(ref ArchivedFieldChange change, PropertyInfo info, object valueOld, object valueNew)
 		{
 			if(valueOld != null && valueNew != null && Equals(valueOld, valueNew))
 			{
 				return false;
 			}
 
-			change = new ArchiveFieldChange
+			change = new ArchivedFieldChange
 			{
 				OldValue = valueOld?.ToString(),
 				NewValue = valueNew?.ToString()
@@ -245,17 +245,17 @@ namespace Vodovoz.Domain.HistoryChanges
 
 		#region Статические методы
 
-		public static ArchiveFieldChange CheckChange(int i, PostUpdateEvent ue)
+		public static ArchivedFieldChange CheckChange(int i, PostUpdateEvent ue)
 		{
 			return CreateChange(ue.State[i], ue.OldState[i], ue.Persister, i);
 		}
 
-		public static ArchiveFieldChange CheckChange(int i, PostInsertEvent ie)
+		public static ArchivedFieldChange CheckChange(int i, PostInsertEvent ie)
 		{
 			return CreateChange(ie.State[i], null, ie.Persister, i);
 		}
 
-		private static ArchiveFieldChange CreateChange(object valueNew, object valueOld, NHibernate.Persister.Entity.IEntityPersister persister, int i)
+		private static ArchivedFieldChange CreateChange(object valueNew, object valueOld, NHibernate.Persister.Entity.IEntityPersister persister, int i)
 		{
 			if(valueOld == null && valueNew == null)
 			{
@@ -271,7 +271,7 @@ namespace Vodovoz.Domain.HistoryChanges
 				return null;
 			}
 
-			ArchiveFieldChange change = null;
+			ArchivedFieldChange change = null;
 
 			#region Обработка в зависимости от типа данных
 

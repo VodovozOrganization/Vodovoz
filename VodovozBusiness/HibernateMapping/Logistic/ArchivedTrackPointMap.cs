@@ -3,9 +3,9 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping
 {
-	public class OldTrackPointMap : ClassMap<ArchiveTrackPoint>
+	public class ArchivedTrackPointMap : ClassMap<ArchivedTrackPoint>
 	{
-		public OldTrackPointMap()
+		public ArchivedTrackPointMap()
 		{
 			Schema("Vodovoz_old_monitoring");
 			Table("track_points");
