@@ -1159,6 +1159,10 @@
     <Compile Include="Services\IOrderPaymentSettings.cs" />
     <Compile Include="Parameters\OrderPaymentSettings.cs" />
     <Compile Include="VodovozBusinessAssemblyFinder.cs" />
+    <Compile Include="EntityRepositories\Store\MovementDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Store\IMovementDocumentRepository.cs" />
+    <Compile Include="Controllers\MovementDocumentsNotificationsController.cs" />
+    <Compile Include="Controllers\IMovementDocumentsNotificationsController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

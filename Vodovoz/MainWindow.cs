@@ -2,7 +2,6 @@
 using Fias.Service;
 using Gtk;
 using MySql.Data.MySqlClient;
-using NetTopologySuite.Operation.OverlayNG;
 using NLog;
 using QS.Banks.Domain;
 using QS.BaseParameters;
@@ -156,6 +155,9 @@ using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Controllers;
+using QS.Utilities;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -165,6 +167,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly IApplicationInfo applicationInfo;
 	private readonly IPasswordValidator passwordValidator;
 	private readonly IApplicationConfigurator applicationConfigurator;
+	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 
 	public TdiNotebook TdiMain => tdiMain;
 	public readonly TdiNavigationManager NavigationManager;
@@ -295,6 +298,23 @@ public partial class MainWindow : Gtk.Window
 
 		#endregion
 
+		#region SendedMovementDocumentsNotification
+
+		_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>();
+
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			var employeeSubdivision = GetEmployeeSubdivision(uow);
+
+			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow, employeeSubdivision);
+			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
+			lblMovementsNotification.Markup = notificationDetails.NotificationMessage;
+		}
+
+		btnUpdateMovementsNotification.Clicked += OnBtnUpdateMovementsNotificationClicked;
+
+		#endregion
+
 		BanksUpdater.CheckBanksUpdate(false);
 
 		// Блокировка отчетов для торговых представителей
@@ -344,7 +364,24 @@ public partial class MainWindow : Gtk.Window
 
 		ActionAdditionalLoadSettings.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
+	}
 
+	private Subdivision GetEmployeeSubdivision(IUnitOfWork uow)
+	{
+		var currentEmployee =
+			VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(uow, ServicesConfig.UserService.CurrentUserId);
+
+		return currentEmployee?.Subdivision;
+	}
+
+	private void OnBtnUpdateMovementsNotificationClicked(object sender, EventArgs e)
+	{
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			var employeeSubdivisionId = GetEmployeeSubdivision(uow)?.Id ?? 0;
+			lblMovementsNotification.Markup =
+				_movementsNotificationsController.GetNotificationMessageBySubdivision(uow, employeeSubdivisionId);
+		}
 	}
 
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
@@ -2561,7 +2598,7 @@ public partial class MainWindow : Gtk.Window
 	}
 
 	protected void OnRoboatsExportActionActivated(object sender, EventArgs e)
-    {
+	{
 		NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
 	}
 
@@ -2582,11 +2619,11 @@ public partial class MainWindow : Gtk.Window
 		IFileDialogService fileDialogService = new FileDialogService();
 
 		var viewModel = new CostCarExploitationReportViewModel(
-			uowFactory, 
-			interactiveService, 
-			NavigationManager, 
-			carSelectorFactory, 
-			entityChangeWatcher, 
+			uowFactory,
+			interactiveService,
+			NavigationManager,
+			carSelectorFactory,
+			entityChangeWatcher,
 			fileDialogService);
 
 		tdiMain.AddTab(viewModel);
