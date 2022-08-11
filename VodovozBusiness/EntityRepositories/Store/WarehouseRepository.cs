@@ -129,7 +129,8 @@ namespace Vodovoz.EntityRepositories.Store
 		{
 			return uow.Session.QueryOver<Warehouse>()
 					.Where(w => w.MovementDocumentsNotificationsSubdivisionRecipient.Id == subdivisionId)
-					.SingleOrDefault() != null;
+					.List()
+					.Any();
 		}
 	}
 }

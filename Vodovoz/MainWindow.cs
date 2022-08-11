@@ -298,17 +298,21 @@ public partial class MainWindow : Gtk.Window
 
 		#endregion
 
-		#region SendedMovementDocumentsNotification
-
-		_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>();
+		#region Уведомление об отправленных перемещениях для подразделения
 
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			var employeeSubdivision = GetEmployeeSubdivision(uow);
+			var employeeSubdivisionId = GetEmployeeSubdivisionId(uow);
+			_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), employeeSubdivisionId));
 
-			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow, employeeSubdivision);
+			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
 			lblMovementsNotification.Markup = notificationDetails.NotificationMessage;
+
+			if(notificationDetails.NeedNotify)
+			{
+				_movementsNotificationsController.UpdateNotificationAction += UpdateSendedMovementsNotification;
+			}
 		}
 
 		btnUpdateMovementsNotification.Clicked += OnBtnUpdateMovementsNotificationClicked;
@@ -366,23 +370,31 @@ public partial class MainWindow : Gtk.Window
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 	}
 
-	private Subdivision GetEmployeeSubdivision(IUnitOfWork uow)
+	#region Методы для уведомления об отправленных перемещениях для подразделения
+
+	private int GetEmployeeSubdivisionId(IUnitOfWork uow)
 	{
 		var currentEmployee =
 			VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(uow, ServicesConfig.UserService.CurrentUserId);
 
-		return currentEmployee?.Subdivision;
+		return currentEmployee?.Subdivision.Id ?? 0;
 	}
 
 	private void OnBtnUpdateMovementsNotificationClicked(object sender, EventArgs e)
 	{
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			var employeeSubdivisionId = GetEmployeeSubdivision(uow)?.Id ?? 0;
-			lblMovementsNotification.Markup =
-				_movementsNotificationsController.GetNotificationMessageBySubdivision(uow, employeeSubdivisionId);
+			var notification = _movementsNotificationsController.GetNotificationMessageBySubdivision(uow);
+			UpdateSendedMovementsNotification(notification);
 		}
 	}
+
+	private void UpdateSendedMovementsNotification(string notification)
+	{
+		lblMovementsNotification.Markup = notification;			
+	}
+
+	#endregion
 
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
