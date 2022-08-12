@@ -171,10 +171,10 @@ namespace Vodovoz
 			else
 			{
 				buttonSave.Sensitive = false;
-				table2.Sensitive = false;
+				table2.Sensitive = false; //ytableMain
 				hboxMileageComment.Sensitive = false;
 				ytreeviewAddresses.Sensitive = false;
-				hbox9.Sensitive = false;
+				hbox9.Sensitive = false; //yhboxBottom
 			}
 		}
 

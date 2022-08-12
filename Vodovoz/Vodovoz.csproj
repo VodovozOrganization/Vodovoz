@@ -459,6 +459,8 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListMileageDistributionViewModel.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractDlg.cs" />
@@ -2066,24 +2068,6 @@
     <Folder Include="ViewModels\Mango\WidgetsModel\" />
     <Folder Include="ViewWidgets\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Goods\" />
-    <Folder Include="ReportsParameters\Production\" />
-    <Folder Include="Views\Accounting\" />
-    <Folder Include="Views\Payments\" />
-    <Folder Include="Views\Proposal\" />
-    <Folder Include="JournalFilters\Proposal\" />
-    <Folder Include="Views\Security\" />
-    <Folder Include="Views\Retail\" />
-    <Folder Include="ReportsParameters\Retail\" />
-    <Folder Include="Views\Rent\" />
-    <Folder Include="Views\Reports\" />
-    <Folder Include="ReportsParameters\Employees\" />
-    <Folder Include="JournalViewers\Complaints\" />
-    <Folder Include="Views\Flyers\" />
-    <Folder Include="Views\Print\" />
-    <Folder Include="Views\ReportsParameters\" />
-    <Folder Include="Views\ReportsParameters\Cash\" />
-    <Folder Include="Views\Settings\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
