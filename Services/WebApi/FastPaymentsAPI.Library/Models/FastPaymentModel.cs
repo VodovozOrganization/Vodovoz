@@ -137,7 +137,8 @@ namespace FastPaymentsAPI.Library.Models
 			decimal onlineOrderSum,
 			FastPaymentPayType payType,
 			Organization organization,
-			RequestFromType requestFromType)
+			RequestFromType requestFromType,
+			string callbackUrl)
 		{
 			var creationDate = DateTime.Now;
 			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, requestFromType);
@@ -153,7 +154,8 @@ namespace FastPaymentsAPI.Library.Models
 				paymentByCardFrom,
 				null,
 				null,
-				onlineOrderId);
+				onlineOrderId,
+				callbackUrl);
 			fastPayment.SetProcessingStatus();
 			
 			Save(fastPayment);

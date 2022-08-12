@@ -389,7 +389,7 @@ namespace FastPaymentsAPI.Controllers
 								_fastPaymentStatusChangeNotifier.NotifyVodovozSite(
 									fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, fastPayment.Amount, false);
 								_fastPaymentStatusChangeNotifier.NotifyMobileApp(
-									fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, fastPayment.Amount, false);
+									fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, fastPayment.Amount, false, fastPayment.CallbackUrlForMobileApp);
 							}
 						}
 						catch(Exception e)
@@ -413,6 +413,7 @@ namespace FastPaymentsAPI.Controllers
 
 				var fastPaymentGuid = Guid.NewGuid();
 				var organization = _fastPaymentModel.GetOrganization(requestType);
+				var callbackUrl = requestRegisterOnlineOrderDto.CallbackUrl;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 
 				try
@@ -440,7 +441,7 @@ namespace FastPaymentsAPI.Controllers
 				{
 					_fastPaymentModel.SaveNewTicketForOnlineOrder(
 						orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum, FastPaymentPayType.ByQrCode,
-						organization, requestType);
+						organization, requestType, callbackUrl);
 				}
 				catch(Exception e)
 				{
@@ -529,7 +530,7 @@ namespace FastPaymentsAPI.Controllers
 			_fastPaymentStatusChangeNotifier.NotifyVodovozSite(
 				fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true);
 			_fastPaymentStatusChangeNotifier.NotifyMobileApp(
-				fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true);
+				fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true, fastPayment.CallbackUrlForMobileApp);
 			return new AcceptedResult();
 		}
 

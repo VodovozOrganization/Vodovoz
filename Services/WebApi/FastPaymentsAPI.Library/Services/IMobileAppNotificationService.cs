@@ -5,6 +5,6 @@ namespace FastPaymentsAPI.Library.Services
 {
 	public interface IMobileAppNotificationService
 	{
-		Task NotifyOfFastPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto);
+		Task NotifyOfFastPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto, string url);
 	}
 }

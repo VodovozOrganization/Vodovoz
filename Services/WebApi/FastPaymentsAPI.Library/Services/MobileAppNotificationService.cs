@@ -2,26 +2,21 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using FastPaymentsAPI.Library.DTO_s.Requests;
-using Microsoft.Extensions.Configuration;
 
 namespace FastPaymentsAPI.Library.Services
 {
 	public class MobileAppNotificationService : IMobileAppNotificationService
 	{
 		private readonly HttpClient _httpClient;
-		private readonly IConfiguration _configuration;
 
-		public MobileAppNotificationService(HttpClient client, IConfiguration configuration)
+		public MobileAppNotificationService(HttpClient client)
 		{
 			_httpClient = client ?? throw new ArgumentNullException(nameof(client));
-			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		public async Task NotifyOfFastPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto)
+		public async Task NotifyOfFastPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto, string url)
 		{
-			var response = await _httpClient.PostAsJsonAsync(
-				_configuration.GetSection("MobileAppNotificationService")
-					.GetValue<string>("NotifyOfFastPaymentStatusChangedURI"), paymentNotificationDto);
+			var response = await _httpClient.PostAsJsonAsync(url, paymentNotificationDto);
 
 			if(response.IsSuccessStatusCode)
 			{

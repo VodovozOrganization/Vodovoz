@@ -124,7 +124,8 @@ namespace FastPaymentsAPI.Library.Factories
 			PaymentFrom paymentByCardFrom,
 			Order order = null,
 			string phoneNumber = null,
-			int? onlineOrderId = null)
+			int? onlineOrderId = null,
+			string callbackUrl = null)
 		{
 			return new FastPayment
 			{
@@ -139,7 +140,8 @@ namespace FastPaymentsAPI.Library.Factories
 				PhoneNumber = phoneNumber,
 				FastPaymentGuid = fastPaymentGuid,
 				OnlineOrderId = onlineOrderId,
-				FastPaymentPayType = payType
+				FastPaymentPayType = payType,
+				CallbackUrlForMobileApp = callbackUrl
 			};
 		}
 

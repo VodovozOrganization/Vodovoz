@@ -48,7 +48,7 @@ namespace FastPaymentsAPI.Library.Managers
 			}
 		}
 		
-		public void NotifyMobileApp(int? onlineOrderId, int paymentFrom, decimal amount, bool paymentSucceeded)
+		public void NotifyMobileApp(int? onlineOrderId, int paymentFrom, decimal amount, bool paymentSucceeded, string callbackUrl)
 		{
 			if(paymentFrom != (int)RequestFromType.FromMobileAppByQr || !onlineOrderId.HasValue)
 			{
@@ -61,7 +61,7 @@ namespace FastPaymentsAPI.Library.Managers
 				var notification =
 					_fastPaymentAPIFactory.GetFastPaymentStatusChangeNotificationDto(onlineOrderId.Value, amount, paymentSucceeded);
 				_logger.LogInformation($"Статус оплаты онлайн-заказа: {onlineOrderId.Value} {notification.PaymentStatus}");
-				_mobileAppNotificationService.NotifyOfFastPaymentStatusChangedAsync(notification);
+				_mobileAppNotificationService.NotifyOfFastPaymentStatusChangedAsync(notification, callbackUrl);
 			}
 			catch(Exception e)
 			{

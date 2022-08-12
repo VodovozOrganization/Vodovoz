@@ -97,7 +97,6 @@ namespace FastPaymentsAPI
 			
 			services.AddHttpClient<IMobileAppNotificationService, MobileAppNotificationService>(c =>
 			{
-				c.BaseAddress = new Uri(Configuration.GetSection("MobileAppNotificationService").GetValue<string>("BaseUrl"));
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
 

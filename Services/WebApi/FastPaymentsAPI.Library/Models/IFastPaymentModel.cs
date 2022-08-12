@@ -27,7 +27,8 @@ namespace FastPaymentsAPI.Library.Models
 			decimal onlineOrderSum,
 			FastPaymentPayType payType,
 			Organization organization,
-			RequestFromType requestFromType);
+			RequestFromType requestFromType,
+			string callbackUrl);
 		void UpdateFastPaymentStatus(PaidOrderInfoDTO operationInfoDto, FastPayment fastPayment);
 		void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
 		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto);

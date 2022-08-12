@@ -29,7 +29,8 @@ namespace FastPaymentsAPI.Library.Factories
 			PaymentFrom paymentByCardFrom,
 			Order order = null,
 			string phoneNumber = null,
-			int? onlineOrderId = null);
+			int? onlineOrderId = null,
+			string callbackUrl = null);
 		FastPayment GetFastPayment(Order order, FastPaymentDTO paymentDto);
 		FastPaymentStatusChangeNotificationDto GetFastPaymentStatusChangeNotificationDto(
 			int onlineOrderId, decimal amount, bool paymentSucceeded);

@@ -24,6 +24,7 @@ namespace Vodovoz.Domain.FastPayments
 		private string _ticket;
 		private string _qrPngBase64;
 		private string _phoneNumber;
+		private string _callbackUrlForMobileApp;
 		private Order _order;
 		private Organization _organization;
 		private PaymentFrom _paymentByCardFrom;
@@ -120,7 +121,8 @@ namespace Vodovoz.Domain.FastPayments
 			get => _phoneNumber;
 			set => SetField(ref _phoneNumber, value);
 		}
-		
+
+		[IgnoreHistoryTrace]
 		public virtual Guid FastPaymentGuid
 		{
 			get => _fastPaymnetGuid;
@@ -131,6 +133,14 @@ namespace Vodovoz.Domain.FastPayments
 		{
 			get => _fastPaymentPayType;
 			set => SetField(ref _fastPaymentPayType, value);
+		}
+
+		[IgnoreHistoryTrace]
+		[Display(Name = "Адрес коллбэка для мобильного приложения")]
+		public virtual string CallbackUrlForMobileApp
+		{
+			get => _callbackUrlForMobileApp;
+			set => SetField(ref _callbackUrlForMobileApp, value);
 		}
 
 		public virtual void SetProcessingStatus()
