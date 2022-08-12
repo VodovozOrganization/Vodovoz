@@ -70,6 +70,7 @@ namespace Vodovoz.ReportsParameters.Store
 			ytreeviewGeographicGroup.ItemsDataSource = GeographicGroupNodes;
 			ytreeviewGeographicGroup.HeadersVisible = false;
 
+			yspinStockRate.Digits = 0;
 			yspinStockRate.Value = _defaultStockRate;
 		}
 
