@@ -89,7 +89,7 @@ FROM
 								LEFT JOIN store_movement_document_items smdi ON smd.id = smdi.movement_document_id  
 								WHERE smd.status = 'Sended'                                      
                                   AND smdi.nomenclature_id = n.id
-                                  AND smd.send_time  BETWEEN '2022-08-09T00:00:00.0000000+03:00' AND '2022-08-09T00:28:08.0079612+03:00')
+                                  AND smd.send_time  BETWEEN @today AND @currently)
                     , 0) as in_way
                 From
                     nomenclature n
@@ -849,7 +849,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
