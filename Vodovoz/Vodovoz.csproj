@@ -1743,6 +1743,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.BulkEmailEventReportView.cs" />
     <Compile Include="Views\Organization\OrganizationVersionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.OrganizationVersionsView.cs" />
+    <Compile Include="Views\Logistic\RouteListMileageCheckView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMileageCheckView.cs" />
+    <Compile Include="Views\Logistic\RouteListMileageDistributionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMileageDistributionView.cs" />
+    <Compile Include="Views\Logistic\OdometerReadingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.OdometerReadingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
