@@ -32,6 +32,8 @@ namespace Vodovoz.Parameters
 
         public int FastDeliveryNomenclatureId => _parametersProvider.GetIntValue("fast_delivery_nomenclature_id");
 
+		public int PromotionalNomenclatureGroupId => _parametersProvider.GetIntValue("promotional_nomenclature_group_id");
+
 
 		#region Получение номенклатур воды
 
