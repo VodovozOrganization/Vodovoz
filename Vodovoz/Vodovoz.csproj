@@ -1743,6 +1743,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.BulkEmailEventReportView.cs" />
     <Compile Include="Views\Organization\OrganizationVersionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.OrganizationVersionsView.cs" />
+    <Compile Include="Views\Profitability\ProfitabilityConstantsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Profitability.ProfitabilityConstantsView.cs" />
+    <Compile Include="ViewWidgets\Profitability\MonthPickerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Profitability.MonthPickerView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2078,6 +2082,8 @@
     <Folder Include="Views\ReportsParameters\" />
     <Folder Include="Views\ReportsParameters\Cash\" />
     <Folder Include="Views\Settings\" />
+    <Folder Include="Views\Profitability\" />
+    <Folder Include="ViewWidgets\Profitability\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
