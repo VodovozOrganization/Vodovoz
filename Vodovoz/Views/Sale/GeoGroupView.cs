@@ -67,13 +67,11 @@ namespace Vodovoz.Views.Sale
 
 			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 
-			/*
 			comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			comboMapProvider.ItemsEnum = typeof(MapProviders);
 			comboMapProvider.SelectedItem = MapProviders.GoogleMap;
 			comboMapProvider.EnumItemSelected += (sender, args) =>
 				gMapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
-			*/
 
 			gMapWidget.ButtonPressEvent += GMapWidget_ButtonPressEvent;
 			gMapWidget.ButtonReleaseEvent += GMapWidget_ButtonReleaseEvent;
