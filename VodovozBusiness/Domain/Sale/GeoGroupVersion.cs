@@ -96,6 +96,8 @@ namespace Vodovoz.Domain.Sale
 			return false;
 		}
 
+		private string GetCreationDateTitle => CreationDate.ToString("dd.MM.yyyy HH.mm");
+
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -103,23 +105,23 @@ namespace Vodovoz.Domain.Sale
 			if(!BaseCoordinatesExist)
 			{
 				yield return new ValidationResult(
-					"Укажите координаты базы, обслуживающей эту часть города",
+					$"В версии на {GetCreationDateTitle} необходимо указать координаты базы",
 					new[] { nameof(BaseLatitude), nameof(BaseLongitude) }
 				);
 			}
 
 			if(CashSubdivision == null)
 			{
-				yield return new ValidationResult("Необходимо указать кассу", new[] { nameof(CashSubdivision) });
+				yield return new ValidationResult($"В версии на {GetCreationDateTitle} необходимо указать кассу", new[] { nameof(CashSubdivision) });
 			}
 			else if(!CashSubdivision.IsCashSubdivision)
 			{
-				yield return new ValidationResult("Выбранное подразделение не является кассой", new[] { nameof(CashSubdivision) });
+				yield return new ValidationResult($"В версии на {GetCreationDateTitle} выбранное подразделение не является кассой", new[] { nameof(CashSubdivision) });
 			}
 
 			if(Warehouse == null)
 			{
-				yield return new ValidationResult("Необходимо указать склад", new[] { nameof(Warehouse) });
+				yield return new ValidationResult($"В версии на {GetCreationDateTitle} необходимо указать склад", new[] { nameof(Warehouse) });
 			}
 		}
 

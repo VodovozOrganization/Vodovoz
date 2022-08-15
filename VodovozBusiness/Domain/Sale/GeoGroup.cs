@@ -63,6 +63,14 @@ namespace Vodovoz.Domain.Sale
 			{
 				yield return new ValidationResult("Необходимо указать имя", new[] { nameof(Name) });
 			}
+
+			foreach(var version in Versions)
+			{
+				foreach(var result in version.Validate(validationContext))
+				{
+					yield return result;
+				}
+			}
 		}
 
 		#endregion IValidatableObject implementation
