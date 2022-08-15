@@ -241,6 +241,7 @@ namespace Vodovoz.Views.Sale
 			// Container child tableData.Gtk.Table+TableChild
 			this.labelCoordinatesValue = new global::Gamma.GtkWidgets.yLabel();
 			this.labelCoordinatesValue.Name = "labelCoordinatesValue";
+			this.labelCoordinatesValue.Xalign = 0F;
 			this.labelCoordinatesValue.LabelProp = global::Mono.Unix.Catalog.GetString("lblCoordinatesValue");
 			this.labelCoordinatesValue.UseMarkup = true;
 			this.labelCoordinatesValue.Selectable = true;
@@ -250,7 +251,6 @@ namespace Vodovoz.Views.Sale
 			w18.BottomAttach = ((uint)(4));
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableData.Gtk.Table+TableChild
 			this.labelName = new global::Gtk.Label();
