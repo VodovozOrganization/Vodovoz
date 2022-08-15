@@ -21,6 +21,8 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
+using Vodovoz.EntityRepositories.Subdivisions;
+using QS.Services;
 
 namespace Vodovoz
 {
@@ -41,6 +43,8 @@ namespace Vodovoz
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
+		private readonly ISubdivisionRepository _subdivisionsRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly IUserService _userService = ServicesConfig.UserService;
 
 		private RouteListCashOrganisationDistributor routeListCashOrganisationDistributor = 
 			new RouteListCashOrganisationDistributor(
@@ -243,7 +247,25 @@ namespace Vodovoz
 			Entity.Employee = rl.Driver;
 			Entity.Description = $"Закрытие МЛ №{rl.Id} от {rl.Date:d}";
 			Entity.RouteListClosing = rl;
-			//Entity.RelatedToSubdivision = rl.ClosingSubdivision;
+			Entity.RelatedToSubdivision = GetSubdivision(rl);
+		}
+
+		private Subdivision GetSubdivision(RouteList routeList)
+		{
+			var user = _userService.GetCurrentUser(UoW);
+			var employee = _employeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
+			var subdivisions = _subdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
+			if(subdivisions.Any(x => x.Id == employee.Subdivision.Id))
+			{
+				return employee.Subdivision;
+			}
+			if(routeList.ClosingSubdivision != null)
+			{
+				return routeList.ClosingSubdivision;
+			}
+
+			throw new InvalidOperationException("Невозможно подобрать подразделение кассы. " +
+				"Возможно документ сохраняет не кассир. или не правильно заполнены части города в МЛ.");
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)

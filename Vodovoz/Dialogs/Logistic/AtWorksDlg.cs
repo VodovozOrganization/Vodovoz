@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
@@ -13,6 +14,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Services;
 using QS.Tdi;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -30,6 +32,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -72,7 +75,8 @@ namespace Vodovoz.Dialogs.Logistic
         private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
         private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
         private readonly EmployeeFilterViewModel _forwarderFilter;
-		
+		private IList<RouteList> _routelists = new List<RouteList>();
+
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -166,10 +170,25 @@ namespace Vodovoz.Dialogs.Logistic
 				x => x.CanChangeStatus = true,
 				x => x.Status = EmployeeStatus.IsWorking);
 
+			ybuttonCreateRouteLists.Clicked += YbuttonCreateRouteLists_Clicked;
+
 			hideForwaders.Label = "Экспедиторы на работе";
 			hideForwaders.Toggled += OnHideForwadersToggled;
 		}
-		
+
+
+		private void YbuttonCreateRouteLists_Clicked(object sender, EventArgs e)
+		{
+			var routeListGenerator = new EmptyRouteListGenerator(_routeListRepository, DriversAtDay);
+			var valid = ServicesConfig.ValidationService.Validate(routeListGenerator, new ValidationContext(routeListGenerator));
+			if(!valid)
+			{
+				return;
+			}
+			_routelists = routeListGenerator.Generate();
+			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, $"При сохранении будут созданы {_routelists.Count} маршрутных листов.");
+		}
+
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		
 		private readonly Gdk.Pixbuf vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
@@ -650,6 +669,13 @@ namespace Vodovoz.Dialogs.Logistic
 			driversWithCommentChanged.Clear();
 			ForwardersAtDay.ToList().ForEach(x => UoW.Save(x));
 			DriversAtDay.ToList().ForEach(x => UoW.Save(x));
+
+			foreach(var routeList in _routelists)
+			{
+				routeList.Logistician = currentEmployee;
+				UoW.Save(routeList);
+			}
+
 			UoW.Commit();
 			FillDialogAtDay();
 			return true;

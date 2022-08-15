@@ -55,6 +55,12 @@ namespace Vodovoz.Domain.Sale
 			return activeVersion;
 		}
 
+		public virtual GeoGroupVersion GetVersionOrNull(DateTime activationDate)
+		{
+			var activeVersion = Versions.OrderBy(x => x.ActivationDate).FirstOrDefault(x => x.ActivationDate >= activationDate);
+			return activeVersion;
+		}
+
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

@@ -431,6 +431,7 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
     <Compile Include="Models\AdditionalLoadingModel.cs" />
+    <Compile Include="Models\EmptyRouteListGenerator.cs" />
     <Compile Include="Models\FastDeliveryAvailabilityHistoryModel.cs" />
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />

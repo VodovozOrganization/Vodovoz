@@ -40,7 +40,6 @@ namespace Vodovoz.Domain.Sale
 		}
 
 		[Display(Name = "Широта координат базы")]
-		[PropertyChangedAlso(nameof(CoordinatesText))]
 		public virtual decimal? BaseLatitude
 		{
 			get => _baseLatitude;
@@ -48,7 +47,6 @@ namespace Vodovoz.Domain.Sale
 		}
 
 		[Display(Name = "Долгота координат базы")]
-		[PropertyChangedAlso(nameof(CoordinatesText))]
 		public virtual decimal? BaseLongitude
 		{
 			get => _baseLongitude;
@@ -70,16 +68,6 @@ namespace Vodovoz.Domain.Sale
 		}
 
 		public virtual bool BaseCoordinatesExist => BaseLatitude.HasValue && BaseLongitude.HasValue;
-		public virtual string CoordinatesText => BaseCoordinatesExist ? string.Format("(ш. {0:F5}, д. {1:F5})", BaseLatitude, BaseLongitude) : string.Empty;
-
-		public virtual void SetСoordinates(decimal? latitude, decimal? longitude)
-		{
-			if(!EqualCoords(BaseLatitude, latitude) || !EqualCoords(BaseLongitude, longitude))
-			{
-				BaseLatitude = latitude;
-				BaseLongitude = longitude;
-			}
-		}
 
 		/// <summary>
 		/// Сравнивает координаты с точностью 6 знаков после запятой

@@ -87,11 +87,8 @@ namespace Vodovoz
 				return;
 			}
 
-			if(ConfigSubdivisionCombo())
-			{
-				Entity.Date = DateTime.Now;
-				ConfigureDlg();
-			}
+			Entity.Date = DateTime.Now;
+			ConfigureDlg();
 		}
 
 		public RouteListCreateDlg(RouteList sub) : this(sub.Id) { }
@@ -101,36 +98,11 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 
-			if(ConfigSubdivisionCombo())
-			{
-				ConfigureDlg();
-			}
+			ConfigureDlg();
 		}
 
 		public bool AskSaveOnClose => permissionResult.CanCreate && Entity.Id == 0 || permissionResult.CanUpdate;
 
-		private bool ConfigSubdivisionCombo()
-		{
-			var subdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) }).ToList();
-			if(!subdivisions.Any())
-			{
-				MessageDialogHelper.RunErrorDialog(
-					"Неправильно сконфигурированы подразделения кассы, невозможно будет указать подразделение в которое будут сдаваться маршрутные листы");
-				FailInitialize = true;
-				return false;
-			}
-			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
-			yspeccomboboxCashSubdivision.ItemsList = subdivisions;
-			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
-			yspeccomboboxCashSubdivision.ItemSelected += OnYSpecCmbCashSubdivisionItemSelected;
-
-			/*if(Entity.ClosingSubdivision != null && subdivisions.Any(x => x.Id == Entity.ClosingSubdivision.Id))
-			{
-				yspeccomboboxCashSubdivision.SelectedItem = Entity.ClosingSubdivision;
-			}*/
-
-			return true;
-		}
 
 		private void ConfigureDlg()
 		{
@@ -138,6 +110,9 @@ namespace Vodovoz
 			printTimeButton.Clicked += OnPrintTimeButtonClicked;
 			ybuttonAddAdditionalLoad.Clicked += OnButtonAddAdditionalLoadClicked;
 			ybuttonRemoveAdditionalLoad.Clicked += OnButtonRemoveAdditionalLoadClicked;
+
+			yspeccomboboxCashSubdivision.Binding.AddFuncBinding(Entity, e => e.ClosingSubdivision, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxCashSubdivision.Visible = false;
 
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 			_previousSelectedDate = Entity.Date;
@@ -293,6 +268,23 @@ namespace Vodovoz
 			UpdateDlg(_isLogistican);
 
 			Entity.PropertyChanged += OnRouteListPropertyChanged;
+			Entity.ObservableGeographicGroups.ListContentChanged += ObservableGeographicGroups_ListContentChanged;
+			UpdateCashSubdivision();
+		}
+
+		private void ObservableGeographicGroups_ListContentChanged(object sender, EventArgs e)
+		{
+			UpdateCashSubdivision();
+		}
+
+		private void UpdateCashSubdivision()
+		{
+			string subdivisionMessage = "Нет";
+			if(Entity.ClosingSubdivision != null)
+			{
+				subdivisionMessage = Entity.ClosingSubdivision.Name;
+			}
+			label7.LabelProp = $"Сдается в кассу: {subdivisionMessage}";
 		}
 
 		private void OnRouteListPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -393,17 +385,11 @@ namespace Vodovoz
 		private void UpdateElements(bool isEditable, bool canOpenOrder = true)
 		{
 			speccomboShift.Sensitive = isEditable;
-			ggToStringWidget.Sensitive = datepickerDate.Sensitive = entityviewmodelentryCar.Sensitive = evmeForwarder.Sensitive =
-				yspeccomboboxCashSubdivision.Sensitive = isEditable;
+			ggToStringWidget.Sensitive = datepickerDate.Sensitive = entityviewmodelentryCar.Sensitive = evmeForwarder.Sensitive = isEditable;
 			createroutelistitemsview1.IsEditable(isEditable, canOpenOrder);
 			ybuttonAddAdditionalLoad.Sensitive = isEditable && Entity.Car != null;
 			ybuttonRemoveAdditionalLoad.Sensitive = isEditable;
 			_additionalLoadingItemsView.ViewModel.CanEdit = isEditable;
-		}
-
-		private void OnYSpecCmbCashSubdivisionItemSelected(object sender, ItemSelectedEventArgs e)
-		{
-			//Entity.ClosingSubdivision = yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
 		}
 
 		private void PrintSelectedDocument(RouteListPrintableDocuments choise)

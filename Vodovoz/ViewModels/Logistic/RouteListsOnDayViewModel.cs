@@ -533,12 +533,6 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		Subdivision closingSubdivision;
-		public virtual Subdivision ClosingSubdivision {
-			get => closingSubdivision;
-			set => SetField(ref closingSubdivision, value);
-		}
-
 		RouteOptimizer optimizer;
 		public virtual RouteOptimizer Optimizer {
 			get => optimizer;
@@ -1051,11 +1045,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool AddOrdersToRouteList(IList<Order> selectedOrders, RouteList routeList)
 		{
-			if(ClosingSubdivision == null) {
-				ShowWarningMessage("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
-				return false;
-			}
-
 			bool recalculateLoading = false;
 
 			if(IsAutoroutingModeActive) {
@@ -1115,18 +1104,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool SaveAutoroutingResults()
 		{
-			if(ClosingSubdivision == null) {
-				ShowWarningMessage("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
-				return false;
-			}
 			//Перестраиваем все маршруты
 			RebuildAllRoutes();
-			/*RoutesOnDay.ToList().ForEach(
-				x => {
-					x.ClosingSubdivision = ClosingSubdivision;
-					UoW.Save(x);
-				}
-			);*/
 			UoW.Commit();
 			HasNoChanges = true;
 			AutoroutingResultsSaved?.Invoke(this, EventArgs.Empty);

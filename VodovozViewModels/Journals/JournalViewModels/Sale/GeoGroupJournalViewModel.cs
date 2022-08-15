@@ -36,6 +36,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			Title = "Части города";
 		}
 
+		public void DisableChangeEntityActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+		}
+
 		protected override Func<IUnitOfWork, IQueryOver<GeoGroup>> ItemsSourceQueryFunction => uow => {
 			GeoGroup geoGroupAlias = null;
 			GeoGroupJournalNode resultAlias = null;

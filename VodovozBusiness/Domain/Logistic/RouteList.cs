@@ -496,12 +496,25 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref closedBy, value, () => ClosedBy);
 		}
 
-		/*private Subdivision closingSubdivision;
 		[Display(Name = "Сдается в подразделение")]
-		public virtual Subdivision ClosingSubdivision {
-			get => closingSubdivision;
-			set => SetField(ref closingSubdivision, value, () => ClosingSubdivision);
-		}*/
+		public virtual Subdivision ClosingSubdivision
+		{
+			get
+			{
+				var geoGroup = GeographicGroups.FirstOrDefault();
+				if(geoGroup == null)
+				{
+					return null;
+				}
+
+				var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
+				if(geoGroupVersion == null)
+				{
+					return null;
+				}
+				return geoGroupVersion.CashSubdivision;
+			}
+		}
 		
 		IList<GeoGroup> geographicGroups = new List<GeoGroup>();
 		[Display(Name = "Группа района")]
@@ -1580,10 +1593,6 @@ namespace Vodovoz.Domain.Logistic
 						"Необходимо указать район",
 						new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
 					);
-
-			/*if(ClosingSubdivision == null)
-				yield return new ValidationResult("Не выбрана касса в которую должен будет сдаваться водитель.",
-					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ClosingSubdivision) });*/
 
 			if(Driver == null)
 				yield return new ValidationResult("Не заполнен водитель.",

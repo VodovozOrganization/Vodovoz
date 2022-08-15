@@ -395,7 +395,6 @@ namespace Vodovoz
 						.AddClearDependence<Subdivision>(item => item.ParentSubdivision)
 						.AddClearDependence<Employee>(item => item.Subdivision)
 						.AddClearDependence<Warehouse>(item => item.OwningSubdivision)
-						//.AddClearDependence<RouteList>(item => item.ClosingSubdivision)
 						.AddDeleteDependence<EntitySubdivisionPermission>(item => item.Subdivision)
 						.AddDeleteDependence<EntitySubdivisionPermissionExtended>(item => item.Subdivision)
 						.AddClearDependence<UndeliveredOrder>(item => item.InProcessAtDepartment)

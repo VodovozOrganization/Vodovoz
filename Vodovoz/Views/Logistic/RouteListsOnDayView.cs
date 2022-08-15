@@ -176,7 +176,8 @@ namespace Vodovoz.Views.Logistic
 
 			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
 			yspeccomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.ObservableSubdivisions, w => w.ItemsList).InitializeFromSource();
-			yspeccomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.ClosingSubdivision, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxCashSubdivision.Visible = false;
+			label7.Visible = false;
 
 			ydateForRoutes.Binding.AddBinding(ViewModel, vm => vm.DateForRouting, w => w.DateOrNull).InitializeFromSource();
 			checkShowCompleted.Binding.AddBinding(ViewModel, vm => vm.ShowCompleted, w => w.Active).InitializeFromSource();

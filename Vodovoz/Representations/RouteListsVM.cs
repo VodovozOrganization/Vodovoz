@@ -70,13 +70,17 @@ namespace Vodovoz.ViewModel
 			CarVersion carVersionAlias = null;
 			CarModel carModelAlias = null;
 			Employee driverAlias = null;
-			//Subdivision subdivisionAlias = null;
-			GeoGroup geographicGroupsAlias = null;
+			Subdivision subdivisionAlias = null;
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
 
 			var query = UoW.Session.QueryOver(() => routeListAlias);
 
 			query.Left.JoinAlias(rl => rl.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias, Restrictions.Where(() => geoGroupVersionAlias.ActivationDate >= routeListAlias.Date))
+				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
 				.JoinEntityAlias(() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id
 						&& carVersionAlias.StartDate <= routeListAlias.Date
@@ -99,8 +103,7 @@ namespace Vodovoz.ViewModel
 			}
 
 			if(Filter.RestrictGeographicGroup != null) {
-				query.Left.JoinAlias(o => o.GeographicGroups, () => geographicGroupsAlias)
-					 .Where(() => geographicGroupsAlias.Id == Filter.RestrictGeographicGroup.Id);
+				query.Where(() => geoGroupAlias.Id == Filter.RestrictGeographicGroup.Id);
 			}
 
 			if(Filter.ShowDriversWithTerminal)
@@ -168,7 +171,6 @@ namespace Vodovoz.ViewModel
 			var result = query
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
 				.Left.JoinAlias(o => o.Car, () => carAlias)
-				//.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.SelectList(list => list
 				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
@@ -182,7 +184,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => driverAlias.Comment).WithAlias(() => resultAlias.DriverComment)
 				   .Select(() => routeListAlias.LogisticiansComment).WithAlias(() => resultAlias.LogisticiansComment)
 				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
-				   //.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
+				   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
 				   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
 				   .Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
 				   .Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
@@ -419,11 +421,14 @@ namespace Vodovoz.ViewModel
 							{
 								var routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 								int warehouseId = 0;
-								/*if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionSofiiskayaId)
-									warehouseId = routeListParametersProvider.WarehouseSofiiskayaId;
-								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionParnasId)
-									warehouseId = routeListParametersProvider.WarehouseParnasId;
-								*/
+
+								var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+								var geoGroupVersion = geoGroup.GetVersionOrNull(routeList.Date);
+								if(geoGroupVersion != null)
+								{
+									warehouseId = geoGroupVersion.Warehouse.Id;
+								}
+
 								if (warehouseId > 0)
 								{
 									var onlineOrders = routeList.Addresses
