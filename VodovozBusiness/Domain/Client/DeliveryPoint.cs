@@ -720,7 +720,10 @@ namespace Vodovoz.Domain.Client
 			OnPropertyChanged(nameof(CoordinatesExist));
 
 			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
+			{
 				return true;
+			}
+
 			var geoGroupVersion = District.GeographicGroup.GetActualVersionOrNull();
 			if(geoGroupVersion == null)
 			{

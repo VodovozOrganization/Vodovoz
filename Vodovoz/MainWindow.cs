@@ -156,6 +156,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1578,10 +1579,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<GeoGroup>(),
-			() => new OrmReference(typeof(GeoGroup))
-		);
+		NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(null);
 	}
 
 	protected void OnActionCertificatesActivated(object sender, EventArgs e)

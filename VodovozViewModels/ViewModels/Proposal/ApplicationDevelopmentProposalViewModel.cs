@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
@@ -10,6 +10,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Proposal;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Proposal
 {

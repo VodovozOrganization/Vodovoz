@@ -1047,8 +1047,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NomenclatureForShipment.cs" />
     <Compile Include="Dialogs\ImageLoaderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.ImageLoaderDlg.cs" />
-    <Compile Include="Dialogs\Sale\GeographicGroupDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.GeographicGroupDlg.cs" />
     <Compile Include="ReportsParameters\Sales\OrderCreationDateReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReport.cs" />
     <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReport.cs" />
@@ -1568,8 +1566,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
     <Compile Include="ReportsParameters\DriversToDistrictsAssignmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.DriversToDistrictsAssignmentReport.cs" />
-    <Compile Include="TempAdapters\WarehouseSelectorFactory.cs" />
-    <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
     <Compile Include="Views\Warehouse\WarehouseView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
     <Compile Include="Views\Rent\FreeRentPackageView.cs" />

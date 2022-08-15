@@ -8,9 +8,9 @@ namespace Vodovoz.Domain.Versions
 	public abstract class VersionEntityBase : PropertyChangedBase
 	{
 		private int _id;
-		private DateTime _dateCreated;
-		private DateTime? _dateActivated;
-		private DateTime? _dateClosed;
+		private DateTime _creationDate;
+		private DateTime? _activationDate;
+		private DateTime? _closingDate;
 		private VersionStatus _status;
 
 		[Display(Name = "Код")]
@@ -21,24 +21,24 @@ namespace Vodovoz.Domain.Versions
 		}
 
 		[Display(Name = "Время создания")]
-		public virtual DateTime DateCreated
+		public virtual DateTime CreationDate
 		{
-			get => _dateCreated;
-			set => SetField(ref _dateCreated, value);
+			get => _creationDate;
+			set => SetField(ref _creationDate, value);
 		}
 
 		[Display(Name = "Время активации")]
-		public virtual DateTime? DateActivated
+		public virtual DateTime? ActivationDate
 		{
-			get => _dateActivated;
-			set => SetField(ref _dateActivated, value);
+			get => _activationDate;
+			set => SetField(ref _activationDate, value);
 		}
 
 		[Display(Name = "Время закрытия")]
-		public virtual DateTime? DateClosed
+		public virtual DateTime? ClosingDate
 		{
-			get => _dateClosed;
-			set => SetField(ref _dateClosed, value);
+			get => _closingDate;
+			set => SetField(ref _closingDate, value);
 		}
 
 		[Display(Name = "Статус")]

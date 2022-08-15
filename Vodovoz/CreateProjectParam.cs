@@ -172,6 +172,9 @@ using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.Dialogs.Sales;
+using Vodovoz.Views.Sale;
+using Vodovoz.Models;
 
 namespace Vodovoz
 {
@@ -298,6 +301,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
 				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
+				.RegisterWidgetForTabViewModel<GeoGroupViewModel, GeoGroupView>()
 				;
 
             //Регистрация виджетов
@@ -561,6 +565,8 @@ namespace Vodovoz
 
 			builder.RegisterType<OrderDiscountsController>().As<IOrderDiscountsController>();
 			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>();
+
+			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf().AsImplementedInterfaces();
 
 			#endregion
 

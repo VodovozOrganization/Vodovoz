@@ -54,6 +54,8 @@ using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournal
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -1639,6 +1641,16 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.OrganizationName)
 						.XAlign(0.5f)
+					.Finish()
+			);
+
+			//PaymentsFromJournalViewModel
+			TreeViewColumnsConfigFactory.Register<GeoGroupJournalViewModel>(
+				() => FluentColumnsConfig<GeoGroupJournalNode>.Create()
+					.AddColumn("№")
+						.AddNumericRenderer(node => node.Id).WidthChars(4)
+					.AddColumn("Название")
+						.AddTextRenderer(node => node.Name)
 					.Finish()
 			);
 

@@ -1,37 +1,58 @@
-﻿using NHibernate.Util;
+﻿using Gamma.Utilities;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
-using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using VodovozInfrastructure.Versions;
-using Gamma.Utilities;
 
 namespace Vodovoz.ViewModels.Dialogs.Sales
 {
 	public class GeoGroupViewModel : EntityTabViewModelBase<GeoGroup>
 	{
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
-
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly WarehouseJournalFactory _warehouseJournalFactory;
 		private bool _canEdit;
 		private IPermissionResult _versionsPermissionResult;
-		private DelegateCommand _addVersionCommand;
+		private IEntityAutocompleteSelectorFactory _cashSelectorFactory;
+		private IEntityAutocompleteSelectorFactory _warehouseSelectorFactory;
+		private DelegateCommand _createVersionCommand;
 		private DelegateCommand _copyVersionCommand;
 		private DelegateCommand _activateVersionCommand;
 		private DelegateCommand _closeVersionCommand;
 		private DelegateCommand _removeVersionCommand;
+		private DelegateCommand _saveCommand;
+		private DelegateCommand _cancelCommand;
+		private GeoGroupVersionViewModel _selectedVersion;
+		private GenericObservableList<GeoGroupVersionViewModel> _versions;
 
-		public GeoGroupViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, GeoGroupVersionsModel geoGroupVersionsModel, ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		public GeoGroupViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			GeoGroupVersionsModel geoGroupVersionsModel,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			WarehouseJournalFactory warehouseJournalFactory,
+			ICommonServices commonServices
+		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 
 			CheckPermissions();
+			BindVersions();
+
+			Entity.PropertyChanged += Entity_PropertyChanged;
+			Versions.ElementRemoved += Versions_ElementRemoved;
 		}
 
 		private void CheckPermissions()
@@ -40,30 +61,72 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			_versionsPermissionResult = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(GeoGroupVersion));
 		}
 
-		public bool CanEdit => _canEdit;
-		public bool CanReadVersions => _versionsPermissionResult.CanRead;
-
-
-		#region Add version
-
-		public DelegateCommand AddVersionCommand
+		private void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			get
+			switch(e.PropertyName)
 			{
-				if(_addVersionCommand == null)
-				{
-					_addVersionCommand = new DelegateCommand(AddVersion, () => CanAddVersion);
-					_addVersionCommand.CanExecuteChangedWith(this, x => x.CanAddVersion);
-				}
-				return _addVersionCommand;
+				case nameof(Entity.ObservableVersions):
+					BindVersions();
+					break;
+				default:
+					break;
+			}
+		}
+		private void Versions_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			if(aObject == SelectedVersion)
+			{
+				SelectedVersion = null;
 			}
 		}
 
-		public bool CanAddVersion => CanReadVersions && CanEdit && _versionsPermissionResult.CanCreate;
+		public bool CanEdit => _canEdit;
+		public bool CanReadVersions => _versionsPermissionResult.CanRead;
 
-		private void AddVersion()
+		public IEntityAutocompleteSelectorFactory CashSelectorFactory
 		{
-			_geoGroupVersionsModel.AddVersion(UoW, Entity);
+			get
+			{
+				if(_cashSelectorFactory == null)
+				{
+					_cashSelectorFactory = _subdivisionJournalFactory.CreateCashSubdivisionAutocompleteSelectorFactory();
+				}
+				return _cashSelectorFactory;
+			}
+		}
+
+		public IEntityAutocompleteSelectorFactory WarehouseSelectorFactory
+		{
+			get
+			{
+				if(_warehouseSelectorFactory == null)
+				{
+					_warehouseSelectorFactory = _warehouseJournalFactory.CreateSelectorFactory();
+				}
+				return _warehouseSelectorFactory;
+			}
+		}
+
+		#region Add version
+
+		public DelegateCommand CreateVersionCommand
+		{
+			get
+			{
+				if(_createVersionCommand == null)
+				{
+					_createVersionCommand = new DelegateCommand(CreateVersion, () => CanCreateVersion);
+					_createVersionCommand.CanExecuteChangedWith(this, x => x.CanCreateVersion);
+				}
+				return _createVersionCommand;
+			}
+		}
+
+		public bool CanCreateVersion => CanReadVersions && CanEdit && _versionsPermissionResult.CanCreate;
+
+		private void CreateVersion()
+		{
+			_geoGroupVersionsModel.CreateVersion(UoW, Entity);
 		}
 
 		#endregion Add version
@@ -84,13 +147,13 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 		}
 
 		public bool CanCopyVersion => CanReadVersions
-			&& CanEdit 
+			&& CanEdit
 			&& _versionsPermissionResult.CanCreate
 			&& SelectedVersion != null;
 
 		private void CopyVersion()
 		{
-			_geoGroupVersionsModel.CopyVersion(UoW, Entity, SelectedVersion);
+			_geoGroupVersionsModel.CopyVersion(UoW, Entity, SelectedVersion.Entity);
 		}
 
 		#endregion Copy version
@@ -118,7 +181,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		private void CloseVersion()
 		{
-			_geoGroupVersionsModel.CloseVersion(Entity, SelectedVersion);
+			_geoGroupVersionsModel.CloseVersion(Entity, SelectedVersion.Entity);
 		}
 
 		#endregion Close version
@@ -138,15 +201,15 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			}
 		}
 
-		public bool CanRemoveVersion => CanReadVersions 
-			&& CanEdit 
+		public bool CanRemoveVersion => CanReadVersions
+			&& CanEdit
 			&& _versionsPermissionResult.CanDelete
 			&& SelectedVersion != null
 			&& SelectedVersion.Status == VersionStatus.Draft;
 
 		private void RemoveVersion()
 		{
-			_geoGroupVersionsModel.RemoveVersion(Entity, SelectedVersion);
+			_geoGroupVersionsModel.RemoveVersion(Entity, SelectedVersion.Entity);
 		}
 
 		#endregion Remove version
@@ -174,112 +237,164 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		private void ActivateVersion()
 		{
-			_geoGroupVersionsModel.ActivateVersion(Entity, SelectedVersion);
+			_geoGroupVersionsModel.ActivateVersion(Entity, SelectedVersion.Entity);
 		}
 
 		#endregion Activate version
 
-		private GeoGroupVersion _selectedVersion;
-		public virtual GeoGroupVersion SelectedVersion
+		#region Selected
+
+		public virtual GeoGroupVersionViewModel SelectedVersion
 		{
 			get => _selectedVersion;
-			set => SetField(ref _selectedVersion, value);
+			set
+			{
+				UnsubscribeSelectedVersionPropertyChanged();
+				SetField(ref _selectedVersion, value);
+				SubscribeSelectedVersionPropertyChanged();
+			}
 		}
+
+		public bool HasSelectedVersion => SelectedVersion != null;
+
+		private void UnsubscribeSelectedVersionPropertyChanged()
+		{
+			if(_selectedVersion != null)
+			{
+				_selectedVersion.PropertyChanged -= SelectedVersion_PropertyChanged;
+			}
+		}
+
+		private void SubscribeSelectedVersionPropertyChanged()
+		{
+			if(_selectedVersion != null)
+			{
+				_selectedVersion.PropertyChanged += SelectedVersion_PropertyChanged;
+			}
+		}
+
+		private void SelectedVersion_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			switch(e.PropertyName)
+			{
+				case nameof(_selectedVersion.Status):
+					OnPropertyChanged(nameof(CanCloseVersion));
+					OnPropertyChanged(nameof(CanRemoveVersion));
+					OnPropertyChanged(nameof(CanActivateVersion));
+					break;
+				default:
+					break;
+			}
+		}
+
+
+		#endregion Selected
+
+		#region Versions
+
+		public virtual GenericObservableList<GeoGroupVersionViewModel> Versions
+		{
+			get => _versions;
+			set => SetField(ref _versions, value);
+		}
+
+		private void BindVersions()
+		{
+			var versionViewModels = Entity.Versions.Select(x => new GeoGroupVersionViewModel(x)).ToList();
+			Versions = new GenericObservableList<GeoGroupVersionViewModel>(versionViewModels);
+
+			Entity.ObservableVersions.ElementAdded += ObservableVersions_ElementAdded;
+			Entity.ObservableVersions.ElementRemoved += ObservableVersions_ElementRemoved;
+			Entity.ObservableVersions.ElementChanged += ObservableVersions_ElementChanged;
+		}
+
+		private void ObservableVersions_ElementAdded(object aList, int[] aIdx)
+		{
+			var source = aList as GenericObservableList<GeoGroupVersion>;
+			if(source != Entity.ObservableVersions)
+			{
+				source.ElementAdded -= ObservableVersions_ElementAdded;
+			}
+
+			foreach(var index in aIdx)
+			{
+				var viewModel = new GeoGroupVersionViewModel(source[index]);
+				Versions.Insert(index, viewModel);
+			}
+		}
+
+		private void ObservableVersions_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			var source = aList as GenericObservableList<GeoGroupVersion>;
+			if(source != Entity.ObservableVersions)
+			{
+				source.ElementRemoved -= ObservableVersions_ElementRemoved;
+			}
+
+			foreach(var index in aIdx)
+			{
+				Versions.RemoveAt(index);
+			}
+		}
+
+		private void ObservableVersions_ElementChanged(object aList, int[] aIdx)
+		{
+			var source = aList as GenericObservableList<GeoGroupVersion>;
+			if(source != Entity.ObservableVersions)
+			{
+				source.ElementChanged -= ObservableVersions_ElementChanged;
+			}
+
+			foreach(var index in aIdx)
+			{
+				var viewModel = new GeoGroupVersionViewModel(source[index]);
+				Versions[index] = viewModel;
+			}
+		}
+
+		#endregion Versions
+
+		#region Save
+
+		public DelegateCommand SaveCommand
+		{
+			get
+			{
+				if(_saveCommand == null)
+				{
+					_saveCommand = new DelegateCommand(SaveAndClose, () => CanSave);
+					_saveCommand.CanExecuteChangedWith(this, x => x.CanSave);
+				}
+				return _saveCommand;
+			}
+		}
+
+		public bool CanSave => CanEdit;
+
+		#endregion
+
+		#region Cancel
+
+		public DelegateCommand CancelCommand
+		{
+			get
+			{
+				if(_cancelCommand == null)
+				{
+					_cancelCommand = new DelegateCommand(CloseDialog);
+				}
+				return _cancelCommand;
+			}
+		}
+
+		private void CloseDialog()
+		{
+			Close(true, CloseSource.Cancel);
+		}
+
+		#endregion
+
 	}
 
-	public class GeoGroupVersionsModel
-	{
-		private readonly IUserService _userService;
-		private readonly IEmployeeService _employeeService;
-
-		public GeoGroupVersionsModel(IUserService userService, IEmployeeService employeeService)
-		{
-			_userService = userService ?? throw new System.ArgumentNullException(nameof(userService));
-			_employeeService = employeeService ?? throw new System.ArgumentNullException(nameof(employeeService));
-		}
-
-		public void AddVersion(IUnitOfWork uow, GeoGroup geoGroup)
-		{
-			var currentEmployee = _employeeService.GetEmployeeForUser(uow, _userService.CurrentUserId);
-
-			var newVersion = new GeoGroupVersion();
-			newVersion.GeoGroup = geoGroup;
-			newVersion.Author = currentEmployee;
-			newVersion.BaseLatitude = null;
-			newVersion.BaseLongitude = null;
-			newVersion.CashSubdivision = null;
-			newVersion.Warehouse = null;
-			newVersion.DateCreated = DateTime.Now;
-			newVersion.Status = VersionStatus.Draft;
-
-			geoGroup.ObservableVersions.Add(newVersion);
-		}
-
-		public void CopyVersion(IUnitOfWork uow, GeoGroup geoGroup, GeoGroupVersion copyFrom)
-		{
-			var currentEmployee = _employeeService.GetEmployeeForUser(uow, _userService.CurrentUserId);
-			var cash = copyFrom.CashSubdivision != null ? uow.GetById<Subdivision>(copyFrom.CashSubdivision.Id) : null;
-			var warehouse = copyFrom.Warehouse != null ? uow.GetById<Warehouse>(copyFrom.Warehouse.Id) : null;
-
-			var newVersion = new GeoGroupVersion();
-			newVersion.GeoGroup = geoGroup;
-			newVersion.Author = currentEmployee;
-			newVersion.BaseLatitude = copyFrom.BaseLatitude;
-			newVersion.BaseLongitude = copyFrom.BaseLongitude;
-			newVersion.CashSubdivision = cash;
-			newVersion.Warehouse = warehouse;
-			newVersion.DateCreated = DateTime.Now;
-			newVersion.Status = VersionStatus.Draft;
-
-			geoGroup.ObservableVersions.Add(newVersion);
-		}
-
-		public void ActivateVersion(GeoGroup geoGroup, GeoGroupVersion activatingVersion)
-		{
-			if(!geoGroup.Versions.Contains(activatingVersion))
-			{
-				throw new InvalidOperationException($"Активируемая версия данных части города должна находиться в редактируемой части города ({geoGroup.Name})");
-			}
-
-			var activeVersion = geoGroup.Versions.FirstOrDefault(v => v.Status == VersionStatus.Active);
-			if (activeVersion != null)
-			{
-				CloseVersion(geoGroup, activeVersion);
-			}
-
-			activatingVersion.DateActivated = DateTime.Now;
-			activatingVersion.Status = VersionStatus.Active;
-		}
-
-		public void CloseVersion(GeoGroup geoGroup, GeoGroupVersion closingVersion)
-		{
-			if(!geoGroup.Versions.Contains(closingVersion))
-			{
-				throw new InvalidOperationException($"Закрываемая версия данных части города должна находиться в редактируемой части города ({geoGroup.Name})");
-			}
-
-			if(closingVersion.Status != VersionStatus.Active)
-			{
-				throw new InvalidOperationException($"Можно закрывать только данных части города в статусе {VersionStatus.Active.GetEnumTitle()}");
-			}
-
-			closingVersion.DateClosed = DateTime.Now;
-			closingVersion.Status = VersionStatus.Closed;
-		}
-
-		public void RemoveVersion(GeoGroup geoGroup, GeoGroupVersion deletingVersion)
-		{
-			if(!geoGroup.Versions.Contains(deletingVersion))
-			{
-				throw new InvalidOperationException($"Удаляемая версия данных части города должна находиться в редактируемой части города ({geoGroup.Name})");
-			}
-
-			if(deletingVersion.Status != VersionStatus.Draft)
-			{
-				throw new InvalidOperationException($"Можно удалять только данных части города в статусе {VersionStatus.Draft.GetEnumTitle()}");
-			}
-
-			geoGroup.ObservableVersions.Remove(deletingVersion);
-		}
-	}
+	
 }

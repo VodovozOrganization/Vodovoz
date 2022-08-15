@@ -44,6 +44,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using QS.Project.Services.FileDialog;
+using Vodovoz.Services;
 
 namespace Vodovoz.JournalViewModels
 {
