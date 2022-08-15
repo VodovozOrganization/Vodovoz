@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>202.615mm</PageHeight>
   <PageWidth>286.405mm</PageWidth>
   <Width>286.405mm</Width>
@@ -93,7 +91,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id, 
@@ -117,7 +115,7 @@ WHERE
     client_bank.cor_account AS client_bank_cor_account,
 
     organizations.full_name AS org_name, 
-    organizations.jur_address as org_address, 
+    ov.jur_address as org_address, 
     organizations.INN AS org_inn, 
     organizations.KPP as org_kpp,
     (SELECT phones.number FROM phones WHERE phones.org_id = organizations.id LIMIT 1) AS org_phone_number,
@@ -142,8 +140,15 @@ FROM
     LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id
     LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
     LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
-    LEFT JOIN employees leader ON leader.id = organizations.leader_id 
-    LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id
+    LEFT JOIN organization_versions ov
+        ON
+            organizations.id = ov.organization_id 
+        AND
+            ov.start_date &lt;= orders.bill_date 
+        AND
+            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+    LEFT JOIN employees leader ON leader.id = ov.leader_id 
+    LEFT JOIN employees buhgalter ON buhgalter.id = ov.accountant_id 
     LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
     LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
     LEFT JOIN accounts client_account ON client_account.id = counterparty.default_account_id
@@ -157,7 +162,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -370,8 +375,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -427,8 +431,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -448,8 +451,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -487,8 +489,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -507,8 +508,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -527,8 +527,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox110">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -587,8 +586,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1146,8 +1144,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1592,8 +1589,7 @@ WHERE
           <Textbox Name="Textbox137" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.03pt</Height>
             <Width>106.07pt</Width>
-            <Value>
-            </Value>
+            <Value></Value>
             <ZIndex>1</ZIndex>
             <Left>154.4pt</Left>
             <Top>10.3pt</Top>
@@ -1626,8 +1622,7 @@ WHERE
           <Textbox Name="Textbox141" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.03pt</Height>
             <Width>106.07pt</Width>
-            <Value>
-            </Value>
+            <Value></Value>
             <ZIndex>1</ZIndex>
             <Left>550.4pt</Left>
             <Top>7.6pt</Top>
@@ -1742,8 +1737,7 @@ WHERE
           <Textbox Name="Textbox28" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.03pt</Height>
             <Width>106.07pt</Width>
-            <Value>
-            </Value>
+            <Value></Value>
             <ZIndex>1</ZIndex>
             <Left>167.7pt</Left>
             <Top>47.7pt</Top>
@@ -1834,10 +1828,8 @@ WHERE
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
-          <BackgroundGradientEndColor>
-          </BackgroundGradientEndColor>
-          <BackgroundColor>
-          </BackgroundColor>
+          <BackgroundGradientEndColor></BackgroundGradientEndColor>
+          <BackgroundColor></BackgroundColor>
         </Style>
         <DataSetName>Order</DataSetName>
         <ZIndex>3</ZIndex>
@@ -2116,8 +2108,7 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

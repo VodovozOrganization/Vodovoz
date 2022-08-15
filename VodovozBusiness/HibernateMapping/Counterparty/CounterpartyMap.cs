@@ -22,6 +22,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.INN).Column("inn");
 			Map(x => x.KPP).Column("kpp");
+			Map(x => x.OGRN).Column("ogrn");
 			Map(x => x.JurAddress).Column("jur_address");
 			Map(x => x.Address).Column("address");
 			Map(x => x.SignatoryFIO).Column("signatory_FIO");

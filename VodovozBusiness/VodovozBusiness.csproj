@@ -56,7 +56,9 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Controllers\OrganizationVersionsController.cs" />
     <Compile Include="Controllers\CarVersionsController.cs" />
+    <Compile Include="Controllers\IOrganizationVersionsController.cs" />
     <Compile Include="Controllers\ICarVersionsController.cs" />
     <Compile Include="Controllers\IOrderDiscountsController.cs" />
     <Compile Include="Controllers\IPaymentFromBankClientController.cs" />
@@ -152,6 +154,7 @@
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
+    <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
     <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemHistory.cs" />
@@ -413,6 +416,7 @@
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryTransferAbsenceReasonMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\OrganizationVersionMap.cs" />
     <Compile Include="HibernateMapping\Organizations\RoboatsStreetMap.cs" />
     <Compile Include="HibernateMapping\Organizations\RoboatsWaterTypeMap.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromAvangardMap.cs" />

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -113,7 +113,7 @@ namespace VodovozSalesReceiptsService
 
             foreach(var order in uow.GetById<Order>(nodes.Select(x => x.OrderId))) {
                 var newReceipt = new CashReceipt { Order = order };
-                var doc = new SalesDocumentDTO(order, order.Contract?.Organization?.Leader?.ShortName);
+                var doc = new SalesDocumentDTO(order, order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
 
                 CashBox cashBox = null;
                 if(order.Contract?.Organization?.CashBoxId != null) {
@@ -171,7 +171,7 @@ namespace VodovozSalesReceiptsService
                     continue;
                 }
 
-                var doc = new SalesDocumentDTO(receipt.Order, receipt.Order.Contract?.Organization?.Leader?.ShortName);
+                var doc = new SalesDocumentDTO(receipt.Order, receipt.Order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
                 
                 CashBox cashBox = null;
                 if(receipt.Order.Contract?.Organization?.CashBoxId != null) {

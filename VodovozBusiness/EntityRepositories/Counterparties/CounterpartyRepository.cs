@@ -131,6 +131,18 @@ namespace Vodovoz.EntityRepositories.Counterparties
 						   .List<CounterpartyTo1CNode>();
 			return query.Where(x => !String.IsNullOrEmpty(x.EMails) || !String.IsNullOrEmpty(x.Phones)).ToList();
 		}
+
+		public IList<Counterparty> GetDealers()
+		{
+			IList<Counterparty> result;
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка адресов имеющих фиксированную цену"))
+			{
+				result = uow.Session.QueryOver<Counterparty>()
+				   .Where(c => c.CounterpartyType == CounterpartyType.Dealer)
+				   .List<Counterparty>();
+			}
+			return result;
+		}
 	}
 }
 
