@@ -2561,7 +2561,7 @@ public partial class MainWindow : Gtk.Window
 	}
 
 	protected void OnRoboatsExportActionActivated(object sender, EventArgs e)
-    {
+	{
 		NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
 	}
 
@@ -2582,11 +2582,11 @@ public partial class MainWindow : Gtk.Window
 		IFileDialogService fileDialogService = new FileDialogService();
 
 		var viewModel = new CostCarExploitationReportViewModel(
-			uowFactory, 
-			interactiveService, 
-			NavigationManager, 
-			carSelectorFactory, 
-			entityChangeWatcher, 
+			uowFactory,
+			interactiveService,
+			NavigationManager,
+			carSelectorFactory,
+			entityChangeWatcher,
 			fileDialogService);
 
 		tdiMain.AddTab(viewModel);
@@ -2629,5 +2629,9 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, bulkEmailEventReasonJournalFactory, counterpartyJournalFactory);
 
 		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnProfitabilityConstantsActionActivated(object sender, EventArgs e)
+	{
 	}
 }
