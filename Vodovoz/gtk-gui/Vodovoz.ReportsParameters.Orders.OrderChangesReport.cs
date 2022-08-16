@@ -79,7 +79,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.chkOldMonitoring = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkOldMonitoring.CanFocus = true;
 			this.chkOldMonitoring.Name = "chkOldMonitoring";
-			this.chkOldMonitoring.Label = global::Mono.Unix.Catalog.GetString("архивный (медленно)");
+			this.chkOldMonitoring.Label = global::Mono.Unix.Catalog.GetString("Архив (медленно)");
 			this.chkOldMonitoring.DrawIndicator = true;
 			this.chkOldMonitoring.UseUnderline = true;
 			this.vboxReport.Add(this.chkOldMonitoring);

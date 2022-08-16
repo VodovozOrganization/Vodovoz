@@ -84,7 +84,7 @@ namespace Vodovoz.Dialogs
 
 			if(archiveSettings.GetDatabaseNameForOldMonitoringAvailable == UoW.Session.Connection.Database)
 			{
-				selectperiod.AddCustomPeriodInDays(archiveSettings.GetMonitoringPeriodAvailableInDays, "архив (медленно)");
+				selectperiod.AddCustomPeriodInDays(archiveSettings.GetMonitoringPeriodAvailableInDays, "Архив (медленно)");
 				selectperiod.Show3Month = false;
 				selectperiod.ShowCustomPeriod = true;
 				_canSearchFromArchive = true;
