@@ -298,6 +298,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
 				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
+				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
 				;
 
             //Регистрация виджетов

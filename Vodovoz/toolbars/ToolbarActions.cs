@@ -88,6 +88,8 @@ using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
 
 public partial class MainWindow : Window
 {
@@ -957,7 +959,10 @@ public partial class MainWindow : Window
 		var filter = new RouteListJournalFilterViewModel();
 		filter.StartDate = DateTime.Today.AddMonths(-2);
 		filter.EndDate = DateTime.Today;
-		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
+
+		var wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+
+		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel, WageParameterService>(null, filter, wageParameterService);
 	}
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)

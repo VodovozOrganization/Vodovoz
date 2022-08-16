@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Autofac;
 using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -41,11 +42,15 @@ using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.JournalViewers;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModel
 {
@@ -53,7 +58,8 @@ namespace Vodovoz.ViewModel
 	{
 		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private bool _userHasOnlyAccessToWarehouseAndComplaints;
-		
+		private readonly ILifetimeScope _autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
 			set => RepresentationFilter = value;
@@ -598,10 +604,29 @@ namespace Vodovoz.ViewModel
 							&& MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum)
 							&& selectedNode.CarTypeOfUse != CarTypeOfUse.Truck)
 						{
-							MainClass.MainWin.TdiMain.OpenTab(
-								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-								() => new RouteListMileageCheckDlg(selectedNode.Id)
+							var wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+
+							var routeListMileageCheckViewModel = new RouteListMileageCheckViewModel(
+								EntityUoWBuilder.ForOpen(selectedNode.Id),
+								ServicesConfig.CommonServices,
+								_autofacScope.Resolve<ICarJournalFactory>(),
+								_autofacScope.Resolve<IEmployeeJournalFactory>(),
+								_autofacScope.Resolve<IDeliveryShiftRepository>(),
+								_autofacScope.Resolve<IOrderParametersProvider>(),
+								_autofacScope.Resolve<IDeliveryRulesParametersProvider>(),
+								_autofacScope.Resolve<IGtkTabsOpener>(),
+								_autofacScope.Resolve<BaseParametersProvider>(),
+								_autofacScope.Resolve<ITrackRepository>(),
+								_autofacScope.Resolve<ICallTaskRepository>(),
+								_autofacScope.Resolve<IEmployeeRepository>(),
+								_autofacScope.Resolve<IOrderRepository>(),
+								_autofacScope.Resolve<IErrorReporter>(),
+								wageParameterService,
+								_autofacScope.Resolve<IRouteListRepository>(),
+								_autofacScope.Resolve<IRouteListItemRepository>()
 							);
+
+							MainClass.MainWin.TdiMain.AddTab(routeListMileageCheckViewModel);
 						}
 					},
 					(selectedItems) => selectedItems.Any(

@@ -5,10 +5,11 @@ using System;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	//[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListMileageCheckView : TabViewBase<RouteListMileageCheckViewModel>
 	{
 		public RouteListMileageCheckView(RouteListMileageCheckViewModel viewModel) : base(viewModel)
@@ -19,15 +20,6 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
-
-		}
-
-		#region Настройка конфигураций
-
-		private void ConfigureDlg()
-		{
-			//buttonAcceptFine.Clicked += ButtonAcceptFineOnClicked;
-
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
@@ -53,7 +45,7 @@ namespace Vodovoz.Views.Logistic
 
 			yentryRecalculatedDistance.Binding.AddBinding(ViewModel.Entity, e => e.RecalculatedDistance, widget => widget.Text, new DecimalToStringConverter()).InitializeFromSource();
 
-			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
+			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingNode>()
 				.AddColumn("Заказ")
 					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())
 				.AddColumn("Адрес")
@@ -67,10 +59,10 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Последнее редактирование")
 					.AddTextRenderer(node => node.LastUpdate)
 				.RowCells()
-				.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.RowColor)
+				.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = GetRowColorByStatus(node.Status))
 				.Finish();
 
-			ytreeviewAddresses.ItemsDataSource = ViewModel.RouteListItems;
+			ytreeviewAddresses.ItemsDataSource = ViewModel.RouteListItems;			
 
 			ytextviewMileageComment.Binding.AddBinding(ViewModel.Entity, e => e.MileageComment, w => w.Buffer.Text).InitializeFromSource();
 
@@ -80,97 +72,38 @@ namespace Vodovoz.Views.Logistic
 			phoneDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
-			yvboxRouteList.Binding.AddFuncBinding(ViewModel, vm => !vm.CanEdit || vm.Entity.Status != RouteListStatus.Closed, w => w.Sensitive).InitializeFromSource();
-			ytableMain.Binding.AddFuncBinding(ViewModel, vm => !vm.CanEdit || vm.Entity.Status != RouteListStatus.Closed, w => w.Sensitive).InitializeFromSource();
+			yvboxRouteList.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
+			ytableMain.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
 			
-			ybuttonSave.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.Entity.Status != RouteListStatus.Closed, w => w.Sensitive).InitializeFromSource();
-			yhboxMileageComment.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.Entity.Status != RouteListStatus.Closed, w => w.Sensitive).InitializeFromSource();
-			ytreeviewAddresses.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.Entity.Status != RouteListStatus.Closed, w => w.Sensitive).InitializeFromSource();
-			yhboxBottom.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.Entity.Status != RouteListStatus.Closed, w => w.Sensitive).InitializeFromSource();
+			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
+			yhboxMileageComment.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
+			ytreeviewAddresses.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
+			yhboxBottom.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
 
-			//buttonAccept.Binding.AddFuncBinding(ViewModel, vm => vm.IsAcceptAvailable, w => w.Sensitive).InitializeFromSource();
+			ybuttonAccept.Binding.AddFuncBinding(ViewModel, vm => vm.IsAcceptAvailable, w => w.Sensitive).InitializeFromSource();
+			ybuttonAccept.Clicked += (s, e) => ViewModel.AcceptCommand.Execute();
+
+			buttonOpenMap.Clicked += (sender, e) => ViewModel.OpenMapCommand.Execute();
+			buttonFromTrack.Clicked += (sender, e) => ViewModel.FromTrackCommand.Execute();
+			buttonAcceptFine.Clicked += (sender, e) => ViewModel.AcceptFineCommand.Execute();
+
+			ybuttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			ybuttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 
-
-		#endregion
-
-		//#region implemented abstract members of OrmGtkDialogBase
-
-
-
-
-		//#endregion
-
-		//#region Обработка нажатий кнопок
-
-		//protected void OnButtonAcceptClicked(object sender, EventArgs e)
-		//{
-		//	var validationContext = _validationContextFactory.CreateNewValidationContext(
-		//		Entity,
-		//		new Dictionary<object, object> {
-		//			{ "NewStatus", RouteListStatus.Closed },
-		//			{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
-		//		});
-		//	validationContext.ServiceContainer.AddService(new OrderParametersProvider(_parametersProvider));
-		//	validationContext.ServiceContainer.AddService(new DeliveryRulesParametersProvider(_parametersProvider));
-
-		//	if(!ServicesConfig.ValidationService.Validate(Entity, validationContext))
-		//	{
-		//		return;
-		//	}
-
-		//	if(Entity.Status == RouteListStatus.Delivered)
-		//	{
-		//		ChangeStatusAndCreateTaskFromDelivered();
-		//	}
-		//	Entity.AcceptMileage(CallTaskWorker);
-
-		//	UpdateStates();
-		//	SaveAndClose();
-		//}
-
-		//private void UpdateStates()
-		//{
-		//	buttonAccept.Sensitive = Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck;
-		//}
-
-		//protected void OnButtonOpenMapClicked(object sender, EventArgs e)
-		//{
-		//	var trackWnd = new TrackOnMapWnd(UoWGeneric);
-		//	trackWnd.Show();
-		//}
-
-		//protected void OnButtonFromTrackClicked(object sender, EventArgs e)
-		//{
-		//	var track = _trackRepository.GetTrackByRouteListId(UoW, Entity.Id);
-		//	if(track == null)
-		//	{
-		//		ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
-		//		return;
-		//	}
-		//	Entity.ConfirmedDistance = (decimal)track.TotalDistance.Value;
-		//}
-
-		//private void ButtonAcceptFineOnClicked(object sender, EventArgs e)
-		//{
-		//	string fineReason = "Перерасход топлива";
-
-		//	var fineDlg = new FineDlg(0, Entity, fineReason, Entity.Date, Entity.Driver);
-		//	fineDlg.Entity.FineType = FineTypes.FuelOverspending;
-		//	fineDlg.EntitySaved += OnFinesAdded;
-
-		//	TabParent.AddSlaveTab(this, fineDlg);
-		//}
-
-		//#endregion
-
-		//#region Обработка добавления долгов
-
-		//protected void OnFinesAdded(object sender, EventArgs e)
-		//{
-		//	HasChanges = true;
-		//}
-
-		//#endregion
+		private Gdk.Color GetRowColorByStatus(RouteListItemStatus routeListItemStatus)
+		{
+			switch(routeListItemStatus)
+			{
+				case RouteListItemStatus.Overdue:
+					return new Gdk.Color(0xee, 0x66, 0x66);
+				case RouteListItemStatus.Completed:
+					return new Gdk.Color(0x66, 0xee, 0x66);
+				case RouteListItemStatus.Canceled:
+					return new Gdk.Color(0xaf, 0xaf, 0xaf);
+				default:
+					return new Gdk.Color(0xff, 0xff, 0xff);
+			}
+		}
 	}
 }

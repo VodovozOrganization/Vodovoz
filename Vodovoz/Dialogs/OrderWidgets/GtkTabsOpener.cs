@@ -7,6 +7,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Dialogs.Logistic;
+using Vodovoz.Domain.Employees;
+using System;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
@@ -59,6 +62,15 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				() => new CounterpartyDlg(counterpartyId));
 		}
 
+		public void OpenFineDlg(ITdiTab master, string reason, RouteList routeList, EventHandler<EntitySavedEventArgs> onFinesAdded = null)
+		{
+			var fineDlg = new FineDlg(0, routeList, reason, routeList.Date, routeList.Driver);
+			fineDlg.Entity.FineType = FineTypes.FuelOverspending;
+			fineDlg.EntitySaved += onFinesAdded;
+
+			master.TabParent.AddSlaveTab(master, fineDlg);
+		}
+
 		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType)
 		{
 			var dlg = new CashExpenseDlg();
@@ -81,6 +93,12 @@ namespace Vodovoz.Dialogs.OrderWidgets
 
 			dlg.ConfigureForRouteListChangeGiveout(employeeId, balance, description);
 			master.TabParent.AddTab(dlg, master);
+		}
+
+		public void OpenTrackOnMapWnd(int routeListId)
+		{
+			var track = new TrackOnMapWnd(routeListId);
+			track.Show();
 		}
 	}
 }

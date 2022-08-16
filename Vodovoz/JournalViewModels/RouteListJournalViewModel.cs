@@ -49,6 +49,13 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Core.DataService;
+using Vodovoz.Factories;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Tools;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -81,6 +88,16 @@ namespace Vodovoz.JournalViewModels
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
 
+		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly IValidationContextFactory _validationContextFactory;
+		private readonly ICallTaskRepository _callTaskRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IErrorReporter _errorReporter;
+		private readonly WageParameterService _wageParameterService;
+		private readonly IRouteListItemRepository _routeListItemRepository;
+
 		public RouteListJournalViewModel(
 			RouteListJournalFilterViewModel filterViewModel,
 			IRouteListRepository routeListRepository,
@@ -107,7 +124,17 @@ namespace Vodovoz.JournalViewModels
 			IReportPrinter reportPrinter,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IEmployeeSettings employeeSettings,
-			ICommonServices commonServices)
+			ICommonServices commonServices,
+			IOrderParametersProvider orderParametersProvider,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			BaseParametersProvider baseParametersProvider,
+			IValidationContextFactory validationContextFactory,
+			ICallTaskRepository callTaskRepository,
+			IOrderRepository orderRepository,
+			IErrorReporter errorReporter,
+			WageParameterService wageParameterService,
+			IRouteListItemRepository routeListItemRepository
+			)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -137,6 +164,20 @@ namespace Vodovoz.JournalViewModels
 			_reportPrinter = reportPrinter ?? throw new ArgumentNullException(nameof(reportPrinter));
 			_terminalNomenclatureProvider = terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+
+			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
+			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_errorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+
+
+			//CanEdit обновляет, статус нет
+
 			TabName = "Журнал МЛ";
 
 			NotifyConfiguration.Enable();
@@ -602,10 +643,27 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListMileageCheckDlg(selectedNode.Id)
-						);
+						var routeListMileageCheckViewModel = new RouteListMileageCheckViewModel(
+							EntityUoWBuilder.ForOpen(selectedNode.Id),
+							commonServices,
+							_carJournalFactory,
+							_employeeJournalFactory,
+							_deliveryShiftRepository,
+							_orderParametersProvider,
+							_deliveryRulesParametersProvider,
+							_gtkTabsOpener,
+							_baseParametersProvider,
+							_trackRepository,
+							_callTaskRepository,
+							_employeeRepository,
+							_orderRepository,
+							_errorReporter,
+							_wageParameterService,
+							_routeListRepository,
+							_routeListItemRepository
+							);
+
+						TabParent.AddSlaveTab(this, routeListMileageCheckViewModel);
 					}
 				}
 			);
