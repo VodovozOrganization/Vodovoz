@@ -174,11 +174,6 @@ namespace Vodovoz.Views.Logistic
 
 			yspinMaxTime.Binding.AddBinding(ViewModel.Optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt).InitializeFromSource();
 
-			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
-			yspeccomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.ObservableSubdivisions, w => w.ItemsList).InitializeFromSource();
-			yspeccomboboxCashSubdivision.Visible = false;
-			label7.Visible = false;
-
 			ydateForRoutes.Binding.AddBinding(ViewModel, vm => vm.DateForRouting, w => w.DateOrNull).InitializeFromSource();
 			checkShowCompleted.Binding.AddBinding(ViewModel, vm => vm.ShowCompleted, w => w.Active).InitializeFromSource();
 			ySpnMin19Btls.Binding.AddBinding(ViewModel, vm => vm.MinBottles19L, w => w.ValueAsInt).InitializeFromSource();

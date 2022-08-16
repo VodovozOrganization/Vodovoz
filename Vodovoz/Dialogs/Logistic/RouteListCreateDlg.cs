@@ -111,9 +111,6 @@ namespace Vodovoz
 			ybuttonAddAdditionalLoad.Clicked += OnButtonAddAdditionalLoadClicked;
 			ybuttonRemoveAdditionalLoad.Clicked += OnButtonRemoveAdditionalLoadClicked;
 
-			yspeccomboboxCashSubdivision.Binding.AddFuncBinding(Entity, e => e.ClosingSubdivision, w => w.SelectedItem).InitializeFromSource();
-			yspeccomboboxCashSubdivision.Visible = false;
-
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 			_previousSelectedDate = Entity.Date;
 			datepickerDate.DateChangedByUser += OnDatepickerDateDateChangedByUser;
