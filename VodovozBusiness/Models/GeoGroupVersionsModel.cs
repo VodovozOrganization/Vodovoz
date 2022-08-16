@@ -70,7 +70,7 @@ namespace Vodovoz.Models
 				CloseVersion(geoGroup, activeVersion);
 			}
 
-			activatingVersion.ActivationDate = DateTime.Now;
+			activatingVersion.ActivationDate = activeVersion.ClosingDate.Value.AddMilliseconds(1);
 			activatingVersion.Status = VersionStatus.Active;
 		}
 
