@@ -94,6 +94,7 @@ namespace Vodovoz.Dialogs
 
 			_canUpdate = true;
 			vpanedOld.Visible = false;
+			vpaned1.PositionSet = false;
 			vpanedOld.PositionSet = false;
 			selectperiod.ActiveRadio = SelectPeriod.Period.Today;
 		}
