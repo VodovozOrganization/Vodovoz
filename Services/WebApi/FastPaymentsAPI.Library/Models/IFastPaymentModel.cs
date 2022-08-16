@@ -30,7 +30,7 @@ namespace FastPaymentsAPI.Library.Models
 			RequestFromType requestFromType);
 		void UpdateFastPaymentStatus(PaidOrderInfoDTO operationInfoDto, FastPayment fastPayment);
 		void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
-		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto);
+		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto, out string paymentSignature);
 		Organization GetOrganization(RequestFromType requestFromType);
 	}
 }

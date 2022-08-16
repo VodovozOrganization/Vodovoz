@@ -87,9 +87,7 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
-using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.EntityRepositories.Undeliveries;
 
 public partial class MainWindow : Window
 {
@@ -582,11 +580,10 @@ public partial class MainWindow : Window
 
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.RevisionBottlesAndDeposits>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
-				new OrderRepository(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory()))
-		);
+		var reportViewDlg = new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				new OrderRepository(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory()));
+
+		tdiMain.AddTab(reportViewDlg);
 	}
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
@@ -1203,6 +1200,7 @@ public partial class MainWindow : Window
 		IFileDialogService fileDialogService = new FileDialogService();
 		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
 			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
+		INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
 
 		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
 		{
@@ -1217,7 +1215,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			fileDialogService,
-			fastDeliveryAvailabilityHistoryParameterProvider)
+			fastDeliveryAvailabilityHistoryParameterProvider,
+			nomenclatureParametersProvider)
 		);
 	}
 }

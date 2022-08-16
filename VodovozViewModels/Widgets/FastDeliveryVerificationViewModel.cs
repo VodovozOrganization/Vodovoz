@@ -21,7 +21,7 @@ namespace Vodovoz.ViewModels.Widgets
 		{
 			var order = fastDeliveryAvailabilityHistory.Order;
 			var deliveryPoint = fastDeliveryAvailabilityHistory.DeliveryPoint;
-			DetailsTitle = $"Детализация по заказу №{order?.Id ?? 0}, адрес: {deliveryPoint?.ShortAddress}";
+			DetailsTitle = $"Детализация по заказу №{order?.Id ?? 0}, адрес: {deliveryPoint?.ShortAddress ?? fastDeliveryAvailabilityHistory.AddressWithoutDeliveryPoint}";
 
 			FastDeliveryAvailabilityHistory = fastDeliveryAvailabilityHistory ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistory)); ;
 

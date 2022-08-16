@@ -30,6 +30,7 @@ namespace Vodovoz.Journals.JournalNodes
 
 		public DateTime Date { get; set; }
 		public string DateString => Date.ToString("dd.MM.yy");
+		public string TimeString => Date.ToString("t");
 
 		public ComplaintStatuses Status { get; set; }
 		public string StatusString => Status.GetEnumTitle();
@@ -72,5 +73,9 @@ namespace Vodovoz.Journals.JournalNodes
 		}
 
 		public string ComplaintObjectString { get; set; }
+
+		public string ResultOfCounterparty { get; set; }
+		public string ResultOfEmployees { get; set; }
+		public string ArrangementText { get; set; }
 	}
 }

@@ -30,6 +30,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI
 {
@@ -126,7 +127,8 @@ namespace FastPaymentsAPI
 
 			//helpers
 			services.AddSingleton<IDTOManager, DTOManager>();
-			services.AddSingleton<ISignatureManager, SignatureManager>();
+			services.AddScoped<ISignatureManager, SignatureManager>();
+			services.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>();
 			services.AddSingleton<IFastPaymentManager, FastPaymentManager>();
 			services.AddSingleton<IErrorHandler, ErrorHandler>();
 			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
