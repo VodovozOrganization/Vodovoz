@@ -56,6 +56,10 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Controllers\CarFuelVersionsController.cs" />
+    <Compile Include="Controllers\FuelPriceVersionsController.cs" />
+    <Compile Include="Controllers\ICarFuelVersionsController.cs" />
+    <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
     <Compile Include="Controllers\OrganizationVersionsController.cs" />
     <Compile Include="Controllers\CarVersionsController.cs" />
     <Compile Include="Controllers\IOrganizationVersionsController.cs" />
@@ -145,6 +149,7 @@
     <Compile Include="Domain\Logistic\Cars\Car.cs" />
     <Compile Include="Domain\Logistic\Cars\CarEvent.cs" />
     <Compile Include="Domain\Logistic\Cars\CarEventType.cs" />
+    <Compile Include="Domain\Logistic\Cars\CarFuelVersion.cs" />
     <Compile Include="Domain\Logistic\Cars\CarVersion.cs" />
     <Compile Include="Domain\Logistic\Cars\CarManufacturer.cs" />
     <Compile Include="Domain\Logistic\Cars\CarModel.cs" />
@@ -154,6 +159,7 @@
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
+    <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
     <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />
@@ -382,9 +388,11 @@
     <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\FuelPriceVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventTypeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\CarFuelVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarManufacturerMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarModelMap.cs" />

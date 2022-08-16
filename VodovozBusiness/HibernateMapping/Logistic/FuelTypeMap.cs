@@ -13,6 +13,9 @@ namespace Vodovoz.HibernateMapping
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Name).Column ("name");
 			Map(x => x.Cost).Column ("cost");
+
+			HasMany(x => x.FuelPriceVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("fuel_type_id")
+				.OrderBy("start_date DESC");
 		}
 	}
 }

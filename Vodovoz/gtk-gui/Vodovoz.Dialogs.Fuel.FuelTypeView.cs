@@ -14,13 +14,27 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private global::Gtk.Table tableContent;
 
-		private global::Gtk.HBox hbox1;
+		private global::Gtk.Label label1;
+
+		private global::Gtk.VBox vbox3;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeFuelPriceVersions;
+
+		private global::Gtk.HBox hbox8;
+
+		private global::Gtk.Label label3;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonCost;
 
-		private global::Gtk.Label label1;
+		private global::Gtk.Label labelDate;
 
-		private global::Gtk.Label label3;
+		private global::QS.Widgets.GtkUI.DatePicker datepickerVersionDate;
+
+		private global::Gamma.GtkWidgets.yButton buttonNewVersion;
+
+		private global::Gamma.GtkWidgets.yButton buttonChangeVersionDate;
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
@@ -77,10 +91,45 @@ namespace Vodovoz.Dialogs.Fuel
 			this.tableContent.RowSpacing = ((uint)(6));
 			this.tableContent.ColumnSpacing = ((uint)(6));
 			// Container child tableContent.Gtk.Table+TableChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.label1 = new global::Gtk.Label();
+			this.label1.Name = "label1";
+			this.label1.Xalign = 1F;
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
+			this.tableContent.Add(this.label1);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableContent[this.label1]));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableContent.Gtk.Table+TableChild
+			this.vbox3 = new global::Gtk.VBox();
+			this.vbox3.Name = "vbox3";
+			this.vbox3.Spacing = 6;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
+			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
+			this.ytreeFuelPriceVersions = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeFuelPriceVersions.CanFocus = true;
+			this.ytreeFuelPriceVersions.Name = "ytreeFuelPriceVersions";
+			this.GtkScrolledWindow2.Add(this.ytreeFuelPriceVersions);
+			this.vbox3.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow2]));
+			w8.Position = 0;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.hbox8 = new global::Gtk.HBox();
+			this.hbox8.Name = "hbox8";
+			this.hbox8.Spacing = 6;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.label3 = new global::Gtk.Label();
+			this.label3.Name = "label3";
+			this.label3.Xalign = 1F;
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Стоимость литра:");
+			this.hbox8.Add(this.label3);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.label3]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
 			this.yspinbuttonCost = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
 			this.yspinbuttonCost.CanFocus = true;
 			this.yspinbuttonCost.Name = "yspinbuttonCost";
@@ -90,37 +139,68 @@ namespace Vodovoz.Dialogs.Fuel
 			this.yspinbuttonCost.Numeric = true;
 			this.yspinbuttonCost.ValueAsDecimal = 0m;
 			this.yspinbuttonCost.ValueAsInt = 0;
-			this.hbox1.Add(this.yspinbuttonCost);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yspinbuttonCost]));
-			w6.Position = 0;
-			this.tableContent.Add(this.hbox1);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableContent[this.hbox1]));
-			w7.TopAttach = ((uint)(1));
-			w7.BottomAttach = ((uint)(2));
-			w7.LeftAttach = ((uint)(1));
-			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableContent.Gtk.Table+TableChild
-			this.label1 = new global::Gtk.Label();
-			this.label1.Name = "label1";
-			this.label1.Xalign = 1F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
-			this.tableContent.Add(this.label1);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableContent[this.label1]));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableContent.Gtk.Table+TableChild
-			this.label3 = new global::Gtk.Label();
-			this.label3.Name = "label3";
-			this.label3.Xalign = 1F;
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Стоимость литра:");
-			this.tableContent.Add(this.label3);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableContent[this.label3]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.hbox8.Add(this.yspinbuttonCost);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yspinbuttonCost]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.labelDate = new global::Gtk.Label();
+			this.labelDate.Name = "labelDate";
+			this.labelDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
+			this.labelDate.Justify = ((global::Gtk.Justification)(1));
+			this.hbox8.Add(this.labelDate);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.labelDate]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.datepickerVersionDate = new global::QS.Widgets.GtkUI.DatePicker();
+			this.datepickerVersionDate.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerVersionDate.Name = "datepickerVersionDate";
+			this.datepickerVersionDate.WithTime = false;
+			this.datepickerVersionDate.HideCalendarButton = false;
+			this.datepickerVersionDate.Date = new global::System.DateTime(0);
+			this.datepickerVersionDate.IsEditable = true;
+			this.datepickerVersionDate.AutoSeparation = false;
+			this.hbox8.Add(this.datepickerVersionDate);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.datepickerVersionDate]));
+			w12.Position = 3;
+			w12.Expand = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonNewVersion = new global::Gamma.GtkWidgets.yButton();
+			this.buttonNewVersion.CanFocus = true;
+			this.buttonNewVersion.Name = "buttonNewVersion";
+			this.buttonNewVersion.UseUnderline = true;
+			this.buttonNewVersion.Label = global::Mono.Unix.Catalog.GetString("Новая версия");
+			this.hbox8.Add(this.buttonNewVersion);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonNewVersion]));
+			w13.Position = 4;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonChangeVersionDate = new global::Gamma.GtkWidgets.yButton();
+			this.buttonChangeVersionDate.CanFocus = true;
+			this.buttonChangeVersionDate.Name = "buttonChangeVersionDate";
+			this.buttonChangeVersionDate.UseUnderline = true;
+			this.buttonChangeVersionDate.Label = global::Mono.Unix.Catalog.GetString("Сменить дату начала");
+			this.hbox8.Add(this.buttonChangeVersionDate);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonChangeVersionDate]));
+			w14.Position = 5;
+			w14.Expand = false;
+			w14.Fill = false;
+			this.vbox3.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox8]));
+			w15.Position = 1;
+			w15.Expand = false;
+			w15.Fill = false;
+			this.tableContent.Add(this.vbox3);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableContent[this.vbox3]));
+			w16.TopAttach = ((uint)(1));
+			w16.BottomAttach = ((uint)(2));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableContent.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -128,15 +208,13 @@ namespace Vodovoz.Dialogs.Fuel
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '●';
 			this.tableContent.Add(this.yentryName);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableContent[this.yentryName]));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableContent[this.yentryName]));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxDialog.Add(this.tableContent);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.tableContent]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.tableContent]));
+			w18.Position = 1;
 			this.Add(this.vboxDialog);
 			if ((this.Child != null))
 			{

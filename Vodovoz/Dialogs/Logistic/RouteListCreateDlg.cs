@@ -107,6 +107,7 @@ namespace Vodovoz
 			}
 		}
 
+		public bool CanEditFixedPrice { get; set; }
 		public bool AskSaveOnClose => permissionResult.CanCreate && Entity.Id == 0 || permissionResult.CanUpdate;
 
 		private bool ConfigSubdivisionCombo()
@@ -174,6 +175,8 @@ namespace Vodovoz
 					evmeForwarder.IsEditable = false;
 				}
 			};
+
+			CanEditFixedPrice = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_route_list_fixed_price");
 
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
@@ -289,7 +292,13 @@ namespace Vodovoz
 
 			_canСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
 
-			_oldDriver = Entity.Driver;
+			fixPriceSpin.Binding.AddBinding(Entity, e => e.FixedShippingPrice, w => w.ValueAsDecimal).InitializeFromSource();
+			checkIsFixPrice.Binding.AddBinding(Entity, e => e.HasFixedShippingPrice, w => w.Active).InitializeFromSource();
+
+			checkIsFixPrice.Sensitive = CanEditFixedPrice;
+			fixPriceSpin.Sensitive = checkIsFixPrice.Active && CanEditFixedPrice;
+
+			oldDriver = Entity.Driver;
 			UpdateDlg(_isLogistican);
 
 			Entity.PropertyChanged += OnRouteListPropertyChanged;

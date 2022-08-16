@@ -286,6 +286,22 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref wasAcceptedByCashier, value);
 		}
 
+		private bool hasFixedShippingPrice;
+		[Display(Name = "Есть фиксированная стоимость доставки")]
+		public virtual bool HasFixedShippingPrice
+		{
+			get => hasFixedShippingPrice;
+			set => SetField(ref hasFixedShippingPrice, value, () => HasFixedShippingPrice);
+		}
+
+		private decimal fixedShippingPrice;
+		[Display(Name = "Фиксированная стоимость доставки")]
+		public virtual decimal FixedShippingPrice
+		{
+			get => fixedShippingPrice;
+			set => SetField(ref fixedShippingPrice, value, () => FixedShippingPrice);
+		}
+
 		Employee cashier;
 		[IgnoreHistoryTrace]
 		public virtual Employee Cashier {

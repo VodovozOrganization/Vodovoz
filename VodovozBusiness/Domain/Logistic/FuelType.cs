@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -35,7 +36,17 @@ namespace Vodovoz.Domain.Logistic
 			get { return cost; }
 			set { SetField (ref cost, value, () => Cost); }
 		}
-			
+
+		private IList<FuelPriceVersion> _fuelPriceVersions = new List<FuelPriceVersion>();
+		public virtual IList<FuelPriceVersion> FuelPriceVersions
+		{
+			get => _fuelPriceVersions;
+			set => SetField(ref _fuelPriceVersions, value);
+		}
+
+		private GenericObservableList<FuelPriceVersion> _observableFuelPriceVersions;
+		public virtual GenericObservableList<FuelPriceVersion> ObservableFuelPriceVersions => _observableFuelPriceVersions
+			?? (_observableFuelPriceVersions = new GenericObservableList<FuelPriceVersion>(FuelPriceVersions));
 
 		public FuelType ()
 		{
