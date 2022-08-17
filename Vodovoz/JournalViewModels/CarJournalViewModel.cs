@@ -22,6 +22,9 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -122,32 +125,70 @@ namespace Vodovoz.JournalViewModels
 			return result;
 		};
 
-		protected override Func<CarViewModel> CreateDialogFunction => () => new CarViewModel(
-			EntityUoWBuilder.ForCreate(),
-			UnitOfWorkFactory,
-			commonServices,
-			new EmployeeJournalFactory(),
-			new AttachmentsViewModelFactory(),
-			new CarModelJournalFactory(),
-			new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
-			new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
-				new BaseParametersProvider(new ParametersProvider()))),
-			new GeographicGroupParametersProvider(new ParametersProvider()),
-			NavigationManager
-		);
+		protected override Func<CarViewModel> CreateDialogFunction
+		{
+			get
+			{
+				return () =>
+				{
+					var commonServices = ServicesConfig.CommonServices;
+					var subdivisionJournalFactory = new SubdivisionJournalFactory();
+					var warehouseJournalFactory = new WarehouseJournalFactory();
+					var employeeService = new EmployeeService();
+					var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
+					var geoGroupJournalFactory = new GeoGroupJournalFactory(UnitOfWorkFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
 
-		protected override Func<CarJournalNode, CarViewModel> OpenDialogFunction => (node) => new CarViewModel(
-			EntityUoWBuilder.ForOpen(node.Id),
-			UnitOfWorkFactory,
-			commonServices,
-			new EmployeeJournalFactory(),
-			new AttachmentsViewModelFactory(),
-			new CarModelJournalFactory(),
-			new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
-			new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
-				new BaseParametersProvider(new ParametersProvider()))),
-			new GeographicGroupParametersProvider(new ParametersProvider()),
-			NavigationManager
-		);
+
+					var viewModel = new CarViewModel(
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory,
+						commonServices,
+						new EmployeeJournalFactory(),
+						new AttachmentsViewModelFactory(),
+						new CarModelJournalFactory(),
+						new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
+						new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
+						new BaseParametersProvider(new ParametersProvider()))),
+						new GeographicGroupParametersProvider(new ParametersProvider()),
+						geoGroupJournalFactory,
+						NavigationManager
+					);
+					return viewModel;
+				};
+			}
+		}
+
+		protected override Func<CarJournalNode, CarViewModel> OpenDialogFunction
+		{
+			get
+			{
+				return (node) =>
+				{
+					var commonServices = ServicesConfig.CommonServices;
+					var subdivisionJournalFactory = new SubdivisionJournalFactory();
+					var warehouseJournalFactory = new WarehouseJournalFactory();
+					var employeeService = new EmployeeService();
+					var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
+					var geoGroupJournalFactory = new GeoGroupJournalFactory(UnitOfWorkFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
+
+
+					var viewModel = new CarViewModel(
+						EntityUoWBuilder.ForOpen(node.Id),
+						UnitOfWorkFactory,
+						commonServices,
+						new EmployeeJournalFactory(),
+						new AttachmentsViewModelFactory(),
+						new CarModelJournalFactory(),
+						new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
+						new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
+						new BaseParametersProvider(new ParametersProvider()))),
+						new GeographicGroupParametersProvider(new ParametersProvider()),
+						geoGroupJournalFactory,
+						NavigationManager
+					);
+					return viewModel;
+				};
+			}
+		}
 	}
 }

@@ -8,6 +8,14 @@ using NHibernate.Criterion;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using QS.Project.Journal;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -75,7 +83,7 @@ namespace Vodovoz.Views.Logistic
 			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 
 			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-
+			
 			textDriverInfo.Selectable = true;
 
 			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
@@ -92,8 +100,11 @@ namespace Vodovoz.Views.Logistic
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
 			radiobuttonFiles.Toggled += OnRadiobuttonFilesToggled;
-			btnAddGeographicGroup.Clicked += OnBtnAddGeographicGroupClicked;
 			btnRemoveGeographicGroup.Clicked += OnBtnRemoveGeographicGroupClicked;
+
+			btnAddGeographicGroup.Clicked += (s, e) => ViewModel.AddGeoGroupCommand.Execute();
+			ViewModel.AddGeoGroupCommand.CanExecuteChanged += (s, e) => btnAddGeographicGroup.Sensitive = ViewModel.AddGeoGroupCommand.CanExecute();
+			ViewModel.AddGeoGroupCommand.RaiseCanExecuteChanged();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
@@ -120,30 +131,6 @@ namespace Vodovoz.Views.Logistic
 			if(radiobuttonFiles.Active)
 			{
 				notebook1.CurrentPage = 2;
-			}
-		}
-
-		protected void OnBtnAddGeographicGroupClicked(object sender, EventArgs e)
-		{
-			var selectGeographicGroups = new OrmReference(
-				QueryOver.Of<GeoGroup>().Where(gg => gg.Id != ViewModel.EastGeographicGroupId))
-			{
-				Mode = OrmReferenceMode.MultiSelect
-			};
-
-			selectGeographicGroups.ObjectSelected += SelectGeographicGroups_ObjectSelected;
-			
-			Tab.TabParent.AddSlaveTab(Tab, selectGeographicGroups);
-		}
-
-		private void SelectGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			foreach(var item in e.Subjects)
-			{
-				if(item is GeoGroup group && ViewModel.Entity.ObservableGeographicGroups.All(x => x.Id != group.Id))
-				{
-					ViewModel.Entity.ObservableGeographicGroups.Add(group);
-				}
 			}
 		}
 

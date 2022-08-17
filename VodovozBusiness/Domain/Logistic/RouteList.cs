@@ -1613,6 +1613,11 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult("Не указано состояние терминала водителя", new []{nameof(DriverTerminalCondition)});
 			}
+
+			if(GeographicGroups.Any(x => x.GetVersionOrNull(Date) == null))
+			{
+				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", new[] { nameof(GeographicGroups) });
+			}
 		}
 
 		#endregion

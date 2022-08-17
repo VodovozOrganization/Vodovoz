@@ -31,6 +31,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
@@ -392,6 +393,11 @@ namespace Vodovoz.Dialogs.Logistic
 				var driversToAddWithWithActivePrioritySets =
 					driversToAdd.Where(x => x.Employee.DriverDistrictPrioritySets.Any(p => p.IsActive));
 
+				if(!districtsBottles.Any())
+				{
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нет заказов на день для определения приоритета водителя.");
+					return;
+				}
 				var driver = driversToAddWithWithActivePrioritySets
 					.OrderByDescending(x => districtsBottles
 						.Where(db => x.Employee.DriverDistrictPrioritySets
@@ -412,6 +418,14 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().First();
 
+			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
+			var commonServices = ServicesConfig.CommonServices;
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
+			var warehouseJournalFactory = new WarehouseJournalFactory();
+			var employeeService = new EmployeeService();
+			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
+			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
+
 			TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),
 				() => new CarViewModel(
@@ -425,6 +439,7 @@ namespace Vodovoz.Dialogs.Logistic
 					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
 						new BaseParametersProvider(new ParametersProvider()))),
 					_geographicGroupParametersProvider,
+					geoGroupJournalFactory,
 					MainClass.MainWin.NavigationManager
 				)
 			);
