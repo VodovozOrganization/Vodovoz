@@ -283,7 +283,6 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ProductGroupViewModel, ProductGroupView>()
 				.RegisterWidgetForTabViewModel<CarManufacturerViewModel, CarManufacturerView>()
 				.RegisterWidgetForTabViewModel<UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonView>()
-				.RegisterWidgetForTabViewModel<NomenclaturePurchasePriceViewModel, NomenclaturePurchasePriceView>()
 				.RegisterWidgetForTabViewModel<CashlessRequestViewModel, CashlessRequestView>()
 				.RegisterWidgetForTabViewModel<CreateManualPaymentFromBankClientViewModel, CreateManualPaymentFromBankClientView>()
 				.RegisterWidgetForTabViewModel<FreeRentPackageViewModel, FreeRentPackageView>()

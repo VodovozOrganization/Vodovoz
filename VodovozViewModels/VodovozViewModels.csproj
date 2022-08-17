@@ -270,7 +270,7 @@
     <Compile Include="ViewModels\Logistic\TariffZoneViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TrackPointViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarManufacturerViewModel.cs" />
-    <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureCostPurchasePriceViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
     <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />

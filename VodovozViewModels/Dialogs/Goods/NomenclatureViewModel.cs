@@ -12,6 +12,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
@@ -49,7 +50,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
-			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, CommonServices);
+			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, new NomenclatureCostPurchasePriceModel());
 
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();

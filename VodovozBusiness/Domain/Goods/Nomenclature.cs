@@ -25,8 +25,8 @@ namespace Vodovoz.Domain.Goods
 	[HistoryTrace]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
-		IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
-		GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
+		IList<NomenclatureCostPurchasePrice> _purchasePrices = new List<NomenclatureCostPurchasePrice>();
+		GenericObservableList<NomenclatureCostPurchasePrice> _observablePurchasePrices;
 
 		private decimal _length;
 		private decimal _width;
@@ -478,14 +478,14 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		[Display(Name = "Цены закупки ТМЦ")]
-		public virtual IList<NomenclaturePurchasePrice> PurchasePrices
+		public virtual IList<NomenclatureCostPurchasePrice> PurchasePrices
 		{
 			get => _purchasePrices;
 			set => SetField(ref _purchasePrices, value);
 		}
 
-		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
-			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
+		public virtual GenericObservableList<NomenclatureCostPurchasePrice> ObservablePurchasePrices =>
+			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclatureCostPurchasePrice>(PurchasePrices));
 
 		#endregion
 
@@ -740,40 +740,6 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 
-		public virtual void ChangePurchasePrice(NomenclaturePurchasePrice purchasePrice, DateTime startDate)
-		{
-			if(purchasePrice == null)
-			{
-				throw new ArgumentNullException(nameof(purchasePrice));
-			}
-
-			purchasePrice.Nomenclature = this;
-			purchasePrice.StartDate = startDate;
-			NomenclaturePurchasePrice oldPurchasePrice = ObservablePurchasePrices.FirstOrDefault(x => x.EndDate == null);
-
-			if(oldPurchasePrice != null)
-			{
-				if(oldPurchasePrice.StartDate > startDate)
-				{
-					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
-				}
-				oldPurchasePrice.EndDate = startDate.AddMilliseconds(-1);
-			}
-			ObservablePurchasePrices.Add(purchasePrice);
-		}
-
-		public virtual bool CheckStartDateForNewPurchasePrice(DateTime newStartDate)
-		{
-			NomenclaturePurchasePrice oldPurchasePrice = _observablePurchasePrices.FirstOrDefault(x => x.EndDate == null);
-
-			if(oldPurchasePrice == null)
-			{
-				return true;
-			}
-
-			return oldPurchasePrice.StartDate < newStartDate;
-		}
-
 		#endregion
 
 		#region IValidatableObject implementation
@@ -894,6 +860,14 @@ namespace Vodovoz.Domain.Goods
 					"С 01.01.2019 ставка НДС 20%",
 					new[] { this.GetPropertyName(o => o.VAT) }
 				);
+
+			foreach(var purchasePrice in PurchasePrices)
+			{
+				foreach(var validationResult in purchasePrice.Validate(validationContext))
+				{
+					yield return validationResult;
+				}
+			}
 		}
 
 		#endregion

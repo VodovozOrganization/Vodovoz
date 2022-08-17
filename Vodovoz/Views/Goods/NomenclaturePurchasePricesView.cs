@@ -1,8 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
-using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.Views.Goods
 {
@@ -16,38 +14,37 @@ namespace Vodovoz.Views.Goods
 
 		protected override void ConfigureWidget()
 		{
-			treeViewPurchasePrices.ColumnsConfig = FluentColumnsConfig<NomenclaturePurchasePrice>.Create()
-				.AddColumn("Цена").AddNumericRenderer(x => $"{x.PurchasePrice:N2} ₽")
-				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDate.ToString("G"))
-				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToString("G") : "")
+			treeViewPurchasePrices.ColumnsConfig = FluentColumnsConfig<NomenclatureCostPurchasePriceViewModel>.Create()
+				.AddColumn("Цена").AddNumericRenderer(x => x.PurchasePrice)
+					.Digits(2)
+					.Editing(x => x.CanEditPrice)
+					.Adjustment(new Gtk.Adjustment(0, 0, 999999999, 1, 10, 10))
+				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDateTitle)
+				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDateTitle)
 				.Finish();
-
-			treeViewPurchasePrices.ItemsDataSource = ViewModel.Entity.ObservablePurchasePrices;
-
-			treeViewPurchasePrices.RowActivated += (o, args) => 
-				ViewModel.OpenPurchasePriceCommand.Execute(GetSelectedNode());
-			
-			treeViewPurchasePrices.Selection.Changed += (sender, e) =>
-			{
-				ViewModel.ChangePurchasePriceCommand.RaiseCanExecuteChanged();
-				ViewModel.ChangePurchasePriceStartDateCommand.RaiseCanExecuteChanged();
-				ViewModel.OpenPurchasePriceCommand.RaiseCanExecuteChanged();
-			};
+			treeViewPurchasePrices.Binding.AddBinding(ViewModel, vm => vm.PriceViewModels, w => w.ItemsDataSource).InitializeFromSource();
+			treeViewPurchasePrices.Selection.Changed += Selection_Changed;
 
 			ydatepickerStart.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.Date).InitializeFromSource();
 
-			buttonChangePurchasePrice.Clicked += (sender, e) => ViewModel.ChangePurchasePriceCommand.Execute();
-			ViewModel.ChangePurchasePriceCommand.CanExecuteChanged += (sender, e) => buttonChangePurchasePrice.Sensitive = ViewModel.ChangePurchasePriceCommand.CanExecute();
-			buttonChangePurchasePrice.Sensitive = ViewModel.ChangePurchasePriceCommand.CanExecute();
+			buttonChangePurchasePrice.Clicked += (sender, e) => ViewModel.CreatePriceCommand.Execute();
+			ViewModel.CreatePriceCommand.CanExecuteChanged += (sender, e) => buttonChangePurchasePrice.Sensitive = ViewModel.CreatePriceCommand.CanExecute();
+			ViewModel.CreatePriceCommand.RaiseCanExecuteChanged();
 
-			buttonChangeDate.Clicked += (sender, e) => ViewModel.ChangePurchasePriceStartDateCommand.Execute(GetSelectedNode());
-			ViewModel.ChangePurchasePriceStartDateCommand.CanExecuteChanged += (sender, e) => buttonChangeDate.Sensitive = ViewModel.ChangePurchasePriceStartDateCommand.CanExecute(GetSelectedNode());
-			buttonChangeDate.Sensitive = ViewModel.ChangePurchasePriceStartDateCommand.CanExecute(GetSelectedNode());
+			buttonChangeDate.Clicked += (sender, e) => ViewModel.ChangeDateCommand.Execute();
+			ViewModel.ChangeDateCommand.CanExecuteChanged += (sender, e) => buttonChangeDate.Sensitive = ViewModel.ChangeDateCommand.CanExecute();
+			ViewModel.CreatePriceCommand.RaiseCanExecuteChanged();
 		}
 
-		private NomenclaturePurchasePrice GetSelectedNode()
+		private void Selection_Changed(object sender, System.EventArgs e)
 		{
-			return treeViewPurchasePrices.GetSelectedObject() as NomenclaturePurchasePrice;
+			var selectedPrice = treeViewPurchasePrices.GetSelectedObject<NomenclatureCostPurchasePriceViewModel>();
+			if(selectedPrice == null)
+			{
+				return;
+			}
+
+			ViewModel.SelectedPrice = selectedPrice;
 		}
 	}
 }

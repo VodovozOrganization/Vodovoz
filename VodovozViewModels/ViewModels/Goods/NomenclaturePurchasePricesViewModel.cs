@@ -1,140 +1,127 @@
 ﻿using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
 using System;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Models;
+using VodovozInfrastructure.Observable;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
-	public class NomenclaturePurchasePricesViewModel : EntityWidgetViewModelBase<Nomenclature>
+	public class NomenclaturePurchasePricesViewModel : WidgetViewModelBase
 	{
-		private readonly ITdiTab _tab;
-		private DateTime? _startDate;
-		private DelegateCommand _changePurchasePriceCommand;
-		private DelegateCommand<NomenclaturePurchasePrice> _changePurchasePriceStartDateCommand;
-		private DelegateCommand<NomenclaturePurchasePrice> _openPurchasePriceCommand;
+		private readonly Nomenclature _entity;
+		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
+		private readonly IReadyObservableListBinding _pricesBinding;
+		private GenericObservableList<NomenclatureCostPurchasePriceViewModel> _priceViewModels = new GenericObservableList<NomenclatureCostPurchasePriceViewModel>();
+		private NomenclatureCostPurchasePriceViewModel _selectedPrice;
 
-		public NomenclaturePurchasePricesViewModel(
-			Nomenclature entity,
-			ITdiTab tab,
-			IUnitOfWork uow,
-			ICommonServices commonServices) : base(entity, commonServices)
+
+		private DateTime? _startDate;
+		private DelegateCommand _changeDateCommand;
+		private DelegateCommand _createPriceCommand;
+
+		public NomenclaturePurchasePricesViewModel(Nomenclature entity, NomenclatureCostPurchasePriceModel nomenclatureCostPurchasePriceModel)
 		{
-			_tab = tab ?? throw new ArgumentNullException(nameof(tab));
-			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			_entity = entity ?? throw new ArgumentNullException(nameof(entity));
+			_nomenclatureCostPurchasePriceModel = nomenclatureCostPurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPurchasePriceModel));
+
+			_pricesBinding = ObservableListBinder.Bind(entity.ObservablePurchasePrices).To(PriceViewModels, CreatePriceViewModel);
+			PriceViewModels.ListContentChanged += PriceViewModels_ListContentChanged;
 		}
 
-		private NomenclaturePurchasePrice GetPreviousPurchasePrice(DateTime date) =>
-			Entity.ObservablePurchasePrices
-			.Where(x => x.EndDate != null)
-			.Where(x => x.EndDate <= date)
-			.OrderByDescending(x => x.EndDate)
-			.FirstOrDefault();
+		private NomenclatureCostPurchasePriceViewModel CreatePriceViewModel(NomenclatureCostPurchasePrice price)
+		{
+			return new NomenclatureCostPurchasePriceViewModel(price);
+		}
 
-		private bool CanChangePurchasePrice => (StartDate.HasValue && Entity.CheckStartDateForNewPurchasePrice(StartDate.Value));
+		private void PriceViewModels_ListContentChanged(object sender, EventArgs e)
+		{
+			CreatePriceCommand.RaiseCanExecuteChanged();
+			ChangeDateCommand.RaiseCanExecuteChanged();
+		}
 
-		[PropertyChangedAlso(nameof(CanChangePurchasePrice))]
+		public virtual GenericObservableList<NomenclatureCostPurchasePriceViewModel> PriceViewModels
+		{
+			get => _priceViewModels;
+			private set => SetField(ref _priceViewModels, value);
+		}
+
+		public virtual NomenclatureCostPurchasePriceViewModel SelectedPrice
+		{
+			get => _selectedPrice;
+			set => SetField(ref _selectedPrice, value);
+		}
+
 		public virtual DateTime? StartDate
 		{
 			get => _startDate;
-			set => SetField(ref _startDate, value, () => StartDate);
-		}
-
-		#region Commands
-
-		public DelegateCommand ChangePurchasePriceCommand
-		{
-			get
+			set
 			{
-				if(_changePurchasePriceCommand == null)
+				if(SetField(ref _startDate, value, () => StartDate))
 				{
-					_changePurchasePriceCommand = new DelegateCommand(
-						() =>
-						{
-							var nomenclaturePurchasePriceViewModel = new NomenclaturePurchasePriceViewModel(UoW, Entity, CommonServices);
-							nomenclaturePurchasePriceViewModel.OnPurchasePriceCreated += (sender, purchasePrice) => Entity.ChangePurchasePrice(purchasePrice, StartDate.Value);
-
-							_tab.TabParent.AddSlaveTab(_tab, nomenclaturePurchasePriceViewModel);
-						},
-						() => CanChangePurchasePrice
-					);
-					_changePurchasePriceCommand.CanExecuteChangedWith(this, x => x.CanChangePurchasePrice);
+					OnPropertyChanged(nameof(CanAddPrice));
+					OnPropertyChanged(nameof(CanChangeDate));
 				}
-
-				return _changePurchasePriceCommand;
 			}
 		}
 
-		public DelegateCommand<NomenclaturePurchasePrice> ChangePurchasePriceStartDateCommand
+		#region Create price
+
+		public DelegateCommand CreatePriceCommand
 		{
 			get
 			{
-				if(_changePurchasePriceStartDateCommand == null)
+				if(_createPriceCommand == null)
 				{
-					_changePurchasePriceStartDateCommand = new DelegateCommand<NomenclaturePurchasePrice>(
-						(node) =>
-						{
-							if(!CommonServices.InteractiveService.Question(
-								"Внимание! Будет произведено изменение даты цены закупки." +
-								" Продолжить?", "Внимание!"))
-							{
-								return;
-							}
-
-							var previousPurchasePrice = GetPreviousPurchasePrice(node.StartDate);
-							if(previousPurchasePrice != null)
-							{
-								previousPurchasePrice.EndDate = StartDate.Value.AddTicks(-1);
-							}
-							node.StartDate = StartDate.Value;
-						},
-						(node) =>
-						{
-							if(node == null || !StartDate.HasValue)
-							{
-								return false;
-							}
-							var previousPurchasePriceByDate = GetPreviousPurchasePrice(StartDate.Value);
-							var previousPurchasePriceBySelectedParameter = GetPreviousPurchasePrice(node.StartDate);
-
-							bool noConflictWithEndDate = !node.EndDate.HasValue || node.EndDate.Value > StartDate;
-							bool noConflictWithPreviousStartDate = (previousPurchasePriceByDate == null && previousPurchasePriceBySelectedParameter == null) || (previousPurchasePriceBySelectedParameter != null && previousPurchasePriceBySelectedParameter.StartDate < StartDate);
-
-							return StartDate.HasValue && noConflictWithEndDate && noConflictWithPreviousStartDate;
-						}
-					);
-					_changePurchasePriceStartDateCommand.CanExecuteChangedWith(this, x => x.StartDate);
+					_createPriceCommand = new DelegateCommand(CreatePrice, () => CanAddPrice);
+					_createPriceCommand.CanExecuteChangedWith(this, x => x.CanAddPrice);
 				}
 
-				return _changePurchasePriceStartDateCommand;
+				return _createPriceCommand;
 			}
 		}
 
-		public DelegateCommand<NomenclaturePurchasePrice> OpenPurchasePriceCommand
+		private bool CanAddPrice => StartDate.HasValue
+			&& _nomenclatureCostPurchasePriceModel.CanCreatePrice(_entity, StartDate.Value);
+
+		private void CreatePrice()
+		{
+			_nomenclatureCostPurchasePriceModel.CreatePrice(_entity, StartDate.Value);
+		}
+
+		#endregion Create price
+
+		#region Change date
+
+		public DelegateCommand ChangeDateCommand
 		{
 			get
 			{
-				if(_openPurchasePriceCommand == null)
+				if(_changeDateCommand == null)
 				{
-					_openPurchasePriceCommand = new DelegateCommand<NomenclaturePurchasePrice>(
-						(node) =>
-						{
-							NomenclaturePurchasePriceViewModel nomenclaturePurchasePriceViewModel = new NomenclaturePurchasePriceViewModel(UoW, node, CommonServices);
-							_tab.TabParent.AddTab(nomenclaturePurchasePriceViewModel, _tab);
-						},
-						(node) => node != null
-					);
+					_changeDateCommand = new DelegateCommand(ChangeDate, () => CanChangeDate);
+					_changeDateCommand.CanExecuteChangedWith(this, x => x.CanChangeDate, x => x.SelectedPrice);
 				}
 
-				return _openPurchasePriceCommand;
+				return _changeDateCommand;
 			}
 		}
 
-		#endregion Commands
+		private bool CanChangeDate => StartDate.HasValue 
+			&& SelectedPrice != null
+			&& _nomenclatureCostPurchasePriceModel.CanChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
+
+		private void ChangeDate()
+		{
+			
+			_nomenclatureCostPurchasePriceModel.ChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
+		}
+
+		#endregion Change date
 	}
 }
