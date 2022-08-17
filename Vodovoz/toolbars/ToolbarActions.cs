@@ -999,10 +999,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListMileageCheckView>(),
-			() => new RouteListMileageCheckView()
-		);
+		NavigationManager.OpenTdiTab<RouteListMileageCheckView>(null);
 	}
 
 	void ActionCashDocuments_Activated(object sender, System.EventArgs e)

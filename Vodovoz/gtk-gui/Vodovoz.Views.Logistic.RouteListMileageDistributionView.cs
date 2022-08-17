@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yLabel ylabel5;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelConfirmedDistance;
+		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonConfirmedMileageAtDay;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonDistribute;
 
@@ -90,11 +90,17 @@ namespace Vodovoz.Views.Logistic
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child yhboxTitle.Gtk.Box+BoxChild
-			this.ylabelConfirmedDistance = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelConfirmedDistance.Name = "ylabelConfirmedDistance";
-			this.ylabelConfirmedDistance.LabelProp = global::Mono.Unix.Catalog.GetString("ylabelConfirmedDistance");
-			this.yhboxTitle.Add(this.ylabelConfirmedDistance);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ylabelConfirmedDistance]));
+			this.yspinbuttonConfirmedMileageAtDay = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 0.1D);
+			this.yspinbuttonConfirmedMileageAtDay.CanFocus = true;
+			this.yspinbuttonConfirmedMileageAtDay.Name = "yspinbuttonConfirmedMileageAtDay";
+			this.yspinbuttonConfirmedMileageAtDay.Adjustment.PageIncrement = 1D;
+			this.yspinbuttonConfirmedMileageAtDay.Adjustment.PageSize = 1D;
+			this.yspinbuttonConfirmedMileageAtDay.ClimbRate = 1D;
+			this.yspinbuttonConfirmedMileageAtDay.Numeric = true;
+			this.yspinbuttonConfirmedMileageAtDay.ValueAsDecimal = 0m;
+			this.yspinbuttonConfirmedMileageAtDay.ValueAsInt = 0;
+			this.yhboxTitle.Add(this.yspinbuttonConfirmedMileageAtDay);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.yspinbuttonConfirmedMileageAtDay]));
 			w6.Position = 5;
 			w6.Expand = false;
 			w6.Fill = false;
@@ -140,7 +146,7 @@ namespace Vodovoz.Views.Logistic
 			this.yhboxBottom.Add(this.ybuttonSave);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxBottom[this.ybuttonSave]));
 			w11.PackType = ((global::Gtk.PackType)(1));
-			w11.Position = 1;
+			w11.Position = 2;
 			w11.Expand = false;
 			w11.Fill = false;
 			this.yvboxMain.Add(this.yhboxBottom);

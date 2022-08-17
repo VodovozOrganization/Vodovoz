@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -23,7 +24,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListMileageCheckView : QS.Dialog.Gtk.TdiTabBase
 	{
-		private readonly ILifetimeScope _autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+		private readonly ILifetimeScope _autofacScope;
 
 		private IUnitOfWork uow;
 
@@ -46,8 +47,9 @@ namespace Vodovoz
 			}
 		}
 
-		public RouteListMileageCheckView()
+		public RouteListMileageCheckView(ILifetimeScope autofacScope)
 		{
+			_autofacScope = autofacScope ?? throw  new ArgumentNullException(nameof(autofacScope));
 			this.Build();
 			this.TabName = "Контроль за километражем.";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
@@ -82,7 +84,8 @@ namespace Vodovoz
 				_autofacScope.Resolve<IErrorReporter>(),
 				wageParameterService,
 				_autofacScope.Resolve<IRouteListRepository>(),
-				_autofacScope.Resolve<IRouteListItemRepository>()
+				_autofacScope.Resolve<IRouteListItemRepository>(),
+				_autofacScope.Resolve<IValidationContextFactory>()
 			);
 
 			TabParent.AddSlaveTab(this, routeListMileageCheckViewModel);

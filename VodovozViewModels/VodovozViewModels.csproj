@@ -51,6 +51,7 @@
     <Compile Include="Dialogs\Goods\NomenclatureViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListMileageDistributionNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageDistributionViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsEntityViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsStreetViewModel.cs" />

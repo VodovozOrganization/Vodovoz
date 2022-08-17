@@ -9,7 +9,6 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	//[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListMileageCheckView : TabViewBase<RouteListMileageCheckViewModel>
 	{
 		public RouteListMileageCheckView(RouteListMileageCheckViewModel viewModel) : base(viewModel)
@@ -86,6 +85,7 @@ namespace Vodovoz.Views.Logistic
 			buttonOpenMap.Clicked += (sender, e) => ViewModel.OpenMapCommand.Execute();
 			buttonFromTrack.Clicked += (sender, e) => ViewModel.FromTrackCommand.Execute();
 			buttonAcceptFine.Clicked += (sender, e) => ViewModel.AcceptFineCommand.Execute();
+			buttonMileageDistribution.Clicked += (sender, e) => ViewModel.DistributeMiliageCommand.Execute();
 
 			ybuttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			ybuttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);

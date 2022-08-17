@@ -46,6 +46,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
 using Vodovoz.JournalViewers;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -623,7 +624,8 @@ namespace Vodovoz.ViewModel
 								_autofacScope.Resolve<IErrorReporter>(),
 								wageParameterService,
 								_autofacScope.Resolve<IRouteListRepository>(),
-								_autofacScope.Resolve<IRouteListItemRepository>()
+								_autofacScope.Resolve<IRouteListItemRepository>(),
+								_autofacScope.Resolve<IValidationContextFactory>()
 							);
 
 							MainClass.MainWin.TdiMain.AddTab(routeListMileageCheckViewModel);

@@ -8,6 +8,7 @@ using QS.ViewModels.Extension;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
@@ -17,6 +18,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Factories;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -40,7 +42,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IOrderRepository _orderRepository;
 		private readonly IErrorReporter _errorReporter;
 		private readonly WageParameterService _wageParameterService;
-		private readonly ICommonServices _commonServices;
+		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		private bool _canEdit;
 
@@ -49,6 +52,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand _acceptFineCommand;
 		private DelegateCommand _openMapCommand;
 		private DelegateCommand _fromTrackCommand;
+		private DelegateCommand _distributeMiliageCommand;
+		private readonly IValidationContextFactory _validationContextFactory;
 
 		#endregion
 
@@ -68,10 +73,10 @@ namespace Vodovoz.ViewModels.Logistic
 			IErrorReporter errorReporter,
 			WageParameterService wageParameterService,
 			IRouteListRepository routeListRepository,
-			IRouteListItemRepository routeListItemRepository)
+			IRouteListItemRepository routeListItemRepository,
+			IValidationContextFactory validationContextFactory)
 			: base(uowBuilder, commonServices)
 		{
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ??
 											   throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
@@ -83,6 +88,11 @@ namespace Vodovoz.ViewModels.Logistic
 			_errorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+
+			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			ConfigureValidationContext();
 
 			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
 
@@ -120,9 +130,16 @@ namespace Vodovoz.ViewModels.Logistic
 					return;
 				}
 			}
+		}
 
-			ValidationContext.Items.Add(nameof(IRouteListRepository), routeListRepository);
-			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
+		private void ConfigureValidationContext()
+		{
+			ValidationContext = _validationContextFactory.CreateNewValidationContext(Entity, 
+				new Dictionary<object, object>
+					{
+						{nameof(IRouteListRepository), _routeListRepository},
+						{nameof(IRouteListItemRepository), _routeListItemRepository}
+					});
 		}
 
 		private IList<RouteListKeepingNode> GenerateRouteListItems()
@@ -174,7 +191,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool IsEditAvailable => CanEdit && Entity.Status != RouteListStatus.Closed;
 		public bool IsAcceptAvailable => Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck;
 		public bool AskSaveOnClose => CanEdit;
-		public IEnumerable DeliveryShifts { get; }
+		public IList<DeliveryShift> DeliveryShifts { get; }
 		public IList<RouteListKeepingNode> RouteListItems { get; }
 
 		public virtual CallTaskWorker CallTaskWorker =>
@@ -192,7 +209,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand AcceptCommand =>
 			_acceptCommand ?? (_acceptCommand = new DelegateCommand(() =>
 				{
-					if(!_commonServices.ValidationService.Validate(Entity, ValidationContext))
+					if(!CommonServices.ValidationService.Validate(Entity, ValidationContext))
 					{
 						return;
 					}
@@ -224,7 +241,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var track = _trackRepository.GetTrackByRouteListId(UoW, Entity.Id);
 					if(track == null)
 					{
-						_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 							"Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
 						return;
 					}
@@ -243,11 +260,29 @@ namespace Vodovoz.ViewModels.Logistic
 				() => true
 			));
 
+		public DelegateCommand DistributeMiliageCommand =>
+			_distributeMiliageCommand ?? (_distributeMiliageCommand = new DelegateCommand(() =>
+				{
+					var routeListMileageDistributionViewModel = new RouteListMileageDistributionViewModel(
+						EntityUoWBuilder.ForOpen(Entity.Id),
+						CommonServices,
+						_routeListRepository,
+						_routeListItemRepository,
+						_wageParameterService,
+						CallTaskWorker,
+						_validationContextFactory
+					);
+
+					TabParent.AddSlaveTab(this, routeListMileageDistributionViewModel);
+				},
+				() => true
+			));
+
 		#endregion
 
 		protected override bool BeforeSave()
 		{
-			if(!_commonServices.ValidationService.Validate(Entity, ValidationContext))
+			if(!CommonServices.ValidationService.Validate(Entity, ValidationContext))
 			{
 				return false;
 			}
@@ -256,7 +291,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				if(Entity.FuelOperationHaveDiscrepancy())
 				{
-					if(!_commonServices.InteractiveService.Question(
+					if(!CommonServices.InteractiveService.Question(
 						   "Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?"))
 					{
 						return false;

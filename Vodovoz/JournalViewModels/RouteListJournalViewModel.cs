@@ -660,7 +660,8 @@ namespace Vodovoz.JournalViewModels
 							_errorReporter,
 							_wageParameterService,
 							_routeListRepository,
-							_routeListItemRepository
+							_routeListItemRepository,
+							_validationContextFactory
 							);
 
 						TabParent.AddSlaveTab(this, routeListMileageCheckViewModel);
