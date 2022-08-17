@@ -562,6 +562,7 @@ namespace Vodovoz
 
 			builder.RegisterType<OrderDiscountsController>().As<IOrderDiscountsController>();
 			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>();
+			builder.RegisterType<MovementDocumentsNotificationsController>().AsImplementedInterfaces();
 
 			#endregion
 
