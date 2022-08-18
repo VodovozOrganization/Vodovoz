@@ -100,6 +100,9 @@
     <Reference Include="System.ComponentModel" />
     <Reference Include="mscorlib" />
     <Reference Include="System.Numerics" />
+    <Reference Include="GammaBinding">
+      <HintPath>..\..\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -1743,6 +1746,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.OrganizationVersionsView.cs" />
     <Compile Include="Views\Goods\NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureInnerDeliveryPricesView.cs" />
+    <Compile Include="Views\Goods\GroupNomenclaturePriceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.GroupNomenclaturePriceView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
