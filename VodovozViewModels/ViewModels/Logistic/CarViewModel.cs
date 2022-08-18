@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			ICarModelJournalFactory carModelJournalFactory,
 			ICarVersionsViewModelFactory carVersionsViewModelFactory,
+			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
 			IGeographicGroupParametersProvider geographicGroupParametersProvider,
 			INavigationManager navigationManager)
@@ -56,6 +57,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 			CarVersionsViewModel = carVersionsViewModelFactory?.CreateCarVersionsViewModel(Entity)
 				?? throw new ArgumentNullException(nameof(carVersionsViewModelFactory));
+			OdometerReadingsViewModel = odometerReadingsViewModelFactory?.CreateOdometerReadingsViewModel(Entity)
+			                            ?? throw new ArgumentNullException(nameof(odometerReadingsViewModelFactory));
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
 				_canChangeBottlesFromAddressPermissionName,
@@ -104,6 +107,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ICarModelJournalFactory CarModelJournalFactory { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }
+		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }
 
 		public override bool Save(bool close)
 		{

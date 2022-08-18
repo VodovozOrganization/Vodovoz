@@ -26,6 +26,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private IList<CarVersion> _carVersions = new List<CarVersion>();
 		private GenericObservableList<Attachment> _observableAttachments;
 		private GenericObservableList<CarVersion> _observableCarVersions;
+		private IList<OdometerReading> _odometerReadings = new List<OdometerReading>();
+		private GenericObservableList<OdometerReading> _observableOdometerReadings;
 		private string _carcase;
 		private string _chassisNumber;
 		private string _color;
@@ -76,6 +78,15 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public virtual GenericObservableList<CarVersion> ObservableCarVersions => _observableCarVersions
 			?? (_observableCarVersions = new GenericObservableList<CarVersion>(CarVersions));
+
+		public virtual IList<OdometerReading> OdometerReadings
+		{
+			get => _odometerReadings;
+			set => SetField(ref _odometerReadings, value);
+		}
+		
+		public virtual GenericObservableList<OdometerReading> ObservableOdometerReadings => _observableOdometerReadings 
+		    ?? (_observableOdometerReadings = new GenericObservableList<OdometerReading>(OdometerReadings));
 
 		[Display(Name = "Государственный номер")]
 		public virtual string RegistrationNumber

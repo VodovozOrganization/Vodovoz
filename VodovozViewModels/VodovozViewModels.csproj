@@ -49,6 +49,8 @@
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Dialogs\Goods\AdditionalLoadingSettingsViewModel.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureViewModel.cs" />
+    <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageDistributionNode.cs" />
@@ -441,6 +443,7 @@
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
     <Compile Include="Widgets\AdditionalLoadingItemsViewModel.cs" />
+    <Compile Include="Widgets\Cars\OdometerReadingViewModel.cs" />
     <Compile Include="Widgets\Cars\CarVersionsViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />

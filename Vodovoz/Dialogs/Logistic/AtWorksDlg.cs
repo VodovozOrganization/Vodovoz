@@ -400,6 +400,7 @@ namespace Vodovoz.Dialogs.Logistic
 					_attachmentsViewModelFactory,
 					new CarModelJournalFactory(),
 					new CarVersionsViewModelFactory(ServicesConfig.CommonServices),
+					new OdometerReadingsViewModelFactory(ServicesConfig.CommonServices),
 					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
 						new BaseParametersProvider(new ParametersProvider()))),
 					_geographicGroupParametersProvider,
