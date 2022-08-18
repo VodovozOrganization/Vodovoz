@@ -8,31 +8,31 @@ using VodovozInfrastructure.Observable;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
-	public class NomenclaturePurchasePricesViewModel : WidgetViewModelBase
+	public class NomenclatureInnerDeliveryPricesViewModel : WidgetViewModelBase
 	{
 		private readonly Nomenclature _entity;
-		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
+		private readonly NomenclatureInnerDeliveryPriceModel _nomenclatureInnerDeliveryPriceModel;
 		private readonly IReadyObservableListBinding _pricesBinding;
-		private GenericObservableList<NomenclatureCostPurchasePriceViewModel> _priceViewModels = new GenericObservableList<NomenclatureCostPurchasePriceViewModel>();
-		private NomenclatureCostPurchasePriceViewModel _selectedPrice;
+		private GenericObservableList<NomenclatureInnerDeliveryPriceViewModel> _priceViewModels = new GenericObservableList<NomenclatureInnerDeliveryPriceViewModel>();
+		private NomenclatureInnerDeliveryPriceViewModel _selectedPrice;
 
 
 		private DateTime? _startDate;
 		private DelegateCommand _changeDateCommand;
 		private DelegateCommand _createPriceCommand;
 
-		public NomenclaturePurchasePricesViewModel(Nomenclature entity, NomenclatureCostPurchasePriceModel nomenclatureCostPurchasePriceModel)
+		public NomenclatureInnerDeliveryPricesViewModel(Nomenclature entity, NomenclatureInnerDeliveryPriceModel nomenclatureInnerDeliveryPriceModel)
 		{
 			_entity = entity ?? throw new ArgumentNullException(nameof(entity));
-			_nomenclatureCostPurchasePriceModel = nomenclatureCostPurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPurchasePriceModel));
+			_nomenclatureInnerDeliveryPriceModel = nomenclatureInnerDeliveryPriceModel ?? throw new ArgumentNullException(nameof(nomenclatureInnerDeliveryPriceModel));
 
-			_pricesBinding = ObservableListBinder.Bind(entity.ObservablePurchasePrices).To(PriceViewModels, CreatePriceViewModel);
+			_pricesBinding = ObservableListBinder.Bind(entity.ObservableInnerDeliveryPrices).To(PriceViewModels, CreatePriceViewModel);
 			PriceViewModels.ListContentChanged += PriceViewModels_ListContentChanged;
 		}
 
-		private NomenclatureCostPurchasePriceViewModel CreatePriceViewModel(NomenclatureCostPurchasePrice price)
+		private NomenclatureInnerDeliveryPriceViewModel CreatePriceViewModel(NomenclatureInnerDeliveryPrice price)
 		{
-			return new NomenclatureCostPurchasePriceViewModel(price);
+			return new NomenclatureInnerDeliveryPriceViewModel(price);
 		}
 
 		private void PriceViewModels_ListContentChanged(object sender, EventArgs e)
@@ -41,13 +41,13 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			ChangeDateCommand.RaiseCanExecuteChanged();
 		}
 
-		public virtual GenericObservableList<NomenclatureCostPurchasePriceViewModel> PriceViewModels
+		public virtual GenericObservableList<NomenclatureInnerDeliveryPriceViewModel> PriceViewModels
 		{
 			get => _priceViewModels;
 			private set => SetField(ref _priceViewModels, value);
 		}
 
-		public virtual NomenclatureCostPurchasePriceViewModel SelectedPrice
+		public virtual NomenclatureInnerDeliveryPriceViewModel SelectedPrice
 		{
 			get => _selectedPrice;
 			set => SetField(ref _selectedPrice, value);
@@ -83,11 +83,11 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		}
 
 		private bool CanAddPrice => StartDate.HasValue
-			&& _nomenclatureCostPurchasePriceModel.CanCreatePrice(_entity, StartDate.Value);
+			&& _nomenclatureInnerDeliveryPriceModel.CanCreatePrice(_entity, StartDate.Value);
 
 		private void CreatePrice()
 		{
-			_nomenclatureCostPurchasePriceModel.CreatePrice(_entity, StartDate.Value);
+			_nomenclatureInnerDeliveryPriceModel.CreatePrice(_entity, StartDate.Value);
 		}
 
 		#endregion Create price
@@ -110,12 +110,12 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private bool CanChangeDate => StartDate.HasValue 
 			&& SelectedPrice != null
-			&& _nomenclatureCostPurchasePriceModel.CanChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
+			&& _nomenclatureInnerDeliveryPriceModel.CanChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
 
 		private void ChangeDate()
 		{
-			
-			_nomenclatureCostPurchasePriceModel.ChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
+
+			_nomenclatureInnerDeliveryPriceModel.ChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
 		}
 
 		#endregion Change date

@@ -26,7 +26,9 @@ namespace Vodovoz.Domain.Goods
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
 		IList<NomenclatureCostPurchasePrice> _purchasePrices = new List<NomenclatureCostPurchasePrice>();
+		IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureCostPurchasePrice>();
 		GenericObservableList<NomenclatureCostPurchasePrice> _observablePurchasePrices;
+		GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 
 		private decimal _length;
 		private decimal _width;
@@ -487,6 +489,15 @@ namespace Vodovoz.Domain.Goods
 		public virtual GenericObservableList<NomenclatureCostPurchasePrice> ObservablePurchasePrices =>
 			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclatureCostPurchasePrice>(PurchasePrices));
 
+		[Display(Name = "Стоимости доставки ТМЦ на склад")]
+		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
+		{
+			get => _innerDeliveryPrices;
+			set => SetField(ref _innerDeliveryPrices, value);
+		}
+
+		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
+			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(ObservableInnerDeliveryPrices));
 		#endregion
 
 		#region Свойства товаров для магазина

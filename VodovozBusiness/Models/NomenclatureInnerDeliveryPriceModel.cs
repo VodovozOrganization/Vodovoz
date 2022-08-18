@@ -4,7 +4,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Models
 {
-	public class NomenclatureCostPurchasePriceModel
+	public class NomenclatureInnerDeliveryPriceModel
 	{
 		public void CreatePrice(Nomenclature nomenclature, DateTime startDate)
 		{
@@ -14,10 +14,10 @@ namespace Vodovoz.Models
 			}
 
 			CloseActivePrice(nomenclature, startDate);
-			var newPrice = new NomenclatureCostPurchasePrice();
+			var newPrice = new NomenclatureInnerDeliveryPrice();
 			newPrice.Nomenclature = nomenclature;
 			newPrice.StartDate = startDate;
-			nomenclature.ObservablePurchasePrices.Add(newPrice);
+			nomenclature.ObservableInnerDeliveryPrices.Add(newPrice);
 		}
 
 		public bool CanCreatePrice(Nomenclature nomenclature, DateTime startDate)
@@ -35,14 +35,14 @@ namespace Vodovoz.Models
 			return true;
 		}
 
-		public void ChangeDate(Nomenclature nomenclature, NomenclatureCostPurchasePrice price, DateTime startDate)
+		public void ChangeDate(Nomenclature nomenclature, NomenclatureInnerDeliveryPrice price, DateTime startDate)
 		{
 			if(!CanChangeDate(nomenclature, price, startDate))
 			{
 				throw new InvalidOperationException($"Невозможно изменить дату цены, так как дата {startDate} меньше даты начала предыдущей цены или больше даты окончания текущей цены");
 			}
 
-			var previousPrice = nomenclature.PurchasePrices.Where(x => x.EndDate < startDate).OrderByDescending(x => x.EndDate).FirstOrDefault();
+			var previousPrice = nomenclature.InnerDeliveryPrices.Where(x => x.EndDate < startDate).OrderByDescending(x => x.EndDate).FirstOrDefault();
 			if(previousPrice != null)
 			{
 				previousPrice.EndDate = GetCloseTime(startDate);
@@ -51,7 +51,7 @@ namespace Vodovoz.Models
 			price.StartDate = startDate;
 		}
 
-		public bool CanChangeDate(Nomenclature nomenclature, NomenclatureCostPurchasePrice price, DateTime startDate)
+		public bool CanChangeDate(Nomenclature nomenclature, NomenclatureInnerDeliveryPrice price, DateTime startDate)
 		{
 			if(nomenclature is null)
 			{
@@ -93,9 +93,9 @@ namespace Vodovoz.Models
 			activePrice.EndDate = GetCloseTime(startDate);
 		}
 
-		private NomenclatureCostPurchasePrice GetActivePrice(Nomenclature nomenclature)
+		private NomenclatureInnerDeliveryPrice GetActivePrice(Nomenclature nomenclature)
 		{
-			var unclosedPrices = nomenclature.PurchasePrices.Where(x => x.EndDate == null);
+			var unclosedPrices = nomenclature.InnerDeliveryPrices.Where(x => x.EndDate == null);
 			var unclosedPriceCount = unclosedPrices.Count();
 			if(unclosedPriceCount > 1)
 			{

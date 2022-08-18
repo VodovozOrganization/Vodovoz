@@ -3,18 +3,19 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.HibernateMapping.Goods
 {
-	public class NomenclatureCostPurchasePriceMap : ClassMap<NomenclatureCostPurchasePrice>
+	public class NomenclatureInnerDeliveryPriceMap : ClassMap<NomenclatureInnerDeliveryPrice>
 	{
-		public NomenclatureCostPurchasePriceMap()
+		public NomenclatureInnerDeliveryPriceMap()
 		{
-			Table("nomenclature_purchase_prices");
+			Table("nomenclature_inner_delivery_prices");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
-			Map(x => x.PurchasePrice).Column("purchase_price");
+			Map(x => x.Price).Column("price");
 
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 		}
+
 	}
 }

@@ -9,20 +9,20 @@ namespace Vodovoz.Domain.Goods
 {
 	[Appellative(
 		Gender = GrammaticalGender.Masculine,
-		NominativePlural = "цены закупки/себестоимости ТМЦ",
-		Nominative = "цена закупки/себестоимости ТМЦ",
-		Accusative = "цену закупки/себестоимости ТМЦ",
-		Genitive = "цену закупки/себестоимости ТМЦ"
+		NominativePlural = "стоимости доставки ТМЦ на склад",
+		Nominative = "стоимость доставки ТМЦ на склад",
+		Accusative = "стоимости доставки ТМЦ на склад",
+		Genitive = "стоимости доставки ТМЦ на склад"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class NomenclatureCostPurchasePrice : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class NomenclatureInnerDeliveryPrice : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 
 		private Nomenclature _nomenclature;
 		private DateTime _startDate;
 		private DateTime? _endDate;
-		private decimal _purchasePrice;
+		private decimal _price;
 
 		public virtual int Id { get; set; }
 
@@ -47,18 +47,18 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _endDate, value);
 		}
 
-		[Display(Name = "Цена закупки")]
-		public virtual decimal PurchasePrice
+		[Display(Name = "Стоимость доставки")]
+		public virtual decimal Price
 		{
-			get => _purchasePrice;
-			set => SetField(ref _purchasePrice, value);
+			get => _price;
+			set => SetField(ref _price, value);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(PurchasePrice <= 0)
+			if(Price <= 0)
 			{
-				yield return new ValidationResult("Должна быть указана цена закупки", new[] { nameof(PurchasePrice) });
+				yield return new ValidationResult("Должна быть указана цена закупки", new[] { nameof(Price) });
 			}
 
 			if(Nomenclature == null)
