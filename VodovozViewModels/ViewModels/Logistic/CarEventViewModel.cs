@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private IEmployeeSettings _employeeSettings;
 
 		public bool CanEdit => PermissionResult.CanUpdate;
+		public bool CanCreateOrEditWithClosedPeriod { get; }
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 		public IEmployeeService EmployeeService { get; }
@@ -58,6 +59,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			CanCreateOrEditWithClosedPeriod = 
+				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 
 			UpdateFileItems();
 
@@ -82,6 +85,66 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				Entity.Author = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				Entity.CreateDate = DateTime.Now;
 			}
+		}
+
+		public bool CheckDatePeriod()
+		{
+			if(UoW.IsNew)
+			{
+				return true;
+			}
+
+			if(CanCreateOrEditWithClosedPeriod)
+			{
+				return true;
+			}
+
+			var today = DateTime.Now;
+			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
+			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
+			if(today.Day <= 10 && Entity.EndDate > startPreviousMonth)
+			{
+				return true;
+			}
+
+			if(today.Day > 10 && Entity.EndDate > startCurrentMonth)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		public new void SaveAndClose()
+		{
+			if(Entity.StartDate == default)
+			{
+				ShowWarningMessage("Дата начала события должна быть указана.");
+				return;
+			}
+
+			if(CanCreateOrEditWithClosedPeriod)
+			{
+				base.SaveAndClose();
+				return;
+			}
+
+			var today = DateTime.Now;
+			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
+			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
+			if(today.Day <= 10 && Entity.EndDate < startPreviousMonth)
+			{
+				ShowWarningMessage($"С 1 по {10} текущего месяца можно создать/изменить событие ТС с датой завершения равной или более 1 числа прошлого месяца.");
+				return;
+			}
+
+			if(today.Day > 10 && Entity.EndDate < startCurrentMonth)
+			{
+				ShowWarningMessage($"С {10 + 1} числа текущего месяца можно создать/изменить событие ТС с датой завершения равной или более 1 числа текущего месяца");
+				return;
+			}
+
+			base.SaveAndClose();
 		}
 
 		public override void Dispose()
@@ -149,7 +212,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void CreateAttachFine()
 		{
 			var fineJournalViewModel = CreateFinesJournalViewModel();
-			fineJournalViewModel.OnEntitySelectedResult += (sender, e) => {
+			fineJournalViewModel.OnEntitySelectedResult += (sender, e) =>
+			{
 				var selectedNode = e.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)
 				{
@@ -174,7 +238,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				FineReasonString = Entity.GetFineReason()
 			};
-			fineViewModel.EntitySaved += (sender, e) => {
+			fineViewModel.EntitySaved += (sender, e) =>
+			{
 				Entity.AddFine(e.Entity as Fine);
 			};
 			TabParent.AddSlaveTab(this, fineViewModel);
@@ -204,7 +269,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			};
 		}
 
-		void ObservableFines_ListContentChanged(object sender, EventArgs e)
+		private void ObservableFines_ListContentChanged(object sender, EventArgs e)
 		{
 			UpdateFileItems();
 			OnPropertyChanged(() => FineItems);

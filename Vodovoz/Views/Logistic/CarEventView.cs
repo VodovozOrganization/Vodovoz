@@ -2,6 +2,7 @@
 using QS.Navigation;
 using QS.Views.GtkUI;
 using QSProjectsLib;
+using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -14,6 +15,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			this.Build();
 			Configure();
+			CheckPeriod();
 		}
 
 		private void Configure()
@@ -66,6 +68,28 @@ namespace Vodovoz.Views.Logistic
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
+		}
+
+		private void CheckPeriod()
+		{
+			if (!ViewModel.CheckDatePeriod())
+			{
+				ylabelCreateDate.Sensitive =
+				ylabelAuthor.Sensitive =
+				entityviewmodelentryCarEventType.Sensitive =
+				entityviewmodelentryCar.Sensitive =
+				evmeDriver.Sensitive =
+				ydatepickerStartEventDate.Sensitive =
+				ydatepickerEndEventDate.Sensitive =
+				yspinPaymentTotalCarEvent.Sensitive =
+				checkbuttonDoNotShowInOperation.Sensitive =
+				ytextviewFoundation.Sensitive =
+				ytextviewCommnet.Sensitive =
+				ytreeviewFines.Sensitive =
+				buttonAddFine.Sensitive =
+				buttonAttachFine.Sensitive =
+				buttonSave.Sensitive = false;
+			}
 		}
 	}
 }

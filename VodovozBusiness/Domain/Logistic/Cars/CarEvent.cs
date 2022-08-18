@@ -29,7 +29,9 @@ namespace Vodovoz.Domain.Logistic
 		private string _comment;
 		private string _foundation;
 		private bool _doNotShowInOperation;
+		private bool _compensationFromInsuranceByCourt;
 		private decimal _repairCost;
+		private CarEvent _originalCarEvent;
 
 		#region Свойства
 
@@ -68,6 +70,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _driver;
 			set => SetField(ref _driver, value);
+		}
+
+		[Display(Name = "Компенсация от страховой, по суду")]
+		public virtual bool CompensationFromInsuranceByCourt
+		{
+			get => _compensationFromInsuranceByCourt;
+			set => SetField(ref _compensationFromInsuranceByCourt, value);
 		}
 
 		[Display(Name = "Дата начала события ТС")]
@@ -109,7 +118,24 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal RepairCost
 		{
 			get => _repairCost;
-			set => SetField( ref _repairCost, value );
+			set
+			{
+				if (CompensationFromInsuranceByCourt)
+				{
+					SetField(ref _repairCost, -value);
+				}
+				else
+				{
+					SetField(ref _repairCost, value);
+				}
+			}
+		}
+
+		[Display(Name = "Исходное ремонтное событие")]
+		public virtual CarEvent OriginalCarEvent
+		{
+			get => _originalCarEvent;
+			set => SetField(ref _originalCarEvent, value);
 		}
 
 		IList<Fine> fines = new List<Fine>();
