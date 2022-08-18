@@ -12,13 +12,19 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDate;
 
+		private global::Gtk.VSeparator vseparator1;
+
 		private global::Gamma.GtkWidgets.yLabel ylabel3;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCar;
 
+		private global::Gtk.VSeparator vseparator2;
+
 		private global::Gamma.GtkWidgets.yLabel ylabel5;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonConfirmedMileageAtDay;
+
+		private global::Gtk.VSeparator vseparator3;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonDistribute;
 
@@ -63,32 +69,48 @@ namespace Vodovoz.Views.Logistic
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child yhboxTitle.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.yhboxTitle.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.vseparator1]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child yhboxTitle.Gtk.Box+BoxChild
 			this.ylabel3 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel3.Name = "ylabel3";
 			this.ylabel3.LabelProp = global::Mono.Unix.Catalog.GetString("Машина:");
 			this.yhboxTitle.Add(this.ylabel3);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ylabel3]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ylabel3]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child yhboxTitle.Gtk.Box+BoxChild
 			this.ylabelCar = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCar.Name = "ylabelCar";
 			this.ylabelCar.LabelProp = global::Mono.Unix.Catalog.GetString("ylabelCar");
 			this.yhboxTitle.Add(this.ylabelCar);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ylabelCar]));
-			w4.Position = 3;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ylabelCar]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child yhboxTitle.Gtk.Box+BoxChild
+			this.vseparator2 = new global::Gtk.VSeparator();
+			this.vseparator2.Name = "vseparator2";
+			this.yhboxTitle.Add(this.vseparator2);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.vseparator2]));
+			w6.Position = 5;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child yhboxTitle.Gtk.Box+BoxChild
 			this.ylabel5 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel5.Name = "ylabel5";
 			this.ylabel5.LabelProp = global::Mono.Unix.Catalog.GetString("Фактический километраж за день:");
 			this.yhboxTitle.Add(this.ylabel5);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ylabel5]));
-			w5.Position = 4;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ylabel5]));
+			w7.Position = 6;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child yhboxTitle.Gtk.Box+BoxChild
 			this.yspinbuttonConfirmedMileageAtDay = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 0.1D);
 			this.yspinbuttonConfirmedMileageAtDay.CanFocus = true;
@@ -96,14 +118,23 @@ namespace Vodovoz.Views.Logistic
 			this.yspinbuttonConfirmedMileageAtDay.Adjustment.PageIncrement = 1D;
 			this.yspinbuttonConfirmedMileageAtDay.Adjustment.PageSize = 1D;
 			this.yspinbuttonConfirmedMileageAtDay.ClimbRate = 1D;
+			this.yspinbuttonConfirmedMileageAtDay.Digits = ((uint)(2));
 			this.yspinbuttonConfirmedMileageAtDay.Numeric = true;
 			this.yspinbuttonConfirmedMileageAtDay.ValueAsDecimal = 0m;
 			this.yspinbuttonConfirmedMileageAtDay.ValueAsInt = 0;
 			this.yhboxTitle.Add(this.yspinbuttonConfirmedMileageAtDay);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.yspinbuttonConfirmedMileageAtDay]));
-			w6.Position = 5;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.yspinbuttonConfirmedMileageAtDay]));
+			w8.Position = 7;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child yhboxTitle.Gtk.Box+BoxChild
+			this.vseparator3 = new global::Gtk.VSeparator();
+			this.vseparator3.Name = "vseparator3";
+			this.yhboxTitle.Add(this.vseparator3);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.vseparator3]));
+			w9.Position = 8;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child yhboxTitle.Gtk.Box+BoxChild
 			this.ybuttonDistribute = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonDistribute.CanFocus = true;
@@ -111,16 +142,15 @@ namespace Vodovoz.Views.Logistic
 			this.ybuttonDistribute.UseUnderline = true;
 			this.ybuttonDistribute.Label = global::Mono.Unix.Catalog.GetString("Разнести километраж");
 			this.yhboxTitle.Add(this.ybuttonDistribute);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ybuttonDistribute]));
-			w7.PackType = ((global::Gtk.PackType)(1));
-			w7.Position = 6;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ybuttonDistribute]));
+			w10.Position = 9;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.yvboxMain.Add(this.yhboxTitle);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxTitle]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxTitle]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -131,8 +161,8 @@ namespace Vodovoz.Views.Logistic
 			this.ytreeviewMiliageDistribution.Name = "ytreeviewMiliageDistribution";
 			this.GtkScrolledWindow.Add(this.ytreeviewMiliageDistribution);
 			this.yvboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
-			w10.Position = 1;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
+			w13.Position = 1;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yhboxBottom = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxBottom.Name = "yhboxBottom";
@@ -143,18 +173,20 @@ namespace Vodovoz.Views.Logistic
 			this.ybuttonSave.Name = "ybuttonSave";
 			this.ybuttonSave.UseUnderline = true;
 			this.ybuttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			global::Gtk.Image w14 = new global::Gtk.Image();
+			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.ybuttonSave.Image = w14;
 			this.yhboxBottom.Add(this.ybuttonSave);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxBottom[this.ybuttonSave]));
-			w11.PackType = ((global::Gtk.PackType)(1));
-			w11.Position = 2;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yhboxBottom[this.ybuttonSave]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.yvboxMain.Add(this.yhboxBottom);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxBottom]));
-			w12.PackType = ((global::Gtk.PackType)(1));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxBottom]));
+			w16.PackType = ((global::Gtk.PackType)(1));
+			w16.Position = 2;
+			w16.Expand = false;
+			w16.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
