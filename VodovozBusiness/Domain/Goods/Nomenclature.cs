@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.Goods
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
 		IList<NomenclatureCostPurchasePrice> _purchasePrices = new List<NomenclatureCostPurchasePrice>();
-		IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureCostPurchasePrice>();
+		IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureInnerDeliveryPrice>();
 		GenericObservableList<NomenclatureCostPurchasePrice> _observablePurchasePrices;
 		GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 
