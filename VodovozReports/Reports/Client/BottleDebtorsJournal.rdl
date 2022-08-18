@@ -595,6 +595,7 @@ WHERE
 					emails.counterparty_id = counterparty.id
 			)
 		)
+		AND (@delivery_point_category = 0 OR delivery_points.delivery_point_category_id = @delivery_point_category)
         
 GROUP BY
     delivery_points.id,
@@ -653,6 +654,9 @@ GROUP BY
           </QueryParameter>
           <QueryParameter Name="HideWithoutEmail">
             <Value>={?HideWithoutEmail}</Value>
+          </QueryParameter>
+          <QueryParameter Name="delivery_point_category">
+            <Value>={?DeliveryPointCategory}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -820,7 +824,16 @@ GROUP BY
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DeliveryPointCategory">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

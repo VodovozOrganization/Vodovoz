@@ -734,7 +734,8 @@ namespace Vodovoz.Representations
 					{ "SearchString2", Search.SearchValues?.Length > 1 ? Search.SearchValues[1] : null },
 					{ "SearchString3", Search.SearchValues?.Length > 2 ? Search.SearchValues[2] : null },
 					{ "SearchString4", Search.SearchValues?.Length > 3 ? Search.SearchValues[3] : null },
-					{ "HideWithoutEmail", FilterViewModel.HideWithoutEmail ? "true" : "" }
+					{ "HideWithoutEmail", FilterViewModel.HideWithoutEmail ? "true" : "" },
+					{ "DeliveryPointCategory", FilterViewModel?.SelectedDeliveryPointCategory?.Id ?? 0}
 				}
 			};
 			var dlg = new ReportViewDlg(reportInfo);
