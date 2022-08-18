@@ -89,6 +89,7 @@ FROM
 								LEFT JOIN store_movement_document_items smdi ON smd.id = smdi.movement_document_id  
 								WHERE smd.status = 'Sended'                                      
                                   AND smdi.nomenclature_id = n.id
+                                  AND smd.warehouse_to_id = @warehouse_id
                                   AND smd.send_time  BETWEEN @today AND @currently)
                     , 0) as in_way
                 From
