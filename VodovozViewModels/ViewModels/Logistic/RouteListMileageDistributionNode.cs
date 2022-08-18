@@ -1,38 +1,27 @@
-﻿using Vodovoz.Domain.Logistic;
+﻿using QS.DomainModel.Entity;
+using System;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class RouteListMileageDistributionNode
+	public class RouteListMileageDistributionNode : PropertyChangedBase
 	{
+		private string _customForwarderColumn;
+		private decimal? _customRecalculatedDistanceColumn;
 		public RouteList RouteList { get; set; }
-		//public int Id { get; set; }
-		//public string DeliveryShift { get; set; }
-		//public string Driver { get; set; }
-
-		public string Id => RouteList?.Id.ToString() ?? "";
-		public string DeliveryShift => RouteList?.Shift?.Name ?? "";
-		public string Driver => RouteList?.Driver?.FullName ?? "";
-
-		public string Forwarder => RouteList?.Forwarder?.FullName ?? CustomForwarderColumn ?? "";
-		public string CustomForwarderColumn { get; set; }
-
-		public decimal? RecalculatedDistance => RouteList?.RecalculatedDistance ?? CustomRecalculatedDistanceColumn;
-		public decimal? CustomRecalculatedDistanceColumn { get; set; }
+		public string Id => IsRouteList ? RouteList.Id.ToString() : "";
+		public string DeliveryShift => IsRouteList ? RouteList.Shift?.Name : "";
+		public string Driver => IsRouteList ? RouteList.Driver?.FullName : "";
+		public RouteListDistributionNodeType DistributionNodeType { get; set; }
+		public bool IsRouteList => DistributionNodeType == RouteListDistributionNodeType.RouteList;
 
 		public decimal ConfirmedDistance
 		{
-			get
-			{
-				if(RouteList != null)
-				{
-					return RouteList.ConfirmedDistance;
-				}
-
-				return 0;
-			} 
+			get => IsRouteList ? RouteList.ConfirmedDistance : 0;
 			set
 			{
-				if(RouteList != null)
+				if(IsRouteList)
 				{
 					RouteList.ConfirmedDistance = value;
 				}
@@ -41,14 +30,55 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string MileageComment
 		{
-			get => RouteList?.MileageComment;
+			get => IsRouteList ? RouteList.MileageComment : "";
 			set
 			{
-				if(RouteList != null)
+				if(IsRouteList)
 				{
 					RouteList.MileageComment = value;
 				}
 			}
 		}
+
+		public string ForwarderColumn
+		{
+			get => IsRouteList ? RouteList.Forwarder?.FullName : _customForwarderColumn;
+			set
+			{
+				if(!IsRouteList)
+				{
+					_customForwarderColumn = value;
+				}
+				else
+				{
+					throw new Exception("В этой ячейке нельзя изменить имя экспедитора");
+				}
+			}
+		}
+
+		public decimal? RecalculatedDistanceColumn
+		{
+			get => IsRouteList ? RouteList.RecalculatedDistance : _customRecalculatedDistanceColumn;
+			set
+			{
+				if(IsRouteList)
+				{
+					RouteList.RecalculatedDistance = value;
+				}
+				else
+				{
+					_customRecalculatedDistanceColumn = value;
+				}
+			}
+		}
+	}
+
+	public enum RouteListDistributionNodeType
+	{
+		RouteList,
+		[Display(Name = "Итого")]
+		Total,
+		[Display(Name = "Разница")]
+		Substract
 	}
 }

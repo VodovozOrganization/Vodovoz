@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Gamma.Utilities;
 using QS.Commands;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
+using QS.Dialog;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -26,10 +25,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly WageParameterService _wageParameterService;
 		private readonly CallTaskWorker _callTaskWorker;
 		private readonly IValidationContextFactory _validationContextFactory;
-		private IRouteListRepository _routeListRepository;
+		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private decimal? _totalConfirmedDistanceAtDay;
-		private readonly IList<RouteList> _driverRouteListsAtDay;
 
 		public RouteListMileageDistributionViewModel(IEntityUoWBuilder uowBuilder,
 			ICommonServices commonServices,
@@ -40,130 +37,94 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IValidationContextFactory validationContextFactory)
 			: base(uowBuilder, commonServices)
 		{
+			TabName = $"Разнос километража";
+
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 
-			TabName = $"Разнос километража";
-
-			//DistributionItems = GetItems(routeListRepository);
-
-			//RouteListsForDistribution = new GenericObservableList<RouteList>(routeListRepository.GetDriverRouteLists(uow, Entity.Driver, Entity.Date));
-			//MileageDistribution = new RouteListMileageDistribution
-			//{
-			//RouteListsForDistribution = routeListRepository.GetDriverRouteLists(UoW, Entity.Driver, Entity.Date);
-			//};
-			_driverRouteListsAtDay = routeListRepository.GetDriverRouteLists(UoW, Entity.Driver, Entity.Date);
-			GenerateDistributionNodes();
-
+			GenerateDistributionRows();
 		}
 
-		private void GenerateDistributionNodes()
+		#region Private methods
+
+		private void GenerateDistributionRows()
 		{
-			RouteListMileageDistributions = new List<RouteListMileageDistributionNode>(_driverRouteListsAtDay.Select(x =>
+			var driverRouteListsAtDay = _routeListRepository.GetDriverRouteLists(UoW, Entity.Driver, Entity.Date);
+
+			Rows = new List<RouteListMileageDistributionNode>(driverRouteListsAtDay.Select(x =>
 				new RouteListMileageDistributionNode
 				{
+					DistributionNodeType = RouteListDistributionNodeType.RouteList,
 					RouteList = x
-				}));
+				}).ToList());
 
-			RouteListMileageDistributions.Add(new RouteListMileageDistributionNode
+			Rows.Add(new RouteListMileageDistributionNode
 			{
-				CustomForwarderColumn = "Итого:",
-				CustomRecalculatedDistanceColumn = TotalRecalculatedDistanceAtDay
+				DistributionNodeType = RouteListDistributionNodeType.Total,
+				ForwarderColumn = $"{RouteListDistributionNodeType.Total.GetEnumTitle()}:",
+				RecalculatedDistanceColumn = TotalRecalculatedDistanceAtDay
 			});
 
-			RouteListMileageDistributions.Add(new RouteListMileageDistributionNode
+			Rows.Add(new RouteListMileageDistributionNode
 			{
-				CustomForwarderColumn = "Разница:",
-				CustomRecalculatedDistanceColumn = SubtractDistance
+				DistributionNodeType = RouteListDistributionNodeType.Substract,
+				ForwarderColumn = $"{RouteListDistributionNodeType.Substract.GetEnumTitle()}:",
+				RecalculatedDistanceColumn = SubtractDistance
 			});
 		}
 
-		public IList<RouteList> DriverRouteListsAtDay { get; set; }
-
-
-		//private IList<RouteListMileageDistributionNode> GetItems(IRouteListRepository routeListRepository)
-		//{
-		//	var driverRouteList = routeListRepository.GetDriverRouteLists(UoW, Entity.Driver, Entity.Date);
-
-		//	RouteListsForDistribution = driverRouteList;
-
-		//	return driverRouteList.Select(routeList => new RouteListMileageDistributionNode
-		//		{
-		//			Id = routeList.Id,
-		//			Driver = routeList.Driver?.FullName,
-		//			ForwarderColumn = routeList.ForwarderColumn?.FullName,
-		//			DeliveryShift = routeList.Shift?.Name,
-		//			ConfirmedDistance = routeList.ConfirmedDistance,
-		//			RecalculatedDistanceColumn = routeList.RecalculatedDistanceColumn
-		//		})
-		//		.ToList();
-		//}
-
-		#region Commands
-
-		public DelegateCommand SaveDistributionCommand =>
-			_saveDistributionCommand ?? (_saveDistributionCommand = new DelegateCommand(() =>
-				{
-					if(!HasChanges)
-					{
-						return;
-					}
-
-					foreach(var distributionNode in RouteListMileageDistributions.Where(n => n.RouteList != null).ToList())
-					{
-						AcceptDistribution(distributionNode.RouteList);
-						UoW.Save(distributionNode.RouteList);
-					}
-
-					UoW.Commit();
-				},
-				() => true
-			));
-
-		public DelegateCommand DistributeCommand =>
-			_distributeCommand ?? (_distributeCommand = new DelegateCommand(() =>
-				{
-					
-				},
-				() => true
-			));
-
-		#endregion
-
-		//public RouteListMileageDistribution MileageDistribution { get; set; }
-		//public class RouteListMileageDistribution
-		//{
-		public IList<RouteListMileageDistributionNode> RouteListMileageDistributions { get; set; }
-		//public IList<RouteList> RouteListsForDistribution { get; set; }
-		public decimal? TotalRecalculatedDistanceAtDay => RouteListMileageDistributions.Sum(n => n.RouteList?.RecalculatedDistance);
-		
-		public decimal? TotalConfirmedDistanceAtDay
+		private void DistributeMileage()
 		{
-			get => _totalConfirmedDistanceAtDay;
-			set
+			if(!TotalConfirmedDistanceAtDay.HasValue || TotalConfirmedDistanceAtDay == 0)
 			{
-				SetField(ref _totalConfirmedDistanceAtDay, value);
-				GenerateDistributionNodes();
+				return;
 			}
-		}
 
-		public decimal? SubtractDistance => TotalConfirmedDistanceAtDay - TotalRecalculatedDistanceAtDay;
+			var routeLists = Rows.Where(r => r.IsRouteList);
 
-		//}
+			if(!routeLists.Any())
+			{
+				return;
+			}
 
-		//public GenericObservableList<RouteList> RouteListsForDistribution { get; private set; }
+			if(routeLists.Count() == 1)
+			{
+				routeLists.Single().ConfirmedDistance = TotalConfirmedDistanceAtDay.Value;
+			}
+			else
+			{
+				if(routeLists.Any(rl => !rl.RecalculatedDistanceColumn.HasValue))
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не во всех МЛ есть пересчитанный километраж"," Не удалось разнести километраж ");
+					return;
+				}
 
-		public bool CanEdit { get; set; } = true;
+				var firstRouteList = routeLists.First();
+				var lastRouteList = routeLists.Last();
 
-		public bool AskSaveOnClose => CanEdit;
+				firstRouteList.ConfirmedDistance = firstRouteList.RecalculatedDistanceColumn.Value + SubtractDistance.Value / 2;
+				lastRouteList.ConfirmedDistance = lastRouteList.RecalculatedDistanceColumn.Value + SubtractDistance.Value / 2;
 
-		public override bool Save(bool close)
-		{
-			SaveDistributionCommand.Execute();
-			return true;
+				foreach(var routeList in routeLists)
+				{
+					if(routeList != firstRouteList && routeList != lastRouteList && routeList.RecalculatedDistanceColumn != null)
+					{
+						routeList.ConfirmedDistance = routeList.RecalculatedDistanceColumn.Value;
+					}
+				}
+			}
+
+			var substructRow = Rows.SingleOrDefault(r => r.DistributionNodeType == RouteListDistributionNodeType.Substract);
+			
+			if(substructRow != null)
+			{
+				substructRow.RecalculatedDistanceColumn = SubtractDistance;
+			}
+
+			OnPropertyChanged(nameof(Rows));
 		}
 
 		private void AcceptDistribution(RouteList routeList)
@@ -212,6 +173,59 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					: RouteListStatus.OnClosing,
 				_callTaskWorker
 			);
+		}
+
+		#endregion
+
+		#region Properties
+
+		public IList<RouteListMileageDistributionNode> Rows { get; set; }
+		public decimal? TotalConfirmedDistanceAtDay { get; set; }
+		public decimal? TotalRecalculatedDistanceAtDay => Rows.Sum(r => r.RouteList?.RecalculatedDistance);
+		public decimal? SubtractDistance => TotalConfirmedDistanceAtDay - TotalRecalculatedDistanceAtDay;
+		public bool CanEdit { get; set; } = true;
+		public bool AskSaveOnClose => CanEdit;
+
+		#endregion
+
+		#region Commands
+
+		public DelegateCommand SaveDistributionCommand =>
+			_saveDistributionCommand ?? (_saveDistributionCommand = new DelegateCommand(() =>
+				{
+					if(!HasChanges)
+					{
+						return;
+					}
+
+					foreach(var distributionNode in Rows.Where(r => r.RouteList != null).ToList())
+					{
+						AcceptDistribution(distributionNode.RouteList);
+						UoW.Save(distributionNode.RouteList);
+					}
+
+					UoW.Commit();
+
+					Close(false, CloseSource.Save);
+				},
+				() => true
+			));
+
+		public DelegateCommand DistributeCommand =>
+			_distributeCommand ?? (_distributeCommand = new DelegateCommand(() =>
+				{
+					DistributeMileage();
+				},
+				() => true
+			));
+
+
+		#endregion
+
+		public override bool Save(bool close)
+		{
+			SaveDistributionCommand.Execute();
+			return true;
 		}
 
 	}

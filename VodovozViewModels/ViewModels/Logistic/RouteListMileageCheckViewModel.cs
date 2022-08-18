@@ -77,6 +77,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IValidationContextFactory validationContextFactory)
 			: base(uowBuilder, commonServices)
 		{
+			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
+
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ??
 											   throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
@@ -90,11 +92,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
-			ConfigureValidationContext();
-
-			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
 
 			CarSelectorFactory = (carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory();
@@ -110,16 +108,26 @@ namespace Vodovoz.ViewModels.Logistic
 
 			RouteListItems = GenerateRouteListItems();
 
+			ConfigureValidationContext();
+
+			ConfigureAndCheckPermissions();
+		}
+
+		#region Private methods
+
+		private void ConfigureAndCheckPermissions()
+		{
 			var currentPermissionService = CommonServices.CurrentPermissionService;
 			var canConfirmMileage = currentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
 			var canUpdate = currentPermissionService.ValidatePresetPermission("logistican") && PermissionResult.CanUpdate;
+
 			CanEdit = (canUpdate && canConfirmMileage)
 					  || !(Entity.GetCarVersion.IsCompanyCar &&
 						   new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
 
 			if(!CanEdit)
 			{
-				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не достаточно прав. Обратитесь к руководителю.");
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не достаточно прав. Обратитесь к руководителю.");
 			}
 
 			if(IsEditAvailable)
@@ -127,14 +135,13 @@ namespace Vodovoz.ViewModels.Logistic
 				if(!Entity.RecountMileage())
 				{
 					FailInitialize = true;
-					return;
 				}
 			}
 		}
 
 		private void ConfigureValidationContext()
 		{
-			ValidationContext = _validationContextFactory.CreateNewValidationContext(Entity, 
+			ValidationContext = _validationContextFactory.CreateNewValidationContext(Entity,
 				new Dictionary<object, object>
 					{
 						{nameof(IRouteListRepository), _routeListRepository},
@@ -172,6 +179,52 @@ namespace Vodovoz.ViewModels.Logistic
 			return items;
 		}
 
+		private void ChangeStatusAndCreateTaskFromDelivered()
+		{
+			Entity.ChangeStatusAndCreateTask(
+				Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
+					? RouteListStatus.MileageCheck
+					: RouteListStatus.OnClosing,
+				CallTaskWorker
+			);
+		}
+
+		#endregion
+
+		protected override bool BeforeSave()
+		{
+			if(!CommonServices.ValidationService.Validate(Entity, ValidationContext))
+			{
+				return false;
+			}
+
+			if(Entity.Status > RouteListStatus.OnClosing)
+			{
+				if(Entity.FuelOperationHaveDiscrepancy())
+				{
+					if(!CommonServices.InteractiveService.Question(
+						   "Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?"))
+					{
+						return false;
+					}
+				}
+
+				Entity.UpdateFuelOperation();
+			}
+
+			if(Entity.Status == RouteListStatus.Delivered)
+			{
+				ChangeStatusAndCreateTaskFromDelivered();
+				OnPropertyChanged(nameof(CanEdit));
+			}
+
+			Entity.CalculateWages(_wageParameterService);
+
+			return base.BeforeSave();
+		}
+
+		#region Properties
+
 		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory LogisticianSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
@@ -203,6 +256,8 @@ namespace Vodovoz.ViewModels.Logistic
 				_baseParametersProvider,
 				CommonServices.UserService,
 				_errorReporter));
+
+		#endregion
 
 		#region Commands
 
@@ -274,52 +329,15 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 
 					TabParent.AddSlaveTab(this, routeListMileageDistributionViewModel);
+
+					routeListMileageDistributionViewModel.TabClosed += (s, e) =>
+					{
+						UoW.Session.Refresh(Entity);
+					};
 				},
 				() => true
 			));
 
 		#endregion
-
-		protected override bool BeforeSave()
-		{
-			if(!CommonServices.ValidationService.Validate(Entity, ValidationContext))
-			{
-				return false;
-			}
-
-			if(Entity.Status > RouteListStatus.OnClosing)
-			{
-				if(Entity.FuelOperationHaveDiscrepancy())
-				{
-					if(!CommonServices.InteractiveService.Question(
-						   "Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?"))
-					{
-						return false;
-					}
-				}
-
-				Entity.UpdateFuelOperation();
-			}
-
-			if(Entity.Status == RouteListStatus.Delivered)
-			{
-				ChangeStatusAndCreateTaskFromDelivered();
-				OnPropertyChanged(nameof(CanEdit));
-			}
-
-			Entity.CalculateWages(_wageParameterService);
-
-			return base.BeforeSave();
-		}
-
-		private void ChangeStatusAndCreateTaskFromDelivered()
-		{
-			Entity.ChangeStatusAndCreateTask(
-				Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
-					? RouteListStatus.MileageCheck
-					: RouteListStatus.OnClosing,
-				CallTaskWorker
-			);
-		}
 	}
 }
