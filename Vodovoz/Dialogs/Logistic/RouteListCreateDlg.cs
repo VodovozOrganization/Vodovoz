@@ -298,7 +298,7 @@ namespace Vodovoz
 			checkIsFixPrice.Sensitive = CanEditFixedPrice;
 			fixPriceSpin.Sensitive = checkIsFixPrice.Active && CanEditFixedPrice;
 
-			oldDriver = Entity.Driver;
+			_oldDriver = Entity.Driver;
 			UpdateDlg(_isLogistican);
 
 			Entity.PropertyChanged += OnRouteListPropertyChanged;
