@@ -20,7 +20,7 @@ namespace Vodovoz.EntityRepositories.Flyers
 			return query;
 		}
 
-		public IList<Flyer> GetAllActiveFlyers(IUnitOfWork uow)
+		public IList<Flyer> GetAllActiveFlyers(IUnitOfWork uow, DateTime deliveryDate)
 		{
 			Nomenclature flyerNomenclatureAlias = null;
 			FlyerActionTime flyerActionTimeAlias = null;
@@ -28,23 +28,28 @@ namespace Vodovoz.EntityRepositories.Flyers
 			var query = uow.Session.QueryOver<Flyer>()
 				.JoinAlias(f => f.FlyerNomenclature, () => flyerNomenclatureAlias)
 				.JoinAlias(f => f.FlyerActionTimes, () => flyerActionTimeAlias)
-				.Where(() => flyerActionTimeAlias.StartDate <= DateTime.Today)
-				.And(() => flyerActionTimeAlias.EndDate == null || flyerActionTimeAlias.EndDate.Value > DateTime.Today)
+				.Where(() => flyerActionTimeAlias.StartDate <= deliveryDate)
+				.And(() => flyerActionTimeAlias.EndDate == null || flyerActionTimeAlias.EndDate.Value > deliveryDate)
 				.List();
 			
 			return query;
 		}
 		
-		public IList<int> GetAllActiveFlyersNomenclaturesIds(IUnitOfWork uow)
+		public IList<int> GetAllActiveFlyersNomenclaturesIds(IUnitOfWork uow, DateTime? deliveryDate)
 		{
+			if(deliveryDate == null)
+			{
+				return new List<int>();
+			}
+
 			Nomenclature flyerNomenclatureAlias = null;
 			FlyerActionTime flyerActionTimeAlias = null;
 
 			var query = uow.Session.QueryOver<Flyer>()
 				.JoinAlias(f => f.FlyerNomenclature, () => flyerNomenclatureAlias)
 				.JoinAlias(f => f.FlyerActionTimes, () => flyerActionTimeAlias)
-				.Where(() => flyerActionTimeAlias.EndDate == null || flyerActionTimeAlias.EndDate.Value > DateTime.Today)
-				.And(() => flyerActionTimeAlias.StartDate <= DateTime.Today)
+				.Where(() => flyerActionTimeAlias.EndDate == null || flyerActionTimeAlias.EndDate.Value > deliveryDate.Value)
+				.And(() => flyerActionTimeAlias.StartDate <= deliveryDate.Value)
 				.SelectList(list => list.Select(() => flyerNomenclatureAlias.Id))
 				.List<int>();
 			

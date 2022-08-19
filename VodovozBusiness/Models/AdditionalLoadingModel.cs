@@ -58,7 +58,7 @@ namespace Vodovoz.Models
 				CreationDate = DateTime.Now,
 			};
 
-			foreach(var item in CreateAdditionalLoadingItems(uow, availableWeight, availableVolume))
+			foreach(var item in CreateAdditionalLoadingItems(uow, availableWeight, availableVolume, routeList.Date))
 			{
 				item.AdditionalLoadingDocument = document;
 				document.Items.Add(item);
@@ -67,7 +67,7 @@ namespace Vodovoz.Models
 		}
 
 		public IList<AdditionalLoadingDocumentItem> CreateAdditionalLoadingItems(IUnitOfWork uow, decimal availableWeight,
-			decimal availableVolume)
+			decimal availableVolume, DateTime routelistDate)
 		{
 			var distributions = uow.GetAll<AdditionalLoadingNomenclatureDistribution>().ToList();
 			IList<AdditionalLoadingDocumentItem> items = new List<AdditionalLoadingDocumentItem>();
@@ -88,7 +88,7 @@ namespace Vodovoz.Models
 				items.Add(item);
 			}
 			RemoveZeroAmountItemsIfNeededByWeight(items, availableWeight);
-			AddFlyers(items, uow);
+			AddFlyers(items, uow, routelistDate);
 
 			var hasVolumeExcess = availableVolume < items.Sum(x => x.Amount * x.Nomenclature.Volume);
 			if(!hasVolumeExcess)
@@ -115,13 +115,13 @@ namespace Vodovoz.Models
 			}
 
 			RemoveZeroAmountItemsIfNeededByVolume(items, availableVolume);
-			AddFlyers(items, uow);
+			AddFlyers(items, uow, routelistDate);
 			_activeFlyers = null;
 			_flyersInStock = null;
 			return items;
 		}
 
-		private void AddFlyers(IList<AdditionalLoadingDocumentItem> items, IUnitOfWork uow)
+		private void AddFlyers(IList<AdditionalLoadingDocumentItem> items, IUnitOfWork uow, DateTime routelistDate)
 		{
 			if(!_deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled)
 			{
@@ -140,7 +140,7 @@ namespace Vodovoz.Models
 
 			if(_activeFlyers == null)
 			{
-				_activeFlyers = _flyerRepository.GetAllActiveFlyers(uow);
+				_activeFlyers = _flyerRepository.GetAllActiveFlyers(uow, routelistDate);
 			}
 			if(_flyersInStock == null)
 			{

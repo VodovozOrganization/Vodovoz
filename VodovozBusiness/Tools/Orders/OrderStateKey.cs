@@ -173,7 +173,7 @@ namespace Vodovoz.Tools.Orders
 
 		private bool HasOrderEquipments(IUnitOfWork uow)
 		{
-			var allActiveFlyersNomenclaturesIds = new FlyerRepository().GetAllActiveFlyersNomenclaturesIds(uow);
+			var allActiveFlyersNomenclaturesIds = new FlyerRepository().GetAllActiveFlyersNomenclaturesIds(uow, Order.DeliveryDate);
 			
 			if (!Order.ObservableOrderEquipments.Any() || OnlyFlyersInEquipments(allActiveFlyersNomenclaturesIds)) 
 			{
