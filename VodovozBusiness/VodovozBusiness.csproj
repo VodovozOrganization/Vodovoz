@@ -270,8 +270,8 @@
     <Compile Include="EntityRepositories\Flyers\FlyerRepository.cs" />
     <Compile Include="EntityRepositories\Flyers\IFlyerRepository.cs" />
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
-    <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
-    <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\INomenclaturePricesRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\NomenclaturePricesRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
@@ -332,6 +332,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
+    <Compile Include="Factories\GroupNomenclaturePriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
     <Compile Include="Factories\OsrmClientFactory.cs" />
     <Compile Include="Factories\RoboatsCallFactory.cs" />
@@ -435,6 +436,7 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
     <Compile Include="Models\AdditionalLoadingModel.cs" />
     <Compile Include="Models\FastDeliveryAvailabilityHistoryModel.cs" />
+    <Compile Include="Models\GroupNomenclaturePricesModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\NomenclatureInnerDeliveryPriceModel.cs" />

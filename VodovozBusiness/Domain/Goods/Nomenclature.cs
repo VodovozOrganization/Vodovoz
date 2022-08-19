@@ -486,6 +486,14 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _purchasePrices, value);
 		}
 
+		private bool _usingInGroupPriceSet;
+		[Display(Name = "Участвует в групповом заполнении себестоимости")]
+		public virtual bool UsingInGroupPriceSet
+		{
+			get => _usingInGroupPriceSet;
+			set => SetField(ref _usingInGroupPriceSet, value);
+		}
+
 		public virtual GenericObservableList<NomenclatureCostPurchasePrice> ObservablePurchasePrices =>
 			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclatureCostPurchasePrice>(PurchasePrices));
 

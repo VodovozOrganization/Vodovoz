@@ -4,8 +4,9 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.EntityRepositories.Goods
 {
-	public interface INomenclatureFixedPriceRepository
+	public interface INomenclaturePricesRepository
 	{
 		IList<NomenclatureFixedPrice> GetFixedPricesFor19LWater(IUnitOfWork uow);
+		IList<Nomenclature> GetNomenclaturesForGroupPricing(IUnitOfWork uow);
 	}
 }

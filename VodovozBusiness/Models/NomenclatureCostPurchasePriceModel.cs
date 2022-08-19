@@ -6,7 +6,7 @@ namespace Vodovoz.Models
 {
 	public class NomenclatureCostPurchasePriceModel
 	{
-		public void CreatePrice(Nomenclature nomenclature, DateTime startDate)
+		public NomenclatureCostPurchasePrice CreatePrice(Nomenclature nomenclature, DateTime startDate)
 		{
 			if(!CanCreatePrice(nomenclature, startDate))
 			{
@@ -18,6 +18,7 @@ namespace Vodovoz.Models
 			newPrice.Nomenclature = nomenclature;
 			newPrice.StartDate = startDate;
 			nomenclature.ObservablePurchasePrices.Add(newPrice);
+			return newPrice;
 		}
 
 		public bool CanCreatePrice(Nomenclature nomenclature, DateTime startDate)
@@ -93,7 +94,7 @@ namespace Vodovoz.Models
 			activePrice.EndDate = GetCloseTime(startDate);
 		}
 
-		private NomenclatureCostPurchasePrice GetActivePrice(Nomenclature nomenclature)
+		public NomenclatureCostPurchasePrice GetActivePrice(Nomenclature nomenclature)
 		{
 			var unclosedPrices = nomenclature.PurchasePrices.Where(x => x.EndDate == null);
 			var unclosedPriceCount = unclosedPrices.Count();
@@ -103,6 +104,24 @@ namespace Vodovoz.Models
 			}
 
 			return unclosedPrices.FirstOrDefault();
+		}
+
+		public NomenclatureCostPurchasePrice GetPrice(DateTime date, Nomenclature nomenclature)
+		{
+			if(nomenclature is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclature));
+			}
+
+			var prices = nomenclature.PurchasePrices
+				.Where(x => x.StartDate >= date)
+				.Where(x => x.EndDate.HasValue && x.EndDate.Value <= date);
+			if(prices.Count() > 1)
+			{
+				throw new InvalidOperationException($"Невозможно получить цену. На дату {date} в номенклатуре {nomenclature.Name} найдены несколько цен закупки или себестоимости.");
+			}
+
+			return prices.SingleOrDefault();
 		}
 
 		private DateTime GetCloseTime(DateTime startDate)

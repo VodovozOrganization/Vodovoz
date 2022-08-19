@@ -991,7 +991,7 @@ public partial class MainWindow : Gtk.Window
 				subdivisionJournalFactory,
 				counterpartyJournalFactory,
 				subdivisionRepository,
-				new NomenclatureFixedPriceRepository()
+				new NomenclaturePricesRepository()
 			));
 	}
 
