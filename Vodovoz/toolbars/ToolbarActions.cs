@@ -960,9 +960,7 @@ public partial class MainWindow : Window
 		filter.StartDate = DateTime.Today.AddMonths(-2);
 		filter.EndDate = DateTime.Today;
 
-		var wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
-
-		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel, WageParameterService>(null, filter, wageParameterService);
+		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
 	}
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)

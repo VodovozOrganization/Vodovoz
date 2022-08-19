@@ -1290,7 +1290,7 @@ namespace Vodovoz.Domain.Logistic
 			UpdateStatus();
 		}
 
-		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, CallTaskWorker callTaskWorker)
+		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker)
 		{
 			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker);
 			UpdateStatus();
@@ -1625,7 +1625,7 @@ namespace Vodovoz.Domain.Logistic
 		
 		public virtual void CompleteRouteAndCreateTask(
 			WageParameterService wageParameterService,
-			CallTaskWorker callTaskWorker,
+			ICallTaskWorker callTaskWorker,
 			ITrackRepository trackRepository)
 		{
 			if(wageParameterService == null) {
@@ -1836,7 +1836,7 @@ namespace Vodovoz.Domain.Logistic
 			return (message);
 		}
 
-		private void ConfirmAndClose(CallTaskWorker callTaskWorker)
+		private void ConfirmAndClose(ICallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck) {
 				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing, RouteListStatus.MileageCheck));
@@ -1862,7 +1862,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private void CloseFromOnMileageCheck(CallTaskWorker callTaskWorker)
+		private void CloseFromOnMileageCheck(ICallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.MileageCheck) {
 				return;
@@ -1879,7 +1879,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Закрывает МЛ, либо переводит в проверку км, при необходимых условиях, из статуса "Сдается" 
 		/// </summary>
-		private void CloseFromOnClosing(CallTaskWorker callTaskWorker)
+		private void CloseFromOnClosing(ICallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.OnClosing) {
 				return;
@@ -1898,7 +1898,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void AcceptCash(CallTaskWorker callTaskWorker)
+		public virtual void AcceptCash(ICallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.OnClosing) {
 				return;
@@ -1911,7 +1911,7 @@ namespace Vodovoz.Domain.Logistic
 			ConfirmAndClose(callTaskWorker);
 		}
 
-		public virtual void AcceptMileage(CallTaskWorker callTaskWorker)
+		public virtual void AcceptMileage(ICallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.MileageCheck) {
 				return;

@@ -43,16 +43,11 @@ using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Factories;
 using Vodovoz.JournalViewers;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModel
 {

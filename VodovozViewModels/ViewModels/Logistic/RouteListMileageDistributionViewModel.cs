@@ -23,7 +23,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private DelegateCommand _saveDistributionCommand;
 		private DelegateCommand _distributeCommand;
 		private readonly WageParameterService _wageParameterService;
-		private readonly CallTaskWorker _callTaskWorker;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IValidationContextFactory _validationContextFactory;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			WageParameterService wageParameterService,
-			CallTaskWorker callTaskWorker,
+			ICallTaskWorker callTaskWorker,
 			IValidationContextFactory validationContextFactory)
 			: base(uowBuilder, commonServices)
 		{

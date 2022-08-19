@@ -1,14 +1,14 @@
 ﻿using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
@@ -74,8 +74,10 @@ namespace Vodovoz.ViewModels.Logistic
 			WageParameterService wageParameterService,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
-			IValidationContextFactory validationContextFactory)
-			: base(uowBuilder, commonServices)
+			IValidationContextFactory validationContextFactory,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager)
+			:base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
 
@@ -318,19 +320,9 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand DistributeMiliageCommand =>
 			_distributeMiliageCommand ?? (_distributeMiliageCommand = new DelegateCommand(() =>
 				{
-					var routeListMileageDistributionViewModel = new RouteListMileageDistributionViewModel(
-						EntityUoWBuilder.ForOpen(Entity.Id),
-						CommonServices,
-						_routeListRepository,
-						_routeListItemRepository,
-						_wageParameterService,
-						CallTaskWorker,
-						_validationContextFactory
-					);
+					var mileageDistributionPage = NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(Entity.Id), OpenPageOptions.AsSlave);
 
-					TabParent.AddSlaveTab(this, routeListMileageDistributionViewModel);
-
-					routeListMileageDistributionViewModel.TabClosed += (s, e) =>
+					mileageDistributionPage.PageClosed += (s, e) =>
 					{
 						UoW.Session.Refresh(Entity);
 					};
