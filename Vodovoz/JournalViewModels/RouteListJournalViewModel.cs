@@ -175,9 +175,6 @@ namespace Vodovoz.JournalViewModels
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 
-
-			//CanEdit обновляет, статус нет
-
 			TabName = "Журнал МЛ";
 
 			NotifyConfiguration.Enable();

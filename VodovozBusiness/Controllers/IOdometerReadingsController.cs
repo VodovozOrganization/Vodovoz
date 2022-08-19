@@ -12,6 +12,5 @@ namespace Vodovoz.Controllers
 		bool IsValidDateForNewOdometerReading(DateTime dateTime);
 
 		bool IsValidDateForOdometerReadingStartDateChange(OdometerReading version, DateTime newStartDate);
-
 	}
 }

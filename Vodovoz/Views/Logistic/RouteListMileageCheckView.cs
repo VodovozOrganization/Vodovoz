@@ -27,9 +27,9 @@ namespace Vodovoz.Views.Logistic
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, widget => widget.Subject).InitializeFromSource();
 
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(ViewModel.ForwarderSelectorFactory);
-			evmeForwarder.Binding
-				.AddBinding(ViewModel.Entity, e => e.Forwarder, widget => widget.Subject)
-				.AddBinding(ViewModel.Entity, e => e.CanAddForwarder, widget => widget.Sensitive)
+			evmeForwarder.Binding.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.Forwarder, widget => widget.Subject)
+				.AddBinding( e => e.CanAddForwarder, widget => widget.Sensitive)
 				.InitializeFromSource();
 
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(ViewModel.LogisticianSelectorFactory);
@@ -65,7 +65,6 @@ namespace Vodovoz.Views.Logistic
 
 			ytextviewMileageComment.Binding.AddBinding(ViewModel.Entity, e => e.MileageComment, w => w.Buffer.Text).InitializeFromSource();
 
-			//Телефон
 			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
 			phoneLogistican.Binding.AddBinding(ViewModel.Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
 			phoneDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Employee).InitializeFromSource();

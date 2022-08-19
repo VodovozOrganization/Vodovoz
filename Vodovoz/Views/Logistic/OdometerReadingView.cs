@@ -37,7 +37,8 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Начало действия")
 					.AddTextRenderer(x => x.StartDate.ToString("g")).XAlign(0.5f)
 				.AddColumn("Окончание действия")
-					.AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToString("g") : "").XAlign(0.5f)
+					.AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToString("g") : "")
+					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 

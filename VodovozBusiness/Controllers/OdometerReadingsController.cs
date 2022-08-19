@@ -8,17 +8,9 @@ namespace Vodovoz.Controllers
 {
 	public class OdometerReadingsController : IOdometerReadingsController
 	{
-		private readonly Dictionary<int, (DateTime StartDate, DateTime? EndDate)> _odometerReadingPeriodsCache;
-
 		public OdometerReadingsController(Car car)
 		{
 			Car = car ?? throw new ArgumentNullException(nameof(car));
-
-			_odometerReadingPeriodsCache = new Dictionary<int, (DateTime StartDate, DateTime? EndDate)>();
-			foreach(var version in Car.OdometerReadings)
-			{
-				_odometerReadingPeriodsCache.Add(version.Id, (version.StartDate, version.EndDate));
-			}
 		}
 
 		///  <summary>
