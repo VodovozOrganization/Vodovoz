@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
+using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Widgets.Cars;
@@ -44,7 +45,12 @@ namespace Vodovoz.Views.Logistic
 			ytreeOdometerReading.Binding.AddBinding(ViewModel, vm => vm.SelectedOdometerReading, w => w.SelectedRow).InitializeFromSource();
 
 			buttonNew.Binding.AddBinding(ViewModel, vm => vm.CanAddNewOdometerReading, w => w.Sensitive).InitializeFromSource();
-			buttonNew.Clicked += (sender, args) => ViewModel.AddNewOdometerReadingCommand.Execute();
+			buttonNew.Clicked += (sender, args) =>
+			{
+				ViewModel.AddNewOdometerReadingCommand.Execute();
+				GtkHelper.WaitRedraw();
+				ytreeOdometerReading.Vadjustment.Value = 0;
+			};
 
 			buttonChangeDate.Binding.AddBinding(ViewModel, vm => vm.CanChangeOdometerReadingDate, w => w.Sensitive).InitializeFromSource();
 			buttonChangeDate.Clicked += (sender, args) => ViewModel.ChangeOdometerReadingStartDateCommand.Execute();
