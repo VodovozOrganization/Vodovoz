@@ -90,7 +90,7 @@ FROM
 								WHERE smd.status = 'Sended'                                      
                                   AND smdi.nomenclature_id = n.id
                                   AND smd.warehouse_to_id = @warehouse_id
-                                  AND smd.send_time  BETWEEN @today AND @currently)
+                                  AND smd.send_time &lt; @currently)
                     , 0) as in_way
                 From
                     nomenclature n
@@ -801,6 +801,7 @@ WHERE
 - идет выборка остатков воды по выбранному складу на текущий момент;
 - идет выборка продаж по выбранной части города на текущий момент;
 - происходит выборка отгрузок по выбранному складу на текущий момент;
+- происходит выборка по товарам в пути на выбранный склад;
 - выбираются максимальные отгрузки за день из соответствующего периода;
 Сортировка по объему тары, от большей к меньшей
 </Value>
