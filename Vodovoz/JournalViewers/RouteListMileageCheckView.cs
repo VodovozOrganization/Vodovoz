@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
 using System;
+using QS.Navigation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -24,8 +25,6 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListMileageCheckView : QS.Dialog.Gtk.TdiTabBase
 	{
-		private readonly ILifetimeScope _autofacScope;
-
 		private IUnitOfWork uow;
 
 		ViewModel.RouteListsVM viewModel;
@@ -47,9 +46,8 @@ namespace Vodovoz
 			}
 		}
 
-		public RouteListMileageCheckView(ILifetimeScope autofacScope)
+		public RouteListMileageCheckView()
 		{
-			_autofacScope = autofacScope ?? throw  new ArgumentNullException(nameof(autofacScope));
 			this.Build();
 			this.TabName = "Контроль за километражем.";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
@@ -65,31 +63,7 @@ namespace Vodovoz
 		{
 			var node = treeRouteLists.GetSelectedNode () as ViewModel.RouteListsVMNode;
 
-			var wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
-
-			var routeListMileageCheckViewModel = new RouteListMileageCheckViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				ServicesConfig.CommonServices,
-				_autofacScope.Resolve<ICarJournalFactory>(),
-				_autofacScope.Resolve<IEmployeeJournalFactory>(),
-				_autofacScope.Resolve<IDeliveryShiftRepository>(),
-				_autofacScope.Resolve<IOrderParametersProvider>(),
-				_autofacScope.Resolve<IDeliveryRulesParametersProvider>(),
-				_autofacScope.Resolve<IGtkTabsOpener>(),
-				_autofacScope.Resolve<BaseParametersProvider>(),
-				_autofacScope.Resolve<ITrackRepository>(),
-				_autofacScope.Resolve<ICallTaskRepository>(),
-				_autofacScope.Resolve<IEmployeeRepository>(),
-				_autofacScope.Resolve<IOrderRepository>(),
-				_autofacScope.Resolve<IErrorReporter>(),
-				wageParameterService,
-				_autofacScope.Resolve<IRouteListRepository>(),
-				_autofacScope.Resolve<IRouteListItemRepository>(),
-				_autofacScope.Resolve<IValidationContextFactory>()
-			);
-
-			TabParent.AddSlaveTab(this, routeListMileageCheckViewModel);
-
+			MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id), OpenPageOptions.AsSlave);
 		}
 
 		protected void OnRouteListActivated (object o, Gtk.RowActivatedArgs args)

@@ -170,6 +170,7 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 
@@ -575,6 +576,7 @@ namespace Vodovoz
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
 			builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
+			builder.RegisterType<WageParameterService>().AsSelf();
 
 			#endregion
 

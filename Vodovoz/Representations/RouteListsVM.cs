@@ -35,6 +35,7 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
+using QS.Navigation;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
@@ -59,7 +60,6 @@ namespace Vodovoz.ViewModel
 	{
 		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private bool _userHasOnlyAccessToWarehouseAndComplaints;
-		private readonly ILifetimeScope _autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
 
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
@@ -605,30 +605,7 @@ namespace Vodovoz.ViewModel
 							&& MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum)
 							&& selectedNode.CarTypeOfUse != CarTypeOfUse.Truck)
 						{
-							var wageParameterService = new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
-
-							var routeListMileageCheckViewModel = new RouteListMileageCheckViewModel(
-								EntityUoWBuilder.ForOpen(selectedNode.Id),
-								ServicesConfig.CommonServices,
-								_autofacScope.Resolve<ICarJournalFactory>(),
-								_autofacScope.Resolve<IEmployeeJournalFactory>(),
-								_autofacScope.Resolve<IDeliveryShiftRepository>(),
-								_autofacScope.Resolve<IOrderParametersProvider>(),
-								_autofacScope.Resolve<IDeliveryRulesParametersProvider>(),
-								_autofacScope.Resolve<IGtkTabsOpener>(),
-								_autofacScope.Resolve<BaseParametersProvider>(),
-								_autofacScope.Resolve<ITrackRepository>(),
-								_autofacScope.Resolve<ICallTaskRepository>(),
-								_autofacScope.Resolve<IEmployeeRepository>(),
-								_autofacScope.Resolve<IOrderRepository>(),
-								_autofacScope.Resolve<IErrorReporter>(),
-								wageParameterService,
-								_autofacScope.Resolve<IRouteListRepository>(),
-								_autofacScope.Resolve<IRouteListItemRepository>(),
-								_autofacScope.Resolve<IValidationContextFactory>()
-							);
-
-							MainClass.MainWin.TdiMain.AddTab(routeListMileageCheckViewModel);
+							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						}
 					},
 					(selectedItems) => selectedItems.Any(
