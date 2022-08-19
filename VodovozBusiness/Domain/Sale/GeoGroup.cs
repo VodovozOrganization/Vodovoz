@@ -55,9 +55,12 @@ namespace Vodovoz.Domain.Sale
 			return activeVersion;
 		}
 
-		public virtual GeoGroupVersion GetVersionOrNull(DateTime activationDate)
+		public virtual GeoGroupVersion GetVersionOrNull(DateTime date)
 		{
-			var activeVersion = Versions.OrderBy(x => x.ActivationDate).FirstOrDefault(x => x.ActivationDate >= activationDate);
+			var activeVersion = Versions.Where(x => x.ActivationDate <= date)
+				.Where(x => x.ClosingDate == null || x.ClosingDate.Value >= date)
+				.OrderByDescending(x => x.ActivationDate)
+				.FirstOrDefault();
 			return activeVersion;
 		}
 

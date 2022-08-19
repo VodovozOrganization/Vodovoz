@@ -11,6 +11,7 @@ using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
@@ -245,12 +246,11 @@ namespace Vodovoz.Dialogs.Logistic
 		#region Buttons
 		protected void OnButtonSaveChangesClicked(object sender, EventArgs e)
 		{
-			Save();
+			this.SaveAndClose();
 		}
 		protected void OnButtonCancelChangesClicked(object sender, EventArgs e)
 		{
-			UoW.Session.Clear();
-			FillDialogAtDay();
+			this.OnCloseTab(false, CloseSource.Cancel);
 		}
 		
 		protected void OnButtonAddWorkingDriversClicked(object sender, EventArgs e)
@@ -629,7 +629,13 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 		}
 
-		public void SaveAndClose() { throw new NotImplementedException(); }
+		public void SaveAndClose() 
+		{
+			if(Save())
+			{
+				this.OnCloseTab(false, CloseSource.Save);
+			}
+		}
 
 		private DeliveryDaySchedule GetDriverWorkDaySchedule(Employee driver)
 		{
