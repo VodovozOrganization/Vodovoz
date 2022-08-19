@@ -72,6 +72,8 @@ namespace Vodovoz.ReportsParameters.Store
 
 			yspinStockRate.Digits = 0;
 			yspinStockRate.Value = _defaultStockRate;
+
+			buttonRun.Sensitive = CanRun();
 		}
 
 		void DateperiodpickerMaxSalesPeriodChangedByUser(object sender, EventArgs e) => 
