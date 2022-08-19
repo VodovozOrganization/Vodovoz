@@ -1,11 +1,10 @@
-﻿using QS.Commands;
-using QS.DomainModel.UoW;
+﻿using Gamma.Binding.Core.LevelTreeConfig;
+using QS.Commands;
 using QS.Navigation;
 using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
@@ -18,6 +17,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly GroupNomenclaturePricesModel _groupNomenclaturePriceModel;
 		private readonly IValidator _validator;
 		private DelegateCommand _saveCommand;
+		private DelegateCommand _closeCommand;
 		private DateTime _date;
 		Dictionary<int, NomenclatureGroupPricingProductGroupViewModel> _productGroupViewModels = new Dictionary<int, NomenclatureGroupPricingProductGroupViewModel>();
 
@@ -25,18 +25,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 
-			//Модель, загружает данные и сохраняет
 			_groupNomenclaturePriceModel = groupNomenclaturePriceModel ?? throw new ArgumentNullException(nameof(groupNomenclaturePriceModel));
 
+			LevelConfig = LevelConfigFactory.FirstLevel<NomenclatureGroupPricingProductGroupViewModel, NomenclatureGroupPricingItemViewModel>(group => group.PriceViewModels)
+				.LastLevel(price => price.Group).EndConfig();
 
-			//Уровневая модель
-
-			//Инициализация
 			Date = DateTime.Today;
+			
 		}
 
-		public IEnumerable<INomenclatureGroupPricingItemViewModel> PriceViewModels { get; private set; } = Enumerable.Empty<INomenclatureGroupPricingItemViewModel>();
+		public IList<NomenclatureGroupPricingProductGroupViewModel> PriceViewModels { get; private set; } = new List<NomenclatureGroupPricingProductGroupViewModel>();
 
+		public ILevelConfig[] LevelConfig { get; }
 		public virtual DateTime Date
 		{
 			get => _date;
@@ -55,12 +55,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			foreach(var priceModel in _groupNomenclaturePriceModel.PriceModels)
 			{
-				var priceViewModel = new NomenclatureGroupPricingItemViewModel(priceModel);
 				var productGroupViewModel = GetProductGroupViewModel(priceModel);
+				var priceViewModel = new NomenclatureGroupPricingItemViewModel(priceModel, productGroupViewModel);
 				productGroupViewModel.AddPriceViewModel(priceViewModel);
 			}
 
-			PriceViewModels = _productGroupViewModels.Select(x => x.Value);
+			PriceViewModels = _productGroupViewModels.Select(x => x.Value).ToList();
 		}
 
 		private NomenclatureGroupPricingProductGroupViewModel GetProductGroupViewModel(GroupNomenclaturePriceModel groupNomenclaturePriceModel)
@@ -108,14 +108,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			{
 				if(_saveCommand == null)
 				{
-					_saveCommand = new DelegateCommand(Save, () => CanSave);
-					_saveCommand.CanExecuteChangedWith(this, x => x.CanSave);
+					_saveCommand = new DelegateCommand(Save);
 				}
 				return _saveCommand;
 			}
 		}
-
-		public bool CanSave => true;
 
 		private void Save()
 		{
@@ -128,6 +125,27 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		}
 
 		#endregion
+
+		#region Close command
+
+		public DelegateCommand CloseCommand
+		{
+			get
+			{
+				if(_closeCommand == null)
+				{
+					_closeCommand = new DelegateCommand(Close);
+				}
+				return _closeCommand;
+			}
+		}
+
+		private void Close()
+		{
+			Close(false, CloseSource.Cancel);
+		}
+
+		#endregion Close command
 	}
 
 
@@ -135,9 +153,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 	{
 		private readonly GroupNomenclaturePriceModel _groupNomenclaturePriceModel;
 
-		public NomenclatureGroupPricingItemViewModel(GroupNomenclaturePriceModel groupNomenclaturePriceModel)
+		public NomenclatureGroupPricingItemViewModel(GroupNomenclaturePriceModel groupNomenclaturePriceModel, NomenclatureGroupPricingProductGroupViewModel group)
 		{
 			_groupNomenclaturePriceModel = groupNomenclaturePriceModel ?? throw new ArgumentNullException(nameof(groupNomenclaturePriceModel));
+			Group = group ?? throw new ArgumentNullException(nameof(group));
 			_groupNomenclaturePriceModel.PropertyChanged += _groupNomenclaturePriceModel_PropertyChanged;
 		}
 
@@ -162,7 +181,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 		}
 
-		public bool IsProductGroup => false;
+		public NomenclatureGroupPricingProductGroupViewModel Group { get; set; }
+
+		public bool IsGroup => false;
 
 		public string Name => _groupNomenclaturePriceModel.Nomenclature.Name;
 
@@ -229,7 +250,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_productGroup = productGroup ?? throw new ArgumentNullException(nameof(productGroup));
 		}
 
-		public bool IsProductGroup => true;
+		public bool IsGroup => true;
 
 		public string Name => _productGroup.Name;
 
@@ -241,7 +262,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		decimal INomenclatureGroupPricingItemViewModel.InnerDeliveryPrice { get; set; }
 
-		public IEnumerable<NomenclatureGroupPricingItemViewModel> PriceViewModels => _priceViewModels;
+		public IList<NomenclatureGroupPricingItemViewModel> PriceViewModels => _priceViewModels;
 
 		internal void AddPriceViewModel(NomenclatureGroupPricingItemViewModel priceViewModel)
 		{

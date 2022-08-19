@@ -504,6 +504,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
+      <Project>{7A75C848-2A65-4FFF-AB70-9408E697D9BA}</Project>
+      <Name>Gamma.Binding.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
       <Name>Gamma.Utilities</Name>

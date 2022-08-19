@@ -4,7 +4,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 {
 	public interface INomenclatureGroupPricingItemViewModel : INotifyPropertyChanged
 	{
-		bool IsProductGroup { get; }
+		bool IsGroup { get; }
 		string Name { get; }
 		bool InvalidCostPurchasePrice { get; }
 		decimal CostPurchasePrice { get; set; }
