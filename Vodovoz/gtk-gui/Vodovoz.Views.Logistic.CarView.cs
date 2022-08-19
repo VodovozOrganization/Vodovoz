@@ -812,6 +812,7 @@ namespace Vodovoz.Views.Logistic
 			w53.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
 			this.odometerReadingView = new global::Vodovoz.Views.Logistic.OdometerReadingView();
+			this.odometerReadingView.HeightRequest = 200;
 			this.odometerReadingView.Events = ((global::Gdk.EventMask)(256));
 			this.odometerReadingView.Name = "odometerReadingView";
 			this.tableCarData.Add(this.odometerReadingView);
