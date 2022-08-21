@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
@@ -19,6 +19,7 @@ using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Models;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.TempAdapters;
@@ -33,7 +34,8 @@ namespace Vodovoz.ViewModels.Warehouses
         private readonly IOrderSelectorFactory orderSelectorFactory;
         private readonly IWarehouseRepository warehouseRepository;
         private readonly IRDLPreviewOpener rdlPreviewOpener;
-        private readonly IWarehousePermissionValidator warehousePermissionValidator;
+		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
+		private readonly IWarehousePermissionValidator warehousePermissionValidator;
         private readonly IStockRepository _stockRepository;
         
         #region Конструктор
@@ -48,6 +50,7 @@ namespace Vodovoz.ViewModels.Warehouses
             IWarehouseRepository warehouseRepository,
             IRDLPreviewOpener rdlPreviewOpener,
             ICommonServices commonServices,
+			NomenclatureCostPurchasePriceModel nomenclatureCostPurchasePriceModel,
             IStockRepository stockRepository) 
             : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
@@ -57,7 +60,8 @@ namespace Vodovoz.ViewModels.Warehouses
             this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
             this.warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
             this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-            _stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+			_nomenclatureCostPurchasePriceModel = nomenclatureCostPurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPurchasePriceModel));
+			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
             warehousePermissionValidator = warehousePermissionService.GetValidator(CommonServices.UserService.CurrentUserId);
 
             canEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
@@ -107,13 +111,34 @@ namespace Vodovoz.ViewModels.Warehouses
                     throw new InvalidOperationException("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
                 }
             }
-            
-            Entity.LastEditor = CurrentEmployee;
+
+			CreatePurchasePrices();
+
+			Entity.LastEditor = CurrentEmployee;
             Entity.LastEditedTime = DateTime.Now;
             
 
             return base.Save(close);
         }
+
+		private void CreatePurchasePrices()
+		{
+			foreach(var item in Entity.Items)
+			{
+				if(item.Nomenclature.UsingInGroupPriceSet)
+				{
+					continue;
+				}
+
+				var canCreateNewPrice = _nomenclatureCostPurchasePriceModel.CanCreatePrice(item.Nomenclature, Entity.TimeStamp.Date, item.PrimeCost);
+				if(!canCreateNewPrice)
+				{
+					continue;
+				}
+				var newPrice = _nomenclatureCostPurchasePriceModel.CreatePrice(item.Nomenclature, Entity.TimeStamp.Date, item.PrimeCost);
+				UoW.Save(newPrice);
+			}
+		}
 
         #endregion
 

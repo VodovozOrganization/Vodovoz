@@ -25,6 +25,7 @@ namespace Vodovoz.Views.Goods
 		private void Configure()
 		{
 			datePicker.Binding.AddBinding(ViewModel, vm => vm.Date, w => w.Date).InitializeFromSource();
+			datePicker.IsEditable = true;
 
 			buttonSave.Clicked += (s, e) => ViewModel.SaveCommand.Execute();
 			ViewModel.SaveCommand.CanExecuteChanged += (s, e) => buttonSave.Sensitive = ViewModel.SaveCommand.CanExecute();
@@ -36,6 +37,7 @@ namespace Vodovoz.Views.Goods
 
 			ytreeviewPrices.ColumnsConfig = FluentColumnsConfig<INomenclatureGroupPricingItemViewModel>.Create()
 				.AddColumn("Товар")
+					.MinWidth(400)
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Name)
 					.AddSetter((c, n) =>
@@ -44,21 +46,22 @@ namespace Vodovoz.Views.Goods
 						{
 							c.Xalign = 0f;
 							c.Alignment = Pango.Alignment.Left;
-							//c.Weight = 30;
+							c.Weight = (int)Weight.Bold;
 							
 						}
 						else
 						{
 							c.Xalign = 1f;
 							c.Alignment = Pango.Alignment.Right;
-							//c.Weight = 10;
+							c.Weight = (int)Weight.Normal;
 						}
 
 					})
 				.AddColumn("Себестоимость\nпроизводства")
+					.MinWidth(180)
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(x => x.CostPurchasePrice)
-					.Editing()
+					.Editing(x => !x.IsGroup)
 					.Adjustment(new Adjustment(0, 0, 99999999, 1, 10, 10))
 					.AddSetter((c, n) =>
 					{
@@ -72,17 +75,22 @@ namespace Vodovoz.Views.Goods
 						{
 							c.BackgroundGdk = _white;
 						}
+					})
+					.AddSetter((c, n) =>
+					{
+						c.Visible = !n.IsGroup;
 					})
 				.AddColumn("Стоимость доставки\nдо склада")
+					.MinWidth(180)
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(x => x.InnerDeliveryPrice)
-					.Editing()
+					.Editing(x => !x.IsGroup)
 					.Adjustment(new Adjustment(0, 0, 99999999, 1, 10, 10))
 					.AddSetter((c, n) =>
 					{
 						c.Xalign = 0.5f;
 						c.Alignment = Pango.Alignment.Center;
-						if(n.InvalidCostPurchasePrice)
+						if(n.InvalidInnerDeliveryPrice)
 						{
 							c.BackgroundGdk = _red;
 						}
@@ -91,10 +99,33 @@ namespace Vodovoz.Views.Goods
 							c.BackgroundGdk = _white;
 						}
 					})
+					.AddSetter((c, n) =>
+					{
+						c.Visible = !n.IsGroup;
+					})
+				.AddColumn("")
 				.Finish();
 
-			ytreeviewPrices.YTreeModel = new LevelTreeModel<NomenclatureGroupPricingProductGroupViewModel>(ViewModel.PriceViewModels, ViewModel.LevelConfig);
+			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+			ReloadItemSource();
+		}
 
+		private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			switch(e.PropertyName)
+			{
+				case nameof(ViewModel.PriceViewModels):
+					ReloadItemSource();
+					break;
+				default:
+					break;
+			}
+		}
+
+		private void ReloadItemSource()
+		{
+			ytreeviewPrices.YTreeModel = new LevelTreeModel<NomenclatureGroupPricingProductGroupViewModel>(ViewModel.PriceViewModels, ViewModel.LevelConfig);
+			ytreeviewPrices.ExpandAll();
 		}
 	}
 }

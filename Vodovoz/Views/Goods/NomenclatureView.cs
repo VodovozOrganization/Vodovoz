@@ -361,6 +361,9 @@ namespace Vodovoz.Views.Goods
 			nomenclaturePurchasePricesView.ViewModel = ViewModel.NomenclaturePurchasePricesViewModel;
 			nomenclaturePurchasePricesView.Sensitive = ViewModel.CanEdit;
 
+			nomenclatureinnerdeliverypricesview1.ViewModel = ViewModel.NomenclatureInnerDeliveryPricesViewModel;
+			nomenclatureinnerdeliverypricesview1.Sensitive = ViewModel.CanEdit;
+
 			#endregion
 
 			entityViewModelEntryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);

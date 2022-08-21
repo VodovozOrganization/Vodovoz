@@ -1,5 +1,6 @@
 ﻿using Gamma.Binding.Core.LevelTreeConfig;
 using QS.Commands;
+using QS.Dialog;
 using QS.Navigation;
 using QS.Validation;
 using QS.ViewModels;
@@ -16,22 +17,28 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 	{
 		private readonly GroupNomenclaturePricesModel _groupNomenclaturePriceModel;
 		private readonly IValidator _validator;
+		private readonly IInteractiveMessage _interactiveMessage;
 		private DelegateCommand _saveCommand;
 		private DelegateCommand _closeCommand;
 		private DateTime _date;
 		Dictionary<int, NomenclatureGroupPricingProductGroupViewModel> _productGroupViewModels = new Dictionary<int, NomenclatureGroupPricingProductGroupViewModel>();
 
-		public NomenclatureGroupPricingViewModel(GroupNomenclaturePricesModel groupNomenclaturePriceModel, IValidator validator, INavigationManager navigation) : base(navigation)
+		public NomenclatureGroupPricingViewModel(
+			GroupNomenclaturePricesModel groupNomenclaturePriceModel,
+			IValidator validator,
+			IInteractiveMessage interactiveMessage,
+			INavigationManager navigation) : base(navigation)
 		{
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
-
+			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
 			_groupNomenclaturePriceModel = groupNomenclaturePriceModel ?? throw new ArgumentNullException(nameof(groupNomenclaturePriceModel));
+
+			Title = "Групповое заполнение себестоимости";
 
 			LevelConfig = LevelConfigFactory.FirstLevel<NomenclatureGroupPricingProductGroupViewModel, NomenclatureGroupPricingItemViewModel>(group => group.PriceViewModels)
 				.LastLevel(price => price.Group).EndConfig();
 
 			Date = DateTime.Today;
-			
 		}
 
 		public IList<NomenclatureGroupPricingProductGroupViewModel> PriceViewModels { get; private set; } = new List<NomenclatureGroupPricingProductGroupViewModel>();
@@ -60,7 +67,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				productGroupViewModel.AddPriceViewModel(priceViewModel);
 			}
 
-			PriceViewModels = _productGroupViewModels.Select(x => x.Value).ToList();
+			PriceViewModels = GetOrderedViewModels();
+		}
+
+		private IList<NomenclatureGroupPricingProductGroupViewModel> GetOrderedViewModels()
+		{
+			var result = _productGroupViewModels.Where(x => x.Key != 0).Select(x => x.Value).OrderBy(x => x.Name).ToList();
+
+			if(_productGroupViewModels.TryGetValue(0, out NomenclatureGroupPricingProductGroupViewModel withoutGroupViewModel))
+			{
+				result.Insert(0, withoutGroupViewModel);
+			}
+			return result;
 		}
 
 		private NomenclatureGroupPricingProductGroupViewModel GetProductGroupViewModel(GroupNomenclaturePriceModel groupNomenclaturePriceModel)
@@ -80,10 +98,22 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			List<ProductGroup> groups = new List<ProductGroup>();
 			ProductGroup group = nomenclature.ProductGroup;
+			if(group == null)
+			{
+				return new ProductGroup
+				{
+					Id = 0,
+					Name = "Без группы"
+				};
+			}
 			groups.Add(group);
 			do
 			{
 				group = group.Parent;
+				if(group == null)
+				{
+					break;
+				}
 				groups.Add(group);
 
 			} while(group != null);
@@ -116,12 +146,16 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		private void Save()
 		{
-			var isValid = _validator.Validate(_groupNomenclaturePriceModel);
+			var isValid = _validator.Validate(_groupNomenclaturePriceModel, showValidationResults: false);
 			if(!isValid)
 			{
+				_interactiveMessage.ShowMessage(ImportanceLevel.Warning, "По красным ячейкам уже существует версия стоимости с датой равной или большей. " +
+					"Сотрите значение в красной ячейке или измените версию в карточке товара");
 				return;
 			}
 			_groupNomenclaturePriceModel.SavePrices();
+			Close(false, CloseSource.Save);
+
 		}
 
 		#endregion
@@ -187,7 +221,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public string Name => _groupNomenclaturePriceModel.Nomenclature.Name;
 
-		public bool InvalidCostPurchasePrice => !_groupNomenclaturePriceModel.IsValidInnerDeliveryPrice;
+		public bool InvalidCostPurchasePrice => !_groupNomenclaturePriceModel.IsValidCostPurchasePrice;
 
 		public decimal CostPurchasePrice
 		{
@@ -247,6 +281,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public NomenclatureGroupPricingProductGroupViewModel(ProductGroup productGroup)
 		{
+			_priceViewModels = new List<NomenclatureGroupPricingItemViewModel>();
 			_productGroup = productGroup ?? throw new ArgumentNullException(nameof(productGroup));
 		}
 

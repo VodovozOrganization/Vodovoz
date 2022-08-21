@@ -44,22 +44,33 @@ namespace Vodovoz.EntityRepositories.Goods
 		public IList<Nomenclature> GetNomenclaturesForGroupPricing(IUnitOfWork uow)
 		{
 			Nomenclature nomenclatureAlias = null;
+			ProductGroup productGroupAlias = null;
+
+
 
 			var query = uow.Session.QueryOver(() => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.UsingInGroupPriceSet)
 				.Future<Nomenclature>();
 
-			var query2 = uow.Session.QueryOver(() => nomenclatureAlias)
+			var query2 = uow.Session.QueryOver(() => productGroupAlias)
+				.Future<ProductGroup>();
+
+			var query3 = uow.Session.QueryOver(() => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.UsingInGroupPriceSet)
 				.Fetch(SelectMode.Fetch, () => nomenclatureAlias.PurchasePrices)
 				.Future<Nomenclature>();
 
-			var query3 = uow.Session.QueryOver(() => nomenclatureAlias)
+			var query4 = uow.Session.QueryOver(() => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.UsingInGroupPriceSet)
 				.Fetch(SelectMode.Fetch, () => nomenclatureAlias.InnerDeliveryPrices)
 				.Future<Nomenclature>();
 
-			return query3.ToList();
+			var query5 = uow.Session.QueryOver(() => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.UsingInGroupPriceSet)
+				.Fetch(SelectMode.Fetch, () => nomenclatureAlias.ProductGroup)
+				.Future<Nomenclature>();
+
+			return query5.ToList();
 		}
 	}
 }

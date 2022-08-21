@@ -62,6 +62,7 @@ namespace Vodovoz.Models
 			foreach(var priceModel in PriceModels)
 			{
 				priceModel.CreatePrices();
+				_uow.Save(priceModel.Nomenclature);
 			}
 			_uow.Commit();
 		}
@@ -173,8 +174,7 @@ namespace Vodovoz.Models
 				return;
 			}
 
-			var newPrice = _nomenclatureCostPurchasePriceModel.CreatePrice(Nomenclature, _date);
-			newPrice.PurchasePrice = CostPurchasePrice.Value;
+			var newPrice = _nomenclatureCostPurchasePriceModel.CreatePrice(Nomenclature, _date, CostPurchasePrice.Value);
 		}
 
 		private void CreateInnerDeliveryPrice()
@@ -190,12 +190,12 @@ namespace Vodovoz.Models
 
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(_activeCostPurchasePrice.HasValue)
+			if(!IsValidCostPurchasePrice)
 			{
 				yield return new ValidationResult($"Невозможно создать цены для {Nomenclature.Name}, так как на эту дату ({_date}) уже имеется цена закупки или себестоимости");
 			}
 
-			if(_activeInnerDeliveryPrice.HasValue)
+			if(!IsValidInnerDeliveryPrice)
 			{
 				yield return new ValidationResult($"Невозможно создать цены для {Nomenclature.Name}, так как на эту дату ({_date}) уже имеется цена доставки на склад");
 			}

@@ -114,8 +114,8 @@ namespace Vodovoz.Models
 			}
 
 			var prices = nomenclature.InnerDeliveryPrices
-				.Where(x => x.StartDate >= date)
-				.Where(x => x.EndDate.HasValue && x.EndDate.Value <= date);
+				.Where(x => x.StartDate <= date)
+				.Where(x => x.EndDate == null || x.EndDate.Value >= date);
 			if(prices.Count() > 1)
 			{
 				throw new InvalidOperationException($"Невозможно получить цену. На дату {date} в номенклатуре {nomenclature.Name} найдены несколько цен закупки или себестоимости.");

@@ -505,7 +505,7 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
-			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(ObservableInnerDeliveryPrices));
+			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
 		#endregion
 
 		#region Свойства товаров для магазина
