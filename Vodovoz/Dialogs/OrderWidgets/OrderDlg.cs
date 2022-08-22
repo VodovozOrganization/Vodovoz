@@ -170,7 +170,6 @@ namespace Vodovoz
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
-		private IList<int> _addedFlyersNomenclaturesIds = new List<int>();
 		private Employee _currentEmployee;
 		private bool _canChangeDiscountValue;
 		private bool _canChoosePremiumDiscount;
