@@ -299,7 +299,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
 				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
-				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, GroupNomenclaturePriceView>()
+				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, NomenclatureGroupPricingView>()
 				;
 
             //Регистрация виджетов
