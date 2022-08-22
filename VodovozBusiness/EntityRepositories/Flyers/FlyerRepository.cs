@@ -20,7 +20,7 @@ namespace Vodovoz.EntityRepositories.Flyers
 			return query;
 		}
 
-		public IList<Flyer> GetAllActiveFlyers(IUnitOfWork uow, DateTime deliveryDate)
+		public IList<Flyer> GetAllActiveFlyersByDate(IUnitOfWork uow, DateTime deliveryDate)
 		{
 			Nomenclature flyerNomenclatureAlias = null;
 			FlyerActionTime flyerActionTimeAlias = null;
@@ -35,7 +35,7 @@ namespace Vodovoz.EntityRepositories.Flyers
 			return query;
 		}
 		
-		public IList<int> GetAllActiveFlyersNomenclaturesIds(IUnitOfWork uow, DateTime? deliveryDate)
+		public IList<int> GetAllActiveFlyersNomenclaturesIdsByDate(IUnitOfWork uow, DateTime? deliveryDate)
 		{
 			if(deliveryDate == null)
 			{

@@ -179,6 +179,7 @@ namespace Vodovoz
 		private IOrderDailyNumberController _dailyNumberController;
 		private bool _isNeedSendBill;
 		private Email _emailAddressForBill;
+		private DateTime? _previousDeliveryDate;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -419,6 +420,7 @@ namespace Vodovoz
 				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			}
 
+			_previousDeliveryDate = Entity.DeliveryDate;
 			_canChangeDiscountValue = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
 			_nomenclatureFixedPriceProvider	=
@@ -952,14 +954,18 @@ namespace Vodovoz
 			}
 
 			var geographicGroupId = Entity.DeliveryPoint.District.GeographicGroup.Id;
-			var activeFlyers = _flyerRepository.GetAllActiveFlyers(UoW, Entity.DeliveryDate.Value);
+			var activeFlyers = _flyerRepository.GetAllActiveFlyersByDate(UoW, Entity.DeliveryDate.Value);
 
 			if(!activeFlyers.Any())
 			{
+				if(Entity.ObservableOrderEquipments.Any())
+				{
+					RemoveFlyers();
+				}
 				return;
 			}
 
-			CheckAndRemoveFlyers();
+			RemoveFlyers();
 
 			foreach(var flyer in activeFlyers)
 			{
@@ -973,9 +979,9 @@ namespace Vodovoz
 				}
 
 				Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
-				_addedFlyersNomenclaturesIds.Add(flyer.FlyerNomenclature.Id);
 			}
 			orderEquipmentItemsView.UpdateActiveFlyersNomenclaturesIds();
+			_previousDeliveryDate = Entity.DeliveryDate;
 		}
 
 		private void OnDeliveryPointChanged(EntityChangeEvent[] changeevents)
@@ -2520,22 +2526,19 @@ namespace Vodovoz
 			}
 			else
 			{
-				CheckAndRemoveFlyers();
+				RemoveFlyers();
 			}
 		}
 
-		private void CheckAndRemoveFlyers()
+		private void RemoveFlyers()
 		{
-			if(_addedFlyersNomenclaturesIds.Any())
-			{
-				foreach(var flyerNomenclatureId in _addedFlyersNomenclaturesIds)
-				{
-					Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
-						x => x.Nomenclature.Id == flyerNomenclatureId));
-				}
-			}
+			var activeFlyersNomenclaturesByDate = _flyerRepository.GetAllActiveFlyersNomenclaturesIdsByDate(UoW, _previousDeliveryDate);
 
-			_addedFlyersNomenclaturesIds.Clear();
+			foreach(var flyerNomenclatureId in activeFlyersNomenclaturesByDate)
+			{
+				Entity.ObservableOrderEquipments.Remove(Entity.ObservableOrderEquipments.SingleOrDefault(
+					x => x.Nomenclature.Id == flyerNomenclatureId));
+			}
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)

@@ -73,7 +73,7 @@ namespace Vodovoz.ViewWidgets
 
 		public void UpdateActiveFlyersNomenclaturesIds()
 		{
-			_activeFlyersNomenclaturesIds = _flyerRepository.GetAllActiveFlyersNomenclaturesIds(UoW, Order.DeliveryDate);
+			_activeFlyersNomenclaturesIds = _flyerRepository.GetAllActiveFlyersNomenclaturesIdsByDate(UoW, Order.DeliveryDate);
 		}
 
 		public void UnsubscribeOnEquipmentAdd()

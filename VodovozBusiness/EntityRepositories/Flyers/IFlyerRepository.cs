@@ -8,8 +8,8 @@ namespace Vodovoz.EntityRepositories.Flyers
 	public interface IFlyerRepository
 	{
 		IList<int> GetAllFlyersNomenclaturesIds(IUnitOfWork uow);
-		IList<Flyer> GetAllActiveFlyers(IUnitOfWork uow, DateTime deliveryDate);
-		IList<int> GetAllActiveFlyersNomenclaturesIds(IUnitOfWork uow, DateTime? deliveryDate);
+		IList<Flyer> GetAllActiveFlyersByDate(IUnitOfWork uow, DateTime deliveryDate);
+		IList<int> GetAllActiveFlyersNomenclaturesIdsByDate(IUnitOfWork uow, DateTime? deliveryDate);
 		bool ExistsFlyerForNomenclatureId(IUnitOfWork uow, int nomenclatureId);
 	}
 }

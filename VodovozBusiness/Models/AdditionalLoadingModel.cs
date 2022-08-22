@@ -121,6 +121,35 @@ namespace Vodovoz.Models
 			return items;
 		}
 
+		public void ReloadActiveFlyers(IUnitOfWork uow, RouteList routelist, DateTime previousRoutelistDate)
+		{
+			if(routelist.Status != RouteListStatus.New)
+			{
+				return;
+			}
+			if(routelist.AdditionalLoadingDocument == null)
+			{
+				return;
+			}
+			
+			var activeFlyersForPreviousDate = _flyerRepository.GetAllActiveFlyersByDate(uow, previousRoutelistDate);
+			var items = routelist.AdditionalLoadingDocument.ObservableItems;
+
+			foreach(var previousActiveFlyer in activeFlyersForPreviousDate)
+			{
+				var flyer = items.SingleOrDefault(x => x.Nomenclature.Id == previousActiveFlyer.FlyerNomenclature.Id);
+
+				if(flyer != null)
+				{
+					items.Remove(flyer);
+				}
+			}
+
+			_activeFlyers = null;
+			_flyersInStock = null;
+			AddFlyers(items, uow, routelist.Date);
+		}
+
 		private void AddFlyers(IList<AdditionalLoadingDocumentItem> items, IUnitOfWork uow, DateTime routelistDate)
 		{
 			if(!_deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled)
@@ -140,7 +169,7 @@ namespace Vodovoz.Models
 
 			if(_activeFlyers == null)
 			{
-				_activeFlyers = _flyerRepository.GetAllActiveFlyers(uow, routelistDate);
+				_activeFlyers = _flyerRepository.GetAllActiveFlyersByDate(uow, routelistDate);
 			}
 			if(_flyersInStock == null)
 			{
