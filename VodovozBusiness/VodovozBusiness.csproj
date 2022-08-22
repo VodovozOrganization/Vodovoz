@@ -332,7 +332,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
-    <Compile Include="Factories\GroupNomenclaturePriceModelFactory.cs" />
+    <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
     <Compile Include="Factories\OsrmClientFactory.cs" />
     <Compile Include="Factories\RoboatsCallFactory.cs" />
@@ -436,9 +436,10 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
     <Compile Include="Models\AdditionalLoadingModel.cs" />
     <Compile Include="Models\FastDeliveryAvailabilityHistoryModel.cs" />
-    <Compile Include="Models\GroupNomenclaturePricesModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
+    <Compile Include="Models\NomenclatureGroupPricingModel.cs" />
+    <Compile Include="Models\NomenclatureGroupPricingPriceModel.cs" />
     <Compile Include="Models\NomenclatureInnerDeliveryPriceModel.cs" />
     <Compile Include="Models\NomenclatureCostPurchasePriceModel.cs" />
     <Compile Include="Models\Orders\CopyingOrder.cs" />

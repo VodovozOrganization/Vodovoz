@@ -1,92 +1,13 @@
 ﻿using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Factories;
 
 namespace Vodovoz.Models
 {
-	public class GroupNomenclaturePricesModel : IValidatableObject
-	{
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly INomenclaturePricesRepository _nomenclaturePricesRepository;
-		private readonly GroupNomenclaturePriceModelFactory _groupNomenclaturePriceModelFactory;
-		private IUnitOfWork _uow;
-
-		public GroupNomenclaturePricesModel(
-			IUnitOfWorkFactory uowFactory, 
-			INomenclaturePricesRepository nomenclaturePricesRepository, 
-			GroupNomenclaturePriceModelFactory groupNomenclaturePriceModelFactory
-		)
-		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_nomenclaturePricesRepository = nomenclaturePricesRepository ?? throw new ArgumentNullException(nameof(nomenclaturePricesRepository));
-			_groupNomenclaturePriceModelFactory = groupNomenclaturePriceModelFactory ?? throw new ArgumentNullException(nameof(groupNomenclaturePriceModelFactory));
-		}
-
-		public IEnumerable<GroupNomenclaturePriceModel> PriceModels { get; private set; }
-
-		public void LoadPrices(DateTime dateTime)
-		{
-			DiscardChanges();
-			_uow = _uowFactory.CreateWithoutRoot();
-
-			var nomenclatures = _nomenclaturePricesRepository.GetNomenclaturesForGroupPricing(_uow);
-
-			var models = new List<GroupNomenclaturePriceModel>();
-			foreach (var nomenclature in nomenclatures)
-			{
-				var model = _groupNomenclaturePriceModelFactory.CreateModel(dateTime, nomenclature);
-				models.Add(model);
-			}
-			PriceModels = models;
-		}
-
-		public void SavePrices()
-		{
-			if(_uow == null)
-			{
-				return;
-			}
-
-			var validationResults = Validate(new ValidationContext(this));
-			if(validationResults.Any())
-			{
-				throw new ValidationException("Невозможно сохранить. По результатам валидации имеются не устранные проблемы. Перед запуском сохранения необходимо проверять валидацию.");
-			}
-
-			foreach(var priceModel in PriceModels)
-			{
-				priceModel.CreatePrices();
-				_uow.Save(priceModel.Nomenclature);
-			}
-			_uow.Commit();
-		}
-
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			foreach(var priceModel in PriceModels)
-			{
-				foreach(var validationResult in priceModel.Validate(validationContext))
-				{
-					yield return validationResult;
-				}
-			}
-		}
-
-		private void DiscardChanges()
-		{
-			PriceModels = Enumerable.Empty<GroupNomenclaturePriceModel>();
-			_uow?.Dispose();
-			_uow = null;
-		}
-	}
-
-	public class GroupNomenclaturePriceModel : PropertyChangedBase, IValidatableObject
+	public class NomenclatureGroupPricingPriceModel : PropertyChangedBase, IValidatableObject
 	{
 		private readonly DateTime _date;
 		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
@@ -96,7 +17,7 @@ namespace Vodovoz.Models
 		private decimal? _activeCostPurchasePrice;
 		private decimal? _activeInnerDeliveryPrice;
 
-		public GroupNomenclaturePriceModel(
+		public NomenclatureGroupPricingPriceModel(
 			DateTime date,
 			Nomenclature nomenclature,
 			NomenclatureCostPurchasePriceModel nomenclatureCostPurchasePriceModel,

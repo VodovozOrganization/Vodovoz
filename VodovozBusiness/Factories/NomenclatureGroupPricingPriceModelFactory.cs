@@ -4,12 +4,12 @@ using Vodovoz.Models;
 
 namespace Vodovoz.Factories
 {
-	public class GroupNomenclaturePriceModelFactory
+	public class NomenclatureGroupPricingPriceModelFactory
 	{
 		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
 		private readonly NomenclatureInnerDeliveryPriceModel _nomenclatureInnerDeliveryPriceModel;
 
-		public GroupNomenclaturePriceModelFactory(
+		public NomenclatureGroupPricingPriceModelFactory(
 			NomenclatureCostPurchasePriceModel nomenclatureCostPurchasePriceModel,
 			NomenclatureInnerDeliveryPriceModel nomenclatureInnerDeliveryPriceModel)
 		{
@@ -17,9 +17,9 @@ namespace Vodovoz.Factories
 			_nomenclatureInnerDeliveryPriceModel = nomenclatureInnerDeliveryPriceModel ?? throw new ArgumentNullException(nameof(nomenclatureInnerDeliveryPriceModel));
 		}
 
-		public GroupNomenclaturePriceModel CreateModel(DateTime date, Nomenclature nomenclature)
+		public NomenclatureGroupPricingPriceModel CreateModel(DateTime date, Nomenclature nomenclature)
 		{
-			return new GroupNomenclaturePriceModel(date, nomenclature, _nomenclatureCostPurchasePriceModel, _nomenclatureInnerDeliveryPriceModel);
+			return new NomenclatureGroupPricingPriceModel(date, nomenclature, _nomenclatureCostPurchasePriceModel, _nomenclatureInnerDeliveryPriceModel);
 		}
 	}
 }

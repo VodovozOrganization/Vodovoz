@@ -46,8 +46,6 @@ namespace Vodovoz.EntityRepositories.Goods
 			Nomenclature nomenclatureAlias = null;
 			ProductGroup productGroupAlias = null;
 
-
-
 			var query = uow.Session.QueryOver(() => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.UsingInGroupPriceSet)
 				.Future<Nomenclature>();
