@@ -23,8 +23,10 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDateTitle)
 				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDateTitle)
 				.Finish();
-			treeViewPrices.Binding.AddBinding(ViewModel, vm => vm.PriceViewModels, w => w.ItemsDataSource).InitializeFromSource();
-			treeViewPrices.Selection.Changed += Selection_Changed;
+			treeViewPrices.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.PriceViewModels, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.SelectedPrice, w => w.SelectedRow)
+				.InitializeFromSource();
 
 			ydatepickerStart.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.Date).InitializeFromSource();
 
@@ -35,17 +37,6 @@ namespace Vodovoz.Views.Goods
 			buttonChangeDate.Clicked += (sender, e) => ViewModel.ChangeDateCommand.Execute();
 			ViewModel.ChangeDateCommand.CanExecuteChanged += (sender, e) => buttonChangeDate.Sensitive = ViewModel.ChangeDateCommand.CanExecute();
 			ViewModel.CreatePriceCommand.RaiseCanExecuteChanged();
-		}
-
-		private void Selection_Changed(object sender, System.EventArgs e)
-		{
-			var selectedPrice = treeViewPrices.GetSelectedObject<NomenclatureInnerDeliveryPriceViewModel>();
-			if(selectedPrice == null)
-			{
-				return;
-			}
-
-			ViewModel.SelectedPrice = selectedPrice;
 		}
 	}
 }

@@ -18,7 +18,6 @@ namespace Vodovoz.Domain.Goods
 	[EntityPermission]
 	public class NomenclatureInnerDeliveryPrice : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-
 		private Nomenclature _nomenclature;
 		private DateTime _startDate;
 		private DateTime? _endDate;

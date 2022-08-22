@@ -370,7 +370,7 @@ public partial class MainWindow : Gtk.Window
 		ActionAdditionalLoadSettings.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 
-		ActionGroupPricing.Activated += ActionGroupPricing_Activated;
+		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 	}
 
 	#region Методы для уведомления об отправленных перемещениях для подразделения
@@ -2689,7 +2689,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(viewModel);
 	}
 
-	private void ActionGroupPricing_Activated(object sender, EventArgs e)
+	private void ActionGroupPricingActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
 	}

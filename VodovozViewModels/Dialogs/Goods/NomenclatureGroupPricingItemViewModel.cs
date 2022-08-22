@@ -12,10 +12,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			_groupNomenclaturePriceModel = groupNomenclaturePriceModel ?? throw new ArgumentNullException(nameof(groupNomenclaturePriceModel));
 			Group = group ?? throw new ArgumentNullException(nameof(group));
-			_groupNomenclaturePriceModel.PropertyChanged += _groupNomenclaturePriceModel_PropertyChanged;
+			_groupNomenclaturePriceModel.PropertyChanged += GroupNomenclaturePriceModelPropertyChanged;
 		}
 
-		private void _groupNomenclaturePriceModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void GroupNomenclaturePriceModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{

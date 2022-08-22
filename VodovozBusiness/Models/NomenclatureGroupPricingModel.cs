@@ -54,7 +54,7 @@ namespace Vodovoz.Models
 			var validationResults = Validate(new ValidationContext(this));
 			if(validationResults.Any())
 			{
-				throw new ValidationException("Невозможно сохранить. По результатам валидации имеются не устранные проблемы. Перед запуском сохранения необходимо проверять валидацию.");
+				throw new ValidationException("Невозможно сохранить. По результатам валидации имеются не устраненные проблемы. Перед запуском сохранения необходимо проверять валидацию.");
 			}
 
 			foreach(var priceModel in PriceModels)

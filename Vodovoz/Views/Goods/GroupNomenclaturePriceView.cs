@@ -55,7 +55,6 @@ namespace Vodovoz.Views.Goods
 							c.Alignment = Pango.Alignment.Right;
 							c.Weight = (int)Weight.Normal;
 						}
-
 					})
 				.AddColumn("Себестоимость\nпроизводства")
 					.MinWidth(180)
