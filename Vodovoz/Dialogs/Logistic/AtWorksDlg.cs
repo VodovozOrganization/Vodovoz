@@ -165,6 +165,9 @@ namespace Vodovoz.Dialogs.Logistic
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.CanChangeStatus = true,
 				x => x.Status = EmployeeStatus.IsWorking);
+
+			hideForwaders.Label = "Экспедиторы на работе";
+			hideForwaders.Toggled += OnHideForwadersToggled;
 		}
 		
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
