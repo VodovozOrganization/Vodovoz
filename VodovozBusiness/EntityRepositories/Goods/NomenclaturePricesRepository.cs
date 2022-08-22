@@ -19,28 +19,6 @@ namespace Vodovoz.EntityRepositories.Goods
 				.List();
 		}
 
-		public IList<NomenclatureCostPurchasePrice> GetCostPurchasePriceForGroupSet(IUnitOfWork uow)
-		{
-			NomenclatureCostPurchasePrice nomenclatureCostPurchasePriceAlias = null;
-			Nomenclature nomenclatureAlias = null;
-
-			var query = uow.Session.QueryOver(() => nomenclatureCostPurchasePriceAlias)
-				.JoinAlias(() => nomenclatureCostPurchasePriceAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.UsingInGroupPriceSet);
-			return query.List();
-		}
-
-		public IList<NomenclatureInnerDeliveryPrice> GetInnerDeliveryPriceForGroupSet(IUnitOfWork uow)
-		{
-			NomenclatureInnerDeliveryPrice nomenclatureInnerDeliveryPrice = null;
-			Nomenclature nomenclatureAlias = null;
-
-			var query = uow.Session.QueryOver(() => nomenclatureInnerDeliveryPrice)
-				.JoinAlias(() => nomenclatureInnerDeliveryPrice.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.UsingInGroupPriceSet);
-			return query.List();
-		}
-
 		public IList<Nomenclature> GetNomenclaturesForGroupPricing(IUnitOfWork uow)
 		{
 			Nomenclature nomenclatureAlias = null;
