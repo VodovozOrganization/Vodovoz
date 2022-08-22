@@ -1,24 +1,9 @@
-﻿using Autofac;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Services;
 using System;
 using QS.Navigation;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
 using Vodovoz.ViewModels.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz
 {

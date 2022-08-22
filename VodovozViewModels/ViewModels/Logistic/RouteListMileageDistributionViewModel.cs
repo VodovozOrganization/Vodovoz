@@ -8,6 +8,7 @@ using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -28,7 +29,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
-		public RouteListMileageDistributionViewModel(IEntityUoWBuilder uowBuilder,
+		public RouteListMileageDistributionViewModel(
+			IEntityUoWBuilder uowBuilder,
 			ICommonServices commonServices,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
@@ -54,7 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			var driverRouteListsAtDay = _routeListRepository.GetDriverRouteLists(UoW, Entity.Driver, Entity.Date);
 
-			Rows = new List<RouteListMileageDistributionNode>(driverRouteListsAtDay.Select(x =>
+			Rows = new GenericObservableList<RouteListMileageDistributionNode>(driverRouteListsAtDay.Select(x =>
 				new RouteListMileageDistributionNode
 				{
 					DistributionNodeType = RouteListDistributionNodeType.RouteList,
@@ -124,7 +126,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				substructRow.RecalculatedDistanceColumn = SubtractDistance;
 			}
 
-			OnPropertyChanged(nameof(Rows));
 		}
 
 		private void AcceptDistribution(RouteList routeList)
@@ -179,7 +180,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		#region Properties
 
-		public IList<RouteListMileageDistributionNode> Rows { get; set; }
+		public GenericObservableList<RouteListMileageDistributionNode> Rows { get; set; }
 		public decimal? TotalConfirmedDistanceAtDay { get; set; }
 		public decimal? TotalRecalculatedDistanceAtDay => Rows.Sum(r => r.RouteList?.RecalculatedDistance);
 		public decimal? SubtractDistance => TotalConfirmedDistanceAtDay - TotalRecalculatedDistanceAtDay;

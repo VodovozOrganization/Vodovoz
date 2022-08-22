@@ -62,15 +62,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				() => new CounterpartyDlg(counterpartyId));
 		}
 
-		public void OpenFineDlg(ITdiTab master, string reason, RouteList routeList, EventHandler<EntitySavedEventArgs> onFinesAdded = null)
-		{
-			var fineDlg = new FineDlg(0, routeList, reason, routeList.Date, routeList.Driver);
-			fineDlg.Entity.FineType = FineTypes.FuelOverspending;
-			fineDlg.EntitySaved += onFinesAdded;
-
-			master.TabParent.AddSlaveTab(master, fineDlg);
-		}
-
 		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType)
 		{
 			var dlg = new CashExpenseDlg();

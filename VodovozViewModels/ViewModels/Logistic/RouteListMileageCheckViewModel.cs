@@ -19,10 +19,12 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -30,10 +32,6 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListMileageCheckViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
-		#region Поля
-
-		private readonly IOrderParametersProvider _orderParametersProvider;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly BaseParametersProvider _baseParametersProvider;
 		private readonly ITrackRepository _trackRepository;
@@ -55,15 +53,16 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand _distributeMiliageCommand;
 		private readonly IValidationContextFactory _validationContextFactory;
 
-		#endregion
+		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private readonly IEmployeeSettings _employeeSettings;
+		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly IEmployeeService _employeeService;
 
 		public RouteListMileageCheckViewModel(IEntityUoWBuilder uowBuilder,
 			ICommonServices commonServices,
 			ICarJournalFactory carJournalFactory,
-			IEmployeeJournalFactory employeeFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			IDeliveryShiftRepository deliveryShiftRepository,
-			IOrderParametersProvider orderParametersProvider,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IGtkTabsOpener gtkTabsOpener,
 			BaseParametersProvider baseParametersProvider,
 			ITrackRepository trackRepository,
@@ -76,14 +75,14 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListItemRepository routeListItemRepository,
 			IValidationContextFactory validationContextFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
+			IEmployeeSettings employeeSettings,
+			IEmployeeService employeeService)
 			:base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
 
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ??
-											   throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
@@ -95,15 +94,22 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService)); ;
 
 			CarSelectorFactory = (carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory();
-			LogisticianSelectorFactory = (employeeFactory ?? throw new ArgumentNullException(nameof(employeeFactory)))
-				.CreateWorkingEmployeeAutocompleteSelectorFactory();
-			DriverSelectorFactory = (employeeFactory ?? throw new ArgumentNullException(nameof(employeeFactory)))
-				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			ForwarderSelectorFactory = (employeeFactory ?? throw new ArgumentNullException(nameof(employeeFactory)))
-				.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
+
+			if(employeeJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
+			}
+
+			LogisticianSelectorFactory = employeeJournalFactory ?.CreateWorkingEmployeeAutocompleteSelectorFactory();
+			DriverSelectorFactory = employeeJournalFactory?.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			ForwarderSelectorFactory = employeeJournalFactory?.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
+			_employeeSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory();
 
 			DeliveryShifts =
 				(deliveryShiftRepository ?? throw new ArgumentNullException(nameof(deliveryShiftRepository))).ActiveShifts(UoW);
@@ -115,7 +121,6 @@ namespace Vodovoz.ViewModels.Logistic
 			ConfigureAndCheckPermissions();
 		}
 
-		#region Private methods
 
 		private void ConfigureAndCheckPermissions()
 		{
@@ -129,7 +134,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(!CanEdit)
 			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не достаточно прав. Обратитесь к руководителю.");
+				ShowWarningMessage("Не достаточно прав. Обратитесь к руководителю.");
 			}
 
 			if(IsEditAvailable)
@@ -191,8 +196,6 @@ namespace Vodovoz.ViewModels.Logistic
 			);
 		}
 
-		#endregion
-
 		protected override bool BeforeSave()
 		{
 			if(!CommonServices.ValidationService.Validate(Entity, ValidationContext))
@@ -225,8 +228,6 @@ namespace Vodovoz.ViewModels.Logistic
 			return base.BeforeSave();
 		}
 
-		#region Properties
-
 		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory LogisticianSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
@@ -237,9 +238,11 @@ namespace Vodovoz.ViewModels.Logistic
 			get => _canEdit;
 			set
 			{
-				SetField(ref _canEdit, value);
-				OnPropertyChanged(nameof(IsEditAvailable));
-				OnPropertyChanged(nameof(IsAcceptAvailable));
+				if(SetField(ref _canEdit, value))
+				{
+					OnPropertyChanged(nameof(IsEditAvailable));
+					OnPropertyChanged(nameof(IsAcceptAvailable));
+				}
 			}
 		}
 
@@ -258,10 +261,6 @@ namespace Vodovoz.ViewModels.Logistic
 				_baseParametersProvider,
 				CommonServices.UserService,
 				_errorReporter));
-
-		#endregion
-
-		#region Commands
 
 		public DelegateCommand AcceptCommand =>
 			_acceptCommand ?? (_acceptCommand = new DelegateCommand(() =>
@@ -298,8 +297,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var track = _trackRepository.GetTrackByRouteListId(UoW, Entity.Id);
 					if(track == null)
 					{
-						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-							"Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
+						ShowWarningMessage("Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
 						return;
 					}
 
@@ -311,8 +309,21 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand AcceptFineCommand =>
 			_acceptFineCommand ?? (_acceptFineCommand = new DelegateCommand(() =>
 				{
-					var fineReason = "Перерасход топлива";
-					_gtkTabsOpener.OpenFineDlg(this, fineReason, Entity);
+					var fineViewModel = new FineViewModel(
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory,
+						_undeliveryViewOpener,
+						_employeeService,
+						_employeeSelectorFactory,
+						_employeeSettings,
+						CommonServices
+					)
+					{
+						RouteList = Entity,
+						FineReasonString = "Перерасход топлива"
+					};
+
+					TabParent.AddSlaveTab(this, fineViewModel);
 				},
 				() => true
 			));
@@ -329,7 +340,5 @@ namespace Vodovoz.ViewModels.Logistic
 				},
 				() => true
 			));
-
-		#endregion
 	}
 }

@@ -14,17 +14,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			get
 			{
 				var maybeLastUpdate = RouteListItem.StatusLastUpdate;
-				if(maybeLastUpdate.HasValue)
+				
+				if(!maybeLastUpdate.HasValue)
 				{
-					if(maybeLastUpdate.Value.Date == DateTime.Today)
-					{
-						return maybeLastUpdate.Value.ToShortTimeString();
-					}
-
-					return maybeLastUpdate.Value.ToString();
+					return string.Empty;
 				}
 
-				return string.Empty;
+				return maybeLastUpdate.Value.Date == DateTime.Today
+					? maybeLastUpdate.Value.ToShortTimeString() 
+					: maybeLastUpdate.Value.ToString();
 			}
 		}
 	}

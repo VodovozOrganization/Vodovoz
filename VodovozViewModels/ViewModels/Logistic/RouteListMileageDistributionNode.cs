@@ -25,6 +25,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					RouteList.ConfirmedDistance = value;
 				}
+
+				OnPropertyChanged(nameof(ConfirmedDistance));
 			}
 		}
 

@@ -89,8 +89,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 					OnPropertyChanged(nameof(CanAddNewOdometerReading));
 					OnPropertyChanged(nameof(CanChangeOdometerReadingDate));
-				},
-				() => CanAddNewOdometerReading
+				}
 			));
 
 		public DelegateCommand ChangeOdometerReadingStartDateCommand =>
@@ -104,8 +103,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 					OnPropertyChanged(nameof(CanAddNewOdometerReading));
 					OnPropertyChanged(nameof(CanChangeOdometerReadingDate));
-				},
-				() => CanChangeOdometerReadingDate
+				}
 			));
 
 		#endregion

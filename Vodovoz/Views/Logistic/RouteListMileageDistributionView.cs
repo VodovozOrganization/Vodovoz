@@ -76,14 +76,6 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 
 			ytreeviewMiliageDistribution.ItemsDataSource = ViewModel.Rows;
-
-			ViewModel.PropertyChanged += (sender, args) =>
-			{
-				if(args.PropertyName == nameof(ViewModel.Rows))
-				{
-					ytreeviewMiliageDistribution.YTreeModel.EmitModelChanged();
-				}
-			};
 		}
 	}
 }
