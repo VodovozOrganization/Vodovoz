@@ -52,6 +52,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddFuncBinding(x => !x.ShowCancellationCounterparty && !x.HideActiveCounterparty, x => x.Visible).InitializeFromSource();
 			ycheckbuttonShowCancellation.Binding.AddSource(ViewModel).AddBinding(x => x.ShowCancellationCounterparty, x => x.Active)
 				.AddFuncBinding(x => !x.ShowSuspendedCounterparty && !x.HideActiveCounterparty, x => x.Visible).InitializeFromSource();
+			listDeliveryPointCategories.ItemsList = ViewModel.DeliveryPointCategories;
+			listDeliveryPointCategories.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedDeliveryPointCategory, w => w.SelectedItem)
+				.InitializeFromSource();
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
