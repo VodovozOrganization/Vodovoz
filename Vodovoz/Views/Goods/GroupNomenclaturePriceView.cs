@@ -11,12 +11,12 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 namespace Vodovoz.Views.Goods
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class GroupNomenclaturePriceView : DialogViewBase<NomenclatureGroupPricingViewModel>
+	public partial class NomenclatureGroupPricingView : DialogViewBase<NomenclatureGroupPricingViewModel>
 	{
 		private static Gdk.Color _white = new Gdk.Color(255, 255, 255);
 		private static Gdk.Color _red = new Gdk.Color(237, 55, 55);
 
-		public GroupNomenclaturePriceView(NomenclatureGroupPricingViewModel viewModel) : base(viewModel)
+		public NomenclatureGroupPricingView(NomenclatureGroupPricingViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();
