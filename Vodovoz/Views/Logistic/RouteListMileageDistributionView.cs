@@ -49,7 +49,7 @@ namespace Vodovoz.Views.Logistic
 					.AddNumericRenderer(node => node.RecalculatedDistanceColumn)
 					.XAlign(0.5f)
 					.Digits(2)
-				.AddColumn("Фактический километраж")
+				.AddColumn("Фактический\nкилометраж по МЛ")
 					.HeaderAlignment(0.5f)
 					.MinWidth(100)
 					.AddNumericRenderer(node => node.ConfirmedDistance)

@@ -134,7 +134,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(!CanEdit)
 			{
-				ShowWarningMessage("Не достаточно прав. Обратитесь к руководителю.");
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не достаточно прав. Обратитесь к руководителю.");
 			}
 
 			if(IsEditAvailable)
@@ -279,16 +279,14 @@ namespace Vodovoz.ViewModels.Logistic
 					Entity.AcceptMileage(CallTaskWorker);
 
 					SaveAndClose();
-				},
-				() => true
+				}
 			));
 
 		public DelegateCommand OpenMapCommand =>
 			_openMapCommand ?? (_openMapCommand = new DelegateCommand(() =>
 				{
 					_gtkTabsOpener.OpenTrackOnMapWnd(Entity.Id);
-				},
-				() => true
+				}
 			));
 
 		public DelegateCommand FromTrackCommand =>
@@ -297,13 +295,12 @@ namespace Vodovoz.ViewModels.Logistic
 					var track = _trackRepository.GetTrackByRouteListId(UoW, Entity.Id);
 					if(track == null)
 					{
-						ShowWarningMessage("Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно расчитать растояние, так как в маршрутном листе нет трека");
 						return;
 					}
 
 					Entity.ConfirmedDistance = (decimal)track.TotalDistance.Value;
-				},
-				() => true
+				}
 			));
 
 		public DelegateCommand AcceptFineCommand =>
@@ -324,21 +321,19 @@ namespace Vodovoz.ViewModels.Logistic
 					};
 
 					TabParent.AddSlaveTab(this, fineViewModel);
-				},
-				() => true
+				}
 			));
 
 		public DelegateCommand DistributeMiliageCommand =>
 			_distributeMiliageCommand ?? (_distributeMiliageCommand = new DelegateCommand(() =>
 				{
-					var mileageDistributionPage = NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(Entity.Id), OpenPageOptions.AsSlave);
-
-					mileageDistributionPage.PageClosed += (s, e) =>
+					if(HasChanges && !SaveBeforeContinue())
 					{
-						UoW.Session.Refresh(Entity);
-					};
-				},
-				() => true
+						return;
+					}
+
+					NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(Entity.Id), OpenPageOptions.AsSlave);
+				}
 			));
 	}
 }

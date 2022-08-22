@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Logistic
 			ytreeOdometerReading.ColumnsConfig = FluentColumnsConfig<OdometerReading>.Create()
 				.AddColumn("Код").MinWidth(50).HeaderAlignment(0.5f).AddTextRenderer(x => x.Id == 0 ? "Новая" : x.Id.ToString()).XAlign(0.5f)
 					.AddSetter((c, n) => c.BackgroundGdk = n.Id == 0 ? _greenColor : _whiteColor)
-				.AddColumn("Одометер")
+				.AddColumn("Одометр")
 					.AddNumericRenderer(x => x.Odometer)
 					.Adjustment(new Adjustment(1, 0, 10000000, 1, 100, 100))
 					.AddSetter((c, n) => { c.Editable = n.Id == 0; })

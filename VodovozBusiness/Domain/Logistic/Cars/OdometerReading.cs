@@ -32,7 +32,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _endDate, value);
 		}
 
-		[Display(Name = "Одометер")]
+		[Display(Name = "Одометр")]
 		public virtual int Odometer
 		{
 			get => _odometer;

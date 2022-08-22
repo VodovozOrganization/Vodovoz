@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public RouteList RouteList { get; set; }
 		public string Id => IsRouteList ? RouteList.Id.ToString() : "";
 		public string DeliveryShift => IsRouteList ? RouteList.Shift?.Name : "";
-		public string Driver => IsRouteList ? RouteList.Driver?.FullName : "";
+		public string Driver => IsRouteList ? RouteList.Driver?.GetPersonNameWithInitials() : "";
 		public RouteListDistributionNodeType DistributionNodeType { get; set; }
 		public bool IsRouteList => DistributionNodeType == RouteListDistributionNodeType.RouteList;
 
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string ForwarderColumn
 		{
-			get => IsRouteList ? RouteList.Forwarder?.FullName : _customForwarderColumn;
+			get => IsRouteList ? RouteList.Forwarder?.GetPersonNameWithInitials() : _customForwarderColumn;
 			set
 			{
 				if(!IsRouteList)
@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public enum RouteListDistributionNodeType
 	{
 		RouteList,
-		[Display(Name = "Итого")]
+		[Display(Name = "Итого за день")]
 		Total,
 		[Display(Name = "Разница")]
 		Substract
