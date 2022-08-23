@@ -329,6 +329,8 @@
     <Compile Include="EntityRepositories\ServiceClaims\ServiceClaimRepository.cs" />
     <Compile Include="EntityRepositories\Stock\IStockRepository.cs" />
     <Compile Include="EntityRepositories\Stock\StockRepository.cs" />
+    <Compile Include="EntityRepositories\StoredResource\IStoredResourceRepository.cs" />
+    <Compile Include="EntityRepositories\StoredResource\StoredResourceRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsNode.cs" />

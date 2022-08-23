@@ -3,11 +3,15 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.StoredResources;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.StoredResourceRepository;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Widgets.Organizations
@@ -22,16 +26,19 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		private Employee _accountant;
 		private string _address;
 		private string _jurAddress;
+		private StoredResource _signature;
 		private DelegateCommand _saveEditingVersionCommand;
 		private DelegateCommand _cancelEditingVersionCommand;
 		private DelegateCommand _editVersionCommand;
 		private DelegateCommand _addNewVersioCommand;
 		private DelegateCommand _changeVersionStartDateCommand;
+		private IList<StoredResource> _allSignature;
 
 		public OrganizationVersionsViewModel(
 			Organization entity,
 			ICommonServices commonServices,
 			IOrganizationVersionsController organizationVersionsController,
+			IStoredResourceRepository storedResourceRepository,
 			IEmployeeJournalFactory employeeJournalFactory)
 			: base(entity, commonServices)
 		{
@@ -47,6 +54,9 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 
 			AccountantSelectorFactory = (employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
+
+			var _storedResourceRepository = storedResourceRepository ?? throw new ArgumentNullException(nameof(storedResourceRepository));
+			_allSignature = _storedResourceRepository.GetAllSignature();
 		}
 
 		public IEntityAutocompleteSelectorFactory LeaderSelectorFactory { get; }
@@ -65,11 +75,22 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			get => _accountant;
 			set => SetField(ref _accountant, value);
 		}
+		public IList<StoredResource> AllSignature
+		{
+			get => _allSignature;
+			private set => SetField(ref _allSignature, value);
+		}
 
 		public string Address
 		{
 			get => _address;
 			set => SetField(ref _address, value);
+		}
+
+		public virtual StoredResource Signature
+		{
+			get => _signature;
+			set => SetField(ref _signature, value);
 		}
 
 		public string JurAddress
@@ -126,6 +147,7 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			{
 				SelectedOrganizationVersion.Accountant = Accountant;
 				SelectedOrganizationVersion.Leader = Leader;
+				SelectedOrganizationVersion.Signature = Signature;
 				SelectedOrganizationVersion.Address = Address;
 				SelectedOrganizationVersion.JurAddress = JurAddress;
 
@@ -148,6 +170,7 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			_editVersionCommand ?? (_editVersionCommand = new DelegateCommand(() =>
 			{
 				Accountant = SelectedOrganizationVersion.Accountant;
+				Signature = SelectedOrganizationVersion.Signature;
 				Leader = SelectedOrganizationVersion.Leader;
 				Address = SelectedOrganizationVersion.Address;
 				JurAddress = SelectedOrganizationVersion.JurAddress;
@@ -196,6 +219,7 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		{
 			Leader = null;
 			Accountant = null;
+			Signature = null;
 			Address = string.Empty;
 			JurAddress = string.Empty;
 		}

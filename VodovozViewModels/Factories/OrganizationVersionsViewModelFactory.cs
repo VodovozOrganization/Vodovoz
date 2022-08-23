@@ -2,6 +2,7 @@
 using System;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.StoredResourceRepository;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Organizations;
 
@@ -20,7 +21,7 @@ namespace Vodovoz.ViewModels.Factories
 
 		public OrganizationVersionsViewModel CreateOrganizationVersionsViewModel(Organization organization)
 		{
-			return new OrganizationVersionsViewModel(organization, _commonServices, new OrganizationVersionsController(organization), _employeeJournalFactory);
+			return new OrganizationVersionsViewModel(organization, _commonServices, new OrganizationVersionsController(organization), new StoredResourceRepository(), _employeeJournalFactory);
 		}
 	}
 }

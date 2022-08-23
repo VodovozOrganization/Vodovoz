@@ -18,6 +18,7 @@ namespace Vodovoz.HibernateMapping.Logistic.Organization
 
 			References(x => x.Leader).Column("leader_id");
 			References(x => x.Accountant).Column("accountant_id");
+			References(x => x.Signature).Column("stored_resource_id");
 			References(x => x.Organization).Column("organization_id");
 		}
 	}

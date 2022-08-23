@@ -9,21 +9,29 @@ namespace Vodovoz.Domain.StoredResources
 	{
 		public virtual int Id { get; set; }
 
-		private byte[] binaryFile;
+		private byte[] _binaryFile;
 		[Display(Name = "Бинарный файл")]
 		public virtual byte[] BinaryFile {
-			get { return binaryFile; }
-			set { SetField(ref binaryFile, value, () => BinaryFile); }
+			get { return _binaryFile; }
+			set { SetField(ref _binaryFile, value); }
 		}
 
 		[Display(Name = "Тип")]
 		public virtual ResoureceType Type { get; set; } = ResoureceType.Binary;
 
-		private string name;
+		private string _name;
 		[Display(Name = "Название")]
 		public virtual string Name {
-			get { return name; }
-			set { SetField(ref name, value, () => Name); }
+			get { return _name; }
+			set { SetField(ref _name, value); }
+		}
+
+		private ImageType imageType;
+		[Display(Name = "Тип изображения")]
+		public virtual ImageType ImageType
+		{
+			get { return imageType; }
+			set { SetField(ref imageType, value); }
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -41,6 +49,20 @@ namespace Vodovoz.Domain.StoredResources
 		Image,
 		Pdf,
 		Binary
+	}
+
+	public enum ImageType
+	{
+		[Display(Name = "Подпись")]
+		Signature,
+		[Display(Name = "Прочее")]
+		Other
+	}
+	public class ImageResoureceFileStringType : NHibernate.Type.EnumStringType
+	{
+		public ImageResoureceFileStringType() : base(typeof(ImageType))
+		{
+		}
 	}
 
 	public class ResoureceFileStringType : NHibernate.Type.EnumStringType

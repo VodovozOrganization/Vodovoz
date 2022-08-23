@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.StoredResources;
 
 namespace Vodovoz.Domain.Logistic.Organizations
 {
@@ -20,6 +21,7 @@ namespace Vodovoz.Domain.Logistic.Organizations
 		private DateTime _startDate;
 		private DateTime? _endDate;
 		private Organization _organization;
+		private StoredResource _signature;
 
 		public virtual int Id { get; set; }
 
@@ -70,6 +72,13 @@ namespace Vodovoz.Domain.Logistic.Organizations
 		{
 			get => _endDate;
 			set => SetField(ref _endDate, value);
+		}
+
+		[Display(Name = "Подпись")]
+		public virtual StoredResource Signature
+		{
+			get => _signature;
+			set => SetField(ref _signature, value);
 		}
 
 		public override string ToString() => $"Версия организации №{Id}";

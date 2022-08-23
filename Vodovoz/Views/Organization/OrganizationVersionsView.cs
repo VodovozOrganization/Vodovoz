@@ -2,8 +2,10 @@
 using Pango;
 using QS.Utilities;
 using QS.Views.GtkUI;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Vodovoz.Domain.Logistic.Organizations;
+using Vodovoz.Domain.StoredResources;
 using Vodovoz.ViewModels.Widgets.Organizations;
 using Color = Gdk.Color;
 
@@ -50,6 +52,10 @@ namespace Vodovoz.Views.Organization
 
 			evmeAccountant.SetEntityAutocompleteSelectorFactory(ViewModel.AccountantSelectorFactory);
 			evmeAccountant.Binding.AddBinding(ViewModel, vm => vm.Accountant, w => w.Subject).InitializeFromSource();
+
+			yCmbCurrentSignature.ItemsList = ViewModel.AllSignature;
+			yCmbCurrentSignature.Binding.AddBinding(ViewModel, s => s.Signature, w => w.SelectedItem).InitializeFromSource();
+			yCmbCurrentSignature.SetSizeRequest(250, 30);
 
 			datatextviewAddress.Binding.AddBinding(ViewModel, vm => vm.Address, w => w.Buffer.Text).InitializeFromSource();
 			datatextviewJurAddress.Binding.AddBinding(ViewModel, vm => vm.JurAddress, w => w.Buffer.Text).InitializeFromSource();
