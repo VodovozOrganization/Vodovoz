@@ -22,28 +22,16 @@ namespace Vodovoz.Tools.Logistic
 			return GMapProviders.EmptyProvider.Projection.GetDistance(fromPoint, toPoint);
 		}
 
-		public static double GetDistanceFromBase(GeoGroup fromBase, DeliveryPoint toDP)
+		public static double GetDistanceFromBase(GeoGroupVersion fromBase, DeliveryPoint toDP)
 		{
-			var geoGroupVersion = GetGeoGroupVersion(fromBase);
-			var basePoint = new PointLatLng((double)geoGroupVersion.BaseLatitude.Value, (double)geoGroupVersion.BaseLongitude.Value);
+			var basePoint = new PointLatLng((double)fromBase.BaseLatitude.Value, (double)fromBase.BaseLongitude.Value);
 			return (int)GetDistance(basePoint, toDP.GmapPoint);
 		}
 
-		public static double GetDistanceToBase(DeliveryPoint fromDP, GeoGroup toBase)
+		public static double GetDistanceToBase(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
-			var geoGroupVersion = GetGeoGroupVersion(toBase);
-			var basePoint = new PointLatLng((double)geoGroupVersion.BaseLatitude.Value, (double)geoGroupVersion.BaseLongitude.Value);
+			var basePoint = new PointLatLng((double)toBase.BaseLatitude.Value, (double)toBase.BaseLongitude.Value);
 			return (int)GetDistance(fromDP.GmapPoint, basePoint);
-		}
-
-		private static GeoGroupVersion GetGeoGroupVersion(GeoGroup geoGroup)
-		{
-			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
-			if(geoGroupVersion == null)
-			{
-				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
-			}
-			return geoGroupVersion;
 		}
 
 		public static PointLatLng FindPointByDistanceAndRadians(PointLatLng startPoint, double initialRadians, double distanceKilometers)
@@ -70,12 +58,12 @@ namespace Vodovoz.Tools.Logistic
 			return (int)(GetDistance(fromDP, toDP) * 1000);
 		}
 
-		public int DistanceFromBaseMeter(GeoGroup fromBase, DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(GeoGroupVersion fromBase, DeliveryPoint toDP)
 		{
 			return (int)(GetDistanceFromBase(fromBase, toDP) * 1000);
 		}
 
-		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroup toBase)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
 			return (int)(GetDistanceToBase(fromDP, toBase) * 1000);
 		}

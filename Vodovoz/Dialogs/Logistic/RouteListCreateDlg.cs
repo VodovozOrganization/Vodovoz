@@ -46,6 +46,7 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz
 {
@@ -601,7 +602,7 @@ namespace Vodovoz
 					//Строим маршрут для МЛ.
 					if((!Entity.PrintsHistory?.Any() ?? true) || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?"))
 					{
-						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
+						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService, new GeographicGroupRepository());
 						var newRoute = optimizer.RebuidOneRoute(Entity);
 						if(newRoute != null)
 						{

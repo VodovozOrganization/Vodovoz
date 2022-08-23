@@ -762,8 +762,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
     <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
-    <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RoutesAtDayDlg.cs" />
     <Compile Include="Additions\Logistic\PointMarker.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\ChangedItem.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\FieldChange.cs" />

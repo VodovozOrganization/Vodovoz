@@ -134,7 +134,7 @@ namespace Vodovoz.ViewModels.Logistic
 				if(foundGeoGroup != null)
 					foundGeoGroup.Selected = true;
 			}
-			Optimizer = new RouteOptimizer(commonServices.InteractiveService);
+			Optimizer = new RouteOptimizer(commonServices.InteractiveService, new GeographicGroupRepository());
 
 			defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
@@ -662,11 +662,14 @@ namespace Vodovoz.ViewModels.Logistic
 		public string GenerateToolTip(RouteList routeList)
 		{
 			var firstDP = routeList.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
+			var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+			var geoGroupVersion = geoGroup.GetVersionOrNull(routeList.Date);
+
 			return string.Format(
 				"Первый адрес: {0:t}\nПуть со склада: {1:N1} км. ({2} мин.)\nВыезд со склада: {3:t}\nПогрузка на складе: {4} минут",
 				routeList.FirstAddressTime,
-				firstDP != null ? DistanceCalculator.DistanceFromBaseMeter(routeList.GeographicGroups.FirstOrDefault(), firstDP) * 0.001 : 0,
-				firstDP != null ? DistanceCalculator.TimeFromBase(routeList.GeographicGroups.FirstOrDefault(), firstDP) / 60 : 0,
+				firstDP != null && geoGroupVersion  != null ? DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, firstDP) * 0.001 : 0,
+				firstDP != null && geoGroupVersion != null ? DistanceCalculator.TimeFromBase(geoGroupVersion, firstDP) / 60 : 0,
 				routeList.OnLoadTimeEnd,
 				routeList.TimeOnLoadMinuts
 			);
@@ -803,8 +806,15 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			if(row is RouteListItem rli) {
-				if(rli.IndexInRoute == 0)
-					return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceFromBaseMeter(rli.RouteList.GeographicGroups.FirstOrDefault(), rli.Order.DeliveryPoint) / 1000);
+				if(rli.IndexInRoute == 0) {
+					var geoGroup = rli.RouteList.GeographicGroups.FirstOrDefault();
+					var geoGroupVersion = geoGroup.GetVersionOrNull(rli.RouteList.Date);
+					if(geoGroupVersion == null) 
+					{
+						return null;
+					}
+					return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, rli.Order.DeliveryPoint) / 1000);
+				}
 
 				return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000);
 			}
@@ -1327,7 +1337,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer.Drivers = DriversOnDay;
 			Optimizer.Forwarders = ForwardersOnDay;
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
-			Optimizer.CreateRoutes(DriverStartTime, DriverEndTime);
+			Optimizer.CreateRoutes(DateForRouting, DriverStartTime, DriverEndTime);
 
 			if(optimizer.ProposedRoutes.Any()) {
 				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.

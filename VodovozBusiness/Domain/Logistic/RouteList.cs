@@ -42,6 +42,7 @@ using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -2130,7 +2131,14 @@ namespace Vodovoz.Domain.Logistic
 				if(ix == 0) {
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
 
-					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(GeographicGroups.FirstOrDefault(), Addresses[ix].Order.DeliveryPoint));
+					var geoGroup = GeographicGroups.FirstOrDefault();
+					var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
+					if(geoGroupVersion == null)
+					{
+						throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
+					}
+
+					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(geoGroupVersion, Addresses[ix].Order.DeliveryPoint));
 					var onBase = minTime - timeFromBase;
 					if(Shift != null && onBase < Shift.StartTime)
 						minTime = Shift.StartTime + timeFromBase;
@@ -2147,7 +2155,15 @@ namespace Vodovoz.Domain.Logistic
 
 				if(ix == Addresses.Count - 1) {
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
-					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, GeographicGroups.FirstOrDefault()));
+
+					var geoGroup = GeographicGroups.FirstOrDefault();
+					var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
+					if(geoGroupVersion == null)
+					{
+						throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
+					}
+
+					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, geoGroupVersion));
 					var onBase = maxTime + timeToBase;
 					if(Shift != null && onBase > Shift.EndTime)
 						maxTime = Shift.EndTime - timeToBase;
@@ -2184,12 +2200,21 @@ namespace Vodovoz.Domain.Logistic
 
 		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometryCalculator sputnikCache)
 		{
+			
+
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
 								   .Select(
-										x => new Tuple<TimeSpan, RouteList>(
-											x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.GeographicGroups.FirstOrDefault(), x.Addresses.First().Order.DeliveryPoint)),
-											x
-										)
+										rl => {
+											var geoGroup = rl.GeographicGroups.FirstOrDefault();
+											var geoGroupVersion = geoGroup.GetVersionOrNull(rl.Date);
+											if(geoGroupVersion == null)
+											{
+												throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать время на погрузке, так как на {rl.Date} у части города ({geoGroup.Name}) нет актуальных данных.");
+											}
+
+											var time = rl.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(geoGroupVersion, rl.Addresses.First().Order.DeliveryPoint));
+											return new Tuple<TimeSpan, RouteList>(time, rl);
+										}
 									)
 								   .OrderByDescending(x => x.Item1);
 			var fixedTime = routelists.Where(x => x.Addresses.Any() && x.OnloadTimeFixed).ToList();
@@ -2236,10 +2261,18 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual long[] GenerateHashPointsOfRoute()
 		{
+			var geoGroup = GeographicGroups.FirstOrDefault();
+			var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
+			if(geoGroupVersion == null)
+			{
+				throw new GeoGroupVersionNotFoundException($"Невозможно построить трек, так как на {Date} у части города ({geoGroup.Name}) нет актуальных данных.");
+			}
+
+			var hash = CachedDistance.GetHash(geoGroupVersion);
 			var result = new List<long>();
-			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
+			result.Add(hash);
 			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
+			result.Add(hash);
 			return result.ToArray();
 		}
 

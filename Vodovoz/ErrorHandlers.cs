@@ -8,6 +8,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Versioning;
 using QS.Services;
+using Vodovoz.Tools;
 
 namespace Vodovoz
 {
@@ -77,5 +78,18 @@ namespace Vodovoz
             }
 			return false;
         }
+
+		public static bool GeoGroupVersionNotFoundException(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveService)
+		{
+			var geoGroupExceprion = ExceptionHelper.FindExceptionTypeInInner<GeoGroupVersionNotFoundException>(exception);
+
+			if(geoGroupExceprion == null)
+			{
+				return false;
+			}
+
+			interactiveService.ShowMessage(ImportanceLevel.Warning, $"{geoGroupExceprion.Message}\nВыберите актуальную часть города или обратитесь в техподдержку для проверки актуальности данных указанной части города.");
+			return true;
+		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using NHibernate.Criterion;
@@ -38,7 +39,22 @@ namespace Vodovoz.EntityRepositories.Sale
 				);
 			return query.List();
 		}
-		
+
+		public IList<GeoGroupVersion> GetGeographicGroupVersionsOnDate(IUnitOfWork uow, DateTime date)
+		{
+			GeoGroupVersion geoGroupVersionAlias = null;
+
+			var query = uow.Session.QueryOver(() => geoGroupVersionAlias)
+				.Where(() => geoGroupVersionAlias.ActivationDate <= date)
+				.Where(() => geoGroupVersionAlias.ClosingDate >= date)
+				.Where(
+					Restrictions.Conjunction()
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLatitude)))
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLongitude)))
+				);
+			return query.List();
+		}
+
 		public IList<GeoGroup> GeographicGroupsWithCoordinatesExceptEast(
 			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider)
 		{

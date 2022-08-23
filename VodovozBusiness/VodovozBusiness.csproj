@@ -736,6 +736,7 @@
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
+    <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
@@ -1033,7 +1034,6 @@
     <Compile Include="EntityRepositories\Logistic\IAtWorkRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICarRepository.cs" />
-    <Compile Include="Services\ICommonParametersProvider.cs" />
     <Compile Include="Domain\Sms\SmsNotification.cs" />
     <Compile Include="Domain\Sms\SmsNotificationType.cs" />
     <Compile Include="Domain\Sms\NewClientSmsNotification.cs" />

@@ -637,33 +637,27 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var baseParametersProvider = new BaseParametersProvider(parametersProvider);
 
-		if(new BaseParametersProvider(parametersProvider).UseOldAutorouting())
-			tdiMain.OpenTab(
-				TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
-				() => new RoutesAtDayDlg()
-			);
-		else
-			tdiMain.OpenTab(
-				"AutoRouting",
-				() => new RouteListsOnDayViewModel(
-					ServicesConfig.CommonServices,
-					new DeliveryScheduleParametersProvider(parametersProvider),
-					new GtkTabsOpener(),
-					new RouteListRepository(new StockRepository(), baseParametersProvider),
-					new SubdivisionRepository(parametersProvider),
-					new OrderRepository(),
-					new AtWorkRepository(),
-					new CarRepository(),
-					NavigationManagerProvider.NavigationManager,
-					new UserRepository(),
-					baseParametersProvider,
-					new EmployeeJournalFactory(),
-					new GeographicGroupRepository(),
-					new ScheduleRestrictionRepository(),
-					new CarModelJournalFactory(),
-					new GeographicGroupParametersProvider(parametersProvider)
-				)
-			);
+		tdiMain.OpenTab(
+			"AutoRouting",
+			() => new RouteListsOnDayViewModel(
+				ServicesConfig.CommonServices,
+				new DeliveryScheduleParametersProvider(parametersProvider),
+				new GtkTabsOpener(),
+				new RouteListRepository(new StockRepository(), baseParametersProvider),
+				new SubdivisionRepository(parametersProvider),
+				new OrderRepository(),
+				new AtWorkRepository(),
+				new CarRepository(),
+				NavigationManagerProvider.NavigationManager,
+				new UserRepository(),
+				baseParametersProvider,
+				new EmployeeJournalFactory(),
+				new GeographicGroupRepository(),
+				new ScheduleRestrictionRepository(),
+				new CarModelJournalFactory(),
+				new GeographicGroupParametersProvider(parametersProvider)
+			)
+		);
 	}
 
 	void ActionAccountingTable_Activated(object sender, System.EventArgs e)
