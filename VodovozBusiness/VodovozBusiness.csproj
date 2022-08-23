@@ -160,7 +160,9 @@
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryAvailabilityHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryAvailabilityHistoryItem.cs" />
+    <Compile Include="Domain\Logistic\ArchivedTrackPoint.cs" />
     <Compile Include="Domain\Logistic\OrdersCountNode.cs" />
+    <Compile Include="Domain\Logistic\TrackPointBase.cs" />
     <Compile Include="Domain\Logistic\UndeliveryOrderNode.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionRecord.cs" />
     <Compile Include="Domain\Operations\OrganisationCashMovementOperation.cs" />
@@ -273,14 +275,18 @@
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
     <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
+    <Compile Include="EntityRepositories\HistoryChanges\IArchivedHistoryChangesRepository.cs" />
+    <Compile Include="EntityRepositories\HistoryChanges\ArchivedHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
     <Compile Include="EntityRepositories\Logistic\ICachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IDeliveryShiftRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IArchivedTrackPointRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteColumnRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ITrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IWayBillDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\ArchivedTrackPointRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\RouteColumnRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\TrackRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\WayBillDocumentRepository.cs" />
@@ -400,6 +406,7 @@
     <Compile Include="HibernateMapping\Logistic\FastDelivery\FastDeliveryOrderItemsHistoryMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FastDelivery\FastDeliveryAvailabilityHistoryMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\ArchivedTrackPointMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />
@@ -450,6 +457,7 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
@@ -468,6 +476,7 @@
     <Compile Include="Parameters\GeographicGroupParametersProvider.cs" />
     <Compile Include="Parameters\EmailParametersProvider.cs" />
     <Compile Include="Parameters\GlobalSettings.cs" />
+    <Compile Include="Parameters\IArchiveDataSettings.cs" />
     <Compile Include="Parameters\IEmailParametersProvider.cs" />
     <Compile Include="Parameters\GMapPararmetersProviders.cs" />
     <Compile Include="Parameters\IExpenseParametersProvider.cs" />
@@ -737,6 +746,8 @@
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
+    <Compile Include="Tools\DataArchiver.cs" />
+    <Compile Include="Tools\IDataArchiver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
@@ -1173,6 +1184,12 @@
     <Compile Include="EntityRepositories\Store\IMovementDocumentRepository.cs" />
     <Compile Include="Controllers\MovementDocumentsNotificationsController.cs" />
     <Compile Include="Controllers\IMovementDocumentsNotificationsController.cs" />
+    <Compile Include="Domain\HistoryChanges\ArchivedChangedEntity.cs" />
+    <Compile Include="Domain\HistoryChanges\ArchivedChangeSet.cs" />
+    <Compile Include="Domain\HistoryChanges\ArchivedFieldChange.cs" />
+    <Compile Include="HibernateMapping\HistoryChanges\ArchivedFieldChangeMap.cs" />
+    <Compile Include="HibernateMapping\HistoryChanges\ArchivedChangeSetMap.cs" />
+    <Compile Include="HibernateMapping\HistoryChanges\ArchivedChangedEntityMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -1182,7 +1199,7 @@
       <Name>Gamma.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
-      <Project>{c97e91f4-b310-44e2-9b6c-96775395722d}</Project>
+      <Project>{54871F7B-7DF2-43BD-9ACD-72F650BA35A1}</Project>
       <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">

@@ -77,11 +77,11 @@ namespace Vodovoz.ViewModels.ViewModels.Flyers
 		public DelegateCommand ActivateFlyerCommand => _activateFlyerCommand ?? (_activateFlyerCommand = new DelegateCommand(
 			() =>
 			{
-				if(FlyerStartDate.HasValue && FlyerStartDate < DateTime.Today)
+				if(FlyerStartDate.HasValue && FlyerStartDate <= DateTime.Today)
 				{
 					CommonServices.InteractiveService.ShowMessage(
 						ImportanceLevel.Warning,
-						"Дата старта не может быть раньше сегодняшнего дня");
+						"Дата старта не может быть раньше, либо равной сегодняшнему дню");
 					
 					return;
 				}

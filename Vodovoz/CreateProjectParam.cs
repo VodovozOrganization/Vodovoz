@@ -169,6 +169,7 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
+using Vodovoz.ReportsParameters.Orders;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
@@ -617,6 +618,7 @@ namespace Vodovoz
 			#region Reports
 
 			builder.RegisterType<CounterpartyCashlessDebtsReport>().AsSelf();
+			builder.RegisterType<OrderChangesReport>().AsSelf();
 
 			#endregion
 

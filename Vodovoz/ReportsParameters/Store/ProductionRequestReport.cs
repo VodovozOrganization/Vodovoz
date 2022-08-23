@@ -19,6 +19,7 @@ namespace Vodovoz.ReportsParameters.Store
 	{
 		private GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly int _defaultStockRate = 20;
 
 		public ProductionRequestReport(IEmployeeRepository employeeRepository)
 		{
@@ -68,6 +69,11 @@ namespace Vodovoz.ReportsParameters.Store
 			
 			ytreeviewGeographicGroup.ItemsDataSource = GeographicGroupNodes;
 			ytreeviewGeographicGroup.HeadersVisible = false;
+
+			yspinStockRate.Digits = 0;
+			yspinStockRate.Value = _defaultStockRate;
+
+			buttonRun.Sensitive = CanRun();
 		}
 
 		void DateperiodpickerMaxSalesPeriodChangedByUser(object sender, EventArgs e) => 
@@ -108,6 +114,7 @@ namespace Vodovoz.ReportsParameters.Store
 				{ "currently", DateTime.Now },
 				{ "warehouse_id", warehouse?.Id ?? -1 },
 				{ "creation_date", DateTime.Now },
+				{ "stock_rate", (int)yspinStockRate.Value },
 				{
 					"geographic_group_id", GeographicGroupNodes.Where(x => x.Selected)
 						.Select(x => x.GeographicGroup.Id)
