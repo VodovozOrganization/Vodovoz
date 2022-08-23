@@ -148,6 +148,14 @@ namespace Vodovoz.Models
 			_activeFlyers = null;
 			_flyersInStock = null;
 			AddFlyers(items, uow, routelist.Date);
+
+			foreach(var item in routelist.AdditionalLoadingDocument.ObservableItems)
+			{
+				if(item.AdditionalLoadingDocument == null)
+				{
+					item.AdditionalLoadingDocument = routelist.AdditionalLoadingDocument;
+				}
+			}
 		}
 
 		private void AddFlyers(IList<AdditionalLoadingDocumentItem> items, IUnitOfWork uow, DateTime routelistDate)
