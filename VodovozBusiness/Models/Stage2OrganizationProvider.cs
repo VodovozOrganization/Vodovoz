@@ -180,6 +180,14 @@ namespace Vodovoz.Models
 		private int GetOrganizationIdForByCard(IUnitOfWork uow, PaymentFrom paymentFrom, GeographicGroup geographicGroup,
 			DateTime? orderCreateDate, int? onlineOrderId)
 		{
+			//Перевод всех источников на Юг
+			if(paymentFrom != null && paymentFrom.Id == _orderParametersProvider.GetPaymentByCardFromMarketplaceId)
+			{
+				return _organizationParametersProvider.VodovozOrganizationId;
+			}
+
+			return _organizationParametersProvider.VodovozSouthOrganizationId;
+
 			if(paymentFrom == null)
 			{
 				return _organizationParametersProvider.VodovozNorthOrganizationId;
