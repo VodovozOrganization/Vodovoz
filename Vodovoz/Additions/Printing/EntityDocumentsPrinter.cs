@@ -198,7 +198,7 @@ namespace Vodovoz.Additions.Printing
 					//При массовой печати документов заказов из МЛ, в случае наличия у клиента признака UseSpecialDocFields,
 					//не будут печататься обычные счета и УПД
 					orderDocumentTypes.Where(
-						t => !o.Client.UseSpecialDocFields 
+						t => (o.Client.AlwaysPrintInvoice || !o.Client.UseSpecialDocFields)
 											|| t != OrderDocumentType.UPD 
 											&& t != OrderDocumentType.Bill).ToList()
 				);
