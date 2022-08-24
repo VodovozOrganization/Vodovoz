@@ -35,6 +35,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DefaultDocumentType).Column("default_document_type").CustomType<DefaultDocumentTypeStringType>();
 			Map(x => x.VodovozInternalId).Column("vod_internal_id").ReadOnly();
 			Map(x => x.UseSpecialDocFields).Column("use_special_doc_fields");
+			Map(x => x.AlwaysPrintInvoice).Column("always_print_invoice");
 			Map(x => x.CargoReceiver).Column("special_cargo_receiver");
 			Map(x => x.SpecialCustomer).Column("special_customer");
 			Map(x => x.SpecialContractNumber).Column("special_contract_number");

@@ -455,13 +455,19 @@ namespace Vodovoz.Domain.Client
 
 		#region ОсобаяПечать
 		bool useSpecialDocFields;
-
-		[Display(Name = "Особая печать документов ")]
+		[Display(Name = "Особая печать документов")]
 		public virtual bool UseSpecialDocFields {
 			get => useSpecialDocFields;
 			set => SetField(ref useSpecialDocFields, value, () => UseSpecialDocFields);
 		}
 
+		bool alwaysPrintInvoice;
+		[Display(Name = "Всегда печатать накладную")]
+		public virtual bool AlwaysPrintInvoice
+		{
+			get => alwaysPrintInvoice;
+			set => SetField(ref alwaysPrintInvoice, value);
+		}
 		#region Особое требование срок годности
 		[Display(Name = "Особое требование: требуется срок годности")]
 		bool specialExpireDatePercentCheck;
