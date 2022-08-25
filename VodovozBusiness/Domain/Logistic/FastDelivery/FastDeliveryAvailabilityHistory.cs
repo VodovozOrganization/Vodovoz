@@ -10,7 +10,7 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic.FastDelivery
 {
-	[Appellative(Gender = GrammaticalGender.Masculine, 
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		Nominative = "история доступности экспресс-доставки",
 		NominativePlural = "истории доступности экспресс-доставки")]
 	[EntityPermission]
@@ -37,6 +37,7 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		private TimeSpan _minTimeForNewFastDeliveryOrder;
 		private TimeSpan _driverUnloadTime;
 		private TimeSpan _specificTimeForMaxFastOrdersCount;
+		private string _addressWithoutDeliveryPoint;
 
 		#region Свойства
 
@@ -68,6 +69,13 @@ namespace Vodovoz.Domain.Logistic.FastDelivery
 		{
 			get => _deliveryPoint;
 			set => SetField(ref _deliveryPoint, value);
+		}
+
+		[Display(Name = "Адрес без точки доставки (сайт)")]
+		public virtual string AddressWithoutDeliveryPoint 
+		{
+			get => _addressWithoutDeliveryPoint; 
+			set => SetField(ref _addressWithoutDeliveryPoint, value);
 		}
 
 		[Display(Name = "Район")]

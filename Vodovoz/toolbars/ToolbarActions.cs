@@ -1200,6 +1200,7 @@ public partial class MainWindow : Window
 		IFileDialogService fileDialogService = new FileDialogService();
 		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
 			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
+		INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
 
 		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
 		{
@@ -1214,7 +1215,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			fileDialogService,
-			fastDeliveryAvailabilityHistoryParameterProvider)
+			fastDeliveryAvailabilityHistoryParameterProvider,
+			nomenclatureParametersProvider)
 		);
 	}
 }
