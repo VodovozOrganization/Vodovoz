@@ -27,13 +27,6 @@ namespace Vodovoz.Domain.Documents
 
 		#region Сохраняемые свойства
 		
-		DateTime version;
-		[Display(Name = "Версия")]
-		public virtual DateTime Version {
-			get => version;
-			set => SetField(ref version, value, () => Version);
-		}
-
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
 			set {
