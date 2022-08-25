@@ -16,7 +16,8 @@ namespace Vodovoz.Views.Goods
 		protected override void ConfigureWidget()
 		{
 			treeViewPrices.ColumnsConfig = FluentColumnsConfig<NomenclatureInnerDeliveryPriceViewModel>.Create()
-				.AddColumn("Цена").AddNumericRenderer(x => x.Price)
+				.AddColumn("Стоимость\nдоставки").AddNumericRenderer(x => x.Price)
+					.WidthChars(10)
 					.Digits(2)
 					.Editing(x => x.CanEditPrice)
 					.Adjustment(new Gtk.Adjustment(0, 0, 999999999, 1, 10, 10))

@@ -77,7 +77,7 @@ namespace Vodovoz.Views.Goods
 			this.ylabelDateTitle = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDateTitle.Name = "ylabelDateTitle";
 			this.ylabelDateTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Выберите дату, с которой начнут действовать новые стоимости \nпроизводства и доста" +
-					"вки до склада а единицу товара");
+					"вки до склада за единицу товара");
 			this.ylabelDateTitle.Justify = ((global::Gtk.Justification)(2));
 			this.hboxDate.Add(this.ylabelDateTitle);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxDate[this.ylabelDateTitle]));

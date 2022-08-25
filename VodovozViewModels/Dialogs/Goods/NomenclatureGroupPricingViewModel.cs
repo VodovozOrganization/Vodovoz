@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly IValidator _validator;
 		private readonly IInteractiveMessage _interactiveMessage;
 		private readonly Dictionary<int, NomenclatureGroupPricingProductGroupViewModel> _productGroupViewModels;
+		private IList<NomenclatureGroupPricingProductGroupViewModel> _priceViewModels;
 		private DelegateCommand _saveCommand;
 		private DelegateCommand _closeCommand;
 		private DateTime _date;
@@ -32,6 +33,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
 			_nomenclatureGroupPricingModel = nomenclatureGroupPricingModel ?? throw new ArgumentNullException(nameof(nomenclatureGroupPricingModel));
 			_productGroupViewModels = new Dictionary<int, NomenclatureGroupPricingProductGroupViewModel>();
+			_priceViewModels = new List<NomenclatureGroupPricingProductGroupViewModel>();
 
 			Title = "Групповое заполнение себестоимости";
 
@@ -41,7 +43,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			Date = DateTime.Today;
 		}
 
-		public IList<NomenclatureGroupPricingProductGroupViewModel> PriceViewModels { get; private set; } = new List<NomenclatureGroupPricingProductGroupViewModel>();
+		public virtual IList<NomenclatureGroupPricingProductGroupViewModel> PriceViewModels
+		{
+			get => _priceViewModels;
+			set => SetField(ref _priceViewModels, value);
+		}
+
 
 		public ILevelConfig[] LevelConfig { get; }
 		public virtual DateTime Date
@@ -58,6 +65,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		private void Reload()
 		{
+			_productGroupViewModels.Clear();
 			_nomenclatureGroupPricingModel.LoadPrices(_date);
 
 			foreach(var priceModel in _nomenclatureGroupPricingModel.PriceModels)

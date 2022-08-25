@@ -105,11 +105,11 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("")
 				.Finish();
 
-			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 			ReloadItemSource();
 		}
 
-		private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void ViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{

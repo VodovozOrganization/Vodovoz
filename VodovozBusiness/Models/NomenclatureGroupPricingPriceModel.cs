@@ -12,10 +12,10 @@ namespace Vodovoz.Models
 		private readonly DateTime _date;
 		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
 		private readonly NomenclatureInnerDeliveryPriceModel _nomenclatureInnerDeliveryPriceModel;
+		private readonly bool _canCreateCostPurchasePrice;
+		private readonly bool _canCreateInnerDeliveryPrice;
 		private decimal? _costPurchasePrice;
 		private decimal? _innerDeliveryPrice;
-		private decimal? _activeCostPurchasePrice;
-		private decimal? _activeInnerDeliveryPrice;
 
 		public NomenclatureGroupPricingPriceModel(
 			DateTime date,
@@ -28,27 +28,13 @@ namespace Vodovoz.Models
 			_nomenclatureCostPurchasePriceModel = nomenclatureCostPurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPurchasePriceModel));
 			_nomenclatureInnerDeliveryPriceModel = nomenclatureInnerDeliveryPriceModel ?? throw new ArgumentNullException(nameof(nomenclatureInnerDeliveryPriceModel));
 
-			LoadPrices();
+			_canCreateCostPurchasePrice = nomenclatureCostPurchasePriceModel.CanCreatePrice(Nomenclature, _date);
+			_canCreateInnerDeliveryPrice = nomenclatureInnerDeliveryPriceModel.CanCreatePrice(Nomenclature, _date);
 		}
 
 		public Nomenclature Nomenclature { get; }
 
-		private void LoadPrices()
-		{
-			var costPrice = _nomenclatureCostPurchasePriceModel.GetPrice(_date, Nomenclature);
-			if(costPrice != null)
-			{
-				_activeCostPurchasePrice = costPrice.PurchasePrice;
-			}
-
-			var innerDeliveryPrice = _nomenclatureInnerDeliveryPriceModel.GetPrice(_date, Nomenclature);
-			if(innerDeliveryPrice != null)
-			{
-				_activeInnerDeliveryPrice = innerDeliveryPrice.Price;
-			}
-		}
-
-		public bool IsValidCostPurchasePrice => !CostPurchasePrice.HasValue || !_activeCostPurchasePrice.HasValue;
+		public bool IsValidCostPurchasePrice => !CostPurchasePrice.HasValue || (CostPurchasePrice.HasValue && _canCreateCostPurchasePrice);
 
 		public decimal? CostPurchasePrice
 		{
@@ -62,7 +48,7 @@ namespace Vodovoz.Models
 			}
 		}
 
-		public bool IsValidInnerDeliveryPrice => !InnerDeliveryPrice.HasValue || !_activeInnerDeliveryPrice.HasValue;
+		public bool IsValidInnerDeliveryPrice => !InnerDeliveryPrice.HasValue || (InnerDeliveryPrice.HasValue && _canCreateInnerDeliveryPrice);
 
 		public decimal? InnerDeliveryPrice
 		{

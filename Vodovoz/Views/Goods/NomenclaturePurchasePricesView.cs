@@ -16,6 +16,7 @@ namespace Vodovoz.Views.Goods
 		{
 			treeViewPurchasePrices.ColumnsConfig = FluentColumnsConfig<NomenclatureCostPurchasePriceViewModel>.Create()
 				.AddColumn("Цена").AddNumericRenderer(x => x.PurchasePrice)
+					.WidthChars(10)
 					.Digits(2)
 					.Editing(x => x.CanEditPrice)
 					.Adjustment(new Gtk.Adjustment(0, 0, 999999999, 1, 10, 10))
