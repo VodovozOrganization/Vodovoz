@@ -39,6 +39,8 @@ namespace Vodovoz.Domain.Logistic
 			get => _fuelPrice;
 			set => SetField(ref _fuelPrice, value);
 		}
+
+		[Display(Name = "Вид топлива")]
 		public virtual FuelType FuelType
 		{
 			get => _fuelType;

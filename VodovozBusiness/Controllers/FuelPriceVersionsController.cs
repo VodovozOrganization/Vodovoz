@@ -24,7 +24,7 @@ namespace Vodovoz.Controllers
 			}
 			if(version.FuelType == null || version.FuelType.Id != _fuelType.Id)
 			{
-				throw new ArgumentException("Неверно заполнена цена в переданной версии");
+				throw new ArgumentException("Неверно заполнен вид топлива в переданной версии");
 			}
 
 			var previousVersion = GetPreviousVersionOrNull(version);

@@ -21,7 +21,7 @@ namespace Vodovoz.Controllers
 			}
 			if(version.CarModel == null || version.CarModel.Id != _carModel.Id)
 			{
-				throw new ArgumentException("Неверно заполнена цена в переданной версии");
+				throw new ArgumentException("Неверно заполнен авто в переданной версии");
 			}
 
 			var previousVersion = GetPreviousVersionOrNull(version);

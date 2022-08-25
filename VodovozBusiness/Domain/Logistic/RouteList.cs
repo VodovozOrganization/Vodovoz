@@ -286,20 +286,20 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref wasAcceptedByCashier, value);
 		}
 
-		private bool hasFixedShippingPrice;
-		[Display(Name = "Есть фиксированная стоимость доставки")]
+		private bool _hasFixedShippingPrice;
+		[Display(Name = "Есть фиксированная стоимость доставки?")]
 		public virtual bool HasFixedShippingPrice
 		{
-			get => hasFixedShippingPrice;
-			set => SetField(ref hasFixedShippingPrice, value, () => HasFixedShippingPrice);
+			get => _hasFixedShippingPrice;
+			set => SetField(ref _hasFixedShippingPrice, value);
 		}
 
-		private decimal fixedShippingPrice;
+		private decimal _fixedShippingPrice;
 		[Display(Name = "Фиксированная стоимость доставки")]
 		public virtual decimal FixedShippingPrice
 		{
-			get => fixedShippingPrice;
-			set => SetField(ref fixedShippingPrice, value, () => FixedShippingPrice);
+			get => _fixedShippingPrice;
+			set => SetField(ref _fixedShippingPrice, value);
 		}
 
 		Employee cashier;
