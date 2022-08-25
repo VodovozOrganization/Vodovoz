@@ -22,7 +22,7 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class IncomingInvoice : Document, IValidatableObject
 	{
-		//TODO Map invoice item to database
+		DateTime _version;
 
 		IList<IncomingInvoiceItem> items = new List<IncomingInvoiceItem>();
 
@@ -46,7 +46,14 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#region Properties
-		
+
+		[Display(Name = "Версия")]
+		public virtual DateTime Version
+		{
+			get => _version;
+			set => SetField(ref _version, value);
+		}
+
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
 			set {
