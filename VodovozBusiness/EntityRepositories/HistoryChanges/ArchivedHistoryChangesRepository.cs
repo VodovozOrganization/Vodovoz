@@ -36,7 +36,7 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 			var changeSetColumn = hcePersister.GetPropertyColumnNames(nameof(ChangedEntity.ChangeSet)).First();
 			var dateTimeColumn = hcePersister.GetPropertyColumnNames(nameof(ChangedEntity.ChangeTime)).First();
 
-			var query = $"INSERT INTO {oldhcsPersister.TableName} "
+			var query = $"INSERT IGNORE INTO {oldhcsPersister.TableName} "
 				+ $"(SELECT DISTINCT {_changeSetAlias}.* "
 				+ $"FROM {hcePersister.TableName} AS {_changedEntityAlias} "
 				+ $"JOIN {hcsPersister.TableName} AS {_changeSetAlias} ON {_changeSetAlias}.{hcsPersister.KeyColumnNames.First()} = {_changedEntityAlias}.{changeSetColumn} "
@@ -97,7 +97,7 @@ namespace Vodovoz.EntityRepositories.HistoryChanges
 			var changeSetColumn = oldhcePersister.GetPropertyColumnNames(nameof(ArchivedChangedEntity.ChangeSet)).First();
 			var dateTimeColumn = oldhcePersister.GetPropertyColumnNames(nameof(ArchivedChangedEntity.ChangeTime)).First();
 
-			var query = $"INSERT INTO {hcsPersister.TableName} "
+			var query = $"INSERT IGNORE INTO {hcsPersister.TableName} "
 				+ $"(SELECT DISTINCT {_changeSetAlias}.* "
 				+ $"FROM {oldhcePersister.TableName} AS {_changedEntityAlias} "
 				+ $"JOIN {oldhcsPersister.TableName} AS {_changeSetAlias} ON {_changeSetAlias}.{oldhcsPersister.KeyColumnNames.First()} = {_changedEntityAlias}.{changeSetColumn} "
