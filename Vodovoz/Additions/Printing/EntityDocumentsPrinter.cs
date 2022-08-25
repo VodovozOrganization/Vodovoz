@@ -190,19 +190,25 @@ namespace Vodovoz.Additions.Printing
 				.Where(a => a.Status != RouteListItemStatus.Transfered)
 				.Select(a => a.Order);
 
-			foreach(var o in orders) 
+			foreach(var order in orders)
 			{
-				var orderPrinter = entityDocumentsPrinterFactory.CreateOrderDocumentsPrinter(
-					o,
-					true,
-					//При массовой печати документов заказов из МЛ, в случае наличия у клиента признака UseSpecialDocFields,
-					//не будут печататься обычные счета и УПД
-					orderDocumentTypes.Where(
-						t => (o.Client.AlwaysPrintInvoice || !o.Client.UseSpecialDocFields)
-											|| t != OrderDocumentType.UPD 
-											&& t != OrderDocumentType.Bill).ToList()
-				);
-				
+				//При массовой печати документов заказов из МЛ, в случае наличия у клиента признака UseSpecialDocFields,
+				//не будут печататься обычные счета и УПД
+				var orderDocType = orderDocumentTypes
+					.Where(t => 
+						!order.Client.UseSpecialDocFields || t 
+						!= OrderDocumentType.UPD && t 
+						!= OrderDocumentType.Bill)
+					.ToList();
+
+				if (order.Client.AlwaysPrintInvoice)
+				{
+					orderDocType.Add(OrderDocumentType.Invoice);
+					orderDocType.Add(OrderDocumentType.InvoiceBarter);
+					orderDocType.Add(OrderDocumentType.InvoiceContractDoc);
+				}
+
+				var orderPrinter = entityDocumentsPrinterFactory.CreateOrderDocumentsPrinter(order, true, orderDocType);				
 				orderPrinter.PrintingCanceled += (sender, e) =>
 				{
 					_cancelPrinting = true;
