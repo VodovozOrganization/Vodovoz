@@ -521,11 +521,6 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ycheckSpecialDocuments.Sensitive = CanEdit;
 
-			ycheckAlwaysPrintInvoice.Binding
-				.AddBinding(Entity, e => e.AlwaysPrintInvoice, w => w.Active)
-				.InitializeFromSource();
-			ycheckAlwaysPrintInvoice.Sensitive = CanEdit;
-
 			ycheckAlwaysSendReceitps.Binding
 				.AddBinding(Entity, e => e.AlwaysSendReceipts, w => w.Active)
 				.InitializeFromSource();
