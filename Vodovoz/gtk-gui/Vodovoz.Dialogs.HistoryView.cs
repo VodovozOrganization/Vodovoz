@@ -56,6 +56,20 @@ namespace Vodovoz.Dialogs
 
 		private global::Gamma.GtkWidgets.yTreeView datatreeChanges;
 
+		private global::Gtk.VPaned vpanedOld;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindowOldChangesets;
+
+		private global::Gamma.GtkWidgets.yTreeView dataTreeOldChangeSets;
+
+		private global::Gtk.VBox vboxOldChanges;
+
+		private global::Gtk.Label lblOldChanges;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
+
+		private global::Gamma.GtkWidgets.yTreeView dataTreeOldChanges;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -101,7 +115,7 @@ namespace Vodovoz.Dialogs
 			w3.LeftAttach = ((uint)(1));
 			w3.RightAttach = ((uint)(2));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tblSettings.Gtk.Table+TableChild
 			this.entryObject3 = new global::Vodovoz.JournalViewers.NodeViewModelEntry();
 			this.entryObject3.Events = ((global::Gdk.EventMask)(256));
@@ -114,7 +128,7 @@ namespace Vodovoz.Dialogs
 			w4.LeftAttach = ((uint)(1));
 			w4.RightAttach = ((uint)(2));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tblSettings.Gtk.Table+TableChild
 			this.entryProperty = new global::Vodovoz.JournalViewers.NodeViewModelEntry();
 			this.entryProperty.Events = ((global::Gdk.EventMask)(256));
@@ -161,12 +175,13 @@ namespace Vodovoz.Dialogs
 			this.entryUser.Events = ((global::Gdk.EventMask)(256));
 			this.entryUser.Name = "entryUser";
 			this.entryUser.CanEditReference = false;
+			this.entryUser.CanOpenWithoutTabParent = false;
 			this.tblSettings.Add(this.entryUser);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tblSettings[this.entryUser]));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tblSettings.Gtk.Table+TableChild
 			this.entSearchId = new global::Gtk.Entry();
 			this.entSearchId.CanFocus = true;
@@ -280,6 +295,7 @@ namespace Vodovoz.Dialogs
 			this.selectperiod.ShowCurMonth = false;
 			this.selectperiod.ShowCurQuarter = false;
 			this.selectperiod.ShowCurYear = false;
+			this.selectperiod.ShowCustomPeriod = false;
 			this.selectperiod.WithTime = true;
 			this.tblSettings.Add(this.selectperiod);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tblSettings[this.selectperiod]));
@@ -307,7 +323,7 @@ namespace Vodovoz.Dialogs
 			this.vpaned1 = new global::Gtk.VPaned();
 			this.vpaned1.CanFocus = true;
 			this.vpaned1.Name = "vpaned1";
-			this.vpaned1.Position = 200;
+			this.vpaned1.Position = 53;
 			// Container child vpaned1.Gtk.Paned+PanedChild
 			this.GtkScrolledWindowChangesets = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowChangesets.Name = "GtkScrolledWindowChangesets";
@@ -354,6 +370,57 @@ namespace Vodovoz.Dialogs
 			this.vbox2.Add(this.vpaned1);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vpaned1]));
 			w26.Position = 2;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.vpanedOld = new global::Gtk.VPaned();
+			this.vpanedOld.CanFocus = true;
+			this.vpanedOld.Name = "vpanedOld";
+			this.vpanedOld.Position = 67;
+			// Container child vpanedOld.Gtk.Paned+PanedChild
+			this.GtkScrolledWindowOldChangesets = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowOldChangesets.Name = "GtkScrolledWindowOldChangesets";
+			this.GtkScrolledWindowOldChangesets.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowOldChangesets.Gtk.Container+ContainerChild
+			this.dataTreeOldChangeSets = new global::Gamma.GtkWidgets.yTreeView();
+			this.dataTreeOldChangeSets.CanFocus = true;
+			this.dataTreeOldChangeSets.Name = "dataTreeOldChangeSets";
+			this.GtkScrolledWindowOldChangesets.Add(this.dataTreeOldChangeSets);
+			this.vpanedOld.Add(this.GtkScrolledWindowOldChangesets);
+			global::Gtk.Paned.PanedChild w28 = ((global::Gtk.Paned.PanedChild)(this.vpanedOld[this.GtkScrolledWindowOldChangesets]));
+			w28.Resize = false;
+			w28.Shrink = false;
+			// Container child vpanedOld.Gtk.Paned+PanedChild
+			this.vboxOldChanges = new global::Gtk.VBox();
+			this.vboxOldChanges.Name = "vboxOldChanges";
+			this.vboxOldChanges.Spacing = 6;
+			// Container child vboxOldChanges.Gtk.Box+BoxChild
+			this.lblOldChanges = new global::Gtk.Label();
+			this.lblOldChanges.Name = "lblOldChanges";
+			this.lblOldChanges.Xalign = 0F;
+			this.lblOldChanges.LabelProp = global::Mono.Unix.Catalog.GetString("Детали изменений:");
+			this.vboxOldChanges.Add(this.lblOldChanges);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxOldChanges[this.lblOldChanges]));
+			w29.Position = 0;
+			w29.Expand = false;
+			w29.Fill = false;
+			// Container child vboxOldChanges.Gtk.Box+BoxChild
+			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
+			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
+			this.dataTreeOldChanges = new global::Gamma.GtkWidgets.yTreeView();
+			this.dataTreeOldChanges.CanFocus = true;
+			this.dataTreeOldChanges.Name = "dataTreeOldChanges";
+			this.GtkScrolledWindow2.Add(this.dataTreeOldChanges);
+			this.vboxOldChanges.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxOldChanges[this.GtkScrolledWindow2]));
+			w31.Position = 1;
+			this.vpanedOld.Add(this.vboxOldChanges);
+			global::Gtk.Paned.PanedChild w32 = ((global::Gtk.Paned.PanedChild)(this.vpanedOld[this.vboxOldChanges]));
+			w32.Resize = false;
+			w32.Shrink = false;
+			this.vbox2.Add(this.vpanedOld);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vpanedOld]));
+			w33.Position = 3;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
