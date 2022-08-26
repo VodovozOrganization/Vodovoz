@@ -4,6 +4,8 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class FastDeliveryAvailabilityHistoryView
 	{
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
+
 		private global::Gamma.GtkWidgets.yVBox vboxMain;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxMainButtons;
@@ -19,6 +21,10 @@ namespace Vodovoz.Views.Logistic
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Logistic.FastDeliveryAvailabilityHistoryView";
 			// Container child Vodovoz.Views.Logistic.FastDeliveryAvailabilityHistoryView.Gtk.Container+ContainerChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
 			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
@@ -52,7 +58,10 @@ namespace Vodovoz.Views.Logistic
 			this.vboxMain.Add(this.yhboxVerificationWidget);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.yhboxVerificationWidget]));
 			w4.Position = 1;
-			this.Add(this.vboxMain);
+			this.yhbox1.Add(this.vboxMain);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.vboxMain]));
+			w5.Position = 0;
+			this.Add(this.yhbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

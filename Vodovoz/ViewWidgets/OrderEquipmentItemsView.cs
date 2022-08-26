@@ -9,7 +9,6 @@ using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -20,6 +19,7 @@ namespace Vodovoz.ViewWidgets
 	public partial class OrderEquipmentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private IList<int> _activeFlyersNomenclaturesIds;
+		private IFlyerRepository _flyerRepository;
 		public IUnitOfWork UoW { get; set; }
 
 		public Order Order { get; set; }
@@ -51,13 +51,11 @@ namespace Vodovoz.ViewWidgets
 
 		public void Configure(IUnitOfWork uow, Order order, IFlyerRepository flyerRepository)
 		{
-			if (flyerRepository == null) {
-				throw new ArgumentNullException(nameof(flyerRepository));
-			}
+			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			
 			UoW = uow;
 			Order = order;
-			_activeFlyersNomenclaturesIds = flyerRepository.GetAllActiveFlyersNomenclaturesIds(UoW);
+			UpdateActiveFlyersNomenclaturesIds();
 
 			buttonDeleteEquipment.Sensitive = false;
 			Order.ObservableOrderEquipments.ElementAdded += Order_ObservableOrderEquipments_ElementAdded;
@@ -71,6 +69,11 @@ namespace Vodovoz.ViewWidgets
 
 			treeEquipment.ItemsDataSource = Order.ObservableOrderEquipments;
 			treeEquipment.Selection.Changed += TreeEquipment_Selection_Changed;
+		}
+
+		public void UpdateActiveFlyersNomenclaturesIds()
+		{
+			_activeFlyersNomenclaturesIds = _flyerRepository.GetAllActiveFlyersNomenclaturesIdsByDate(UoW, Order.DeliveryDate);
 		}
 
 		public void UnsubscribeOnEquipmentAdd()

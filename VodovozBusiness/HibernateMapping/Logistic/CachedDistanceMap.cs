@@ -16,6 +16,7 @@ namespace Vodovoz.HibernateMapping.Logistic
 			Map(x => x.DistanceMeters).Column("distance");
 			Map(x => x.TravelTimeSec).Column("travel_time");
 			Map(x => x.PolylineGeometry).Column("polyline_geometry");
+			Map(x => x.Created).Column("created").ReadOnly();
 		}
 	}
 }

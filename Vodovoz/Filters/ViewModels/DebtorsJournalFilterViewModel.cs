@@ -5,7 +5,6 @@ using QS.Project.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.FilterViewModels.Goods;
 using QS.DomainModel.Entity;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
@@ -15,6 +14,7 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using System.Collections.Generic;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -36,6 +36,8 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _showCancellationCounterparty;
 		private DiscountReason _discountReason;
 		private Nomenclature _lastOrderNomenclature;
+		private DeliveryPointCategory _selectedDeliveryPointCategory;
+		private IEnumerable<DeliveryPointCategory> _deliveryPointCategories;
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
@@ -146,7 +148,16 @@ namespace Vodovoz.Filters.ViewModels
 			get => _discountReason;
 			set => SetField(ref _discountReason, value, () => DiscountReason);
 		}
-		
+
+		public DeliveryPointCategory SelectedDeliveryPointCategory
+		{
+			get => _selectedDeliveryPointCategory;
+			set => UpdateFilterField(ref _selectedDeliveryPointCategory, value);
+		}
+
+		public IEnumerable<DeliveryPointCategory> DeliveryPointCategories =>
+		 _deliveryPointCategories ?? (_deliveryPointCategories = UoW.GetAll<DeliveryPointCategory>());
+
 		public DeliveryPointJournalFilterViewModel DeliveryPointJournalFilterViewModel { get; set; } 
 			= new DeliveryPointJournalFilterViewModel();
 

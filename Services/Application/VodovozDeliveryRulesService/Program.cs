@@ -5,6 +5,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.Threading;
+using Fias.Service;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
@@ -88,9 +89,11 @@ namespace VodovozDeliveryRulesService
 				var backupDistrictService = new BackupDistrictService();
 				IDeliveryRulesParametersProvider deliveryRulesParametersProvider
 					= new DeliveryRulesParametersProvider(new ParametersProvider());
-				
+				CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+				IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(new ParametersProvider());
+				IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
 				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = 
-					new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService, deliveryRulesParametersProvider);
+					new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService, deliveryRulesParametersProvider, fiasApiClient, cancellationTokenSource);
 				ServiceHost deliveryRulesHost = new DeliveryRulesServiceHost(deliveryRulesInstanceProvider);
 
 				ServiceEndpoint webEndPoint = deliveryRulesHost.AddServiceEndpoint(

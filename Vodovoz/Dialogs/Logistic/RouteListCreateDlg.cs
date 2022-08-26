@@ -362,6 +362,8 @@ namespace Vodovoz
 			}
 			else
 			{
+				_additionalLoadingModel.ReloadActiveFlyers(UoW, Entity, _previousSelectedDate);
+				createroutelistitemsview1.UpdateInfo();
 				_previousSelectedDate = Entity.Date;
 			}
 		}
