@@ -2,7 +2,6 @@
 using Fias.Service;
 using Gtk;
 using MySql.Data.MySqlClient;
-using NetTopologySuite.Operation.OverlayNG;
 using NLog;
 using QS.Banks.Domain;
 using QS.BaseParameters;
@@ -156,6 +155,9 @@ using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Controllers;
+using QS.Utilities;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -165,6 +167,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly IApplicationInfo applicationInfo;
 	private readonly IPasswordValidator passwordValidator;
 	private readonly IApplicationConfigurator applicationConfigurator;
+	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 
 	public TdiNotebook TdiMain => tdiMain;
 	public readonly TdiNavigationManager NavigationManager;
@@ -295,6 +298,27 @@ public partial class MainWindow : Gtk.Window
 
 		#endregion
 
+		#region Уведомление об отправленных перемещениях для подразделения
+
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			var employeeSubdivisionId = GetEmployeeSubdivisionId(uow);
+			_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), employeeSubdivisionId));
+
+			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
+			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
+			lblMovementsNotification.Markup = notificationDetails.NotificationMessage;
+
+			if(notificationDetails.NeedNotify)
+			{
+				_movementsNotificationsController.UpdateNotificationAction += UpdateSendedMovementsNotification;
+			}
+		}
+
+		btnUpdateMovementsNotification.Clicked += OnBtnUpdateMovementsNotificationClicked;
+
+		#endregion
+
 		BanksUpdater.CheckBanksUpdate(false);
 
 		// Блокировка отчетов для торговых представителей
@@ -344,8 +368,33 @@ public partial class MainWindow : Gtk.Window
 
 		ActionAdditionalLoadSettings.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
-
 	}
+
+	#region Методы для уведомления об отправленных перемещениях для подразделения
+
+	private int GetEmployeeSubdivisionId(IUnitOfWork uow)
+	{
+		var currentEmployee =
+			VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(uow, ServicesConfig.UserService.CurrentUserId);
+
+		return currentEmployee?.Subdivision.Id ?? 0;
+	}
+
+	private void OnBtnUpdateMovementsNotificationClicked(object sender, EventArgs e)
+	{
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			var notification = _movementsNotificationsController.GetNotificationMessageBySubdivision(uow);
+			UpdateSendedMovementsNotification(notification);
+		}
+	}
+
+	private void UpdateSendedMovementsNotification(string notification)
+	{
+		lblMovementsNotification.Markup = notification;			
+	}
+
+	#endregion
 
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
@@ -2088,9 +2137,15 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
 	{
+		var paramProvider = new ParametersProvider();
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-			() => new QSReport.ReportViewDlg(new OrderChangesReport(new ReportDefaultsProvider(new ParametersProvider())))
+			() => new QSReport.ReportViewDlg(
+				new OrderChangesReport(
+					new ReportDefaultsProvider(paramProvider),
+					ServicesConfig.InteractiveService,
+					new ArchiveDataSettings(paramProvider)))
 		);
 	}
 
@@ -2561,7 +2616,7 @@ public partial class MainWindow : Gtk.Window
 	}
 
 	protected void OnRoboatsExportActionActivated(object sender, EventArgs e)
-    {
+	{
 		NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
 	}
 
@@ -2582,11 +2637,11 @@ public partial class MainWindow : Gtk.Window
 		IFileDialogService fileDialogService = new FileDialogService();
 
 		var viewModel = new CostCarExploitationReportViewModel(
-			uowFactory, 
-			interactiveService, 
-			NavigationManager, 
-			carSelectorFactory, 
-			entityChangeWatcher, 
+			uowFactory,
+			interactiveService,
+			NavigationManager,
+			carSelectorFactory,
+			entityChangeWatcher,
 			fileDialogService);
 
 		tdiMain.AddTab(viewModel);
