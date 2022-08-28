@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CanCreateFuel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_fuel_version");
 			CanEditFuel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_fuel_version_date");
 
-			FuelConsumption = Entity.CarFuelVersions.OrderByDescending(x => x.StartDate)?.FirstOrDefault()?.FuelConsumption ?? 0;
+			FuelConsumption = Entity.CarFuelVersions.FirstOrDefault()?.FuelConsumption ?? 0;
 		}
 
 		public double FuelConsumption { get; set; } 

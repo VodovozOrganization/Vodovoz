@@ -6,7 +6,7 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Logistic
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "история цены топлива",
+		NominativePlural = "история цен топлива",
 		Nominative = "история цены топлива")]
 	[HistoryTrace]
 	public class FuelPriceVersion : PropertyChangedBase, IDomainObject

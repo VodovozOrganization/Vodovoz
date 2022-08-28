@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			_fuelVersionsController = new FuelPriceVersionsController(Entity);
 
 			CanReadFuel = CanCreateFuel = CanEditFuel = true;
-			FuelPrice = Entity.FuelPriceVersions.OrderByDescending(x => x.StartDate)?.FirstOrDefault()?.FuelPrice ?? 0;
+			FuelPrice = Entity.FuelPriceVersions.FirstOrDefault()?.FuelPrice ?? 0;
 			if (FuelPrice == 0)
 			{
 				FuelPrice = Entity.Cost;
