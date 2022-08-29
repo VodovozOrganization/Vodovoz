@@ -11,6 +11,8 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Fias.Service.Cache;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz
 {
@@ -47,7 +49,8 @@ namespace Vodovoz
 			
 			IParametersProvider parametersProvider = new ParametersProvider();
 			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
+			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
 			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
 		}
 		

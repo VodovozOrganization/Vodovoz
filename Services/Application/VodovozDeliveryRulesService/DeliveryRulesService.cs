@@ -370,7 +370,7 @@ namespace VodovozDeliveryRulesService
 				_deliveryRulesParametersProvider,
 				nomenclatureNodes);
 
-			fastDeliveryAvailabilityHistory.AddressWithoutDeliveryPoint = await _fiasApiClient.GetAddressByGeoCoder(latitude, longitude, _cancellationTokenSource.Token);
+			fastDeliveryAvailabilityHistory.AddressWithoutDeliveryPoint = await _fiasApiClient.GetAddressByGeoCoderAsync(latitude, longitude, _cancellationTokenSource.Token);
 			fastDeliveryAvailabilityHistory.District = _deliveryRepository.GetDistrict(uow, latitude, longitude);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);

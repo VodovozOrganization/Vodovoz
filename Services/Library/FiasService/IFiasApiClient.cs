@@ -13,6 +13,6 @@ namespace Fias.Service
 		IEnumerable<HouseDTO> GetHousesFromStreetByCriteria(Guid streetGuid, string streetDistrict, int? limit = 200, bool isActive = true);
 		IEnumerable<HouseDTO> GetHousesFromCityByCriteria(Guid cityGuid, string searchString, int? limit = 200, bool isActive = true);
 		Task<PointDTO> GetCoordinatesByGeoCoderAsync(string address, CancellationToken cancellationToken);
-		Task<string> GetAddressByGeoCoder(decimal latitude, decimal longitude, CancellationToken cancellationToken);
+		Task<string> GetAddressByGeoCoderAsync(decimal latitude, decimal longitude, CancellationToken cancellationToken);
 	}
 }
