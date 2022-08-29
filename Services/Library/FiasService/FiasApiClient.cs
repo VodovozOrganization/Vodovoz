@@ -135,7 +135,7 @@ namespace Fias.Service
 			return requestSender.GetResponseAsync().Result ?? new List<HouseDTO>();
 		}
 
-		public async Task<PointDTO> GetCoordinatesByGeoCoderAsync(string address, CancellationToken cancellationToken)
+		public PointDTO GetCoordinatesByGeoCoder(string address, CancellationToken cancellationToken)
 		{
 			var cache = GetCachedCoordinates(address);
 			if(cache != null)
@@ -155,7 +155,8 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<PointDTO>("/api/GetCoordinatesByGeoCoder", requestParams);
-			var response = await requestSender.GetResponseAsync(cancellationToken);
+			var task = requestSender.GetResponseAsync(cancellationToken);
+			var response = task.Result;
 			if(response != null)
 			{
 				CacheCoordinates(response.Latitude, response.Longitude, address);
@@ -163,7 +164,7 @@ namespace Fias.Service
 			return response;
 		}
 
-		public async Task<string> GetAddressByGeoCoderAsync(decimal latitude, decimal longitude, CancellationToken cancellationToken)
+		public string GetAddressByGeoCoder(decimal latitude, decimal longitude, CancellationToken cancellationToken)
 		{
 			var cache = GetCachedAddress(latitude, longitude);
 			if(cache != null)
@@ -176,10 +177,11 @@ namespace Fias.Service
 				{ "latitude", latitude.ToString(CultureInfo.InvariantCulture) },
 				{ "longitude", longitude.ToString(CultureInfo.InvariantCulture) }
 			};
-			
+
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<string>("/api/GetAddressByGeoCoder", requestParams);
-			var response = await requestSender.GetResponseAsync(cancellationToken);
+			var task = requestSender.GetResponseAsync(cancellationToken);
+			var response = task.Result;
 			if(!string.IsNullOrWhiteSpace(response))
 			{
 				CacheAddress(response, latitude, longitude);
