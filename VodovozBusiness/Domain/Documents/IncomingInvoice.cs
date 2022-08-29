@@ -22,8 +22,6 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class IncomingInvoice : Document, IValidatableObject
 	{
-		//TODO Map invoice item to database
-
 		IList<IncomingInvoiceItem> items = new List<IncomingInvoiceItem>();
 
 		[Display(Name = "Строки")]
@@ -46,7 +44,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#region Properties
-		
+
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
 			set {
