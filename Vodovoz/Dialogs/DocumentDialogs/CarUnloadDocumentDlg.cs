@@ -201,7 +201,7 @@ namespace Vodovoz
 				return false;
 
 			if(!_carUnloadRepository.IsUniqueDocumentAtDay(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
-				MessageDialogHelper.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
+				MessageDialogHelper.RunWarningDialog("Документ по данному МЛ и складу уже сформирован");
 				return false;
 			}
 
