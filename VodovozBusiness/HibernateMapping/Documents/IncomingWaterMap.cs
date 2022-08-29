@@ -9,6 +9,9 @@ namespace Vodovoz.HibernateMapping
 		{
 			Table ("store_incoming_water");
 
+			OptimisticLock.Version();
+			Version(x => x.Version).Column("version");
+
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Amount).Column ("amount").Not.Nullable ();
 			Map (x => x.TimeStamp).Column ("time_stamp").Not.Nullable ();
