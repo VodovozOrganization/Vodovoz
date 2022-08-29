@@ -70,6 +70,8 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton buttonChangeVersionDate;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelVersions;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -353,6 +355,7 @@ namespace Vodovoz.Views.Logistic
 			this.vbox3.Add(this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow2]));
 			w25.Position = 0;
+			w25.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";
@@ -360,7 +363,7 @@ namespace Vodovoz.Views.Logistic
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.labelDate1 = new global::Gtk.Label();
 			this.labelDate1.Name = "labelDate1";
-			this.labelDate1.LabelProp = global::Mono.Unix.Catalog.GetString("расход на 100 км:");
+			this.labelDate1.LabelProp = global::Mono.Unix.Catalog.GetString("Pасход на 100 км:");
 			this.labelDate1.Justify = ((global::Gtk.Justification)(1));
 			this.hbox8.Add(this.labelDate1);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.labelDate1]));
@@ -438,9 +441,24 @@ namespace Vodovoz.Views.Logistic
 			w33.LeftAttach = ((uint)(1));
 			w33.RightAttach = ((uint)(2));
 			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			w33.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.ylabelVersions = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelVersions.Name = "ylabelVersions";
+			this.ylabelVersions.Xalign = 1F;
+			this.ylabelVersions.Yalign = 0F;
+			this.ylabelVersions.LabelProp = global::Mono.Unix.Catalog.GetString("Версии расхода топлива:");
+			this.ytable1.Add(this.ylabelVersions);
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelVersions]));
+			w34.TopAttach = ((uint)(6));
+			w34.BottomAttach = ((uint)(7));
+			w34.XOptions = ((global::Gtk.AttachOptions)(4));
+			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.ytable1);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ytable1]));
-			w34.Position = 1;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ytable1]));
+			w35.Position = 1;
+			w35.Expand = false;
+			w35.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
