@@ -9,7 +9,6 @@ namespace Vodovoz.Domain.Logistic
 {
 	public class CachedDistance
 	{
-
 		public virtual long FromGeoHash { get; set; }
 
 		public virtual long ToGeoHash { get; set; }
@@ -19,6 +18,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual int TravelTimeSec { get; set; }
 
 		public virtual string PolylineGeometry { get; set; }
+
+		public virtual DateTime Created { get; set; }
 
 		public CachedDistance() { }
 

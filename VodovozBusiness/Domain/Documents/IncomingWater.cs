@@ -21,6 +21,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class IncomingWater : Document, IValidatableObject
 	{
+
+
 		Nomenclature product;
 
 		[Required(ErrorMessage = "Продукт должн быть заполнен.")]

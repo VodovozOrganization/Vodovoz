@@ -8,8 +8,11 @@ namespace Vodovoz.HibernateMapping
 		public CarUnloadDocumentMap ()
 		{
 			Table ("store_car_unload_documents");
-
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+
+			OptimisticLock.Version();
+			Version(x => x.Version).Column("version");
+
 			Map (x => x.TimeStamp).Column ("time_stamp");
 			Map(x => x.LastEditedTime).Column("last_edit_time");
 			Map (x => x.Comment).Column ("comment");
