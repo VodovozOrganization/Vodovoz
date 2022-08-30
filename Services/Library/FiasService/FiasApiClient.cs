@@ -157,6 +157,7 @@ namespace Fias.Service
 			var requestSender = new RequestSender<PointDTO>("/api/GetCoordinatesByGeoCoder", requestParams);
 			var task = requestSender.GetResponseAsync(cancellationToken);
 			var response = task.Result;
+			_logger.Debug($"Координаты по адресу {address}: {response?.Latitude},{response?.Longitude}");
 			if(response != null)
 			{
 				CacheCoordinates(response.Latitude, response.Longitude, address);
