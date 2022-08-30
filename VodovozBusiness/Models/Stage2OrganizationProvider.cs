@@ -208,7 +208,10 @@ namespace Vodovoz.Models
 			{
 				return _organizationParametersProvider.VodovozSouthOrganizationId;
 			}
-			return _organizationParametersProvider.VodovozSouthOrganizationId;
+
+			return _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id) && orderCreateDate.HasValue && orderCreateDate.Value < new DateTime(2022, 08, 30, 13, 00, 00)
+				? _organizationParametersProvider.VodovozNorthOrganizationId
+				: _organizationParametersProvider.VodovozSouthOrganizationId;
 		}
 	}
 }
