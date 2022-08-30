@@ -161,7 +161,7 @@ namespace Fias.Service
 			_logger.Info($"Координаты по адресу {address}: {response?.Latitude},{response?.Longitude}");
 			if(response != null)
 			{
-				CacheCoordinates(response.Latitude, response.Longitude, address);
+				CacheAddress(address, response.Latitude, response.Longitude);
 			}
 			return response;
 		}
@@ -182,11 +182,13 @@ namespace Fias.Service
 
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<string>("/api/GetAddressByGeoCoder", requestParams);
+			_logger.Info($"Обращение к яндексу за адресом");
 			var task = requestSender.GetResponseAsync(cancellationToken);
 			var response = task.Result;
+			_logger.Info($"Адрес по координатам {latitude},{longitude}: {response}");
 			if(!string.IsNullOrWhiteSpace(response))
 			{
-				CacheAddress(response, latitude, longitude);
+				CacheCoordinates(latitude, longitude, response);
 			}
 			return response;
 		}
@@ -221,11 +223,13 @@ namespace Fias.Service
 			return null;
 		}
 
-		private void CacheAddress(string address, decimal latitude, decimal longitude)
+		private void CacheAddress(string address, string latitude, string longitude)
 		{
 			try
 			{
-				 _geocoderCache.CacheAddress(address, latitude, longitude);
+				decimal lat = decimal.Parse(latitude, CultureInfo.InvariantCulture);
+				decimal lon = decimal.Parse(longitude, CultureInfo.InvariantCulture);
+				_geocoderCache.CacheAddress(address, lat, lon);
 			}
 			catch(Exception ex)
 			{
@@ -233,13 +237,11 @@ namespace Fias.Service
 			}
 		}
 
-		private void CacheCoordinates(string latitude, string longitude, string address)
+		private void CacheCoordinates(decimal latitude, decimal longitude, string address)
 		{
 			try
 			{
-				decimal lat = decimal.Parse(latitude, CultureInfo.InvariantCulture);
-				decimal lon = decimal.Parse(longitude, CultureInfo.InvariantCulture);
-				_geocoderCache.CacheCoordinates(lat, lon, address);
+				_geocoderCache.CacheCoordinates(latitude, longitude, address);
 			}
 			catch(Exception ex)
 			{
