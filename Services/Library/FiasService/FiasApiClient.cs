@@ -34,7 +34,7 @@ namespace Fias.Service
 				_requestParams = requestParams != null ? $"?{requestParams}" : "";
 			}
 
-			public async Task<T> GetResponseAsync(CancellationToken? cancellationToken = null)
+			public T GetResponseAsync(CancellationToken? cancellationToken = null)
 			{
 				_client.DefaultRequestHeaders.Accept.Clear();
 				_client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -45,11 +45,11 @@ namespace Fias.Service
 				{
 					if(cancellationToken != null)
 					{
-						response = await _client.GetAsync($"{_requestPath}{_requestParams}", cancellationToken.Value);
+						response = _client.GetAsync($"{_requestPath}{_requestParams}", cancellationToken.Value).Result;
 					}
 					else
 					{
-						response = await _client.GetAsync($"{ _requestPath }{ _requestParams }");
+						response = _client.GetAsync($"{ _requestPath }{ _requestParams }").Result;
 					}
 				}
 				catch
@@ -90,7 +90,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<CityDTO>>("/api/GetCitiesByCriteria", requestParams);
-			return requestSender.GetResponseAsync().Result ?? new List<CityDTO>();
+			return requestSender.GetResponseAsync() ?? new List<CityDTO>();
 		}
 
 		public IEnumerable<StreetDTO> GetStreetsByCriteria(Guid cityGuid, string searchString, int limit, bool isActive = true)
@@ -104,7 +104,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<StreetDTO>>("/api/GetStreetsByCriteria", requestParams);
-			return requestSender.GetResponseAsync().Result ?? new List<StreetDTO>();
+			return requestSender.GetResponseAsync() ?? new List<StreetDTO>();
 		}
 
 		public IEnumerable<HouseDTO> GetHousesFromStreetByCriteria(Guid streetGuid, string searchString, int? limit = null, bool isActive = true)
@@ -118,7 +118,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<HouseDTO>>("/api/GetHousesFromStreetByCriteria", requestParams);
-			return requestSender.GetResponseAsync().Result ?? new List<HouseDTO>();
+			return requestSender.GetResponseAsync() ?? new List<HouseDTO>();
 		}
 
 		public IEnumerable<HouseDTO> GetHousesFromCityByCriteria(Guid cityGuid, string searchString, int? limit = null, bool isActive = true)
@@ -132,7 +132,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<HouseDTO>>("/api/GetHousesFromCityByCriteria", requestParams);
-			return requestSender.GetResponseAsync().Result ?? new List<HouseDTO>();
+			return requestSender.GetResponseAsync() ?? new List<HouseDTO>();
 		}
 
 		public PointDTO GetCoordinatesByGeoCoder(string address, CancellationToken cancellationToken)
@@ -157,7 +157,7 @@ namespace Fias.Service
 			var requestSender = new RequestSender<PointDTO>("/api/GetCoordinatesByGeoCoder", requestParams);
 			_logger.Info($"Обращение к яндексу за координатами");
 			var task = requestSender.GetResponseAsync(cancellationToken);
-			var response = task.Result;
+			var response = task;
 			_logger.Info($"Координаты по адресу {address}: {response?.Latitude},{response?.Longitude}");
 			if(response != null)
 			{
@@ -184,7 +184,7 @@ namespace Fias.Service
 			var requestSender = new RequestSender<string>("/api/GetAddressByGeoCoder", requestParams);
 			_logger.Info($"Обращение к яндексу за адресом");
 			var task = requestSender.GetResponseAsync(cancellationToken);
-			var response = task.Result;
+			var response = task;
 			_logger.Info($"Адрес по координатам {latitude},{longitude}: {response}");
 			if(!string.IsNullOrWhiteSpace(response))
 			{
