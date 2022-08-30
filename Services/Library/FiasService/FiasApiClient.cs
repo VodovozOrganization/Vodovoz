@@ -155,9 +155,10 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<PointDTO>("/api/GetCoordinatesByGeoCoder", requestParams);
+			_logger.Info($"Обращение к яндексу за координатами");
 			var task = requestSender.GetResponseAsync(cancellationToken);
 			var response = task.Result;
-			_logger.Debug($"Координаты по адресу {address}: {response?.Latitude},{response?.Longitude}");
+			_logger.Info($"Координаты по адресу {address}: {response?.Latitude},{response?.Longitude}");
 			if(response != null)
 			{
 				CacheCoordinates(response.Latitude, response.Longitude, address);
