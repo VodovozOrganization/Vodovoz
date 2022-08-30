@@ -1747,6 +1747,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Profitability.ProfitabilityConstantsView.cs" />
     <Compile Include="ViewWidgets\Profitability\MonthPickerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Profitability.MonthPickerView.cs" />
+    <Compile Include="ViewWidgets\Profitability\SelectableParametersFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Profitability.SelectableParametersFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

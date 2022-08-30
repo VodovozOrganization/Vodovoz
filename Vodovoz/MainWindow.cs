@@ -156,6 +156,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.Views.Profitability;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2633,5 +2634,6 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnProfitabilityConstantsActionActivated(object sender, EventArgs e)
 	{
+		tdiMain.AddTab(new ProfitabilityConstantsView());
 	}
 }

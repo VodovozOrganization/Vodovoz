@@ -497,6 +497,8 @@
     <Compile Include="Widgets\OrganizationVersionsViewModel.cs" />
     <Compile Include="Widgets\FastDeliveryVerificationViewModel.cs" />
     <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
+    <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
+    <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
