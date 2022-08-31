@@ -63,7 +63,7 @@ namespace Vodovoz.Views.Logistic
 
 			ytreeCarFuelVersions.ColumnsConfig = FluentColumnsConfig<CarFuelVersion>.Create()
 				.AddColumn("Код").MinWidth(50).HeaderAlignment(0.5f).AddTextRenderer(x => x.Id == 0 ? "Новая" : x.Id.ToString()).XAlign(0.5f)
-				.AddColumn("Цена").AddTextRenderer(x => x.FuelConsumption.ToString()).XAlign(0.5f)
+				.AddColumn("Расход").AddTextRenderer(x => x.FuelConsumption.ToString()).XAlign(0.5f)
 				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDate.ToString("g")).XAlign(0.5f)
 				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToString("g") : "").XAlign(0.5f)
 				.AddColumn("")

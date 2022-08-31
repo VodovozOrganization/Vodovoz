@@ -292,11 +292,12 @@ namespace Vodovoz
 
 			_canСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
 
-			fixPriceSpin.Binding.AddBinding(Entity, e => e.FixedShippingPrice, w => w.ValueAsDecimal).InitializeFromSource();
+			fixPriceSpin.Binding
+				.AddBinding(Entity, e => e.FixedShippingPrice, w => w.ValueAsDecimal)
+				.AddBinding(Entity, e => e.HasFixedShippingPrice, w => w.Sensitive).InitializeFromSource();
 			checkIsFixPrice.Binding.AddBinding(Entity, e => e.HasFixedShippingPrice, w => w.Active).InitializeFromSource();
 
 			checkIsFixPrice.Sensitive = CanEditFixedPrice;
-			fixPriceSpin.Sensitive = checkIsFixPrice.Active && CanEditFixedPrice;
 
 			_oldDriver = Entity.Driver;
 			UpdateDlg(_isLogistican);

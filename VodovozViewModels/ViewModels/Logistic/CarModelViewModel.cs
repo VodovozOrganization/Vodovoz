@@ -31,8 +31,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CanReadFuel = true;
 			CanCreateFuel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_fuel_version");
 			CanEditFuel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_fuel_version_date");
-
-			FuelConsumption = Entity.CarFuelVersions.FirstOrDefault()?.FuelConsumption ?? 0;
 		}
 
 		public double FuelConsumption { get; set; } 
@@ -69,9 +67,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public virtual bool CanCreateFuel { get; }
 		public virtual bool CanEditFuel { get; }
 
-		public bool CanAddNewFuelVersion =>	CanCreateFuel;
+		public bool CanAddNewFuelVersion =>	CanCreateFuel 
+			&& SelectedFuelDate.HasValue
+			&& _fuelVersionsController.IsValidDateForNewCarVersion(SelectedFuelDate.Value);
 
-		public bool CanChangeFuelVersionDate => CanEditFuel;
+		public bool CanChangeFuelVersionDate => CanEditFuel 
+			&& SelectedFuelDate.HasValue
+			&& SelectedCarFuelVersion != null
+			&& _fuelVersionsController.IsValidDateForVersionStartDateChange(SelectedCarFuelVersion, SelectedFuelDate.Value);
 
 		public void AddNewCarFuelVersion()
 		{
