@@ -54,7 +54,7 @@ namespace Vodovoz.Views.Organization
 			evmeAccountant.Binding.AddBinding(ViewModel, vm => vm.Accountant, w => w.Subject).InitializeFromSource();
 
 			yCmbCurrentSignature.ItemsList = ViewModel.AllSignatures;
-			yCmbCurrentSignature.Binding.AddBinding(ViewModel, s => s.Signature, w => w.SelectedItem).InitializeFromSource();
+			yCmbCurrentSignature.Binding.AddBinding(ViewModel, s => s.SignatureAccountant, w => w.SelectedItem).InitializeFromSource();
 			yCmbCurrentSignature.SetSizeRequest(250, 30);
 
 			datatextviewAddress.Binding.AddBinding(ViewModel, vm => vm.Address, w => w.Buffer.Text).InitializeFromSource();

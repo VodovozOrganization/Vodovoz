@@ -26,7 +26,8 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		private Employee _accountant;
 		private string _address;
 		private string _jurAddress;
-		private StoredResource _signature;
+		private StoredResource _signatureLeader;
+		private StoredResource _signatureAccountant;
 		private DelegateCommand _saveEditingVersionCommand;
 		private DelegateCommand _cancelEditingVersionCommand;
 		private DelegateCommand _editVersionCommand;
@@ -87,10 +88,16 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			set => SetField(ref _address, value);
 		}
 
-		public virtual StoredResource Signature
+		public virtual StoredResource SignatureLeader
 		{
-			get => _signature;
-			set => SetField(ref _signature, value);
+			get => _signatureLeader;
+			set => SetField(ref _signatureLeader, value);
+		}
+
+		public virtual StoredResource SignatureAccountant
+		{
+			get => _signatureAccountant;
+			set => SetField(ref _signatureAccountant, value);
 		}
 
 		public string JurAddress
@@ -147,7 +154,8 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			{
 				SelectedOrganizationVersion.Accountant = Accountant;
 				SelectedOrganizationVersion.Leader = Leader;
-				SelectedOrganizationVersion.Signature = Signature;
+				SelectedOrganizationVersion.SignatureLeader = SignatureLeader;
+				SelectedOrganizationVersion.SignatureAccountant = SignatureAccountant;
 				SelectedOrganizationVersion.Address = Address;
 				SelectedOrganizationVersion.JurAddress = JurAddress;
 
@@ -170,7 +178,8 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			_editVersionCommand ?? (_editVersionCommand = new DelegateCommand(() =>
 			{
 				Accountant = SelectedOrganizationVersion.Accountant;
-				Signature = SelectedOrganizationVersion.Signature;
+				SignatureLeader = SelectedOrganizationVersion.SignatureLeader;
+				SignatureAccountant = SelectedOrganizationVersion.SignatureAccountant;
 				Leader = SelectedOrganizationVersion.Leader;
 				Address = SelectedOrganizationVersion.Address;
 				JurAddress = SelectedOrganizationVersion.JurAddress;
@@ -219,7 +228,8 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		{
 			Leader = null;
 			Accountant = null;
-			Signature = null;
+			SignatureLeader = null;
+			SignatureAccountant = null;
 			Address = string.Empty;
 			JurAddress = string.Empty;
 		}

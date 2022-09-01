@@ -21,7 +21,8 @@ namespace Vodovoz.Domain.Logistic.Organizations
 		private DateTime _startDate;
 		private DateTime? _endDate;
 		private Organization _organization;
-		private StoredResource _signature;
+		private StoredResource _signatureAccountant;
+		private StoredResource _signatureLeader;
 
 		public virtual int Id { get; set; }
 
@@ -74,11 +75,19 @@ namespace Vodovoz.Domain.Logistic.Organizations
 			set => SetField(ref _endDate, value);
 		}
 
-		[Display(Name = "Подпись")]
-		public virtual StoredResource Signature
+		[Display(Name = "Подпись руководителя")]
+		public virtual StoredResource SignatureLeader
 		{
-			get => _signature;
-			set => SetField(ref _signature, value);
+			get => _signatureLeader;
+			set => SetField(ref _signatureLeader, value);
+		}
+
+
+		[Display(Name = "Подпись бухгалтера")]
+		public virtual StoredResource SignatureAccountant
+		{
+			get => _signatureAccountant;
+			set => SetField(ref _signatureAccountant, value);
 		}
 
 		public override string ToString() => $"Версия организации №{Id}";
