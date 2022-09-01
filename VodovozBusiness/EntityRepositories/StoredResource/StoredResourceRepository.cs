@@ -10,7 +10,7 @@ namespace Vodovoz.EntityRepositories.StoredResourceRepository
 {
 	public class StoredResourceRepository : IStoredResourceRepository
 	{
-		public IList<StoredResource> GetAllSignature()
+		public IList<StoredResource> GetAllSignatures()
 		{
 			IList<StoredResource> result;
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение подписей"))

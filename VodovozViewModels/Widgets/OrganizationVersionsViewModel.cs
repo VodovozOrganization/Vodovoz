@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		private DelegateCommand _editVersionCommand;
 		private DelegateCommand _addNewVersioCommand;
 		private DelegateCommand _changeVersionStartDateCommand;
-		private IList<StoredResource> _allSignature;
+		private IList<StoredResource> _allSignatures;
 
 		public OrganizationVersionsViewModel(
 			Organization entity,
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
 
 			var _storedResourceRepository = storedResourceRepository ?? throw new ArgumentNullException(nameof(storedResourceRepository));
-			_allSignature = _storedResourceRepository.GetAllSignature();
+			_allSignatures = _storedResourceRepository.GetAllSignatures();
 		}
 
 		public IEntityAutocompleteSelectorFactory LeaderSelectorFactory { get; }
@@ -75,10 +75,10 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			get => _accountant;
 			set => SetField(ref _accountant, value);
 		}
-		public IList<StoredResource> AllSignature
+		public IList<StoredResource> AllSignatures
 		{
-			get => _allSignature;
-			private set => SetField(ref _allSignature, value);
+			get => _allSignatures;
+			private set => SetField(ref _allSignatures, value);
 		}
 
 		public string Address

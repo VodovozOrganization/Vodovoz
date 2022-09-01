@@ -9,6 +9,6 @@ namespace Vodovoz.EntityRepositories.StoredResourceRepository
 {
 	public interface IStoredResourceRepository
 	{
-		IList<StoredResource> GetAllSignature();
+		IList<StoredResource> GetAllSignatures();
 	}
 }

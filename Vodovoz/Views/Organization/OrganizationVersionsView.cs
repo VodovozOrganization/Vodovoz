@@ -53,7 +53,7 @@ namespace Vodovoz.Views.Organization
 			evmeAccountant.SetEntityAutocompleteSelectorFactory(ViewModel.AccountantSelectorFactory);
 			evmeAccountant.Binding.AddBinding(ViewModel, vm => vm.Accountant, w => w.Subject).InitializeFromSource();
 
-			yCmbCurrentSignature.ItemsList = ViewModel.AllSignature;
+			yCmbCurrentSignature.ItemsList = ViewModel.AllSignatures;
 			yCmbCurrentSignature.Binding.AddBinding(ViewModel, s => s.Signature, w => w.SelectedItem).InitializeFromSource();
 			yCmbCurrentSignature.SetSizeRequest(250, 30);
 
