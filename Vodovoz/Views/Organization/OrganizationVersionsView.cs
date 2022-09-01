@@ -53,9 +53,13 @@ namespace Vodovoz.Views.Organization
 			evmeAccountant.SetEntityAutocompleteSelectorFactory(ViewModel.AccountantSelectorFactory);
 			evmeAccountant.Binding.AddBinding(ViewModel, vm => vm.Accountant, w => w.Subject).InitializeFromSource();
 
-			yCmbCurrentSignature.ItemsList = ViewModel.AllSignatures;
-			yCmbCurrentSignature.Binding.AddBinding(ViewModel, s => s.SignatureAccountant, w => w.SelectedItem).InitializeFromSource();
-			yCmbCurrentSignature.SetSizeRequest(250, 30);
+			yCmbCurrentSignatureLeader.ItemsList = ViewModel.AllSignatures;
+			yCmbCurrentSignatureLeader.Binding.AddBinding(ViewModel, s => s.SignatureLeader, w => w.SelectedItem).InitializeFromSource();
+			yCmbCurrentSignatureLeader.SetSizeRequest(250, 30);
+
+			yCmbCurrentSignatureAccountant.ItemsList = ViewModel.AllSignatures;
+			yCmbCurrentSignatureAccountant.Binding.AddBinding(ViewModel, s => s.SignatureAccountant, w => w.SelectedItem).InitializeFromSource();
+			yCmbCurrentSignatureAccountant.SetSizeRequest(250, 30);
 
 			datatextviewAddress.Binding.AddBinding(ViewModel, vm => vm.Address, w => w.Buffer.Text).InitializeFromSource();
 			datatextviewJurAddress.Binding.AddBinding(ViewModel, vm => vm.JurAddress, w => w.Buffer.Text).InitializeFromSource();
