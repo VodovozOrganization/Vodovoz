@@ -79,6 +79,29 @@ namespace Vodovoz.Controllers
 			_fuelType.ObservableFuelPriceVersions.Insert(0, newCarFuelVersion);
 		}
 
+		public bool IsValidDateForVersionStartDateChange(FuelPriceVersion version, DateTime newStartDate)
+		{
+			if(version == null)
+			{
+				throw new ArgumentNullException(nameof(version));
+			}
+			if(version.StartDate == newStartDate)
+			{
+				return false;
+			}
+			if(newStartDate >= version.EndDate)
+			{
+				return false;
+			}
+			var previousVersion = GetPreviousVersionOrNull(version);
+			return previousVersion == null || newStartDate > previousVersion.StartDate;
+		}
+
+		public bool IsValidDateForNewCarVersion(DateTime dateTime)
+		{
+			return _fuelType.FuelPriceVersions.All(x => x.StartDate < dateTime);
+		}
+
 		private FuelPriceVersion GetPreviousVersionOrNull(FuelPriceVersion currentVersion)
 		{
 			return _fuelType.FuelPriceVersions

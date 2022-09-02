@@ -70,10 +70,14 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		public virtual bool CanCreateFuel { get; }
 		public virtual bool CanEditFuel { get; }
 
-		public bool CanAddNewFuelVersion =>
-			CanCreateFuel;
+		public bool CanAddNewFuelVersion => CanCreateFuel
+			&& SelectedDate.HasValue
+			&& _fuelVersionsController.IsValidDateForNewCarVersion(SelectedDate.Value);
 
-		public bool CanChangeFuelVersionDate => CanEditFuel;
+		public bool CanChangeFuelVersionDate => CanEditFuel
+			&& SelectedDate.HasValue
+			&& SelectedFuelPriceVersions != null
+			&& _fuelVersionsController.IsValidDateForVersionStartDateChange(SelectedFuelPriceVersions, SelectedDate.Value);
 
 		public void AddNewCarFuelVersion()
 		{

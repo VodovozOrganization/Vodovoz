@@ -296,8 +296,7 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.FixedShippingPrice, w => w.ValueAsDecimal)
 				.AddBinding(Entity, e => e.HasFixedShippingPrice, w => w.Sensitive).InitializeFromSource();
 			checkIsFixPrice.Binding.AddBinding(Entity, e => e.HasFixedShippingPrice, w => w.Active).InitializeFromSource();
-
-			checkIsFixPrice.Sensitive = CanEditFixedPrice;
+			bool canEdit = permissionResult.CanUpdate;
 
 			_oldDriver = Entity.Driver;
 			UpdateDlg(_isLogistican);
@@ -410,6 +409,8 @@ namespace Vodovoz
 			createroutelistitemsview1.IsEditable(isEditable, canOpenOrder);
 			ybuttonAddAdditionalLoad.Sensitive = isEditable && Entity.Car != null;
 			ybuttonRemoveAdditionalLoad.Sensitive = isEditable;
+			fixPriceSpin.Sensitive = isEditable && Entity.HasFixedShippingPrice;
+			checkIsFixPrice.Sensitive = isEditable && CanEditFixedPrice;
 			_additionalLoadingItemsView.ViewModel.CanEdit = isEditable;
 		}
 

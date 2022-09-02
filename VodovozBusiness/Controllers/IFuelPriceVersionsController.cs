@@ -10,6 +10,8 @@ namespace Vodovoz.Controllers
 	public interface IFuelPriceVersionsController
 	{
 		void CreateAndAddVersion(decimal fuelPrice, DateTime? startDate = null);
-		void ChangeVersionStartDate(FuelPriceVersion version, DateTime newStartDate);
+		void ChangeVersionStartDate(FuelPriceVersion version, DateTime newStartDate); 
+		bool IsValidDateForNewCarVersion(DateTime dateTime);
+		bool IsValidDateForVersionStartDateChange(FuelPriceVersion version, DateTime newStartDate);
 	}
 }
