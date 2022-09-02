@@ -9,6 +9,9 @@ namespace Vodovoz.HibernateMapping
 		{
 			Table ("store_self_delivery_document");
 
+			OptimisticLock.Version();
+			Version(x => x.Version).Column("version");
+
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.TimeStamp).Column ("time_stamp");
 			Map(x => x.LastEditedTime).Column("last_edit_time");

@@ -9,7 +9,10 @@ namespace Vodovoz.HibernateMapping
 		{
 			Table ("store_incoming_invoice");
 
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+			OptimisticLock.Version();
+			Version(x => x.Version).Column("version");
+
+			Id(x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.TimeStamp).Column ("time_stamp");
 			Map (x => x.InvoiceNumber).Column ("invoice_number");
 			Map (x => x.WaybillNumber).Column ("waybill_number");

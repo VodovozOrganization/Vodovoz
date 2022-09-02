@@ -29,12 +29,6 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref documentType, value);
 		}
 
-		private DateTime version;
-		public virtual DateTime Version {
-			get => version;
-			set => SetField(ref version, value);
-		}
-
 		private DateTime timeStamp;
 		public override DateTime TimeStamp {
 			get => timeStamp;
