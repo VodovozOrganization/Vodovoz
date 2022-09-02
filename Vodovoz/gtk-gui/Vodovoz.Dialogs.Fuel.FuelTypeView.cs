@@ -38,6 +38,8 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelVersions;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -105,6 +107,7 @@ namespace Vodovoz.Dialogs.Fuel
 			this.vbox3.Spacing = 6;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow2.HeightRequest = 150;
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
@@ -115,6 +118,8 @@ namespace Vodovoz.Dialogs.Fuel
 			this.vbox3.Add(this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow2]));
 			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";
@@ -201,6 +206,7 @@ namespace Vodovoz.Dialogs.Fuel
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableContent.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -212,9 +218,23 @@ namespace Vodovoz.Dialogs.Fuel
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableContent.Gtk.Table+TableChild
+			this.ylabelVersions = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelVersions.Name = "ylabelVersions";
+			this.ylabelVersions.Xalign = 1F;
+			this.ylabelVersions.Yalign = 0F;
+			this.ylabelVersions.LabelProp = global::Mono.Unix.Catalog.GetString("Версии:");
+			this.tableContent.Add(this.ylabelVersions);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableContent[this.ylabelVersions]));
+			w18.TopAttach = ((uint)(1));
+			w18.BottomAttach = ((uint)(2));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxDialog.Add(this.tableContent);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.tableContent]));
-			w18.Position = 1;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.tableContent]));
+			w19.Position = 1;
+			w19.Expand = false;
+			w19.Fill = false;
 			this.Add(this.vboxDialog);
 			if ((this.Child != null))
 			{

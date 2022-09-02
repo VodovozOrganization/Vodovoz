@@ -313,10 +313,10 @@ namespace Vodovoz
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child hboxCash2.Gtk.Box+BoxChild
-			this.fixPriceSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.fixPriceSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
 			this.fixPriceSpin.CanFocus = true;
 			this.fixPriceSpin.Name = "fixPriceSpin";
-			this.fixPriceSpin.Adjustment.PageIncrement = 10D;
+			this.fixPriceSpin.Adjustment.PageIncrement = 1D;
 			this.fixPriceSpin.ClimbRate = 1D;
 			this.fixPriceSpin.Numeric = true;
 			this.fixPriceSpin.ValueAsDecimal = 0m;
