@@ -172,6 +172,8 @@ using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.ViewModels.Profitability;
+using Vodovoz.Views.Profitability;
 
 namespace Vodovoz
 {
@@ -298,6 +300,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
 				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
+				.RegisterWidgetForTabViewModel<ProfitabilityConstantsViewModel, ProfitabilityConstantsView>()
 				;
 
             //Регистрация виджетов

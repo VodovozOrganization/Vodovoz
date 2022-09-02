@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using System;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Widgets;
 using Gamma.ColumnConfig;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -14,11 +15,28 @@ namespace Vodovoz.ViewWidgets.Profitability
 			Build();
 			Configure();
 		}
+		
+		public void UpdateViewModel(SelectableParametersFilterViewModel viewModel)
+		{
+			ViewModel.Parameters.ListContentChanged -= OnParametersListContentChanged;
+			ViewModel = viewModel;
+			SetTitle();
+			chkSelectAll.Active = ViewModel.IsSelectAll;
+			treeViewSelectableParameters.YTreeModel = null;
+			treeViewSelectableParameters.ItemsDataSource = null;
+			SetParametersItemsSource();
+		}
 
 		private void Configure()
 		{
+			SetTitle();
 			chkSelectAll.Toggled += (sender, e) => ViewModel.SelectUnselectAllCommand.Execute(chkSelectAll.Active);
 			ConfigureTreeView();
+		}
+
+		private void SetTitle()
+		{
+			lblTitle.LabelProp = ViewModel.Title;
 		}
 
 		private void ConfigureTreeView()
@@ -32,7 +50,11 @@ namespace Vodovoz.ViewWidgets.Profitability
 				.Finish();
 
 			treeViewSelectableParameters.HeadersVisible = false;
+			SetParametersItemsSource();
+		}
 
+		private void SetParametersItemsSource()
+		{
 			if(ViewModel.IsRecursiveParameters)
 			{
 				treeViewSelectableParameters.YTreeModel =
@@ -42,6 +64,13 @@ namespace Vodovoz.ViewWidgets.Profitability
 			{
 				treeViewSelectableParameters.ItemsDataSource = ViewModel.Parameters;
 			}
+			
+			ViewModel.Parameters.ListContentChanged += OnParametersListContentChanged;
+		}
+
+		private void OnParametersListContentChanged(object sender, EventArgs e)
+		{
+			treeViewSelectableParameters.QueueDraw();
 		}
 	}
 }

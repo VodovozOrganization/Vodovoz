@@ -1,57 +1,63 @@
-﻿using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using NHibernate;
-using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.Domain.Goods;
-using Vodovoz.ViewWidgets.Profitability;
-using Vodovoz.ViewModels.Widgets;
+﻿using System.ComponentModel;
 using Gtk;
-using Vodovoz.ViewModels.Widgets.Profitability;
-using System;
+using QS.Views;
+using Vodovoz.ViewModels.ViewModels.Profitability;
+using Vodovoz.ViewWidgets.Profitability;
 
 namespace Vodovoz.Views.Profitability
 {
-	public partial class ProfitabilityConstantsView : TdiTabBase
+	public partial class ProfitabilityConstantsView : ViewBase<ProfitabilityConstantsViewModel>
 	{
-		IUnitOfWork _uow;
-		public ProfitabilityConstantsView()
+		private ProfitabilityConstantsDataView _profitabilityConstantsDataView;
+		public ProfitabilityConstantsView(ProfitabilityConstantsViewModel viewModel) : base(viewModel)
 		{
 			Build();
-			_uow = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
 
 		private void Configure()
 		{
-			ConfigureChkButtons();
-			var monthPicker = new MonthPickerView(new MonthPickerViewModel(DateTime.Today));
+			btnRecalculateAndSave.Clicked += (sender, args) => ViewModel.RecalculateAndSaveCommand.Execute();
+			
+			var monthPicker = new MonthPickerView(ViewModel.MonthPickerViewModel);
 			monthPicker.Show();
 			hboxMonth.Add(monthPicker);
+			
+			lblCalculationSaved.Binding
+				.AddBinding(ViewModel, vm => vm.IsCalculationDateAndAuthorActive, w => w.Visible)
+				.InitializeFromSource();
+			lblCalculationSaveTimeAndAuthor.Binding
+				.AddBinding(ViewModel.Entity, e => e.CalculationDateAndAuthor, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.IsCalculationDateAndAuthorActive, w => w.Visible)
+				.InitializeFromSource();
+			
+			CreateAndShowConstantsDataView();
 
-			_uow.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
-
-			var hboxProfitabilityFilters = new HBox();
-			var adminExpensesProductGroupsFilter =
-				new SelectableParametersFilterView(new SelectableParametersFilterViewModel(
-					new RecursiveParametersFactory<ProductGroup>(_uow,
-					(filters) =>
-					{
-						var query = _uow.Session.QueryOver<ProductGroup>();
-						return query.List();
-					},
-					x => x.Name,
-					x => x.Childs)));
-
-			adminExpensesProductGroupsFilter.Show();
-			hboxProfitabilityFilters.Add(adminExpensesProductGroupsFilter);
-			panelFilters.Panel = hboxProfitabilityFilters;
-			panelFilters.IsHided = true;
-			panelFilters.WidthRequest = 350;
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
-		private void ConfigureChkButtons()
+		private void CreateAndShowConstantsDataView()
 		{
+			_profitabilityConstantsDataView = new ProfitabilityConstantsDataView(ViewModel.ConstantsDataViewModel);
+			_profitabilityConstantsDataView.Show();
+			vboxMain.Add(_profitabilityConstantsDataView);
+			Box.BoxChild profitabilityConstantsDataBox = (Box.BoxChild)vboxMain[_profitabilityConstantsDataView];
+			profitabilityConstantsDataBox.Position = 1;
+		}
 
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.ConstantsDataViewModel))
+			{
+				_profitabilityConstantsDataView.Destroy();
+				CreateAndShowConstantsDataView();
+			}
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.Destroy();
 		}
 	}
 }

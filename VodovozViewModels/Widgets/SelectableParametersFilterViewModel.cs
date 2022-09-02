@@ -7,13 +7,14 @@ using NHibernate.Criterion;
 using QS.Commands;
 using System.Linq;
 using QS.DomainModel.Entity;
+
 namespace Vodovoz.ViewModels.Widgets
 {
 	public class SelectableParametersFilterViewModel : WidgetViewModelBase
 	{
 		private DelegateCommand<bool> _selectUnselectAllCommand;
 
-		public SelectableParametersFilterViewModel(IParametersFactory parametersFactory)
+		public SelectableParametersFilterViewModel(IParametersFactory parametersFactory, string title)
 		{
 			if(parametersFactory == null)
 			{
@@ -21,17 +22,21 @@ namespace Vodovoz.ViewModels.Widgets
 			}
 
 			Parameters = new GenericObservableList<SelectableParameter>(
-				parametersFactory.GetParameters(new Func<ICriterion>[] { () => { return null; } }));
+				parametersFactory.GetParameters(new Func<ICriterion>[] { () => null }));
 			IsRecursiveParameters = parametersFactory.IsRecursiveFactory;
 
 			if(IsRecursiveParameters)
 			{
 				HighParents = Parameters.Where(x => x.Parent == null).ToList();
 			}
+
+			Title = title;
 		}
 
-		public IList<SelectableParameter> Parameters { get; }
+		public string Title { get; }
+		public GenericObservableList<SelectableParameter> Parameters { get; }
 		public bool IsRecursiveParameters { get; }
+		public bool IsSelectAll { get; set; }
 		public IList<SelectableParameter> HighParents { get; }
 
 		public DelegateCommand<bool> SelectUnselectAllCommand => 
@@ -46,6 +51,8 @@ namespace Vodovoz.ViewModels.Widgets
 					{
 						SelectUnselectAll(Parameters, isSelectAll);
 					}
+
+					IsSelectAll = isSelectAll;
 				}));
 
 		private void SelectUnselectAll(IList<SelectableParameter> parameters, bool isSelectedAll)
@@ -56,13 +63,16 @@ namespace Vodovoz.ViewModels.Widgets
 			}
 		}
 
-		public void SelectParameters(IList<IDomainObject> parameters)
+		public void SelectParameters<TEntity>(IList<TEntity> parameters)
+			where TEntity: class, IDomainObject
 		{
-			for(int i = 0; i < Parameters.Count; i++)
+			for(int i = 0; i < parameters.Count; i++)
 			{
-				if(Parameters[i] is IDomainObject parameter && parameters.Contains(parameter))
+				var needSelectParameter = Parameters.SingleOrDefault(x => (int)x.Value == parameters[i].Id);
+
+				if(needSelectParameter != null)
 				{
-					Parameters[i].Selected = true;
+					needSelectParameter.Selected = true;
 				}
 			}
 		}

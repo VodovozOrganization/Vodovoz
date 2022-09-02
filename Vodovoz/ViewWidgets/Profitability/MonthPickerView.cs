@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Widgets.Profitability;
 

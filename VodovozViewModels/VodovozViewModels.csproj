@@ -51,8 +51,14 @@
     <Compile Include="Dialogs\Goods\NomenclatureViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsEntityViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsStreetViewModel.cs" />
+    <Compile Include="Factories\IMonthPickerViewModelFactory.cs" />
+    <Compile Include="Factories\IProfitabilityConstantsDataViewModelFactory.cs" />
+    <Compile Include="Factories\ISelectableParametersFilterViewModelFactory.cs" />
+    <Compile Include="Factories\MonthPickerViewModelFactory.cs" />
     <Compile Include="Factories\OrganizationVersionsViewModelFactory.cs" />
     <Compile Include="Factories\IOrganizationVersionsViewModelFactory.cs" />
+    <Compile Include="Factories\ProfitabilityConstantsDataViewModelFactory.cs" />
+    <Compile Include="Factories\ProfitabilityConstantsViewModelFactory.cs" />
     <Compile Include="Factories\RoboatsViewModelFactory.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsWaterTypeViewModel.cs" />
     <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
@@ -61,6 +67,7 @@
     <Compile Include="Factories\IAttachmentsViewModelFactory.cs" />
     <Compile Include="Factories\ICarVersionsViewModelFactory.cs" />
     <Compile Include="Factories\IDeliveryPointViewModelFactory.cs" />
+    <Compile Include="Factories\SelectableParametersFilterViewModelFactory.cs" />
     <Compile Include="Infrastructure\IAdditionalJournalRestriction.cs" />
     <Compile Include="Infrastructure\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="Factories\IAuthorizationServiceFactory.cs" />
@@ -341,6 +348,8 @@
     <Compile Include="ViewModels\Payments\ManualPaymentMatchingViewModel.cs" />
     <Compile Include="ViewModels\Payments\PaymentLoaderViewModel.cs" />
     <Compile Include="ViewModels\Payments\TransferDocumentsFromBankParser.cs" />
+    <Compile Include="ViewModels\Profitability\ProfitabilityConstantsDataViewModel.cs" />
+    <Compile Include="ViewModels\Profitability\ProfitabilityConstantsViewModel.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReport.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />

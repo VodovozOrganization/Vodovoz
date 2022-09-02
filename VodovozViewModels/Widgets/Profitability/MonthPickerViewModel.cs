@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using QS.ViewModels;
 using QS.Commands;
 
@@ -10,13 +10,13 @@ namespace Vodovoz.ViewModels.Widgets.Profitability
 		private DelegateCommand _previousMonthCommand;
 		private DateTime _selectedMonth;
 
-		private readonly Func<bool> _canSelectNextMonthFunc;
-		private readonly Func<bool> _canSelectPreviousMonthFunc;
+		private readonly Func<DateTime, bool> _canSelectNextMonthFunc;
+		private readonly Func<DateTime, bool> _canSelectPreviousMonthFunc;
 
 		public MonthPickerViewModel(
 			DateTime selectedMonth,
-			Func<bool> canSelectNextMonthFunc = null,
-			Func<bool> canSelectPreviousMonthFunc = null)
+			Func<DateTime, bool> canSelectNextMonthFunc = null,
+			Func<DateTime, bool> canSelectPreviousMonthFunc = null)
 		{
 			SetSelectedMonth(selectedMonth);
 			_canSelectNextMonthFunc = canSelectNextMonthFunc;
@@ -31,10 +31,15 @@ namespace Vodovoz.ViewModels.Widgets.Profitability
 				if(SetField(ref _selectedMonth, value))
 				{
 					OnPropertyChanged(nameof(SelectedMonthTitle));
-					OnPropertyChanged(nameof(CanSelectNextMonth));
-					OnPropertyChanged(nameof(CanSelectPreviousMonth));
+					UpdateState();
 				}
 			}
+		}
+
+		public void UpdateState()
+		{
+			OnPropertyChanged(nameof(CanSelectNextMonth));
+			OnPropertyChanged(nameof(CanSelectPreviousMonth));
 		}
 
 		public string SelectedMonthTitle => SelectedMonth.ToString("Y");
@@ -45,7 +50,7 @@ namespace Vodovoz.ViewModels.Widgets.Profitability
 			{
 				if(_canSelectNextMonthFunc != null)
 				{
-					return _canSelectNextMonthFunc.Invoke();
+					return _canSelectNextMonthFunc.Invoke(SelectedMonth);
 				}
 				return true;
 			}
@@ -57,7 +62,7 @@ namespace Vodovoz.ViewModels.Widgets.Profitability
 			{
 				if(_canSelectPreviousMonthFunc != null)
 				{
-					return _canSelectPreviousMonthFunc.Invoke();
+					return _canSelectPreviousMonthFunc.Invoke(SelectedMonth);
 				}
 				return true;
 			}

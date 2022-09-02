@@ -156,6 +156,11 @@ using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.EntityRepositories.Profitability;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ViewModels.Profitability;
+using Vodovoz.ViewModels.Widgets.Profitability;
 using Vodovoz.Views.Profitability;
 
 public partial class MainWindow : Gtk.Window
@@ -346,6 +351,9 @@ public partial class MainWindow : Gtk.Window
 		ActionAdditionalLoadSettings.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 
+		//Доступ к константам рентабельности (Справочники - Финансы - Константы рентабельности)
+		ProfitabilityConstantsAction.Sensitive =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
 	}
 
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
@@ -2576,21 +2584,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
-		var entityChangeWatcher = autofacScope.Resolve<IEntityChangeWatcher>();
-		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = autofacScope.Resolve<IInteractiveService>();
-		var carSelectorFactory = new CarJournalFactory(NavigationManager);
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		var viewModel = new CostCarExploitationReportViewModel(
-			uowFactory,
-			interactiveService,
-			NavigationManager,
-			carSelectorFactory,
-			entityChangeWatcher,
-			fileDialogService);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<CostCarExploitationReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
@@ -2634,6 +2628,18 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnProfitabilityConstantsActionActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(new ProfitabilityConstantsView());
+		var viewModelFactory = new ProfitabilityConstantsViewModelFactory(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			NavigationManager,
+			new ProfitabilityConstantsRepository(),
+			VodovozGtkServicesConfig.EmployeeService,
+			new WarehouseRepository(),
+			new CarRepository(),
+			new MonthPickerViewModelFactory(),
+			new ProfitabilityConstantsDataViewModelFactory(new SelectableParametersFilterViewModelFactory()),
+			ServicesConfig.ValidationService);
+		
+		tdiMain.AddTab(viewModelFactory.CreateProfitabilityConstantsViewModel());
 	}
 }
