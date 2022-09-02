@@ -122,14 +122,6 @@ namespace Vodovoz.Views.Profitability
 
 		private global::Gtk.HSeparator hseparator4;
 
-		private global::Gamma.GtkWidgets.yHBox hboxFooter;
-
-		private global::Gamma.GtkWidgets.yButton btnRecalculateAndSave;
-
-		private global::Gamma.GtkWidgets.yLabel lblCalculationSaveTimeAndAuthor;
-
-		private global::Gamma.GtkWidgets.yLabel lblCalculationSaved;
-
 		private global::Gtk.HBox hboxFilters;
 
 		private global::Gamma.Widgets.SidePanels.RightSidePanel panelFilters;
@@ -908,51 +900,11 @@ namespace Vodovoz.Views.Profitability
 			w57.Position = 5;
 			w57.Expand = false;
 			w57.Fill = false;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.hboxFooter = new global::Gamma.GtkWidgets.yHBox();
-			this.hboxFooter.Name = "hboxFooter";
-			this.hboxFooter.Spacing = 6;
-			// Container child hboxFooter.Gtk.Box+BoxChild
-			this.btnRecalculateAndSave = new global::Gamma.GtkWidgets.yButton();
-			this.btnRecalculateAndSave.CanFocus = true;
-			this.btnRecalculateAndSave.Name = "btnRecalculateAndSave";
-			this.btnRecalculateAndSave.UseUnderline = true;
-			this.btnRecalculateAndSave.Label = global::Mono.Unix.Catalog.GetString("Пересчитать и сохранить");
-			this.hboxFooter.Add(this.btnRecalculateAndSave);
-			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.hboxFooter[this.btnRecalculateAndSave]));
-			w58.Position = 0;
-			w58.Expand = false;
-			w58.Fill = false;
-			// Container child hboxFooter.Gtk.Box+BoxChild
-			this.lblCalculationSaveTimeAndAuthor = new global::Gamma.GtkWidgets.yLabel();
-			this.lblCalculationSaveTimeAndAuthor.Name = "lblCalculationSaveTimeAndAuthor";
-			this.lblCalculationSaveTimeAndAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("Дата и автор расчета");
-			this.hboxFooter.Add(this.lblCalculationSaveTimeAndAuthor);
-			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.hboxFooter[this.lblCalculationSaveTimeAndAuthor]));
-			w59.PackType = ((global::Gtk.PackType)(1));
-			w59.Position = 2;
-			w59.Expand = false;
-			w59.Fill = false;
-			// Container child hboxFooter.Gtk.Box+BoxChild
-			this.lblCalculationSaved = new global::Gamma.GtkWidgets.yLabel();
-			this.lblCalculationSaved.Name = "lblCalculationSaved";
-			this.lblCalculationSaved.LabelProp = global::Mono.Unix.Catalog.GetString("Расчет сохранен:");
-			this.hboxFooter.Add(this.lblCalculationSaved);
-			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.hboxFooter[this.lblCalculationSaved]));
-			w60.PackType = ((global::Gtk.PackType)(1));
-			w60.Position = 3;
-			w60.Expand = false;
-			w60.Fill = false;
-			this.vboxMain.Add(this.hboxFooter);
-			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxFooter]));
-			w61.Position = 6;
-			w61.Expand = false;
-			w61.Fill = false;
 			w1.Add(this.vboxMain);
 			this.scrolledwindow1.Add(w1);
 			this.hboxMain.Add(this.scrolledwindow1);
-			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.scrolledwindow1]));
-			w64.Position = 0;
+			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.scrolledwindow1]));
+			w60.Position = 0;
 			// Container child hboxMain.Gtk.Box+BoxChild
 			this.hboxFilters = new global::Gtk.HBox();
 			this.hboxFilters.Name = "hboxFilters";
@@ -963,13 +915,13 @@ namespace Vodovoz.Views.Profitability
 			this.panelFilters.Name = "panelFilters";
 			this.panelFilters.IsHided = false;
 			this.hboxFilters.Add(this.panelFilters);
-			global::Gtk.Box.BoxChild w65 = ((global::Gtk.Box.BoxChild)(this.hboxFilters[this.panelFilters]));
-			w65.Position = 0;
+			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.hboxFilters[this.panelFilters]));
+			w61.Position = 0;
 			this.hboxMain.Add(this.hboxFilters);
-			global::Gtk.Box.BoxChild w66 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.hboxFilters]));
-			w66.Position = 1;
-			w66.Expand = false;
-			w66.Fill = false;
+			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.hboxFilters]));
+			w62.Position = 1;
+			w62.Expand = false;
+			w62.Fill = false;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{

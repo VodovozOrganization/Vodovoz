@@ -10,6 +10,14 @@ namespace Vodovoz.Views.Profitability
 
 		private global::Gamma.GtkWidgets.yLabel lblMonth;
 
+		private global::Gamma.GtkWidgets.yHBox hboxFooter;
+
+		private global::Gamma.GtkWidgets.yButton btnRecalculateAndSave;
+
+		private global::Gamma.GtkWidgets.yLabel lblCalculationSaveTimeAndAuthor;
+
+		private global::Gamma.GtkWidgets.yLabel lblCalculationSaved;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -39,6 +47,46 @@ namespace Vodovoz.Views.Profitability
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.hboxFooter = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxFooter.Name = "hboxFooter";
+			this.hboxFooter.Spacing = 6;
+			// Container child hboxFooter.Gtk.Box+BoxChild
+			this.btnRecalculateAndSave = new global::Gamma.GtkWidgets.yButton();
+			this.btnRecalculateAndSave.CanFocus = true;
+			this.btnRecalculateAndSave.Name = "btnRecalculateAndSave";
+			this.btnRecalculateAndSave.UseUnderline = true;
+			this.btnRecalculateAndSave.Label = global::Mono.Unix.Catalog.GetString("Пересчитать и сохранить");
+			this.hboxFooter.Add(this.btnRecalculateAndSave);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxFooter[this.btnRecalculateAndSave]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child hboxFooter.Gtk.Box+BoxChild
+			this.lblCalculationSaveTimeAndAuthor = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCalculationSaveTimeAndAuthor.Name = "lblCalculationSaveTimeAndAuthor";
+			this.lblCalculationSaveTimeAndAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("Дата и автор расчета");
+			this.hboxFooter.Add(this.lblCalculationSaveTimeAndAuthor);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxFooter[this.lblCalculationSaveTimeAndAuthor]));
+			w4.PackType = ((global::Gtk.PackType)(1));
+			w4.Position = 2;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child hboxFooter.Gtk.Box+BoxChild
+			this.lblCalculationSaved = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCalculationSaved.Name = "lblCalculationSaved";
+			this.lblCalculationSaved.LabelProp = global::Mono.Unix.Catalog.GetString("Расчет сохранен:");
+			this.hboxFooter.Add(this.lblCalculationSaved);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxFooter[this.lblCalculationSaved]));
+			w5.PackType = ((global::Gtk.PackType)(1));
+			w5.Position = 3;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.vboxMain.Add(this.hboxFooter);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxFooter]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
