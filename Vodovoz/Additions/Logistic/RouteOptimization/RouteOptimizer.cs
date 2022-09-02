@@ -444,7 +444,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 			Nodes = calculatedOrders.ToArray();
 
-			var geoGroupVersions = _geographicGroupRepository.GetGeographicGroupVersionsOnDate(UoW, route.Date);
+			var geoGroupVersions = _geographicGroupRepository.GetGeographicGroupVersionsOnDate(route.UoW, route.Date);
 			distanceCalculator = new ExtDistanceCalculator(Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), geoGroupVersions, StatisticsTxtAction);
 
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");

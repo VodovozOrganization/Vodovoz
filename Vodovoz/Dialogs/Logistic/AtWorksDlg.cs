@@ -115,7 +115,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("График работы")
 					.AddComboRenderer(x => x.DaySchedule)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(UoW.GetAll<DeliveryDaySchedule>().ToList())
+					.FillItems(GetDeliveryDaySchedules())
 					.Editing()
 				.AddColumn("Оконч. работы")
 					.AddTextRenderer(x => x.EndOfDayText).Editable()
@@ -176,6 +176,12 @@ namespace Vodovoz.Dialogs.Logistic
 
 			hideForwaders.Label = "Экспедиторы на работе";
 			hideForwaders.Toggled += OnHideForwadersToggled;
+		}
+
+		private List<DeliveryDaySchedule> GetDeliveryDaySchedules()
+		{
+			var deliveryDaySchedules = UoW.GetAll<DeliveryDaySchedule>().ToList();
+			return deliveryDaySchedules;
 		}
 
 
@@ -322,6 +328,7 @@ namespace Vodovoz.Dialogs.Logistic
 				DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
 				observableDriversAtDay.Clear();
 				SetButtonClearDriverScreenSensitive();
+				SetButtonCreateEmptyRouteListsSensitive();
 			}
 		}
 		
@@ -545,6 +552,7 @@ namespace Vodovoz.Dialogs.Logistic
 			FillDialogAtDay();
 			OnTabNameChanged();
 			SetButtonClearDriverScreenSensitive();
+			SetButtonCreateEmptyRouteListsSensitive();
 		}
 
 		void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
@@ -572,6 +580,7 @@ namespace Vodovoz.Dialogs.Logistic
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 			logger.Info("Ок");
 			SetButtonClearDriverScreenSensitive();
+			SetButtonCreateEmptyRouteListsSensitive();
 		}
 
 		protected void OnHideForwadersToggled(object o, Gtk.ToggledArgs args)
@@ -609,6 +618,10 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 		}
 
+		private void SetButtonCreateEmptyRouteListsSensitive()
+		{
+			ybuttonCreateRouteLists.Sensitive = driversAtDay.Any();
+		}
 
 		private void ChangeButtonAddRemove(bool needRemove)
 		{
@@ -698,7 +711,6 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			UoW.Commit();
-			FillDialogAtDay();
 			return true;
 		}
 		
@@ -709,8 +721,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void FillDialogAtDay()
 		{
-			UoW.Session.Clear();
-
 			logger.Info("Загружаем экспедиторов на {0:d}...", DialogAtDate);
 			ForwardersAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetForwardersAtDay(UoW, DialogAtDate);
 
@@ -721,6 +731,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			CheckAndCorrectDistrictPriorities();
 			SetButtonClearDriverScreenSensitive();
+			SetButtonCreateEmptyRouteListsSensitive();
 		}
 
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
