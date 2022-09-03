@@ -88,7 +88,7 @@ namespace Vodovoz.Dialogs.Fuel
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vboxDialog.Gtk.Box+BoxChild
-			this.tableContent = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
+			this.tableContent = new global::Gtk.Table(((uint)(2)), ((uint)(3)), false);
 			this.tableContent.Name = "tableContent";
 			this.tableContent.RowSpacing = ((uint)(6));
 			this.tableContent.ColumnSpacing = ((uint)(6));
@@ -217,6 +217,7 @@ namespace Vodovoz.Dialogs.Fuel
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableContent[this.yentryName]));
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableContent.Gtk.Table+TableChild
 			this.ylabelVersions = new global::Gamma.GtkWidgets.yLabel();
