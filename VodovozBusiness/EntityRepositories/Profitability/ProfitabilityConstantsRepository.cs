@@ -71,7 +71,7 @@ namespace Vodovoz.EntityRepositories.Profitability
 									Restrictions.Gt(Projections.Property<RouteList>(r => r.PlanedDistance), 0),
 									Projections.Property<RouteList>(r => r.PlanedDistance),
 									Projections.Constant(0m)))))).WithAlias(() => resultAlias.Distance)
-					.Select(Projections.Count(() => carAlias.Id).WithAlias(() => resultAlias.CountCars)))
+					.SelectCountDistinct(() => carAlias.Id).WithAlias(() => resultAlias.CountCars))
 				.TransformUsing(Transformers.AliasToBean<AverageMileageCarsByTypeOfUseNode>())
 				.List<AverageMileageCarsByTypeOfUseNode>();
 
