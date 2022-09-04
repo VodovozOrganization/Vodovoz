@@ -178,18 +178,18 @@ namespace Vodovoz.Views.Profitability
 			spinBtnGazellesRepairCost.IsEditable = false;
 			spinBtnGazellesRepairCost.ClimbRate = 0;
 			spinBtnGazellesRepairCost.Adjustment.StepIncrement = 0;
-			spinBtnLargusesRepairCost1.Binding
+			spinBtnLargusesRepairCost.Binding
 				.AddBinding(ViewModel.Entity, e => e.LargusRepairCost, w => w.ValueAsDecimal)
 				.InitializeFromSource();
-			spinBtnLargusesRepairCost1.IsEditable = false;
-			spinBtnLargusesRepairCost1.ClimbRate = 0;
-			spinBtnLargusesRepairCost1.Adjustment.StepIncrement = 0;
-			spinBtnTrucksRepairCost2.Binding
+			spinBtnLargusesRepairCost.IsEditable = false;
+			spinBtnLargusesRepairCost.ClimbRate = 0;
+			spinBtnLargusesRepairCost.Adjustment.StepIncrement = 0;
+			spinBtnTrucksRepairCost.Binding
 				.AddBinding(ViewModel.Entity, e => e.TruckRepairCost, w => w.ValueAsDecimal)
 				.InitializeFromSource();
-			spinBtnTrucksRepairCost2.IsEditable = false;
-			spinBtnTrucksRepairCost2.ClimbRate = 0;
-			spinBtnTrucksRepairCost2.Adjustment.StepIncrement = 0;
+			spinBtnTrucksRepairCost.IsEditable = false;
+			spinBtnTrucksRepairCost.ClimbRate = 0;
+			spinBtnTrucksRepairCost.Adjustment.StepIncrement = 0;
 			
 			chkCarEventsFilter.Binding
 				.AddSource(ViewModel)
@@ -198,6 +198,14 @@ namespace Vodovoz.Views.Profitability
 			chkCarEventsFilter.Pressed += OnAnyFilterPressed;
 
 			#endregion
+			
+			lblCalculationSaved.Binding
+				.AddBinding(ViewModel, vm => vm.IsCalculationDateAndAuthorActive, w => w.Visible)
+				.InitializeFromSource();
+			lblCalculationSaveTimeAndAuthor.Binding
+				.AddBinding(ViewModel.Entity, e => e.CalculationDateAndAuthor, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.IsCalculationDateAndAuthorActive, w => w.Visible)
+				.InitializeFromSource();
 
 			var hboxProfitabilityFilters = new HBox();
 			ViewModel.UpdateActiveFilterViewModel(ViewModel.AdministrativeExpensesProductGroupsFilterViewModel);

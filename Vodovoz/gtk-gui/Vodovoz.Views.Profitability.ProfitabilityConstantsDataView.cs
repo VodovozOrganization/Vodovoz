@@ -108,7 +108,7 @@ namespace Vodovoz.Views.Profitability
 
 		private global::Gamma.GtkWidgets.ySpinButton spinBtnGazellesRepairCost;
 
-		private global::Gamma.GtkWidgets.ySpinButton spinBtnLargusesRepairCost1;
+		private global::Gamma.GtkWidgets.ySpinButton spinBtnLargusesRepairCost;
 
 		private global::Gamma.GtkWidgets.ySpinButton spinBtnOperatingExpensesAllGazelles;
 
@@ -116,7 +116,7 @@ namespace Vodovoz.Views.Profitability
 
 		private global::Gamma.GtkWidgets.ySpinButton spinBtnOperatingExpensesAllTrucks;
 
-		private global::Gamma.GtkWidgets.ySpinButton spinBtnTrucksRepairCost2;
+		private global::Gamma.GtkWidgets.ySpinButton spinBtnTrucksRepairCost;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -245,7 +245,7 @@ namespace Vodovoz.Views.Profitability
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableAdministrativeExpenses.Gtk.Table+TableChild
-			this.spinBtnAdministrativeExpensesPerKg = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
+			this.spinBtnAdministrativeExpensesPerKg = new global::Gamma.GtkWidgets.ySpinButton(0D, 9999D, 1D);
 			this.spinBtnAdministrativeExpensesPerKg.CanFocus = true;
 			this.spinBtnAdministrativeExpensesPerKg.Name = "spinBtnAdministrativeExpensesPerKg";
 			this.spinBtnAdministrativeExpensesPerKg.Adjustment.PageIncrement = 10D;
@@ -293,7 +293,7 @@ namespace Vodovoz.Views.Profitability
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableAdministrativeExpenses.Gtk.Table+TableChild
-			this.spinBtnWarehouseExpensesPerKg = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
+			this.spinBtnWarehouseExpensesPerKg = new global::Gamma.GtkWidgets.ySpinButton(0D, 9999D, 1D);
 			this.spinBtnWarehouseExpensesPerKg.CanFocus = true;
 			this.spinBtnWarehouseExpensesPerKg.Name = "spinBtnWarehouseExpensesPerKg";
 			this.spinBtnWarehouseExpensesPerKg.Adjustment.PageIncrement = 10D;
@@ -565,7 +565,7 @@ namespace Vodovoz.Views.Profitability
 			w33.XOptions = ((global::Gtk.AttachOptions)(4));
 			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarsAmortisation.Gtk.Table+TableChild
-			this.spinBtnGazelleAmortisation = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
+			this.spinBtnGazelleAmortisation = new global::Gamma.GtkWidgets.ySpinButton(0D, 9999D, 1D);
 			this.spinBtnGazelleAmortisation.CanFocus = true;
 			this.spinBtnGazelleAmortisation.Name = "spinBtnGazelleAmortisation";
 			this.spinBtnGazelleAmortisation.Adjustment.PageIncrement = 10D;
@@ -600,7 +600,7 @@ namespace Vodovoz.Views.Profitability
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
 			w35.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarsAmortisation.Gtk.Table+TableChild
-			this.spinBtnLargusAmortisation = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
+			this.spinBtnLargusAmortisation = new global::Gamma.GtkWidgets.ySpinButton(0D, 9999D, 1D);
 			this.spinBtnLargusAmortisation.CanFocus = true;
 			this.spinBtnLargusAmortisation.Name = "spinBtnLargusAmortisation";
 			this.spinBtnLargusAmortisation.Adjustment.PageIncrement = 10D;
@@ -635,7 +635,7 @@ namespace Vodovoz.Views.Profitability
 			w37.XOptions = ((global::Gtk.AttachOptions)(4));
 			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarsAmortisation.Gtk.Table+TableChild
-			this.spinBtnTruckAmortisation = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
+			this.spinBtnTruckAmortisation = new global::Gamma.GtkWidgets.ySpinButton(0D, 9999D, 1D);
 			this.spinBtnTruckAmortisation.CanFocus = true;
 			this.spinBtnTruckAmortisation.Name = "spinBtnTruckAmortisation";
 			this.spinBtnTruckAmortisation.Adjustment.PageIncrement = 10D;
@@ -785,7 +785,7 @@ namespace Vodovoz.Views.Profitability
 			w48.XOptions = ((global::Gtk.AttachOptions)(4));
 			w48.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarsRepairCost.Gtk.Table+TableChild
-			this.spinBtnGazellesRepairCost = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
+			this.spinBtnGazellesRepairCost = new global::Gamma.GtkWidgets.ySpinButton(0D, 9999D, 1D);
 			this.spinBtnGazellesRepairCost.CanFocus = true;
 			this.spinBtnGazellesRepairCost.Name = "spinBtnGazellesRepairCost";
 			this.spinBtnGazellesRepairCost.Adjustment.PageIncrement = 10D;
@@ -803,17 +803,17 @@ namespace Vodovoz.Views.Profitability
 			w49.XOptions = ((global::Gtk.AttachOptions)(4));
 			w49.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarsRepairCost.Gtk.Table+TableChild
-			this.spinBtnLargusesRepairCost1 = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
-			this.spinBtnLargusesRepairCost1.CanFocus = true;
-			this.spinBtnLargusesRepairCost1.Name = "spinBtnLargusesRepairCost1";
-			this.spinBtnLargusesRepairCost1.Adjustment.PageIncrement = 10D;
-			this.spinBtnLargusesRepairCost1.ClimbRate = 1D;
-			this.spinBtnLargusesRepairCost1.Digits = ((uint)(2));
-			this.spinBtnLargusesRepairCost1.Numeric = true;
-			this.spinBtnLargusesRepairCost1.ValueAsDecimal = 0m;
-			this.spinBtnLargusesRepairCost1.ValueAsInt = 0;
-			this.tableCarsRepairCost.Add(this.spinBtnLargusesRepairCost1);
-			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.tableCarsRepairCost[this.spinBtnLargusesRepairCost1]));
+			this.spinBtnLargusesRepairCost = new global::Gamma.GtkWidgets.ySpinButton(0D, 9999D, 1D);
+			this.spinBtnLargusesRepairCost.CanFocus = true;
+			this.spinBtnLargusesRepairCost.Name = "spinBtnLargusesRepairCost";
+			this.spinBtnLargusesRepairCost.Adjustment.PageIncrement = 10D;
+			this.spinBtnLargusesRepairCost.ClimbRate = 1D;
+			this.spinBtnLargusesRepairCost.Digits = ((uint)(2));
+			this.spinBtnLargusesRepairCost.Numeric = true;
+			this.spinBtnLargusesRepairCost.ValueAsDecimal = 0m;
+			this.spinBtnLargusesRepairCost.ValueAsInt = 0;
+			this.tableCarsRepairCost.Add(this.spinBtnLargusesRepairCost);
+			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.tableCarsRepairCost[this.spinBtnLargusesRepairCost]));
 			w50.TopAttach = ((uint)(2));
 			w50.BottomAttach = ((uint)(3));
 			w50.LeftAttach = ((uint)(2));
@@ -866,17 +866,17 @@ namespace Vodovoz.Views.Profitability
 			w53.XOptions = ((global::Gtk.AttachOptions)(4));
 			w53.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarsRepairCost.Gtk.Table+TableChild
-			this.spinBtnTrucksRepairCost2 = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
-			this.spinBtnTrucksRepairCost2.CanFocus = true;
-			this.spinBtnTrucksRepairCost2.Name = "spinBtnTrucksRepairCost2";
-			this.spinBtnTrucksRepairCost2.Adjustment.PageIncrement = 10D;
-			this.spinBtnTrucksRepairCost2.ClimbRate = 1D;
-			this.spinBtnTrucksRepairCost2.Digits = ((uint)(2));
-			this.spinBtnTrucksRepairCost2.Numeric = true;
-			this.spinBtnTrucksRepairCost2.ValueAsDecimal = 0m;
-			this.spinBtnTrucksRepairCost2.ValueAsInt = 0;
-			this.tableCarsRepairCost.Add(this.spinBtnTrucksRepairCost2);
-			global::Gtk.Table.TableChild w54 = ((global::Gtk.Table.TableChild)(this.tableCarsRepairCost[this.spinBtnTrucksRepairCost2]));
+			this.spinBtnTrucksRepairCost = new global::Gamma.GtkWidgets.ySpinButton(0D, 9999D, 1D);
+			this.spinBtnTrucksRepairCost.CanFocus = true;
+			this.spinBtnTrucksRepairCost.Name = "spinBtnTrucksRepairCost";
+			this.spinBtnTrucksRepairCost.Adjustment.PageIncrement = 10D;
+			this.spinBtnTrucksRepairCost.ClimbRate = 1D;
+			this.spinBtnTrucksRepairCost.Digits = ((uint)(2));
+			this.spinBtnTrucksRepairCost.Numeric = true;
+			this.spinBtnTrucksRepairCost.ValueAsDecimal = 0m;
+			this.spinBtnTrucksRepairCost.ValueAsInt = 0;
+			this.tableCarsRepairCost.Add(this.spinBtnTrucksRepairCost);
+			global::Gtk.Table.TableChild w54 = ((global::Gtk.Table.TableChild)(this.tableCarsRepairCost[this.spinBtnTrucksRepairCost]));
 			w54.TopAttach = ((uint)(2));
 			w54.BottomAttach = ((uint)(3));
 			w54.LeftAttach = ((uint)(3));

@@ -23,35 +23,21 @@ namespace Vodovoz.ViewModels.Widgets
 
 			Parameters = new GenericObservableList<SelectableParameter>(
 				parametersFactory.GetParameters(new Func<ICriterion>[] { () => null }));
+			
 			IsRecursiveParameters = parametersFactory.IsRecursiveFactory;
-
-			if(IsRecursiveParameters)
-			{
-				HighParents = Parameters.Where(x => x.Parent == null).ToList();
-			}
-
 			Title = title;
 		}
 
 		public string Title { get; }
 		public GenericObservableList<SelectableParameter> Parameters { get; }
 		public bool IsRecursiveParameters { get; }
-		public bool IsSelectAll { get; set; }
-		public IList<SelectableParameter> HighParents { get; }
+		public bool IsSelectAll { get; private set; }
 
 		public DelegateCommand<bool> SelectUnselectAllCommand => 
 			_selectUnselectAllCommand ?? (_selectUnselectAllCommand = new DelegateCommand<bool>(
 				isSelectAll =>
 				{
-					if(IsRecursiveParameters)
-					{
-						SelectUnselectAll(HighParents, isSelectAll);
-					}
-					else
-					{
-						SelectUnselectAll(Parameters, isSelectAll);
-					}
-
+					SelectUnselectAll(Parameters, isSelectAll);
 					IsSelectAll = isSelectAll;
 				}));
 
@@ -68,13 +54,35 @@ namespace Vodovoz.ViewModels.Widgets
 		{
 			for(int i = 0; i < parameters.Count; i++)
 			{
-				var needSelectParameter = Parameters.SingleOrDefault(x => (int)x.Value == parameters[i].Id);
+				var parameterId = parameters[i].Id;
 
-				if(needSelectParameter != null)
+				for(int j = 0; j < Parameters.Count; j++)
 				{
-					needSelectParameter.Selected = true;
+					var selectableParameter = GetParameterById(parameterId, Parameters[j]);
+
+					if(selectableParameter == null)
+					{
+						continue;
+					}
+
+					selectableParameter.Selected = true;
+					break;
 				}
 			}
+		}
+
+		private SelectableParameter GetParameterById(int parameterId, SelectableParameter parameter)
+		{
+			if((int)parameter.Value == parameterId)
+			{
+				return parameter;
+			}
+
+			return !parameter.Children.Any()
+				? null
+				: parameter.Children
+					.Select(children => GetParameterById(parameterId, children))
+					.FirstOrDefault();
 		}
 	}
 }

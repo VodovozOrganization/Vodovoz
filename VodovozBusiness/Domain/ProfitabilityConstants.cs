@@ -466,9 +466,6 @@ namespace Vodovoz.Domain
 
 		private void CalculateGazellesExpenses(IUnitOfWork uow, ICarRepository carRepository, IEnumerable<int> carEventTypesIds)
 		{
-			var gazelleRepairCost = 0m;
-			var gazelleFines = 0m;
-
 			var companyGazellesCarEvents =
 				carRepository.GetCarEventsForCostCarExploitation(
 					uow,
@@ -479,20 +476,12 @@ namespace Vodovoz.Domain
 					new[] { CarTypeOfUse.GAZelle },
 					CarOwnTypes);
 
-			foreach(var gazelleCarEvent in companyGazellesCarEvents)
-			{
-				gazelleRepairCost += gazelleCarEvent.RepairCost;
-				gazelleFines += gazelleCarEvent.Fines.Sum(x => x.TotalMoney);
-			}
-
+			CalculateExpensesFromCarEvents(companyGazellesCarEvents, out var gazelleRepairCost, out var gazelleFines);
 			OperatingExpensesAllGazelles = (int)(gazelleRepairCost - gazelleFines);
 		}
-		
+
 		private void CalculateLargusesExpenses(IUnitOfWork uow, ICarRepository carRepository, IEnumerable<int> carEventTypesIds)
 		{
-			var largusRepairCost = 0m;
-			var largusFines = 0m;
-
 			var companyLargusesCarEvents =
 				carRepository.GetCarEventsForCostCarExploitation(
 					uow,
@@ -502,21 +491,13 @@ namespace Vodovoz.Domain
 					carEventTypesIds,
 					new[] { CarTypeOfUse.Largus },
 					CarOwnTypes);
-
-			foreach(var largusCarEvent in companyLargusesCarEvents)
-			{
-				largusRepairCost += largusCarEvent.RepairCost;
-				largusFines += largusCarEvent.Fines.Sum(x => x.TotalMoney);
-			}
-
+			
+			CalculateExpensesFromCarEvents(companyLargusesCarEvents, out var largusRepairCost, out var largusFines);
 			OperatingExpensesAllLarguses = (int)(largusRepairCost - largusFines);
 		}
 		
 		private void CalculateTrucksExpenses(IUnitOfWork uow, ICarRepository carRepository, IEnumerable<int> carEventTypesIds)
 		{
-			var truckRepairCost = 0m;
-			var truckFines = 0m;
-
 			var companyTrucksCarEvents =
 				carRepository.GetCarEventsForCostCarExploitation(
 					uow,
@@ -527,12 +508,7 @@ namespace Vodovoz.Domain
 					new[] { CarTypeOfUse.Truck },
 					CarOwnTypes);
 
-			foreach(var truckCarEvent in companyTrucksCarEvents)
-			{
-				truckRepairCost += truckCarEvent.RepairCost;
-				truckFines += truckCarEvent.Fines.Sum(x => x.TotalMoney);
-			}
-
+			CalculateExpensesFromCarEvents(companyTrucksCarEvents, out var truckRepairCost, out var truckFines);
 			OperatingExpensesAllTrucks = (int)(truckRepairCost - truckFines);
 		}
 
@@ -547,6 +523,18 @@ namespace Vodovoz.Domain
 			TruckRepairCost = AverageMileageAllTrucks != default(int)
 				? (decimal)OperatingExpensesAllTrucks / AverageMileageAllTrucks
 				: 0;
+		}
+		
+		private void CalculateExpensesFromCarEvents(IEnumerable<CarEvent> companyCarEvents, out decimal carRepairCost, out decimal carFines)
+		{
+			carRepairCost = 0m;
+			carFines = 0m;
+			
+			foreach(var companyCarEvent in companyCarEvents)
+			{
+				carRepairCost += companyCarEvent.RepairCost;
+				carFines += companyCarEvent.Fines.Sum(x => x.TotalMoney);
+			}
 		}
 
 		private void UpdateAdministrativeProductGroupsFilters(IEnumerable<int> admProductGroupsIds)

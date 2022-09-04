@@ -6,7 +6,8 @@ using System.ComponentModel;
 using System.Linq;
 using QS.Navigation;
 using QS.Validation;
-using QS.ViewModels;
+using QS.ViewModels.Dialog;
+using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -14,14 +15,15 @@ using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ViewModels.Profitability;
 using Vodovoz.ViewModels.Widgets.Profitability;
 
-namespace Vodovoz.ViewModels.ViewModels.Profitability
+namespace Vodovoz.ViewModels.Profitability
 {
-	public class ProfitabilityConstantsViewModel : TabViewModelBase
+	public class ProfitabilityConstantsViewModel : DialogViewModelBase, IDisposable
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ICommonServices _commonServices;
+		private readonly ProfitabilityConstantsViewModelHandler _profitabilityConstantsViewModelHandler;
+		private readonly IUserService _userService;
 		private readonly IProfitabilityConstantsRepository _profitabilityConstantsRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly IWarehouseRepository _warehouseRepository;
@@ -34,9 +36,8 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 		private Employee _currentEditor;
 		
 		public ProfitabilityConstantsViewModel(
-			IUnitOfWorkGeneric<ProfitabilityConstants> uoWGeneric,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices,
+			ProfitabilityConstantsViewModelHandler profitabilityConstantsViewModelHandler,
+			IUserService userService,
 			INavigationManager navigationManager,
 			IProfitabilityConstantsRepository profitabilityConstantsRepository,
 			IEmployeeService employeeService,
@@ -44,17 +45,16 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 			ICarRepository carRepository,
 			IMonthPickerViewModelFactory monthPickerViewModelFactory,
 			IProfitabilityConstantsDataViewModelFactory profitabilityConstantsDataViewModelFactory,
-			IValidator validator,
-			DateTime? calculatedMonth = null) : base(commonServices?.InteractiveService, navigationManager)
+			IValidator validator) : base(navigationManager)
 		{
 			if(monthPickerViewModelFactory == null)
 			{
 				throw new ArgumentNullException(nameof(monthPickerViewModelFactory));
 			}
-
-			UoWGeneric = uoWGeneric ?? throw new ArgumentNullException(nameof(uoWGeneric));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			
+			_profitabilityConstantsViewModelHandler =
+				profitabilityConstantsViewModelHandler ?? throw new ArgumentNullException(nameof(profitabilityConstantsViewModelHandler));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_profitabilityConstantsRepository =
 				profitabilityConstantsRepository ?? throw new ArgumentNullException(nameof(profitabilityConstantsRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -65,12 +65,10 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 					?? throw new ArgumentNullException(nameof(profitabilityConstantsDataViewModelFactory));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			
-			Initialize(calculatedMonth, monthPickerViewModelFactory);
-			TabName = $"Константы для рентабельности за {Entity.CalculatedMonth:Y}";
+			Initialize(monthPickerViewModelFactory);
+			Title = $"Константы для рентабельности за {Entity.CalculatedMonth:Y}";
 		}
-
-		public bool IsCalculationDateAndAuthorActive => !UoW.IsNew;
-
+		
 		public ProfitabilityConstants Entity => UoWGeneric.Root;
 		public MonthPickerViewModel MonthPickerViewModel { get; private set; }
 
@@ -93,11 +91,12 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 				CalculateRepairCostConstants();
 
 				Save();
+				ConstantsDataViewModel.FirePropertyChanged(nameof(ConstantsDataViewModel.IsCalculationDateAndAuthorActive));
 				MonthPickerViewModel.UpdateState();
 			}
 			));
 		
-		private DateTime CurrentMonth => MonthPickerViewModel.SelectedMonth;
+		private DateTime CalculatedMonth => MonthPickerViewModel.SelectedMonth;
 		private IUnitOfWorkGeneric<ProfitabilityConstants> UoWGeneric { get; set; }
 		private IUnitOfWork UoW => UoWGeneric;
 
@@ -128,7 +127,7 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 		{
 			var selectedAdministrativeExpensesProductGroupsIds =
 				ConstantsDataViewModel.AdministrativeExpensesProductGroupsFilterViewModel.Parameters
-					.Where(x => x.Selected)
+					.SelectMany(x => x.GetAllSelected())
 					.Select(x => (int)x.Value)
 					.ToArray();
 
@@ -149,7 +148,7 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 		{
 			var selectedWarehouseExpensesProductGroupsIds =
 				ConstantsDataViewModel.WarehouseExpensesProductGroupsFilterViewModel.Parameters
-					.Where(x => x.Selected)
+					.SelectMany(x => x.GetAllSelected())
 					.Select(x => (int)x.Value)
 					.ToArray();
 
@@ -184,64 +183,38 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 			Entity.CalculateRepairCost();
 		}
 		
-		private void Initialize(
-			DateTime? calculatedMonth,
-			IMonthPickerViewModelFactory monthPickerViewModelFactory)
+		private void Initialize(IMonthPickerViewModelFactory monthPickerViewModelFactory)
 		{
-			_currentEditor = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId);
-
-			if(calculatedMonth.HasValue)
-			{
-				Entity.CalculatedMonth = calculatedMonth.Value;
-			}
+			UoWGeneric = _profitabilityConstantsViewModelHandler.GetLastCalculatedProfitabilityConstants();
+			_currentEditor = _employeeService.GetEmployeeForUser(UoW, _userService.CurrentUserId);
 
 			MonthPickerViewModel = monthPickerViewModelFactory.CreateNewMonthPickerViewModel(
-				calculatedMonth ?? Entity.CalculatedMonth,
+				Entity.CalculatedMonth,
 				CanSelectNextMonth,
 				CanSelectPreviousMonth);
 
 			MonthPickerViewModel.PropertyChanged += OnMonthPickerViewModelPropertyChanged;
 
 			ConstantsDataViewModel = _profitabilityConstantsDataViewModelFactory.CreateProfitabilityConstantsDataViewModel(UoW, Entity);
-			OnPropertyChanged(nameof(IsCalculationDateAndAuthorActive));
 		}
 
 		private void OnMonthPickerViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(MonthPickerViewModel.SelectedMonth))
 			{
-				UpdateData(CurrentMonth);
+				UpdateData(CalculatedMonth);
 			}
 		}
 
-		private void UpdateData(DateTime currentMonth)
+		private void UpdateData(DateTime calculatedMonth)
 		{
-			var calculatedConstants = _profitabilityConstantsRepository.GetProfitabilityConstantsByCalculatedMonth(UoW, currentMonth);
+			var newUoWGeneric = _profitabilityConstantsViewModelHandler.GetProfitabilityConstantsByCalculatedMonth(UoW, calculatedMonth);
 			UoW.Dispose();
+			UoWGeneric = newUoWGeneric;
 
-			if(calculatedConstants != null)
-			{
-				CreateNewUoW(calculatedConstants.Id);
-			}
-			else
-			{
-				CreateNewUoW(currentMonth);
-			}
-
-			TabName = $"Константы для рентабельности за {Entity.CalculatedMonth:Y}";
+			Title = $"Константы для рентабельности за {Entity.CalculatedMonth:Y}";
 			ConstantsDataViewModel = _profitabilityConstantsDataViewModelFactory.CreateProfitabilityConstantsDataViewModel(UoW, Entity);
-			OnPropertyChanged(nameof(IsCalculationDateAndAuthorActive));
-		}
-
-		private void CreateNewUoW(DateTime dateTime)
-		{
-			UoWGeneric = _unitOfWorkFactory.CreateWithNewRoot<ProfitabilityConstants>();
-			UoWGeneric.Root.CalculatedMonth = dateTime;
-		}
-		
-		private void CreateNewUoW(int profitabilityConstantsId)
-		{
-			UoWGeneric = _unitOfWorkFactory.CreateForRoot<ProfitabilityConstants>(profitabilityConstantsId);
+			ConstantsDataViewModel.FirePropertyChanged(nameof(ConstantsDataViewModel.IsCalculationDateAndAuthorActive));
 		}
 
 		private bool CanSelectNextMonth(DateTime dateTime)
@@ -259,10 +232,9 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 			return _profitabilityConstantsRepository.ProfitabilityConstantsByCalculatedMonthExists(UoW, dateTime.AddMonths(-1), dateTime);
 		}
 
-		public override void Dispose()
+		public virtual void Dispose()
 		{
 			UoW?.Dispose();
-			base.Dispose();
 		}
 	}
 }

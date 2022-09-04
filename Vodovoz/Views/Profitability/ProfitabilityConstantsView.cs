@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Gtk;
 using QS.Views;
-using Vodovoz.ViewModels.ViewModels.Profitability;
+using Vodovoz.ViewModels.Profitability;
 using Vodovoz.ViewWidgets.Profitability;
 
 namespace Vodovoz.Views.Profitability
@@ -22,15 +22,7 @@ namespace Vodovoz.Views.Profitability
 			var monthPicker = new MonthPickerView(ViewModel.MonthPickerViewModel);
 			monthPicker.Show();
 			hboxMonth.Add(monthPicker);
-			
-			lblCalculationSaved.Binding
-				.AddBinding(ViewModel, vm => vm.IsCalculationDateAndAuthorActive, w => w.Visible)
-				.InitializeFromSource();
-			lblCalculationSaveTimeAndAuthor.Binding
-				.AddBinding(ViewModel.Entity, e => e.CalculationDateAndAuthor, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.IsCalculationDateAndAuthorActive, w => w.Visible)
-				.InitializeFromSource();
-			
+
 			CreateAndShowConstantsDataView();
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;

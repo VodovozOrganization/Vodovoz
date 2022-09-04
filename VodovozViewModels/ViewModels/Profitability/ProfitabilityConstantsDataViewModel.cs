@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 			CreateFilters(uow, selectableParametersFilterViewModelFactory);
 			
 			//Получаем все булевы свойства, сейчас они все отвечают за показ фильтров
-			GetBooleanProperties();
+			GetBooleanPropertiesWithSetter();
 		}
 
 		public ProfitabilityConstants Entity { get; }
@@ -107,6 +107,8 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 			} 
 		}
 		
+		public bool IsCalculationDateAndAuthorActive => Entity.Id != 0;
+
 		public bool UpdateActiveFilterViewModel(SelectableParametersFilterViewModel filterViewModel)
 		{
 			if(ActiveFilterViewModel != null && ActiveFilterViewModel == filterViewModel)
@@ -116,6 +118,11 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 
 			ActiveFilterViewModel = filterViewModel;
 			return true;
+		}
+
+		public void FirePropertyChanged(string propertyName)
+		{
+			OnPropertyChanged(propertyName);
 		}
 
 		private void ChangeFilterPropertiesToFalse(string excludeProperty)
@@ -183,10 +190,11 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 			CarEventsFilterViewModel.SelectParameters(Entity.RepairCostCarEventTypesFilter);
 		}
 
-		private void GetBooleanProperties()
+		private void GetBooleanPropertiesWithSetter()
 		{
 			_filterBooleanProperties =
-				typeof(ProfitabilityConstantsDataViewModel).GetProperties().Where(x => x.PropertyType == typeof(bool)).ToArray();
+				typeof(ProfitabilityConstantsDataViewModel).GetProperties()
+					.Where(x => x.PropertyType == typeof(bool) && x.GetSetMethod() != null).ToArray();
 		}
 	}
 }

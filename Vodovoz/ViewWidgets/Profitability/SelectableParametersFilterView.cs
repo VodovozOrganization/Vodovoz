@@ -30,7 +30,8 @@ namespace Vodovoz.ViewWidgets.Profitability
 		private void Configure()
 		{
 			SetTitle();
-			chkSelectAll.Toggled += (sender, e) => ViewModel.SelectUnselectAllCommand.Execute(chkSelectAll.Active);
+			//Передаем инвертированное значение, т.к. оно еще не поменялось: при установке в true, Active еще false и наоборот
+			chkSelectAll.Pressed += (sender, e) => ViewModel.SelectUnselectAllCommand.Execute(!chkSelectAll.Active);
 			ConfigureTreeView();
 		}
 
@@ -58,7 +59,7 @@ namespace Vodovoz.ViewWidgets.Profitability
 			if(ViewModel.IsRecursiveParameters)
 			{
 				treeViewSelectableParameters.YTreeModel =
-					new RecursiveTreeModel<SelectableParameter>(ViewModel.HighParents, x => x.Parent, x => x.Children);
+					new RecursiveTreeModel<SelectableParameter>(ViewModel.Parameters, x => x.Parent, x => x.Children);
 			}
 			else
 			{

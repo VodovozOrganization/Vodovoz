@@ -156,12 +156,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
-using Vodovoz.EntityRepositories.Profitability;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.ViewModels.Profitability;
-using Vodovoz.ViewModels.Widgets.Profitability;
-using Vodovoz.Views.Profitability;
+using Vodovoz.ViewModels.Profitability;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2628,18 +2623,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnProfitabilityConstantsActionActivated(object sender, EventArgs e)
 	{
-		var viewModelFactory = new ProfitabilityConstantsViewModelFactory(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			NavigationManager,
-			new ProfitabilityConstantsRepository(),
-			VodovozGtkServicesConfig.EmployeeService,
-			new WarehouseRepository(),
-			new CarRepository(),
-			new MonthPickerViewModelFactory(),
-			new ProfitabilityConstantsDataViewModelFactory(new SelectableParametersFilterViewModelFactory()),
-			ServicesConfig.ValidationService);
-		
-		tdiMain.AddTab(viewModelFactory.CreateProfitabilityConstantsViewModel());
+		NavigationManager.OpenViewModel<ProfitabilityConstantsViewModel, IValidator>(
+			null, ServicesConfig.ValidationService, OpenPageOptions.IgnoreHash);
 	}
 }

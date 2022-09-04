@@ -43,30 +43,8 @@ namespace Vodovoz.ViewModels.Widgets.Profitability
 		}
 
 		public string SelectedMonthTitle => SelectedMonth.ToString("Y");
-
-		public bool CanSelectNextMonth
-		{
-			get
-			{
-				if(_canSelectNextMonthFunc != null)
-				{
-					return _canSelectNextMonthFunc.Invoke(SelectedMonth);
-				}
-				return true;
-			}
-		}
-
-		public bool CanSelectPreviousMonth
-		{
-			get
-			{
-				if(_canSelectPreviousMonthFunc != null)
-				{
-					return _canSelectPreviousMonthFunc.Invoke(SelectedMonth);
-				}
-				return true;
-			}
-		}
+		public bool CanSelectNextMonth => _canSelectNextMonthFunc == null || _canSelectNextMonthFunc.Invoke(SelectedMonth);
+		public bool CanSelectPreviousMonth => _canSelectPreviousMonthFunc == null || _canSelectPreviousMonthFunc.Invoke(SelectedMonth);
 
 		public DelegateCommand NextMonthCommand => _nextMonthCommand ?? (_nextMonthCommand = new DelegateCommand(
 			() =>
@@ -84,14 +62,9 @@ namespace Vodovoz.ViewModels.Widgets.Profitability
 
 		private void SetSelectedMonth(DateTime selectedMonth)
 		{
-			if(selectedMonth.Day != 1)
-			{
-				SelectedMonth = new DateTime(selectedMonth.Year, selectedMonth.Month, 1);
-			}
-			else
-			{
-				SelectedMonth = selectedMonth;
-			}
+			SelectedMonth = selectedMonth.Day != 1
+				? new DateTime(selectedMonth.Year, selectedMonth.Month, 1)
+				: selectedMonth;
 		}
 	}
 }

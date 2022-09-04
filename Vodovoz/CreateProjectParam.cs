@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Autofac;
 using QS.Deletion;
@@ -300,7 +301,6 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
 				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
-				.RegisterWidgetForTabViewModel<ProfitabilityConstantsViewModel, ProfitabilityConstantsView>()
 				;
 
             //Регистрация виджетов
@@ -564,6 +564,7 @@ namespace Vodovoz
 
 			builder.RegisterType<OrderDiscountsController>().As<IOrderDiscountsController>();
 			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>();
+			builder.RegisterType<ProfitabilityConstantsViewModelHandler>().AsSelf();
 
 			#endregion
 
@@ -633,12 +634,6 @@ namespace Vodovoz
 
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
 				.Where(t => t.Name.EndsWith("Provider"))
-				.AsImplementedInterfaces()
-				.AsSelf()
-				.SingleInstance();
-
-			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
-				.Where(t => t.Name.EndsWith("Settings"))
 				.AsImplementedInterfaces()
 				.AsSelf()
 				.SingleInstance();

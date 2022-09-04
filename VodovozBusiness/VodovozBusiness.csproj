@@ -65,6 +65,7 @@
     <Compile Include="Controllers\OrderDiscountsController.cs" />
     <Compile Include="Controllers\PaymentFromBankClientController.cs" />
     <Compile Include="Controllers\IRouteListsWageController.cs" />
+    <Compile Include="Controllers\ProfitabilityConstantsViewModelHandler.cs" />
     <Compile Include="Controllers\RouteListsWageController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
