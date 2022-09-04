@@ -8,15 +8,23 @@ namespace Vodovoz.Domain.Documents
 {
 	public class Document : PropertyChangedBase, IDomainObject
 	{
+		private DateTime _timeStamp = DateTime.Now;
+		private DateTime _version;
+
 		public virtual int Id { get; set; }
 
 		public virtual bool CanEdit { get; set; }
 
-		DateTime timeStamp = DateTime.Now;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version
+		{
+			get => _version;
+			set => SetField(ref _version, value);
+		}
 
 		public virtual DateTime TimeStamp {
-			get { return timeStamp; }
-			set { SetField (ref timeStamp, value, () => TimeStamp); }
+			get { return _timeStamp; }
+			set { SetField (ref _timeStamp, value, () => TimeStamp); }
 		}
 
 		Employee author;

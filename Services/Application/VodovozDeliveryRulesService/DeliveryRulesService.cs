@@ -131,7 +131,7 @@ namespace VodovozDeliveryRulesService
 			}
 		}
 
-		public async Task<DeliveryRulesDTO> GetRulesByDistrictAndNomenclatures(DeliveryRulesRequest request)
+		public DeliveryRulesDTO GetRulesByDistrictAndNomenclatures(DeliveryRulesRequest request)
 		{
 			var deliveryInfo = GetRulesByDistrict(request.Latitude, request.Longitude);
 
@@ -141,7 +141,10 @@ namespace VodovozDeliveryRulesService
 			}
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка на доставку за час"))
 			{
-				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
+				Task<bool> task = CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
+				task.Wait();
+				var fastDeliveryAllowed = task.Result;
+				
 				var allowed =
 					!_deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday
 					&& fastDeliveryAllowed;

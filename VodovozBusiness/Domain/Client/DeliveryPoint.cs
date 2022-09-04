@@ -899,7 +899,7 @@ namespace Vodovoz.Domain.Client
 		TradeCenter,
 		[Display(Name = "Торговый комплекс", ShortName = "ТК")]
 		TradeComplex,
-		[Display(Name = "Бизнесс центр", ShortName = "БЦ")]
+		[Display(Name = "Бизнес-центр", ShortName = "БЦ")]
 		BusinessCenter,
 		[Display(Name = "Школа", ShortName = "шк.")]
 		School,
