@@ -206,7 +206,9 @@ namespace Vodovoz.Reports
 				new RecursiveParametersFactory<ProductGroup>(UoW,
 					(filters) =>
 					{
-						var query = UoW.Session.QueryOver<ProductGroup>();
+						var query = UoW.Session.QueryOver<ProductGroup>()
+							.Where(p => p.Parent == null);
+						
 						if(filters != null && filters.Any())
 						{
 							foreach(var f in filters)

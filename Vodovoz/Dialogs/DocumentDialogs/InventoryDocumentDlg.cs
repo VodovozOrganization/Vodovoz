@@ -181,10 +181,15 @@ namespace Vodovoz
 				"Группы товаров",
 				"product_group",
 				new RecursiveParametersFactory<ProductGroup>(UoW,
-				(filters) => {
-					var query = UoW.Session.QueryOver<ProductGroup>();
-					if(filters != null && filters.Any()) {
-						foreach(var f in filters) {
+				(filters) =>
+				{
+					var query = UoW.Session.QueryOver<ProductGroup>()
+						.Where(p => p.Parent == null);
+					
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
 							query.Where(f());
 						}
 					}
