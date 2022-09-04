@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -33,8 +34,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display (Name = "Цена")]
 		[Required (ErrorMessage = "Цена должна быть заполнена.")]
 		public virtual decimal Cost {
-			get { return cost; }
-			set { SetField (ref cost, value, () => Cost); }
+			get { return FuelPriceVersions.LastOrDefault().FuelPrice; }
 		}
 
 		private IList<FuelPriceVersion> _fuelPriceVersions = new List<FuelPriceVersion>();

@@ -173,8 +173,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		[Display(Name = "Расход топлива")]
 		public virtual double FuelConsumption
 		{
-			get => _fuelConsumption;
-			set => SetField(ref _fuelConsumption, value);
+			get => CarModel.CarFuelVersions.LastOrDefault().FuelConsumption;
 		}
 
 		[Display(Name = "Вид топлива")]
