@@ -13,21 +13,24 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 	{
 		private DateTime? _selectedDate;
 		private FuelPriceVersion _selectedFuelPriceVersions;
-		private IFuelPriceVersionsController _fuelVersionsController;
+		private readonly IFuelPriceVersionsController _fuelVersionsController;
 		private decimal _fuelPrice;
 
 		public FuelTypeViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-			CanEdit = PermissionResult.CanUpdate 
-			          || (PermissionResult.CanCreate && Entity.Id == 0);
-
 			_fuelVersionsController = new FuelPriceVersionsController(Entity);
 
-			CanReadFuel = CanCreateFuel = CanEditFuel = true;
+			CanEdit = PermissionResult.CanUpdate
+					  || (PermissionResult.CanCreate && Entity.Id == 0);
+
+			CanReadFuel = true;
+			var permissionFuelPriceVersionResult = commonServices.PermissionService.ValidateUserPermission(typeof(FuelPriceVersion), commonServices.UserService.CurrentUserId);
+			CanCreateFuel = permissionFuelPriceVersionResult.CanCreate;
+			CanEditFuel = permissionFuelPriceVersionResult.CanUpdate;
 		}
 
 		public bool CanEdit { get; }
-		
+
 		public bool AskSaveOnClose => CanEdit;
 
 		public virtual DateTime? SelectedDate
@@ -55,7 +58,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			}
 		}
 
-		public virtual decimal FuelPrice 
+		public virtual decimal FuelPrice
 		{
 			get => _fuelPrice;
 			set => SetField(ref _fuelPrice, value);
