@@ -267,7 +267,7 @@ FROM
         LEFT JOIN
     organizations ON organizations.id = counterparty_contract.organization_id
         LEFT JOIN
-    organization_versions ov
+    (SELECT * FROM organization_versions GROUP BY organization_versions.organization_id DESC) ov
         ON
             organizations.id = ov.organization_id 
         AND

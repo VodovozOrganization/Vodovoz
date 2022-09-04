@@ -26,12 +26,12 @@ namespace Vodovoz.Domain.StoredResources
 			set { SetField(ref _name, value); }
 		}
 
-		private ImageType imageType;
+		private ImageType _imageType;
 		[Display(Name = "Тип изображения")]
 		public virtual ImageType ImageType
 		{
-			get { return imageType; }
-			set { SetField(ref imageType, value); }
+			get { return _imageType; }
+			set { SetField(ref _imageType, value); }
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
