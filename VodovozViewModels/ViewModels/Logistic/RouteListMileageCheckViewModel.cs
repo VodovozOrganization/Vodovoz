@@ -106,10 +106,10 @@ namespace Vodovoz.ViewModels.Logistic
 				throw new ArgumentNullException(nameof(employeeJournalFactory));
 			}
 
-			LogisticianSelectorFactory = employeeJournalFactory ?.CreateWorkingEmployeeAutocompleteSelectorFactory();
-			DriverSelectorFactory = employeeJournalFactory?.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			ForwarderSelectorFactory = employeeJournalFactory?.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
-			_employeeSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory();
+			LogisticianSelectorFactory = employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory();
+			DriverSelectorFactory = employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			ForwarderSelectorFactory = employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
+			_employeeSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 
 			DeliveryShifts =
 				(deliveryShiftRepository ?? throw new ArgumentNullException(nameof(deliveryShiftRepository))).ActiveShifts(UoW);

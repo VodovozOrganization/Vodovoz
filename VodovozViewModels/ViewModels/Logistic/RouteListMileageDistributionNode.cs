@@ -71,6 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					_customRecalculatedDistanceColumn = value;
 				}
+				OnPropertyChanged(nameof(RecalculatedDistanceColumn));
 			}
 		}
 	}
