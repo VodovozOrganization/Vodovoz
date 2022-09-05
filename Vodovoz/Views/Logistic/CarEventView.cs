@@ -60,10 +60,9 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
-			entityviewmodelentryOriginalCarEvent.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
-			entityviewmodelentryOriginalCarEvent.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			entityviewmodelentryOriginalCarEvent.ChangedByUser += (sender, e) => ViewModel.ChangeDriverCommand.Execute();
-
+			originalCarEventId.Binding
+				.AddBinding(ViewModel, vm => vm.OriginalCarEventId, w => w.ValueAsInt)
+				.InitializeFromSource();
 
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();

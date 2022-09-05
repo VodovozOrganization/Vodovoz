@@ -33,6 +33,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private IEntitySelectorFactory _employeeSelectorFactory;
 		private IEmployeeSettings _employeeSettings;
 
+		public int OriginalCarEventId 
+		{
+			get;
+			set;
+		}
 		public bool CanEdit => PermissionResult.CanUpdate;
 		public bool CanCreateOrEditWithClosedPeriod { get; }
 		public bool CanAddFine => CanEdit;
