@@ -183,7 +183,7 @@ namespace Fias.Service
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<string>("/api/GetAddressByGeoCoder", requestParams);
 			_logger.Info($"Обращение к яндексу за адресом");
-			var task = "бла бла бла";//requestSender.GetResponseAsync(cancellationToken);
+			var task = requestSender.GetResponseAsync(cancellationToken);
 			var response = task;
 			_logger.Info($"Адрес по координатам {latitude},{longitude}: {response}");
 			if(!string.IsNullOrWhiteSpace(response))
