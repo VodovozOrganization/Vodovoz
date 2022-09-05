@@ -4,14 +4,13 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -29,16 +28,37 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventSettings _carEventSettingsSettings = new CarEventSettings(new ParametersProvider());
 		private DelegateCommand _changeDriverCommand;
 		private DelegateCommand _changeEventTypeCommand;
-		private IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private IEntitySelectorFactory _employeeSelectorFactory;
-		private IEmployeeSettings _employeeSettings;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private readonly IEntitySelectorFactory _employeeSelectorFactory;
+		private readonly IEmployeeSettings _employeeSettings;
+		private readonly ICarEventRepository _carEventRepository;
 
-		public int OriginalCarEventId 
+		public int OriginalCarEventId
 		{
-			get;
-			set;
+			get
+			{
+				if(Entity.OriginalCarEvent != null)
+				{
+					return Entity.OriginalCarEvent.Id;
+				}
+				return 0;
+			}
+			set
+			{
+				if(value == 0)
+				{
+					return;
+				}
+				var carEvent = _carEventRepository.GetCarEventById(UoW, value);
+				if(carEvent == null)
+				{
+					ShowWarningMessage("Исходное ремонтное событие с указанным номером не найдено.");
+					return;
+				}
+				Entity.OriginalCarEvent = carEvent;
+			}
 		}
-		public bool CanEdit => PermissionResult.CanUpdate;
+		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
 		public bool CanCreateOrEditWithClosedPeriod { get; }
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
@@ -50,6 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			ICarEventRepository carEventRepository,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
 			IEmployeeService employeeService,
@@ -64,7 +85,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			CanCreateOrEditWithClosedPeriod = 
+			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
+
+			CanCreateOrEditWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 
 			UpdateFileItems();

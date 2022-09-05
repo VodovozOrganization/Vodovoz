@@ -10,6 +10,8 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class CarEventView : TabViewBase<CarEventViewModel>
 	{
+		private string _carEventTypeCompensation = "Компенсация от страховой, по суду";
+
 		public CarEventView(CarEventViewModel viewModel) :
 			base(viewModel)
 		{
@@ -22,6 +24,8 @@ namespace Vodovoz.Views.Logistic
 		{
 			ylabelCreateDate.Binding.AddFuncBinding(ViewModel.Entity, e => e.CreateDate.ToString("g"), w => w.LabelProp).InitializeFromSource();
 
+			originalCarEventId.Visible = labelOriginalCarEvent.Visible = false;
+
 			ylabelAuthor.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.Author != null ? e.Author.GetPersonNameWithInitials() : "", w => w.LabelProp)
 				.InitializeFromSource();
@@ -29,6 +33,7 @@ namespace Vodovoz.Views.Logistic
 			entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
 			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel.Entity, e => e.CarEventType, e => e.Subject).InitializeFromSource();
 			entityviewmodelentryCarEventType.ChangedByUser += (sender, e) => ViewModel.ChangeEventTypeCommand.Execute();
+			entityviewmodelentryCarEventType.ChangedByUser += (sender, e) => UpdateVisibleOriginalCarEvent();
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
@@ -60,9 +65,7 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
-			originalCarEventId.Binding
-				.AddBinding(ViewModel, vm => vm.OriginalCarEventId, w => w.ValueAsInt)
-				.InitializeFromSource();
+			originalCarEventId.Binding.AddBinding(ViewModel, vm => vm.OriginalCarEventId, w => w.ValueAsInt).InitializeFromSource();
 
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
@@ -74,9 +77,17 @@ namespace Vodovoz.Views.Logistic
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 		}
 
+		private void UpdateVisibleOriginalCarEvent()
+		{
+			if(ViewModel.Entity.CarEventType?.Name == _carEventTypeCompensation)
+			{
+				originalCarEventId.Visible = labelOriginalCarEvent.Visible = true;
+			}
+		}
+
 		private void CheckPeriod()
 		{
-			if (!ViewModel.CheckDatePeriod())
+			if (!ViewModel.CanEdit)
 			{
 				ylabelCreateDate.Sensitive =
 				ylabelAuthor.Sensitive =

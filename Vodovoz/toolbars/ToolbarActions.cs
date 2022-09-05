@@ -1172,6 +1172,7 @@ public partial class MainWindow : Window
 		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
 		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
 		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
+		ICarEventRepository carEventRepository = new CarEventRepository();
 
 		var carEventFilter = new CarEventFilterViewModel(
 			carJournalFactory,
@@ -1183,6 +1184,7 @@ public partial class MainWindow : Window
 			carEventFilter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
+			carEventRepository,
 			carJournalFactory,
 			carEventTypeJournalFactory,
 			VodovozGtkServicesConfig.EmployeeService,

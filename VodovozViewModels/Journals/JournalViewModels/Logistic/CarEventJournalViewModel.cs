@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -34,11 +35,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private IEmployeeSettings _employeeSettings;
+		private ICarEventRepository _carEventRepository;
 
 		public CarEventJournalViewModel(
 			CarEventFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			ICarEventRepository carEventRepository,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
 			IEmployeeService employeeService,
@@ -49,6 +52,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			TabName = "Журнал событий ТС";
 
+			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -186,6 +190,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				EntityUoWBuilder.ForCreate(),
 				UnitOfWorkFactory,
 				commonServices,
+				_carEventRepository,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
 				_employeeService,
@@ -198,6 +203,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				EntityUoWBuilder.ForOpen(node.Id),
 				UnitOfWorkFactory,
 				commonServices,
+				_carEventRepository,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
 				_employeeService,
