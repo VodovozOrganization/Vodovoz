@@ -169,6 +169,7 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
+using Vodovoz.ReportsParameters.Orders;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -564,6 +565,7 @@ namespace Vodovoz
 
 			builder.RegisterType<OrderDiscountsController>().As<IOrderDiscountsController>();
 			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>();
+			builder.RegisterType<MovementDocumentsNotificationsController>().AsImplementedInterfaces();
 
 			#endregion
 
@@ -614,6 +616,7 @@ namespace Vodovoz
 			#region Reports
 
 			builder.RegisterType<CounterpartyCashlessDebtsReport>().AsSelf();
+			builder.RegisterType<OrderChangesReport>().AsSelf();
 
 			#endregion
 

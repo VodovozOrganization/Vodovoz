@@ -22,6 +22,10 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gamma.GtkWidgets.yLabel ylabel3;
 
+		private global::Gamma.GtkWidgets.yLabel ylabel4;
+
+		private global::Gamma.GtkWidgets.ySpinButton yspinStockRate;
+
 		private global::Gtk.Button buttonRun;
 
 		protected virtual void Build()
@@ -35,7 +39,7 @@ namespace Vodovoz.ReportsParameters.Store
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -108,11 +112,39 @@ namespace Vodovoz.ReportsParameters.Store
 			w7.BottomAttach = ((uint)(3));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabel4 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel4.Name = "ylabel4";
+			this.ylabel4.LabelProp = global::Mono.Unix.Catalog.GetString("Норма запаса: ");
+			this.table1.Add(this.ylabel4);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel4]));
+			w8.TopAttach = ((uint)(3));
+			w8.BottomAttach = ((uint)(4));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yspinStockRate = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.yspinStockRate.CanFocus = true;
+			this.yspinStockRate.Name = "yspinStockRate";
+			this.yspinStockRate.Adjustment.PageIncrement = 100D;
+			this.yspinStockRate.ClimbRate = 1D;
+			this.yspinStockRate.Digits = ((uint)(2));
+			this.yspinStockRate.Numeric = true;
+			this.yspinStockRate.ValueAsDecimal = 0m;
+			this.yspinStockRate.ValueAsInt = 0;
+			this.table1.Add(this.yspinStockRate);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.yspinStockRate]));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonRun = new global::Gtk.Button();
 			this.buttonRun.Sensitive = false;
@@ -121,10 +153,10 @@ namespace Vodovoz.ReportsParameters.Store
 			this.buttonRun.UseUnderline = true;
 			this.buttonRun.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonRun);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonRun]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonRun]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

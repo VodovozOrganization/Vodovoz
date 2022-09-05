@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Data.Bindings.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Store
 {
@@ -16,8 +14,10 @@ namespace Vodovoz.Domain.Store
 	[HistoryTrace]
 	public class Warehouse : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private Subdivision _movementDocumentsNotificationsSubdivisionRecipient;
+		private string _name;
+
 		public Warehouse() { }
-		string name;
 
 		#region Свойства
 
@@ -26,8 +26,8 @@ namespace Vodovoz.Domain.Store
 		[Required(ErrorMessage = "Название склада должно быть заполнено.")]
 		[Display(Name = "Название")]
 		public virtual string Name {
-			get => name;
-			set => SetField(ref name, value, () => Name);
+			get => _name;
+			set => SetField(ref _name, value, () => Name);
 		}
 
 		bool canReceiveBottles;
@@ -68,6 +68,13 @@ namespace Vodovoz.Domain.Store
 		public virtual Subdivision OwningSubdivision {
 			get => owningSubdivision;
 			set => SetField(ref owningSubdivision, value, () => OwningSubdivision);
+		}
+
+		[Display(Name = "Подразделение-получатель уведомлений о перемещениях на данный склад")]
+		public virtual Subdivision MovementDocumentsNotificationsSubdivisionRecipient
+		{
+			get => _movementDocumentsNotificationsSubdivisionRecipient;
+			set => SetField(ref _movementDocumentsNotificationsSubdivisionRecipient, value);
 		}
 
 		#endregion

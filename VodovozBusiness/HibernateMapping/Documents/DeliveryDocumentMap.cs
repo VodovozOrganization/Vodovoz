@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.HibernateMapping.Documents
@@ -11,7 +11,10 @@ namespace Vodovoz.HibernateMapping.Documents
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-            Map(x => x.TimeStamp).Column("time_stamp");
+			OptimisticLock.Version();
+			Version(x => x.Version).Column("version");
+
+			Map(x => x.TimeStamp).Column("time_stamp");
             Map(x => x.LastEditedTime).Column("last_edit_time");
 
             References(x => x.Author).Column("author_id");

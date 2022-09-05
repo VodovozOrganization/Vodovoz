@@ -8,12 +8,10 @@ namespace Vodovoz.EntityRepositories.Store
 	public interface IWarehouseRepository
 	{
 		IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow);
-
 		IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow);
-
 		IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds);
-
 		IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId);
+		bool WarehouseByMovementDocumentsNotificationsSubdivisionExists(IUnitOfWork uow, int subdivisionId);
 	}
 
 	public class NomanclatureStockNode

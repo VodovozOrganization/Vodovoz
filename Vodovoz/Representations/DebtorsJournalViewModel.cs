@@ -148,7 +148,6 @@ namespace Vodovoz.Representations
 								Projections.Sum(() => bottlesMovementAlias.Delivered)}
 				));
 
-
 			var TaskExistQuery = QueryOver.Of(() => taskAlias)
 				.Where(x => x.DeliveryPoint.Id == deliveryPointAlias.Id)
 				.And(() => taskAlias.IsTaskComplete == false)
@@ -254,57 +253,97 @@ namespace Vodovoz.Representations
 			#endregion LastOrder
 
 			if(FilterViewModel != null && FilterViewModel.EndDate != null)
+			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQueryWithDate.Take(1));
+			}
 			else
+			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
+			}
 
 			ordersQuery.JoinAlias(c => c.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 			#region Filter
 
-			if(FilterViewModel != null) {
+			if(FilterViewModel != null)
+			{
 				if(FilterViewModel.Client != null)
+				{
 					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
+				}
 				if(FilterViewModel.Address != null)
+				{
 					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
+				}
 				if(FilterViewModel.OPF != null)
+				{
 					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == FilterViewModel.OPF.Value);
+				}
 				if(FilterViewModel.LastOrderBottlesFrom != null)
+				{
 					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= FilterViewModel.LastOrderBottlesFrom.Value);
+				}
 				if(FilterViewModel.LastOrderBottlesTo != null)
+				{
 					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= FilterViewModel.LastOrderBottlesTo.Value);
+				}
 				if(FilterViewModel.StartDate != null)
+				{
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
+				}
 				if(FilterViewModel.EndDate != null)
+				{
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
+				}
 				if(FilterViewModel.EndDate != null && FilterViewModel.HideActiveCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
-
-				if(FilterViewModel.HideWithOneOrder) {
+				}
+				if(FilterViewModel.HideWithOneOrder)
+				{
 					ordersQuery.WithSubquery
 						.WhereProperty(() => counterpartyAlias.Id)
 						.In(subQuerryOrdersCount);
 				}
-
 				if(FilterViewModel.LastOrderNomenclature != null)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
+				}
 				if(FilterViewModel.DiscountReason != null)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderDiscount);
+				}
 				if(FilterViewModel.DebtBottlesFrom != null)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
+				}
 				if(FilterViewModel.DebtBottlesTo != null)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
+				}
 				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
+				}
 				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellationWithoutDate);
+				}
 				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
+				}
 				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
+				}
 				if(FilterViewModel.HideWithoutEmail)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(counterpartyContactEmailsSubQuery);
+				}
+				if(FilterViewModel.SelectedDeliveryPointCategory != null)
+				{
+					ordersQuery.Where(() => deliveryPointAlias.Category.Id == FilterViewModel.SelectedDeliveryPointCategory.Id);
 				}
 			}
 
@@ -467,55 +506,99 @@ namespace Vodovoz.Representations
 			#endregion LastOrder
 
 			if(FilterViewModel != null && FilterViewModel.EndDate != null)
+			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQueryWithDate.Take(1));
+			}
 			else
+			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
+			}
 
 			#region Filter
 
-			if(FilterViewModel != null) {
+			if(FilterViewModel != null)
+			{
 				if(FilterViewModel.Client != null)
+				{
 					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
+				}
 				if(FilterViewModel.Address != null)
+				{
 					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
+				}
 				if(FilterViewModel.OPF != null)
+				{
 					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == FilterViewModel.OPF.Value);
+				}
 				if(FilterViewModel.LastOrderBottlesFrom != null)
-					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= FilterViewModel.LastOrderBottlesFrom.Value);
+				{
+					ordersQuery =
+						ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= FilterViewModel.LastOrderBottlesFrom.Value);
+				}
 				if(FilterViewModel.LastOrderBottlesTo != null)
-					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= FilterViewModel.LastOrderBottlesTo.Value);
+				{
+					ordersQuery =
+						ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= FilterViewModel.LastOrderBottlesTo.Value);
+				}
 				if(FilterViewModel.StartDate != null)
+				{
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
+				}
 				if(FilterViewModel.EndDate != null)
+				{
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
+				}
 				if(FilterViewModel.EndDate != null && FilterViewModel.HideActiveCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
+				}
 				if(FilterViewModel.LastOrderNomenclature != null)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
+				}
 				if(FilterViewModel.DiscountReason != null)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderDiscount);
+				}
 				if(FilterViewModel.DebtBottlesFrom != null)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
+				}
 				if(FilterViewModel.DebtBottlesTo != null)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
+				}
 				if(FilterViewModel.HideWithOneOrder)
+				{
 					ordersQuery.WithSubquery
 						.WhereProperty(() => counterpartyAlias.Id)
 						.In(subQuerryOrdersCount);
+				}
 				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
+				}
 				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellationWithoutDate);
+				}
 				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspended);
+				}
 				if(FilterViewModel.EndDate.HasValue && FilterViewModel.ShowCancellationCounterparty)
+				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromCancellation);
+				}
 				if(FilterViewModel.HideWithoutEmail)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(counterpartyContactEmailsSubQuery);
 				}
+				if(FilterViewModel.SelectedDeliveryPointCategory != null)
+				{
+					ordersQuery.Where(() => deliveryPointAlias.Category.Id == FilterViewModel.SelectedDeliveryPointCategory.Id);
+				}
 			}
-
 
 			#endregion Filter
 
@@ -651,7 +734,8 @@ namespace Vodovoz.Representations
 					{ "SearchString2", Search.SearchValues?.Length > 1 ? Search.SearchValues[1] : null },
 					{ "SearchString3", Search.SearchValues?.Length > 2 ? Search.SearchValues[2] : null },
 					{ "SearchString4", Search.SearchValues?.Length > 3 ? Search.SearchValues[3] : null },
-					{ "HideWithoutEmail", FilterViewModel.HideWithoutEmail ? "true" : "" }
+					{ "HideWithoutEmail", FilterViewModel.HideWithoutEmail ? "true" : "" },
+					{ "DeliveryPointCategory", FilterViewModel?.SelectedDeliveryPointCategory?.Id ?? 0}
 				}
 			};
 			var dlg = new ReportViewDlg(reportInfo);
