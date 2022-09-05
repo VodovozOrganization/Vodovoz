@@ -172,7 +172,9 @@ namespace Vodovoz.Dialogs.Logistic
 				x => x.CanChangeStatus = true,
 				x => x.Status = EmployeeStatus.IsWorking);
 
-			ybuttonCreateRouteLists.Clicked += YbuttonCreateRouteLists_Clicked;
+			ybuttonCreateRouteLists.Clicked += YbuttonCreateRouteListsClicked;
+
+			buttonDriverSelectAuto.Visible = false;
 
 			hideForwaders.Label = "Экспедиторы на работе";
 			hideForwaders.Toggled += OnHideForwadersToggled;
@@ -185,7 +187,7 @@ namespace Vodovoz.Dialogs.Logistic
 		}
 
 
-		private void YbuttonCreateRouteLists_Clicked(object sender, EventArgs e)
+		private void YbuttonCreateRouteListsClicked(object sender, EventArgs e)
 		{
 			var routeListGenerator = new EmptyRouteListGenerator(_routeListRepository, DriversAtDay);
 			var valid = ServicesConfig.ValidationService.Validate(routeListGenerator, new ValidationContext(routeListGenerator));
@@ -280,8 +282,9 @@ namespace Vodovoz.Dialogs.Logistic
 				}
 			}
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
+			SetButtonCreateEmptyRouteListsSensitive();
 		}
-		
+
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
 		{
 			var selectDrivers = _employeeJournalFactory.CreateWorkingDriverEmployeeJournal();
@@ -334,6 +337,8 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
+			throw new NotSupportedException("Отключено до востребования изменения логики работы логистики");
+
 			var driver = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
 
 			if(driver == null)
