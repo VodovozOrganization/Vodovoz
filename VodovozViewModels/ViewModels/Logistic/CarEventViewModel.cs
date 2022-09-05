@@ -33,6 +33,25 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly ICarEventRepository _carEventRepository;
 
+		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
+		public decimal RepairCost
+		{
+			get
+			{
+				return Entity.RepairCost;
+			}
+			set
+			{
+				if(Entity.CarEventType?.Name == CarEventTypeCompensation)
+				{
+					Entity.RepairCost = -value;
+				}
+				else
+				{
+					Entity.RepairCost = value;
+				}
+			}
+		}
 		public int OriginalCarEventId
 		{
 			get

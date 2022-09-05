@@ -10,7 +10,6 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class CarEventView : TabViewBase<CarEventViewModel>
 	{
-		private string _carEventTypeCompensation = "Компенсация от страховой, по суду";
 
 		public CarEventView(CarEventViewModel viewModel) :
 			base(viewModel)
@@ -47,7 +46,7 @@ namespace Vodovoz.Views.Logistic
 			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
 
 			yspinPaymentTotalCarEvent.Binding
-				.AddBinding(ViewModel.Entity, e => e.RepairCost, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel, vm => vm.RepairCost, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
 			checkbuttonDoNotShowInOperation.Binding
@@ -79,7 +78,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void UpdateVisibleOriginalCarEvent()
 		{
-			if(ViewModel.Entity.CarEventType?.Name == _carEventTypeCompensation)
+			if(ViewModel.Entity.CarEventType?.Name == ViewModel.CarEventTypeCompensation)
 			{
 				originalCarEventId.Visible = labelOriginalCarEvent.Visible = true;
 			}

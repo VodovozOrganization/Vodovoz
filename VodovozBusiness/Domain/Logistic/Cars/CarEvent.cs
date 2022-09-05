@@ -71,13 +71,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _driver, value);
 		}
 
-		[Display(Name = "Компенсация от страховой, по суду")]
-		public virtual bool CompensationFromInsuranceByCourt
-		{
-			get => _compensationFromInsuranceByCourt;
-			set => SetField(ref _compensationFromInsuranceByCourt, value);
-		}
-
 		[Display(Name = "Дата начала события ТС")]
 		public virtual DateTime StartDate
 		{
@@ -117,17 +110,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal RepairCost
 		{
 			get => _repairCost;
-			set
-			{
-				if (CompensationFromInsuranceByCourt)
-				{
-					SetField(ref _repairCost, -value);
-				}
-				else
-				{
-					SetField(ref _repairCost, value);
-				}
-			}
+			set => SetField(ref _repairCost, value);
 		}
 
 		[Display(Name = "Исходное ремонтное событие")]
