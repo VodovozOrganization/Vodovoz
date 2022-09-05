@@ -71,6 +71,7 @@ namespace Vodovoz.ReportsParameters.Store
 			ytreeviewGeographicGroup.HeadersVisible = false;
 
 			yspinStockRate.Digits = 0;
+			yspinStockRate.SetRange(0, int.MaxValue);
 			yspinStockRate.Value = _defaultStockRate;
 
 			buttonRun.Sensitive = CanRun();
