@@ -1,5 +1,6 @@
 ﻿using QS.ViewModels;
 using System;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Models;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
@@ -41,6 +42,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool IsGroup => false;
 
 		public string Name => _groupNomenclaturePriceModel.Nomenclature.Name;
+
+		public Nomenclature Nomenclature => _groupNomenclaturePriceModel.Nomenclature;
 
 		public bool InvalidCostPurchasePrice => !_groupNomenclaturePriceModel.IsValidCostPurchasePrice;
 

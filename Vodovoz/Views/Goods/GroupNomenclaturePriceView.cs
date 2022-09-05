@@ -15,6 +15,7 @@ namespace Vodovoz.Views.Goods
 	{
 		private static Gdk.Color _white = new Gdk.Color(255, 255, 255);
 		private static Gdk.Color _red = new Gdk.Color(237, 55, 55);
+		private TreeViewColumn _nomenclatureColumn;
 
 		public NomenclatureGroupPricingView(NomenclatureGroupPricingViewModel viewModel) : base(viewModel)
 		{
@@ -34,9 +35,11 @@ namespace Vodovoz.Views.Goods
 			buttonCancel.Clicked += (s, e) => ViewModel.CloseCommand.Execute();
 			ViewModel.CloseCommand.CanExecuteChanged += (s, e) => buttonCancel.Sensitive = ViewModel.CloseCommand.CanExecute();
 			ViewModel.CloseCommand.RaiseCanExecuteChanged();
+			string tag = "Nomenclature";
 
 			ytreeviewPrices.ColumnsConfig = FluentColumnsConfig<INomenclatureGroupPricingItemViewModel>.Create()
 				.AddColumn("Товар")
+					.Tag(tag)
 					.MinWidth(400)
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Name)
@@ -104,9 +107,27 @@ namespace Vodovoz.Views.Goods
 					})
 				.AddColumn("")
 				.Finish();
+			_nomenclatureColumn = ytreeviewPrices.ColumnsConfig.GetColumnsByTag(tag).First();
+			ytreeviewPrices.Binding.AddBinding(ViewModel, vm => vm.SelectedItemViewModel, w => w.SelectedRow).InitializeFromSource();
+			ytreeviewPrices.RowActivated += OnRowActivated;
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 			ReloadItemSource();
+		}
+
+		private void OnRowActivated(object o, RowActivatedArgs args)
+		{
+			if(args.Column != _nomenclatureColumn)
+			{
+				return;
+			}
+
+			if(!ViewModel.OpenNomenclatureCommand.CanExecute())
+			{
+				return;
+			}
+
+			ViewModel.OpenNomenclatureCommand.Execute();
 		}
 
 		private void ViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

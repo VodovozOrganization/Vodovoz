@@ -2,6 +2,7 @@
 using QS.Commands;
 using QS.Dialog;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Validation;
 using QS.ViewModels.Dialog;
 using System;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Models;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -19,8 +21,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly IInteractiveMessage _interactiveMessage;
 		private readonly Dictionary<int, NomenclatureGroupPricingProductGroupViewModel> _productGroupViewModels;
 		private IList<NomenclatureGroupPricingProductGroupViewModel> _priceViewModels;
+		private INomenclatureGroupPricingItemViewModel _selectedItemViewModel;
 		private DelegateCommand _saveCommand;
 		private DelegateCommand _closeCommand;
+		private DelegateCommand _openNomenclatureCommand;
 		private DateTime _date;
 
 		public NomenclatureGroupPricingViewModel(
@@ -49,6 +53,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			set => SetField(ref _priceViewModels, value);
 		}
 
+		public virtual INomenclatureGroupPricingItemViewModel SelectedItemViewModel
+		{
+			get => _selectedItemViewModel;
+			set
+			{
+				if(SetField(ref _selectedItemViewModel, value))
+				{
+					OnPropertyChanged(nameof(CanOpenNomenclature));
+				}
+			}
+		}
 
 		public ILevelConfig[] LevelConfig { get; }
 		public virtual DateTime Date
@@ -188,5 +203,31 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		}
 
 		#endregion Close command
+
+		#region Open nomenclature command
+
+		public DelegateCommand OpenNomenclatureCommand
+		{
+			get
+			{
+				if(_openNomenclatureCommand == null)
+				{
+					_openNomenclatureCommand = new DelegateCommand(OpenNomenclature, () => CanOpenNomenclature);
+					_openNomenclatureCommand.CanExecuteChangedWith(this, x => x.CanOpenNomenclature);
+				}
+				return _openNomenclatureCommand;
+			}
+		}
+
+		public bool CanOpenNomenclature => SelectedItemViewModel != null && SelectedItemViewModel is NomenclatureGroupPricingItemViewModel;
+
+		private void OpenNomenclature()
+		{
+			var selectedItem = (NomenclatureGroupPricingItemViewModel)SelectedItemViewModel;
+			var uowBuilder = EntityUoWBuilder.ForOpen(selectedItem.Nomenclature.Id);
+			NavigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(null, uowBuilder);
+		}
+
+		#endregion
 	}
 }
