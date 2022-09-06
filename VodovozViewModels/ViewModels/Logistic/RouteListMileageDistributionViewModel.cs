@@ -209,8 +209,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public GenericObservableList<RouteListMileageDistributionNode> Rows { get; set; }
 		public decimal? TotalConfirmedDistanceAtDay { get; set; }
 		public decimal? TotalRecalculatedDistanceAtDay => Rows.Sum(r => r.RouteList?.RecalculatedDistance);
+		public decimal? SubtractDistance => (TotalConfirmedDistanceAtDay - TotalRecalculatedDistanceAtDay) ?? SubtractDistanceAutomatically;
 
-		public decimal? SubtractDistance
+		public decimal? SubtractDistanceAutomatically
 		{
 			get
 			{
