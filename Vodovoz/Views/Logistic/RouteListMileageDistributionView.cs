@@ -24,6 +24,7 @@ namespace Vodovoz.Views.Logistic
 			yspinbuttonConfirmedMileageAtDay.Binding.AddBinding(ViewModel, vm => vm.TotalConfirmedDistanceAtDay, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 			ybuttonDistribute.Clicked += (s, a) => ViewModel.DistributeCommand.Execute();
+			ybuttonAcceptFine.Clicked += (s, a) => ViewModel.AcceptFineCommand.Execute(ytreeviewMiliageDistribution.GetSelectedObject<RouteListMileageDistributionNode>());
 			ybuttonSave.Clicked += (s, a) => ViewModel.SaveDistributionCommand.Execute();
 
 			ytreeviewMiliageDistribution.ColumnsConfig = ColumnsConfigFactory.Create<RouteListMileageDistributionNode>()

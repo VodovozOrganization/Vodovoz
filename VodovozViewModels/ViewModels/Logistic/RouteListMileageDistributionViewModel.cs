@@ -10,13 +10,18 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Project.Journal.EntitySelector;
 using QS.Tdi;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -24,6 +29,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	{
 		private DelegateCommand _saveDistributionCommand;
 		private DelegateCommand _distributeCommand;
+		private DelegateCommand<RouteListMileageDistributionNode> _acceptFineCommand;
 		private readonly WageParameterService _wageParameterService;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IValidationContextFactory _validationContextFactory;
@@ -31,6 +37,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ITdiTab _tdiTab;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+
+		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private readonly IEmployeeSettings _employeeSettings;
+		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly IEmployeeService _employeeService;
 
 		public RouteListMileageDistributionViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -40,6 +51,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			WageParameterService wageParameterService,
 			ICallTaskWorker callTaskWorker,
 			IValidationContextFactory validationContextFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
+			IEmployeeSettings employeeSettings,
+			IEmployeeService employeeService,
 			ITdiTabParent tabParent,
 			ITdiTab tdiTab)
 			: base(uowBuilder, commonServices)
@@ -51,6 +66,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_employeeSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_tabParent = tabParent ?? throw new ArgumentNullException(nameof(tabParent)); ;
 			_tdiTab = tdiTab ?? throw new ArgumentNullException(nameof(tdiTab)); ;
 
@@ -244,10 +263,29 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_distributeCommand ?? (_distributeCommand = new DelegateCommand(() =>
 				{
 					DistributeMileage();
-				},
-				() => true
+				}
 			));
 
+		public DelegateCommand<RouteListMileageDistributionNode> AcceptFineCommand =>
+			_acceptFineCommand ?? (_acceptFineCommand = new DelegateCommand<RouteListMileageDistributionNode>((selectedItem) =>
+				{
+					var fineViewModel = new FineViewModel(
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory,
+						_undeliveryViewOpener,
+						_employeeService,
+						_employeeSelectorFactory,
+						_employeeSettings,
+						CommonServices
+					)
+					{
+						RouteList = selectedItem.RouteList,
+						FineReasonString = "Перерасход топлива"
+					};
+
+					TabParent.AddSlaveTab(this, fineViewModel);
+				}
+			));
 
 		#endregion
 
