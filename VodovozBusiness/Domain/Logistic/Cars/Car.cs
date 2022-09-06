@@ -173,7 +173,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		[Display(Name = "Расход топлива")]
 		public virtual double FuelConsumption
 		{
-			get => CarModel.CarFuelVersions.LastOrDefault().FuelConsumption;
+			get => GetFuelConsumption();
 		}
 
 		[Display(Name = "Вид топлива")]
@@ -334,6 +334,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
 				}
 			}
+		}
+
+		private double GetFuelConsumption()
+		{
+			var result = CarModel.CarFuelVersions.OrderByDescending(x => x.StartDate)?.FirstOrDefault()?.FuelConsumption;
+
+			return result.Value;
 		}
 	}
 
