@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Tdi;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -26,6 +27,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly WageParameterService _wageParameterService;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IValidationContextFactory _validationContextFactory;
+		private readonly ITdiTabParent _tabParent;
+		private readonly ITdiTab _tdiTab;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
@@ -36,7 +39,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListItemRepository routeListItemRepository,
 			WageParameterService wageParameterService,
 			ICallTaskWorker callTaskWorker,
-			IValidationContextFactory validationContextFactory)
+			IValidationContextFactory validationContextFactory,
+			ITdiTabParent tabParent,
+			ITdiTab tdiTab)
 			: base(uowBuilder, commonServices)
 		{
 			TabName = $"Разнос километража";
@@ -46,6 +51,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			_tabParent = tabParent ?? throw new ArgumentNullException(nameof(tabParent)); ;
+			_tdiTab = tdiTab ?? throw new ArgumentNullException(nameof(tdiTab)); ;
 
 			GenerateDistributionRows();
 		}
@@ -183,7 +190,26 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public GenericObservableList<RouteListMileageDistributionNode> Rows { get; set; }
 		public decimal? TotalConfirmedDistanceAtDay { get; set; }
 		public decimal? TotalRecalculatedDistanceAtDay => Rows.Sum(r => r.RouteList?.RecalculatedDistance);
-		public decimal? SubtractDistance => TotalConfirmedDistanceAtDay - TotalRecalculatedDistanceAtDay;
+
+		public decimal? SubtractDistance
+		{
+			get
+			{
+				var routeListRows = Rows.Where(r => r.IsRouteList).ToList();
+
+				var totalConfirmedDistance = routeListRows.All(r => r.ConfirmedDistance > 0)
+					? routeListRows.Sum(r => r.RouteList?.ConfirmedDistance)
+					: null;
+
+				if(totalConfirmedDistance.HasValue && TotalRecalculatedDistanceAtDay.HasValue)
+				{
+					return totalConfirmedDistance - TotalRecalculatedDistanceAtDay;
+				}
+
+				return null;
+			}
+		}
+		
 		public bool CanEdit { get; set; } = true;
 		public bool AskSaveOnClose => CanEdit;
 
@@ -208,6 +234,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					UoW.Commit();
 
 					Close(false, CloseSource.Save);
+
+					_tabParent.ForceCloseTab(_tdiTab);
 				},
 				() => true
 			));

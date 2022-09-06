@@ -10,6 +10,7 @@ using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Tdi;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -125,8 +126,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private void ConfigureAndCheckPermissions()
 		{
 			var currentPermissionService = CommonServices.CurrentPermissionService;
-			var canConfirmMileage = currentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
 			var canUpdate = currentPermissionService.ValidatePresetPermission("logistican") && PermissionResult.CanUpdate;
+			var canConfirmMileage = currentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
 
 			CanEdit = (canUpdate && canConfirmMileage)
 					  || !(Entity.GetCarVersion.IsCompanyCar &&
@@ -137,11 +138,12 @@ namespace Vodovoz.ViewModels.Logistic
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не достаточно прав. Обратитесь к руководителю.");
 			}
 
-			if(IsEditAvailable)
+			if(CanEdit && Entity.Status != RouteListStatus.Closed)
 			{
 				if(!Entity.RecountMileage())
 				{
 					FailInitialize = true;
+					return;
 				}
 			}
 		}
@@ -240,13 +242,11 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				if(SetField(ref _canEdit, value))
 				{
-					OnPropertyChanged(nameof(IsEditAvailable));
 					OnPropertyChanged(nameof(IsAcceptAvailable));
 				}
 			}
 		}
 
-		public bool IsEditAvailable => CanEdit && Entity.Status != RouteListStatus.Closed;
 		public bool IsAcceptAvailable => Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck;
 		public bool AskSaveOnClose => CanEdit;
 		public IList<DeliveryShift> DeliveryShifts { get; }
@@ -332,7 +332,7 @@ namespace Vodovoz.ViewModels.Logistic
 						return;
 					}
 
-					NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(Entity.Id), OpenPageOptions.AsSlave);
+					NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
 				}
 			));
 	}

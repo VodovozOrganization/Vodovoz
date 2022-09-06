@@ -70,13 +70,11 @@ namespace Vodovoz.Views.Logistic
 			phoneDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
-			yvboxRouteList.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
-			ytableMain.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
-			
-			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
-			yhboxMileageComment.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
-			ytreeviewAddresses.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
-			yhboxBottom.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
+			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytableMain.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			yhboxMileageComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytreeviewAddresses.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			yhboxBottom.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			ybuttonAccept.Binding.AddFuncBinding(ViewModel, vm => vm.IsAcceptAvailable, w => w.Sensitive).InitializeFromSource();
 			ybuttonAccept.Clicked += (s, e) => ViewModel.AcceptCommand.Execute();
