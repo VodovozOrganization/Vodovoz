@@ -446,5 +446,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				UnitOfWorkFactory,
 				commonServices,
 				_employeeService);
+
+		public override void Dispose()
+		{
+			_timer?.Dispose();
+			base.Dispose();
+		}
 	}
 }
