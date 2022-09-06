@@ -28,6 +28,10 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton ybuttonDistribute;
 
+		private global::Gtk.VSeparator vseparator4;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonAcceptFine;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewMiliageDistribution;
@@ -141,16 +145,41 @@ namespace Vodovoz.Views.Logistic
 			this.ybuttonDistribute.Name = "ybuttonDistribute";
 			this.ybuttonDistribute.UseUnderline = true;
 			this.ybuttonDistribute.Label = global::Mono.Unix.Catalog.GetString("Разнести километраж");
+			global::Gtk.Image w10 = new global::Gtk.Image();
+			w10.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-jump-to", global::Gtk.IconSize.Menu);
+			this.ybuttonDistribute.Image = w10;
 			this.yhboxTitle.Add(this.ybuttonDistribute);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ybuttonDistribute]));
-			w10.Position = 9;
-			w10.Expand = false;
-			w10.Fill = false;
-			this.yvboxMain.Add(this.yhboxTitle);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxTitle]));
-			w11.Position = 0;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ybuttonDistribute]));
+			w11.Position = 9;
 			w11.Expand = false;
 			w11.Fill = false;
+			// Container child yhboxTitle.Gtk.Box+BoxChild
+			this.vseparator4 = new global::Gtk.VSeparator();
+			this.vseparator4.Name = "vseparator4";
+			this.yhboxTitle.Add(this.vseparator4);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.vseparator4]));
+			w12.Position = 10;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child yhboxTitle.Gtk.Box+BoxChild
+			this.ybuttonAcceptFine = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonAcceptFine.CanFocus = true;
+			this.ybuttonAcceptFine.Name = "ybuttonAcceptFine";
+			this.ybuttonAcceptFine.UseUnderline = true;
+			this.ybuttonAcceptFine.Label = global::Mono.Unix.Catalog.GetString("Выписать штраф");
+			global::Gtk.Image w13 = new global::Gtk.Image();
+			w13.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
+			this.ybuttonAcceptFine.Image = w13;
+			this.yhboxTitle.Add(this.ybuttonAcceptFine);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ybuttonAcceptFine]));
+			w14.Position = 11;
+			w14.Expand = false;
+			w14.Fill = false;
+			this.yvboxMain.Add(this.yhboxTitle);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxTitle]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -161,8 +190,8 @@ namespace Vodovoz.Views.Logistic
 			this.ytreeviewMiliageDistribution.Name = "ytreeviewMiliageDistribution";
 			this.GtkScrolledWindow.Add(this.ytreeviewMiliageDistribution);
 			this.yvboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
-			w13.Position = 1;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
+			w17.Position = 1;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yhboxBottom = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxBottom.Name = "yhboxBottom";
@@ -173,20 +202,20 @@ namespace Vodovoz.Views.Logistic
 			this.ybuttonSave.Name = "ybuttonSave";
 			this.ybuttonSave.UseUnderline = true;
 			this.ybuttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			global::Gtk.Image w14 = new global::Gtk.Image();
-			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
-			this.ybuttonSave.Image = w14;
+			global::Gtk.Image w18 = new global::Gtk.Image();
+			w18.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.ybuttonSave.Image = w18;
 			this.yhboxBottom.Add(this.ybuttonSave);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yhboxBottom[this.ybuttonSave]));
-			w15.Position = 0;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yhboxBottom[this.ybuttonSave]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
 			this.yvboxMain.Add(this.yhboxBottom);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxBottom]));
-			w16.PackType = ((global::Gtk.PackType)(1));
-			w16.Position = 2;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxBottom]));
+			w20.PackType = ((global::Gtk.PackType)(1));
+			w20.Position = 2;
+			w20.Expand = false;
+			w20.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
