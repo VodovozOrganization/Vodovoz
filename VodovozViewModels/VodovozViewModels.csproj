@@ -48,6 +48,10 @@
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Dialogs\Goods\AdditionalLoadingSettingsViewModel.cs" />
+    <Compile Include="Dialogs\Goods\INomenclatureGroupPricingItemViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureGroupPricingItemViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureGroupPricingProductGroupViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureGroupPricingViewModel.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
@@ -273,12 +277,14 @@
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
     <Compile Include="ViewModels\Flyers\FlyerViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureInnerDeliveryPricesViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureInnerDeliveryPriceViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryAvailabilityHistoryViewModel.cs" />
     <Compile Include="ViewModels\ImportPaymentsFromAvangardSbpViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TariffZoneViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TrackPointViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarManufacturerViewModel.cs" />
-    <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureCostPurchasePriceViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
     <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />
@@ -507,6 +513,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
+      <Project>{7A75C848-2A65-4FFF-AB70-9408E697D9BA}</Project>
+      <Name>Gamma.Binding.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
       <Name>Gamma.Utilities</Name>

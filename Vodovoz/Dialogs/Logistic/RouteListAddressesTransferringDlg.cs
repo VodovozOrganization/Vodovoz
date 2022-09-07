@@ -452,6 +452,8 @@ namespace Vodovoz
 
 				UoW.Save(item);
 				UoW.Save(newItem);
+
+				UoW.Commit();
 			}
 			
 			UpdateTranferDocuments(routeListFrom, routeListTo);

@@ -6,6 +6,7 @@ using Gamma.Binding;
 using System.Linq;
 using Gtk;
 using System;
+using Gamma.Binding.Core.LevelTreeConfig;
 
 namespace Vodovoz.Views.Complaints
 {
