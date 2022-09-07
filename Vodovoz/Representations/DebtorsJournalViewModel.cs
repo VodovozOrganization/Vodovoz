@@ -247,8 +247,7 @@ namespace Vodovoz.Representations
 					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
 				.Select(Projections.GroupProperty(
 					Projections.Property<Order>(o => o.Client.Id))
-				)
-				.Where(Restrictions.Gt(Projections.CountDistinct(() => orderCountAlias.Id), 1));
+				);
 
 			#endregion LastOrder
 
@@ -287,6 +286,17 @@ namespace Vodovoz.Representations
 				{
 					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= FilterViewModel.LastOrderBottlesTo.Value);
 				}
+
+				if(FilterViewModel.DeliveryPointsFrom != null)
+				{
+					ordersQuery = ordersQuery.Where(Restrictions.Ge(Projections.SubQuery(countDeliveryPoint), FilterViewModel.DeliveryPointsFrom.Value));
+				}
+
+				if(FilterViewModel.DeliveryPointsTo != null)
+				{
+					ordersQuery = ordersQuery.Where(Restrictions.Le(Projections.SubQuery(countDeliveryPoint), FilterViewModel.DeliveryPointsTo.Value));
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
@@ -299,12 +309,20 @@ namespace Vodovoz.Representations
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
 				}
-				if(FilterViewModel.HideWithOneOrder)
+
+				if(FilterViewModel.WithOneOrder != null)
 				{
+					var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
+
+					subQuerryOrdersCount.Where(FilterViewModel.WithOneOrder.Value
+						? Restrictions.Eq(countProjection, 1)
+						: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
+					
 					ordersQuery.WithSubquery
 						.WhereProperty(() => counterpartyAlias.Id)
 						.In(subQuerryOrdersCount);
 				}
+
 				if(FilterViewModel.LastOrderNomenclature != null)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
@@ -424,12 +442,15 @@ namespace Vodovoz.Representations
 					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
 				.Select(Projections.GroupProperty(
 					Projections.Property<Order>(o => o.Client.Id))
-				)
-				.Where(Restrictions.Gt(Projections.CountDistinct(() => orderCountAlias.Id), 1));
+				);
 
 			var counterpartyContactEmailsSubQuery = QueryOver.Of(() => emailAlias)
 				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
 				.Select(Projections.Property(() => emailAlias.Id));
+
+			var countDeliveryPoint = QueryOver.Of(() => deliveryPointAlias)
+				.Where(x => x.Counterparty.Id == counterpartyAlias.Id)
+				.Select(Projections.Count(Projections.Id()));
 
 			#region LastOrder
 
@@ -540,6 +561,17 @@ namespace Vodovoz.Representations
 					ordersQuery =
 						ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= FilterViewModel.LastOrderBottlesTo.Value);
 				}
+
+				if(FilterViewModel.DeliveryPointsFrom != null)
+				{
+					ordersQuery = ordersQuery.Where(Restrictions.Ge(Projections.SubQuery(countDeliveryPoint), FilterViewModel.DeliveryPointsFrom.Value));
+				}
+
+				if(FilterViewModel.DeliveryPointsTo != null)
+				{
+					ordersQuery = ordersQuery.Where(Restrictions.Le(Projections.SubQuery(countDeliveryPoint), FilterViewModel.DeliveryPointsTo.Value));
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
@@ -568,12 +600,20 @@ namespace Vodovoz.Representations
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
 				}
-				if(FilterViewModel.HideWithOneOrder)
+
+				if(FilterViewModel.WithOneOrder != null)
 				{
+					var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
+
+					subQuerryOrdersCount.Where(FilterViewModel.WithOneOrder.Value
+						? Restrictions.Eq(countProjection, 1)
+						: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
+
 					ordersQuery.WithSubquery
 						.WhereProperty(() => counterpartyAlias.Id)
 						.In(subQuerryOrdersCount);
 				}
+
 				if(!FilterViewModel.EndDate.HasValue && FilterViewModel.ShowSuspendedCounterparty)
 				{
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(orderFromSuspendedWithoutDate);
@@ -729,7 +769,7 @@ namespace Vodovoz.Representations
 					{ "DebtBottlesFrom", FilterViewModel.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : ""},
 					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : ""},
 					{ "HideActiveCounterparty", FilterViewModel.HideActiveCounterparty ? "true" : ""},
-					{ "HideWithOneOrder", FilterViewModel.HideWithOneOrder ? "true" : ""},
+					{ "HideWithOneOrder", (FilterViewModel.WithOneOrder.HasValue && !FilterViewModel.WithOneOrder.Value) ? "true" : ""},
 					{ "SearchString1", Search.SearchValues?.Length > 0 ? Search.SearchValues[0] : null },
 					{ "SearchString2", Search.SearchValues?.Length > 1 ? Search.SearchValues[1] : null },
 					{ "SearchString3", Search.SearchValues?.Length > 2 ? Search.SearchValues[2] : null },
