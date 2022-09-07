@@ -100,9 +100,6 @@
     <Reference Include="System.ComponentModel" />
     <Reference Include="mscorlib" />
     <Reference Include="System.Numerics" />
-    <Reference Include="GammaBinding">
-      <HintPath>..\..\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -658,8 +655,6 @@
     <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingDlg.cs" />
     <Compile Include="JournalViewers\RouteListMileageCheckView.cs" />
-    <Compile Include="Dialogs\Logistic\RouteListMileageCheckDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckView.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
@@ -1744,6 +1739,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="Views\Goods\GroupNomenclaturePriceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureGroupPricingView.cs" />
+    <Compile Include="Views\Logistic\RouteListMileageCheckView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMileageCheckView.cs" />
+    <Compile Include="Views\Logistic\RouteListMileageDistributionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMileageDistributionView.cs" />
+    <Compile Include="Views\Logistic\OdometerReadingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.OdometerReadingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2065,7 +2066,6 @@
     <Folder Include="ViewModels\Mango\WidgetsModel\" />
     <Folder Include="ViewWidgets\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Goods\" />
     <Folder Include="ReportsParameters\Production\" />
     <Folder Include="Views\Accounting\" />
     <Folder Include="Views\Payments\" />

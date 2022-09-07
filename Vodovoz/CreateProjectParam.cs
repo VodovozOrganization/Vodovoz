@@ -171,6 +171,7 @@ using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using Vodovoz.ReportsParameters.Orders;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.Dialogs.Sales;
@@ -304,6 +305,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
 				.RegisterWidgetForTabViewModel<GeoGroupViewModel, GeoGroupView>()
 				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, NomenclatureGroupPricingView>()
+				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
+				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				;
 
             //Регистрация виджетов
@@ -595,6 +598,7 @@ namespace Vodovoz
 				.Where(t => t.Name.EndsWith("Model") && !t.Name.EndsWith("ViewModel"))
 				.AsImplementedInterfaces()
 				.AsSelf();
+			builder.RegisterType<WageParameterService>().AsSelf();
 
 			#endregion
 

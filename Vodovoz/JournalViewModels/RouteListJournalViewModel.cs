@@ -49,6 +49,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -107,7 +108,8 @@ namespace Vodovoz.JournalViewModels
 			IReportPrinter reportPrinter,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IEmployeeSettings employeeSettings,
-			ICommonServices commonServices)
+			ICommonServices commonServices
+			)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -604,10 +606,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListMileageCheckDlg(selectedNode.Id)
-						);
+						MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 					}
 				}
 			);

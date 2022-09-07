@@ -88,6 +88,8 @@ using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
 
 public partial class MainWindow : Window
 {
@@ -951,6 +953,7 @@ public partial class MainWindow : Window
 		var filter = new RouteListJournalFilterViewModel();
 		filter.StartDate = DateTime.Today.AddMonths(-2);
 		filter.EndDate = DateTime.Today;
+
 		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
 	}
 
@@ -988,10 +991,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListMileageCheckView>(),
-			() => new RouteListMileageCheckView()
-		);
+		NavigationManager.OpenTdiTab<RouteListMileageCheckView>(null);
 	}
 
 	void ActionCashDocuments_Activated(object sender, System.EventArgs e)
