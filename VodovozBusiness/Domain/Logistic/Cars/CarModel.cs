@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -19,6 +20,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private bool _isArchive;
 		private int _maxWeight;
 		private decimal _maxVolume;
+		private IList<CarFuelVersion> _carFuelVersions = new List<CarFuelVersion>();
+		private GenericObservableList<CarFuelVersion> _observableCarFuelVersions;
 
 		public virtual int Id { get; set; }
 
@@ -63,6 +66,15 @@ namespace Vodovoz.Domain.Logistic.Cars
 			get => _maxVolume;
 			set => SetField(ref _maxVolume, value);
 		}
+
+		public virtual IList<CarFuelVersion> CarFuelVersions
+		{
+			get => _carFuelVersions;
+			set => SetField(ref _carFuelVersions, value);
+		}
+
+		public virtual GenericObservableList<CarFuelVersion> ObservableCarFuelVersions => _observableCarFuelVersions
+			?? (_observableCarFuelVersions = new GenericObservableList<CarFuelVersion>(CarFuelVersions));
 
 		public virtual string Title => $"{CarManufacturer.Name} {Name}";
 

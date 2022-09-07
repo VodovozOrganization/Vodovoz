@@ -72,7 +72,6 @@ namespace Vodovoz.Views.Logistic
 			dataentryFuelType.Binding.AddBinding(ViewModel.Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
 			radiobuttonMain.Active = true;
 
-			dataspinbutton1.Binding.AddBinding(ViewModel.Entity, e => e.FuelConsumption, w => w.Value).InitializeFromSource();
 			minBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottles, w => w.ValueAsInt).InitializeFromSource();
 			maxBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MaxBottles, w => w.ValueAsInt).InitializeFromSource();
 			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
