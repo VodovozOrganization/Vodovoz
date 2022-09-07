@@ -95,7 +95,7 @@ namespace Vodovoz.Views.Logistic
 			yTreeGeographicGroups.ItemsDataSource = ViewModel.Entity.ObservableGeographicGroups;
 
 			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
-			//odometerReadingView.ViewModel = ViewModel.OdometerReadingsViewModel;
+			odometerReadingView.ViewModel = ViewModel.OdometerReadingsViewModel;
 
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
