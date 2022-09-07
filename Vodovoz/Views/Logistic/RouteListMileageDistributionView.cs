@@ -23,6 +23,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 			yspinbuttonConfirmedMileageAtDay.Binding.AddBinding(ViewModel, vm => vm.TotalConfirmedDistanceAtDay, w => w.ValueAsDecimal)
 				.InitializeFromSource();
+			ybuttonAcceptFine.Binding.AddBinding(ViewModel, vm => vm.CanAcceptFine, w => w.Sensitive).InitializeFromSource();
 			ybuttonDistribute.Clicked += (s, a) => ViewModel.DistributeCommand.Execute();
 			ybuttonAcceptFine.Clicked += (s, a) => ViewModel.AcceptFineCommand.Execute(ytreeviewMiliageDistribution.GetSelectedObject<RouteListMileageDistributionNode>());
 			ybuttonSave.Clicked += (s, a) => ViewModel.SaveDistributionCommand.Execute();
@@ -76,7 +77,10 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("")
 				.Finish();
 
-			ytreeviewMiliageDistribution.ItemsDataSource = ViewModel.Rows;
+			ytreeviewMiliageDistribution.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Rows, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.SelectedNode, w => w.SelectedRow)
+				.InitializeFromSource();
 		}
 	}
 }

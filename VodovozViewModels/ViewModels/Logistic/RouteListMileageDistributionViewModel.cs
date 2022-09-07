@@ -43,6 +43,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IEmployeeService _employeeService;
 
+		private RouteListMileageDistributionNode _selectedNode;
+
 		public RouteListMileageDistributionViewModel(
 			IEntityUoWBuilder uowBuilder,
 			ICommonServices commonServices,
@@ -232,6 +234,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		
 		public bool CanEdit { get; set; } = true;
 		public bool AskSaveOnClose => CanEdit;
+
+		public RouteListMileageDistributionNode SelectedNode
+		{
+			get => _selectedNode;
+			set
+			{
+				if(SetField(ref _selectedNode, value))
+				{
+					OnPropertyChanged(nameof(CanAcceptFine));
+				}
+			}
+		}
+
+		public bool CanAcceptFine => SelectedNode != null && SelectedNode.IsRouteList;
 
 		#endregion
 
