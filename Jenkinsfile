@@ -38,7 +38,7 @@ node('Vod6'){
 		echo "checkout QSProjects"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/VodTemp']],
+			branches: [[name: '*/VodovozMonitoring']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
