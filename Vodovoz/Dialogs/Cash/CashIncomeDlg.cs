@@ -253,7 +253,7 @@ namespace Vodovoz
 		private Subdivision GetSubdivision(RouteList routeList)
 		{
 			var user = _userService.GetCurrentUser(UoW);
-			var employee = _employeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
+			var employee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			var subdivisions = _subdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
 			if(subdivisions.Any(x => x.Id == employee.Subdivision.Id))
 			{
@@ -265,7 +265,7 @@ namespace Vodovoz
 			}
 
 			throw new InvalidOperationException("Невозможно подобрать подразделение кассы. " +
-				"Возможно документ сохраняет не кассир. или не правильно заполнены части города в МЛ.");
+				"Возможно документ сохраняет не кассир или не правильно заполнены части города в МЛ.");
 		}
 
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)

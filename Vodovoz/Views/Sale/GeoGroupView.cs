@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Sale
 		{
 			yEntryName.Binding.AddBinding(Entity, x => x.Name, w => w.Text).InitializeFromSource();
 
-			ytreeview1.ColumnsConfig = FluentColumnsConfig<GeoGroupVersionViewModel>.Create()
+			ytreeviewVersions.ColumnsConfig = FluentColumnsConfig<GeoGroupVersionViewModel>.Create()
 				.AddColumn("Код").AddNumericRenderer(x => x.Id)
 				.AddColumn("Статус").AddTextRenderer(x => x.StatusTitle)
 				.AddColumn("Автор").AddTextRenderer(x => x.Author)
@@ -36,9 +36,11 @@ namespace Vodovoz.Views.Sale
 				.AddColumn("Дата активации").AddTextRenderer(x => x.ActivationDate)
 				.AddColumn("Дата закрытия").AddTextRenderer(x => x.ClosingDate)
 				.Finish();
-			ytreeview1.Binding.AddBinding(ViewModel, vm => vm.Versions, w => w.ItemsDataSource).InitializeFromSource();
-			ytreeview1.Selection.Mode = Gtk.SelectionMode.Single;
-			ytreeview1.Selection.Changed += Selection_Changed;
+			ytreeviewVersions.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Versions, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.SelectedVersion, w => w.SelectedRow)
+				.InitializeFromSource();
+			ytreeviewVersions.Selection.Mode = Gtk.SelectionMode.Single;
 
 			labelCoordinatesValue.WidthRequest = 220;
 
@@ -65,7 +67,7 @@ namespace Vodovoz.Views.Sale
 			entryCashSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.CashSelectorFactory);
 			entryWarehouse.SetEntityAutocompleteSelectorFactory(ViewModel.WarehouseSelectorFactory);
 
-			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
 			comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			comboMapProvider.ItemsEnum = typeof(MapProviders);
@@ -73,9 +75,9 @@ namespace Vodovoz.Views.Sale
 			comboMapProvider.EnumItemSelected += (sender, args) =>
 				gMapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 
-			gMapWidget.ButtonPressEvent += GMapWidget_ButtonPressEvent;
-			gMapWidget.ButtonReleaseEvent += GMapWidget_ButtonReleaseEvent;
-			gMapWidget.MotionNotifyEvent += GMapWidget_MotionNotifyEvent;
+			gMapWidget.ButtonPressEvent += GMapWidgetButtonPressEvent;
+			gMapWidget.ButtonReleaseEvent += GMapWidgetButtonReleaseEvent;
+			gMapWidget.MotionNotifyEvent += GMapWidgetMotionNotifyEvent;
 
 			buttonSave.Clicked += (s, e) => ViewModel.SaveCommand.Execute();
 			ViewModel.SaveCommand.CanExecuteChanged += (s, e) => buttonSave.Sensitive = ViewModel.SaveCommand.CanExecute();
@@ -88,18 +90,7 @@ namespace Vodovoz.Views.Sale
 			RefreshVersion();
 		}
 
-		private void Selection_Changed(object sender, EventArgs e)
-		{
-			var selected = ytreeview1.GetSelectedObject<GeoGroupVersionViewModel>();
-			if (selected == null)
-			{
-				return;
-			}
-
-			ViewModel.SelectedVersion = selected;
-		}
-
-		private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void ViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
@@ -205,7 +196,7 @@ namespace Vodovoz.Views.Sale
 			}
 		}
 
-		void GMapWidget_MotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
+		void GMapWidgetMotionNotifyEvent(object o, Gtk.MotionNotifyEventArgs args)
 		{
 			if(!_addressMoving || ViewModel.SelectedVersion == null)
 			{
@@ -215,7 +206,7 @@ namespace Vodovoz.Views.Sale
 			_addressMarker.Position = gMapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
 		}
 
-		private void GMapWidget_ButtonReleaseEvent(object o, Gtk.ButtonReleaseEventArgs args)
+		private void GMapWidgetButtonReleaseEvent(object o, Gtk.ButtonReleaseEventArgs args)
 		{
 			if(args.Event.Button == 1)
 			{
@@ -230,7 +221,7 @@ namespace Vodovoz.Views.Sale
 			}
 		}
 
-		private void GMapWidget_ButtonPressEvent(object o, Gtk.ButtonPressEventArgs args)
+		private void GMapWidgetButtonPressEvent(object o, Gtk.ButtonPressEventArgs args)
 		{
 			if(args.Event.Button == 1)
 			{

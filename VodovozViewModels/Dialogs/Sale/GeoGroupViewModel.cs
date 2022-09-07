@@ -51,8 +51,8 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			CheckPermissions();
 			BindVersions();
 
-			Entity.PropertyChanged += Entity_PropertyChanged;
-			Versions.ElementRemoved += Versions_ElementRemoved;
+			Entity.PropertyChanged += EntityPropertyChanged;
+			Versions.ElementRemoved += VersionsElementRemoved;
 		}
 
 		private void CheckPermissions()
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			_versionsPermissionResult = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(GeoGroupVersion));
 		}
 
-		private void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
@@ -72,7 +72,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 					break;
 			}
 		}
-		private void Versions_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void VersionsElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			if(aObject == SelectedVersion)
 			{
@@ -303,17 +303,17 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			var versionViewModels = Entity.Versions.Select(x => new GeoGroupVersionViewModel(x)).ToList();
 			Versions = new GenericObservableList<GeoGroupVersionViewModel>(versionViewModels);
 
-			Entity.ObservableVersions.ElementAdded += ObservableVersions_ElementAdded;
-			Entity.ObservableVersions.ElementRemoved += ObservableVersions_ElementRemoved;
-			Entity.ObservableVersions.ElementChanged += ObservableVersions_ElementChanged;
+			Entity.ObservableVersions.ElementAdded += ObservableVersionsElementAdded;
+			Entity.ObservableVersions.ElementRemoved += ObservableVersionsElementRemoved;
+			Entity.ObservableVersions.ElementChanged += ObservableVersionsElementChanged;
 		}
 
-		private void ObservableVersions_ElementAdded(object aList, int[] aIdx)
+		private void ObservableVersionsElementAdded(object aList, int[] aIdx)
 		{
 			var source = aList as GenericObservableList<GeoGroupVersion>;
 			if(source != Entity.ObservableVersions)
 			{
-				source.ElementAdded -= ObservableVersions_ElementAdded;
+				source.ElementAdded -= ObservableVersionsElementAdded;
 			}
 
 			foreach(var index in aIdx)
@@ -323,12 +323,12 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			}
 		}
 
-		private void ObservableVersions_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void ObservableVersionsElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			var source = aList as GenericObservableList<GeoGroupVersion>;
 			if(source != Entity.ObservableVersions)
 			{
-				source.ElementRemoved -= ObservableVersions_ElementRemoved;
+				source.ElementRemoved -= ObservableVersionsElementRemoved;
 			}
 
 			foreach(var index in aIdx)
@@ -337,12 +337,12 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			}
 		}
 
-		private void ObservableVersions_ElementChanged(object aList, int[] aIdx)
+		private void ObservableVersionsElementChanged(object aList, int[] aIdx)
 		{
 			var source = aList as GenericObservableList<GeoGroupVersion>;
 			if(source != Entity.ObservableVersions)
 			{
-				source.ElementChanged -= ObservableVersions_ElementChanged;
+				source.ElementChanged -= ObservableVersionsElementChanged;
 			}
 
 			foreach(var index in aIdx)
@@ -395,6 +395,4 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 		#endregion
 
 	}
-
-	
 }

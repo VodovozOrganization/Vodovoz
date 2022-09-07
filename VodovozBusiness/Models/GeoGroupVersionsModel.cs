@@ -83,7 +83,7 @@ namespace Vodovoz.Models
 
 			if(closingVersion.Status != VersionStatus.Active)
 			{
-				throw new InvalidOperationException($"Можно закрывать только данных части города в статусе {VersionStatus.Active.GetEnumTitle()}");
+				throw new InvalidOperationException($"Можно закрывать только версию данных части города в статусе {VersionStatus.Active.GetEnumTitle()}");
 			}
 
 			closingVersion.ClosingDate = DateTime.Now;
@@ -99,7 +99,7 @@ namespace Vodovoz.Models
 
 			if(deletingVersion.Status != VersionStatus.Draft)
 			{
-				throw new InvalidOperationException($"Можно удалять только данных части города в статусе {VersionStatus.Draft.GetEnumTitle()}");
+				throw new InvalidOperationException($"Можно удалять только версию данных части города в статусе {VersionStatus.Draft.GetEnumTitle()}");
 			}
 
 			geoGroup.ObservableVersions.Remove(deletingVersion);

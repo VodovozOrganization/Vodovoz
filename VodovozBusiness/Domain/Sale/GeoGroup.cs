@@ -1,12 +1,11 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Data.Bindings.Utilities;
 using System.Linq;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.Domain.Sale
@@ -18,15 +17,16 @@ namespace Vodovoz.Domain.Sale
 	[HistoryTrace]
 	public class GeoGroup : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public virtual int Id { get; set; }
-		IList<GeoGroupVersion> _versions = new List<GeoGroupVersion>();
-		GenericObservableList<GeoGroupVersion> _observableVersions;
+		private string _name;
+		private IList<GeoGroupVersion> _versions = new List<GeoGroupVersion>();
+		private GenericObservableList<GeoGroupVersion> _observableVersions;
 
-		string _name;
+		public virtual int Id { get; set; }
 
 		[Display(Name = "Название")]
 		[Required(ErrorMessage = "Название части города должно быть заполнено")]
-		public virtual string Name {
+		public virtual string Name
+		{
 			get => _name;
 			set => SetField(ref _name, value, () => Name);
 		}

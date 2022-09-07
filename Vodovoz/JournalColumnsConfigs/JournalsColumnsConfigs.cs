@@ -1659,7 +1659,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//PaymentsFromJournalViewModel
+			//GeoGroupJournalViewModel
 			TreeViewColumnsConfigFactory.Register<GeoGroupJournalViewModel>(
 				() => FluentColumnsConfig<GeoGroupJournalNode>.Create()
 					.AddColumn("№")

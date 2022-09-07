@@ -131,7 +131,7 @@ namespace Vodovoz.JournalViewModels
 			{
 				return () =>
 				{
-					var commonServices = ServicesConfig.CommonServices;
+					var commonServices = CommonServices ServicesConfig.CommonServices;
 					var subdivisionJournalFactory = new SubdivisionJournalFactory();
 					var warehouseJournalFactory = new WarehouseJournalFactory();
 					var employeeService = new EmployeeService();

@@ -432,11 +432,10 @@ namespace Vodovoz.Dialogs.Logistic
 
 			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
 			var commonServices = ServicesConfig.CommonServices;
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var warehouseJournalFactory = new WarehouseJournalFactory();
 			var employeeService = new EmployeeService();
 			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
-			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
+			var geoGroupJournalFactory = new GeoGroupJournalFactory(uowFactory, commonServices, _subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
 
 			TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Car>(selected.Car.Id),

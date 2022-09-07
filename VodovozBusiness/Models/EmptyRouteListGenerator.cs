@@ -25,7 +25,7 @@ namespace Vodovoz.Models
 			{
 				if(workedDriver.DaySchedule == null || !workedDriver.DaySchedule.Shifts.Any())
 				{
-					throw new InvalidOperationException("Должены быть заполнены графики работы");
+					throw new InvalidOperationException("Должны быть заполнены графики работы");
 				}
 
 				foreach(var shift in workedDriver.DaySchedule.Shifts)
@@ -43,7 +43,7 @@ namespace Vodovoz.Models
 
 					if(workedDriver.GeographicGroup == null)
 					{
-						throw new InvalidOperationException("Должена быть заполнена часть города (база)");
+						throw new InvalidOperationException("Должна быть заполнена часть города (база)");
 					}
 
 					var routeList = new RouteList();
