@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -49,9 +49,9 @@ LEFT JOIN
 LEFT JOIN
     delivery_points ON delivery_points.id = orders.delivery_point_id
 LEFT JOIN
-    geographic_groups_to_entities gge ON gge.route_list_id = route_lists.id
+    geo_groups_to_entities gge ON gge.route_list_id = route_lists.id
 LEFT JOIN
-    geographic_groups gg ON gge.geographic_group_id = gg.id
+    geo_groups gg ON gge.geo_group_id = gg.id
 INNER JOIN car_models cm ON c.model_id = cm.id
 INNER JOIN
     car_versions cv ON c.id = cv.car_id

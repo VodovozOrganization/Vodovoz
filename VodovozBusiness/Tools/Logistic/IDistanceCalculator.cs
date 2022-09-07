@@ -7,8 +7,8 @@ namespace Vodovoz.Tools.Logistic
 	{
 		int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP);
 
-		int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP);
+		int DistanceFromBaseMeter(GeoGroupVersion fromBase, DeliveryPoint toDP);
 
-		int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase);
+		int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroupVersion toBase);
 	}
 }

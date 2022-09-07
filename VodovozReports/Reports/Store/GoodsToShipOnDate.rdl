@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -586,7 +586,7 @@
 	) AS category_name,
 	items.qty_to_ship,
 	wh_qty.qty AS qty_available,
-	items.geographic_group_id AS geo_group,
+	items.geo_group_id AS geo_group,
 	gg.name AS gg_name
 #товары и оборудование к клиенту
 FROM (
@@ -599,7 +599,7 @@ FROM (
 	JOIN orders o ON o.id = i.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
 	LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-	LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+	LEFT JOIN geo_groups gg ON gg.id = distr.geo_group_id
 	WHERE DATE(o.delivery_date) = @date
 		AND o.order_status IN(
 			'Accepted',
@@ -623,7 +623,7 @@ FROM (
 	JOIN orders o ON o.id = eq.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
 	LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-	LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+	LEFT JOIN geo_groups gg ON gg.id = distr.geo_group_id
 	WHERE DATE(o.delivery_date) = @date
 		AND eq.direction = 'Deliver'
 		AND o.order_status IN(
@@ -636,7 +636,7 @@ FROM (
 ) AS items
 JOIN nomenclature n ON n.id = items.nomenclature_id
 LEFT JOIN nomenclature_groups ng ON n.group_id = ng.id
-LEFT JOIN geographic_groups gg ON items.geographic_group_id = gg.id
+LEFT JOIN geo_groups gg ON items.geo_group_id = gg.id
 #остатки на складах
 LEFT JOIN (
 	SELECT
@@ -764,7 +764,7 @@ JOIN order_equipment eq ON eq.order_id = o.id
 JOIN nomenclature n ON n.id = eq.nomenclature_id
 LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
 LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+LEFT JOIN geo_groups gg ON gg.id = distr.geo_group_id
 JOIN counterparty c ON c.id = o.client_id 
 LEFT JOIN nomenclature_groups ng ON n.group_id = ng.id
 WHERE DATE(o.delivery_date) = @date

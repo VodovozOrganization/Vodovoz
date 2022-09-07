@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -2620,7 +2620,7 @@ FROM
             LEFT JOIN
         districts ON delivery_points.district_id = districts.id
             LEFT JOIN
-        geographic_groups ON geographic_groups.id = districts.geographic_group_id
+        geo_groups ON geo_groups.id = districts.geo_group_id
     WHERE
         (orders.delivery_date BETWEEN @start_date AND @end_date)
         AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
@@ -2630,7 +2630,7 @@ FROM
         AND orders.order_address_type != 'Service'
         AND delivery_schedule.id IS NOT NULL
         AND orders.delivery_point_id IS NOT NULL
-        AND geographic_groups.id in (@geographic_group_id)) as T
+        AND geo_groups.id in (@geographic_group_id)) as T
 GROUP BY week_begin
 ORDER BY week_begin</CommandText>
         <QueryParameters>
@@ -2733,12 +2733,12 @@ FROM
         left join
     districts ON delivery_points.district_id = districts.id
         left join
-    geographic_groups ON geographic_groups.id = districts.geographic_group_id
+    geo_groups ON geo_groups.id = districts.geo_group_id
 WHERE
     old_order.delivery_date &gt;= @start_date
     and old_order.delivery_date &lt;= @end_date
     and (guilty_in.guilty_side = 'Driver' OR guilty_in.guilty_department_id in (13, 26, 46, 51))
-    and geographic_groups.id in (@geographic_group_id)
+    and geo_groups.id in (@geographic_group_id)
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">

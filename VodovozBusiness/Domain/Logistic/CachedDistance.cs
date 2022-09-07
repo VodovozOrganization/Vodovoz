@@ -27,7 +27,14 @@ namespace Vodovoz.Domain.Logistic
 
 		public static long GetHash(DeliveryPoint point) => GetHash((double)point.Latitude.Value, (double)point.Longitude.Value);
 
-		public static long GetHash(GeographicGroup point) => GetHash((double)point.BaseLatitude.Value, (double)point.BaseLongitude.Value);
+		public static long GetHash(GeoGroupVersion geoGroupVersion)
+		{
+			if(geoGroupVersion is null)
+			{
+				throw new ArgumentNullException(nameof(geoGroupVersion));
+			}
+			return GetHash((double)geoGroupVersion.BaseLatitude.Value, (double)geoGroupVersion.BaseLongitude.Value);
+		}
 
 		public static long GetHash(double latitude, double longitude)
 		{

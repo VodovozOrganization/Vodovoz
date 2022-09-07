@@ -44,7 +44,7 @@ namespace Vodovoz.Views.Organization
 			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
 			repTreeChildSubdivisions.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			ySpecCmbGeographicGroup.ItemsList = ViewModel.UoW.Session.QueryOver<GeographicGroup>().List();
+			ySpecCmbGeographicGroup.ItemsList = ViewModel.UoW.Session.QueryOver<GeoGroup>().List();
 			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, e => e.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
 			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroupVisible, w => w.Visible).InitializeFromSource();

@@ -122,7 +122,10 @@ namespace Vodovoz.JournalViewModels
 			return result;
 		};
 
-		protected override Func<CarViewModel> CreateDialogFunction => () => new CarViewModel(
+		protected override Func<CarViewModel> CreateDialogFunction { get; }
+		protected override Func<CarJournalNode, CarViewModel> OpenDialogFunction { get; }
+
+		/*protected override Func<CarViewModel> CreateDialogFunction => () => new CarViewModel(
 			EntityUoWBuilder.ForCreate(),
 			UnitOfWorkFactory,
 			commonServices,
@@ -150,6 +153,6 @@ namespace Vodovoz.JournalViewModels
 				new BaseParametersProvider(new ParametersProvider()))),
 			new GeographicGroupParametersProvider(new ParametersProvider()),
 			NavigationManager
-		);
+		);*/
 	}
 }

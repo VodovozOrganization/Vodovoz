@@ -56,6 +56,10 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Controllers\CarFuelVersionsController.cs" />
+    <Compile Include="Controllers\FuelPriceVersionsController.cs" />
+    <Compile Include="Controllers\ICarFuelVersionsController.cs" />
+    <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
     <Compile Include="Controllers\OdometerReadingsController.cs" />
     <Compile Include="Controllers\IOdometerReadingsController.cs" />
     <Compile Include="Controllers\OrganizationVersionsController.cs" />
@@ -134,8 +138,9 @@
     <Compile Include="Domain\FinancialDistrict.cs" />
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
     <Compile Include="Domain\Goods\AdditionalLoadingNomenclatureDistribution.cs" />
+    <Compile Include="Domain\Goods\NomenclatureInnerDeliveryPrice.cs" />
     <Compile Include="Domain\Goods\OrderItemComparerForCopyingFromUndelivery.cs" />
-    <Compile Include="Domain\Goods\NomenclaturePurchasePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclatureCostPurchasePrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
@@ -147,6 +152,7 @@
     <Compile Include="Domain\Logistic\Cars\Car.cs" />
     <Compile Include="Domain\Logistic\Cars\CarEvent.cs" />
     <Compile Include="Domain\Logistic\Cars\CarEventType.cs" />
+    <Compile Include="Domain\Logistic\Cars\CarFuelVersion.cs" />
     <Compile Include="Domain\Logistic\Cars\OdometerReading.cs" />
     <Compile Include="Domain\Logistic\Cars\CarVersion.cs" />
     <Compile Include="Domain\Logistic\Cars\CarManufacturer.cs" />
@@ -157,6 +163,7 @@
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
+    <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
     <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />
@@ -202,6 +209,7 @@
     <Compile Include="Domain\Roboats\RoboatsCall.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
+    <Compile Include="Domain\Sale\GeoGroupVersion.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\Security\RegisteredRM.cs" />
@@ -213,6 +221,7 @@
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForPaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForAdvancePaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForDebtEmail.cs" />
+    <Compile Include="Domain\Versions\VersionEntityBase.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
@@ -274,8 +283,8 @@
     <Compile Include="EntityRepositories\Flyers\FlyerRepository.cs" />
     <Compile Include="EntityRepositories\Flyers\IFlyerRepository.cs" />
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
-    <Compile Include="EntityRepositories\Goods\INomenclatureFixedPriceRepository.cs" />
-    <Compile Include="EntityRepositories\Goods\NomenclatureFixedPriceRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\INomenclaturePricesRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\NomenclaturePricesRepository.cs" />
     <Compile Include="EntityRepositories\HistoryChanges\IArchivedHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\HistoryChanges\ArchivedHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
@@ -340,6 +349,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
+    <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
     <Compile Include="Factories\OsrmClientFactory.cs" />
     <Compile Include="Factories\RoboatsCallFactory.cs" />
@@ -388,12 +398,15 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
     <Compile Include="HibernateMapping\FlyerMap.cs" />
-    <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureCostPurchasePriceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureInnerDeliveryPriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\FuelPriceVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventTypeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Cars\CarFuelVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\OdometerReadingMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarManufacturerMap.cs" />
@@ -433,6 +446,7 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
+    <Compile Include="HibernateMapping\Sale\GeoGroupVersionMap.cs" />
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
@@ -443,9 +457,15 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
     <Compile Include="Models\AdditionalLoadingModel.cs" />
+    <Compile Include="Models\EmptyRouteListGenerator.cs" />
     <Compile Include="Models\FastDeliveryAvailabilityHistoryModel.cs" />
+    <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
+    <Compile Include="Models\NomenclatureGroupPricingModel.cs" />
+    <Compile Include="Models\NomenclatureGroupPricingPriceModel.cs" />
+    <Compile Include="Models\NomenclatureInnerDeliveryPriceModel.cs" />
+    <Compile Include="Models\NomenclatureCostPurchasePriceModel.cs" />
     <Compile Include="Models\Orders\CopyingOrder.cs" />
     <Compile Include="Models\Orders\OrderCopyModel.cs" />
     <Compile Include="Models\Orders\RoboatsOrderArgs.cs" />
@@ -484,6 +504,7 @@
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
     <Compile Include="Services\ICarEventSettings.cs" />
@@ -743,6 +764,7 @@
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
+    <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
@@ -854,8 +876,8 @@
     <Compile Include="Domain\Permissions\EntitiesWithPermissionFinder.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermission.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionOnlyPermission.cs" />
-    <Compile Include="Domain\Sale\GeographicGroup.cs" />
-    <Compile Include="HibernateMapping\Sale\GeographicGroupMap.cs" />
+    <Compile Include="Domain\Sale\GeoGroup.cs" />
+    <Compile Include="HibernateMapping\Sale\GeoGroupMap.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermissionValidator.cs" />
     <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
     <Compile Include="Domain\Certificate.cs" />
@@ -1042,7 +1064,6 @@
     <Compile Include="EntityRepositories\Logistic\IAtWorkRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICarRepository.cs" />
-    <Compile Include="Services\ICommonParametersProvider.cs" />
     <Compile Include="Domain\Sms\SmsNotification.cs" />
     <Compile Include="Domain\Sms\SmsNotificationType.cs" />
     <Compile Include="Domain\Sms\NewClientSmsNotification.cs" />

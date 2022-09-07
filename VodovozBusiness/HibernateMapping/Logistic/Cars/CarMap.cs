@@ -12,7 +12,6 @@ namespace Vodovoz.HibernateMapping
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.RegistrationNumber)     .Column("reg_number");
-			Map(x => x.FuelConsumption)        .Column("fuel_consumption");
 			Map(x => x.IsArchive)              .Column("is_archive");
 			Map(x => x.Photo)                  .Column("photo").CustomSqlType ("BinaryBlob").LazyLoad();
 			Map(x => x.MinBottles)             .Column("min_bottles");
@@ -46,9 +45,9 @@ namespace Vodovoz.HibernateMapping
 				.OrderBy("start_date DESC");
 
 			HasManyToMany(x => x.GeographicGroups)
-				.Table("geographic_groups_to_entities")
+				.Table("geo_groups_to_entities")
 				.ParentKeyColumn("car_id")
-				.ChildKeyColumn("geographic_group_id")
+				.ChildKeyColumn("geo_group_id")
 				.LazyLoad();
 		}
 	}

@@ -42,6 +42,7 @@ using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -286,6 +287,22 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref wasAcceptedByCashier, value);
 		}
 
+		private bool _hasFixedShippingPrice;
+		[Display(Name = "Есть фиксированная стоимость доставки?")]
+		public virtual bool HasFixedShippingPrice
+		{
+			get => _hasFixedShippingPrice;
+			set => SetField(ref _hasFixedShippingPrice, value);
+		}
+
+		private decimal _fixedShippingPrice;
+		[Display(Name = "Фиксированная стоимость доставки")]
+		public virtual decimal FixedShippingPrice
+		{
+			get => _fixedShippingPrice;
+			set => SetField(ref _fixedShippingPrice, value);
+		}
+
 		Employee cashier;
 		[IgnoreHistoryTrace]
 		public virtual Employee Cashier {
@@ -496,26 +513,39 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref closedBy, value, () => ClosedBy);
 		}
 
-		private Subdivision closingSubdivision;
 		[Display(Name = "Сдается в подразделение")]
-		public virtual Subdivision ClosingSubdivision {
-			get => closingSubdivision;
-			set => SetField(ref closingSubdivision, value, () => ClosingSubdivision);
+		public virtual Subdivision ClosingSubdivision
+		{
+			get
+			{
+				var geoGroup = GeographicGroups.FirstOrDefault();
+				if(geoGroup == null)
+				{
+					return null;
+				}
+
+				var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
+				if(geoGroupVersion == null)
+				{
+					return null;
+				}
+				return geoGroupVersion.CashSubdivision;
+			}
 		}
 		
-		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
+		IList<GeoGroup> geographicGroups = new List<GeoGroup>();
 		[Display(Name = "Группа района")]
-		public virtual IList<GeographicGroup> GeographicGroups {
+		public virtual IList<GeoGroup> GeographicGroups {
 			get => geographicGroups;
 			set => SetField(ref geographicGroups, value, () => GeographicGroups);
 		}
 
-		GenericObservableList<GeographicGroup> observableGeographicGroups;
+		GenericObservableList<GeoGroup> observableGeographicGroups;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups {
+		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups {
 			get {
 				if(observableGeographicGroups == null)
-					observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups);
+					observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups);
 				return observableGeographicGroups;
 			}
 		}
@@ -1581,10 +1611,6 @@ namespace Vodovoz.Domain.Logistic
 						new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
 					);
 
-			if(ClosingSubdivision == null)
-				yield return new ValidationResult("Не выбрана касса в которую должен будет сдаваться водитель.",
-					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.ClosingSubdivision) });
-
 			if(Driver == null)
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
@@ -1603,6 +1629,11 @@ namespace Vodovoz.Domain.Logistic
 			   (bool) validationContext.Items[nameof(DriverTerminalCondition)] && DriverTerminalCondition == null)
 			{
 				yield return new ValidationResult("Не указано состояние терминала водителя", new []{nameof(DriverTerminalCondition)});
+			}
+
+			if(GeographicGroups.Any(x => x.GetVersionOrNull(Date) == null))
+			{
+				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", new[] { nameof(GeographicGroups) });
 			}
 		}
 
@@ -2116,7 +2147,14 @@ namespace Vodovoz.Domain.Logistic
 				if(ix == 0) {
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
 
-					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(GeographicGroups.FirstOrDefault(), Addresses[ix].Order.DeliveryPoint));
+					var geoGroup = GeographicGroups.FirstOrDefault();
+					var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
+					if(geoGroupVersion == null)
+					{
+						throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
+					}
+
+					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(geoGroupVersion, Addresses[ix].Order.DeliveryPoint));
 					var onBase = minTime - timeFromBase;
 					if(Shift != null && onBase < Shift.StartTime)
 						minTime = Shift.StartTime + timeFromBase;
@@ -2133,7 +2171,15 @@ namespace Vodovoz.Domain.Logistic
 
 				if(ix == Addresses.Count - 1) {
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
-					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, GeographicGroups.FirstOrDefault()));
+
+					var geoGroup = GeographicGroups.FirstOrDefault();
+					var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
+					if(geoGroupVersion == null)
+					{
+						throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать планируемое время, так как на {Date} у части города нет актуальных данных.");
+					}
+
+					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint, geoGroupVersion));
 					var onBase = maxTime + timeToBase;
 					if(Shift != null && onBase > Shift.EndTime)
 						maxTime = Shift.EndTime - timeToBase;
@@ -2170,12 +2216,21 @@ namespace Vodovoz.Domain.Logistic
 
 		public static void RecalculateOnLoadTime(IList<RouteList> routelists, RouteGeometryCalculator sputnikCache)
 		{
+			
+
 			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
 								   .Select(
-										x => new Tuple<TimeSpan, RouteList>(
-											x.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.GeographicGroups.FirstOrDefault(), x.Addresses.First().Order.DeliveryPoint)),
-											x
-										)
+										rl => {
+											var geoGroup = rl.GeographicGroups.FirstOrDefault();
+											var geoGroupVersion = geoGroup.GetVersionOrNull(rl.Date);
+											if(geoGroupVersion == null)
+											{
+												throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать время на погрузке, так как на {rl.Date} у части города ({geoGroup.Name}) нет актуальных данных.");
+											}
+
+											var time = rl.FirstAddressTime.Value - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(geoGroupVersion, rl.Addresses.First().Order.DeliveryPoint));
+											return new Tuple<TimeSpan, RouteList>(time, rl);
+										}
 									)
 								   .OrderByDescending(x => x.Item1);
 			var fixedTime = routelists.Where(x => x.Addresses.Any() && x.OnloadTimeFixed).ToList();
@@ -2222,10 +2277,18 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual long[] GenerateHashPointsOfRoute()
 		{
+			var geoGroup = GeographicGroups.FirstOrDefault();
+			var geoGroupVersion = geoGroup.GetVersionOrNull(Date);
+			if(geoGroupVersion == null)
+			{
+				throw new GeoGroupVersionNotFoundException($"Невозможно построить трек, так как на {Date} у части города ({geoGroup.Name}) нет актуальных данных.");
+			}
+
+			var hash = CachedDistance.GetHash(geoGroupVersion);
 			var result = new List<long>();
-			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
+			result.Add(hash);
 			result.AddRange(Addresses.Where(x => x.Order.DeliveryPoint.CoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-			result.Add(CachedDistance.GetHash(GeographicGroups.FirstOrDefault()));
+			result.Add(hash);
 			return result.ToArray();
 		}
 
@@ -2329,8 +2392,20 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var pointsToRecalculate = new List<PointOnEarth>();
 			var pointsToBase = new List<PointOnEarth>();
-			var baseLat = (double)GeographicGroups.FirstOrDefault().BaseLatitude.Value;
-			var baseLon = (double)GeographicGroups.FirstOrDefault().BaseLongitude.Value;
+			var geoGroup = GeographicGroups.FirstOrDefault();
+			if(geoGroup == null)
+			{
+				throw new InvalidOperationException($"В маршрутном листе должна быть добавлена часть города");
+			}
+
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+
+			var baseLat = (double)geoGroupVersion.BaseLatitude.Value;
+			var baseLon = (double)geoGroupVersion.BaseLongitude.Value;
 
 			decimal totalDistanceTrack = 0;
 
