@@ -1,7 +1,7 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
-using QS.DomainModel.UoW;
-namespace Vodovoz.Infrastructure.Services
+
+namespace Vodovoz.Services
 {
 	public interface IEmployeeService
 	{

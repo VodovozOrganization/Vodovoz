@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private DeliveryShift _deliveryShift;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private GeographicGroup _geographicGroup;
+		private GeoGroup _geographicGroup;
 		private List<AddressTypeNode> _addressTypeNodes = new List<AddressTypeNode>();
 		private List<RouteListStatusNode> _statusNodes;
 		private IList<CarOwnType> _restrictedCarOwnTypes;
@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				_addressTypeNodes.Add(newAddressTypeNode);
 			}
 
-			GeographicGroups = UoW.GetAll<GeographicGroup>().ToList();
+			GeographicGroups = UoW.GetAll<GeoGroup>().ToList();
 
 			var currentUserSettings = new UserRepository().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
 
@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			SubscribeOnCheckChanged();
 		}
 
-		public IList<GeographicGroup> GeographicGroups { get; }
+		public IList<GeoGroup> GeographicGroups { get; }
 
 		public bool ShowDriversWithTerminal
 		{
@@ -111,7 +111,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			set => UpdateFilterField(ref _restrictedCarOwnTypes, value);
 		}
 
-		public GeographicGroup GeographicGroup
+		public GeoGroup GeographicGroup
 		{
 			get => _geographicGroup;
 			set => UpdateFilterField(ref _geographicGroup, value);

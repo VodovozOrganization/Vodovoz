@@ -34,8 +34,8 @@ namespace Vodovoz.ReportsParameters
 				"Части города",
 				"geographic_groups",
 				new ParametersFactory(UoW, (filters) => {
-					SelectableEntityParameter<GeographicGroup> resultAlias = null;
-					var query = UoW.Session.QueryOver<GeographicGroup>();
+					SelectableEntityParameter<GeoGroup> resultAlias = null;
+					var query = UoW.Session.QueryOver<GeoGroup>();
 
 					if(filters != null && filters.Any())
 					{
@@ -49,14 +49,14 @@ namespace Vodovoz.ReportsParameters
 							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
 							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
 						);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<GeographicGroup>>());
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<GeoGroup>>());
 					return query.List<SelectableParameter>();
 				})
 			);
 
 			District districtAlias = null;
 			DistrictsSet districtsSetAlias = null;
-			GeographicGroup geoGroupAlias = null;
+			GeoGroup geoGroupAlias = null;
 			var districtParameter = _filter.CreateParameterSet(
 				"Районы",
 				"districts",

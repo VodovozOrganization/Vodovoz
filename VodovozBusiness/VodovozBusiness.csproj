@@ -206,6 +206,7 @@
     <Compile Include="Domain\Roboats\RoboatsCall.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
+    <Compile Include="Domain\Sale\GeoGroupVersion.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\Security\RegisteredRM.cs" />
@@ -217,6 +218,7 @@
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForPaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForAdvancePaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForDebtEmail.cs" />
+    <Compile Include="Domain\Versions\VersionEntityBase.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
@@ -440,6 +442,7 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
+    <Compile Include="HibernateMapping\Sale\GeoGroupVersionMap.cs" />
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
@@ -450,7 +453,9 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
     <Compile Include="Models\AdditionalLoadingModel.cs" />
+    <Compile Include="Models\EmptyRouteListGenerator.cs" />
     <Compile Include="Models\FastDeliveryAvailabilityHistoryModel.cs" />
+    <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\NomenclatureGroupPricingModel.cs" />
@@ -495,6 +500,7 @@
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
     <Compile Include="Services\ICarEventSettings.cs" />
@@ -754,6 +760,7 @@
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
+    <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
@@ -865,8 +872,8 @@
     <Compile Include="Domain\Permissions\EntitiesWithPermissionFinder.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermission.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionOnlyPermission.cs" />
-    <Compile Include="Domain\Sale\GeographicGroup.cs" />
-    <Compile Include="HibernateMapping\Sale\GeographicGroupMap.cs" />
+    <Compile Include="Domain\Sale\GeoGroup.cs" />
+    <Compile Include="HibernateMapping\Sale\GeoGroupMap.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermissionValidator.cs" />
     <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
     <Compile Include="Domain\Certificate.cs" />
@@ -1053,7 +1060,6 @@
     <Compile Include="EntityRepositories\Logistic\IAtWorkRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\ICarRepository.cs" />
-    <Compile Include="Services\ICommonParametersProvider.cs" />
     <Compile Include="Domain\Sms\SmsNotification.cs" />
     <Compile Include="Domain\Sms\SmsNotificationType.cs" />
     <Compile Include="Domain\Sms\NewClientSmsNotification.cs" />

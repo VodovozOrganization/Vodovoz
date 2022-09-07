@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			Employee authorAlias = null;
 			Employee driverAlias = null;
 			Car carAlias = null;
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 			CarEventJournalNode resultAlias = null;
 			CarVersion carVersionAlias = null;
 			CarModel carModelAlias = null;

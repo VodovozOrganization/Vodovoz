@@ -74,7 +74,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds)
 		{
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 
 			var query = QueryOver.Of<RouteList>()
 								 .Where(x => x.Date == date)
@@ -1083,6 +1083,23 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query.Where(() => routeListAlias.AdditionalLoadingDocument != null)
 				.Select(x => x.Driver)
 				.List<Employee>();
+		}
+
+		public bool HasRouteList(int driverId, DateTime date, int deliveryShiftId)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				RouteList routeListAlias = null;
+
+				var query = uow.Session.QueryOver(() => routeListAlias)
+					.Where(() => routeListAlias.Date == date.Date)
+					.Where(() => routeListAlias.Driver.Id == driverId)
+					.Where(() => routeListAlias.Shift.Id == deliveryShiftId)
+					.Select(Projections.Property(() => routeListAlias.Id));
+
+				var result = query.List<int>();
+				return result.Any();
+			}
 		}
 	}
 

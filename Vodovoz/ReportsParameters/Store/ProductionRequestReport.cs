@@ -46,7 +46,7 @@ namespace Vodovoz.ReportsParameters.Store
 			dateperiodpickerMaxSales.PeriodChangedByUser += DateperiodpickerMaxSalesPeriodChangedByUser;
 
 			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(
-				UoW.GetAll<GeographicGroup>().Select(x => new GeographicGroupNode(x)).ToList());
+				UoW.GetAll<GeoGroup>().Select(x => new GeographicGroupNode(x)).ToList());
 			
 			var employeeGeographicGroup = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Subdivision.GetGeographicGroup();
 			

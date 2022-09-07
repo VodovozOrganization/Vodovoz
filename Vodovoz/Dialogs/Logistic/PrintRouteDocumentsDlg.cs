@@ -37,7 +37,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		private List<SelectablePrintDocument> _routes = new List<SelectablePrintDocument>();
 		private GenericObservableList<OrderDocTypeNode> _orderDocTypesToPrint = new GenericObservableList<OrderDocTypeNode>();
-		private GenericObservableList<GeographicGroup> _geographicGroups;
+		private GenericObservableList<GeoGroup> _geographicGroups;
 		private GenericObservableList<string> _warnings;
 
 		private IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
@@ -85,11 +85,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 			geograficGroup.UoW = _uow;
 			geograficGroup.Label = "Часть города:";
-			_geographicGroups = new GenericObservableList<GeographicGroup>();
+			_geographicGroups = new GenericObservableList<GeoGroup>();
 			geograficGroup.Items = _geographicGroups;
 			geograficGroup.ListContentChanged += OnYdatePrintDateChanged;
 			
-			foreach(var gg in _uow.Session.QueryOver<GeographicGroup>().List())
+			foreach(var gg in _uow.Session.QueryOver<GeoGroup>().List())
 			{
 				_geographicGroups.Add(gg);
 			}

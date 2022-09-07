@@ -42,9 +42,9 @@ namespace Vodovoz.HibernateMapping
 				.OrderBy("start_date DESC");
 
 			HasManyToMany(x => x.GeographicGroups)
-				.Table("geographic_groups_to_entities")
+				.Table("geo_groups_to_entities")
 				.ParentKeyColumn("car_id")
-				.ChildKeyColumn("geographic_group_id")
+				.ChildKeyColumn("geo_group_id")
 				.LazyLoad();
 		}
 	}

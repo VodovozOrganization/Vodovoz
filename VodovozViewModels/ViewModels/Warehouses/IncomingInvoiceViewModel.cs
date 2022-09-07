@@ -22,6 +22,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Models;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Warehouses

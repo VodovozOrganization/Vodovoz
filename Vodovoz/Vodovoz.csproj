@@ -763,8 +763,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
     <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
-    <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RoutesAtDayDlg.cs" />
     <Compile Include="Additions\Logistic\PointMarker.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\ChangedItem.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\FieldChange.cs" />
@@ -1048,8 +1046,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.NomenclatureForShipment.cs" />
     <Compile Include="Dialogs\ImageLoaderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.ImageLoaderDlg.cs" />
-    <Compile Include="Dialogs\Sale\GeographicGroupDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.GeographicGroupDlg.cs" />
     <Compile Include="ReportsParameters\Sales\OrderCreationDateReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.OrderCreationDateReport.cs" />
     <Compile Include="ReportsParameters\Store\NotFullyLoadedRouteListsReport.cs" />
@@ -1569,8 +1565,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Retail.CounterpartyReport.cs" />
     <Compile Include="ReportsParameters\DriversToDistrictsAssignmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.DriversToDistrictsAssignmentReport.cs" />
-    <Compile Include="TempAdapters\WarehouseSelectorFactory.cs" />
-    <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
     <Compile Include="Views\Warehouse\WarehouseView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.WarehouseView.cs" />
     <Compile Include="Views\Rent\FreeRentPackageView.cs" />
@@ -1742,12 +1736,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.BulkEmailEventReasonView.cs" />
     <Compile Include="Views\Reports\BulkEmailEventReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.BulkEmailEventReportView.cs" />
+    <Compile Include="Views\Sale\GeoGroupView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Sale.GeoGroupView.cs" />
     <Compile Include="Views\Organization\OrganizationVersionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.OrganizationVersionsView.cs" />
     <Compile Include="Views\Goods\NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="Views\Goods\GroupNomenclaturePriceView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Goods.GroupNomenclaturePriceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureGroupPricingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2087,6 +2083,7 @@
     <Folder Include="Views\ReportsParameters\" />
     <Folder Include="Views\ReportsParameters\Cash\" />
     <Folder Include="Views\Settings\" />
+    <Folder Include="Views\Sale\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
