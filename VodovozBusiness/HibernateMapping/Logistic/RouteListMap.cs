@@ -42,6 +42,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.NotFullyLoaded).Column("not_fully_loaded");
 			Map(x => x.CashierReviewComment).Column("cashier_review_comment");
 			Map(x => x.WasAcceptedByCashier).Column("was_accepted_by_cashier");
+			Map(x => x.HasFixedShippingPrice).Column("has_fixed_shipping_price");
+			Map(x => x.FixedShippingPrice).Column("fixed_shipping_price");
 			Map(x => x.DriverTerminalCondition).Column ("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
 
 			References(x => x.Car).Column("car_id").Access.CamelCaseField(Prefix.Underscore);
