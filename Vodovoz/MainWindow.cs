@@ -158,6 +158,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Controllers;
 using QS.Utilities;
+using Vodovoz.ViewModels.Dialogs.Goods;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -368,6 +369,8 @@ public partial class MainWindow : Gtk.Window
 
 		ActionAdditionalLoadSettings.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
+
+		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 	}
 
 	#region Методы для уведомления об отправленных перемещениях для подразделения
@@ -991,7 +994,7 @@ public partial class MainWindow : Gtk.Window
 				subdivisionJournalFactory,
 				counterpartyJournalFactory,
 				subdivisionRepository,
-				new NomenclatureFixedPriceRepository()
+				new NomenclaturePricesRepository()
 			));
 	}
 
@@ -2684,5 +2687,10 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, bulkEmailEventReasonJournalFactory, counterpartyJournalFactory);
 
 		tdiMain.AddTab(viewModel);
+	}
+
+	private void ActionGroupPricingActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
 	}
 }

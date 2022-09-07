@@ -12,6 +12,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
@@ -49,8 +50,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
-			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, CommonServices);
 
+			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, new NomenclatureCostPurchasePriceModel());
+			NomenclatureInnerDeliveryPricesViewModel = new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel());
+			
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
 			SetPermissions();
@@ -79,6 +82,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool CanCreateAndArcNomenclatures { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; }
+		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; }
 
 		private void ConfigureValidationContext()
 		{

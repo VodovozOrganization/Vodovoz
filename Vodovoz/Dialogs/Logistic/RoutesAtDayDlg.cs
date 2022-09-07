@@ -47,6 +47,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Gamma.Binding.Core.LevelTreeConfig;
 
 namespace Vodovoz
 {

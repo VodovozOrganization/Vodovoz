@@ -8,6 +8,7 @@ using QS.RepresentationModel;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.ViewModels;
+using QS.ViewModels.Dialog;
 using QS.Views.Resolve;
 using Vodovoz.Infrastructure.Services;
 
@@ -126,7 +127,7 @@ namespace Vodovoz.Core
 		}
 
 		public virtual ViewModelWidgetResolver RegisterWidgetForTabViewModel<TViewModel, TWidget>()
-			where TViewModel : TabViewModelBase
+			where TViewModel : DialogViewModelBase
 			where TWidget : Widget
 		{
 			Type viewModelType = typeof(TViewModel);
