@@ -273,7 +273,7 @@ namespace Vodovoz.Views.Logistic
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.tableCarData = new global::Gtk.Table(((uint)(13)), ((uint)(8)), false);
+			this.tableCarData = new global::Gtk.Table(((uint)(12)), ((uint)(8)), false);
 			this.tableCarData.Name = "tableCarData";
 			this.tableCarData.RowSpacing = ((uint)(6));
 			this.tableCarData.ColumnSpacing = ((uint)(6));
@@ -755,6 +755,7 @@ namespace Vodovoz.Views.Logistic
 			w49.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
 			this.odometerReadingView = new global::Vodovoz.Views.Logistic.OdometerReadingView();
+			this.odometerReadingView.HeightRequest = 200;
 			this.odometerReadingView.Events = ((global::Gdk.EventMask)(256));
 			this.odometerReadingView.Name = "odometerReadingView";
 			this.tableCarData.Add(this.odometerReadingView);
@@ -1022,6 +1023,8 @@ namespace Vodovoz.Views.Logistic
 			this.vboxMain.Add(this.tableCarData);
 			global::Gtk.Box.BoxChild w70 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableCarData]));
 			w70.Position = 0;
+			w70.Expand = false;
+			w70.Fill = false;
 			w10.Add(this.vboxMain);
 			this.scrolledwindow1.Add(w10);
 			this.notebook1.Add(this.scrolledwindow1);
