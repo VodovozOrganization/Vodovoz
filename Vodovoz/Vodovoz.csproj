@@ -1743,7 +1743,7 @@
     <Compile Include="Views\Goods\NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="Views\Goods\GroupNomenclaturePriceView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Goods.GroupNomenclaturePriceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureGroupPricingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
