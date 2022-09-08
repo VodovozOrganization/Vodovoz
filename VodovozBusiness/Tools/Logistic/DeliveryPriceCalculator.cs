@@ -61,14 +61,23 @@ namespace Vodovoz.Tools.Logistic
 
 				//Расчет растояния
 				if(deliveryPoint == null) {
-					var gg =
-						_geographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
+					var gg = _geographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
 					var route = new List<PointOnEarth>(2);
-					if(gg != null && gg.BaseCoordinatesExist)
-						route.Add(new PointOnEarth((double)gg.BaseLatitude, (double)gg.BaseLongitude));
+					GeoGroupVersion geoGroupVersion = null;
+					if(gg != null)
+					{
+						geoGroupVersion = gg.GetActualVersionOrNull();
+					}
+
+					if(gg != null && geoGroupVersion != null && geoGroupVersion.BaseCoordinatesExist)
+					{
+						route.Add(new PointOnEarth((double)geoGroupVersion.BaseLatitude, (double)geoGroupVersion.BaseLongitude));
+					}
 					else if(gg == null)
+					{
 						//если не найдена часть города, то расстояние считается до его центра
 						route.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
+					}
 					else {
 						result.ErrorMessage = "В подобранной части города не указаны координаты базы";
 						return result;

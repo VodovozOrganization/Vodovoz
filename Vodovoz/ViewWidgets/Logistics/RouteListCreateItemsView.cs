@@ -305,7 +305,7 @@ namespace Vodovoz
 
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
 			if(geoGrpIds.Any()) {
-				GeographicGroup geographicGroupAlias = null;
+				GeoGroup geographicGroupAlias = null;
 				var districtIds = RouteListUoW.Session.QueryOver<District>()
 					.Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
 					.Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))

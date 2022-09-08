@@ -19,6 +19,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
 {

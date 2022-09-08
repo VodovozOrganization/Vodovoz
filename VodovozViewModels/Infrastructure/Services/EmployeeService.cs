@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Services;
 
 namespace Vodovoz.Infrastructure.Services
 {

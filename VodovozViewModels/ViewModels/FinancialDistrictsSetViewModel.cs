@@ -12,6 +12,7 @@ using QS.ViewModels;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels

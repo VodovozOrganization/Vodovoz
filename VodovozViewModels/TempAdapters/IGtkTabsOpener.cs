@@ -1,5 +1,7 @@
 ﻿using QS.Tdi;
+using System;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.TempAdapters
@@ -12,6 +14,7 @@ namespace Vodovoz.TempAdapters
 		ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0);
 		ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter);
 		ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId);
+		void OpenTrackOnMapWnd(int routeListId);
 		void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType);
 		void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description);
 	}
