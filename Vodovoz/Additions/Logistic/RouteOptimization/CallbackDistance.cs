@@ -1,4 +1,7 @@
 ﻿using Google.OrTools.ConstraintSolver;
+using System;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -33,13 +36,34 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			long distance;
 
 			if(first_index == 0)
-				distance = distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint);
+			{
+				var firstOrder = Nodes[second_index - 1];
+				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
+				distance = distanceCalculator.DistanceFromBaseMeter(firstBaseVersion, Nodes[second_index - 1].Order.DeliveryPoint);
+			}
 			else if(second_index == 0)
-				distance = distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase);
+			{
+				var secondOrder = Nodes[first_index - 1];
+				var secondBaseVersion = GetGroupVersion(secondOrder.ShippingBase, secondOrder.Order.DeliveryDate.Value);
+				distance = distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint, secondBaseVersion);
+			}
 			else
+			{
 				distance = distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
+			}
 
 			return distance;
+		}
+
+		private GeoGroupVersion GetGroupVersion(GeoGroup geoGroup, DateTime date)
+		{
+			var version = geoGroup.GetVersionOrNull(date);
+			if(version == null)
+			{
+				throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать расстояние, так как на {date} у части города ({geoGroup.Name}) нет актуальных данных.");;
+			}
+
+			return version;
 		}
 	}
 }

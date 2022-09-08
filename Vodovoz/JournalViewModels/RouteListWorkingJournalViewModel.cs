@@ -95,12 +95,15 @@ namespace Vodovoz.JournalViewModels
 			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			Subdivision subdivisionAlias = null;
-			GeographicGroup geographicalGroupAlias = null;
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
 				.Left.JoinAlias(o => o.Car, () => carAlias)
-				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
+				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias, Restrictions.Where(() => geoGroupVersionAlias.ActivationDate >= routeListAlias.Date))
+				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
 				.Left.JoinAlias(o => o.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinEntityAlias(() => carVersionAlias,
@@ -130,8 +133,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.GeographicGroup != null)
 			{
-				query.Left.JoinAlias(o => o.GeographicGroups, () => geographicalGroupAlias)
-					 .Where(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
+				query.Where(() => geoGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
 			}
 
 			#region RouteListAddressTypeFilter

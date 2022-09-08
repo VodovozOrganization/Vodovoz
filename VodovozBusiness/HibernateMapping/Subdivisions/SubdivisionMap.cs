@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.SubdivisionType).Column("type").CustomType<SubdivisionTypeStringType>();
 			References(x => x.Chief).Column("chief_id");
 			References(x => x.ParentSubdivision).Column("parent_subdivision_id");
-			References(x => x.GeographicGroup).Column("geographic_group_id");
+			References(x => x.GeographicGroup).Column("geo_group_id");
 			References(x => x.DefaultSalesPlan).Column("default_sales_plan_id");
 			HasMany(x => x.ChildSubdivisions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("parent_subdivision_id");
 			HasManyToMany(x => x.DocumentTypes).Table("subdivisions_documents_types")

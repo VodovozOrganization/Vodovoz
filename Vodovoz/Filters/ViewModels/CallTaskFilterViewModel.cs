@@ -25,7 +25,7 @@ namespace Vodovoz.Filters.ViewModels
 		private SortingDirectionType _sortingDirection;
 		private SortingParamType _sortingParam = SortingParamType.Id;
 		private DateTime _startDate;
-		private GeographicGroup _geographicGroup;
+		private GeoGroup _geographicGroup;
 
 		public CallTaskFilterViewModel(
 			IEntityAutocompleteSelectorFactory employeeAutocompleteSelectorFactory,
@@ -39,7 +39,7 @@ namespace Vodovoz.Filters.ViewModels
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			StartDate = DateTime.Today.AddDays(-14);
 			EndDate = DateTime.Today.AddDays(14);
-			GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List();
+			GeographicGroups = UoW.Session.QueryOver<GeoGroup>().List();
 			CreateCommands();
 		}
 
@@ -100,13 +100,13 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _sortingDirection, value);
 		}
 
-		public GeographicGroup GeographicGroup
+		public GeoGroup GeographicGroup
 		{
 			get => _geographicGroup;
 			set => UpdateFilterField(ref _geographicGroup, value);
 		}
 
-		public IList<GeographicGroup> GeographicGroups { get; }
+		public IList<GeoGroup> GeographicGroups { get; }
 
 		private void SetDatePeriod(DateTime startPeriod, DateTime endPeriod)
 		{

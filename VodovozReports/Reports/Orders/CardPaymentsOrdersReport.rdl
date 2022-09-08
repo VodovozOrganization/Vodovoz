@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -722,7 +722,7 @@ WHERE
     AND orders.delivery_date &gt;= @start_date
     AND orders.delivery_date &lt;= @end_date
     AND (@payment_from_id = '' OR orders.payment_from_id = @payment_from_id)
-    AND (@geo_group_id = '' OR districts.geographic_group_id = @geo_group_id)
+    AND (@geo_group_id = '' OR districts.geo_group_id = @geo_group_id)
 GROUP BY orders.id
 ;</CommandText>
         <QueryParameters>

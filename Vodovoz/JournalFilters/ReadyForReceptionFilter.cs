@@ -9,6 +9,8 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 namespace Vodovoz
 {

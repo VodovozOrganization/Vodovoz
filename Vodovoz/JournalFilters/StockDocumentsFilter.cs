@@ -9,6 +9,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
 {

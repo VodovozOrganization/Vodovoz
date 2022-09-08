@@ -12,13 +12,13 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref selected, value);
 		}
 
-		private GeographicGroup geographicGroup;
-		public virtual GeographicGroup GeographicGroup {
+		private GeoGroup geographicGroup;
+		public virtual GeoGroup GeographicGroup {
 			get => geographicGroup;
 			set => SetField(ref geographicGroup, value);
 		}
 
-		public GeographicGroupNode(GeographicGroup geographicGroup)
+		public GeographicGroupNode(GeoGroup geographicGroup)
 		{
 			GeographicGroup = geographicGroup ?? throw new ArgumentNullException(nameof(geographicGroup));
 		}

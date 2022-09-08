@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Autofac;
 using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -34,6 +35,7 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
+using QS.Navigation;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
@@ -53,7 +55,7 @@ namespace Vodovoz.ViewModel
 	{
 		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private bool _userHasOnlyAccessToWarehouseAndComplaints;
-		
+
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
 			set => RepresentationFilter = value;
@@ -71,12 +73,16 @@ namespace Vodovoz.ViewModel
 			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			Subdivision subdivisionAlias = null;
-			GeographicGroup geographicGroupsAlias = null;
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
 
 			var query = UoW.Session.QueryOver(() => routeListAlias);
 
 			query.Left.JoinAlias(rl => rl.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias, Restrictions.Where(() => geoGroupVersionAlias.ActivationDate >= routeListAlias.Date))
+				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
 				.JoinEntityAlias(() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id
 						&& carVersionAlias.StartDate <= routeListAlias.Date
@@ -99,8 +105,7 @@ namespace Vodovoz.ViewModel
 			}
 
 			if(Filter.RestrictGeographicGroup != null) {
-				query.Left.JoinAlias(o => o.GeographicGroups, () => geographicGroupsAlias)
-					 .Where(() => geographicGroupsAlias.Id == Filter.RestrictGeographicGroup.Id);
+				query.Where(() => geoGroupAlias.Id == Filter.RestrictGeographicGroup.Id);
 			}
 
 			if(Filter.ShowDriversWithTerminal)
@@ -168,7 +173,6 @@ namespace Vodovoz.ViewModel
 			var result = query
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
 				.Left.JoinAlias(o => o.Car, () => carAlias)
-				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.SelectList(list => list
 				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
@@ -419,10 +423,13 @@ namespace Vodovoz.ViewModel
 							{
 								var routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 								int warehouseId = 0;
-								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionSofiiskayaId)
-									warehouseId = routeListParametersProvider.WarehouseSofiiskayaId;
-								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionParnasId)
-									warehouseId = routeListParametersProvider.WarehouseParnasId;
+
+								var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+								var geoGroupVersion = geoGroup.GetVersionOrNull(routeList.Date);
+								if(geoGroupVersion != null)
+								{
+									warehouseId = geoGroupVersion.Warehouse.Id;
+								}
 
 								if (warehouseId > 0)
 								{
@@ -598,10 +605,7 @@ namespace Vodovoz.ViewModel
 							&& MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum)
 							&& selectedNode.CarTypeOfUse != CarTypeOfUse.Truck)
 						{
-							MainClass.MainWin.TdiMain.OpenTab(
-								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-								() => new RouteListMileageCheckDlg(selectedNode.Id)
-							);
+							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						}
 					},
 					(selectedItems) => selectedItems.Any(

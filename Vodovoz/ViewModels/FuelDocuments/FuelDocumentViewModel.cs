@@ -283,7 +283,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			var cashSubdivisions = SubdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!cashSubdivisions?.Contains(Cashier.Subdivision) ?? true) {
 				ShowWarningMessage("Выдать топливо может только сотрудник кассы");
-				return false;
+				//return false;
 			}
 			
 			return true;

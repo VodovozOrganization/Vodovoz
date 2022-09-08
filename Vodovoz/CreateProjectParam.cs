@@ -171,8 +171,13 @@ using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using Vodovoz.ReportsParameters.Orders;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.Dialogs.Sales;
+using Vodovoz.Views.Sale;
+using Vodovoz.Models;
+using QS.Validation;
 
 namespace Vodovoz
 {
@@ -284,7 +289,6 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ProductGroupViewModel, ProductGroupView>()
 				.RegisterWidgetForTabViewModel<CarManufacturerViewModel, CarManufacturerView>()
 				.RegisterWidgetForTabViewModel<UndeliveryTransferAbsenceReasonViewModel, UndeliveryTransferAbsenceReasonView>()
-				.RegisterWidgetForTabViewModel<NomenclaturePurchasePriceViewModel, NomenclaturePurchasePriceView>()
 				.RegisterWidgetForTabViewModel<CashlessRequestViewModel, CashlessRequestView>()
 				.RegisterWidgetForTabViewModel<CreateManualPaymentFromBankClientViewModel, CreateManualPaymentFromBankClientView>()
 				.RegisterWidgetForTabViewModel<FreeRentPackageViewModel, FreeRentPackageView>()
@@ -299,6 +303,11 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
 				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
+				.RegisterWidgetForTabViewModel<GeoGroupViewModel, GeoGroupView>()
+				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, NomenclatureGroupPricingView>()
+				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
+				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
+				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				;
 
             //Регистрация виджетов
@@ -518,6 +527,7 @@ namespace Vodovoz
 		static void RegisterVodovozClassConfig(ContainerBuilder builder)
 		{
 			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
+			builder.RegisterInstance(ViewModelWidgetResolver.Instance).AsSelf().AsImplementedInterfaces();
 
 			#region Adapters & Factories
 
@@ -543,6 +553,7 @@ namespace Vodovoz
 			builder.RegisterType<CarVersionsViewModelFactory>().As<ICarVersionsViewModelFactory>();
 			builder.RegisterType<RoboatsFileStorageFactory>().AsSelf();
 			builder.RegisterType<DeliveryScheduleJournalFactory>().AsImplementedInterfaces().AsSelf();
+			builder.RegisterType<GtkValidationViewFactory>().AsImplementedInterfaces().AsSelf();
 
 			builder.RegisterAssemblyTypes(
 					Assembly.GetExecutingAssembly(),
@@ -564,6 +575,8 @@ namespace Vodovoz
 			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>();
 			builder.RegisterType<MovementDocumentsNotificationsController>().AsImplementedInterfaces();
 
+			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf().AsImplementedInterfaces();
+
 			#endregion
 
 			#region Services
@@ -575,6 +588,18 @@ namespace Vodovoz
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
 			builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
+			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
+
+			#endregion
+
+
+			#region Models
+
+			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))
+				.Where(t => t.Name.EndsWith("Model") && !t.Name.EndsWith("ViewModel"))
+				.AsImplementedInterfaces()
+				.AsSelf();
+			builder.RegisterType<WageParameterService>().AsSelf();
 
 			#endregion
 
