@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Gtk;
+using QS.Banks.Domain;
 using QS.Dialog.GtkUI;
+using QS.HistoryLog;
 using QS.Journal.GtkUI;
 using QS.Project.Filter;
 using QS.RepresentationModel;
@@ -16,6 +19,7 @@ namespace Vodovoz.Core
 {
 	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver, IGtkViewResolver 
 	{
+		private ClassNamesBaseGtkViewResolver _classNamesBaseGtkViewResolver;
 		private static ViewModelWidgetResolver instance;
 		public static ViewModelWidgetResolver Instance {
 			get {
@@ -29,6 +33,15 @@ namespace Vodovoz.Core
 
 		public ViewModelWidgetResolver()
 		{
+			var usedAssemblies = new Assembly[] {
+				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+				Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
+				Assembly.GetAssembly(typeof(Bank)),
+				Assembly.GetAssembly(typeof(HistoryMain)),
+				Assembly.GetAssembly(typeof(MainWindow)),
+				Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder))
+			};
+			_classNamesBaseGtkViewResolver = new ClassNamesBaseGtkViewResolver(usedAssemblies);
 		}
 
 		private Dictionary<Type, Type> viewModelWidgets = new Dictionary<Type, Type>();
@@ -103,6 +116,11 @@ namespace Vodovoz.Core
 
 			Type footerType = footer.GetType();
 			if(!viewModelWidgets.ContainsKey(footerType)) {
+				var result = _classNamesBaseGtkViewResolver.Resolve(footer);
+				if(result != null)
+				{
+					return result;
+				}
 				throw new WidgetResolveException($"Не настроено сопоставление для {footerType.Name}");
 			}
 
