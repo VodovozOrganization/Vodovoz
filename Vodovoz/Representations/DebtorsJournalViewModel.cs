@@ -391,7 +391,7 @@ namespace Vodovoz.Representations
 				   .SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
 				   .SelectSubQuery(TaskExistQuery).WithAlias(() => resultAlias.RowColor)
 				   .SelectSubQuery(countDeliveryPoint).WithAlias(() => resultAlias.CountOfDeliveryPoint))
-				.SetTimeout(180)
+				.SetTimeout(300)
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
 
 			return resultQuery;
@@ -655,7 +655,7 @@ namespace Vodovoz.Representations
 				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
 				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
-				.Select(sumProj).UnderlyingCriteria.SetTimeout(180).UniqueResult<int>();
+				.Select(sumProj).UnderlyingCriteria.SetTimeout(300).UniqueResult<int>();
 			return queryResult;
 		};
 
