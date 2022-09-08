@@ -456,7 +456,7 @@ namespace Vodovoz.Filters.GtkViews
 			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table2[this.nullablecheckOneOrder]));
 			w33.LeftAttach = ((uint)(2));
 			w33.RightAttach = ((uint)(3));
-			w33.XOptions = ((global::Gtk.AttachOptions)(0));
+			w33.XOptions = ((global::Gtk.AttachOptions)(4));
 			w33.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table2.Gtk.Table+TableChild
 			this.ycheckbuttonHideWithoutEmail = new global::Gamma.GtkWidgets.yCheckButton();
