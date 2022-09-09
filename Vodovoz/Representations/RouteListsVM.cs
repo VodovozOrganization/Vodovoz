@@ -81,7 +81,15 @@ namespace Vodovoz.ViewModel
 			query.Left.JoinAlias(rl => rl.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
-				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias, Restrictions.Where(() => geoGroupVersionAlias.ActivationDate >= routeListAlias.Date))
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias,
+						Restrictions.Conjunction()
+							.Add(Restrictions.Where(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date))
+							.Add(
+								Restrictions.Disjunction()
+									.Add(Restrictions.IsNull(Projections.Property(() => geoGroupVersionAlias.ClosingDate)))
+									.Add(Restrictions.Where(() => geoGroupVersionAlias.ClosingDate >= routeListAlias.Date))
+							)
+				)
 				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
 				.JoinEntityAlias(() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id
