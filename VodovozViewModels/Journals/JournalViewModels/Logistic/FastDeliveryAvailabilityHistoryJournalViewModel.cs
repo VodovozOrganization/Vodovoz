@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryJournalNode, FastDeliveryAvailabilityFilterViewModel>
 	{
 		private readonly Timer _timer;
-		private const double _interval = 30 * 60000; //5 минут
+		private const double _interval = 5 * 60000; //5 минут
 
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
@@ -446,5 +446,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				UnitOfWorkFactory,
 				commonServices,
 				_employeeService);
+
+		public override void Dispose()
+		{
+			_timer?.Dispose();
+			base.Dispose();
+		}
 	}
 }
