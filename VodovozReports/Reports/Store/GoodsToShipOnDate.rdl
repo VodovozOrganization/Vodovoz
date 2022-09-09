@@ -594,7 +594,7 @@ FROM (
 		i.nomenclature_id,
 		NULL AS category,
 		SUM(i.count) AS qty_to_ship,
-		gg.id as geographic_group_id
+		gg.id as geo_group_id
 	FROM order_items i
 	JOIN orders o ON o.id = i.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id

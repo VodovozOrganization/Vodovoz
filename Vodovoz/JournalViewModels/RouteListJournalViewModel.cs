@@ -164,7 +164,15 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
 				.Left.JoinAlias(o => o.Car, () => carAlias)
 				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
-				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias, Restrictions.Where(() => geoGroupVersionAlias.ActivationDate >= routeListAlias.Date))
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias, 
+						Restrictions.Conjunction()
+							.Add(Restrictions.Where(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date))
+							.Add(
+								Restrictions.Disjunction()
+									.Add(Restrictions.IsNull(Projections.Property(() => geoGroupVersionAlias.ClosingDate)))
+									.Add(Restrictions.Where(() => geoGroupVersionAlias.ClosingDate >= routeListAlias.Date))
+							)
+				)
 				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
 				.Left.JoinAlias(o => o.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
