@@ -395,7 +395,7 @@ public partial class MainWindow : Gtk.Window
 
 	private void UpdateSendedMovementsNotification(string notification)
 	{
-		lblMovementsNotification.Markup = notification;			
+		lblMovementsNotification.Markup = notification;
 	}
 
 	#endregion
@@ -2690,5 +2690,9 @@ public partial class MainWindow : Gtk.Window
 	private void ActionGroupPricingActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
+	}
+
+	protected void OnActionSalesDepartmentAcivated(System.Object sender, System.EventArgs e)
+	{
 	}
 }

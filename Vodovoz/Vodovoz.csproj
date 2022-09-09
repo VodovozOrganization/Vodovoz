@@ -390,6 +390,7 @@
       <LogicalName>retail.xml</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="icons\toolbar\car_service.png" />
+    <EmbeddedResource Include="icons\toolbar\sales_department.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
