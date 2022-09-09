@@ -2694,5 +2694,26 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionSalesDepartmentAcivated(System.Object sender, System.EventArgs e)
 	{
+		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
+	}
+
+	protected void OnActionSalesOrdersJournalActivated(object sender, EventArgs e)
+	{
+		;
+	}
+
+	protected void OnActionSalesCounterpartyJournalActivated(object sender, EventArgs e)
+	{
+		;
+	}
+
+	protected void OnActionSalesUndeliveredOrdersJournalActivated(object sender, EventArgs e)
+	{
+		;
+	}
+
+	protected void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)
+	{
+		;
 	}
 }
