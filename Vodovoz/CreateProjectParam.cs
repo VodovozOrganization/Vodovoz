@@ -308,10 +308,11 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
+				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
 				;
-
-            //Регистрация виджетов
-            ViewModelWidgetResolver.Instance
+			
+			//Регистрация виджетов
+			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalFilterViewModel, DistrictsSetJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<DistrictJournalFilterViewModel, DistrictJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<SelectableParameterReportFilterViewModel, SelectableParameterReportFilterView>()
