@@ -8,7 +8,6 @@ using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using NLog;
 using QS.Project.DB;
-using QSProjectsLib;
 using SmsRuSendService;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
@@ -93,10 +92,9 @@ namespace VodovozSmsInformerService
 				conStrBuilder.Password = mysqlPassword;
 				conStrBuilder.SslMode = MySqlSslMode.None;
 
-				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-										 .ConnectionString(QSMain.ConnectionString);
+										 .ConnectionString(conStrBuilder.GetConnectionString(true));
 
 				OrmConfig.ConfigureOrm(db_config,
 					new System.Reflection.Assembly[]
