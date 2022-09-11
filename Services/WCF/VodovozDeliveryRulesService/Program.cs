@@ -1,4 +1,4 @@
-﻿using Fias.Service;
+using Fias.Service;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
@@ -90,7 +90,8 @@ namespace VodovozDeliveryRulesService
 					= new DeliveryRulesParametersProvider(new ParametersProvider());
 				CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 				IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(new ParametersProvider());
-				IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+				var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
+				IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
 				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = 
 					new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService, deliveryRulesParametersProvider, fiasApiClient, cancellationTokenSource);
 				ServiceHost deliveryRulesHost = new DeliveryRulesServiceHost(deliveryRulesInstanceProvider);

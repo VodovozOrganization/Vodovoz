@@ -1,5 +1,6 @@
 ﻿using System;
 using Fias.Service;
+using Fias.Service.Cache;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -24,7 +25,8 @@ namespace Vodovoz.TempAdapters
 			_deliveryPointJournalFilter = deliveryPointJournalFilter; 
 			IParametersProvider parametersProvider = new ParametersProvider();
 			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
+			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
 			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
 		}
 
