@@ -195,13 +195,13 @@ node('WCF'){
 	}
 	stage('Restore WCF'){
 		echo 'Prepare Vodovoz'
-		sh 'nuget restore Vodovoz.sln'
-		sh 'nuget restore ../QSProjects/QSProjectsLib.sln'
-		sh 'nuget restore ../My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
+		sh 'nuget restore Vodovoz/Vodovoz.sln'
+		sh 'nuget restore QSProjects/QSProjectsLib.sln'
+		sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
 	}
 	stage('Build WCF'){
 		echo 'Build solution'
-		sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz.sln -maxcpucount:4'
+		sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Vodovoz.sln -maxcpucount:4'
 
 		fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
 		zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
