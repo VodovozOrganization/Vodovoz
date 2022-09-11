@@ -203,9 +203,22 @@ node('WCF'){
 		echo 'Build solution'
 		sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Vodovoz.sln -maxcpucount:4'
 
-		fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
-		zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
-		archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
+		fileOperations([fileDeleteOperation(excludes: '', includes: 'DeliveryRuleService.zip')])
+		zip zipFile: 'DeliveryRuleService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozDeliveryRulesService/bin/Debug'
+
+		fileOperations([fileDeleteOperation(excludes: '', includes: 'InstantSmsService.zip')])
+		zip zipFile: 'InstantSmsService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozInstantSmsService/bin/Debug'
+
+		fileOperations([fileDeleteOperation(excludes: '', includes: 'SalesReceiptsService.zip')])
+		zip zipFile: 'SalesReceiptsService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozSalesReceiptsService/bin/Debug'
+
+		fileOperations([fileDeleteOperation(excludes: '', includes: 'SmsInformerService.zip')])
+		zip zipFile: 'SmsInformerService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozSmsInformerService/bin/Debug'
+
+		fileOperations([fileDeleteOperation(excludes: '', includes: 'SmsPaymentService.zip')])
+		zip zipFile: 'SmsPaymentService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozSmsPaymentService/bin/Debug'
+
+		archiveArtifacts artifacts: '*.zip', onlyIfSuccessful: true
 	}
 }
 node('Vod3') {
