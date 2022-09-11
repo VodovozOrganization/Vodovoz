@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Description;
-using System.ServiceModel.Dispatcher;
-using System.Threading;
-using Fias.Service;
+﻿using Fias.Service;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
@@ -13,7 +6,13 @@ using Nini.Config;
 using NLog;
 using QS.Banks.Domain;
 using QS.Project.DB;
-using QSProjectsLib;
+using System;
+using System.Collections.ObjectModel;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.ServiceModel.Description;
+using System.ServiceModel.Dispatcher;
+using System.Threading;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -70,20 +69,20 @@ namespace VodovozDeliveryRulesService
 				conStrBuilder.Password = _mysqlPassword;
 				conStrBuilder.SslMode = MySqlSslMode.None;
 
-				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
+				var connectionString = conStrBuilder.GetConnectionString(true);
 				var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-										 .ConnectionString(QSMain.ConnectionString);
+										 .ConnectionString(connectionString);
+				var assemblies = new[]
+				{
+					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
+					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+					System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
+				};
 
-				OrmConfig.ConfigureOrm(dbConfig,
-					new[]
-					{
-						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-						System.Reflection.Assembly.GetAssembly(typeof(Bank)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
-					});
+				OrmConfig.ConfigureOrm(dbConfig, assemblies);
 
 				IDeliveryRepository deliveryRepository = new DeliveryRepository();
 				var backupDistrictService = new BackupDistrictService();
