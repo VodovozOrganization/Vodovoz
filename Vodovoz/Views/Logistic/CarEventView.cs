@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			ylabelCreateDate.Binding.AddFuncBinding(ViewModel.Entity, e => e.CreateDate.ToString("g"), w => w.LabelProp).InitializeFromSource();
 
-			originalCarEventId.Visible = labelOriginalCarEvent.Visible = false;
+			originalCarEvent.Visible = labelOriginalCarEvent.Visible = false;
 
 			ylabelAuthor.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.Author != null ? e.Author.GetPersonNameWithInitials() : "", w => w.LabelProp)
@@ -64,7 +64,6 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
-			originalCarEventId.Binding.AddBinding(ViewModel, vm => vm.OriginalCarEventId, w => w.ValueAsInt).InitializeFromSource();
 
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
@@ -80,7 +79,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			if(ViewModel.Entity.CarEventType?.Name == ViewModel.CarEventTypeCompensation)
 			{
-				originalCarEventId.Visible = labelOriginalCarEvent.Visible = true;
+				originalCarEvent.Visible = labelOriginalCarEvent.Visible = true;
 			}
 		}
 

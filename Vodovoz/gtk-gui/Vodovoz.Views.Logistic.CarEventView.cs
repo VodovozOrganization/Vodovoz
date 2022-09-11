@@ -54,7 +54,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Label labelOriginalCarEvent;
 
-		private global::Gamma.GtkWidgets.ySpinButton originalCarEventId;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry originalCarEvent;
 
 		private global::Gamma.Widgets.yDatePicker ydatepickerEndEventDate;
 
@@ -359,16 +359,13 @@ namespace Vodovoz.Views.Logistic
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.originalCarEventId = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000000D, 1D);
-			this.originalCarEventId.CanFocus = true;
-			this.originalCarEventId.Name = "originalCarEventId";
-			this.originalCarEventId.Adjustment.PageIncrement = 10D;
-			this.originalCarEventId.ClimbRate = 1D;
-			this.originalCarEventId.Numeric = true;
-			this.originalCarEventId.ValueAsDecimal = 0m;
-			this.originalCarEventId.ValueAsInt = 0;
-			this.table1.Add(this.originalCarEventId);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1[this.originalCarEventId]));
+			this.originalCarEvent = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.originalCarEvent.Events = ((global::Gdk.EventMask)(256));
+			this.originalCarEvent.Name = "originalCarEvent";
+			this.originalCarEvent.CanEditReference = true;
+			this.originalCarEvent.CanOpenWithoutTabParent = false;
+			this.table1.Add(this.originalCarEvent);
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1[this.originalCarEvent]));
 			w26.TopAttach = ((uint)(7));
 			w26.BottomAttach = ((uint)(8));
 			w26.LeftAttach = ((uint)(1));
