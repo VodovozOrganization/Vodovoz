@@ -256,8 +256,8 @@ parallel (
 				echo "Checking the deployment for a branch " + env.BRANCH_NAME
 				script{
 					
-					if(env.BRANCH_NAME == 'master')
-					{
+					//if(env.BRANCH_NAME == 'master')
+					//{
 						echo "Deploy WCF services"						
 						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
@@ -276,9 +276,9 @@ parallel (
 
 						def SMS_PAYMENT_SERVICE_PATH = BUILDS_PATH + 'SmsPaymentService'
 						unzip zipFile: 'SmsPaymentService.zip', dir: SMS_PAYMENT_SERVICE_PATH
-					} else{
-						echo "Nothing to deploy"
-					}
+					//} else{
+					//	echo "Nothing to deploy"
+					//}
 				}
 			}
 		}
