@@ -80,7 +80,7 @@ namespace Vodovoz.EntityRepositories.Sale
 				.Where(x => x.Category == Domain.Goods.NomenclatureCategory.water && !x.IsDisposableTare)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.SelectList(list => list.SelectGroup(x => x.Id).WithAlias(() => resultAlias.OrderId)
-					.SelectSum(() => (int)orderItemsAlias.Count).WithAlias(() => resultAlias.WaterCount)
+					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.WaterCount)
 					.SelectSubQuery(districtSubquery).WithAlias(() => resultAlias.DistrictId)
 				)
 				.Where(Restrictions.Gt(

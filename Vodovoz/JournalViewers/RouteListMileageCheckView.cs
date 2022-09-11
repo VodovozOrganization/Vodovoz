@@ -1,8 +1,9 @@
-﻿using System;
-using QS.DomainModel.UoW;
-using QSOrmProject;
-using QS.Tdi;
+﻿using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using System;
+using QS.Navigation;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz
 {
@@ -46,8 +47,8 @@ namespace Vodovoz
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
 		{
 			var node = treeRouteLists.GetSelectedNode () as ViewModel.RouteListsVMNode;
-			var dlg = new RouteListMileageCheckDlg (node.Id);
-			TabParent.AddTab (dlg, this);
+
+			MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id), OpenPageOptions.AsSlave);
 		}
 
 		protected void OnRouteListActivated (object o, Gtk.RowActivatedArgs args)

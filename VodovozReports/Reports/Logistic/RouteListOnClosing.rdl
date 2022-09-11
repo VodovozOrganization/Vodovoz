@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -77,8 +77,8 @@ FROM
         cars ON cars.id = route_lists.car_id
     INNER JOIN
         (
-            SELECT ggte.route_list_id FROM geographic_groups_to_entities ggte
-            WHERE (@geographic_group_id = 0 OR ggte.geographic_group_id = @geographic_group_id)
+            SELECT ggte.route_list_id FROM geo_groups_to_entities ggte
+            WHERE (@geographic_group_id = 0 OR ggte.geo_group_id = @geographic_group_id)
             GROUP BY ggte.route_list_id
         ) AS gg ON gg.route_list_id = route_lists.id
     INNER JOIN car_models cm ON cars.model_id = cm.id

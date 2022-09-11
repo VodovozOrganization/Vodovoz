@@ -49,6 +49,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
+using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -107,7 +108,8 @@ namespace Vodovoz.JournalViewModels
 			IReportPrinter reportPrinter,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IEmployeeSettings employeeSettings,
-			ICommonServices commonServices)
+			ICommonServices commonServices
+			)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -155,12 +157,23 @@ namespace Vodovoz.JournalViewModels
 			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			Subdivision subdivisionAlias = null;
-			GeographicGroup geographicalGroupAlias = null;
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
 				.Left.JoinAlias(o => o.Car, () => carAlias)
-				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
+				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias, 
+						Restrictions.Conjunction()
+							.Add(Restrictions.Where(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date))
+							.Add(
+								Restrictions.Disjunction()
+									.Add(Restrictions.IsNull(Projections.Property(() => geoGroupVersionAlias.ClosingDate)))
+									.Add(Restrictions.Where(() => geoGroupVersionAlias.ClosingDate >= routeListAlias.Date))
+							)
+				)
+				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
 				.Left.JoinAlias(o => o.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinEntityAlias(() => carVersionAlias,
@@ -190,8 +203,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.GeographicGroup != null)
 			{
-				query.Left.JoinAlias(o => o.GeographicGroups, () => geographicalGroupAlias)
-					.Where(() => geographicalGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
+				query.Where(() => geoGroupAlias.Id == FilterViewModel.GeographicGroup.Id);
 			}
 
 			#region RouteListAddressTypeFilter
@@ -602,10 +614,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListMileageCheckDlg(selectedNode.Id)
-						);
+						MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 					}
 				}
 			);
@@ -821,13 +830,12 @@ namespace Vodovoz.JournalViewModels
 				foreach(var routeList in routeLists)
 				{
 					int warehouseId = 0;
-					if(routeList.ClosingSubdivision.Id == _routeListParametersProvider.CashSubdivisionSofiiskayaId)
+
+					var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+					var geoGroupVersion = geoGroup.GetVersionOrNull(routeList.Date);
+					if(geoGroupVersion != null)
 					{
-						warehouseId = _routeListParametersProvider.WarehouseSofiiskayaId;
-					}
-					if(routeList.ClosingSubdivision.Id == _routeListParametersProvider.CashSubdivisionParnasId)
-					{
-						warehouseId = _routeListParametersProvider.WarehouseParnasId;
+						warehouseId = geoGroupVersion.Warehouse.Id;
 					}
 
 					if(warehouseId > 0)

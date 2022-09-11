@@ -11,6 +11,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {

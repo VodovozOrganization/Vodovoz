@@ -1,4 +1,4 @@
-using QSReport;
+﻿using QSReport;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
@@ -28,6 +28,8 @@ using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Additions.Accounting
 {
@@ -281,22 +283,22 @@ namespace Vodovoz.Additions.Accounting
 
 				if(i == 0)
 				{
-					wayBill.Mileage =
-						_distanceCalculator.DistanceFromBaseMeter(employee.Subdivision.GeographicGroup, order.DeliveryPoint) * 2 / 1000m;
-
-					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
+					var geoGroupVersion = GetActualGeoGroupVersion(employee, generationDate);
+					wayBill.Mileage = _distanceCalculator.DistanceFromBaseMeter(geoGroupVersion, order.DeliveryPoint) * 2 / 1000m;
+					
+					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion));
 					deliveryPointFrom = order.DeliveryPoint;
 				}
 				else if(i == lastId)
 				{
-					wayBill.Mileage =
-						_distanceCalculator.DistanceToBaseMeter(order.DeliveryPoint, employee.Subdivision.GeographicGroup) * 2 / 1000m;
+					var geoGroupVersion = GetActualGeoGroupVersion(employee, generationDate);
+					wayBill.Mileage = _distanceCalculator.DistanceToBaseMeter(order.DeliveryPoint, geoGroupVersion) * 2 / 1000m;
 
 					if(order.DeliveryPoint.CoordinatesExist)
 					{
 						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint));
 					}
-					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
+					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion));
 				}
 				else
 				{
@@ -348,6 +350,17 @@ namespace Vodovoz.Additions.Accounting
 			((WayBillDocumentParser)wayBillDocument.DocumentTemplate.DocParser).RootObject = wayBillDocument;
 
 			WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
+		}
+
+		private GeoGroupVersion GetActualGeoGroupVersion(Employee employee, DateTime generationDate)
+		{
+			var geoGroupVersion = employee.Subdivision.GeographicGroup.GetVersionOrNull(generationDate);
+			if(geoGroupVersion == null)
+			{
+				throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать километраж. Так как обслуживаемая часть города подразделения текущего пользователя ({employee.Subdivision.GeographicGroup.Name})" +
+					$"не имеет актуальной версии части города на {generationDate}. ");
+			}
+			return geoGroupVersion;
 		}
 
 		private TimeSpan[] GenerateRandomRouteTime()

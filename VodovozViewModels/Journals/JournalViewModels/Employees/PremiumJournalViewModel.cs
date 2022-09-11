@@ -17,6 +17,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using QS.Project.DB;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {

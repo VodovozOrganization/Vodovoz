@@ -6,6 +6,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 using Vodovoz.Tools.Orders;
 using Vodovoz.ViewModels.Widgets;
 

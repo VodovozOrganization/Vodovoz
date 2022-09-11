@@ -88,6 +88,8 @@ using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
 
 public partial class MainWindow : Window
 {
@@ -637,33 +639,27 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var baseParametersProvider = new BaseParametersProvider(parametersProvider);
 
-		if(new BaseParametersProvider(parametersProvider).UseOldAutorouting())
-			tdiMain.OpenTab(
-				TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
-				() => new RoutesAtDayDlg()
-			);
-		else
-			tdiMain.OpenTab(
-				"AutoRouting",
-				() => new RouteListsOnDayViewModel(
-					ServicesConfig.CommonServices,
-					new DeliveryScheduleParametersProvider(parametersProvider),
-					new GtkTabsOpener(),
-					new RouteListRepository(new StockRepository(), baseParametersProvider),
-					new SubdivisionRepository(parametersProvider),
-					new OrderRepository(),
-					new AtWorkRepository(),
-					new CarRepository(),
-					NavigationManagerProvider.NavigationManager,
-					new UserRepository(),
-					baseParametersProvider,
-					new EmployeeJournalFactory(),
-					new GeographicGroupRepository(),
-					new ScheduleRestrictionRepository(),
-					new CarModelJournalFactory(),
-					new GeographicGroupParametersProvider(parametersProvider)
-				)
-			);
+		tdiMain.OpenTab(
+			"AutoRouting",
+			() => new RouteListsOnDayViewModel(
+				ServicesConfig.CommonServices,
+				new DeliveryScheduleParametersProvider(parametersProvider),
+				new GtkTabsOpener(),
+				new RouteListRepository(new StockRepository(), baseParametersProvider),
+				new SubdivisionRepository(parametersProvider),
+				new OrderRepository(),
+				new AtWorkRepository(),
+				new CarRepository(),
+				NavigationManagerProvider.NavigationManager,
+				new UserRepository(),
+				baseParametersProvider,
+				new EmployeeJournalFactory(),
+				new GeographicGroupRepository(),
+				new ScheduleRestrictionRepository(),
+				new CarModelJournalFactory(),
+				new GeographicGroupParametersProvider(parametersProvider)
+			)
+		);
 	}
 
 	void ActionAccountingTable_Activated(object sender, System.EventArgs e)
@@ -957,6 +953,7 @@ public partial class MainWindow : Window
 		var filter = new RouteListJournalFilterViewModel();
 		filter.StartDate = DateTime.Today.AddMonths(-2);
 		filter.EndDate = DateTime.Today;
+
 		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
 	}
 
@@ -994,10 +991,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListMileageCheckView>(),
-			() => new RouteListMileageCheckView()
-		);
+		NavigationManager.OpenTdiTab<RouteListMileageCheckView>(null);
 	}
 
 	void ActionCashDocuments_Activated(object sender, System.EventArgs e)

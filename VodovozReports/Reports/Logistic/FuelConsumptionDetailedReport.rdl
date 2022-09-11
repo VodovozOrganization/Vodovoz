@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -732,8 +732,8 @@
 			AND n.tare_volume = 'Vol19L'
 	) AS bottles_count
 FROM route_lists rl
-JOIN geographic_groups_to_entities ggtorl ON rl.id = ggtorl.route_list_id
-JOIN geographic_groups gg ON gg.id = ggtorl.geographic_group_id
+JOIN geo_groups_to_entities ggtorl ON rl.id = ggtorl.route_list_id
+JOIN geo_groups gg ON gg.id = ggtorl.geo_group_id
 LEFT JOIN fuel_documents fdoc ON fdoc.route_list_id = rl.id
 LEFT JOIN fuel_types ft ON ft.id = fdoc.fuel_type_id
 LEFT JOIN employees e ON e.id = rl.driver_id

@@ -26,6 +26,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private IList<CarVersion> _carVersions = new List<CarVersion>();
 		private GenericObservableList<Attachment> _observableAttachments;
 		private GenericObservableList<CarVersion> _observableCarVersions;
+		private IList<OdometerReading> _odometerReadings = new List<OdometerReading>();
+		private GenericObservableList<OdometerReading> _observableOdometerReadings;
 		private string _carcase;
 		private string _chassisNumber;
 		private string _color;
@@ -39,14 +41,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private string _fuelCardNumber;
 		private double _fuelConsumption;
 		private FuelType _fuelType;
-		private IList<GeographicGroup> _geographicGroups = new List<GeographicGroup>();
+		private IList<GeoGroup> _geographicGroups = new List<GeoGroup>();
 		private string _manufactureYear;
 		private int _maxBottles;
 		private int _maxBottlesFromAddress;
 		private int _minBottles;
 		private int _minBottlesFromAddress;
 		private string _motorNumber;
-		private GenericObservableList<GeographicGroup> _observableGeographicGroups;
+		private GenericObservableList<GeoGroup> _observableGeographicGroups;
 		private int? _orderNumber;
 		private byte[] _photo;
 		private string _registrationNumber = String.Empty;
@@ -76,6 +78,15 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public virtual GenericObservableList<CarVersion> ObservableCarVersions => _observableCarVersions
 			?? (_observableCarVersions = new GenericObservableList<CarVersion>(CarVersions));
+
+		public virtual IList<OdometerReading> OdometerReadings
+		{
+			get => _odometerReadings;
+			set => SetField(ref _odometerReadings, value);
+		}
+		
+		public virtual GenericObservableList<OdometerReading> ObservableOdometerReadings => _observableOdometerReadings 
+		    ?? (_observableOdometerReadings = new GenericObservableList<OdometerReading>(OdometerReadings));
 
 		[Display(Name = "Государственный номер")]
 		public virtual string RegistrationNumber
@@ -173,8 +184,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		[Display(Name = "Расход топлива")]
 		public virtual double FuelConsumption
 		{
-			get => _fuelConsumption;
-			set => SetField(ref _fuelConsumption, value);
+			get => GetFuelConsumption();
 		}
 
 		[Display(Name = "Вид топлива")]
@@ -251,7 +261,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		}
 
 		[Display(Name = "Группа района")]
-		public virtual IList<GeographicGroup> GeographicGroups
+		public virtual IList<GeoGroup> GeographicGroups
 		{
 			get => _geographicGroups;
 			set => SetField(ref _geographicGroups, value);
@@ -265,8 +275,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<GeographicGroup> ObservableGeographicGroups =>
-			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeographicGroup>(GeographicGroups));
+		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups =>
+			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Attachment> ObservableAttachments =>
@@ -335,6 +345,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
 				}
 			}
+		}
+
+		private double GetFuelConsumption()
+		{
+			var result = CarModel.CarFuelVersions.OrderByDescending(x => x.StartDate)?.FirstOrDefault()?.FuelConsumption;
+
+			return result.Value;
 		}
 	}
 

@@ -1,20 +1,30 @@
 ﻿using QS.Project.Filter;
-using QS.Services;
 
 namespace Vodovoz.FilterViewModels.Organization
 {
 	public class SubdivisionFilterViewModel : FilterViewModelBase<SubdivisionFilterViewModel>
 	{
-		private int[] excludedSubdivisions;
-		public virtual int[] ExcludedSubdivisions {
-			get => excludedSubdivisions;
-			set => UpdateFilterField(ref excludedSubdivisions, value, () => ExcludedSubdivisions);
+		private int[] _excludedSubdivisions;
+		private SubdivisionType? _subdivisionType;
+		private bool _onlyCashSubdivisions;
+
+
+		public virtual int[] ExcludedSubdivisions
+		{
+			get => _excludedSubdivisions;
+			set => UpdateFilterField(ref _excludedSubdivisions, value);
 		}
 
-		private SubdivisionType? subdivisionType;
-		public virtual SubdivisionType? SubdivisionType {
-			get => subdivisionType;
-			set => UpdateFilterField(ref subdivisionType, value, () => SubdivisionType);
+		public virtual SubdivisionType? SubdivisionType
+		{
+			get => _subdivisionType;
+			set => UpdateFilterField(ref _subdivisionType, value);
+		}
+
+		public virtual bool OnlyCashSubdivisions
+		{
+			get => _onlyCashSubdivisions;
+			set => UpdateFilterField(ref _onlyCashSubdivisions, value);
 		}
 	}
 }

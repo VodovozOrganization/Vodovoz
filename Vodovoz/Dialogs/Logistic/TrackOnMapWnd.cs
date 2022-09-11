@@ -526,8 +526,21 @@ namespace Dialogs.Logistic
 		{
 			var pointsToRecalculate = new List<PointOnEarth>();
 			var pointsToBase = new List<PointOnEarth>();
-			var baseLat = (double)routeList.GeographicGroups.FirstOrDefault().BaseLatitude.Value;
-			var baseLon = (double)routeList.GeographicGroups.FirstOrDefault().BaseLongitude.Value;
+
+			var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+			if(geoGroup == null)
+			{
+				throw new InvalidOperationException($"В маршрутном листе должна быть добавлена часть города");
+			}
+
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+
+			var baseLat = (double)geoGroupVersion.BaseLatitude.Value;
+			var baseLon = (double)geoGroupVersion.BaseLongitude.Value;
 
 			decimal totalDistanceTrack = 0;
 
