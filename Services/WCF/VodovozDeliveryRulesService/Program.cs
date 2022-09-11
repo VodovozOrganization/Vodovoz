@@ -1,10 +1,12 @@
-using Fias.Service;
+﻿using Fias.Service;
+using Fias.Service.Cache;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QS.Banks.Domain;
+using QS.DomainModel.UoW;
 using QS.Project.DB;
 using System;
 using System.Collections.ObjectModel;
