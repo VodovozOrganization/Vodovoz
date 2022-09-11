@@ -11,7 +11,6 @@ using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using NLog;
 using QS.Project.DB;
-using QSProjectsLib;
 using SmsPaymentService;
 using SmsPaymentService.PaymentControllers;
 using SmsPaymentService.Workers;
@@ -87,10 +86,9 @@ namespace VodovozSmsPaymentService
 					ConnectionTimeout = 30
 				};
 
-				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
 				var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-										 .ConnectionString(QSMain.ConnectionString);
+										 .ConnectionString(conStrBuilder.GetConnectionString(true));
 
 				OrmConfig.ConfigureOrm(dbConfig,
 					new[]
