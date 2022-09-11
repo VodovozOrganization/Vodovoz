@@ -1,249 +1,286 @@
-node('Vod6'){
-	stage('Checkout'){
-		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_WIN}/workspace/Vodovoz_Vodovoz_master"
+parallel (
+	"Desktop" : {
+		node('Vod6'){
+			stage('Checkout'){
+				def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_WIN}/workspace/Vodovoz_Vodovoz_master"
 
-		echo "checkout Gtk.DataBindings"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/vodovoz']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions: 
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
-		])
+				echo "checkout Gtk.DataBindings"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/vodovoz']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions: 
+					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
+				])
 
-		echo "checkout GMap.NET"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/master']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions:
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GMap.NET"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GMap.NET.git']]
-		])
+				echo "checkout GMap.NET"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/master']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GMap.NET"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GMap.NET.git']]
+				])
 
-		echo "checkout My-FyiReporting"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/Vodovoz']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions:
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
-		])
+				echo "checkout My-FyiReporting"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/Vodovoz']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
+				])
 
-		echo "checkout QSProjects"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/VodovozMonitoring']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions:
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
-		])
+				echo "checkout QSProjects"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/VodovozMonitoring']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
+				])
 
-		echo "checkout Vodovoz"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: scm.branches,
-			doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-			extensions: scm.extensions 
-			+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
-			userRemoteConfigs: scm.userRemoteConfigs
-		])
-	}
-	stage('Restore'){
-		echo 'Prepare Vodovoz'	
-		bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
-	}
-	stage('Build'){
-		echo 'Build solution'
-		bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
+				echo "checkout Vodovoz"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: scm.branches,
+					doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+					extensions: scm.extensions 
+					+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
+					userRemoteConfigs: scm.userRemoteConfigs
+				])
+			}
+			stage('Restore'){
+				echo 'Prepare Vodovoz'	
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
+			}
+			stage('Build'){
+				echo 'Build solution'
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
 
-		fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
-		zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
-		archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
-	}
-	stage('DriverAPI Delivery')
-	{
-		if(env.BRANCH_NAME ==~ /(develop|master)/
-			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-		{
-			echo 'Publish DriverAPI to folder (' + env.BRANCH_NAME + ')'
-			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-			
-			echo 'Move files to CD folder'
-			bat 'xcopy "Vodovoz\\Services\\WebApi\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-		}
-		else
-		{
-			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-		}
-	}
-	stage('FastPaymentsAPI Deploy')
-	{
-		if(env.BRANCH_NAME ==~ /(develop|master)/
-			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-		{
-			echo 'Publish FastPaymentsAPI to folder (' + env.BRANCH_NAME + ')'
-			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-			
-			echo 'Move files to CD folder'
-			bat 'xcopy "Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-		}
-		else
-		{
-			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-		}
-	}
-	stage('PayPageAPI Deploy')
-	{
-		if(env.BRANCH_NAME ==~ /(develop|master)/
-			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-		{
-			echo 'Publish PayPageAPI to folder (' + env.BRANCH_NAME + ')'
-			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-			
-			echo 'Move files to CD folder'
-			bat 'xcopy "Vodovoz\\Services\\WebApi\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-		}
-		else
-		{
-			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-		}
-	}
-	stage('MailjetEventsDistributorAPI Deploy')
-	{
-		if(env.BRANCH_NAME ==~ /(develop|master)/
-			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-		{
-			echo 'Publish MailjetEventsDistributorAPI to folder (' + env.BRANCH_NAME + ')'
-			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-			
-			echo 'Move files to CD folder'
-			bat 'xcopy "Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-		}
-		else
-		{
-			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-		}
-	}
-}
-node('WCF'){
-	stage('Checkout'){
-		def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
-
-		echo "checkout Gtk.DataBindings"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/vodovoz']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions: 
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
-		])
-
-		echo "checkout GMap.NET"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/master']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions:
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GMap.NET"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GMap.NET.git']]
-		])
-
-		echo "checkout My-FyiReporting"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/Vodovoz']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions:
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
-		])
-
-		echo "checkout QSProjects"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: [[name: '*/VodovozMonitoring']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions:
-			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
-			userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
-		])
-
-		echo "checkout Vodovoz"	
-		checkout changelog: false, poll: false, scm:([
-			$class: 'GitSCM',
-			branches: scm.branches,
-			doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-			extensions: scm.extensions 
-			+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-			+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
-			userRemoteConfigs: scm.userRemoteConfigs
-		])
-	}
-	stage('Restore WCF'){
-		echo 'Prepare Vodovoz'
-		sh 'nuget restore Vodovoz/Vodovoz.sln'
-		sh 'nuget restore QSProjects/QSProjectsLib.sln'
-		sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
-	}
-	stage('Build WCF'){
-		echo 'Build solution'
-		sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Vodovoz.sln -maxcpucount:4'
-
-		fileOperations([fileDeleteOperation(excludes: '', includes: 'DeliveryRuleService.zip')])
-		zip zipFile: 'DeliveryRuleService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozDeliveryRulesService/bin/Debug'
-
-		fileOperations([fileDeleteOperation(excludes: '', includes: 'InstantSmsService.zip')])
-		zip zipFile: 'InstantSmsService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozInstantSmsService/bin/Debug'
-
-		fileOperations([fileDeleteOperation(excludes: '', includes: 'SalesReceiptsService.zip')])
-		zip zipFile: 'SalesReceiptsService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozSalesReceiptsService/bin/Debug'
-
-		fileOperations([fileDeleteOperation(excludes: '', includes: 'SmsInformerService.zip')])
-		zip zipFile: 'SmsInformerService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozSmsInformerService/bin/Debug'
-
-		fileOperations([fileDeleteOperation(excludes: '', includes: 'SmsPaymentService.zip')])
-		zip zipFile: 'SmsPaymentService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozSmsPaymentService/bin/Debug'
-
-		archiveArtifacts artifacts: '*.zip', onlyIfSuccessful: true
-	}
-}
-node('Vod3') {
-	stage('Deploy'){
-		echo "Checking the deployment for a branch " + env.BRANCH_NAME
-		script{
-			def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
-			if(
-				env.BRANCH_NAME == 'master'
-				|| env.BRANCH_NAME == 'develop'
-				|| env.BRANCH_NAME == 'Beta'
-				|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
+				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
+				archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
+			}
+			stage('DriverAPI Delivery')
 			{
-				def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
-				echo "Deploy branch " + env.BRANCH_NAME
-				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
-			} else if(env.CHANGE_ID != null){
-				def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
-				echo "Deploy pull request " + env.CHANGE_ID
-				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
-			} else{
-				echo "Nothing to deploy"
+				if(env.BRANCH_NAME ==~ /(develop|master)/
+					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				{
+					echo 'Publish DriverAPI to folder (' + env.BRANCH_NAME + ')'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					
+					echo 'Move files to CD folder'
+					bat 'xcopy "Vodovoz\\Services\\WebApi\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+				}
+				else
+				{
+					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+				}
+			}
+			stage('FastPaymentsAPI Deploy')
+			{
+				if(env.BRANCH_NAME ==~ /(develop|master)/
+					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				{
+					echo 'Publish FastPaymentsAPI to folder (' + env.BRANCH_NAME + ')'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					
+					echo 'Move files to CD folder'
+					bat 'xcopy "Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+				}
+				else
+				{
+					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+				}
+			}
+			stage('PayPageAPI Deploy')
+			{
+				if(env.BRANCH_NAME ==~ /(develop|master)/
+					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				{
+					echo 'Publish PayPageAPI to folder (' + env.BRANCH_NAME + ')'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					
+					echo 'Move files to CD folder'
+					bat 'xcopy "Vodovoz\\Services\\WebApi\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+				}
+				else
+				{
+					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+				}
+			}
+			stage('MailjetEventsDistributorAPI Deploy')
+			{
+				if(env.BRANCH_NAME ==~ /(develop|master)/
+					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				{
+					echo 'Publish MailjetEventsDistributorAPI to folder (' + env.BRANCH_NAME + ')'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					
+					echo 'Move files to CD folder'
+					bat 'xcopy "Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+				}
+				else
+				{
+					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+				}
+			}
+		}
+		node('Vod3') {
+			stage('Deploy'){
+				echo "Checking the deployment for a branch " + env.BRANCH_NAME
+				script{
+					def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
+					if(
+						env.BRANCH_NAME == 'master'
+						|| env.BRANCH_NAME == 'develop'
+						|| env.BRANCH_NAME == 'Beta'
+						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+					{
+						def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
+						echo "Deploy branch " + env.BRANCH_NAME
+						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+						unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+					} else if(env.CHANGE_ID != null){
+						def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
+						echo "Deploy pull request " + env.CHANGE_ID
+						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+						unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+					} else{
+						echo "Nothing to deploy"
+					}
+				}
+			}
+		}
+	},
+	"WCF" : {
+		node('WCF'){
+			stage('Checkout WCF'){
+				def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME}/workspace/Vodovoz_Vodovoz_master"
+
+				echo "checkout Gtk.DataBindings"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/vodovoz']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions: 
+					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
+				])
+
+				echo "checkout GMap.NET"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/master']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GMap.NET"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GMap.NET.git']]
+				])
+
+				echo "checkout My-FyiReporting"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/Vodovoz']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
+				])
+
+				echo "checkout QSProjects"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: [[name: '*/VodovozMonitoring']],
+					doGenerateSubmoduleConfigurations: false,
+					extensions:
+					[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
+					userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
+				])
+
+				echo "checkout Vodovoz"	
+				checkout changelog: false, poll: false, scm:([
+					$class: 'GitSCM',
+					branches: scm.branches,
+					doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+					extensions: scm.extensions 
+					+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
+					+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
+					userRemoteConfigs: scm.userRemoteConfigs
+				])
+			}
+			stage('Restore WCF'){
+				echo 'Prepare Vodovoz'
+				sh 'nuget restore Vodovoz/Vodovoz.sln'
+				sh 'nuget restore QSProjects/QSProjectsLib.sln'
+				sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
+			}
+			stage('Build WCF'){
+				echo 'Build solution'
+				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Vodovoz.sln -maxcpucount:4'
+
+				fileOperations([fileDeleteOperation(excludes: '', includes: 'DeliveryRuleService.zip')])
+				zip zipFile: 'DeliveryRuleService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozDeliveryRulesService/bin/Debug'
+
+				fileOperations([fileDeleteOperation(excludes: '', includes: 'InstantSmsService.zip')])
+				zip zipFile: 'InstantSmsService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozInstantSmsService/bin/Debug'
+
+				fileOperations([fileDeleteOperation(excludes: '', includes: 'SalesReceiptsService.zip')])
+				zip zipFile: 'SalesReceiptsService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozSalesReceiptsService/bin/Debug'
+
+				fileOperations([fileDeleteOperation(excludes: '', includes: 'SmsInformerService.zip')])
+				zip zipFile: 'SmsInformerService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozSmsInformerService/bin/Debug'
+
+				fileOperations([fileDeleteOperation(excludes: '', includes: 'SmsPaymentService.zip')])
+				zip zipFile: 'SmsPaymentService.zip', archive: false, dir: 'Vodovoz/Services/WCF/VodovozSmsPaymentService/bin/Debug'
+
+				archiveArtifacts artifacts: '*.zip', onlyIfSuccessful: true
+			}
+		}
+		node('WCF_runtime') {
+			stage('Deploy'){
+				echo "Checking the deployment for a branch " + env.BRANCH_NAME
+				script{
+					
+					if(env.BRANCH_NAME == 'master')
+					{
+						echo "Deploy WCF services"						
+						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+
+						def BUILDS_PATH = "/opt/jenkins/builds/"
+						def DELIVERY_RULES_SERVICE_PATH = BUILDS_PATH + 'DeliveryRuleService'
+						unzip zipFile: 'DeliveryRuleService.zip', dir: DELIVERY_RULES_SERVICE_PATH
+
+						def INSTANT_SMS_SERVICE_PATH = BUILDS_PATH + 'InstantSmsService'
+						unzip zipFile: 'InstantSmsService.zip', dir: INSTANT_SMS_SERVICE_PATH
+
+						def SALES_RECEIPTS_SERVICE_PATH = BUILDS_PATH + 'SalesReceiptsService'
+						unzip zipFile: 'SalesReceiptsService.zip', dir: SALES_RECEIPTS_SERVICE_PATH
+
+						def SMS_INFORMER_SERVICE_PATH = BUILDS_PATH + 'SmsInformerService'
+						unzip zipFile: 'SmsInformerService.zip', dir: SMS_INFORMER_SERVICE_PATH
+
+						def SMS_PAYMENT_SERVICE_PATH = BUILDS_PATH + 'SmsPaymentService'
+						unzip zipFile: 'SmsPaymentService.zip', dir: SMS_PAYMENT_SERVICE_PATH
+					} else{
+						echo "Nothing to deploy"
+					}
+				}
 			}
 		}
 	}
-}
+)
