@@ -1840,6 +1840,10 @@
       <Project>{3577DB0C-38BF-4CC8-80EB-06C767905B4D}</Project>
       <Name>Mailjet.Api.Abstractions</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\Library\MangoController\MangoController.csproj">
+      <Project>{aa37ab03-e6be-49a2-9b86-e42ef346b245}</Project>
+      <Name>MangoController</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Services\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
       <Project>{57A169A7-24A1-4FF3-9FD6-F7882F85463E}</Project>
       <Name>RabbitMQ.Infrastructure</Name>
@@ -1863,10 +1867,6 @@
     <ProjectReference Include="..\Services\Library\ClientMangoService\ClientMangoService.csproj">
       <Project>{892519ba-d891-43b6-971c-6415ea4d14e5}</Project>
       <Name>ClientMangoService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Services\WebApi\MangoController\MangoController.csproj">
-      <Project>{665aaa79-4d55-41ce-a49a-bc8d926db39e}</Project>
-      <Name>MangoController</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
