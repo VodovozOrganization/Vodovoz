@@ -33,6 +33,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private bool _restrictIsProblematicCases;
 		private bool _restrictNotIsProblematicCases;
 		private ActionsWithInvoice? _restrictActionsWithInvoice;
+		private OrderStatus? _statusOnOldOrderCancel;
 		private bool _restrictGuiltyDepartmentVisible;
 
 		public UndeliveredOrdersFilterViewModel(ICommonServices commonServices, IOrderSelectorFactory orderSelectorFactory,
@@ -183,6 +184,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 				}
 				UpdateFilterField(ref _restrictActionsWithInvoice, value);
 			}
+		}
+
+		public OrderStatus? StatusOnOldOrderCancel
+		{
+			get => _statusOnOldOrderCancel;
+			set => UpdateFilterField(ref _statusOnOldOrderCancel, value);
 		}
 
 		public bool? NewInvoiceCreated { get; set; }
