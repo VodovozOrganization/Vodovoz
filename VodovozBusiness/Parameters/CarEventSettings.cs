@@ -13,5 +13,6 @@ namespace Vodovoz.Parameters
 		}
 
 		public int DontShowCarEventByReportId => _parametersProvider.GetIntValue("dont_show_car_event_by_report_id");
+		public int CompensationFromInsuranceByCourtId => _parametersProvider.GetIntValue("compensation_from_insurance_by_court_id");
 	}
 }

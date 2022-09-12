@@ -31,19 +31,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	{
 		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
+		private readonly ICarEventJournalFactory _carEventJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private IEmployeeSettings _employeeSettings;
-		private ICarEventRepository _carEventRepository;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private readonly IEmployeeSettings _employeeSettings;
 
 		public CarEventJournalViewModel(
 			CarEventFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICarEventRepository carEventRepository,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
+			ICarEventJournalFactory carEventJournalFactory,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
@@ -52,9 +52,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			TabName = "Журнал событий ТС";
 
-			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
+			_carEventJournalFactory = carEventJournalFactory ?? throw new ArgumentNullException(nameof(carEventJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
@@ -190,9 +190,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				EntityUoWBuilder.ForCreate(),
 				UnitOfWorkFactory,
 				commonServices,
-				_carEventRepository,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
+				_carEventJournalFactory,
 				_employeeService,
 				_employeeJournalFactory,
 				_undeliveryViewOpener,
@@ -203,9 +203,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				EntityUoWBuilder.ForOpen(node.Id),
 				UnitOfWorkFactory,
 				commonServices,
-				_carEventRepository,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
+				_carEventJournalFactory,
 				_employeeService,
 				_employeeJournalFactory,
 				_undeliveryViewOpener,

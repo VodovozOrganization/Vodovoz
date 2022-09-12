@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			ylabelCreateDate.Binding.AddFuncBinding(ViewModel.Entity, e => e.CreateDate.ToString("g"), w => w.LabelProp).InitializeFromSource();
 
-			originalCarEvent.Visible = labelOriginalCarEvent.Visible = false;
+			labelOriginalCarEvent.Visible = ViewModel.Entity.CompensationFromInsuranceByCourt;
 
 			ylabelAuthor.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.Author != null ? e.Author.GetPersonNameWithInitials() : "", w => w.LabelProp)
@@ -38,9 +38,12 @@ namespace Vodovoz.Views.Logistic
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.ChangedByUser += (sender, e) => ViewModel.ChangeDriverCommand.Execute();
 
-			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			originalCarEvent.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventSelectorFactory);
+			originalCarEvent.Binding.AddBinding(ViewModel.Entity, e => e.OriginalCarEvent, w => w.Subject).InitializeFromSource();
 
+			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
+			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).
+				AddBinding(ViewModel.Entity, e => e.CompensationFromInsuranceByCourt, w => w.Visible);
 			ydatepickerStartEventDate.Binding.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date).InitializeFromSource();
 
 			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
@@ -77,10 +80,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void UpdateVisibleOriginalCarEvent()
 		{
-			if(ViewModel.Entity.CarEventType?.Name == ViewModel.CarEventTypeCompensation)
-			{
-				originalCarEvent.Visible = labelOriginalCarEvent.Visible = true;
-			}
+			labelOriginalCarEvent.Visible = ViewModel.Entity.CompensationFromInsuranceByCourt;
 		}
 
 		private void CheckPeriod()

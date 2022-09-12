@@ -106,6 +106,13 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField( ref _doNotShowInOperation, value );
 		}
 
+		[Display(Name = "Компенсация от страховой, по суду")]
+		public virtual bool CompensationFromInsuranceByCourt
+		{
+			get => _compensationFromInsuranceByCourt;
+			set => SetField(ref _compensationFromInsuranceByCourt, value);
+		}
+
 		[Display( Name = "Стоимость ремонта" )]
 		public virtual decimal RepairCost
 		{
@@ -147,6 +154,11 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 			ObservableFines.Add(fine);
+		}
+
+		public virtual void SetRepairCostCompensation(decimal value)
+		{
+			RepairCost = -value;
 		}
 
 		public virtual string GetFineReason()
