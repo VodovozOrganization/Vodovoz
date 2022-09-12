@@ -39,9 +39,11 @@ namespace Fias.Service.Cache
 					Longitude = longitude
 				};
 
-				uow.Session.BeginTransaction();
-				uow.Session.Save(addressCache);
-				uow.Session.Transaction.Commit();
+				using(var transaction = uow.Session.BeginTransaction())
+				{
+					uow.Session.Save(addressCache);
+					transaction.Commit();
+				}
 			}
 		}
 
@@ -64,16 +66,20 @@ namespace Fias.Service.Cache
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var coordinatesCache = new GeocoderCoordinatesCache
+				var cacheId = new GeocoderCoordinatesCache { Latitude = latitude, Longitude = longitude };
+				var coordinatesCache = uow.Session.Get<GeocoderCoordinatesCache>(cacheId);
+				if(coordinatesCache == null)
 				{
-					Latitude = latitude,
-					Longitude = longitude,
-					Address = address
-				};
+					coordinatesCache = cacheId;
+				}
 
-				uow.Session.BeginTransaction();
-				uow.Session.Save(coordinatesCache);
-				uow.Session.Transaction.Commit();
+				coordinatesCache.Address = address;
+
+				using(var transaction = uow.Session.BeginTransaction())
+				{
+					uow.Session.Save(coordinatesCache);
+					transaction.Commit();
+				}
 			}
 		}
 
