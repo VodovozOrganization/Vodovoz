@@ -20,6 +20,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
 using System.Threading.Tasks;
 using System.Threading;
+using QS.Project.DB;
+using QS.Project.Services.FileDialog;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -29,6 +31,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels;
+using Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport;
 using Vodovoz.Views;
 
 namespace Vodovoz.Representations
@@ -40,16 +43,19 @@ namespace Vodovoz.Representations
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 		private readonly IEmailRepository _emailRepository;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly Employee _currentEmployee;
 		private readonly bool _canSendBulkEmails;
 
 		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, 
 			IEmployeeRepository employeeRepository, IGtkTabsOpener gtkTabsOpener, IDebtorsParameters debtorsParameters, IEmailParametersProvider emailParametersProvider,
-			IAttachmentsViewModelFactory attachmentsViewModelFactory, IEmailRepository emailRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IAttachmentsViewModelFactory attachmentsViewModelFactory, IEmailRepository emailRepository, IFileDialogService fileDialogService)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			this.employeeRepository = employeeRepository;
@@ -112,6 +118,7 @@ namespace Vodovoz.Representations
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
 			Email emailAlias = null;
+			Phone phoneAlias = null;
 
 			int hideSuspendedCounterpartyId = _debtorsParameters.GetSuspendedCounterpartyId;
 			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
@@ -164,6 +171,41 @@ namespace Vodovoz.Representations
 			var counterpartyContactEmailsSubQuery = QueryOver.Of(() => emailAlias)
 				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
 				.Select(Projections.Property(() => emailAlias.Id));
+
+			#region Phones Subqueries
+
+			var deliveryPointPhonesSubquery = QueryOver.Of(() => phoneAlias)
+				.Where(() => phoneAlias.DeliveryPoint.Id == orderAlias.DeliveryPoint.Id)
+				.Select(
+					CustomProjections.GroupConcat(
+						CustomProjections.Concat_WS(
+							"",
+							Projections.Constant("8"),
+							Projections.Property(() => phoneAlias.DigitsNumber)
+						),
+						separator: ";\n"));
+
+			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
+				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id)
+				.Select(
+					CustomProjections.GroupConcat(
+						CustomProjections.Concat_WS(
+							"", 
+							Projections.Constant("8"), 
+							Projections.Property(() => phoneAlias.DigitsNumber)
+							), 
+						separator: ";\n"));
+
+			var phoneProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.SubQuery(deliveryPointPhonesSubquery)),
+				Projections.SubQuery(counterpartyPhonesSubquery), 
+				Projections.SubQuery(deliveryPointPhonesSubquery));
+
+			#endregion
+
+			var emailSubquery = QueryOver.Of(() => emailAlias)
+				.Where(() => emailAlias.Counterparty.Id == orderAlias.Client.Id)
+				.Select(CustomProjections.GroupConcat(() => emailAlias.Address, separator: ";\n"));
 
 			#region LastOrder
 
@@ -390,7 +432,10 @@ namespace Vodovoz.Representations
 				   .SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
 				   .SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
 				   .SelectSubQuery(TaskExistQuery).WithAlias(() => resultAlias.RowColor)
-				   .SelectSubQuery(countDeliveryPoint).WithAlias(() => resultAlias.CountOfDeliveryPoint))
+				   .SelectSubQuery(countDeliveryPoint).WithAlias(() => resultAlias.CountOfDeliveryPoint)
+				   .Select(phoneProjection).WithAlias(() => resultAlias.Phones)
+				   .SelectSubQuery(emailSubquery).WithAlias(() => resultAlias.Emails)
+				)
 				.SetTimeout(300)
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
 
@@ -704,8 +749,8 @@ namespace Vodovoz.Representations
 				}
 			}));
 
-			NodeActionsList.Add(new JournalAction("Печатная форма", x => true, x => true, selectedItems => {
-				OpenPrintingForm();
+			NodeActionsList.Add(new JournalAction("Экспорт в Эксель", x => true, x => true, selectedItems => {
+				ExportToExcel();
 			}));
 
 			NodeActionsList.Add(NewJournalActionForOpenCounterpartyDlg());
@@ -750,36 +795,11 @@ namespace Vodovoz.Representations
 			TabParent.AddTab(dlg, this, false);
 		}
 
-		public void OpenPrintingForm()
+		public void ExportToExcel()
 		{
-			var reportInfo = new QS.Report.ReportInfo {
-				Title = TabName,
-				Identifier = "Client.BottleDebtorsJournal",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "discount_reason_id", FilterViewModel?.DiscountReason?.Id ?? 0 },
-					{ "nomenclature_id", FilterViewModel?.LastOrderNomenclature?.Id ?? 0},
-					{ "StartDate", FilterViewModel?.StartDate},
-					{ "EndDate", FilterViewModel?.EndDate},
-					{ "OrderBottlesFrom", FilterViewModel?.LastOrderBottlesFrom?.ToString() ?? String.Empty},
-					{ "OrderBottlesTo", FilterViewModel?.LastOrderBottlesTo?.ToString() ?? String.Empty},
-					{ "AddressId", FilterViewModel?.Address?.Id ?? 0},
-					{ "CounterpartyId", FilterViewModel?.Client?.Id ?? 0},
-					{ "OPF", FilterViewModel?.OPF?.ToString() ?? String.Empty},
-					{ "DebtBottlesFrom", FilterViewModel.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : ""},
-					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : ""},
-					{ "HideActiveCounterparty", FilterViewModel.HideActiveCounterparty ? "true" : ""},
-					{ "HideWithOneOrder", (FilterViewModel.WithOneOrder.HasValue && !FilterViewModel.WithOneOrder.Value) ? "true" : ""},
-					{ "SearchString1", Search.SearchValues?.Length > 0 ? Search.SearchValues[0] : null },
-					{ "SearchString2", Search.SearchValues?.Length > 1 ? Search.SearchValues[1] : null },
-					{ "SearchString3", Search.SearchValues?.Length > 2 ? Search.SearchValues[2] : null },
-					{ "SearchString4", Search.SearchValues?.Length > 3 ? Search.SearchValues[3] : null },
-					{ "HideWithoutEmail", FilterViewModel.HideWithoutEmail ? "true" : "" },
-					{ "DeliveryPointCategory", FilterViewModel?.SelectedDeliveryPointCategory?.Id ?? 0}
-				}
-			};
-			var dlg = new ReportViewDlg(reportInfo);
-			TabParent.AddTab(dlg, this, false);
+			var rows = ItemsSourceQueryFunction.Invoke(UoW).List<DebtorJournalNode>();
+			var report = new DebtorsJournalReport(rows, _fileDialogService);
+			report.Export();
 		}
 
 		private ReportViewDlg CreateReportDlg(int counterpartyId, int deliveryPointId = -1)
