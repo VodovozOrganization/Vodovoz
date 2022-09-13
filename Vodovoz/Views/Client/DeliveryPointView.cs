@@ -286,7 +286,7 @@ namespace Vodovoz.Views.Client
 			_vboxMap = new VBox();
 			_comboMapType = new yEnumComboBox();
 			_comboMapType.ItemsEnum = typeof(MapProviders);
-			_comboMapType.SelectedItem = MapProviders.GoogleMap;
+			_comboMapType.SelectedItem = MapProviders.BingMap;
 			_comboMapType.EnumItemSelected += (sender, args) =>
 			{
 				_mapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);

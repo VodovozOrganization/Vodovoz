@@ -91,7 +91,7 @@ namespace Vodovoz.Views.Logistic
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			yenumcomboMapType.EnumItemSelected += (sender, args) =>
 				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
-			yenumcomboMapType.SelectedItem = MapProviders.GoogleMap;
+			yenumcomboMapType.SelectedItem = MapProviders.BingMap;
 
 			LoadDistrictsGeometry();
 

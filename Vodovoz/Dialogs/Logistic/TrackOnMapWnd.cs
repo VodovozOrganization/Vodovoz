@@ -104,7 +104,7 @@ namespace Dialogs.Logistic
 
 			comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			comboMapProvider.ItemsEnum = typeof(MapProviders);
-			comboMapProvider.SelectedItem = MapProviders.GoogleMap;
+			comboMapProvider.SelectedItem = MapProviders.BingMap;
 			comboMapProvider.EnumItemSelected += (sender, args) =>
 				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 
