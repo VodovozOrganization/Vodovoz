@@ -398,7 +398,7 @@ namespace Vodovoz
 			ybuttonAddAdditionalLoad.Sensitive = isEditable && Entity.Car != null;
 			ybuttonRemoveAdditionalLoad.Sensitive = isEditable;
 			fixPriceSpin.Sensitive = Entity.HasFixedShippingPrice && Entity.Status != RouteListStatus.Closed;
-			checkIsFixPrice.Sensitive = isEditable && CanEditFixedPrice;
+			checkIsFixPrice.Sensitive = CanEditFixedPrice && Entity.Status != RouteListStatus.Closed;
 			_additionalLoadingItemsView.ViewModel.CanEdit = isEditable;
 		}
 
