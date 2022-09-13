@@ -269,7 +269,7 @@ namespace Vodovoz.Views.Client
 			//Configure map
 			_mapWidget = new GMapControl
 			{
-				MapProvider = GMapProviders.GoogleMap,
+				MapProvider = GMapProviders.BingMap,
 				Position = new PointLatLng(59.93900, 30.31646),
 				MinZoom = 0,
 				MaxZoom = 24,
@@ -286,7 +286,7 @@ namespace Vodovoz.Views.Client
 			_vboxMap = new VBox();
 			_comboMapType = new yEnumComboBox();
 			_comboMapType.ItemsEnum = typeof(MapProviders);
-			_comboMapType.SelectedItem = MapProviders.GoogleMap;
+			_comboMapType.SelectedItem = MapProviders.BingMap;
 			_comboMapType.EnumItemSelected += (sender, args) =>
 			{
 				_mapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);

@@ -71,7 +71,7 @@ namespace Vodovoz.Views.Sale
 
 			comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			comboMapProvider.ItemsEnum = typeof(MapProviders);
-			comboMapProvider.SelectedItem = MapProviders.GoogleMap;
+			comboMapProvider.SelectedItem = MapProviders.BingMap;
 			comboMapProvider.EnumItemSelected += (sender, args) =>
 				gMapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 
@@ -159,7 +159,7 @@ namespace Vodovoz.Views.Sale
 
 			UpdateAddressOnMap();
 
-			gMapWidget.MapProvider = GMapProviders.GoogleMap;
+			gMapWidget.MapProvider = GMapProviders.BingMap;
 			gMapWidget.Position = point;
 			gMapWidget.MinZoom = 0;
 			gMapWidget.MaxZoom = 24;
