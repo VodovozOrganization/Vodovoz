@@ -27,9 +27,11 @@ namespace Vodovoz.Filters.ViewModels
 		private DateTime? _startDate;
 		private int? _debtBottlesTo;
 		private int? _debtBottlesFrom;
-		private bool _hideWithOneOrder;
+		private bool? _withOneOrder;
 		private int? _lastOrderBottlesTo;
 		private int? _lastOrderBottlesFrom;
+		private int? _deliveryPointsTo;
+		private int? _deliveryPointsFrom;
 		private bool _hideActiveCounterparty;
 		private bool _hideWithoutEmail;
 		private bool _showSuspendedCounterparty;
@@ -108,9 +110,9 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _showCancellationCounterparty, value);
 		}
 
-		public bool HideWithOneOrder {
-			get => _hideWithOneOrder;
-			set => UpdateFilterField(ref _hideWithOneOrder, value);
+		public bool? WithOneOrder {
+			get => _withOneOrder;
+			set => UpdateFilterField(ref _withOneOrder, value);
 		}
 
 		public bool HideWithoutEmail
@@ -137,6 +139,18 @@ namespace Vodovoz.Filters.ViewModels
 		public int? LastOrderBottlesTo {
 			get => _lastOrderBottlesTo;
 			set => SetField(ref _lastOrderBottlesTo, value, () => LastOrderBottlesTo);
+		}
+
+		public int? DeliveryPointsFrom
+		{
+			get => _deliveryPointsFrom;
+			set => UpdateFilterField(ref _deliveryPointsFrom, value);
+		}
+
+		public int? DeliveryPointsTo
+		{
+			get => _deliveryPointsTo;
+			set => UpdateFilterField(ref _deliveryPointsTo, value);
 		}
 
 		public Nomenclature LastOrderNomenclature {

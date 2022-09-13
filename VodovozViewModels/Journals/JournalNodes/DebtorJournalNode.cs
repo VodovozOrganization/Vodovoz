@@ -32,5 +32,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string IsResidueExist { get; set; } = "нет";
 
 		public int CountOfDeliveryPoint { get; set; }
+
+		public string Address => String.IsNullOrWhiteSpace(AddressName) ? "Самовывоз" : AddressName;
+
+		public string Phones { get; set; }
+
+		public string Emails { get; set; }
 	}
 }
