@@ -71,7 +71,7 @@ namespace Vodovoz.Views.Logistic
 
 			//Configure map
 			districtsOverlay.IsVisibile = false;
-			gmapWidget.MapProvider = GMapProviders.BingMap;
+			gmapWidget.MapProvider = GMapProviders.GoogleMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.HasFrame = true;
@@ -91,7 +91,7 @@ namespace Vodovoz.Views.Logistic
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			yenumcomboMapType.EnumItemSelected += (sender, args) =>
 				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
-			yenumcomboMapType.SelectedItem = MapProviders.BingMap;
+			yenumcomboMapType.SelectedItem = MapProviders.GoogleMap;
 
 			LoadDistrictsGeometry();
 
