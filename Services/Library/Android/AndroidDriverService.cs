@@ -186,7 +186,7 @@ namespace Android
 					
 					var result = new List<RouteListDTO>();
 					var driver = _employeeRepository.GetDriverByAuthKey(uow, authKey);
-					var routeLists = _routeListRepository.GetDriverRouteLists(uow, driver, RouteListStatus.EnRoute, DateTime.Today);
+					var routeLists = _routeListRepository.GetDriverRouteLists(uow, driver, DateTime.Today, RouteListStatus.EnRoute);
 
 					foreach (RouteList rl in routeLists)
 					{

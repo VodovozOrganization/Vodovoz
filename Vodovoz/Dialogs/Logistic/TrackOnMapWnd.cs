@@ -88,7 +88,7 @@ namespace Dialogs.Logistic
 
 		private void ConfigureMap()
 		{
-			gmapWidget.MapProvider = GMapProviders.GoogleMap;
+			gmapWidget.MapProvider = GMapProviders.BingMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.MinZoom = 0;
@@ -104,7 +104,7 @@ namespace Dialogs.Logistic
 
 			comboMapProvider.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			comboMapProvider.ItemsEnum = typeof(MapProviders);
-			comboMapProvider.SelectedItem = MapProviders.GoogleMap;
+			comboMapProvider.SelectedItem = MapProviders.BingMap;
 			comboMapProvider.EnumItemSelected += (sender, args) =>
 				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 
@@ -526,8 +526,21 @@ namespace Dialogs.Logistic
 		{
 			var pointsToRecalculate = new List<PointOnEarth>();
 			var pointsToBase = new List<PointOnEarth>();
-			var baseLat = (double)routeList.GeographicGroups.FirstOrDefault().BaseLatitude.Value;
-			var baseLon = (double)routeList.GeographicGroups.FirstOrDefault().BaseLongitude.Value;
+
+			var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+			if(geoGroup == null)
+			{
+				throw new InvalidOperationException($"В маршрутном листе должна быть добавлена часть города");
+			}
+
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+
+			var baseLat = (double)geoGroupVersion.BaseLatitude.Value;
+			var baseLon = (double)geoGroupVersion.BaseLongitude.Value;
 
 			decimal totalDistanceTrack = 0;
 

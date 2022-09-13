@@ -40,15 +40,24 @@ namespace Vodovoz.EntityRepositories.Logistic
 				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 		}
 		
-		public IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, RouteListStatus status, DateTime date)
+		public IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, DateTime? date = null, RouteListStatus? status = null)
 		{
 			RouteList routeListAlias = null;
 
-			return uow.Session.QueryOver<RouteList>(() => routeListAlias)
-					  .Where(() => routeListAlias.Driver == driver)
-					  .Where(() => routeListAlias.Status == status)
-					  .Where(() => routeListAlias.Date == date)
-					  .List();
+			var query = uow.Session.QueryOver<RouteList>(() => routeListAlias)
+				.Where(() => routeListAlias.Driver == driver);
+
+			if(date != null)
+			{
+				query.Where(() => routeListAlias.Date == date);
+			}
+
+			if(status != null)
+			{
+				query.Where(() => routeListAlias.Status == status);
+			}
+
+			return query.List();
 		}
 
 		public IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null)
@@ -74,7 +83,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds)
 		{
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 
 			var query = QueryOver.Of<RouteList>()
 								 .Where(x => x.Date == date)
@@ -1083,6 +1092,23 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query.Where(() => routeListAlias.AdditionalLoadingDocument != null)
 				.Select(x => x.Driver)
 				.List<Employee>();
+		}
+
+		public bool HasRouteList(int driverId, DateTime date, int deliveryShiftId)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				RouteList routeListAlias = null;
+
+				var query = uow.Session.QueryOver(() => routeListAlias)
+					.Where(() => routeListAlias.Date == date.Date)
+					.Where(() => routeListAlias.Driver.Id == driverId)
+					.Where(() => routeListAlias.Shift.Id == deliveryShiftId)
+					.Select(Projections.Property(() => routeListAlias.Id));
+
+				var result = query.List<int>();
+				return result.Any();
+			}
 		}
 	}
 

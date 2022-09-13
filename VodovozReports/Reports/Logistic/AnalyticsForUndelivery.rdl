@@ -1941,13 +1941,13 @@ FROM
              LEFT JOIN
         districts ON delivery_points.district_id = districts.id
             LEFT JOIN
-        geographic_groups ON geographic_groups.id = districts.geographic_group_id
+        geo_groups ON geo_groups.id = districts.geo_group_id
      WHERE orders.delivery_date = @first_date
        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment', 'DeliveryCanceled', 'NotDelivered')
        AND !orders.self_delivery
        AND !orders.is_contract_closer
        AND orders.order_address_type != 'Service'
-       AND geographic_groups.id in (@geoparts)) as T</CommandText>
+       AND geo_groups.id in (@geoparts)) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="first_date">
             <Value>=Parameters!first_date</Value>
@@ -2106,14 +2106,14 @@ FROM
              LEFT JOIN
         districts ON delivery_points.district_id = districts.id
             LEFT JOIN
-        geographic_groups ON geographic_groups.id = districts.geographic_group_id
+        geo_groups ON geo_groups.id = districts.geo_group_id
      WHERE
        orders.delivery_date = @second_date
        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment', 'DeliveryCanceled', 'NotDelivered')
        AND !orders.self_delivery
        AND !orders.is_contract_closer
        AND orders.order_address_type != 'Service'
-       AND geographic_groups.id in (@geoparts)) as T</CommandText>
+       AND geo_groups.id in (@geoparts)) as T</CommandText>
         <QueryParameters>
           <QueryParameter Name="second_date">
             <Value>=Parameters!second_date</Value>
@@ -2309,7 +2309,7 @@ union (
        concat('Минуты ',g.name, ' ', cast(sum(a.delay2)as int)) as Minutes
 from
 (SELECT 
-       districts.geographic_group_id,
+       districts.geo_group_id,
     IFNULL(orders.time_delivered,
            route_list_addresses.status_last_update) AS delivered_time,
     TIMEDIFF(TIME(IFNULL(orders.time_delivered,
@@ -2335,11 +2335,11 @@ WHERE
     route_lists.`date` = @first_date
   AND route_list_addresses.status = 'Completed'
   AND employees.visiting_master = 0
-  AND districts.geographic_group_id in (@geoparts)
+  AND districts.geo_group_id in (@geoparts)
 GROUP BY route_list_addresses.id
 HAVING delay &gt; 0) as a
-left join geographic_groups g on g.id = a.geographic_group_id
-group by a.geographic_group_id</CommandText>
+left join geo_groups g on g.id = a.geo_group_id
+group by a.geo_group_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="geoparts">
             <Value>=Parameters!geoparts</Value>
@@ -2368,7 +2368,7 @@ group by a.geographic_group_id</CommandText>
        concat('Минуты ',g.name, ' ', cast(sum(a.delay2)as int)) as Minutes
 from
 (SELECT 
-       districts.geographic_group_id,
+       districts.geo_group_id,
     IFNULL(orders.time_delivered,
            route_list_addresses.status_last_update) AS delivered_time,
     TIMEDIFF(TIME(IFNULL(orders.time_delivered,
@@ -2394,11 +2394,11 @@ WHERE
     route_lists.`date` = @second_date
   AND route_list_addresses.status = 'Completed'
   AND employees.visiting_master = 0
-  AND districts.geographic_group_id in (@geoparts)
+  AND districts.geo_group_id in (@geoparts)
 GROUP BY route_list_addresses.id
 HAVING delay &gt; 0) as a
-left join geographic_groups g on g.id = a.geographic_group_id
-group by a.geographic_group_id</CommandText>
+left join geo_groups g on g.id = a.geo_group_id
+group by a.geo_group_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="geoparts">
             <Value>=Parameters!geoparts</Value>

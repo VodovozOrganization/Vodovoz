@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -25,8 +25,11 @@ namespace Vodovoz.Domain.Goods
 	[HistoryTrace]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
-		IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
-		GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
+		private IList<NomenclatureCostPurchasePrice> _purchasePrices = new List<NomenclatureCostPurchasePrice>();
+		private IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureInnerDeliveryPrice>();
+		private GenericObservableList<NomenclatureCostPurchasePrice> _observablePurchasePrices;
+		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
+		private bool _usingInGroupPriceSet;
 
 		private decimal _length;
 		private decimal _width;
@@ -43,14 +46,16 @@ namespace Vodovoz.Domain.Goods
 
 		private DateTime? createDate;
 		[Display(Name = "Дата создания")]
-		public virtual DateTime? CreateDate {
+		public virtual DateTime? CreateDate
+		{
 			get => createDate;
 			set => SetField(ref createDate, value, () => CreateDate);
 		}
 
 		private User createdBy;
 		[Display(Name = "Кем создана")]
-		public virtual User CreatedBy {
+		public virtual User CreatedBy
+		{
 			get => createdBy;
 			set => SetField(ref createdBy, value, () => CreatedBy);
 		}
@@ -58,7 +63,8 @@ namespace Vodovoz.Domain.Goods
 		private string name;
 
 		[Display(Name = "Название")]
-		public virtual string Name {
+		public virtual string Name
+		{
 			get => name;
 			set => SetField(ref name, value, () => Name);
 		}
@@ -66,7 +72,8 @@ namespace Vodovoz.Domain.Goods
 		private string officialName;
 
 		[Display(Name = "Официальное название")]
-		public virtual string OfficialName {
+		public virtual string OfficialName
+		{
 			get => officialName;
 			set => SetField(ref officialName, value, () => OfficialName);
 		}
@@ -74,7 +81,8 @@ namespace Vodovoz.Domain.Goods
 		private bool isArchive;
 
 		[Display(Name = "Архивная")]
-		public virtual bool IsArchive {
+		public virtual bool IsArchive
+		{
 			get => isArchive;
 			set => SetField(ref isArchive, value, () => IsArchive);
 		}
@@ -82,7 +90,8 @@ namespace Vodovoz.Domain.Goods
 		private bool isDiler;
 
 		[Display(Name = "Дилер")]
-		public virtual bool IsDiler {
+		public virtual bool IsDiler
+		{
 			get => isDiler;
 			set => SetField(ref isDiler, value, () => IsDiler);
 		}
@@ -90,7 +99,8 @@ namespace Vodovoz.Domain.Goods
 		private bool canPrintPrice;
 
 		[Display(Name = "Печатается прайс в документах")]
-		public virtual bool CanPrintPrice {
+		public virtual bool CanPrintPrice
+		{
 			get => canPrintPrice;
 			set => SetField(ref canPrintPrice, value, () => CanPrintPrice);
 		}
@@ -98,7 +108,8 @@ namespace Vodovoz.Domain.Goods
 		private string code1c;
 		[Display(Name = "Код 1с")]
 		[StringLength(11)]
-		public virtual string Code1c {
+		public virtual string Code1c
+		{
 			get => code1c;
 			set => SetField(ref code1c, value, () => Code1c);
 		}
@@ -106,7 +117,8 @@ namespace Vodovoz.Domain.Goods
 		private Folder1c folder1;
 
 		[Display(Name = "Папка в 1с")]
-		public virtual Folder1c Folder1C {
+		public virtual Folder1c Folder1C
+		{
 			get => folder1;
 			set => SetField(ref folder1, value, () => Folder1C);
 		}
@@ -114,7 +126,8 @@ namespace Vodovoz.Domain.Goods
 		private string model;
 
 		[Display(Name = "Модель оборудования")]
-		public virtual string Model {
+		public virtual string Model
+		{
 			get => model;
 			set => SetField(ref model, value, () => Model);
 		}
@@ -122,7 +135,8 @@ namespace Vodovoz.Domain.Goods
 		private decimal weight;
 
 		[Display(Name = "Вес")]
-		public virtual decimal Weight {
+		public virtual decimal Weight
+		{
 			get => weight;
 			set => SetField(ref weight, value, () => Weight);
 		}
@@ -184,7 +198,8 @@ namespace Vodovoz.Domain.Goods
 		private VAT vAT = VAT.Vat18;
 
 		[Display(Name = "НДС")]
-		public virtual VAT VAT {
+		public virtual VAT VAT
+		{
 			get => vAT;
 			set => SetField(ref vAT, value, () => VAT);
 		}
@@ -192,7 +207,8 @@ namespace Vodovoz.Domain.Goods
 		private bool doNotReserve;
 
 		[Display(Name = "Не резервировать")]
-		public virtual bool DoNotReserve {
+		public virtual bool DoNotReserve
+		{
 			get => doNotReserve;
 			set => SetField(ref doNotReserve, value, () => DoNotReserve);
 		}
@@ -200,7 +216,8 @@ namespace Vodovoz.Domain.Goods
 		private bool rentPriority;
 
 		[Display(Name = "Приоритет аренды")]
-		public virtual bool RentPriority {
+		public virtual bool RentPriority
+		{
 			get => rentPriority;
 			set => SetField(ref rentPriority, value, () => RentPriority);
 		}
@@ -210,7 +227,8 @@ namespace Vodovoz.Domain.Goods
 		/// Дежурное оборудование
 		/// </summary>
 		[Display(Name = "Дежурное оборудование")]
-		public virtual bool IsDuty {
+		public virtual bool IsDuty
+		{
 			get => isDuty;
 			set => SetField(ref isDuty, value, () => IsDuty);
 		}
@@ -218,7 +236,8 @@ namespace Vodovoz.Domain.Goods
 		private bool isSerial;
 
 		[Display(Name = "Серийный номер")]
-		public virtual bool IsSerial {
+		public virtual bool IsSerial
+		{
 			get => isSerial;
 			set => SetField(ref isSerial, value, () => IsSerial);
 		}
@@ -226,7 +245,8 @@ namespace Vodovoz.Domain.Goods
 		private MeasurementUnits unit;
 
 		[Display(Name = "Единица измерения")]
-		public virtual MeasurementUnits Unit {
+		public virtual MeasurementUnits Unit
+		{
 			get => unit;
 			set => SetField(ref unit, value, () => Unit);
 		}
@@ -234,7 +254,8 @@ namespace Vodovoz.Domain.Goods
 		private decimal minStockCount;
 
 		[Display(Name = "Минимальное количество на складе")]
-		public virtual decimal MinStockCount {
+		public virtual decimal MinStockCount
+		{
 			get => minStockCount;
 			set => SetField(ref minStockCount, value, () => MinStockCount);
 		}
@@ -242,7 +263,8 @@ namespace Vodovoz.Domain.Goods
 		private bool isDisposableTare;
 
 		[Display(Name = "Одноразовая тара для воды")]
-		public virtual bool IsDisposableTare {
+		public virtual bool IsDisposableTare
+		{
 			get => isDisposableTare;
 			set => SetField(ref isDisposableTare, value, () => IsDisposableTare);
 		}
@@ -250,7 +272,8 @@ namespace Vodovoz.Domain.Goods
 		private TareVolume? tareVolume;
 
 		[Display(Name = "Объем тары для воды")]
-		public virtual TareVolume? TareVolume {
+		public virtual TareVolume? TareVolume
+		{
 			get => tareVolume;
 			set => SetField(ref tareVolume, value, () => TareVolume);
 		}
@@ -258,9 +281,11 @@ namespace Vodovoz.Domain.Goods
 		private NomenclatureCategory category;
 
 		[Display(Name = "Категория")]
-		public virtual NomenclatureCategory Category {
+		public virtual NomenclatureCategory Category
+		{
 			get => category;
-			set {
+			set
+			{
 				if(SetField(ref category, value))
 				{
 					if(!CategoriesWithSerial.Contains(Category))
@@ -280,7 +305,8 @@ namespace Vodovoz.Domain.Goods
 		private SaleCategory? saleCategory;
 
 		[Display(Name = "Доступность для продаж")]
-		public virtual SaleCategory? SaleCategory {
+		public virtual SaleCategory? SaleCategory
+		{
 			get => saleCategory;
 			set => SetField(ref saleCategory, value, () => SaleCategory);
 		}
@@ -288,7 +314,8 @@ namespace Vodovoz.Domain.Goods
 		private TypeOfDepositCategory? typeOfDepositCategory;
 
 		[Display(Name = "Подкатегория залогов")]
-		public virtual TypeOfDepositCategory? TypeOfDepositCategory {
+		public virtual TypeOfDepositCategory? TypeOfDepositCategory
+		{
 			get => typeOfDepositCategory;
 			set => SetField(ref typeOfDepositCategory, value, () => TypeOfDepositCategory);
 		}
@@ -296,7 +323,8 @@ namespace Vodovoz.Domain.Goods
 		private EquipmentColors equipmentColor;
 
 		[Display(Name = "Цвет оборудования")]
-		public virtual EquipmentColors EquipmentColor {
+		public virtual EquipmentColors EquipmentColor
+		{
 			get => equipmentColor;
 			set => SetField(ref equipmentColor, value, () => EquipmentColor);
 		}
@@ -304,7 +332,8 @@ namespace Vodovoz.Domain.Goods
 		private EquipmentKind _kind;
 
 		[Display(Name = "Вид оборудования")]
-		public virtual EquipmentKind Kind {
+		public virtual EquipmentKind Kind
+		{
 			get => _kind;
 			set => SetField(ref _kind, value, () => Kind);
 		}
@@ -312,7 +341,8 @@ namespace Vodovoz.Domain.Goods
 		private Manufacturer manufacturer;
 
 		[Display(Name = "Производитель")]
-		public virtual Manufacturer Manufacturer {
+		public virtual Manufacturer Manufacturer
+		{
 			get => manufacturer;
 			set => SetField(ref manufacturer, value, () => Manufacturer);
 		}
@@ -320,7 +350,8 @@ namespace Vodovoz.Domain.Goods
 		private RouteColumn routeListColumn;
 
 		[Display(Name = "Производитель")]
-		public virtual RouteColumn RouteListColumn {
+		public virtual RouteColumn RouteListColumn
+		{
 			get => routeListColumn;
 			set => SetField(ref routeListColumn, value, () => RouteListColumn);
 		}
@@ -328,7 +359,8 @@ namespace Vodovoz.Domain.Goods
 		private decimal sumOfDamage;
 
 		[Display(Name = "Сумма ущерба")]
-		public virtual decimal SumOfDamage {
+		public virtual decimal SumOfDamage
+		{
 			get => sumOfDamage;
 			set => SetField(ref sumOfDamage, value, () => SumOfDamage);
 		}
@@ -336,7 +368,8 @@ namespace Vodovoz.Domain.Goods
 		private IList<NomenclaturePrice> nomenclaturePrice = new List<NomenclaturePrice>();
 
 		[Display(Name = "Цены")]
-		public virtual IList<NomenclaturePrice> NomenclaturePrice {
+		public virtual IList<NomenclaturePrice> NomenclaturePrice
+		{
 			get => nomenclaturePrice;
 			set => SetField(ref nomenclaturePrice, value, () => NomenclaturePrice);
 		}
@@ -344,7 +377,8 @@ namespace Vodovoz.Domain.Goods
 		private string shortName;
 
 		[Display(Name = "Сокращенное название")]
-		public virtual string ShortName {
+		public virtual string ShortName
+		{
 			get => shortName;
 			set => SetField(ref shortName, value, () => ShortName);
 		}
@@ -352,7 +386,8 @@ namespace Vodovoz.Domain.Goods
 		private bool hide;
 
 		[Display(Name = "Скрыть из МЛ")]
-		public virtual bool Hide {
+		public virtual bool Hide
+		{
 			get => hide;
 			set => SetField(ref hide, value, () => Hide);
 		}
@@ -360,17 +395,21 @@ namespace Vodovoz.Domain.Goods
 		private bool _noDelivery;
 
 		[Display(Name = "Доставка не требуется")]
-		public virtual bool NoDelivery {
+		public virtual bool NoDelivery
+		{
 			get => _noDelivery;
 			set => SetField(ref _noDelivery, value, () => NoDelivery);
 		}
 
 		private bool isNewBottle;
 		[Display(Name = "Это новая бутыль")]
-		public virtual bool IsNewBottle {
+		public virtual bool IsNewBottle
+		{
 			get => isNewBottle;
-			set {
-				if(SetField(ref isNewBottle, value) && isNewBottle) {
+			set
+			{
+				if(SetField(ref isNewBottle, value) && isNewBottle)
+				{
 					IsDefectiveBottle = false;
 					IsShabbyBottle = false;
 				}
@@ -379,10 +418,13 @@ namespace Vodovoz.Domain.Goods
 
 		private bool isDefectiveBottle;
 		[Display(Name = "Это бракованая бутыль")]
-		public virtual bool IsDefectiveBottle {
+		public virtual bool IsDefectiveBottle
+		{
 			get => isDefectiveBottle;
-			set {
-				if(SetField(ref isDefectiveBottle, value) && isDefectiveBottle) {
+			set
+			{
+				if(SetField(ref isDefectiveBottle, value) && isDefectiveBottle)
+				{
 					IsNewBottle = false;
 					IsShabbyBottle = false;
 				}
@@ -391,10 +433,13 @@ namespace Vodovoz.Domain.Goods
 
 		private bool isShabbyBottle;
 		[Display(Name = "Стройка")]
-		public virtual bool IsShabbyBottle {
+		public virtual bool IsShabbyBottle
+		{
 			get => isShabbyBottle;
-			set {
-				if(SetField(ref isShabbyBottle, value) && isShabbyBottle) {
+			set
+			{
+				if(SetField(ref isShabbyBottle, value) && isShabbyBottle)
+				{
 					IsNewBottle = false;
 					IsDefectiveBottle = false;
 				}
@@ -403,7 +448,8 @@ namespace Vodovoz.Domain.Goods
 
 		private FuelType fuelType;
 		[Display(Name = "Тип топлива")]
-		public virtual FuelType FuelType {
+		public virtual FuelType FuelType
+		{
 			get => fuelType;
 			set => SetField(ref fuelType, value, () => FuelType);
 		}
@@ -411,7 +457,8 @@ namespace Vodovoz.Domain.Goods
 		private Nomenclature dependsOnNomenclature;
 
 		[Display(Name = "Влияющая номенклатура")]
-		public virtual Nomenclature DependsOnNomenclature {
+		public virtual Nomenclature DependsOnNomenclature
+		{
 			get => dependsOnNomenclature;
 			set => SetField(ref dependsOnNomenclature, value, () => DependsOnNomenclature);
 		}
@@ -419,7 +466,8 @@ namespace Vodovoz.Domain.Goods
 		private double percentForMaster;
 
 		[Display(Name = "Процент зарплаты мастера")]
-		public virtual double PercentForMaster {
+		public virtual double PercentForMaster
+		{
 			get => percentForMaster;
 			set => SetField(ref percentForMaster, value, () => PercentForMaster);
 		}
@@ -427,7 +475,8 @@ namespace Vodovoz.Domain.Goods
 		private Guid? onlineStoreGuid;
 
 		[Display(Name = "Guid интернет магазина")]
-		public virtual Guid? OnlineStoreGuid {
+		public virtual Guid? OnlineStoreGuid
+		{
 			get => onlineStoreGuid;
 			set => SetField(ref onlineStoreGuid, value, () => OnlineStoreGuid);
 		}
@@ -435,14 +484,16 @@ namespace Vodovoz.Domain.Goods
 		private ProductGroup productGroup;
 
 		[Display(Name = "Группа товаров")]
-		public virtual ProductGroup ProductGroup {
+		public virtual ProductGroup ProductGroup
+		{
 			get => productGroup;
 			set => SetField(ref productGroup, value, () => ProductGroup);
 		}
 
 		private IList<NomenclatureImage> images = new List<NomenclatureImage>();
 		[Display(Name = "Изображения")]
-		public virtual IList<NomenclatureImage> Images {
+		public virtual IList<NomenclatureImage> Images
+		{
 			get => images;
 			set => SetField(ref images, value, () => Images);
 		}
@@ -450,7 +501,8 @@ namespace Vodovoz.Domain.Goods
 		private MobileCatalog mobileCatalog;
 
 		[Display(Name = "Каталог в мобильном приложении")]
-		public virtual MobileCatalog MobileCatalog {
+		public virtual MobileCatalog MobileCatalog
+		{
 			get => mobileCatalog;
 			set => SetField(ref mobileCatalog, value, () => MobileCatalog);
 		}
@@ -458,56 +510,78 @@ namespace Vodovoz.Domain.Goods
 		private string description;
 
 		[Display(Name = "Описание товара")]
-		public virtual string Description {
+		public virtual string Description
+		{
 			get => description;
 			set => SetField(ref description, value);
 		}
 
 		private string bottleCapColor;
 		[Display(Name = "Цвет пробки 19л бутыли")]
-		public virtual string BottleCapColor {
+		public virtual string BottleCapColor
+		{
 			get => bottleCapColor;
 			set => SetField(ref bottleCapColor, value);
 		}
 
 		private OnlineStore onlineStore;
 		[Display(Name = "Интернет-магазин")]
-		public virtual OnlineStore OnlineStore {
+		public virtual OnlineStore OnlineStore
+		{
 			get => onlineStore;
 			set => SetField(ref onlineStore, value);
 		}
 
+		[Display(Name = "Участвует в групповом заполнении себестоимости")]
+		public virtual bool UsingInGroupPriceSet
+		{
+			get => _usingInGroupPriceSet;
+			set => SetField(ref _usingInGroupPriceSet, value);
+		}
+
 		[Display(Name = "Цены закупки ТМЦ")]
-		public virtual IList<NomenclaturePurchasePrice> PurchasePrices
+		public virtual IList<NomenclatureCostPurchasePrice> PurchasePrices
 		{
 			get => _purchasePrices;
 			set => SetField(ref _purchasePrices, value);
 		}
 
-		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
-			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
+		public virtual GenericObservableList<NomenclatureCostPurchasePrice> ObservablePurchasePrices =>
+			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclatureCostPurchasePrice>(PurchasePrices));
 
+		[Display(Name = "Стоимости доставки ТМЦ на склад")]
+		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
+		{
+			get => _innerDeliveryPrices;
+			set => SetField(ref _innerDeliveryPrices, value);
+		}
+
+		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
+			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
 		#endregion
 
 		#region Свойства товаров для магазина
 
 		private string onlineStoreExternalId;
 		[Display(Name = "Id в интернет магазине")]
-		public virtual string OnlineStoreExternalId {
+		public virtual string OnlineStoreExternalId
+		{
 			get => onlineStoreExternalId;
 			set => SetField(ref onlineStoreExternalId, value);
 		}
 
 		private Counterparty shipperCounterparty;
 		[Display(Name = "Поставщик")]
-		public virtual Counterparty ShipperCounterparty {
+		public virtual Counterparty ShipperCounterparty
+		{
 			get => shipperCounterparty;
 			set => SetField(ref shipperCounterparty, value);
 		}
 
 		private string storageCell;
 		[Display(Name = "Ячейка хранения")]
-		public virtual string StorageCell {
+		public virtual string StorageCell
+		{
 			get => storageCell;
 			set => SetField(ref storageCell, value);
 		}
@@ -515,7 +589,8 @@ namespace Vodovoz.Domain.Goods
 		private string color;
 
 		[Display(Name = "Цвет")]
-		public virtual string Color {
+		public virtual string Color
+		{
 			get => color;
 			set => SetField(ref color, value);
 		}
@@ -523,7 +598,8 @@ namespace Vodovoz.Domain.Goods
 		private string material;
 
 		[Display(Name = "Материал")]
-		public virtual string Material {
+		public virtual string Material
+		{
 			get => material;
 			set => SetField(ref material, value);
 		}
@@ -531,7 +607,8 @@ namespace Vodovoz.Domain.Goods
 		private string liters;
 
 		[Display(Name = "Объем")]
-		public virtual string Liters {
+		public virtual string Liters
+		{
 			get => liters;
 			set => SetField(ref liters, value);
 		}
@@ -539,7 +616,8 @@ namespace Vodovoz.Domain.Goods
 		private string size;
 
 		[Display(Name = "Размеры")]
-		public virtual string Size {
+		public virtual string Size
+		{
 			get => size;
 			set => SetField(ref size, value);
 		}
@@ -547,7 +625,8 @@ namespace Vodovoz.Domain.Goods
 		private string package;
 
 		[Display(Name = "Тип упаковки")]
-		public virtual string Package {
+		public virtual string Package
+		{
 			get => package;
 			set => SetField(ref package, value);
 		}
@@ -555,7 +634,8 @@ namespace Vodovoz.Domain.Goods
 		private string degreeOfRoast;
 
 		[Display(Name = "Степень обжарки")]
-		public virtual string DegreeOfRoast {
+		public virtual string DegreeOfRoast
+		{
 			get => degreeOfRoast;
 			set => SetField(ref degreeOfRoast, value);
 		}
@@ -563,7 +643,8 @@ namespace Vodovoz.Domain.Goods
 		private string smell;
 
 		[Display(Name = "Запах")]
-		public virtual string Smell {
+		public virtual string Smell
+		{
 			get => smell;
 			set => SetField(ref smell, value);
 		}
@@ -571,7 +652,8 @@ namespace Vodovoz.Domain.Goods
 		private string taste;
 
 		[Display(Name = "Вкус")]
-		public virtual string Taste {
+		public virtual string Taste
+		{
 			get => taste;
 			set => SetField(ref taste, value);
 		}
@@ -579,7 +661,8 @@ namespace Vodovoz.Domain.Goods
 		private string refrigeratorCapacity;
 
 		[Display(Name = "Объем шкафчика/холодильника")]
-		public virtual string RefrigeratorCapacity {
+		public virtual string RefrigeratorCapacity
+		{
 			get => refrigeratorCapacity;
 			set => SetField(ref refrigeratorCapacity, value);
 		}
@@ -587,7 +670,8 @@ namespace Vodovoz.Domain.Goods
 		private string coolingType;
 
 		[Display(Name = "Тип охлаждения")]
-		public virtual string CoolingType {
+		public virtual string CoolingType
+		{
 			get => coolingType;
 			set => SetField(ref coolingType, value);
 		}
@@ -595,7 +679,8 @@ namespace Vodovoz.Domain.Goods
 		private string heatingPower;
 
 		[Display(Name = "Мощность нагрева")]
-		public virtual string HeatingPower {
+		public virtual string HeatingPower
+		{
 			get => heatingPower;
 			set => SetField(ref heatingPower, value);
 		}
@@ -603,7 +688,8 @@ namespace Vodovoz.Domain.Goods
 		private string coolingPower;
 
 		[Display(Name = "Мощность охлаждения")]
-		public virtual string CoolingPower {
+		public virtual string CoolingPower
+		{
 			get => coolingPower;
 			set => SetField(ref coolingPower, value);
 		}
@@ -611,7 +697,8 @@ namespace Vodovoz.Domain.Goods
 		private string heatingPerformance;
 
 		[Display(Name = "Производительность нагрева")]
-		public virtual string HeatingPerformance {
+		public virtual string HeatingPerformance
+		{
 			get => heatingPerformance;
 			set => SetField(ref heatingPerformance, value);
 		}
@@ -619,7 +706,8 @@ namespace Vodovoz.Domain.Goods
 		private string coolingPerformance;
 
 		[Display(Name = "Производительность охлаждения")]
-		public virtual string CoolingPerformance {
+		public virtual string CoolingPerformance
+		{
 			get => coolingPerformance;
 			set => SetField(ref coolingPerformance, value);
 		}
@@ -627,7 +715,8 @@ namespace Vodovoz.Domain.Goods
 		private string numberOfCartridges;
 
 		[Display(Name = "Количество картриджей")]
-		public virtual string NumberOfCartridges {
+		public virtual string NumberOfCartridges
+		{
 			get => numberOfCartridges;
 			set => SetField(ref numberOfCartridges, value);
 		}
@@ -635,7 +724,8 @@ namespace Vodovoz.Domain.Goods
 		private string characteristicsOfCartridges;
 
 		[Display(Name = "Характеристика картриджей")]
-		public virtual string CharacteristicsOfCartridges {
+		public virtual string CharacteristicsOfCartridges
+		{
 			get => characteristicsOfCartridges;
 			set => SetField(ref characteristicsOfCartridges, value);
 		}
@@ -643,7 +733,8 @@ namespace Vodovoz.Domain.Goods
 		private string countryOfOrigin;
 
 		[Display(Name = "Страна происхождения")]
-		public virtual string CountryOfOrigin {
+		public virtual string CountryOfOrigin
+		{
 			get => countryOfOrigin;
 			set => SetField(ref countryOfOrigin, value);
 		}
@@ -651,29 +742,30 @@ namespace Vodovoz.Domain.Goods
 		private string amountInAPackage;
 
 		[Display(Name = "Количество  в упаковке")]
-		public virtual string AmountInAPackage {
+		public virtual string AmountInAPackage
+		{
 			get => amountInAPackage;
 			set => SetField(ref amountInAPackage, value);
 		}
 
 
-        private int? planDay;
+		private int? planDay;
 
-        [Display(Name = "План день")]
-        public virtual int? PlanDay
-        {
-            get => planDay;
-            set => SetField(ref planDay, value);
-        }
+		[Display(Name = "План день")]
+		public virtual int? PlanDay
+		{
+			get => planDay;
+			set => SetField(ref planDay, value);
+		}
 
-        private int? planMonth;
+		private int? planMonth;
 
-        [Display(Name = "План месяц")]
-        public virtual int? PlanMonth
-        {
-            get => planMonth;
-            set => SetField(ref planMonth, value);
-        }
+		[Display(Name = "План месяц")]
+		public virtual int? PlanMonth
+		{
+			get => planMonth;
+			set => SetField(ref planMonth, value);
+		}
 
 		#endregion
 
@@ -696,7 +788,8 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual void SetNomenclatureCreationInfo(IUserRepository userRepository)
 		{
-			if(Id == 0 && !CreateDate.HasValue) {
+			if(Id == 0 && !CreateDate.HasValue)
+			{
 				CreateDate = DateTime.Now;
 				CreatedBy = userRepository.GetCurrentUser(UoW);
 			}
@@ -707,9 +800,12 @@ namespace Vodovoz.Domain.Goods
 			if(itemsCount < 1)
 				itemsCount = 1;
 			decimal price = 0m;
-			if(DependsOnNomenclature != null) {
+			if(DependsOnNomenclature != null)
+			{
 				price = DependsOnNomenclature.GetPrice(itemsCount);
-			} else {
+			}
+			else
+			{
 				var nomPrice = NomenclaturePrice
 					.OrderByDescending(p => p.MinCount)
 					.FirstOrDefault(p => (p.MinCount <= itemsCount));
@@ -723,7 +819,8 @@ namespace Vodovoz.Domain.Goods
 		/// </summary>
 		public virtual void CreateGuidIfNotExist(IUnitOfWork uow)
 		{
-			if(OnlineStoreGuid == null) {
+			if(OnlineStoreGuid == null)
+			{
 				OnlineStoreGuid = Guid.NewGuid();
 				uow.Save(this);
 			}
@@ -732,46 +829,13 @@ namespace Vodovoz.Domain.Goods
 		public bool IsFromOnlineShopGroup(int idOfOnlineShopGroup)
 		{
 			ProductGroup parent = ProductGroup;
-			while(parent != null) {
+			while(parent != null)
+			{
 				if(parent.Id == idOfOnlineShopGroup)
 					return true;
 				parent = parent.Parent;
 			}
 			return false;
-		}
-
-		public virtual void ChangePurchasePrice(NomenclaturePurchasePrice purchasePrice, DateTime startDate)
-		{
-			if(purchasePrice == null)
-			{
-				throw new ArgumentNullException(nameof(purchasePrice));
-			}
-
-			purchasePrice.Nomenclature = this;
-			purchasePrice.StartDate = startDate;
-			NomenclaturePurchasePrice oldPurchasePrice = ObservablePurchasePrices.FirstOrDefault(x => x.EndDate == null);
-
-			if(oldPurchasePrice != null)
-			{
-				if(oldPurchasePrice.StartDate > startDate)
-				{
-					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
-				}
-				oldPurchasePrice.EndDate = startDate.AddMilliseconds(-1);
-			}
-			ObservablePurchasePrices.Add(purchasePrice);
-		}
-
-		public virtual bool CheckStartDateForNewPurchasePrice(DateTime newStartDate)
-		{
-			NomenclaturePurchasePrice oldPurchasePrice = _observablePurchasePrices.FirstOrDefault(x => x.EndDate == null);
-
-			if(oldPurchasePrice == null)
-			{
-				return true;
-			}
-
-			return oldPurchasePrice.StartDate < newStartDate;
 		}
 
 		#endregion
@@ -842,7 +906,8 @@ namespace Vodovoz.Domain.Goods
 					new[] { this.GetPropertyName(o => o.TareVolume) }
 				);
 
-			if(Category == NomenclatureCategory.fuel && FuelType == null) {
+			if(Category == NomenclatureCategory.fuel && FuelType == null)
+			{
 				yield return new ValidationResult("Не выбран тип топлива");
 			}
 
@@ -874,7 +939,8 @@ namespace Vodovoz.Domain.Goods
 						new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
 			}
 
-			if(Code1c != null && Code1c.StartsWith(PrefixOfCode1c)) {
+			if(Code1c != null && Code1c.StartsWith(PrefixOfCode1c))
+			{
 				if(Code1c.Length != LengthOfCode1c)
 					yield return new ValidationResult(
 						$"Код 1с с префиксом автоформирования '{PrefixOfCode1c}', должен содержать {LengthOfCode1c}-символов.",
@@ -894,6 +960,14 @@ namespace Vodovoz.Domain.Goods
 					"С 01.01.2019 ставка НДС 20%",
 					new[] { this.GetPropertyName(o => o.VAT) }
 				);
+
+			foreach(var purchasePrice in PurchasePrices)
+			{
+				foreach(var validationResult in purchasePrice.Validate(validationContext))
+				{
+					yield return validationResult;
+				}
+			}
 		}
 
 		#endregion

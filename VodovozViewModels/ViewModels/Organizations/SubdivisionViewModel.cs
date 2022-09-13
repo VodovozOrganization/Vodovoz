@@ -83,7 +83,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 		public bool GeographicGroupVisible => Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
 
-		public virtual GeographicGroup GeographicGroup {
+		public virtual GeoGroup GeographicGroup {
 			get => Entity.GeographicGroup;
 			set {
 				if(Entity.GeographicGroup == value) {

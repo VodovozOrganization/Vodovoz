@@ -251,7 +251,7 @@ namespace Vodovoz.Views.Logistic
 			btnRemoveWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedWeekDayDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveWeekDayRule.Clicked += (sender, args) => ViewModel.RemoveWeekDayDistrictRuleItemCommand.Execute();
 
-			cmbGeoGroup.ItemsList = ViewModel.UoW.GetAll<GeographicGroup>().ToList();
+			cmbGeoGroup.ItemsList = ViewModel.UoW.GetAll<GeoGroup>().ToList();
 			cmbGeoGroup.Binding.AddBinding(ViewModel, vm => vm.SelectedGeoGroup, w => w.SelectedItem).InitializeFromSource();
 			cmbGeoGroup.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null, w => w.Sensitive).InitializeFromSource();
 
@@ -314,7 +314,7 @@ namespace Vodovoz.Views.Logistic
 			cmbMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			cmbMapType.EnumItemSelected += (sender, args) =>
 				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
-			cmbMapType.SelectedItem = MapProviders.GoogleMap;
+			cmbMapType.SelectedItem = MapProviders.BingMap;
 
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;

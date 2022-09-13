@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Transform;
@@ -11,6 +11,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes;

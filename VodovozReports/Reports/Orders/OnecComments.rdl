@@ -346,7 +346,7 @@ LEFT JOIN
 LEFT JOIN 
     districts ON delivery_points.district_id = districts.id
 LEFT JOIN 
-    geographic_groups ON geographic_groups.id = districts.geographic_group_id
+    geo_groups ON geo_groups.id = districts.geo_group_id
 WHERE
 	orders.comment_logist IS NOT NULL
 		AND orders.comment_logist &lt;&gt; ''
@@ -358,9 +358,9 @@ WHERE
 	            OR (0 IN (@districts_include) AND 0 IN (@districts_exclude))
 	        )
         AND (
-	            ((geographic_groups.id IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
+	            ((geo_groups.id IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
 	            OR
-	            (geographic_groups.id NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
+	            (geo_groups.id NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
 	            OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
         )        
 ;</CommandText>

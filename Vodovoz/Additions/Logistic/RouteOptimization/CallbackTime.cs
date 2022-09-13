@@ -1,4 +1,7 @@
 ﻿using Google.OrTools.ConstraintSolver;
+using System;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -53,9 +56,17 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			long serviceTime = 0, travelTime = 0;
 
 			if(second_index == 0)
-				travelTime = distanceCalculator.TimeToBaseSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase);
+			{
+				var calcOrder = Nodes[first_index - 1];
+				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
+				travelTime = distanceCalculator.TimeToBaseSec(calcOrder.Order.DeliveryPoint, baseVersion);
+			}
 			else if(first_index == 0)
-				travelTime = distanceCalculator.TimeFromBaseSec(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint);
+			{
+				var calcOrder = Nodes[second_index - 1];
+				var baseVersion = GetGroupVersion(calcOrder.ShippingBase, calcOrder.Order.DeliveryDate.Value);
+				travelTime = distanceCalculator.TimeFromBaseSec(baseVersion, calcOrder.Order.DeliveryPoint);
+			}
 			else
 				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
@@ -63,6 +74,17 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(Trip.Forwarder != null);
 			
 			return (long)Trip.Driver.TimeCorrection(serviceTime + travelTime);
+		}
+
+		private GeoGroupVersion GetGroupVersion(GeoGroup geoGroup, DateTime date)
+		{
+			var version = geoGroup.GetVersionOrNull(date);
+			if(version == null)
+			{
+				throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать время, так как на {date} у части города ({geoGroup.Name}) нет актуальных данных."); ;
+			}
+
+			return version;
 		}
 	}
 }
