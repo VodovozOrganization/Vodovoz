@@ -101,7 +101,7 @@ namespace Vodovoz
 			}
 
 			//Configure map
-			gmapWidget.MapProvider = GMapProviders.GoogleMap;
+			gmapWidget.MapProvider = GMapProviders.BingMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			//MapWidget.HasFrame = true;
@@ -115,7 +115,7 @@ namespace Vodovoz
 			timerId = GLib.Timeout.Add(carRefreshInterval, new GLib.TimeoutHandler (UpdateCarPosition));
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
-			yenumcomboMapType.SelectedItem = MapProviders.GoogleMap;
+			yenumcomboMapType.SelectedItem = MapProviders.BingMap;
 			
 			LoadFastDeliveryDistrictsGeometry();
 		}
