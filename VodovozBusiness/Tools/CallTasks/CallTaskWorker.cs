@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.ErrorReporting;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

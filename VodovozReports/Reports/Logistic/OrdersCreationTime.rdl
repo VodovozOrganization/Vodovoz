@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -992,7 +992,7 @@ FROM
 	            
 	        LEFT JOIN delivery_points ON orders.delivery_point_id = delivery_points.id
 	        LEFT JOIN districts ON delivery_points.district_id = districts.id
-	        LEFT JOIN geographic_groups ON geographic_groups.id = districts.geographic_group_id
+	        LEFT JOIN geo_groups ON geo_groups.id = districts.geo_group_id
 	    WHERE
 	        delivery_date = @date
 	        AND !orders.is_contract_closer
@@ -1008,9 +1008,9 @@ FROM
 	                OR (0 IN (@districts_include) AND 0 IN (@districts_exclude))
 	            )
 	        AND (
-	            ((geographic_groups.id IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
+	            ((geo_groups.id IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
 	            OR
-	            (geographic_groups.id NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
+	            (geo_groups.id NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
 	            OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
 	        )
 	    GROUP BY orders.id
@@ -1229,12 +1229,12 @@ FROM
         #Части города
         IF(
             0 NOT IN (@geographic_group_include),
-            (SELECT CONCAT('Вкл. части города: ', GROUP_CONCAT(gg.name SEPARATOR ', ')) FROM geographic_groups gg WHERE gg.id IN(@geographic_group_include)),
+            (SELECT CONCAT('Вкл. части города: ', GROUP_CONCAT(gg.name SEPARATOR ', ')) FROM geo_groups gg WHERE gg.id IN(@geographic_group_include)),
             null
         ) AS included_geographic_groups,
         IF(
             0 NOT IN (@geographic_group_exclude),
-            (SELECT CONCAT('Искл. части города: ', GROUP_CONCAT(gg.name SEPARATOR ', ')) FROM geographic_groups gg WHERE gg.id IN(@geographic_group_exclude)),
+            (SELECT CONCAT('Искл. части города: ', GROUP_CONCAT(gg.name SEPARATOR ', ')) FROM geo_groups gg WHERE gg.id IN(@geographic_group_exclude)),
             null
         ) AS excluded_geographic_groups,
 

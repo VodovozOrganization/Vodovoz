@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -570,7 +570,7 @@ FROM
         LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
         LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
         LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-        LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+        LEFT JOIN geo_groups gg ON gg.id = distr.geo_group_id
         LEFT JOIN employees ON orders.author_employee_id = employees.id
     #LEFT JOIN
     #nomenclature as equip_nomenclature ON equip_nomenclature.id = order_equipment.nomenclature_id AND equip_nomenclature.category = 'equipment'

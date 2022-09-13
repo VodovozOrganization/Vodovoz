@@ -9,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -47,7 +48,9 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		protected override Func<IUnitOfWork, IQueryOver<Subdivision>> ItemsSourceQueryFunction => (uow) => {
 			Subdivision subdivisionAlias = null;
 			Employee chiefAlias = null;
+			TypeOfEntity documentAlias = null;
 			SubdivisionJournalNode resultAlias = null;
+
 			var query = uow.Session.QueryOver<Subdivision>(() => subdivisionAlias);
 
 			var firstLevelSubQuery = QueryOver.Of<Subdivision>().WhereRestrictionOn(x => x.ParentSubdivision).IsNull().Select(x => x.Id);
@@ -63,6 +66,12 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			if(FilterViewModel?.SubdivisionType != null) {
 				query.Where(Restrictions.Eq(Projections.Property<Subdivision>(x => x.SubdivisionType), FilterViewModel.SubdivisionType));
 			}
+			if(FilterViewModel != null && FilterViewModel.OnlyCashSubdivisions) 
+			{
+				var cashDocumentTypes = new[] { nameof(Income), nameof(Expense), nameof(AdvanceReport) };
+				query.Left.JoinAlias(() => subdivisionAlias.DocumentTypes, () => documentAlias)
+					.Where(Restrictions.In(Projections.Property(() => documentAlias.Type), cashDocumentTypes));
+			}
 
 			var chiefProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -77,7 +86,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			return query
 				.Left.JoinAlias(o => o.Chief, () => chiefAlias)
 				.SelectList(list => list
-				   .Select(s => s.Id).WithAlias(() => resultAlias.Id)
+				   .SelectGroup(s => s.Id).WithAlias(() => resultAlias.Id)
 				   .Select(s => s.Name).WithAlias(() => resultAlias.Name)
 				   .Select(chiefProjection).WithAlias(() => resultAlias.ChiefName)
 				   .Select(s => s.ParentSubdivision.Id).WithAlias(() => resultAlias.ParentId)

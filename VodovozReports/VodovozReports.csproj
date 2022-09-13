@@ -144,6 +144,9 @@
     <None Update="Reports\Client\DebtorsBottles.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Reports\Client\DebtorsJournalReport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Reports\Client\PotentialFreePromosets.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -162,7 +165,10 @@
     <None Update="Reports\Client\ZeroDebtClient.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Reports\Complaints.rdl">
+    <None Update="Reports\Complaints\Complaints.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Reports\Complaints\ComplaintsJournalReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Reports\Documents\AssemblyList.rdl">

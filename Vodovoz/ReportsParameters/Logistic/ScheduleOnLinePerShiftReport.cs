@@ -24,7 +24,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			geographicGroup.UoW = UoW;
 			geographicGroup.Label = "Часть города:";
-			geographicGroup.Items = new GenericObservableList<GeographicGroup>(UoW.GetAll<GeographicGroup>().ToList());
+			geographicGroup.Items = new GenericObservableList<GeoGroup>(UoW.GetAll<GeoGroup>().ToList());
 
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.SelectAll();

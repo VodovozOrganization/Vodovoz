@@ -122,9 +122,9 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref commentLastEditedAuthor, value, () => Employee);
 		}
 
-		GeographicGroup geographicGroup;
+		GeoGroup geographicGroup;
 		[Display(Name = "База")]
-		public virtual GeographicGroup GeographicGroup {
+		public virtual GeoGroup GeographicGroup {
 			get => geographicGroup;
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
 		}

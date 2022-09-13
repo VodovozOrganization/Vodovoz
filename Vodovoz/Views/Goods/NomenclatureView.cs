@@ -305,6 +305,9 @@ namespace Vodovoz.Views.Goods
 			labelStorageCell.Binding
 				.AddBinding(ViewModel, vm => vm.IsEshopNomenclature, w => w.Visible)
 				.InitializeFromSource();
+			checkGroupPricing.Binding
+				.AddBinding(ViewModel.Entity, e => e.UsingInGroupPriceSet, w => w.Active)
+				.InitializeFromSource();
 
 			#region Вкладка Оборудование
 
@@ -357,6 +360,9 @@ namespace Vodovoz.Views.Goods
 
 			nomenclaturePurchasePricesView.ViewModel = ViewModel.NomenclaturePurchasePricesViewModel;
 			nomenclaturePurchasePricesView.Sensitive = ViewModel.CanEdit;
+
+			nomenclatureinnerdeliverypricesview1.ViewModel = ViewModel.NomenclatureInnerDeliveryPricesViewModel;
+			nomenclatureinnerdeliverypricesview1.Sensitive = ViewModel.CanEdit;
 
 			#endregion
 

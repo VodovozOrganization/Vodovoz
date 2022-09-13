@@ -36,26 +36,15 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
-using Vodovoz.ViewModels.Journals.JournalViewModels;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
-using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
-using WrapMode = Pango.WrapMode;
+using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -217,7 +206,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				() => FluentColumnsConfig<DebtorJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(x => x.AddressId > 0 ? x.AddressId.ToString() : x.ClientId.ToString())
 					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
-					.AddColumn("Адрес").AddTextRenderer(node => String.IsNullOrWhiteSpace(node.AddressName) ? "Самовывоз" : node.AddressName)
+					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 					.AddColumn("Кол-во точек доставки").AddTextRenderer(node => node.CountOfDeliveryPoint.ToString())
 					.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
 					.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate != null ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : string.Empty)
@@ -318,6 +307,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Дата").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.DateString)
 						.XAlign(0.5f)
+					.AddColumn("Время").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.TimeString)
+						.XAlign(0.5f)
 					.AddColumn("Статус").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.StatusString)
 						.XAlign(0.5f)
@@ -360,6 +352,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Дни").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.DaysInWork)
 						.XAlign(0.5f)
+					.AddColumn("Мероприятия").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ArrangementText)
+						.XAlign(0f)
+					.AddColumn("Результат по клиенту").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ResultOfCounterparty)
+						.XAlign(0f)
+					.AddColumn("Результат по сотруднику").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ResultOfEmployees)
+						.XAlign(0f)
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
@@ -1623,18 +1624,21 @@ namespace Vodovoz.JournalColumnsConfigs
 			//FastDeliveryAvailabilityHistoryJournalViewModel
 			TreeViewColumnsConfigFactory.Register<FastDeliveryAvailabilityHistoryJournalViewModel>(
 				() => FluentColumnsConfig<FastDeliveryAvailabilityHistoryJournalNode>.Create()
-					.AddColumn("№").AddNumericRenderer(node => node.Id)
+					.AddColumn("№").AddNumericRenderer(node => node.SequenceNumber)
+					.AddColumn("Id").AddNumericRenderer(node => node.Id)
 					.AddColumn("Дата и время\nпроверки").AddTextRenderer(node => node.VerificationDateString)
 					.AddColumn("Автор заказа").AddTextRenderer(node => node.AuthorString)
 					.AddColumn("№ заказа").AddNumericRenderer(node => node.Order)
 					.AddColumn("Имя контрагента").AddTextRenderer(node => node.Counterparty)
-					.AddColumn("Адрес доставки").AddTextRenderer(node => node.Address)
+					.AddColumn("Адрес доставки").AddTextRenderer(node => node.AddressString)
 					.AddColumn("Район").AddTextRenderer(node => node.District)
 					.AddColumn("Доступно\nдля заказа").AddTextRenderer(node => node.IsValidString)
 					.AddColumn("Комментарий логиста /\nПринятые меры").AddTextRenderer(node => node.LogisticianComment)
 					.AddColumn("ФИО логиста").AddTextRenderer(node => node.LogisticianNameWithInitials)
 					.AddColumn("Дата и время последнего\nсохранения комментария").AddTextRenderer(node => node.LogisticianCommentVersionString)
 					.AddColumn("Время реакции в\nчасах : минутах").AddTextRenderer(node => node.LogisticianReactionTime)
+					.AddColumn("Ассортимент\nне в запасе").AddTextRenderer(node => node.IsNomenclatureNotInStockSubqueryString)
+					.AddColumn("")
 					.Finish()
 			);
 			
@@ -1653,6 +1657,16 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.OrganizationName)
 						.XAlign(0.5f)
+					.Finish()
+			);
+
+			//GeoGroupJournalViewModel
+			TreeViewColumnsConfigFactory.Register<GeoGroupJournalViewModel>(
+				() => FluentColumnsConfig<GeoGroupJournalNode>.Create()
+					.AddColumn("№")
+						.AddNumericRenderer(node => node.Id).WidthChars(4)
+					.AddColumn("Название")
+						.AddTextRenderer(node => node.Name)
 					.Finish()
 			);
 

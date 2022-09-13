@@ -25,7 +25,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.Car).Column("car_id");
 			References(x => x.DaySchedule).Column("delivery_day_schedule_id");
 			References(x => x.WithForwarder).Column("forwarder_id");
-			References(x => x.GeographicGroup).Column("geographic_group_id");
+			References(x => x.GeographicGroup).Column("geo_group_id");
 			References(x => x.AuthorRemovedDriver).Column("author_removed_driver");
 			References(x => x.CommentLastEditedAuthor).Column("comment_last_edited_author_id");
 

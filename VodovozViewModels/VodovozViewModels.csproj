@@ -48,9 +48,23 @@
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Dialogs\Goods\AdditionalLoadingSettingsViewModel.cs" />
+    <Compile Include="Dialogs\Goods\INomenclatureGroupPricingItemViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureGroupPricingItemViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureGroupPricingProductGroupViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureGroupPricingViewModel.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureViewModel.cs" />
+    <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
+    <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
+    <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListMileageDistributionNode.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListMileageDistributionViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsEntityViewModel.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsStreetViewModel.cs" />
+    <Compile Include="Factories\OrganizationVersionsViewModelFactory.cs" />
+    <Compile Include="Factories\IOrganizationVersionsViewModelFactory.cs" />
     <Compile Include="Factories\RoboatsViewModelFactory.cs" />
     <Compile Include="Dialogs\Roboats\RoboatsWaterTypeViewModel.cs" />
     <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
@@ -110,6 +124,7 @@
     <Compile Include="Journals\FilterViewModels\Roboats\RoboatsCallsFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\GeoGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\RoboatsJournalsFactory.cs" />
@@ -124,10 +139,12 @@
     <Compile Include="Journals\JournalFactories\ISalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventTypeJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\WarehouseJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\AddressType.cs" />
     <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\BulkEmailEventReasonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DebtorJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\GeoGroupJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\TariffZoneJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\TrackPointJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\WaterJournalNode.cs" />
@@ -238,6 +255,9 @@
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\UnallocatedBalancesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Sale\GeoGroupJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Store\WarehouseJournalViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\WarehouseSelectorFactory.cs" />
     <Compile Include="ReportsParameters\Cash\DayOfSalaryGiveoutReportViewModel.cs" />
     <Compile Include="TempAdapters\ICarModelJournalFactory.cs" />
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
@@ -264,12 +284,14 @@
     <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
     <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
     <Compile Include="ViewModels\Flyers\FlyerViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureInnerDeliveryPricesViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureInnerDeliveryPriceViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryAvailabilityHistoryViewModel.cs" />
     <Compile Include="ViewModels\ImportPaymentsFromAvangardSbpViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TariffZoneViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TrackPointViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarManufacturerViewModel.cs" />
-    <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureCostPurchasePriceViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
     <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />
@@ -301,7 +323,6 @@
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeViewModel.cs" />
     <Compile Include="Infrastructure\Services\EmployeeService.cs" />
-    <Compile Include="Infrastructure\Services\IEmployeeService.cs" />
     <Compile Include="TempAdapters\IUndeliveredOrdersJournalOpener.cs" />
     <Compile Include="ViewModels\Employees\FineTemplateViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateComplaintViewModel.cs" />
@@ -344,7 +365,9 @@
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReport.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
-    <Compile Include="ViewModels\Reports\FastDeliveryAvailabilityHistoryReport.cs" />
+    <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintsJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\DebtorsJournalReport\DebtorsJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAvailabilityHistoryReport.cs" />
     <Compile Include="ViewModels\Reports\CostCarExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAdditionalLoadingReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
@@ -435,6 +458,7 @@
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
     <Compile Include="Widgets\AdditionalLoadingItemsViewModel.cs" />
+    <Compile Include="Widgets\Cars\OdometerReadingViewModel.cs" />
     <Compile Include="Widgets\Cars\CarVersionsViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
@@ -492,13 +516,14 @@
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
     <Compile Include="ViewModels\Reports\IncomingCallsAnalysisReportViewModel.cs" />
+    <Compile Include="Widgets\OrganizationVersionsViewModel.cs" />
     <Compile Include="Widgets\FastDeliveryVerificationViewModel.cs" />
     <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
-      <Project>{ae0c305f-90ac-4404-8361-d4eb94d00b34}</Project>
+      <Project>{7A75C848-2A65-4FFF-AB70-9408E697D9BA}</Project>
       <Name>Gamma.Binding.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
@@ -516,6 +541,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
       <Name>QS.DocTemplates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Osrm\QS.Osrm.csproj">
+      <Project>{88B67AA2-14A5-4211-B00C-62E260FEC53E}</Project>
+      <Name>QS.Osrm</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>

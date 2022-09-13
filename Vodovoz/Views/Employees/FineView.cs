@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.IsFuelOverspendingFine, w => w.Visible)
 				.InitializeFromSource();
 			yspinLiters.Binding
-				.AddBinding(ViewModel.Entity, e => e.LitersOverspending, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel, vm => vm.Liters, w => w.ValueAsDecimal)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.IsFuelOverspendingFine, w => w.Visible)
 				.InitializeFromSource();

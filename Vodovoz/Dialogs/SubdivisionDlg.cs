@@ -74,7 +74,7 @@ namespace Vodovoz
 			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;
 			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
 
-			ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeographicGroup>().List();
+			ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeoGroup>().List();
 			ySpecCmbGeographicGroup.Binding.AddBinding(Entity, e => e.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
 			ySpecCmbGeographicGroup.ItemSelected += YSpecCmbGeographicGroup_ItemSelected;
 			SetControlsAccessibility();

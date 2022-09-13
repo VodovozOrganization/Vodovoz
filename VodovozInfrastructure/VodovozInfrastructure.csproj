@@ -16,6 +16,8 @@
     <PackageReference Include="System.Text.Json" Version="6.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj" />
     <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
     <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj" />

@@ -19,7 +19,7 @@ namespace Vodovoz.ReportsParameters
 			ydateperiodpicker.StartDate = DateTime.Now.Date;
 			ydateperiodpicker.EndDate = DateTime.Now.Date;
 			comboPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
-			comboGeoGroup.ItemsList = UoW.GetAll<GeographicGroup>();
+			comboGeoGroup.ItemsList = UoW.GetAll<GeoGroup>();
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
@@ -41,7 +41,7 @@ namespace Vodovoz.ReportsParameters
 					},
 					{
 						"geo_group_id",
-						comboGeoGroup.IsSelectedAll ? "" : ((GeographicGroup)comboGeoGroup.SelectedItem).Id.ToString()
+						comboGeoGroup.IsSelectedAll ? "" : ((GeoGroup)comboGeoGroup.SelectedItem).Id.ToString()
 					}
 				}
 			};

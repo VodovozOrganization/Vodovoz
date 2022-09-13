@@ -142,7 +142,7 @@ namespace Vodovoz.ViewModels.Logistic
             }
         }
 
-        public GeographicGroup SelectedGeoGroup {
+        public GeoGroup SelectedGeoGroup {
             get => SelectedDistrict?.GeographicGroup;
             set {
                 if(SelectedDistrict.GeographicGroup != value) {

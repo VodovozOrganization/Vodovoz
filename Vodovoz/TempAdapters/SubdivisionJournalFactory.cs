@@ -79,5 +79,30 @@ namespace Vodovoz.TempAdapters
 					_salesPlanJournalFactory,
 					_nomenclatureSelectorFactory));
 		}
+
+		public IEntityAutocompleteSelectorFactory CreateCashSubdivisionAutocompleteSelectorFactory()
+		{
+			CreateNewDependencies();
+
+			var selectorFactory = new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), CreateCashSubdivisionsJournal);
+			return selectorFactory;
+		}
+
+		private SubdivisionsJournalViewModel CreateCashSubdivisionsJournal()
+		{
+			var filter = new SubdivisionFilterViewModel();
+			filter.OnlyCashSubdivisions = true;
+
+			var journal = new SubdivisionsJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+				_salesPlanJournalFactory,
+				_nomenclatureSelectorFactory
+			);
+
+			return journal;
+		}
 	}
 }

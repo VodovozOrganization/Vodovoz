@@ -5,7 +5,6 @@ using QS.Project.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.FilterViewModels.Goods;
 using QS.DomainModel.Entity;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
@@ -15,6 +14,7 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using System.Collections.Generic;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -27,15 +27,19 @@ namespace Vodovoz.Filters.ViewModels
 		private DateTime? _startDate;
 		private int? _debtBottlesTo;
 		private int? _debtBottlesFrom;
-		private bool _hideWithOneOrder;
+		private bool? _withOneOrder;
 		private int? _lastOrderBottlesTo;
 		private int? _lastOrderBottlesFrom;
+		private int? _deliveryPointsTo;
+		private int? _deliveryPointsFrom;
 		private bool _hideActiveCounterparty;
 		private bool _hideWithoutEmail;
 		private bool _showSuspendedCounterparty;
 		private bool _showCancellationCounterparty;
 		private DiscountReason _discountReason;
 		private Nomenclature _lastOrderNomenclature;
+		private DeliveryPointCategory _selectedDeliveryPointCategory;
+		private IEnumerable<DeliveryPointCategory> _deliveryPointCategories;
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
@@ -106,9 +110,9 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _showCancellationCounterparty, value);
 		}
 
-		public bool HideWithOneOrder {
-			get => _hideWithOneOrder;
-			set => UpdateFilterField(ref _hideWithOneOrder, value);
+		public bool? WithOneOrder {
+			get => _withOneOrder;
+			set => UpdateFilterField(ref _withOneOrder, value);
 		}
 
 		public bool HideWithoutEmail
@@ -137,6 +141,18 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _lastOrderBottlesTo, value, () => LastOrderBottlesTo);
 		}
 
+		public int? DeliveryPointsFrom
+		{
+			get => _deliveryPointsFrom;
+			set => UpdateFilterField(ref _deliveryPointsFrom, value);
+		}
+
+		public int? DeliveryPointsTo
+		{
+			get => _deliveryPointsTo;
+			set => UpdateFilterField(ref _deliveryPointsTo, value);
+		}
+
 		public Nomenclature LastOrderNomenclature {
 			get => _lastOrderNomenclature;
 			set => SetField(ref _lastOrderNomenclature, value, () => LastOrderNomenclature);
@@ -146,7 +162,16 @@ namespace Vodovoz.Filters.ViewModels
 			get => _discountReason;
 			set => SetField(ref _discountReason, value, () => DiscountReason);
 		}
-		
+
+		public DeliveryPointCategory SelectedDeliveryPointCategory
+		{
+			get => _selectedDeliveryPointCategory;
+			set => UpdateFilterField(ref _selectedDeliveryPointCategory, value);
+		}
+
+		public IEnumerable<DeliveryPointCategory> DeliveryPointCategories =>
+		 _deliveryPointCategories ?? (_deliveryPointCategories = UoW.GetAll<DeliveryPointCategory>());
+
 		public DeliveryPointJournalFilterViewModel DeliveryPointJournalFilterViewModel { get; set; } 
 			= new DeliveryPointJournalFilterViewModel();
 
