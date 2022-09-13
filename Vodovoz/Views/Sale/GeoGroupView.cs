@@ -159,7 +159,7 @@ namespace Vodovoz.Views.Sale
 
 			UpdateAddressOnMap();
 
-			gMapWidget.MapProvider = GMapProviders.GoogleMap;
+			gMapWidget.MapProvider = GMapProviders.BingMap;
 			gMapWidget.Position = point;
 			gMapWidget.MinZoom = 0;
 			gMapWidget.MaxZoom = 24;

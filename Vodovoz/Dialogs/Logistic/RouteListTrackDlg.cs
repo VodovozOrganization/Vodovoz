@@ -101,7 +101,7 @@ namespace Vodovoz
 			}
 
 			//Configure map
-			gmapWidget.MapProvider = GMapProviders.GoogleMap;
+			gmapWidget.MapProvider = GMapProviders.BingMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			//MapWidget.HasFrame = true;
