@@ -36,15 +36,28 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
-using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
-using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.Nodes.Cash;
+using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -696,17 +709,17 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Плательщик")
 						.AddTextRenderer(x => x.PayerName)
 						.WrapWidth(450)
-						.WrapMode(Pango.WrapMode.WordChar)
+						.WrapMode(WrapMode.WordChar)
 					.AddColumn("Контрагент")
 						.AddTextRenderer(x => x.CounterpartyName)
 						.WrapWidth(450)
-						.WrapMode(Pango.WrapMode.WordChar)
+						.WrapMode(WrapMode.WordChar)
 					.AddColumn("Получатель")
 						.AddTextRenderer(x => x.Organization)
 					.AddColumn("Назначение платежа")
 						.AddTextRenderer(x => x.PaymentPurpose)
 						.WrapWidth(600)
-						.WrapMode(Pango.WrapMode.WordChar)
+						.WrapMode(WrapMode.WordChar)
 					.AddColumn("Категория дохода/расхода")
 						.AddTextRenderer(x => x.ProfitCategory)
 						.XAlign(0.5f)
