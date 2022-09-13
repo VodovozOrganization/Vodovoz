@@ -534,9 +534,10 @@ public partial class MainWindow : Window
 		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
 		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		IEmailRepository emailRepository = new EmailRepository();
+		IFileDialogService fileDialogService = new FileDialogService();
 		var debtorsJournal = new DebtorsJournalViewModel(
 			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(),
-			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory, emailRepository);
+			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory, emailRepository, fileDialogService);
 
 		tdiMain.AddTab(debtorsJournal);
 	}

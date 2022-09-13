@@ -365,6 +365,7 @@
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintsJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\DebtorsJournalReport\DebtorsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAvailabilityHistoryReport.cs" />
     <Compile Include="ViewModels\Reports\CostCarExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAdditionalLoadingReportViewModel.cs" />
