@@ -287,9 +287,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == FilterViewModel.RestrictGuiltySide);
 			}
 
-			if(FilterViewModel?.StatusOnOldOrderCancel != null)
+			if(FilterViewModel?.OldOrderStatus != null)
 			{
-				query.Where(() => undeliveredOrderAlias.OldOrderStatus == FilterViewModel.StatusOnOldOrderCancel);
+				query.Where(() => undeliveredOrderAlias.OldOrderStatus == FilterViewModel.OldOrderStatus);
 			}
 
 			if(FilterViewModel != null && FilterViewModel.RestrictIsProblematicCases)
