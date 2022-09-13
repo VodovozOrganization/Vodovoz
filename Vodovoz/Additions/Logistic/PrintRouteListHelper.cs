@@ -317,7 +317,7 @@ namespace Vodovoz.Additions.Logistic
 
 			var map = new GMapControl
 			{
-				MapProvider = GMapProviders.BingMap,
+				MapProvider = GMapProviders.GoogleMap,
 				MaxZoom = 18,
 				RoutesEnabled = true,
 				MarkersEnabled = true

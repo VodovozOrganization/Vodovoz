@@ -47,7 +47,7 @@ namespace Vodovoz.Dialogs.Sale
 			entryBuilding.Changed += EntryBuilding_Changed;
 
 			//Configure map
-			MapWidget.MapProvider = GMapProviders.BingMap;
+			MapWidget.MapProvider = GMapProviders.GoogleMap;
 			MapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			MapWidget.MinZoom = 0;
 			MapWidget.MaxZoom = 24;
