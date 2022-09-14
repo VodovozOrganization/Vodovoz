@@ -1065,7 +1065,8 @@ namespace Vodovoz
 				new NomenclatureJournalFactory(),
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),
-				new FileDialogService()
+				new FileDialogService(),
+				new SubdivisionParametersProvider(new ParametersProvider())
 			);
 
 			TabParent.AddTab(orderJournalViewModel, this, false);
@@ -1076,7 +1077,7 @@ namespace Vodovoz
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory);
+				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory, _subdivisionParametersProvider);
 			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
 
 			var complaintsJournalViewModel = new ComplaintsJournalViewModel(

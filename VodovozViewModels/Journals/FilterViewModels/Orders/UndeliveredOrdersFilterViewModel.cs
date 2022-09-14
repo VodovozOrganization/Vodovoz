@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private bool _restrictNotIsProblematicCases;
 		private ActionsWithInvoice? _restrictActionsWithInvoice;
 		private bool _restrictGuiltyDepartmentVisible;
+		private bool? _isForSalesDepartment;
 
 		public UndeliveredOrdersFilterViewModel(ICommonServices commonServices, IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory, ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -219,6 +220,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		{
 			get => _restrictNotIsProblematicCases;
 			set => UpdateFilterField(ref _restrictNotIsProblematicCases, value);
+		}
+
+		public bool? IsForSalesDepartment
+		{
+			get => _isForSalesDepartment;
+			set => UpdateFilterField(ref _isForSalesDepartment, value);
 		}
 
 		public IEnumerable<Subdivision> Subdivisions { get; private set; }

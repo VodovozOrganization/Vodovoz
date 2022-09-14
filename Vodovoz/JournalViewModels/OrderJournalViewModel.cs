@@ -68,6 +68,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -86,7 +87,8 @@ namespace Vodovoz.JournalViewModels
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionRepository subdivisionRepository,
-			IFileDialogService fileDialogService) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IFileDialogService fileDialogService,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -108,6 +110,7 @@ namespace Vodovoz.JournalViewModels
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			TabName = "Журнал заказов";
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
@@ -1010,7 +1013,8 @@ namespace Vodovoz.JournalViewModels
 							_undeliveredOrdersJournalOpener,
 							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
-							new EmployeeSettings(new ParametersProvider())
+							new EmployeeSettings(new ParametersProvider()),
+							_subdivisionParametersProvider
 						);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);
@@ -1157,7 +1161,8 @@ namespace Vodovoz.JournalViewModels
 							_gtkDialogsOpener,
 							_undeliveredOrdersJournalOpener,
 							_nomenclatureSelectorFactory,
-							_undeliveredOrdersRepository
+							_undeliveredOrdersRepository,
+							_subdivisionParametersProvider
 						);
 						var order = complaintViewModel.UoW.GetById<VodovozOrder>(selectedOrder.Id);
 						complaintViewModel.Entity.Counterparty = order.Client;

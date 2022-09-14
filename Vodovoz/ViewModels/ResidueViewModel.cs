@@ -43,7 +43,8 @@ namespace Vodovoz.ViewModels
 			IDepositRepository depositRepository,
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			ISubdivisionParametersProvider subdivisionParametersProvider
 		)
 		: base(uowBuilder, uowFactory, commonServices)
 		{
@@ -65,7 +66,8 @@ namespace Vodovoz.ViewModels
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
 			GuiltyItemsVM = new GuiltyItemsViewModel(
-				new Complaint(), UoW, commonServices, new SubdivisionRepository(new ParametersProvider()), employeeSelectorFactory);
+				new Complaint(), UoW, commonServices, new SubdivisionRepository(new ParametersProvider()), employeeSelectorFactory,
+				subdivisionParametersProvider);
 
 			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;
 		}

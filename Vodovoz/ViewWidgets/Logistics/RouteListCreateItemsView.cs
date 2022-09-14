@@ -28,6 +28,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -335,7 +336,8 @@ namespace Vodovoz
 			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(),
 				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
-				new UndeliveredOrdersJournalOpener(), new EmployeeService(), new UndeliveredOrdersRepository())
+				new UndeliveredOrdersJournalOpener(), new EmployeeService(), new UndeliveredOrdersRepository(),
+				new SubdivisionParametersProvider(new ParametersProvider()))
 			{
 				SelectionMode = JournalSelectionMode.Multiple
 			};

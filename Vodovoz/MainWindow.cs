@@ -1058,6 +1058,7 @@ public partial class MainWindow : Gtk.Window
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
+		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		var journal = new ComplaintsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
@@ -1071,7 +1072,8 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.CommonServices,
 				subdivisionRepository,
 				employeeJournalFactory,
-				counterpartySelectorFactory
+				counterpartySelectorFactory,
+				subdivisionParametersProvider
 			)
 			{
 				HidenByDefault = true
@@ -2183,6 +2185,7 @@ public partial class MainWindow : Gtk.Window
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
+		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		tdiMain.OpenTab(
 			() =>
@@ -2199,7 +2202,8 @@ public partial class MainWindow : Gtk.Window
 						ServicesConfig.CommonServices,
 						subdivisionRepository,
 						employeeJournalFactory,
-						counterpartySelectorFactory
+						counterpartySelectorFactory,
+						subdivisionParametersProvider
 					)
 					{ IsForRetail = true },
 					fileDialogService,
@@ -2695,25 +2699,5 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionSalesDepartmentAcivated(System.Object sender, System.EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
-	}
-
-	protected void OnActionSalesOrdersJournalActivated(object sender, EventArgs e)
-	{
-		;
-	}
-
-	protected void OnActionSalesCounterpartyJournalActivated(object sender, EventArgs e)
-	{
-		;
-	}
-
-	protected void OnActionSalesUndeliveredOrdersJournalActivated(object sender, EventArgs e)
-	{
-		;
-	}
-
-	protected void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)
-	{
-		;
 	}
 }
