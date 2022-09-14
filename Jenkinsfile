@@ -108,7 +108,7 @@ parallel (
 	"WEB" : {
 		node('Vod6'){
 			stage('Deploy WEB'){
-				stage('DriverAPI Deploy')
+				step('DriverAPI Deploy')
 				{
 					if(env.BRANCH_NAME ==~ /(develop|master)/
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
@@ -124,7 +124,7 @@ parallel (
 						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 					}
 				}
-				stage('FastPaymentsAPI Deploy')
+				step('FastPaymentsAPI Deploy')
 				{
 					if(env.BRANCH_NAME ==~ /(develop|master)/
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
@@ -140,7 +140,7 @@ parallel (
 						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 					}
 				}
-				stage('PayPageAPI Deploy')
+				step('PayPageAPI Deploy')
 				{
 					if(env.BRANCH_NAME ==~ /(develop|master)/
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
@@ -156,7 +156,7 @@ parallel (
 						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 					}
 				}
-				stage('MailjetEventsDistributorAPI Deploy')
+				step('MailjetEventsDistributorAPI Deploy')
 				{
 					if(env.BRANCH_NAME ==~ /(develop|master)/
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
