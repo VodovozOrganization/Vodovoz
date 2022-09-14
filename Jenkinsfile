@@ -28,19 +28,21 @@ stage('Restore'){
 		}
 	)				
 }
-stage('Build'){
-	parallel (
-		"Desktop" : {
-			node('Vod6'){
+parallel (
+	"Desktop" : {
+		node('Vod6'){
+			stage('Build Desktop, WEB'){
 				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
 
 				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
 				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
 				archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true			
 			}
-		},
-		"WCF" : {
-			node('WCF_BUILD'){
+		}
+	},
+	"WCF" : {
+		node('WCF_BUILD'){
+			stage('Build WCF'){
 				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Vodovoz.sln -maxcpucount:4'
 
 				ZipArtifact('DeliveryRulesService')
@@ -50,14 +52,15 @@ stage('Build'){
 				ZipArtifact('SmsPaymentService')
 
 				archiveArtifacts artifacts: '*Service.zip', onlyIfSuccessful: true
-			}						
-		}
-	)				
-}
-stage('Deploy'){
-	parallel (
-		"Desktop" : {
-			node('Vod3'){
+			}
+		}						
+	}
+)
+
+parallel (
+	"Desktop" : {
+		node('Vod3'){
+			stage('Deploy Desktop'){
 				script{
 					def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
 					if(
@@ -78,11 +81,13 @@ stage('Deploy'){
 					} else{
 						echo "Nothing to deploy"
 					}
-				}		
-			}
-		},
-		"WCF" : {
-			node('WCF_RUNTIME'){
+				}
+			}		
+		}
+	},
+	"WCF" : {
+		node('WCF_RUNTIME'){
+			stage('Deploy WCF'){
 				script{					
 					//if(env.BRANCH_NAME == 'master')
 					//{					
@@ -97,10 +102,12 @@ stage('Deploy'){
 					//	echo "Nothing to deploy"
 					//}
 				}
-			}						
-		},
-		"WEB" : {
-			node('Vod6'){
+			}					
+		}	
+	},
+	"WEB" : {
+		node('Vod6'){
+			stage('Deploy WEB'){
 				stage('DriverAPI Deploy')
 				{
 					if(env.BRANCH_NAME ==~ /(develop|master)/
@@ -165,10 +172,10 @@ stage('Deploy'){
 						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 					}
 				}
-			}						
-		}
-	)				
-}
+			}
+		}						
+	}
+)
 
 def PrepareSources(jenkinsHome) {
     def REFERENCE_ABSOLUTE_PATH = "$jenkinsHome/workspace/Vodovoz_Vodovoz_master"
