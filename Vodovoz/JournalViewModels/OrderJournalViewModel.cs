@@ -344,6 +344,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => orderAlias.Id == FilterViewModel.OrderId.Value);
 			}
 
+			if(FilterViewModel.IsForSalesDepartment != null)
+			{
+				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment.Value);
+			}
+
 			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
@@ -462,7 +467,7 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<VodovozOrder>(GetOrdersQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new OrderDlg() { IsForRetail = FilterViewModel.IsForRetail },
+					() => new OrderDlg() { IsForRetail = FilterViewModel.IsForRetail, IsForSalesDepartment = FilterViewModel.IsForSalesDepartment},
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderDlg(node.Id),
 					//функция идентификации документа 
@@ -532,7 +537,12 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(x => x.Id == null);
 			}
-			
+
+			if(FilterViewModel.IsForSalesDepartment != null)
+			{
+				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment.Value);
+			}
+
 			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				 .Left.JoinAlias(o => o.Author, () => authorAlias);
 
@@ -689,6 +699,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(x => x.Id == null);
 			}
 
+			if(FilterViewModel.IsForSalesDepartment != null)
+			{
+				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment.Value);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => orderWSPAlias.Id,
 				() => counterpartyAlias.Name,
@@ -831,6 +846,11 @@ namespace Vodovoz.JournalViewModels
 			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
 			{
 				query.Where(x => x.Id == null);
+			}
+
+			if(FilterViewModel.IsForSalesDepartment != null)
+			{
+				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment.Value);
 			}
 
 			query.Where(GetSearchCriterion(

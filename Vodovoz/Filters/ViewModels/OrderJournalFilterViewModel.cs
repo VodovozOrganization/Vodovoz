@@ -21,6 +21,7 @@ namespace Vodovoz.Filters.ViewModels
 		private OrderStatus[] _allowStatuses;
 		private object[] _hideStatuses;
 		private bool? _isForRetail;
+		private bool? _isForSalesDepartment;
 		private OrderPaymentStatus? _orderPaymentStatus;
 		private Organization _organisation;
 		private PaymentFrom _paymentByCardFrom;
@@ -226,6 +227,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _isForRetail;
 			set => UpdateFilterField(ref _isForRetail, value);
+		}
+
+		public bool? IsForSalesDepartment
+		{
+			get => _isForSalesDepartment;
+			set => UpdateFilterField(ref _isForSalesDepartment, value);
 		}
 
 		#region Selfdelivery

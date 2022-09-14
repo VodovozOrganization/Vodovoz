@@ -410,6 +410,11 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ycheckIsForRetail.Sensitive = CanEdit;
 
+			ycheckIsForSalesDepartment.Binding
+				.AddBinding(Entity, e => e.IsForSalesDepartment, w => w.Active)
+				.InitializeFromSource();
+			ycheckIsForSalesDepartment.Sensitive = CanEdit;
+
 			ycheckNoPhoneCall.Binding
 				.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active)
 				.InitializeFromSource();

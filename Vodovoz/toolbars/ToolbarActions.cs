@@ -171,6 +171,9 @@ public partial class MainWindow : Window
 	//ТрО
 	private Action ActionCarEventsJournal;
 
+	//Отдел продаж
+	//private Action ActionSalesOrdersJournal;
+
 	public void BuildToolbarActions()
 	{
 		#region Creating actions
@@ -256,6 +259,9 @@ public partial class MainWindow : Window
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
+
+		//Отдел продаж
+		//ActionSalesOrdersJournal = new Action("ActionSalesOrdersJournal", "Журнал заказов", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar
@@ -347,6 +353,9 @@ public partial class MainWindow : Window
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(ActionCar, null);
 
+		//Отдел продаж
+		//w1.Add(ActionSalesOrdersJournal, null);
+
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -429,6 +438,9 @@ public partial class MainWindow : Window
 
 		//ТрО
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
+
+		//Отдел продаж
+		//ActionSalesOrdersJournal.Activated += ActionSalesOrdersJournalActivated;
 
 		#endregion
 	}
@@ -1213,4 +1225,24 @@ public partial class MainWindow : Window
 			nomenclatureParametersProvider)
 		);
 	}
+
+	void ActionSalesOrdersJournalActivated(object sender, EventArgs e)
+	{
+		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+
+		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory)
+		{
+			IsForSalesDepartment = true
+		};
+
+		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
+	}
+
+	//protected void OnActionSalesCounterpartyJournalActivated(object sender, EventArgs e)
+	//{
+	//	CounterpartyJournalFilterViewModel counterpartyJournalFilter = new CounterpartyJournalFilterViewModel() {
+	//IsForSalesDepartment = true };
+	//	NavigationManager.OpenViewModel<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(null, counterpartyJournalFilter);
+	//}
 }

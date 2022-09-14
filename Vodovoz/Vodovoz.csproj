@@ -2166,6 +2166,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="toolbars\car_service.xml" />
+	<EmbeddedResource Include="toolbars\sales_department.xml" />
     <EmbeddedResource Include="icons\map\points\overduecircle\black.png" />
     <EmbeddedResource Include="icons\map\points\overduecircle\black_and_red.png" />
     <EmbeddedResource Include="icons\map\points\overduecircle\blue.png" />
