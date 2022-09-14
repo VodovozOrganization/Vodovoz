@@ -43,7 +43,7 @@ stage('Build'){
 			node('WCF_BUILD'){
 				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Vodovoz.sln -maxcpucount:4'
 
-				ZipArtifact('DeliveryRuleService')
+				ZipArtifact('DeliveryRulesService')
 				ZipArtifact('InstantSmsService')
 				ZipArtifact('SalesReceiptsService')
 				ZipArtifact('SmsInformerService')
