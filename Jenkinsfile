@@ -230,11 +230,11 @@ def PrepareSources(jenkinsHome) {
 }
 
 def ZipArtifact(serviceName) {
-	fileOperations([fileDeleteOperation(excludes: '', includes: '$serviceName.zip')])
-	zip zipFile: '$serviceName.zip', archive: false, dir: 'Vodovoz/Services/WCF/$serviceName/bin/Debug'  
+	fileOperations([fileDeleteOperation(excludes: '', includes: '${serviceName}.zip')])
+	zip zipFile: '${serviceName}.zip', archive: false, dir: 'Vodovoz/Services/WCF/${serviceName}/bin/Debug'  
 }
 
 def UnzipArtifact(serviceName) {
 	def SERVICE_PATH = "/opt/jenkins/builds/$serviceName"
-	unzip zipFile: '$serviceName.zip', dir: SERVICE_PATH 
+	unzip zipFile: '${serviceName}.zip', dir: SERVICE_PATH 
 }
