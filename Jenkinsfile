@@ -88,7 +88,7 @@ stage('Deploy'){
 					//{					
 						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
-						UnzipArtifact('DeliveryRuleService')
+						UnzipArtifact('DeliveryRulesService')
 						UnzipArtifact('InstantSmsService')
 						UnzipArtifact('SalesReceiptsService')
 						UnzipArtifact('SmsInformerService')
