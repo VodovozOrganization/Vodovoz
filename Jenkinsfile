@@ -231,7 +231,7 @@ def PrepareSources(jenkinsHome) {
 
 def ZipArtifact(serviceName) {
 	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
-	zip zipFile: "${serviceName}.zip", archive: false, dir: "Vodovoz/Services/WCF/${serviceName}/bin/Debug"  
+	zip zipFile: "${serviceName}.zip", archive: false, dir: "Vodovoz/Services/WCF/Vodovoz${serviceName}/bin/Debug"  
 }
 
 def UnzipArtifact(serviceName) {
