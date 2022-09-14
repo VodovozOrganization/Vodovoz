@@ -13,7 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ViewModels.Profitability;
 using Vodovoz.ViewModels.Widgets.Profitability;
