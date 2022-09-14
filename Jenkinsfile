@@ -2,12 +2,12 @@ stage('Checkout'){
 	parallel (
 		"Desktop" : {
 			node('Vod6'){
-				PrepareSources(${JENKINS_HOME_WIN})
+				PrepareSources("${JENKINS_HOME_WIN}")
 			}
 		},
 		"WCF" : {
 			node('WCF_BUILD'){
-				PrepareSources(${JENKINS_HOME})
+				PrepareSources("${JENKINS_HOME}")
 			}						
 		}
 	)				
