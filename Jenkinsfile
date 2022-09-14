@@ -108,69 +108,64 @@ parallel (
 	"WEB" : {
 		node('Vod6'){
 			stage('Deploy WEB'){
-				step('DriverAPI Deploy')
+				echo 'DriverAPI Deploy'
+				if(env.BRANCH_NAME ==~ /(develop|master)/
+					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
-					if(env.BRANCH_NAME ==~ /(develop|master)/
-						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-					{
-						echo 'Publish DriverAPI to folder (' + env.BRANCH_NAME + ')'
-						bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-						
-						echo 'Move files to CD folder'
-						bat 'xcopy "Vodovoz\\Services\\WebApi\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-					}
-					else
-					{
-						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-					}
+					echo 'Publish DriverAPI to folder (' + env.BRANCH_NAME + ')'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					
+					echo 'Move files to CD folder'
+					bat 'xcopy "Vodovoz\\Services\\WebApi\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
-				step('FastPaymentsAPI Deploy')
+				else
 				{
-					if(env.BRANCH_NAME ==~ /(develop|master)/
-						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-					{
-						echo 'Publish FastPaymentsAPI to folder (' + env.BRANCH_NAME + ')'
-						bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-						
-						echo 'Move files to CD folder'
-						bat 'xcopy "Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-					}
-					else
-					{
-						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-					}
+					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 				}
-				step('PayPageAPI Deploy')
+
+				echo 'FastPaymentsAPI Deploy'
+				if(env.BRANCH_NAME ==~ /(develop|master)/
+					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
-					if(env.BRANCH_NAME ==~ /(develop|master)/
-						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-					{
-						echo 'Publish PayPageAPI to folder (' + env.BRANCH_NAME + ')'
-						bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-						
-						echo 'Move files to CD folder'
-						bat 'xcopy "Vodovoz\\Services\\WebApi\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-					}
-					else
-					{
-						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-					}
+					echo 'Publish FastPaymentsAPI to folder (' + env.BRANCH_NAME + ')'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					
+					echo 'Move files to CD folder'
+					bat 'xcopy "Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
-				step('MailjetEventsDistributorAPI Deploy')
+				else
 				{
-					if(env.BRANCH_NAME ==~ /(develop|master)/
-						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-					{
-						echo 'Publish MailjetEventsDistributorAPI to folder (' + env.BRANCH_NAME + ')'
-						bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-						
-						echo 'Move files to CD folder'
-						bat 'xcopy "Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-					}
-					else
-					{
-						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-					}
+					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+				}
+
+				echo 'PayPageAPI Deploy'
+				if(env.BRANCH_NAME ==~ /(develop|master)/
+					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				{
+					echo 'Publish PayPageAPI to folder (' + env.BRANCH_NAME + ')'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					
+					echo 'Move files to CD folder'
+					bat 'xcopy "Vodovoz\\Services\\WebApi\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+				}
+				else
+				{
+					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+				}
+
+				echo 'MailjetEventsDistributorAPI Deploy'
+				if(env.BRANCH_NAME ==~ /(develop|master)/
+					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				{
+					echo 'Publish MailjetEventsDistributorAPI to folder (' + env.BRANCH_NAME + ')'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					
+					echo 'Move files to CD folder'
+					bat 'xcopy "Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+				}
+				else
+				{
+					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 				}
 			}
 		}						
