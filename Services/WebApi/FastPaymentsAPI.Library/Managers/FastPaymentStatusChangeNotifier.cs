@@ -2,6 +2,7 @@
 using FastPaymentsAPI.Library.Services;
 using Microsoft.Extensions.Logging;
 using System;
+using FastPaymentsAPI.Library.DTO_s;
 
 namespace FastPaymentsAPI.Library.Managers
 {
@@ -22,21 +23,24 @@ namespace FastPaymentsAPI.Library.Managers
 				vodovozSiteNotificationService ?? throw new ArgumentNullException(nameof(vodovozSiteNotificationService));
 		}
 
-		public void NotifyVodovozSite(int? onlineOrderId, decimal amount, bool paymentSucceeded)
+		public void NotifyVodovozSite(int? onlineOrderId, int paymentFrom, decimal amount, bool paymentSucceeded)
 		{
-			if(onlineOrderId.HasValue)
+			if(paymentFrom != (int)RequestFromType.FromSiteByQr || !onlineOrderId.HasValue)
 			{
-				try
-				{
-					_logger.LogInformation($"Уведомляем сайт о изменении статуса оплаты заказа: {onlineOrderId.Value}");
-					var notification = _fastPaymentAPIFactory.GetFastPaymentStatusChangeNotificationDto(onlineOrderId.Value, amount, paymentSucceeded);
-					_logger.LogInformation($"Статус оплаты заказа: {onlineOrderId.Value} {notification.PaymentStatus}");
-					_vodovozSiteNotificationService.NotifyOfFastPaymentStatusChangedAsync(notification);
-				}
-				catch(Exception e)
-				{
-					_logger.LogError(e, $"Не удалось уведомить сайт об изменении статуса оплаты заказа {onlineOrderId.Value}");
-				}
+				return;
+			}
+
+			try
+			{
+				_logger.LogInformation($"Уведомляем сайт о изменении статуса оплаты онлайн-заказа: {onlineOrderId.Value}");
+				var notification =
+					_fastPaymentAPIFactory.GetFastPaymentStatusChangeNotificationDto(onlineOrderId.Value, amount, paymentSucceeded);
+				_logger.LogInformation($"Статус оплаты онлайн-заказа: {onlineOrderId.Value} {notification.PaymentStatus}");
+				_vodovozSiteNotificationService.NotifyOfFastPaymentStatusChangedAsync(notification);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, $"Не удалось уведомить сайт об изменении статуса оплаты онлайн-заказа {onlineOrderId.Value}");
 			}
 		}
 	}

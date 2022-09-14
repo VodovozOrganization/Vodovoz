@@ -2,6 +2,6 @@
 {
 	public interface IFastPaymentStatusChangeNotifier
 	{
-		void NotifyVodovozSite(int? onlineOrderId, decimal amount, bool paymentSucceeded);
+		void NotifyVodovozSite(int? onlineOrderId, int paymentFrom, decimal amount, bool paymentSucceeded);
 	}
 }

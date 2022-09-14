@@ -84,7 +84,7 @@ namespace FastPaymentsAPI.Library.Managers
 			IUnitOfWork uow)
 		{
 			var orderRequestManager = scope.ServiceProvider.GetRequiredService<IOrderRequestManager>();
-			var vodovozSiteNotificator = scope.ServiceProvider.GetRequiredService<IFastPaymentStatusChangeNotifier>();
+			var fastPaymentStatusChangeNotifier = scope.ServiceProvider.GetRequiredService<IFastPaymentStatusChangeNotifier>();
 
 			foreach(var payment in processingFastPayments)
 			{
@@ -118,7 +118,7 @@ namespace FastPaymentsAPI.Library.Managers
 				uow.Save(payment);
 				uow.Commit();
 				_updatedCount++;
-				NotifyVodovozSite(vodovozSiteNotificator, payment);
+				NotifyFastPaymentStatusChange(fastPaymentStatusChangeNotifier, payment);
 			}
 		}
 
@@ -136,15 +136,15 @@ namespace FastPaymentsAPI.Library.Managers
 			}
 		}
 
-		private void NotifyVodovozSite(IFastPaymentStatusChangeNotifier notificator, FastPayment payment)
+		private void NotifyFastPaymentStatusChange(IFastPaymentStatusChangeNotifier notifier, FastPayment payment)
 		{
 			switch(payment.FastPaymentStatus)
 			{
 				case FastPaymentStatus.Rejected:
-					notificator.NotifyVodovozSite(payment.OnlineOrderId, payment.Amount, false);
+					notifier.NotifyVodovozSite(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, false);
 					break;
 				case FastPaymentStatus.Performed:
-					notificator.NotifyVodovozSite(payment.OnlineOrderId, payment.Amount, true);
+					notifier.NotifyVodovozSite(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, true);
 					break;
 			}
 		}
