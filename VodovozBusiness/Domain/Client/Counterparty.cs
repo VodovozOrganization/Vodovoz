@@ -45,6 +45,7 @@ namespace Vodovoz.Domain.Client
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		public virtual IUnitOfWork UoW { get; set; }
 		private const int _cargoReceiverLimitSymbols = 500;
+		private bool _roboatsExclude;
 
 		#region Свойства
 
@@ -668,7 +669,14 @@ namespace Vodovoz.Domain.Client
             set => SetField(ref noPhoneCall, value);
         }
 
-        IList<SalesChannel> salesChannels = new List<SalesChannel>();
+		[Display(Name = "Исключение из Roboats звонков")]
+		public virtual bool RoboatsExclude
+		{
+			get => _roboatsExclude;
+			set => SetField(ref _roboatsExclude, value);
+		}
+
+		IList<SalesChannel> salesChannels = new List<SalesChannel>();
 		[PropertyChangedAlso(nameof(ObservableSalesChannels))]
 		[Display(Name = "Каналы сбыта")]
 		public virtual IList<SalesChannel> SalesChannels

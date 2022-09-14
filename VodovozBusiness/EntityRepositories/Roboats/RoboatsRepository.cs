@@ -455,5 +455,18 @@ namespace Vodovoz.EntityRepositories.Roboats
 				return result;
 			}
 		}
+
+		public bool CounterpartyExcluded(int counterpartyId)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				Counterparty counterpartyAlias = null;
+				var query = uow.Session.QueryOver(() => counterpartyAlias)
+					.Where(() => counterpartyAlias.Id == counterpartyId)
+					.Select(Projections.Property(() => counterpartyAlias.RoboatsExclude));
+				var result = query.SingleOrDefault<bool>();
+				return result;
+			}
+		}
 	}
 }
