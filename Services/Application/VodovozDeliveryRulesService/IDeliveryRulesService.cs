@@ -13,7 +13,7 @@ namespace VodovozDeliveryRulesService
 
 		[WebInvoke(ResponseFormat = WebMessageFormat.Json)]
 		[OperationContract]
-		Task<DeliveryRulesDTO> GetRulesByDistrictAndNomenclatures(DeliveryRulesRequest request);
+		DeliveryRulesDTO GetRulesByDistrictAndNomenclatures(DeliveryRulesRequest request);
 
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]
 		[OperationContract]

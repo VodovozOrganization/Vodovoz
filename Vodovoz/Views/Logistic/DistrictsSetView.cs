@@ -251,7 +251,7 @@ namespace Vodovoz.Views.Logistic
 			btnRemoveWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedWeekDayDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveWeekDayRule.Clicked += (sender, args) => ViewModel.RemoveWeekDayDistrictRuleItemCommand.Execute();
 
-			cmbGeoGroup.ItemsList = ViewModel.UoW.GetAll<GeographicGroup>().ToList();
+			cmbGeoGroup.ItemsList = ViewModel.UoW.GetAll<GeoGroup>().ToList();
 			cmbGeoGroup.Binding.AddBinding(ViewModel, vm => vm.SelectedGeoGroup, w => w.SelectedItem).InitializeFromSource();
 			cmbGeoGroup.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null, w => w.Sensitive).InitializeFromSource();
 

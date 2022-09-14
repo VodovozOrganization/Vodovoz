@@ -245,7 +245,7 @@ namespace Vodovoz.ViewModels.Reports
             Employee forwarderAlias = null;
             OrderItem orderItemAlias = null;
             Nomenclature nomenclatureAlias = null;
-            GeographicGroup geographicGroupAlias = null;
+            GeoGroup geographicGroupAlias = null;
 
             var query = UoW.Session.QueryOver(() => orderAlias)
                 .JoinAlias(x => x.DeliverySchedule, () => deliveryScheduleAlias)

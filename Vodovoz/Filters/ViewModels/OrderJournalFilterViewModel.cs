@@ -61,7 +61,7 @@ namespace Vodovoz.Filters.ViewModels
 			                               ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
 			                              ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>().ToList();
+			GeographicGroups = UoW.Session.QueryOver<GeoGroup>().List<GeoGroup>().ToList();
 		}
 
 		#region Автосвойства
@@ -331,21 +331,21 @@ namespace Vodovoz.Filters.ViewModels
 
 		#endregion
 		
-		private List<GeographicGroup> _geographicGroups;
+		private List<GeoGroup> _geographicGroups;
 		/// <summary>
 		/// Части города для отображения в фильтре
 		/// </summary>
-		public List<GeographicGroup> GeographicGroups
+		public List<GeoGroup> GeographicGroups
 		{
 			get => _geographicGroups; 
 			set => _geographicGroups = value;
 		}
 		
-		private GeographicGroup _geographicGroup;
+		private GeoGroup _geographicGroup;
 		/// <summary>
 		/// Часть города
 		/// </summary>
-		public GeographicGroup GeographicGroup
+		public GeoGroup GeographicGroup
 		{
 			get => _geographicGroup;
 			set => UpdateFilterField(ref _geographicGroup, value);

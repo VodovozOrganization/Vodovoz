@@ -22,8 +22,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 		void ConfigureDlg()
 		{
 			pkrDate.StartDate = pkrDate.EndDate = DateTime.Today;
-			lstGeographicGroup.ItemsList = UoW.GetAll<GeographicGroup>();
-			lstGeographicGroup.SetRenderTextFunc<GeographicGroup>(x => x.Name);
+			lstGeographicGroup.ItemsList = UoW.GetAll<GeoGroup>();
+			lstGeographicGroup.SetRenderTextFunc<GeoGroup>(x => x.Name);
 			yspeccomboboxTariffZone.SetRenderTextFunc<TariffZone>(x => x.Name);
 			yspeccomboboxTariffZone.ItemsList = UoW.GetAll<TariffZone>().OrderBy(x => x.Name);
 		}
@@ -54,8 +54,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 				Parameters = new Dictionary<string, object> {
 					{ "start_date", pkrDate.StartDate },
 					{ "end_date", pkrDate.EndDate },
-					{ "geographic_group_id",(lstGeographicGroup.SelectedItem as GeographicGroup)?.Id },
-					{ "geographic_group_name",(lstGeographicGroup.SelectedItem as GeographicGroup)?.Name },
+					{ "geographic_group_id",(lstGeographicGroup.SelectedItem as GeoGroup)?.Id },
+					{ "geographic_group_name",(lstGeographicGroup.SelectedItem as GeoGroup)?.Name },
 					{ "tariff_zone_id",(yspeccomboboxTariffZone.SelectedItem as TariffZone)?.Id },
 					{ "tariff_zone_name",(yspeccomboboxTariffZone.SelectedItem as TariffZone)?.Name }
 				}

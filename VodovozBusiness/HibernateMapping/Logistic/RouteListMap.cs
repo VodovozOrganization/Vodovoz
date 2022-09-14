@@ -42,6 +42,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.NotFullyLoaded).Column("not_fully_loaded");
 			Map(x => x.CashierReviewComment).Column("cashier_review_comment");
 			Map(x => x.WasAcceptedByCashier).Column("was_accepted_by_cashier");
+			Map(x => x.HasFixedShippingPrice).Column("has_fixed_shipping_price");
+			Map(x => x.FixedShippingPrice).Column("fixed_shipping_price");
 			Map(x => x.DriverTerminalCondition).Column ("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
 
 			References(x => x.Car).Column("car_id").Access.CamelCaseField(Prefix.Underscore);
@@ -55,7 +57,6 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.DriverWageOperation).Column("driver_wages_movement_operations_id");
 			References(x => x.ForwarderWageOperation).Column("forwarder_wages_movement_operations_id");
 			References(x => x.ClosedBy).Column("closed_by_employee_id");
-			References(x => x.ClosingSubdivision).Column("closing_subdivision_id");
 			References(x => x.LogisticiansCommentAuthor).Column("logisticians_comment_author_id");
 			References(x => x.AdditionalLoadingDocument).Column("additional_loading_document_id").Cascade.AllDeleteOrphan();
 
@@ -63,9 +64,9 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn ("route_list_id").OrderBy("order_in_route");
 			HasMany(x => x.FuelDocuments).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasMany(x => x.PrintsHistory).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
-			HasManyToMany(x => x.GeographicGroups).Table("geographic_groups_to_entities")
+			HasManyToMany(x => x.GeographicGroups).Table("geo_groups_to_entities")
 			                                      .ParentKeyColumn("route_list_id")
-												  .ChildKeyColumn("geographic_group_id")
+												  .ChildKeyColumn("geo_group_id")
 												  .LazyLoad();
 		}
 	}
