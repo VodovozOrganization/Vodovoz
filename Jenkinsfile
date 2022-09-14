@@ -101,7 +101,7 @@ stage('Deploy'){
 		},
 		"WEB" : {
 			node('Vod6'){
-				step('DriverAPI Deploy')
+				stage('DriverAPI Deploy')
 				{
 					if(env.BRANCH_NAME ==~ /(develop|master)/
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
@@ -117,7 +117,7 @@ stage('Deploy'){
 						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 					}
 				}
-				step('FastPaymentsAPI Deploy')
+				stage('FastPaymentsAPI Deploy')
 				{
 					if(env.BRANCH_NAME ==~ /(develop|master)/
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
@@ -133,7 +133,7 @@ stage('Deploy'){
 						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 					}
 				}
-				step('PayPageAPI Deploy')
+				stage('PayPageAPI Deploy')
 				{
 					if(env.BRANCH_NAME ==~ /(develop|master)/
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
@@ -149,7 +149,7 @@ stage('Deploy'){
 						echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 					}
 				}
-				step('MailjetEventsDistributorAPI Deploy')
+				stage('MailjetEventsDistributorAPI Deploy')
 				{
 					if(env.BRANCH_NAME ==~ /(develop|master)/
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
