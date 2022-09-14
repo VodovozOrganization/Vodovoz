@@ -31,6 +31,7 @@ namespace Vodovoz.ViewWidgets.Profitability
 		{
 			SetTitle();
 			//Передаем инвертированное значение, т.к. оно еще не поменялось: при установке в true, Active еще false и наоборот
+			chkSelectAll.Active = ViewModel.IsSelectAll;
 			chkSelectAll.Pressed += (sender, e) => ViewModel.SelectUnselectAllCommand.Execute(!chkSelectAll.Active);
 			ConfigureTreeView();
 		}
