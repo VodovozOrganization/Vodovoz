@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.Users
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly ISubdivisionRepository _subdivisionRepository;
-		private readonly INomenclatureFixedPriceRepository _nomenclatureFixedPriceRepository;
+		private readonly INomenclaturePricesRepository _nomenclatureFixedPriceRepository;
 		private DelegateCommand _updateFixedPricesCommand;
 		private bool _sortingSettingsUpdated;
 		private bool _isFixedPricesUpdating;
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Users
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
-			INomenclatureFixedPriceRepository nomenclatureFixedPriceRepository)
+			INomenclaturePricesRepository nomenclatureFixedPriceRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));

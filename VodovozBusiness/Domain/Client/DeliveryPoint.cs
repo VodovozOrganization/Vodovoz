@@ -720,10 +720,18 @@ namespace Vodovoz.Domain.Client
 			OnPropertyChanged(nameof(CoordinatesExist));
 
 			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
+			{
 				return true;
-			var gg = District.GeographicGroup;
+			}
+
+			var geoGroupVersion = District.GeographicGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {District.GeographicGroup.Name}");
+			}
+
 			var route = new List<PointOnEarth>(2) {
-				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),
+				new PointOnEarth(geoGroupVersion.BaseLatitude.Value, geoGroupVersion.BaseLongitude.Value),
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 			
@@ -899,7 +907,7 @@ namespace Vodovoz.Domain.Client
 		TradeCenter,
 		[Display(Name = "Торговый комплекс", ShortName = "ТК")]
 		TradeComplex,
-		[Display(Name = "Бизнесс центр", ShortName = "БЦ")]
+		[Display(Name = "Бизнес-центр", ShortName = "БЦ")]
 		BusinessCenter,
 		[Display(Name = "Школа", ShortName = "шк.")]
 		School,

@@ -71,10 +71,6 @@ namespace Vodovoz.Models
 			{
 				throw new ArgumentNullException(nameof(order));
 			}
-			if(!order.DeliveryDate.HasValue)
-			{
-				throw new InvalidOperationException("Order delivery date cannot be null");
-			}
 			if(order.OurOrganization != null)
 			{
 				return order.OurOrganization;
@@ -86,14 +82,13 @@ namespace Vodovoz.Models
 
 			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
 
-			return GetOrganizationForOrderParameters(uow, paymentType ?? order.PaymentType, isSelfDelivery, order.DeliveryDate.Value,
-				order.CreateDate, order.OrderItems, paymentFrom ?? order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup,
-				order.OnlineOrder);
+			return GetOrganizationForOrderParameters(uow, paymentType ?? order.PaymentType, isSelfDelivery, order.CreateDate,
+				order.OrderItems, paymentFrom ?? order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup, order.OnlineOrder);
 		}
 
 		private Organization GetOrganizationForOrderParameters(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,
-			DateTime orderDeliveryDate, DateTime? orderCreateDate, IEnumerable<OrderItem> orderItems, PaymentFrom paymentFrom,
-			GeographicGroup geographicGroup, int? onlineOrderId)
+			DateTime? orderCreateDate, IEnumerable<OrderItem> orderItems, PaymentFrom paymentFrom, GeoGroup geographicGroup,
+			int? onlineOrderId)
 		{
 			if(uow == null)
 			{
@@ -107,13 +102,13 @@ namespace Vodovoz.Models
 
 			return isSelfDelivery
 				? GetOrganizationForSelfDelivery(
-					uow, paymentType, orderDeliveryDate, orderCreateDate, paymentFrom, geographicGroup, onlineOrderId)
+					uow, paymentType, orderCreateDate, paymentFrom, geographicGroup, onlineOrderId)
 				: GetOrganizationForOtherOptions(
-					uow, paymentType, orderDeliveryDate, orderCreateDate, paymentFrom, geographicGroup, onlineOrderId);
+					uow, paymentType, orderCreateDate, paymentFrom, geographicGroup, onlineOrderId);
 		}
 
-		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, DateTime orderDeliveryDate,
-			DateTime? orderCreateDate, PaymentFrom paymentFrom, GeographicGroup geographicGroup, int? onlineOrderId)
+		private Organization GetOrganizationForSelfDelivery(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
+			PaymentFrom paymentFrom, GeoGroup geographicGroup, int? onlineOrderId)
 		{
 			int organizationId;
 			switch(paymentType)
@@ -124,14 +119,11 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.cash:
+				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
-				case PaymentType.Terminal:
-					organizationId = GetOrganizationIdForTerminalPaymentTypeByDeliveryDate(orderDeliveryDate);
-					break;
 				case PaymentType.ByCard:
-					organizationId = GetOrganizationIdForByCard(
-						uow, paymentFrom, geographicGroup, orderDeliveryDate, orderCreateDate, onlineOrderId);
+					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
 					break;
 				default:
 					throw new NotSupportedException(
@@ -154,8 +146,8 @@ namespace Vodovoz.Models
 			return uow.GetById<Organization>(_organizationParametersProvider.VodovozSouthOrganizationId);
 		}
 
-		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime orderDeliveryDate,
-			DateTime? orderCreateDate, PaymentFrom paymentFrom, GeographicGroup geographicGroup, int? onlineOrderId)
+		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
+			PaymentFrom paymentFrom, GeoGroup geographicGroup, int? onlineOrderId)
 		{
 			int organizationId;
 			switch(paymentType)
@@ -166,14 +158,11 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.cash:
+				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
-				case PaymentType.Terminal:
-					organizationId = GetOrganizationIdForTerminalPaymentTypeByDeliveryDate(orderDeliveryDate);
-					break;
 				case PaymentType.ByCard:
-					organizationId = GetOrganizationIdForByCard(
-						uow, paymentFrom, geographicGroup, orderDeliveryDate, orderCreateDate, onlineOrderId);
+					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
 					break;
 				default:
 					throw new NotSupportedException($"Тип оплаты {paymentType} не поддерживается, невозможно подобрать организацию.");
@@ -188,8 +177,8 @@ namespace Vodovoz.Models
 				x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderParametersProvider.OldInternalOnlineStoreId);
 		}
 
-		private int GetOrganizationIdForByCard(IUnitOfWork uow, PaymentFrom paymentFrom, GeographicGroup geographicGroup,
-			DateTime orderDeliveryDate, DateTime? orderCreateDate, int? onlineOrderId)
+		private int GetOrganizationIdForByCard(IUnitOfWork uow, PaymentFrom paymentFrom, GeoGroup geographicGroup,
+			DateTime? orderCreateDate, int? onlineOrderId)
 		{
 			if(paymentFrom == null)
 			{
@@ -214,39 +203,15 @@ namespace Vodovoz.Models
 			{
 				return _organizationParametersProvider.VodovozOrganizationId;
 			}
-			if(paymentFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
-			{
-				return GetOrganizationIdForTerminalPaymentFromByDeliveryDate(orderDeliveryDate);
-			}
-			if(paymentFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId)
+			if(paymentFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId
+				|| paymentFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
 			{
 				return _organizationParametersProvider.VodovozSouthOrganizationId;
 			}
-			return _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id)
+
+			return _orderParametersProvider.PaymentsByCardFromForNorthOrganization.Contains(paymentFrom.Id) && orderCreateDate.HasValue && orderCreateDate.Value < new DateTime(2022, 08, 30, 13, 00, 00)
 				? _organizationParametersProvider.VodovozNorthOrganizationId
 				: _organizationParametersProvider.VodovozSouthOrganizationId;
-		}
-		
-		//FIXME убрать проверку после 2022-07-21. Выставить для типа оплаты терминал Юг, начиная с 21.07 включительно
-		private int GetOrganizationIdForTerminalPaymentTypeByDeliveryDate(DateTime deliveryDate)
-		{
-			if(deliveryDate <= Convert.ToDateTime("2022-07-19"))
-			{
-				return _organizationParametersProvider.VodovozNorthOrganizationId;
-			}
-			if(deliveryDate >= Convert.ToDateTime("2022-07-21"))
-			{
-				return _organizationParametersProvider.VodovozSouthOrganizationId;
-			}
-			return _organizationParametersProvider.VodovozSouthOrganizationId;
-		}
-		
-		//FIXME убрать проверку после 2022-07-21. Выставить для источника оплаты терминал с 20.07 включительно Юг
-		private int GetOrganizationIdForTerminalPaymentFromByDeliveryDate(DateTime deliveryDate)
-		{
-			return deliveryDate >= Convert.ToDateTime("2022-07-20")
-				? _organizationParametersProvider.VodovozSouthOrganizationId
-				: _organizationParametersProvider.VodovozNorthOrganizationId;
 		}
 	}
 }

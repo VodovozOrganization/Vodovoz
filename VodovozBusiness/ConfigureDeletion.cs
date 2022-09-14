@@ -24,6 +24,7 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -193,6 +194,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Organization>()
 				.AddDeleteDependenceFromCollection(item => item.Phones)
+				.AddDeleteDependenceFromCollection(item => item.OrganizationVersions)
 				.AddDeleteDependenceFromCollection(item => item.Accounts)
 				.AddDeleteDependence<CounterpartyContract>(item => item.Organization)
 				.AddDeleteDependence<AccountIncome>(item => item.Organization)
@@ -203,8 +205,8 @@ namespace Vodovoz
 				.AddClearDependence<Expense>(x => x.Organisation)
 				.AddClearDependence<AdvanceReport>(x => x.Organisation);
 
+			DeleteConfig.AddHibernateDeleteInfo<OrganizationVersion>();
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
-
 			DeleteConfig.AddHibernateDeleteInfo<RoboatsStreet>();
 			DeleteConfig.AddHibernateDeleteInfo<RoboatsWaterType>();
 
@@ -302,8 +304,6 @@ namespace Vodovoz
 				.AddClearDependence<ServiceClaim>(x => x.Engineer)
 				.AddClearDependence<ServiceClaimHistory>(x => x.Employee)
 				.AddClearDependence<WriteoffDocument>(item => item.ResponsibleEmployee)
-				.AddClearDependence<Organization>(item => item.Leader)
-				.AddClearDependence<Organization>(item => item.Buhgalter)
 				.AddClearDependence<Income>(item => item.Employee)
 				.AddClearDependence<Expense>(item => item.Employee)
 				.AddClearDependence<AccountExpense>(item => item.Employee)
@@ -381,6 +381,7 @@ namespace Vodovoz
 				.AddClearDependence<WriteoffDocumentItem>(x => x.Fine)
 				.AddClearDependence<RegradingOfGoodsDocumentItem>(x => x.Fine)
 				.AddClearDependence<RouteList>(x => x.BottleFine)
+				.AddRemoveFromDependence<CarEvent>(x => x.Fines)
 				.AddRemoveFromDependence<Complaint>(x => x.Fines)
 				;
 
@@ -395,7 +396,6 @@ namespace Vodovoz
 						.AddClearDependence<Subdivision>(item => item.ParentSubdivision)
 						.AddClearDependence<Employee>(item => item.Subdivision)
 						.AddClearDependence<Warehouse>(item => item.OwningSubdivision)
-						.AddClearDependence<RouteList>(item => item.ClosingSubdivision)
 						.AddDeleteDependence<EntitySubdivisionPermission>(item => item.Subdivision)
 						.AddDeleteDependence<EntitySubdivisionPermissionExtended>(item => item.Subdivision)
 						.AddClearDependence<UndeliveredOrder>(item => item.InProcessAtDepartment)
@@ -544,6 +544,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<RoboAtsCounterpartyName>();
 			DeleteConfig.AddHibernateDeleteInfo<RoboAtsCounterpartyPatronymic>();
 
+			DeleteConfig.AddHibernateDeleteInfo<BulkEmailEventReason>();
+
 			#endregion
 
 			#region Logistics
@@ -594,7 +596,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
 
-			DeleteConfig.AddHibernateDeleteInfo<GeographicGroup>()
+			DeleteConfig.AddHibernateDeleteInfo<GeoGroup>()
 						.AddDeleteDependence<AtWorkDriver>(x => x.GeographicGroup)
 						.AddDeleteDependence<Subdivision>(x => x.GeographicGroup)
 						.AddRemoveFromDependence<Car>(x => x.GeographicGroups)

@@ -78,9 +78,9 @@ namespace Vodovoz.Domain.Sale
 			set => SetField(ref wageDistrict, value);
 		}
 		
-		private GeographicGroup geographicGroup;
+		private GeoGroup geographicGroup;
 		[Display(Name = "Часть города")]
-		public virtual GeographicGroup GeographicGroup {
+		public virtual GeoGroup GeographicGroup {
 			get => geographicGroup;
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
 		}

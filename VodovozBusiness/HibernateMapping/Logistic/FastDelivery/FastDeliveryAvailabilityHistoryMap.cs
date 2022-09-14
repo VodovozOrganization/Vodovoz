@@ -23,6 +23,7 @@ namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
 			Map(x => x.MinTimeForNewFastDeliveryOrder).Column("min_time_for_new_fast_delivery_order").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.DriverUnloadTime).Column("driver_unload_time").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.SpecificTimeForMaxFastOrdersCount).Column("specific_time_for_max_fast_orders_count").CustomType<TimeAsTimeSpanType>();
+			Map(x => x.AddressWithoutDeliveryPoint).Column("address_without_delivery_point");
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");

@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>210mm</Width>
@@ -42,10 +40,30 @@ WHERE order_equipment.order_id = @order_id AND order_equipment.direction = 'Pick
     <DataSet Name="Order">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT orders.id, orders.delivery_date, CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number, organizations.full_name as organization, counterparty.full_name as client FROM orders
+        <CommandText>SELECT
+	orders.id,
+	orders.delivery_date,
+	CONCAT(counterparty.vod_internal_id,
+	'-',counterparty_contract.subnumber) AS contract_number,
+	organizations.full_name as organization,
+	counterparty.full_name as client,
+	leader.last_name AS leader_last_name,
+    LEFT(leader.name, 1) AS leader_name,
+    LEFT(leader.patronymic, 1) AS leader_patronymic
+FROM orders
 LEFT JOIN counterparty_contract on orders.counterparty_contract_id = counterparty_contract.id
 LEFT JOIN counterparty on counterparty_contract.counterparty_id = counterparty.id
 LEFT JOIN organizations on organizations.id = counterparty_contract.organization_id
+LEFT JOIN
+    organization_versions ov
+    ON
+        organizations.id = ov.organization_id 
+    AND
+        ov.start_date &lt;= orders.bill_date 
+    AND
+        (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+LEFT JOIN
+     employees leader ON leader.id = ov.leader_id
 WHERE orders.id = @order_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -72,6 +90,18 @@ WHERE orders.id = @order_id</CommandText>
         </Field>
         <Field Name="client">
           <DataField>client</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_last_name">
+          <DataField>leader_last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_name">
+          <DataField>leader_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_patronymic">
+          <DataField>leader_patronymic</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -243,8 +273,7 @@ WHERE orders.id = @order_id</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -404,15 +433,15 @@ WHERE orders.id = @order_id</CommandText>
       <Textbox Name="Textbox15">
         <Height>87.19pt</Height>
         <Width>264.98pt</Width>
-        <Value>От Фирмы
+        <Value>="От Фирмы
 
 
-______________ /Сосновцев С.С./
+______________ /" + First({leader_last_name}, "Order") + " " + First({leader_name}, "Order") + "." + First({leader_patronymic}, "Order") + "./
 
-М.П.</Value>
+М.П."</Value>
         <ZIndex>1</ZIndex>
-        <Left>4.6pt</Left>
-        <Top>652.1pt</Top>
+        <Left>4.60pt</Left>
+        <Top>652.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -476,8 +505,7 @@ ______________ /                                    /
       <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.25pt</Height>
         <Width>100.02pt</Width>
-        <Value>
-        </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>134.91pt</Left>
         <Top>230.65pt</Top>
@@ -574,8 +602,7 @@ ______________ /                                    /
                         <FontSize>10pt</FontSize>
                         <PaddingTop>0pt</PaddingTop>
                       </Style>
-                      <Visibility>
-                      </Visibility>
+                      <Visibility></Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -623,8 +650,7 @@ ______________ /                                    /
         <PageBreakAtEnd>false</PageBreakAtEnd>
         <PageBreakAtStart>false</PageBreakAtStart>
         <DataElementOutput>Output</DataElementOutput>
-        <Visibility>
-        </Visibility>
+        <Visibility></Visibility>
         <Details>
           <TableRows>
             <TableRow>
@@ -655,8 +681,7 @@ ______________ /                                    /
                         </BorderStyle>
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -671,8 +696,7 @@ ______________ /                                    /
                         <BorderWidth />
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -788,8 +812,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -802,8 +825,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -816,8 +838,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -835,8 +856,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -849,8 +869,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -865,8 +884,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -890,8 +908,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -910,8 +927,7 @@ ______________ /                                    /
                         </BorderStyle>
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -924,8 +940,7 @@ ______________ /                                    /
                         </BorderStyle>
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -937,8 +952,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -951,8 +965,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox43">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -965,8 +978,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -984,8 +996,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox45">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -998,8 +1009,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1012,8 +1022,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1031,8 +1040,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1045,8 +1053,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1059,8 +1066,7 @@ ______________ /                                    /
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1090,7 +1096,7 @@ ______________ /                                    /
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>9pt</FontSize>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox52" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>16.50pt</Height>
@@ -1216,8 +1222,7 @@ ______________ /                                    /
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

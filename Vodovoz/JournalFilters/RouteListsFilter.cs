@@ -34,7 +34,7 @@ namespace Vodovoz
 				x => x.enumcheckCarTypeOfUse.SelectAll(),
 				x => x.enumcheckCarOwnType.EnumType = typeof(CarOwnType),
 				x => x.enumcheckCarOwnType.SelectAll(),
-				x => x.ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeographicGroup>().List()
+				x => x.ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeoGroup>().List()
 			);
 
 			_carTypeOfUseConverter = new EnumsListConverter<CarTypeOfUse>();
@@ -110,8 +110,8 @@ namespace Vodovoz
 			}
 		}
 
-		public GeographicGroup RestrictGeographicGroup {
-			get => ySpecCmbGeographicGroup.SelectedItem as GeographicGroup;
+		public GeoGroup RestrictGeographicGroup {
+			get => ySpecCmbGeographicGroup.SelectedItem as GeoGroup;
 			set {
 				ySpecCmbGeographicGroup.SelectedItem = value;
 				ySpecCmbGeographicGroup.Sensitive = false;

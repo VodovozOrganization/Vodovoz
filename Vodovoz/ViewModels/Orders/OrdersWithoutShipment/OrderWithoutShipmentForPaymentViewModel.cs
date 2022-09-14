@@ -23,6 +23,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment

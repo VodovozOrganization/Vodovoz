@@ -38,6 +38,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Services;
 
 namespace Vodovoz.JournalViewModels
 {

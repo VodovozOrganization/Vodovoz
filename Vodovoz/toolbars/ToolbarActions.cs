@@ -87,9 +87,9 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
-using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
 
 public partial class MainWindow : Window
 {
@@ -534,9 +534,10 @@ public partial class MainWindow : Window
 		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
 		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		IEmailRepository emailRepository = new EmailRepository();
+		IFileDialogService fileDialogService = new FileDialogService();
 		var debtorsJournal = new DebtorsJournalViewModel(
 			filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, new EmployeeRepository(), new GtkTabsOpener(),
-			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory, emailRepository);
+			new DebtorsParameters(new ParametersProvider()), emailParametersProvider, attachmentsViewModelFactory, emailRepository, fileDialogService);
 
 		tdiMain.AddTab(debtorsJournal);
 	}
@@ -582,11 +583,10 @@ public partial class MainWindow : Window
 
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.RevisionBottlesAndDeposits>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
-				new OrderRepository(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory()))
-		);
+		var reportViewDlg = new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				new OrderRepository(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory()));
+
+		tdiMain.AddTab(reportViewDlg);
 	}
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
@@ -640,33 +640,27 @@ public partial class MainWindow : Window
 		var parametersProvider = new ParametersProvider();
 		var baseParametersProvider = new BaseParametersProvider(parametersProvider);
 
-		if(new BaseParametersProvider(parametersProvider).UseOldAutorouting())
-			tdiMain.OpenTab(
-				TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
-				() => new RoutesAtDayDlg()
-			);
-		else
-			tdiMain.OpenTab(
-				"AutoRouting",
-				() => new RouteListsOnDayViewModel(
-					ServicesConfig.CommonServices,
-					new DeliveryScheduleParametersProvider(parametersProvider),
-					new GtkTabsOpener(),
-					new RouteListRepository(new StockRepository(), baseParametersProvider),
-					new SubdivisionRepository(parametersProvider),
-					new OrderRepository(),
-					new AtWorkRepository(),
-					new CarRepository(),
-					NavigationManagerProvider.NavigationManager,
-					new UserRepository(),
-					baseParametersProvider,
-					new EmployeeJournalFactory(),
-					new GeographicGroupRepository(),
-					new ScheduleRestrictionRepository(),
-					new CarModelJournalFactory(),
-					new GeographicGroupParametersProvider(parametersProvider)
-				)
-			);
+		tdiMain.OpenTab(
+			"AutoRouting",
+			() => new RouteListsOnDayViewModel(
+				ServicesConfig.CommonServices,
+				new DeliveryScheduleParametersProvider(parametersProvider),
+				new GtkTabsOpener(),
+				new RouteListRepository(new StockRepository(), baseParametersProvider),
+				new SubdivisionRepository(parametersProvider),
+				new OrderRepository(),
+				new AtWorkRepository(),
+				new CarRepository(),
+				NavigationManagerProvider.NavigationManager,
+				new UserRepository(),
+				baseParametersProvider,
+				new EmployeeJournalFactory(),
+				new GeographicGroupRepository(),
+				new ScheduleRestrictionRepository(),
+				new CarModelJournalFactory(),
+				new GeographicGroupParametersProvider(parametersProvider)
+			)
+		);
 	}
 
 	void ActionAccountingTable_Activated(object sender, System.EventArgs e)
@@ -960,6 +954,7 @@ public partial class MainWindow : Window
 		var filter = new RouteListJournalFilterViewModel();
 		filter.StartDate = DateTime.Today.AddMonths(-2);
 		filter.EndDate = DateTime.Today;
+
 		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
 	}
 
@@ -997,10 +992,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListMileageCheckView>(),
-			() => new RouteListMileageCheckView()
-		);
+		NavigationManager.OpenTdiTab<RouteListMileageCheckView>(null);
 	}
 
 	void ActionCashDocuments_Activated(object sender, System.EventArgs e)
@@ -1167,9 +1159,7 @@ public partial class MainWindow : Window
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
 		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
-		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices, new EmployeeRepository(), new EntityDeleteWorker(),
-			new DeliveryRulesParametersProvider(new ParametersProvider()), true, true));
+		NavigationManager.OpenViewModel<DistrictsSetJournalViewModel, DistrictsSetJournalFilterViewModel>(null, filter);
 	}
 
 	void ActionCarEventsJournalActivated(object sender, EventArgs e)
@@ -1205,6 +1195,7 @@ public partial class MainWindow : Window
 		IFileDialogService fileDialogService = new FileDialogService();
 		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
 			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
+		INomenclatureParametersProvider nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
 
 		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
 		{
@@ -1219,7 +1210,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			fileDialogService,
-			fastDeliveryAvailabilityHistoryParameterProvider)
+			fastDeliveryAvailabilityHistoryParameterProvider,
+			nomenclatureParametersProvider)
 		);
 	}
 }

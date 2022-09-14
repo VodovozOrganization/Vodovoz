@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {

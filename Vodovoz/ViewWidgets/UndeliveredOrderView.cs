@@ -294,7 +294,7 @@ namespace Vodovoz.ViewWidgets
 
 		void AddAutocomment()
 		{
-			#region удаление дублей из спсика виновных
+			#region удаление дублей из спсика ответственных
 			IList<GuiltyInUndelivery> guiltyTempList = new List<GuiltyInUndelivery>();
 			foreach(GuiltyInUndelivery g in _undelivery.ObservableGuilty)
 				guiltyTempList.Add(g);
@@ -303,7 +303,7 @@ namespace Vodovoz.ViewWidgets
 				_undelivery.ObservableGuilty.Add(g);
 			#endregion
 
-			#region формирование и добавление автокомментарния об изменении списка виновных
+			#region формирование и добавление автокомментарния об изменении списка ответственных
 			if(_undelivery.Id > 0) {
 				IList<GuiltyInUndelivery> removedGuiltyList = new List<GuiltyInUndelivery>();
 				IList<GuiltyInUndelivery> addedGuiltyList = new List<GuiltyInUndelivery>();
@@ -323,12 +323,12 @@ namespace Vodovoz.ViewWidgets
 				}
 				StringBuilder sb = new StringBuilder();
 				if(addedGuiltyList.Any()) {
-					sb.AppendLine("добавил(а) виновных:");
+					sb.AppendLine("добавил(а) ответственных:");
 					foreach(var a in addedGuiltyList)
 						sb.AppendLine(String.Format("\t- {0}", a));
 				}
 				if(removedGuiltyList.Any()) {
-					sb.AppendLine("удалил(а) виновных:");
+					sb.AppendLine("удалил(а) ответственных:");
 					foreach(var r in removedGuiltyList)
 						sb.AppendLine(String.Format("\t- {0}", r));
 				}

@@ -198,7 +198,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		IList<GuiltyInUndelivery> guiltyInUndelivery = new List<GuiltyInUndelivery>();
-		[Display(Name = "Виновные в недовозе")]
+		[Display(Name = "Ответственные в недовозе")]
 		public virtual IList<GuiltyInUndelivery> GuiltyInUndelivery {
 			get { return guiltyInUndelivery; }
 			set { SetField(ref guiltyInUndelivery, value, () => GuiltyInUndelivery); }
@@ -416,7 +416,7 @@ namespace Vodovoz.Domain.Orders
 			if(InProcessAtDepartment != null)
 				info.AppendLine(string.Format("<i>В работе у отдела:</i> {0}", InProcessAtDepartment.Name));
 			if(ObservableGuilty.Any()) {
-				info.AppendLine("<i>Виновные:</i> ");
+				info.AppendLine("<i>Ответственные:</i> ");
 				foreach(GuiltyInUndelivery g in ObservableGuilty)
 					info.AppendLine(string.Format("\t{0}", g));
 			}
@@ -463,7 +463,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(!ObservableGuilty.Any())
 				yield return new ValidationResult(
-					"Необходимо выбрать виновного",
+					"Необходимо выбрать Ответственого",
 					new[] { this.GetPropertyName(u => u.ObservableGuilty) }
 				);
 
@@ -475,13 +475,13 @@ namespace Vodovoz.Domain.Orders
 
 			if(ObservableGuilty.Count() > 1 && ObservableGuilty.Any(g => g.GuiltySide == GuiltyTypes.None))
 				yield return new ValidationResult(
-					"Определитесь, кто виноват! Либо это не недовоз, либо кто-то виновен!",
+					"Определитесь, кто ответственный! Либо это не недовоз, либо кто-то ответственный!",
 					new[] { this.GetPropertyName(u => u.GuiltyInUndelivery) }
 				);
 
 			if(ObservableGuilty.Any(g => g.GuiltySide == GuiltyTypes.Department && g.GuiltyDepartment == null))
 				yield return new ValidationResult(
-					"Не выбран отдел в одном или нескольких виновных.",
+					"Не выбран отдел в одном или нескольких Ответственных.",
 					new[] { this.GetPropertyName(u => u.GuiltyInUndelivery) }
 				);
 

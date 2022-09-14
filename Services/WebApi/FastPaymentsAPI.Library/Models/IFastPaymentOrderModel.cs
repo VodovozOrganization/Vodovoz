@@ -23,7 +23,7 @@ namespace FastPaymentsAPI.Library.Models
 			RequestRegisterOnlineOrderDTO registerOnlineOrderDto, Organization organization);
 		Task<OrderInfoResponseDTO> GetOrderInfo(string ticket, Organization organization);
 		Task<CancelPaymentResponseDTO> CancelPayment(string ticket, Organization organization);
-		void NotifyEmployee(string orderNumber, string signature);
+		void NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature);
 		PaidOrderInfoDTO GetPaidOrderInfo(string data);
 	}
 }

@@ -92,10 +92,12 @@ namespace Vodovoz
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
+		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
+		private readonly IEmailParametersProvider _emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
@@ -200,6 +202,8 @@ namespace Vodovoz
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CounterpartyView };
 
 		public Counterparty Counterparty => UoWGeneric.Root;
+
+		public bool HasOgrn => Counterparty.CounterpartyType == CounterpartyType.Dealer;
 
 		private bool CanEdit => permissionResult.CanUpdate || permissionResult.CanCreate && Entity.Id == 0;
 
@@ -517,6 +521,11 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ycheckSpecialDocuments.Sensitive = CanEdit;
 
+			ycheckAlwaysPrintInvoice.Binding
+				.AddBinding(Entity, e => e.AlwaysPrintInvoice, w => w.Active)
+				.InitializeFromSource();
+			ycheckAlwaysPrintInvoice.Sensitive = CanEdit;
+
 			ycheckAlwaysSendReceitps.Binding
 				.AddBinding(Entity, e => e.AlwaysSendReceipts, w => w.Active)
 				.InitializeFromSource();
@@ -665,7 +674,14 @@ namespace Vodovoz
 
 		private void ConfigureTabRequisites()
 		{
-			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			
+			validatedOGRN.Binding
+				.AddBinding(Entity, e => e.OGRN, w => w.Text)
+				.InitializeFromSource();
+			validatedOGRN.MaxLength = 13;
+			validatedOGRN.IsEditable = CanEdit;
+
 			validatedINN.Binding
 				.AddBinding(Entity, e => e.INN, w => w.Text)
 				.InitializeFromSource();
@@ -925,6 +941,25 @@ namespace Vodovoz
 			ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
 
 			EmailDataLoader.LoadData(false);
+
+			RefreshBulkEmailEventStatus();
+		}
+
+		private void RefreshBulkEmailEventStatus()
+		{
+			var lastBulkEmailEvent = _emailRepository.GetLastBulkEmailEvent(UoW, Entity.Id);
+
+			if(lastBulkEmailEvent == null || lastBulkEmailEvent is SubscribingBulkEmailEvent)
+			{
+				ylabelBulkEmailEventDate.LabelProp = "Контрагент подписан на массовую рассылку";
+				ybuttonSubscribe.Visible = false;
+				ybuttonUnsubscribe.Visible = true;
+				return;
+			}
+
+			ylabelBulkEmailEventDate.LabelProp = lastBulkEmailEvent.ActionTime.ToString();
+			ybuttonSubscribe.Visible = true;
+			ybuttonUnsubscribe.Visible = false;
 		}
 
 		private Func<IUnitOfWork, IQueryOver<CounterpartyEmail>> EmailItemsSourceQueryFunction => (uow) =>
@@ -1050,7 +1085,6 @@ namespace Vodovoz
 				filter,
 				FilePickerService,
 				SubdivisionRepository,
-				new GtkReportViewOpener(),
 				new GtkTabsOpener(),
 				NomenclatureRepository,
 				_userRepository,
@@ -1238,6 +1272,11 @@ namespace Vodovoz
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
+			validatedOGRN.Visible = labelOGRN.Visible = HasOgrn;
+			if (Entity.CounterpartyType == CounterpartyType.Dealer)
+			{
+				Entity.PersonType = PersonType.legal;
+			}
 		}
 
 		private void OnEnumCounterpartyTypeChangedByUser(object sender, EventArgs e)
@@ -1505,6 +1544,46 @@ namespace Vodovoz
 			}
 
 			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
+		}
+
+		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
+		{
+			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+
+			var unsubscribingEvent = new UnsubscribingBulkEmailEvent
+			{
+				Reason = unsubscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
+				Counterparty = Entity
+			};
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение отписки от массовой рассылки"))
+			{
+				unitOfWork.Save(unsubscribingEvent);
+				unitOfWork.Commit();
+			}
+
+			RefreshBulkEmailEventStatus();
+		}
+
+		protected void OnButtonSubscribeClicked(object sender, EventArgs e)
+		{
+			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+
+			var subscribingEvent = new SubscribingBulkEmailEvent
+			{
+				Reason = subscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
+				Counterparty = Entity
+			};
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение подписки на массовую рассылку"))
+			{
+				unitOfWork.Save(subscribingEvent);
+				unitOfWork.Commit();
+			}
+
+			RefreshBulkEmailEventStatus();
 		}
 	}
 

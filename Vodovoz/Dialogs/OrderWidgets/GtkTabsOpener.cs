@@ -7,6 +7,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Dialogs.Logistic;
+using Vodovoz.Domain.Employees;
+using System;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
@@ -81,6 +84,12 @@ namespace Vodovoz.Dialogs.OrderWidgets
 
 			dlg.ConfigureForRouteListChangeGiveout(employeeId, balance, description);
 			master.TabParent.AddTab(dlg, master);
+		}
+
+		public void OpenTrackOnMapWnd(int routeListId)
+		{
+			var track = new TrackOnMapWnd(routeListId);
+			track.Show();
 		}
 	}
 }

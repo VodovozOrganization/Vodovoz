@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Fias.Service;
 using NetTopologySuite.Geometries;
 using NLog;
 using QS.DomainModel.UoW;
@@ -21,18 +24,24 @@ namespace VodovozDeliveryRulesService
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IBackupDistrictService _backupDistrictService;
+		private readonly IFiasApiClient _fiasApiClient;
+		private readonly CancellationTokenSource _cancellationTokenSource;
 
 		private readonly DeliverySchedule _fastDeliverySchedule;
 
 		public DeliveryRulesService(
 			IDeliveryRepository deliveryRepository,
 			IBackupDistrictService backupDistrictService,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IFiasApiClient fiasApiClient,
+			CancellationTokenSource cancellationTokenSource)
 		{
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_backupDistrictService = backupDistrictService ?? throw new ArgumentNullException(nameof(backupDistrictService));
 			_deliveryRulesParametersProvider =
 				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_fiasApiClient = fiasApiClient ?? throw new ArgumentNullException(nameof(fiasApiClient));
+			_cancellationTokenSource = cancellationTokenSource ?? throw new ArgumentNullException(nameof(cancellationTokenSource));
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение графика быстрой доставки"))
 			{
@@ -132,9 +141,13 @@ namespace VodovozDeliveryRulesService
 			}
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка на доставку за час"))
 			{
+				Task<bool> task = CheckIfFastDeliveryAllowedAsync(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
+				task.Wait();
+				var fastDeliveryAllowed = task.Result;
+				
 				var allowed =
 					!_deliveryRulesParametersProvider.IsStoppedOnlineDeliveriesToday
-					&& CheckIfFastDeliveryAllowed(uow, request.Latitude, request.Longitude, request.SiteNomenclatures);
+					&& fastDeliveryAllowed;
 
 				if(allowed)
 				{
@@ -329,7 +342,7 @@ namespace VodovozDeliveryRulesService
 			return GetScheduleRestrictionsForWeekDay(district, deliveryWeekDay);
 		}
 
-		private bool CheckIfFastDeliveryAllowed(IUnitOfWork uow, decimal latitude, decimal longitude,
+		private async Task<bool> CheckIfFastDeliveryAllowedAsync(IUnitOfWork uow, decimal latitude, decimal longitude,
 			SiteNomenclatureNode[] siteNomenclatures)
 		{
 			if(siteNomenclatures == null || siteNomenclatures.Any(x => x.ERPId == null || x.ERPId < 1))
@@ -356,6 +369,9 @@ namespace VodovozDeliveryRulesService
 				isGetClosestByRoute: false,
 				_deliveryRulesParametersProvider,
 				nomenclatureNodes);
+
+			fastDeliveryAvailabilityHistory.AddressWithoutDeliveryPoint = await _fiasApiClient.GetAddressByGeoCoder(latitude, longitude, _cancellationTokenSource.Token);
+			fastDeliveryAvailabilityHistory.District = _deliveryRepository.GetDistrict(uow, latitude, longitude);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);

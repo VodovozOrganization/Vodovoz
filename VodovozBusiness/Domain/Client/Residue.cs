@@ -307,7 +307,7 @@ namespace Vodovoz.Domain.Client
 
 		private void UpdateEquipmentDepositOperation(IUnitOfWork uow, IDepositRepository depositRepository)
 		{
-			decimal equipmentDeposit = EquipmentDepositItems.Sum(x => x.EquipmentDeposit);
+			decimal equipmentDeposit = EquipmentDepositItems.Sum(x => x.EquipmentDeposit * x.EquipmentCount);
 
 			//Обновляем операции по залогам за оборудование.
 			if(equipmentDeposit == 0)

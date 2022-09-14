@@ -48,6 +48,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Description).Column("description");
 			Map(x => x.BottleCapColor).Column("bottle_cap_color");
 			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
+			Map(x => x.UsingInGroupPriceSet).Column("using_in_group_price_set");
 
 			//Характеристики товара
 			Map(x => x.Color).Column("color");
@@ -91,6 +92,7 @@ namespace Vodovoz.HibernateMapping
 			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.PurchasePrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.InnerDeliveryPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 		}
 	}
 }

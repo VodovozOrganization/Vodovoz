@@ -16,11 +16,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public interface IRouteListRepository
 	{
-		IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, RouteListStatus status, DateTime date);
+		IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, DateTime? date = null, RouteListStatus? status = null);
 		QueryOver<RouteList> GetRoutesAtDay(DateTime date);
 		QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds);
 		IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(IUnitOfWork uow, RouteList routeList, ISubdivisionRepository subdivisionRepository = null, Warehouse warehouse = null);
 		IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList);
+		bool HasRouteList(int driverId, DateTime date, int deliveryShiftId);
 		IList<GoodsInRouteListResult> GetFastDeliveryOrdersItemsInRL(IUnitOfWork uoW, int routeListId, RouteListItemStatus [] excludeAddressStatuses = null);
 		GoodsInRouteListResult GetTerminalInRL(IUnitOfWork uow, RouteList routeList, Warehouse warehouse);
 		IList<GoodsInRouteListResult> GetEquipmentsInRL(IUnitOfWork uow, RouteList routeList);

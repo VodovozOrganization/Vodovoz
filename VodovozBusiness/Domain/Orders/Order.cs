@@ -970,15 +970,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			//FIXME Убрать эту проверку после 2022-07-21
-			if(DeliveryDate == Convert.ToDateTime("2022-07-20") && PaymentType == PaymentType.Terminal)
-			{
-				yield return new ValidationResult(
-					"Нельзя принимать заказы на 20.07.22 с формой оплаты \"Терминал\". " +
-					"Выберите другую дату или другую форму оплаты",
-					new[] { nameof(DeliveryDate), nameof(PaymentType) });
-			}
-
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
@@ -1093,10 +1084,13 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
-					if(Client.IsDeliveriesClosed && PaymentType != PaymentType.cash && PaymentType != PaymentType.ByCard)
+					if(Client.IsDeliveriesClosed
+						&& PaymentType != PaymentType.cash
+						&& PaymentType != PaymentType.ByCard
+						&& PaymentType != PaymentType.Terminal)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
-							new[] { this.GetPropertyName(o => o.PaymentType) }
+							new[] { nameof(PaymentType) }
 						);
 
 					//FIXME Исправить изменение данных. В валидации нельзя менять объекты.
@@ -1709,21 +1703,10 @@ namespace Vodovoz.Domain.Orders
 			{
 				return;
 			}
-			if(DeliveryDate == null)
-			{
-				return;
-			}
 
-			CounterpartyContract counterpartyContract;
-			
-			if(organization != null)
-			{
-				counterpartyContract = contractRepository.GetCounterpartyContract(uow, this, organization);
-			}
-			else
-			{
-				counterpartyContract = contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
-			}
+			var counterpartyContract = organization != null
+				? contractRepository.GetCounterpartyContract(uow, this, organization)
+				: contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
 			
 			if(counterpartyContract == null)
 			{
@@ -2647,7 +2630,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
-		/// <param name="guilty">Виновный в недовезении заказа</param>
+		/// <param name="guilty">Ответственный в недовезении заказа</param>
 		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, CallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);

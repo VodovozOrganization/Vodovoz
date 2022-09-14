@@ -14,7 +14,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yTable ytable1;
 
-		private global::Gtk.HBox hbox3;
+		private global::Gtk.HBox hbox10;
 
 		private global::Gamma.GtkWidgets.ySpinButton maxWeightSpin;
 
@@ -49,6 +49,28 @@ namespace Vodovoz.Views.Logistic
 		private global::Gtk.Label label5;
 
 		private global::Gtk.Label labelName;
+
+		private global::Gtk.VBox vbox3;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeCarFuelVersions;
+
+		private global::Gtk.HBox hbox8;
+
+		private global::Gtk.Label labelDate1;
+
+		private global::Gamma.GtkWidgets.ySpinButton fuelConsumptionSpin;
+
+		private global::Gtk.Label labelDate;
+
+		private global::QS.Widgets.GtkUI.DatePicker datepickerVersionDate;
+
+		private global::Gamma.GtkWidgets.yButton buttonNewVersion;
+
+		private global::Gamma.GtkWidgets.yButton buttonChangeVersionDate;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelVersions;
 
 		protected virtual void Build()
 		{
@@ -100,15 +122,15 @@ namespace Vodovoz.Views.Logistic
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.ytable1 = new global::Gamma.GtkWidgets.yTable();
 			this.ytable1.Name = "ytable1";
-			this.ytable1.NRows = ((uint)(6));
+			this.ytable1.NRows = ((uint)(7));
 			this.ytable1.NColumns = ((uint)(2));
 			this.ytable1.RowSpacing = ((uint)(6));
 			this.ytable1.ColumnSpacing = ((uint)(6));
 			// Container child ytable1.Gtk.Table+TableChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
+			this.hbox10 = new global::Gtk.HBox();
+			this.hbox10.Name = "hbox10";
+			this.hbox10.Spacing = 6;
+			// Container child hbox10.Gtk.Box+BoxChild
 			this.maxWeightSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 20000D, 1D);
 			this.maxWeightSpin.WidthRequest = 100;
 			this.maxWeightSpin.CanFocus = true;
@@ -118,13 +140,13 @@ namespace Vodovoz.Views.Logistic
 			this.maxWeightSpin.Numeric = true;
 			this.maxWeightSpin.ValueAsDecimal = 0m;
 			this.maxWeightSpin.ValueAsInt = 0;
-			this.hbox3.Add(this.maxWeightSpin);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.maxWeightSpin]));
+			this.hbox10.Add(this.maxWeightSpin);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.maxWeightSpin]));
 			w6.Position = 0;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.ytable1.Add(this.hbox3);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytable1[this.hbox3]));
+			this.ytable1.Add(this.hbox10);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytable1[this.hbox10]));
 			w7.TopAttach = ((uint)(2));
 			w7.BottomAttach = ((uint)(3));
 			w7.LeftAttach = ((uint)(1));
@@ -169,6 +191,7 @@ namespace Vodovoz.Views.Logistic
 			this.entryManufacturer.Events = ((global::Gdk.EventMask)(256));
 			this.entryManufacturer.Name = "entryManufacturer";
 			this.entryManufacturer.CanEditReference = true;
+			this.entryManufacturer.CanOpenWithoutTabParent = false;
 			this.hbox5.Add(this.entryManufacturer);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.entryManufacturer]));
 			w10.Position = 0;
@@ -316,11 +339,126 @@ namespace Vodovoz.Views.Logistic
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytable1[this.labelName]));
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.vbox3 = new global::Gtk.VBox();
+			this.vbox3.Name = "vbox3";
+			this.vbox3.Spacing = 6;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow2.HeightRequest = 150;
+			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
+			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
+			this.ytreeCarFuelVersions = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeCarFuelVersions.CanFocus = true;
+			this.ytreeCarFuelVersions.Name = "ytreeCarFuelVersions";
+			this.GtkScrolledWindow2.Add(this.ytreeCarFuelVersions);
+			this.vbox3.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow2]));
+			w25.Position = 0;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.hbox8 = new global::Gtk.HBox();
+			this.hbox8.Name = "hbox8";
+			this.hbox8.Spacing = 6;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.labelDate1 = new global::Gtk.Label();
+			this.labelDate1.Name = "labelDate1";
+			this.labelDate1.LabelProp = global::Mono.Unix.Catalog.GetString("Pасход на 100 км:");
+			this.labelDate1.Justify = ((global::Gtk.Justification)(1));
+			this.hbox8.Add(this.labelDate1);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.labelDate1]));
+			w26.Position = 0;
+			w26.Expand = false;
+			w26.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.fuelConsumptionSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
+			this.fuelConsumptionSpin.CanFocus = true;
+			this.fuelConsumptionSpin.Name = "fuelConsumptionSpin";
+			this.fuelConsumptionSpin.Adjustment.PageIncrement = 10D;
+			this.fuelConsumptionSpin.ClimbRate = 1D;
+			this.fuelConsumptionSpin.Numeric = true;
+			this.fuelConsumptionSpin.ValueAsDecimal = 0m;
+			this.fuelConsumptionSpin.ValueAsInt = 0;
+			this.hbox8.Add(this.fuelConsumptionSpin);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.fuelConsumptionSpin]));
+			w27.Position = 1;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.labelDate = new global::Gtk.Label();
+			this.labelDate.Name = "labelDate";
+			this.labelDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
+			this.labelDate.Justify = ((global::Gtk.Justification)(1));
+			this.hbox8.Add(this.labelDate);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.labelDate]));
+			w28.Position = 2;
+			w28.Expand = false;
+			w28.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.datepickerVersionDate = new global::QS.Widgets.GtkUI.DatePicker();
+			this.datepickerVersionDate.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerVersionDate.Name = "datepickerVersionDate";
+			this.datepickerVersionDate.WithTime = false;
+			this.datepickerVersionDate.HideCalendarButton = false;
+			this.datepickerVersionDate.Date = new global::System.DateTime(0);
+			this.datepickerVersionDate.IsEditable = true;
+			this.datepickerVersionDate.AutoSeparation = false;
+			this.hbox8.Add(this.datepickerVersionDate);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.datepickerVersionDate]));
+			w29.Position = 3;
+			w29.Expand = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonNewVersion = new global::Gamma.GtkWidgets.yButton();
+			this.buttonNewVersion.CanFocus = true;
+			this.buttonNewVersion.Name = "buttonNewVersion";
+			this.buttonNewVersion.UseUnderline = true;
+			this.buttonNewVersion.Label = global::Mono.Unix.Catalog.GetString("Новая версия");
+			this.hbox8.Add(this.buttonNewVersion);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonNewVersion]));
+			w30.Position = 4;
+			w30.Expand = false;
+			w30.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonChangeVersionDate = new global::Gamma.GtkWidgets.yButton();
+			this.buttonChangeVersionDate.CanFocus = true;
+			this.buttonChangeVersionDate.Name = "buttonChangeVersionDate";
+			this.buttonChangeVersionDate.UseUnderline = true;
+			this.buttonChangeVersionDate.Label = global::Mono.Unix.Catalog.GetString("Сменить дату начала");
+			this.hbox8.Add(this.buttonChangeVersionDate);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonChangeVersionDate]));
+			w31.Position = 5;
+			w31.Expand = false;
+			w31.Fill = false;
+			this.vbox3.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox8]));
+			w32.Position = 1;
+			w32.Expand = false;
+			w32.Fill = false;
+			this.ytable1.Add(this.vbox3);
+			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.ytable1[this.vbox3]));
+			w33.TopAttach = ((uint)(6));
+			w33.BottomAttach = ((uint)(7));
+			w33.LeftAttach = ((uint)(1));
+			w33.RightAttach = ((uint)(2));
+			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			w33.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.ylabelVersions = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelVersions.Name = "ylabelVersions";
+			this.ylabelVersions.Xalign = 1F;
+			this.ylabelVersions.Yalign = 0F;
+			this.ylabelVersions.LabelProp = global::Mono.Unix.Catalog.GetString("Версии расхода топлива:");
+			this.ytable1.Add(this.ylabelVersions);
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelVersions]));
+			w34.TopAttach = ((uint)(6));
+			w34.BottomAttach = ((uint)(7));
+			w34.XOptions = ((global::Gtk.AttachOptions)(4));
+			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.ytable1);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ytable1]));
-			w24.Position = 1;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ytable1]));
+			w35.Position = 1;
+			w35.Expand = false;
+			w35.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
