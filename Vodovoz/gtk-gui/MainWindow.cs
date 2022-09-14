@@ -549,14 +549,6 @@ public partial class MainWindow
 
 	private global::Gtk.RadioAction ActionSalesDepartment;
 
-	private global::Gtk.Action ActionSalesOrdersJournal;
-
-	private global::Gtk.Action ActionSalesCounterpartyJournal;
-
-	private global::Gtk.Action ActionSalesUndeliveredOrdersJournal;
-
-	private global::Gtk.Action ActionSalesComplaintsJournal;
-
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1432,18 +1424,6 @@ public partial class MainWindow
 		this.ActionSalesDepartment.Group = this.ActionRetail.Group;
 		this.ActionSalesDepartment.ShortLabel = global::Mono.Unix.Catalog.GetString("Отдел продаж");
 		w1.Add(this.ActionSalesDepartment, null);
-		this.ActionSalesOrdersJournal = new global::Gtk.Action("ActionSalesOrdersJournal", global::Mono.Unix.Catalog.GetString("Журнал заказов"), null, null);
-		this.ActionSalesOrdersJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал заказов");
-		w1.Add(this.ActionSalesOrdersJournal, null);
-		this.ActionSalesCounterpartyJournal = new global::Gtk.Action("ActionSalesCounterpartyJournal", global::Mono.Unix.Catalog.GetString("Журнал контрагентов"), null, null);
-		this.ActionSalesCounterpartyJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал контрагентов");
-		w1.Add(this.ActionSalesCounterpartyJournal, null);
-		this.ActionSalesUndeliveredOrdersJournal = new global::Gtk.Action("ActionSalesUndeliveredOrdersJournal", global::Mono.Unix.Catalog.GetString("Журнал недовозов"), null, null);
-		this.ActionSalesUndeliveredOrdersJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал недовозов");
-		w1.Add(this.ActionSalesUndeliveredOrdersJournal, null);
-		this.ActionSalesComplaintsJournal = new global::Gtk.Action("ActionSalesComplaintsJournal", global::Mono.Unix.Catalog.GetString("Журнал рекламаций"), null, null);
-		this.ActionSalesComplaintsJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал рекламаций");
-		w1.Add(this.ActionSalesComplaintsJournal, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -2036,10 +2016,6 @@ public partial class MainWindow
 		this.ActionUnsubscribingReasons.Activated += new global::System.EventHandler(this.OnUnsubscribingReasonsActionActivated);
 		this.ActionBulkEmailEventsReport.Activated += new global::System.EventHandler(this.OnActionBulkEmailEventsReportActivated);
 		this.ActionSalesDepartment.Activated += new global::System.EventHandler(this.OnActionSalesDepartmentAcivated);
-		this.ActionSalesOrdersJournal.Activated += new global::System.EventHandler(this.OnActionSalesOrdersJournalActivated);
-		this.ActionSalesCounterpartyJournal.Activated += new global::System.EventHandler(this.OnActionSalesCounterpartyJournalActivated);
-		this.ActionSalesUndeliveredOrdersJournal.Activated += new global::System.EventHandler(this.OnActionSalesUndeliveredOrdersJournalActivated);
-		this.ActionSalesComplaintsJournal.Activated += new global::System.EventHandler(this.OnActionSalesComplaintsJournalActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
