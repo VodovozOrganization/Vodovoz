@@ -54,6 +54,8 @@ using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournal
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -215,7 +217,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				() => FluentColumnsConfig<DebtorJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(x => x.AddressId > 0 ? x.AddressId.ToString() : x.ClientId.ToString())
 					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
-					.AddColumn("Адрес").AddTextRenderer(node => String.IsNullOrWhiteSpace(node.AddressName) ? "Самовывоз" : node.AddressName)
+					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 					.AddColumn("Кол-во точек доставки").AddTextRenderer(node => node.CountOfDeliveryPoint.ToString())
 					.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
 					.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate != null ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : string.Empty)
@@ -1654,6 +1656,16 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.OrganizationName)
 						.XAlign(0.5f)
+					.Finish()
+			);
+
+			//GeoGroupJournalViewModel
+			TreeViewColumnsConfigFactory.Register<GeoGroupJournalViewModel>(
+				() => FluentColumnsConfig<GeoGroupJournalNode>.Create()
+					.AddColumn("№")
+						.AddNumericRenderer(node => node.Id).WidthChars(4)
+					.AddColumn("Название")
+						.AddTextRenderer(node => node.Name)
 					.Finish()
 			);
 

@@ -10,8 +10,7 @@ namespace Vodovoz.Core.DataService
 		IStandartNomenclatures, 
 		IImageProvider, 
 		IStandartDiscountsService, 
-		IPersonProvider,
-		ICommonParametersProvider, 
+		IPersonProvider, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
 		IDefaultDeliveryDayScheduleSettings,
@@ -132,20 +131,6 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроен индикатор важности задачи для CRM (crm_importance_indicator_id).");
 			}
 			return int.Parse(_parametersProvider.GetParameterValue("crm_importance_indicator_id"));
-		}
-
-		#endregion
-
-		#region ICommonParametersProvider
-
-		public bool UseOldAutorouting()
-		{
-			if(!_parametersProvider.ContainsParameter("use_old_autorouting") || !bool.TryParse(_parametersProvider.GetParameterValue("use_old_autorouting"), out bool res))
-			{
-				return false;
-			}
-
-			return res;
 		}
 
 		#endregion

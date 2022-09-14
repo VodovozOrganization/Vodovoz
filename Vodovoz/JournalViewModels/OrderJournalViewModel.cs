@@ -44,6 +44,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using QS.Project.Services.FileDialog;
+using Vodovoz.Services;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -208,7 +209,7 @@ namespace Vodovoz.JournalViewModels
 			District districtAlias = null;
 			CounterpartyContract contractAlias = null;
 			PaymentFrom paymentFromAlias = null;
-			GeographicGroup geographicalGroupAlias = null;
+			GeoGroup geographicalGroupAlias = null;
 
 			Nomenclature sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 

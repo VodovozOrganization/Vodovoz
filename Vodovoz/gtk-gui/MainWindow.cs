@@ -546,6 +546,8 @@ public partial class MainWindow
 	private global::Gtk.Action ActionBulkEmailEventsReport;
 
 	private global::Gtk.Action ProfitabilityConstantsAction;
+	
+	private global::Gtk.Action ActionGroupPricing;
 
 	private global::Gtk.HBox hbox1;
 
@@ -1418,6 +1420,9 @@ public partial class MainWindow
 		this.ProfitabilityConstantsAction = new global::Gtk.Action("ProfitabilityConstantsAction", global::Mono.Unix.Catalog.GetString("Константы для рентабельности"), null, null);
 		this.ProfitabilityConstantsAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Константы для рентабельности");
 		w1.Add(this.ProfitabilityConstantsAction, null);
+		this.ActionGroupPricing = new global::Gtk.Action("ActionGroupPricing", global::Mono.Unix.Catalog.GetString("Групповое заполнение себестоимости"), null, null);
+		this.ActionGroupPricing.ShortLabel = global::Mono.Unix.Catalog.GetString("Групповое заполнение себестоимости");
+		w1.Add(this.ActionGroupPricing, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1475,7 +1480,8 @@ public partial class MainWindow
 				"ctionUnits\' action=\'ActionUnits\'/><menuitem name=\'ActionProductGroups\' action=\'A" +
 				"ctionProductGroups\'/><menuitem name=\'ActionFolders1c\' action=\'ActionFolders1c\'/>" +
 				"<menuitem name=\'ActionPromotionalSets\' action=\'ActionPromotionalSets\'/><menuitem" +
-				" name=\'ActionAdditionalLoadSettings\' action=\'ActionAdditionalLoadSettings\'/><sep" +
+				" name=\'ActionAdditionalLoadSettings\' action=\'ActionAdditionalLoadSettings\'/><men" +
+				"uitem name=\'ActionGroupPricing\' action=\'ActionGroupPricing\'/><sep" +
 				"arator/><menuitem name=\'ActionEquipment\' action=\'ActionEquipment\'/><menuitem nam" +
 				"e=\'ActionEquipmentKinds\' action=\'ActionEquipmentKinds\'/><menuitem name=\'ActionMa" +
 				"nufacturers\' action=\'ActionManufacturers\'/><menuitem name=\'ActionColors\' action=" +

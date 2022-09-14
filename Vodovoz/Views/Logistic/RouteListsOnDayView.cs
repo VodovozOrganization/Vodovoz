@@ -27,6 +27,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Gamma.Binding.Core.LevelTreeConfig;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -173,10 +174,6 @@ namespace Vodovoz.Views.Logistic
 			buttonRemoveForwarder.Clicked += (sender, e) => ViewModel.RemoveForwarderCommand.Execute(ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>());
 
 			yspinMaxTime.Binding.AddBinding(ViewModel.Optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt).InitializeFromSource();
-
-			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
-			yspeccomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.ObservableSubdivisions, w => w.ItemsList).InitializeFromSource();
-			yspeccomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.ClosingSubdivision, w => w.SelectedItem).InitializeFromSource();
 
 			ydateForRoutes.Binding.AddBinding(ViewModel, vm => vm.DateForRouting, w => w.DateOrNull).InitializeFromSource();
 			checkShowCompleted.Binding.AddBinding(ViewModel, vm => vm.ShowCompleted, w => w.Active).InitializeFromSource();
@@ -567,17 +564,23 @@ namespace Vodovoz.Views.Logistic
 				type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
 		}
 
-		private PointMarker FillBaseMarker(GeographicGroup baseMarker)
+		private PointMarker FillBaseMarker(GeoGroup geoGroup)
 		{
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+
 			var addressMarker = new PointMarker(
 				new PointLatLng(
-					(double)baseMarker.BaseLatitude,
-					(double)baseMarker.BaseLongitude
+					(double)geoGroupVersion.BaseLatitude,
+					(double)geoGroupVersion.BaseLongitude
 				),
 				PointMarkerType.vodonos,
 				PointMarkerShape.custom
 			) {
-				Tag = baseMarker
+				Tag = geoGroup
 			};
 			return addressMarker;
 		}

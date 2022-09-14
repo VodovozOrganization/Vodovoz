@@ -155,10 +155,12 @@ using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Controllers;
 using QS.Utilities;
 using Vodovoz.ViewModels.Profitability;
+using Vodovoz.ViewModels.Dialogs.Goods;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -373,6 +375,8 @@ public partial class MainWindow : Gtk.Window
 		//Доступ к константам рентабельности (Справочники - Финансы - Константы рентабельности)
 		ProfitabilityConstantsAction.Sensitive =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
+
+		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 	}
 
 	#region Методы для уведомления об отправленных перемещениях для подразделения
@@ -996,7 +1000,7 @@ public partial class MainWindow : Gtk.Window
 				subdivisionJournalFactory,
 				counterpartyJournalFactory,
 				subdivisionRepository,
-				new NomenclatureFixedPriceRepository()
+				new NomenclaturePricesRepository()
 			));
 	}
 
@@ -1631,10 +1635,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<GeographicGroup>(),
-			() => new OrmReference(typeof(GeographicGroup))
-		);
+		NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(null);
 	}
 
 	protected void OnActionCertificatesActivated(object sender, EventArgs e)
@@ -2681,5 +2682,10 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<ProfitabilityConstantsViewModel, IValidator>(
 			null, ServicesConfig.ValidationService, OpenPageOptions.IgnoreHash);
+	}
+	
+	private void ActionGroupPricingActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
 	}
 }

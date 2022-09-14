@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 				WageDistrictNodes.Add(wageNode);
 			}
 
-			foreach(var geographic in Uow.GetAll<GeographicGroup>().Select(x => x).ToList())
+			foreach(var geographic in Uow.GetAll<GeoGroup>().Select(x => x).ToList())
 			{
 				var geographicNode = new GeographicGroupNode(geographic);
 				geographicNode.Selected = true;
@@ -174,7 +174,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			DeliveryAnalyticsReportNode resultAlias = null;
 			District districtAlias = null;
 			WageDistrict wageDistrictAlias = null;
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 			Order orderAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			OrderItem orderItemAlias = null;

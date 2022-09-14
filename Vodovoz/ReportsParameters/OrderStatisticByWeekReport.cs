@@ -37,7 +37,7 @@ namespace Vodovoz.ReportsParameters
 			comboboxReportMode.Active = 0;
 
 			_geographicGroupNodes = new GenericObservableList<GeographicGroupNode>(
-				UoW.GetAll<GeographicGroup>().Select(gg => new GeographicGroupNode(gg){Selected = true}).ToList());
+				UoW.GetAll<GeoGroup>().Select(gg => new GeographicGroupNode(gg){Selected = true}).ToList());
 			ytreeviewGeographicGroup.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>
 				.Create()
 					.AddColumn("Выбрать").AddToggleRenderer(ggn => ggn.Selected).Editing()

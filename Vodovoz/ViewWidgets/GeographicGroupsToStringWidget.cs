@@ -1,37 +1,46 @@
-﻿using System;
+﻿using Gamma.Binding.Core;
+using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using QS.Project.Services;
+using QS.Tdi;
+using QSOrmProject;
+using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Gamma.Binding.Core;
-using NHibernate.Criterion;
-using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Tdi;
-using QSOrmProject;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class GeographicGroupsToStringWidget : Gtk.Bin
 	{
-		private readonly int eastGeographicGroupId = new GeographicGroupParametersProvider(new ParametersProvider()).EastGeographicGroupId;
+		private readonly int _eastGeographicGroupId = new GeographicGroupParametersProvider(new ParametersProvider()).EastGeographicGroupId;
 		public event EventHandler<EventArgs> ListContentChanged;
 		public BindingControler<GeographicGroupsToStringWidget> Binding { get; private set; }
 
 		public IUnitOfWork UoW { get; set; }
 
-		public string Label {
+		public string Label
+		{
 			get => lblName.LabelProp;
 			set => lblName.LabelProp = value;
 		}
 
-		GenericObservableList<GeographicGroup> items;
-		public GenericObservableList<GeographicGroup> Items {
+		private GenericObservableList<GeoGroup> items;
+		public GenericObservableList<GeoGroup> Items
+		{
 			get => items;
-			set {
+			set
+			{
 				items = value;
 				Binding.FireChange(x => x.Items);
 				Items.ElementAdded += (sender, e) => UpdateText();
@@ -53,7 +62,7 @@ namespace Vodovoz.ViewWidgets
 			UpdateText();
 		}
 
-		void UpdateText()
+		private void UpdateText()
 		{
 			string text = string.Format(
 				"<b>{0}</b>",
@@ -67,25 +76,49 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnChangeListClicked(object sender, EventArgs e)
 		{
-			var selectedGeographicGroups = new OrmReference(
-				QueryOver.Of<GeographicGroup>().Where(gg => gg.Id != eastGeographicGroupId))
-			{
-				Mode = OrmReferenceMode.MultiSelect,
-				ButtonMode = ReferenceButtonMode.None
-			};
-			selectedGeographicGroups.ObjectSelected += SelectedGeographicGroups_ObjectSelected;
+			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
+			var commonServices = ServicesConfig.CommonServices;
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
+			var warehouseJournalFactory = new WarehouseJournalFactory();
+			var employeeService = new EmployeeService();
+			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
+			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
+			journal.SelectionMode = JournalSelectionMode.Multiple;
+			journal.DisableChangeEntityActions();
+			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
 
 			ITdiTab mytab = DialogHelper.FindParentTab(this);
 			if(mytab == null)
+			{
 				return;
+			}
 
-			mytab.TabParent.AddSlaveTab(mytab, selectedGeographicGroups);
+			mytab.TabParent.AddSlaveTab(mytab, journal);
 		}
 
-		void SelectedGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void JournalOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
-			foreach(var item in e.Subjects) {
-				if(item is GeographicGroup group && !Items.Any(x => x.Id == group.Id))
+			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
+			if(!selected.Any())
+			{
+				return;
+			}
+			foreach(var item in selected)
+			{
+				if(!Items.Any(x => x.Id == item.Id))
+				{
+					var group = UoW.GetById<GeoGroup>(item.Id);
+					Items.Add(group);
+				}
+			}
+			UpdateText();
+		}
+
+		private void SelectedGeographicGroupsObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			foreach(var item in e.Subjects)
+			{
+				if(item is GeoGroup group && !Items.Any(x => x.Id == group.Id))
 					Items.Add(group);
 			}
 			UpdateText();
@@ -93,25 +126,40 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnRemoveClicked(object sender, EventArgs e)
 		{
-			var ids = Items.Select(x => x.Id).ToArray();
-			var selectGeographicGroups = new OrmReference(QueryOver.Of<GeographicGroup>().Where(x => x.Id.IsIn(ids))) {
-				Mode = OrmReferenceMode.MultiSelect,
-				ButtonMode = ReferenceButtonMode.None
-			};
-			selectGeographicGroups.ObjectSelected += RemovingGeographicGroups_ObjectSelected;
+			var uowFactory = UnitOfWorkFactory.GetDefaultFactory;
+			var commonServices = ServicesConfig.CommonServices;
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
+			var warehouseJournalFactory = new WarehouseJournalFactory();
+			var employeeService = new EmployeeService();
+			var geoGroupVersionsModel = new GeoGroupVersionsModel(commonServices.UserService, employeeService);
+			var journal = new GeoGroupJournalViewModel(uowFactory, commonServices, subdivisionJournalFactory, warehouseJournalFactory, geoGroupVersionsModel);
+			journal.SelectionMode = JournalSelectionMode.Multiple;
+			journal.DisableChangeEntityActions();
+			journal.OnEntitySelectedResult += JournalOnRemoveEntitySelectedResult; ;
 
 			ITdiTab mytab = DialogHelper.FindParentTab(this);
 			if(mytab == null)
+			{
 				return;
+			}
 
-			mytab.TabParent.AddSlaveTab(mytab, selectGeographicGroups);
+			mytab.TabParent.AddSlaveTab(mytab, journal);
 		}
 
-		void RemovingGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void JournalOnRemoveEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
-			foreach(var item in e.Subjects) {
-				if(item is GeographicGroup removingGroup && Items.Any(x => x.Id == removingGroup.Id))
-					Items.Remove(Items.FirstOrDefault(x => x.Id == removingGroup.Id));
+			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
+			if(!selected.Any())
+			{
+				return;
+			}
+			foreach(var item in selected)
+			{
+				var group = Items.FirstOrDefault(x => x.Id == item.Id);
+				if(group != null)
+				{
+					Items.Remove(group);
+				}
 			}
 			UpdateText();
 		}

@@ -46,7 +46,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 				.AddColumn("").AddTextRenderer(x => x.GeographicGroup.Name)
 				.Finish();
 			ytreeGeoGroups.ItemsDataSource =
-				UoW.GetAll<GeographicGroup>().Select(x => new SelectableParameter { GeographicGroup = x, IsSelected = true }).ToList();
+				UoW.GetAll<GeoGroup>().Select(x => new SelectableParameter { GeographicGroup = x, IsSelected = true }).ToList();
 
 			ytreeRouteListTypeOfUse.HeadersVisible = false;
 			ytreeRouteListTypeOfUse.ColumnsConfig = FluentColumnsConfig<SelectableParameter>.Create()
@@ -121,12 +121,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 			return GetSelectedGeoGroups().Select(x => x.Id);
 		}
 
-		private IEnumerable<GeographicGroup> GetSelectedGeoGroups()
+		private IEnumerable<GeoGroup> GetSelectedGeoGroups()
 		{
 			return (ytreeGeoGroups.ItemsDataSource as IEnumerable<SelectableParameter>)
 				?.Where(x => x.IsSelected)
 				.Select(x => x.GeographicGroup)
-				?? new List<GeographicGroup>();
+				?? new List<GeoGroup>();
 		}
 
 		private void OnYtimeDeliveryChanged(object sender, EventArgs e)
@@ -137,7 +137,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		private class SelectableParameter
 		{
 			public bool IsSelected { get; set; }
-			public GeographicGroup GeographicGroup { get; set; }
+			public GeoGroup GeographicGroup { get; set; }
 			public RouteListTypeOfUse RouteListTypeOfUse { get; set; }
 		}
 

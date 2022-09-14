@@ -17,15 +17,22 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Cars;
+using QS.Commands;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using QS.Project.Journal;
+using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class CarViewModel : EntityTabViewModelBase<Car>
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
+		private readonly GeoGroupJournalFactory _geoGroupJournalFactory;
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private const string _canChangeBottlesFromAddressPermissionName = "can_change_cars_bottles_from_address";
 		private bool _canChangeBottlesFromAddress;
+		private DelegateCommand _addGeoGroupCommand;
 
 		private AttachmentsViewModel _attachmentsViewModel;
 		private string _driverInfoText;
@@ -38,8 +45,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			ICarModelJournalFactory carModelJournalFactory,
 			ICarVersionsViewModelFactory carVersionsViewModelFactory,
+			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
 			IGeographicGroupParametersProvider geographicGroupParametersProvider,
+			GeoGroupJournalFactory geoGroupJournalFactory,
 			INavigationManager navigationManager)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -48,14 +57,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
+			_geoGroupJournalFactory = geoGroupJournalFactory ?? throw new ArgumentNullException(nameof(geoGroupJournalFactory));
 			CarModelJournalFactory = carModelJournalFactory ?? throw new ArgumentNullException(nameof(carModelJournalFactory));
 
 			TabName = "Автомобиль";
 
 			EmployeeJournalFactory = employeeJournalFactory;
 			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
-			CarVersionsViewModel = carVersionsViewModelFactory?.CreateCarVersionsViewModel(Entity)
-				?? throw new ArgumentNullException(nameof(carVersionsViewModelFactory));
+			CarVersionsViewModel = (carVersionsViewModelFactory ?? throw new ArgumentNullException(nameof(carVersionsViewModelFactory)))
+				.CreateCarVersionsViewModel(Entity);
+			OdometerReadingsViewModel = (odometerReadingsViewModelFactory ?? throw new ArgumentNullException(nameof(odometerReadingsViewModelFactory)))
+				.CreateOdometerReadingsViewModel(Entity);
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
 				_canChangeBottlesFromAddressPermissionName,
@@ -104,6 +116,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ICarModelJournalFactory CarModelJournalFactory { get; }
 		public CarVersionsViewModel CarVersionsViewModel { get; }
+		public OdometerReadingsViewModel OdometerReadingsViewModel { get; }
 
 		public override bool Save(bool close)
 		{
@@ -185,5 +198,49 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				DriverInfoText = "Главный документ отсутствует";
 			}
 		}
+
+		#region Add GeoGroup
+
+		public DelegateCommand AddGeoGroupCommand
+		{
+			get
+			{
+				if(_addGeoGroupCommand == null)
+				{
+					_addGeoGroupCommand = new DelegateCommand(AddGeoGroup);
+				}
+
+				return _addGeoGroupCommand;
+			}
+		}
+
+		private void AddGeoGroup()
+		{
+			var journal = _geoGroupJournalFactory.CreateJournal();
+			journal.SelectionMode = JournalSelectionMode.Multiple;
+			journal.DisableChangeEntityActions();
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+
+			TabParent.AddSlaveTab(this, journal);
+		}
+
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var selected = e.SelectedNodes.Cast<GeoGroupJournalNode>();
+			if(!selected.Any())
+			{
+				return;
+			}
+			foreach(var item in selected)
+			{
+				if(!Entity.ObservableGeographicGroups.Any(x => x.Id == item.Id))
+				{
+					var group = UoW.GetById<GeoGroup>(item.Id);
+					Entity.ObservableGeographicGroups.Add(group);
+				}
+			}
+		}
+
+		#endregion Add GeoGroup
 	}
 }

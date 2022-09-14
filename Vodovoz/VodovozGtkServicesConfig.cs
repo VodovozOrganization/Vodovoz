@@ -8,6 +8,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using QS.Project.Services;
 using QS.Validation;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {

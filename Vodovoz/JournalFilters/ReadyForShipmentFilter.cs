@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -8,6 +8,8 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 namespace Vodovoz
 {

@@ -69,6 +69,11 @@ namespace Vodovoz.ViewModels.Widgets
 					break;
 				}
 			}
+
+			if(Parameters.All(x => x.Selected))
+			{
+				IsSelectAll = true;
+			}
 		}
 
 		private SelectableParameter GetParameterById(int parameterId, SelectableParameter parameter)

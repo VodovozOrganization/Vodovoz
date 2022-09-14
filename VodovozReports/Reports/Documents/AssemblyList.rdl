@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -80,7 +80,7 @@ WHERE order_items.order_id = @order_id
 		GROUP_CONCAT(CONCAT('+7 ',client_phones.number) SEPARATOR '; ')
 	) AS phones,
 	CONCAT_WS(', ', DATE_FORMAT(orders.delivery_date, "%d.%m.%Y"), sch.name) AS date_time,
-	gg.name as geographic_group
+	gg.name as geo_group
 FROM orders
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
@@ -88,7 +88,7 @@ LEFT JOIN phones AS client_phones ON client_phones.counterparty_id = counterpart
 LEFT JOIN phones AS dp_phones ON dp_phones.delivery_point_id = delivery_points.id AND dp_phones.number IS NOT NULL AND dp_phones.number != ''
 LEFT JOIN delivery_schedule sch ON sch.id = orders.delivery_schedule_id
 LEFT JOIN districts ON districts.id = delivery_points.district_id
-LEFT JOIN geographic_groups gg ON gg.id = districts.geographic_group_id
+LEFT JOIN geo_groups gg ON gg.id = districts.geo_group_id
 WHERE orders.id = @order_id
 LIMIT 1
 ;</CommandText>
@@ -120,8 +120,8 @@ LIMIT 1
         <Field Name="date_time">
           <DataField>date_time</DataField>
         </Field>
-        <Field Name="geographic_group">
-          <DataField>geographic_group</DataField>
+        <Field Name="geo_group">
+          <DataField>geo_group</DataField>
         </Field>
       </Fields>
     </DataSet>
@@ -1271,7 +1271,7 @@ WHERE orders.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=First({geographic_group}, "order_info")</Value>
+                      <Value>=First({geo_group}, "order_info")</Value>
                       <Style>
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>

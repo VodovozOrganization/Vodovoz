@@ -25,7 +25,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			ycheckTodayRouteLists.Active = true;
 			nullCheckVisitingMasters.RenderMode = RenderMode.Icon;
-			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeographicGroup>();
+			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeoGroup>();
 
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.SelectAll();
@@ -48,7 +48,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 				Identifier = "Logistic.RouteListOnClosing",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Id ?? 0 },
+					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Id ?? 0 },
 					{ "car_types_of_use", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
 					{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } },
 					{ "show_today_route_lists", ycheckTodayRouteLists.Active },

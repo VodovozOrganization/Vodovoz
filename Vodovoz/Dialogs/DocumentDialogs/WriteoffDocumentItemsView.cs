@@ -20,6 +20,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
 {
