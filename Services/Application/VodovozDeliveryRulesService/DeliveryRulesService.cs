@@ -370,7 +370,9 @@ namespace VodovozDeliveryRulesService
 				_deliveryRulesParametersProvider,
 				nomenclatureNodes);
 
-			fastDeliveryAvailabilityHistory.AddressWithoutDeliveryPoint = await _fiasApiClient.GetAddressByGeoCoder(latitude, longitude, _cancellationTokenSource.Token);
+			// Пока убираем геокодирование адреса с сайта, т.к. не хватает лимитов по ключам яндекс api
+			// fastDeliveryAvailabilityHistory.AddressWithoutDeliveryPoint = await _fiasApiClient.GetAddressByGeoCoder(latitude, longitude, _cancellationTokenSource.Token);
+
 			fastDeliveryAvailabilityHistory.District = _deliveryRepository.GetDistrict(uow, latitude, longitude);
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
