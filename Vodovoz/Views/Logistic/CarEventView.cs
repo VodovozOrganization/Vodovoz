@@ -39,13 +39,13 @@ namespace Vodovoz.Views.Logistic
 			entityviewmodelentryCar.ChangedByUser += (sender, e) => ViewModel.ChangeDriverCommand.Execute();
 
 			originalCarEvent.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventSelectorFactory);
-			originalCarEvent.Binding.AddBinding(ViewModel.Entity, e => e.OriginalCarEvent, w => w.Subject).InitializeFromSource();
+			originalCarEvent.Binding.AddBinding(ViewModel.Entity, e => e.OriginalCarEvent, w => w.Subject)
+				.AddBinding(ViewModel.Entity, e => e.CompensationFromInsuranceByCourt, w => w.Visible).InitializeFromSource();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
-			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).
-				AddBinding(ViewModel.Entity, e => e.CompensationFromInsuranceByCourt, w => w.Visible);
+			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+				
 			ydatepickerStartEventDate.Binding.AddBinding(ViewModel.Entity, e => e.StartDate, w => w.Date).InitializeFromSource();
-
 			ydatepickerEndEventDate.Binding.AddBinding(ViewModel.Entity, e => e.EndDate, w => w.Date).InitializeFromSource();
 
 			yspinPaymentTotalCarEvent.Binding
@@ -99,6 +99,7 @@ namespace Vodovoz.Views.Logistic
 				ytextviewFoundation.Sensitive =
 				ytextviewCommnet.Sensitive =
 				ytreeviewFines.Sensitive =
+				originalCarEvent.Sensitive =
 				buttonAddFine.Sensitive =
 				buttonAttachFine.Sensitive =
 				buttonSave.Sensitive = false;

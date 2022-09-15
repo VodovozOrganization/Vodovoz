@@ -46,6 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IEmployeeService EmployeeService { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IList<FineItem> FineItems { get; private set; }
+		public bool ShowlabelOriginalCarEvent => UoW.IsNew || Entity.CompensationFromInsuranceByCourt;
 
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
