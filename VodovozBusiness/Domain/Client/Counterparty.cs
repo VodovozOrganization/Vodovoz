@@ -661,14 +661,14 @@ namespace Vodovoz.Domain.Client
             set => SetField(ref isForRetail, value);
         }
 
-        [Display(Name = "Для розницы")]
+        [Display(Name = "Для отдела продаж")]
         public virtual bool IsForSalesDepartment
 		{
 	        get => _isForSalesDepartment;
 	        set => SetField(ref _isForSalesDepartment, value);
         }
 
-		private bool noPhoneCall;
+        private bool noPhoneCall;
         [Display(Name = "Без прозвона")]
         public virtual bool NoPhoneCall
         {

@@ -1254,7 +1254,8 @@ public partial class MainWindow : Window
 
 		NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
 	}
-	protected void OnActionSalesCounterpartiesJournalActivated(object sender, EventArgs e)
+
+	void OnActionSalesCounterpartiesJournalActivated(object sender, EventArgs e)
 	{
 		CounterpartyJournalFilterViewModel counterpartyJournalFilter = new CounterpartyJournalFilterViewModel()
 		{
@@ -1264,7 +1265,7 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(null, counterpartyJournalFilter);
 	}
 
-	protected void OnActionSalesUndeliveredOrdersOrdersJournalActivated(object sender, EventArgs e)
+	void OnActionSalesUndeliveredOrdersOrdersJournalActivated(object sender, EventArgs e)
 	{
 		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
@@ -1278,7 +1279,7 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
 	}
 
-	protected void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)
+	void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)
 	{
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
