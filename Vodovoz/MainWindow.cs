@@ -372,6 +372,10 @@ public partial class MainWindow : Gtk.Window
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
+
+		// Отдел продаж
+
+		ActionSalesDepartment.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department"); ;
 	}
 
 	#region Методы для уведомления об отправленных перемещениях для подразделения
