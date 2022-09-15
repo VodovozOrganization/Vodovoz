@@ -137,6 +137,9 @@
     <Compile Include="Domain\FastPayments\FastPaymentStatus.cs" />
     <Compile Include="Domain\FinancialDistrict.cs" />
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
+    <Compile Include="Domain\Geocoder\AddressCacheBase.cs" />
+    <Compile Include="Domain\Geocoder\GeocoderAddressCache.cs" />
+    <Compile Include="Domain\Geocoder\GeocoderCoordinatesCache.cs" />
     <Compile Include="Domain\Goods\AdditionalLoadingNomenclatureDistribution.cs" />
     <Compile Include="Domain\Goods\NomenclatureInnerDeliveryPrice.cs" />
     <Compile Include="Domain\Goods\OrderItemComparerForCopyingFromUndelivery.cs" />
@@ -394,6 +397,8 @@
     <Compile Include="HibernateMapping\FastPayments\FastPaymentMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
+    <Compile Include="HibernateMapping\Geocoder\GeocoderCoordinatesCacheMap.cs" />
+    <Compile Include="HibernateMapping\Geocoder\GeocoderAddressCacheMap.cs" />
     <Compile Include="HibernateMapping\Goods\AdditionalLoadingNomenclatureDistributionMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
