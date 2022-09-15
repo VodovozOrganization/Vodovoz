@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="NHibernate" Version="5.3.11" />
-    <PackageReference Include="NLog" Version="4.7.14" />
+    <PackageReference Include="NLog" Version="4.7.15" />
     <PackageReference Include="RestSharp" Version="106.15.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
@@ -18,7 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
+    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>
 
 </Project>
