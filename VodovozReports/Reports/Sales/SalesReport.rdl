@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -557,7 +557,7 @@ FROM
              LEFT JOIN
          districts distr ON delivery_points.district_id = distr.id
              LEFT JOIN
-         geographic_groups gg ON gg.id = distr.geographic_group_id
+         geo_groups gg ON gg.id = distr.geo_group_id
      WHERE
          (order_status = 'Accepted'
              OR order_status = 'InTravelList'
@@ -910,12 +910,12 @@ FROM
 
          IF(
                      0 NOT IN (@geographic_group_include),
-                     (SELECT COUNT(id) FROM geographic_groups WHERE geographic_groups.id IN(@geographic_group_include)),
+                     (SELECT COUNT(id) FROM geo_groups WHERE geo_groups.id IN(@geographic_group_include)),
                      0
              ) AS included_geographic_groups,
          IF(
                      0 NOT IN (@geographic_group_exclude),
-                     (SELECT COUNT(id) FROM geographic_groups WHERE geographic_groups.id IN(@geographic_group_exclude)),
+                     (SELECT COUNT(id) FROM geo_groups WHERE geo_groups.id IN(@geographic_group_exclude)),
                      0
              ) AS excluded_geographic_groups,
 
@@ -1050,7 +1050,7 @@ FROM
                 LEFT JOIN counterparty ON counterparty.id = orders.client_id
                 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
                 LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-                LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
+                LEFT JOIN geo_groups gg ON gg.id = distr.geo_group_id
                 LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
                 LEFT JOIN employees ON employees.id = orders.author_employee_id
                 LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id
@@ -1239,7 +1239,7 @@ FROM
         LEFT JOIN
     districts distr ON delivery_points.district_id = distr.id
         LEFT JOIN
-    geographic_groups gg ON gg.id = distr.geographic_group_id
+    geo_groups gg ON gg.id = distr.geo_group_id
 WHERE
     (order_status = 'Accepted'
         OR order_status = 'InTravelList'

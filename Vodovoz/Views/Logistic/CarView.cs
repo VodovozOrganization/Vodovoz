@@ -8,6 +8,14 @@ using NHibernate.Criterion;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using QS.Project.Journal;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -64,7 +72,6 @@ namespace Vodovoz.Views.Logistic
 			dataentryFuelType.Binding.AddBinding(ViewModel.Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
 			radiobuttonMain.Active = true;
 
-			dataspinbutton1.Binding.AddBinding(ViewModel.Entity, e => e.FuelConsumption, w => w.Value).InitializeFromSource();
 			minBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottles, w => w.ValueAsInt).InitializeFromSource();
 			maxBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MaxBottles, w => w.ValueAsInt).InitializeFromSource();
 			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
@@ -75,25 +82,29 @@ namespace Vodovoz.Views.Logistic
 			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
 
 			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-
+			
 			textDriverInfo.Selectable = true;
 
 			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
 			maxBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
 
 			yTreeGeographicGroups.Selection.Mode = Gtk.SelectionMode.Single;
-			yTreeGeographicGroups.ColumnsConfig = FluentColumnsConfig<GeographicGroup>.Create()
+			yTreeGeographicGroups.ColumnsConfig = FluentColumnsConfig<GeoGroup>.Create()
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.Finish();
 			yTreeGeographicGroups.ItemsDataSource = ViewModel.Entity.ObservableGeographicGroups;
 
 			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
+			odometerReadingView.ViewModel = ViewModel.OdometerReadingsViewModel;
 
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
 			radiobuttonFiles.Toggled += OnRadiobuttonFilesToggled;
-			btnAddGeographicGroup.Clicked += OnBtnAddGeographicGroupClicked;
 			btnRemoveGeographicGroup.Clicked += OnBtnRemoveGeographicGroupClicked;
+
+			btnAddGeographicGroup.Clicked += (s, e) => ViewModel.AddGeoGroupCommand.Execute();
+			ViewModel.AddGeoGroupCommand.CanExecuteChanged += (s, e) => btnAddGeographicGroup.Sensitive = ViewModel.AddGeoGroupCommand.CanExecute();
+			ViewModel.AddGeoGroupCommand.RaiseCanExecuteChanged();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
@@ -123,33 +134,9 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
-		protected void OnBtnAddGeographicGroupClicked(object sender, EventArgs e)
-		{
-			var selectGeographicGroups = new OrmReference(
-				QueryOver.Of<GeographicGroup>().Where(gg => gg.Id != ViewModel.EastGeographicGroupId))
-			{
-				Mode = OrmReferenceMode.MultiSelect
-			};
-
-			selectGeographicGroups.ObjectSelected += SelectGeographicGroups_ObjectSelected;
-			
-			Tab.TabParent.AddSlaveTab(Tab, selectGeographicGroups);
-		}
-
-		private void SelectGeographicGroups_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			foreach(var item in e.Subjects)
-			{
-				if(item is GeographicGroup group && ViewModel.Entity.ObservableGeographicGroups.All(x => x.Id != group.Id))
-				{
-					ViewModel.Entity.ObservableGeographicGroups.Add(group);
-				}
-			}
-		}
-
 		protected void OnBtnRemoveGeographicGroupClicked(object sender, EventArgs e)
 		{
-			if(yTreeGeographicGroups.GetSelectedObject() is GeographicGroup selectedObj)
+			if(yTreeGeographicGroups.GetSelectedObject() is GeoGroup selectedObj)
 			{
 				ViewModel.Entity.ObservableGeographicGroups.Remove(selectedObj);
 			}

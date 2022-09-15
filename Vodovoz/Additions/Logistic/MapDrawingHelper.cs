@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -12,8 +13,21 @@ namespace Vodovoz.Additions.Logistic
 		public static GMapRoute DrawRoute(GMapOverlay overlay, RouteList routeList, RouteGeometryCalculator geometryCalc = null)
 		{
 			List<PointLatLng> points;
-			var baseLat = (double)routeList.GeographicGroups.FirstOrDefault().BaseLatitude.Value;
-			var baseLon = (double)routeList.GeographicGroups.FirstOrDefault().BaseLongitude.Value;
+
+			var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+			if(geoGroup == null)
+			{
+				throw new InvalidOperationException($"В маршрутном листе должна быть добавлена часть города");
+			}
+
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+
+			var baseLat = (double)geoGroupVersion.BaseLatitude.Value;
+			var baseLon = (double)geoGroupVersion.BaseLongitude.Value;
 
 			if(geometryCalc != null) {
 				var address = routeList.GenerateHashPointsOfRoute();

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -58,7 +58,7 @@ FROM
 WHERE route_lists.`date` BETWEEN @start_date AND @end_date
   AND (@select_mode = 'All' OR ((@select_mode = 'WithoutDeliveryInAnHour' AND is_fast_delivery = 0) OR (@select_mode = 'DeliveryInAnHour' AND is_fast_delivery = 1)))
   AND route_list_addresses.status = 'Completed'
-  AND (@geographic_group_id = 0 OR districts.geographic_group_id = @geographic_group_id)
+  AND (@geographic_group_id = 0 OR districts.geo_group_id = @geographic_group_id)
 GROUP BY route_list_addresses.id
 HAVING delay &gt; 0;</CommandText>
         <QueryParameters>
@@ -144,7 +144,7 @@ LEFT JOIN districts ON delivery_points.district_id = districts.id
 WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
     AND delivery_date &gt;= @start_date
     AND delivery_date &lt;= @end_date
-    AND (@geographic_group_id = 0 OR districts.geographic_group_id = @geographic_group_id)</CommandText>
+    AND (@geographic_group_id = 0 OR districts.geo_group_id = @geographic_group_id)</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

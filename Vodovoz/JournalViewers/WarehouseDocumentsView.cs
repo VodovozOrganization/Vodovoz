@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.Models;
 
 namespace Vodovoz
 {
@@ -126,6 +127,7 @@ namespace Vodovoz
 								new WarehouseRepository(),
 								new RdlPreviewOpener(),
 								ServicesConfig.CommonServices,
+								new NomenclatureCostPurchasePriceModel(),
 								new StockRepository()
 							);
 						},
@@ -179,6 +181,7 @@ namespace Vodovoz
 									new WarehouseRepository(),
 									new RdlPreviewOpener(),
 									ServicesConfig.CommonServices,
+									new NomenclatureCostPurchasePriceModel(),
 									new StockRepository()
 								);
 							},

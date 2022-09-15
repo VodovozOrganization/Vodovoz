@@ -619,7 +619,7 @@ namespace Vodovoz
 			this.ntbOrderEdit = new global::Gtk.Notebook();
 			this.ntbOrderEdit.CanFocus = true;
 			this.ntbOrderEdit.Name = "ntbOrderEdit";
-			this.ntbOrderEdit.CurrentPage = 3;
+			this.ntbOrderEdit.CurrentPage = 2;
 			// Container child ntbOrderEdit.Gtk.Notebook+NotebookChild
 			this.vboxInfo = new global::Gtk.VBox();
 			this.vboxInfo.Name = "vboxInfo";

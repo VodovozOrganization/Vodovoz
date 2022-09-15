@@ -12,8 +12,6 @@ namespace Vodovoz.Tools.Logistic
 	/// </summary>
 	public class DistanceCalculator : IDistanceCalculator
 	{
-		//public static PointLatLng BasePoint = new PointLatLng(Constants.BaseLatitude, Constants.BaseLongitude);
-
 		public static double GetDistance(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
 			return GetDistance(fromDP.GmapPoint, toDP.GmapPoint);
@@ -24,13 +22,13 @@ namespace Vodovoz.Tools.Logistic
 			return GMapProviders.EmptyProvider.Projection.GetDistance(fromPoint, toPoint);
 		}
 
-		public static double GetDistanceFromBase(GeographicGroup fromBase, DeliveryPoint toDP)
+		public static double GetDistanceFromBase(GeoGroupVersion fromBase, DeliveryPoint toDP)
 		{
 			var basePoint = new PointLatLng((double)fromBase.BaseLatitude.Value, (double)fromBase.BaseLongitude.Value);
 			return (int)GetDistance(basePoint, toDP.GmapPoint);
 		}
 
-		public static double GetDistanceToBase(DeliveryPoint fromDP, GeographicGroup toBase)
+		public static double GetDistanceToBase(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
 			var basePoint = new PointLatLng((double)toBase.BaseLatitude.Value, (double)toBase.BaseLongitude.Value);
 			return (int)GetDistance(fromDP.GmapPoint, basePoint);
@@ -60,12 +58,12 @@ namespace Vodovoz.Tools.Logistic
 			return (int)(GetDistance(fromDP, toDP) * 1000);
 		}
 
-		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(GeoGroupVersion fromBase, DeliveryPoint toDP)
 		{
 			return (int)(GetDistanceFromBase(fromBase, toDP) * 1000);
 		}
 
-		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
 			return (int)(GetDistanceToBase(fromDP, toBase) * 1000);
 		}

@@ -26,8 +26,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public District District { get; set; }
 
-		GeographicGroup shippingBase;
-		public GeographicGroup ShippingBase {
+		GeoGroup shippingBase;
+		public GeoGroup ShippingBase {
 			get => shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroup;
 			set => shippingBase = value;
 		}

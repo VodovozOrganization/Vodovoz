@@ -8,6 +8,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Domain;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
@@ -96,9 +97,9 @@ namespace Vodovoz
 			}
 		}
 
-		GeographicGroup geographicGroup;
+		GeoGroup geographicGroup;
 		[Display(Name = "Обслуживаемая часть города")]
-		public virtual GeographicGroup GeographicGroup {
+		public virtual GeoGroup GeographicGroup {
 			get => geographicGroup;
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
 		}
@@ -153,7 +154,7 @@ namespace Vodovoz
 			return result;
 		}
 
-		public virtual GeographicGroup GetGeographicGroup()
+		public virtual GeoGroup GetGeographicGroup()
 		{
 			if(GeographicGroup == null) {
 				if(ParentSubdivision == null) {
@@ -165,7 +166,7 @@ namespace Vodovoz
 			}
 		}
 
-		public virtual void SetChildsGeographicGroup(GeographicGroup geographicGroup)
+		public virtual void SetChildsGeographicGroup(GeoGroup geographicGroup)
 		{
 			if(ParentSubdivision != null || ChildSubdivisions.Any())
 				foreach(var s in ChildSubdivisions) {
@@ -190,7 +191,18 @@ namespace Vodovoz
 
 		#endregion
 
-		public Subdivision() { }
+		public virtual bool IsCashSubdivision
+		{
+			get
+			{
+				return DocumentTypes.Any(x => 
+					x.Type == nameof(Income) ||
+					x.Type == nameof(Expense) ||
+					x.Type == nameof(AdvanceReport)
+				);
+			}
+		}
+
 
 		#region IValidatableObject implementation
 

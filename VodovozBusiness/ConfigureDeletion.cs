@@ -396,7 +396,6 @@ namespace Vodovoz
 						.AddClearDependence<Subdivision>(item => item.ParentSubdivision)
 						.AddClearDependence<Employee>(item => item.Subdivision)
 						.AddClearDependence<Warehouse>(item => item.OwningSubdivision)
-						.AddClearDependence<RouteList>(item => item.ClosingSubdivision)
 						.AddDeleteDependence<EntitySubdivisionPermission>(item => item.Subdivision)
 						.AddDeleteDependence<EntitySubdivisionPermissionExtended>(item => item.Subdivision)
 						.AddClearDependence<UndeliveredOrder>(item => item.InProcessAtDepartment)
@@ -597,7 +596,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
 
-			DeleteConfig.AddHibernateDeleteInfo<GeographicGroup>()
+			DeleteConfig.AddHibernateDeleteInfo<GeoGroup>()
 						.AddDeleteDependence<AtWorkDriver>(x => x.GeographicGroup)
 						.AddDeleteDependence<Subdivision>(x => x.GeographicGroup)
 						.AddRemoveFromDependence<Car>(x => x.GeographicGroups)

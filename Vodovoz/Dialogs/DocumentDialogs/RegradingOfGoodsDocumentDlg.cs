@@ -12,6 +12,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.JournalViewModels;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
 {

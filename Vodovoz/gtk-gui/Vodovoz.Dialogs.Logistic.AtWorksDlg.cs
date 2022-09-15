@@ -46,6 +46,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.Button buttonOpenCar;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonCreateRouteLists;
+
 		private global::Gtk.Button buttonEditDistricts;
 
 		private global::Gamma.Widgets.SidePanels.HideHorizontalSeparator hideForwaders;
@@ -274,35 +276,45 @@ namespace Vodovoz.Dialogs.Logistic
 			w24.Expand = false;
 			w24.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
+			this.ybuttonCreateRouteLists = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonCreateRouteLists.CanFocus = true;
+			this.ybuttonCreateRouteLists.Name = "ybuttonCreateRouteLists";
+			this.ybuttonCreateRouteLists.UseUnderline = true;
+			this.ybuttonCreateRouteLists.Label = global::Mono.Unix.Catalog.GetString("Создать пустые МЛ");
+			this.hbox7.Add(this.ybuttonCreateRouteLists);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.ybuttonCreateRouteLists]));
+			w25.Position = 7;
+			w25.Expand = false;
+			w25.Fill = false;
+			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonEditDistricts = new global::Gtk.Button();
 			this.buttonEditDistricts.CanFocus = true;
 			this.buttonEditDistricts.Name = "buttonEditDistricts";
 			this.buttonEditDistricts.UseUnderline = true;
 			this.buttonEditDistricts.Label = global::Mono.Unix.Catalog.GetString("Редактировать районы");
-			global::Gtk.Image w25 = new global::Gtk.Image();
-			w25.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
-			this.buttonEditDistricts.Image = w25;
+			global::Gtk.Image w26 = new global::Gtk.Image();
+			w26.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
+			this.buttonEditDistricts.Image = w26;
 			this.hbox7.Add(this.buttonEditDistricts);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonEditDistricts]));
-			w26.PackType = ((global::Gtk.PackType)(1));
-			w26.Position = 7;
-			w26.Expand = false;
-			w26.Fill = false;
-			this.vbox2.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
-			w27.Position = 2;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonEditDistricts]));
+			w27.PackType = ((global::Gtk.PackType)(1));
+			w27.Position = 8;
 			w27.Expand = false;
 			w27.Fill = false;
+			this.vbox2.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
+			w28.Position = 2;
+			w28.Expand = false;
+			w28.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hideForwaders = new global::Gamma.Widgets.SidePanels.HideHorizontalSeparator();
 			this.hideForwaders.Events = ((global::Gdk.EventMask)(256));
 			this.hideForwaders.Name = "hideForwaders";
-			this.hideForwaders.Label = "Экспедиторы на работе";
 			this.vbox2.Add(this.hideForwaders);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hideForwaders]));
-			w28.Position = 3;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hideForwaders]));
+			w29.Position = 3;
+			w29.Expand = false;
+			w29.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.vboxForwarders = new global::Gtk.VBox();
 			this.vboxForwarders.Name = "vboxForwarders";
@@ -317,8 +329,8 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ytreeviewOnDayForwarders.Name = "ytreeviewOnDayForwarders";
 			this.GtkScrolledWindow3.Add(this.ytreeviewOnDayForwarders);
 			this.vboxForwarders.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.GtkScrolledWindow3]));
-			w30.Position = 0;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.GtkScrolledWindow3]));
+			w31.Position = 0;
 			// Container child vboxForwarders.Gtk.Box+BoxChild
 			this.hbox6 = new global::Gtk.HBox();
 			this.hbox6.Name = "hbox6";
@@ -329,28 +341,28 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonAddForwarder.Name = "buttonAddForwarder";
 			this.buttonAddForwarder.UseUnderline = true;
 			this.buttonAddForwarder.Label = global::Mono.Unix.Catalog.GetString("Добавить экспедитора");
-			global::Gtk.Image w31 = new global::Gtk.Image();
-			w31.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonAddForwarder.Image = w31;
+			global::Gtk.Image w32 = new global::Gtk.Image();
+			w32.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAddForwarder.Image = w32;
 			this.hbox6.Add(this.buttonAddForwarder);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddForwarder]));
-			w32.Position = 0;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddForwarder]));
+			w33.Position = 0;
+			w33.Expand = false;
+			w33.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonRemoveForwarder = new global::Gtk.Button();
 			this.buttonRemoveForwarder.CanFocus = true;
 			this.buttonRemoveForwarder.Name = "buttonRemoveForwarder";
 			this.buttonRemoveForwarder.UseUnderline = true;
 			this.buttonRemoveForwarder.Label = global::Mono.Unix.Catalog.GetString("Снять экспедитора");
-			global::Gtk.Image w33 = new global::Gtk.Image();
-			w33.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
-			this.buttonRemoveForwarder.Image = w33;
+			global::Gtk.Image w34 = new global::Gtk.Image();
+			w34.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.buttonRemoveForwarder.Image = w34;
 			this.hbox6.Add(this.buttonRemoveForwarder);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveForwarder]));
-			w34.Position = 1;
-			w34.Expand = false;
-			w34.Fill = false;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveForwarder]));
+			w35.Position = 1;
+			w35.Expand = false;
+			w35.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonAppointForwarders = new global::Gtk.Button();
 			this.buttonAppointForwarders.TooltipMarkup = "Распределить оставшихся экспедиторов по водителям";
@@ -358,38 +370,38 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonAppointForwarders.Name = "buttonAppointForwarders";
 			this.buttonAppointForwarders.UseUnderline = true;
 			this.buttonAppointForwarders.Label = global::Mono.Unix.Catalog.GetString("Распределить оставшихся");
-			global::Gtk.Image w35 = new global::Gtk.Image();
-			w35.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.users.png");
-			this.buttonAppointForwarders.Image = w35;
+			global::Gtk.Image w36 = new global::Gtk.Image();
+			w36.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.users.png");
+			this.buttonAppointForwarders.Image = w36;
 			this.hbox6.Add(this.buttonAppointForwarders);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAppointForwarders]));
-			w36.PackType = ((global::Gtk.PackType)(1));
-			w36.Position = 2;
-			w36.Expand = false;
-			w36.Fill = false;
-			this.vboxForwarders.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.hbox6]));
-			w37.Position = 1;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAppointForwarders]));
+			w37.PackType = ((global::Gtk.PackType)(1));
+			w37.Position = 2;
 			w37.Expand = false;
 			w37.Fill = false;
+			this.vboxForwarders.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.hbox6]));
+			w38.Position = 1;
+			w38.Expand = false;
+			w38.Fill = false;
 			this.vbox2.Add(this.vboxForwarders);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxForwarders]));
-			w38.Position = 4;
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxForwarders]));
+			w39.Position = 4;
 			this.hbox2.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
-			w39.Position = 0;
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
+			w40.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.districtpriorityview1 = new global::Vodovoz.ViewWidgets.Logistics.DistrictPriorityView();
 			this.districtpriorityview1.Events = ((global::Gdk.EventMask)(256));
 			this.districtpriorityview1.Name = "districtpriorityview1";
 			this.hbox2.Add(this.districtpriorityview1);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.districtpriorityview1]));
-			w40.Position = 1;
-			w40.Expand = false;
-			w40.Fill = false;
-			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.districtpriorityview1]));
 			w41.Position = 1;
+			w41.Expand = false;
+			w41.Fill = false;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w42.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -408,7 +420,6 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonDriverSelectAuto.Clicked += new global::System.EventHandler(this.OnButtonDriverSelectAutoClicked);
 			this.buttonOpenCar.Clicked += new global::System.EventHandler(this.OnButtonOpenCarClicked);
 			this.buttonEditDistricts.Clicked += new global::System.EventHandler(this.OnButtonEditDistrictsClicked);
-			this.hideForwaders.Toggled += new global::Gtk.ToggledHandler(this.OnHideForwadersToggled);
 			this.buttonAddForwarder.Clicked += new global::System.EventHandler(this.OnButtonAddForwarderClicked);
 			this.buttonRemoveForwarder.Clicked += new global::System.EventHandler(this.OnButtonRemoveForwarderClicked);
 			this.buttonAppointForwarders.Clicked += new global::System.EventHandler(this.OnButtonAppointForwardersClicked);
