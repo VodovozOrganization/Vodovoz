@@ -1621,6 +1621,7 @@ namespace Vodovoz
 
 			if(routeListToAddOrderTo != null)
 			{
+				UoW.Session.Refresh(routeListToAddOrderTo);
 				routeListToAddOrderTo.AddAddressFromOrder(Entity);
 				Entity.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, CallTaskWorker);
 				Entity.UpdateDocuments();

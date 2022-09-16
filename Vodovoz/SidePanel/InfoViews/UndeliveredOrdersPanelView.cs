@@ -142,6 +142,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(filter?.RestrictGuiltySide != null)
 				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == filter.RestrictGuiltySide);
 
+			if(filter?.OldOrderStatus != null)
+				query.Where(() => undeliveredOrderAlias.OldOrderStatus == filter.OldOrderStatus);
+
 			if(filter != null && filter.RestrictIsProblematicCases)
 				query.Where(() => !guiltyInUndeliveryAlias.GuiltySide.IsIn(filter.ExcludingGuiltiesForProblematicCases));
 

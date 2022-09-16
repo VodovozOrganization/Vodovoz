@@ -296,6 +296,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == FilterViewModel.RestrictGuiltySide);
 			}
 
+			if(FilterViewModel?.OldOrderStatus != null)
+			{
+				query.Where(() => undeliveredOrderAlias.OldOrderStatus == FilterViewModel.OldOrderStatus);
+			}
+
 			if(FilterViewModel != null && FilterViewModel.RestrictIsProblematicCases)
 			{
 				query.Where(() => !guiltyInUndeliveryAlias.GuiltySide.IsIn(FilterViewModel.ExcludingGuiltiesForProblematicCases));

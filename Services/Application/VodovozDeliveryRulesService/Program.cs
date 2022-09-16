@@ -6,12 +6,14 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.Threading;
 using Fias.Service;
+using Fias.Service.Cache;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QS.Banks.Domain;
+using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Delivery;
@@ -91,7 +93,8 @@ namespace VodovozDeliveryRulesService
 					= new DeliveryRulesParametersProvider(new ParametersProvider());
 				CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 				IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(new ParametersProvider());
-				IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+				var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
+				IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
 				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = 
 					new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService, deliveryRulesParametersProvider, fiasApiClient, cancellationTokenSource);
 				ServiceHost deliveryRulesHost = new DeliveryRulesServiceHost(deliveryRulesInstanceProvider);

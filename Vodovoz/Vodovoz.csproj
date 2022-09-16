@@ -1736,6 +1736,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Sale.GeoGroupView.cs" />
     <Compile Include="Views\Organization\OrganizationVersionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.OrganizationVersionsView.cs" />
+    <Compile Include="Views\Profitability\ProfitabilityConstantsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Profitability.ProfitabilityConstantsView.cs" />
+    <Compile Include="ViewWidgets\Profitability\MonthPickerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Profitability.MonthPickerView.cs" />
+    <Compile Include="ViewWidgets\Profitability\SelectableParametersFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Profitability.SelectableParametersFilterView.cs" />
+    <Compile Include="Views\Profitability\ProfitabilityConstantsDataView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Profitability.ProfitabilityConstantsDataView.cs" />
     <Compile Include="Views\Goods\NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="Views\Goods\GroupNomenclaturePriceView.cs" />
@@ -2084,6 +2092,8 @@
     <Folder Include="Views\ReportsParameters\" />
     <Folder Include="Views\ReportsParameters\Cash\" />
     <Folder Include="Views\Settings\" />
+    <Folder Include="Views\Profitability\" />
+    <Folder Include="ViewWidgets\Profitability\" />
     <Folder Include="Views\Sale\" />
   </ItemGroup>
   <ItemGroup>
