@@ -88,7 +88,7 @@ namespace Fias.Service.Loaders
 
 		public async Task<PointDTO> GetCoordinatesByGeocoderAsync(string address, CancellationToken cancellationToken)
 		{
-			return await Fias.GetCoordinatesByGeoCoderAsync(address, cancellationToken);
+			return Fias.GetCoordinatesByGeoCoder(address, cancellationToken);
 		}
 	}
 }

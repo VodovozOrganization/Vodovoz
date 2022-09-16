@@ -160,6 +160,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Controllers;
 using QS.Utilities;
 using Vodovoz.ViewModels.Profitability;
+using Fias.Service.Cache;
 using Vodovoz.ViewModels.Dialogs.Goods;
 
 public partial class MainWindow : Gtk.Window
@@ -1304,7 +1305,8 @@ public partial class MainWindow : Gtk.Window
 	{
 		IParametersProvider parametersProvider = new ParametersProvider();
 		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-		IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+		var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
+		IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
