@@ -284,6 +284,10 @@ public partial class MainWindow : Gtk.Window
 		MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		MangoManager.Connect();
 
+		// Отдел продаж
+
+		ActionSalesDepartment.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
+
 		#region Пользователь с правом работы только со складом и рекламациями
 
 		bool accessToWarehouseAndComplaints;
@@ -378,10 +382,6 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
 
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
-
-		// Отдел продаж
-
-		ActionSalesDepartment.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department"); ;
 	}
 
 	#region Методы для уведомления об отправленных перемещениях для подразделения
