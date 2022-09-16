@@ -21,6 +21,10 @@ namespace Vodovoz.HibernateMapping.Profitability
 			Map(x => x.RouteListExpensesPerKg).Column("route_list_expenses_per_kg");
 			Map(x => x.ProfitabilityConstantsCalculatedMonth)
 				.Column("profitability_constants_calculated_month");
+			Map(x => x.SalesSum).Column("sales_sum");
+			Map(x => x.ExpensesSum).Column("expenses_sum");
+			Map(x => x.GrossMarginSum).Column("gross_margin_sum");
+			Map(x => x.GrossMarginPercents).Column("gross_margin_percents");
 		}
 	}
 }

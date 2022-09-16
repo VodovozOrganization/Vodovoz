@@ -151,8 +151,8 @@ namespace Vodovoz.Controllers
 		private void CalculateAmortisationAndRepairCosts(
 			IUnitOfWork uow, RouteList routeList, RouteListProfitability routeListProfitability, CarVersion carVersion)
 		{
-			var amortisation = default(decimal);
-			var repairCosts = default(decimal);
+			var amortisationPerKm = default(decimal);
+			var repairCostsPerKm = default(decimal);
 			var nearestProfitabilityConstants = _profitabilityConstantsRepository.GetNearestProfitabilityConstantsByDate(
 					uow, new DateTime(routeList.Date.Year, routeList.Date.Month, 1));
 
@@ -161,24 +161,24 @@ namespace Vodovoz.Controllers
 				switch(carVersion.Car.CarModel.CarTypeOfUse)
 				{
 					case CarTypeOfUse.GAZelle:
-						amortisation = nearestProfitabilityConstants.GazelleAmortisation;
-						repairCosts = nearestProfitabilityConstants.GazelleRepairCost;
+						amortisationPerKm = nearestProfitabilityConstants.GazelleAmortisationPerKm;
+						repairCostsPerKm = nearestProfitabilityConstants.GazelleRepairCostPerKm;
 						break;
 					case CarTypeOfUse.Largus:
-						amortisation = nearestProfitabilityConstants.LargusAmortisation;
-						repairCosts = nearestProfitabilityConstants.LargusRepairCost;
+						amortisationPerKm = nearestProfitabilityConstants.LargusAmortisationPerKm;
+						repairCostsPerKm = nearestProfitabilityConstants.LargusRepairCostPerKm;
 						break;
 					case CarTypeOfUse.Truck:
-						amortisation = nearestProfitabilityConstants.TruckAmortisation;
-						repairCosts = nearestProfitabilityConstants.TruckRepairCost;
+						amortisationPerKm = nearestProfitabilityConstants.TruckAmortisationPerKm;
+						repairCostsPerKm = nearestProfitabilityConstants.TruckRepairCostPerKm;
 						break;
 				}
 
 				routeListProfitability.ProfitabilityConstantsCalculatedMonth = nearestProfitabilityConstants.CalculatedMonth;
 			}
 
-			routeListProfitability.Amortisation = amortisation;
-			routeListProfitability.RepairCosts = repairCosts;
+			routeListProfitability.Amortisation = amortisationPerKm * routeListProfitability.Mileage;
+			routeListProfitability.RepairCosts = repairCostsPerKm * routeListProfitability.Mileage;
 		}
 
 		private void CalculateRouteListProfitabilityForNotCompanyCar(RouteList routeList, RouteListProfitability routeListProfitability)
