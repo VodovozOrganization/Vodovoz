@@ -14,6 +14,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			_excluded = excluded;
 		}
 
+		public bool IsRecursiveFactory { get; }
+
 		public IList<SelectableParameter> GetParameters(IEnumerable<Func<ICriterion>> filterRelations)
 		{
 			var values = Enum.GetValues(typeof(TEnum)).Cast<TEnum>().Where(val => !_excluded?.Contains(val) ?? true);
