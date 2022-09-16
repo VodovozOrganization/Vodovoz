@@ -26,7 +26,7 @@ namespace RoboAtsService.OrderValidation
 
 		public IEnumerable<int> GetLastDeliveryPointIds(string clientPhone, int counterpartyId, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
 		{
-			var lastOrders = _roboatsRepository.GetLastOrders(counterpartyId);
+			var lastOrders = _roboatsRepository.GetLastOrders(counterpartyId).OrderByDescending(x => x.Id);
 			var validOrders = GetValidLastOrders(clientPhone, counterpartyId, lastOrders, roboatsCallFailType, roboatsCallOperation);
 			var deliveryPointIds = validOrders.Where(x => x.DeliveryPoint != null).Select(o => o.DeliveryPoint.Id);
 			return deliveryPointIds;
