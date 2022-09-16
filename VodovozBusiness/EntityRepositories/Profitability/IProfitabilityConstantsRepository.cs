@@ -11,5 +11,6 @@ namespace Vodovoz.EntityRepositories.Profitability
 		ProfitabilityConstants GetProfitabilityConstantsByCalculatedMonth(IUnitOfWork uow, DateTime calculatedMonth);
 		bool ProfitabilityConstantsByCalculatedMonthExists(IUnitOfWork uow, DateTime monthFrom, DateTime monthTo);
 		IList<AverageMileageCarsByTypeOfUseNode> GetAverageMileageCarsByTypeOfUse(IUnitOfWork uow, DateTime calculatedMonth);
+		ProfitabilityConstants GetNearestProfitabilityConstantsByDate(IUnitOfWork uow, DateTime date);
 	}
 }

@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -17,18 +18,23 @@ namespace Vodovoz.JournalViewModels
 		<CarModel, CarModelViewModel, CarModelJournalNode, CarModelJournalFilterViewModel>
 	{
 		private readonly ICarManufacturerJournalFactory _carManufacturerJournalFactory;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
 		public CarModelJournalViewModel(
 			CarModelJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ICarManufacturerJournalFactory carManufacturerJournalFactory,
+			IRouteListProfitabilityController routeListProfitabilityController,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			_carManufacturerJournalFactory =
 				carManufacturerJournalFactory ?? throw new ArgumentNullException(nameof(carManufacturerJournalFactory));
+			_routeListProfitabilityController =
+				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			
 			TabName = "Журнал моделей автомобилей";
 			UpdateOnChanges(typeof(CarModel));
 		}
@@ -69,9 +75,19 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<CarModelViewModel> CreateDialogFunction => () =>
-			new CarModelViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _carManufacturerJournalFactory);
+			new CarModelViewModel(
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory,
+				commonServices,
+				_carManufacturerJournalFactory,
+				_routeListProfitabilityController);
 
 		protected override Func<CarModelJournalNode, CarModelViewModel> OpenDialogFunction => node =>
-			new CarModelViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _carManufacturerJournalFactory);
+			new CarModelViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory,
+				commonServices,
+				_carManufacturerJournalFactory,
+				_routeListProfitabilityController);
 	}
 }

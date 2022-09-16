@@ -6,9 +6,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using QS.DomainModel.UoW;
 
-namespace Vodovoz.Domain {
-    public class 
-        NomenclatureFixedPriceController : INomenclatureFixedPriceProvider 
+namespace Vodovoz.Domain
+{
+	public class NomenclatureFixedPriceController : INomenclatureFixedPriceProvider 
     {
         private readonly NomenclatureFixedPriceFactory nomenclatureFixedPriceFactory;
         private readonly WaterFixedPricesGenerator waterFixedPricesGenerator;

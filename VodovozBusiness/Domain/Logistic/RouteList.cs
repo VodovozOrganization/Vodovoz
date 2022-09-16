@@ -26,6 +26,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -87,6 +88,7 @@ namespace Vodovoz.Domain.Logistic
 
 		private CarVersion _carVersion;
 		private Car _car;
+		private RouteListProfitability _routeListProfitability;
 		private DateTime _date;
 
 		#region Свойства
@@ -579,6 +581,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _additionalLoadingDocument;
 			set => SetField(ref _additionalLoadingDocument, value);
+		}
+
+		[Display(Name = "Рентабельность МЛ")]
+		public virtual RouteListProfitability RouteListProfitability
+		{
+			get => _routeListProfitability;
+			set => SetField(ref _routeListProfitability, value);
 		}
 
 		#endregion
@@ -1585,8 +1594,9 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-			if(validationContext.Items.ContainsKey(nameof(IRouteListItemRepository))) {
-				IRouteListItemRepository rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
+			if(validationContext.Items.ContainsKey(nameof(IRouteListItemRepository)))
+			{
+				var rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
 				foreach(var address in Addresses) {
 					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, address))
 					{
@@ -1601,8 +1611,10 @@ namespace Vodovoz.Domain.Logistic
 					foreach (var result in address.Validate(new ValidationContext(address)))
 						yield return result;
 				}
-			} else {
-				throw new ArgumentException($"Для валидации МЛ должен быть доступен {typeof(IRouteListRepository)}");
+			}
+			else
+			{
+				throw new ArgumentException($"Для валидации МЛ должен быть доступен {nameof(IRouteListItemRepository)}");
 			}
 
 			if(!GeographicGroups.Any())

@@ -50,6 +50,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
+using Vodovoz.Controllers;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -79,6 +80,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IReportPrinter _reportPrinter;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IEmployeeSettings _employeeSettings;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
 
@@ -108,9 +111,9 @@ namespace Vodovoz.JournalViewModels
 			IReportPrinter reportPrinter,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IEmployeeSettings employeeSettings,
-			ICommonServices commonServices
-			)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			IRouteListProfitabilityController routeListProfitabilityController,
+			IRouteListItemRepository routeListItemRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -137,8 +140,13 @@ namespace Vodovoz.JournalViewModels
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_reportPrinter = reportPrinter ?? throw new ArgumentNullException(nameof(reportPrinter));
-			_terminalNomenclatureProvider = terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			_terminalNomenclatureProvider =
+				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_routeListProfitabilityController =
+				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			
 			TabName = "Журнал МЛ";
 
 			NotifyConfiguration.Enable();
@@ -591,8 +599,9 @@ namespace Vodovoz.JournalViewModels
 								_undeliveredOrdersJournalOpener,
 								_deliveryShiftRepository,
 								_employeeSettings,
-								_undeliveredOrdersRepository
-							),
+								_undeliveredOrdersRepository,
+								_routeListProfitabilityController,
+								_routeListItemRepository),
 							this,
 							false
 						);

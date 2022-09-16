@@ -787,36 +787,12 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionFuelTransferDocuments_Activated(object sender, System.EventArgs e)
+	void ActionFuelTransferDocuments_Activated(object sender, EventArgs e)
 	{
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		IFuelRepository fuelRepository = new FuelRepository();
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
-		INomenclatureJournalFactory nomenclatureSelectorFactory = new NomenclatureJournalFactory();
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
-
-		var expenseCategoryFactory = new ExpenseCategorySelectorFactory();
-
-		var fuelDocumentsJournalViewModel = new FuelDocumentsJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
-			subdivisionRepository,
-			fuelRepository,
-			counterpartyJournalFactory,
-			nomenclatureSelectorFactory,
-			employeeJournalFactory,
-			subdivisionJournalFactory,
-			carJournalFactory,
-			new GtkReportViewOpener(),
-			expenseCategoryFactory
-		);
-		tdiMain.AddTab(fuelDocumentsJournalViewModel);
+		NavigationManager.OpenViewModel<FuelDocumentsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
-	void ActionOrganizationCashTransferDocuments_Activated(object sender, System.EventArgs e)
+	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
 		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
 			PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());

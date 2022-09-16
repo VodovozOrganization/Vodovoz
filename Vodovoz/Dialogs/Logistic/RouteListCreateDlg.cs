@@ -1,5 +1,4 @@
 ﻿using Gamma.Utilities;
-using Gamma.Widgets;
 using Gtk;
 using NLog;
 using QS.Dialog;
@@ -18,8 +17,8 @@ using QS.Navigation;
 using QS.ViewModels.Extension;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Additions.Printing;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
@@ -32,6 +31,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
@@ -47,6 +47,10 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Factories;
+using Gamma.ColumnConfig;
+using Vodovoz.Domain.Profitability;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -68,6 +72,13 @@ namespace Vodovoz
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 
+		private readonly RouteListProfitabilityController _routeListProfitabilityController = 
+			new RouteListProfitabilityController(
+				new RouteListProfitabilityFactory(),
+				new NomenclatureParametersProvider(_parametersProvider),
+				new ProfitabilityConstantsRepository(),
+				new RouteListProfitabilityRepository());
+
 		private AdditionalLoadingItemsView _additionalLoadingItemsView;
 
 		private bool _canClose = true;
@@ -75,6 +86,7 @@ namespace Vodovoz
 		private DateTime _previousSelectedDate;
 		private bool _isLogistican;
 		private bool _canСreateRoutelistInPastPeriod;
+		private GenericObservableList<RouteListProfitability> _routeListProfitabilities; 
 
 		public RouteListCreateDlg()
 		{
@@ -108,6 +120,11 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			ynotebook1.ShowTabs = false;
+			radioBtnInformation.Toggled += OnInformationToggled;
+			radioBtnInformation.Active = true;
+			
+			var currentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
 			btnCancel.Clicked += OnCancelClicked;
 			printTimeButton.Clicked += OnPrintTimeButtonClicked;
 			ybuttonAddAdditionalLoad.Clicked += OnButtonAddAdditionalLoadClicked;
@@ -149,7 +166,7 @@ namespace Vodovoz
 				}
 			};
 
-			CanEditFixedPrice = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_route_list_fixed_price");
+			CanEditFixedPrice = currentPermissionService.ValidatePresetPermission("can_change_route_list_fixed_price");
 
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
@@ -207,7 +224,7 @@ namespace Vodovoz
 								.List();
 			}
 
-			_isLogistican = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			_isLogistican = currentPermissionService.ValidatePresetPermission("logistican");
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 			createroutelistitemsview1.SetPermissionParameters(permissionResult, _isLogistican);
 
@@ -240,8 +257,7 @@ namespace Vodovoz
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
-			bool IsLoadDocumentPrintable = ServicesConfig.CommonServices.CurrentPermissionService
-											.ValidatePresetPermission("can_print_car_load_document");
+			bool IsLoadDocumentPrintable = currentPermissionService.ValidatePresetPermission("can_print_car_load_document");
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, IsLoadDocumentPrintable
 																			  && !(Entity.Status == RouteListStatus.Confirmed));
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
@@ -252,8 +268,7 @@ namespace Vodovoz
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
-			var hasAccessToDriverTerminal = _isLogistican ||
-					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+			var hasAccessToDriverTerminal = _isLogistican || currentPermissionService.ValidatePresetPermission("role_сashier");
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
 			labelTerminalCondition.Visible = hasAccessToDriverTerminal &&
 											 baseDoc is DriverAttachedTerminalGiveoutDocument &&
@@ -263,7 +278,7 @@ namespace Vodovoz
 				labelTerminalCondition.LabelProp += $"{Entity.DriverTerminalCondition?.GetEnumTitle() ?? "неизвестно"}";
 			}
 
-			_canСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
+			_canСreateRoutelistInPastPeriod = currentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
 
 			fixPriceSpin.Binding
 				.AddBinding(Entity, e => e.FixedShippingPrice, w => w.ValueAsDecimal)
@@ -276,6 +291,73 @@ namespace Vodovoz
 			Entity.PropertyChanged += OnRouteListPropertyChanged;
 			Entity.ObservableGeographicGroups.ListContentChanged += ObservableGeographicGroups_ListContentChanged;
 			UpdateCashSubdivision();
+
+			#region Рентабельность МЛ
+
+			radioBtnProfitability.Sensitive = currentPermissionService.ValidatePresetPermission("can_read_route_list_profitability");
+			radioBtnProfitability.Toggled += OnProfitabilityToggled;
+
+			_logger.Debug("Пересчитываем рентабельность МЛ");
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			_logger.Debug("Закончили пересчет рентабельности МЛ");
+			
+			_routeListProfitabilities = new GenericObservableList<RouteListProfitability> { Entity.RouteListProfitability };
+			ConfigureTreeRouteListProfitability();
+
+			#endregion
+		}
+
+		private void OnInformationToggled(object sender, EventArgs e)
+		{
+			if(radioBtnInformation.Active)
+			{
+				ynotebook1.Page = 0;
+			}
+		}
+		
+		private void OnProfitabilityToggled(object sender, EventArgs e)
+		{
+			if(radioBtnProfitability.Active)
+			{
+				ynotebook1.Page = 1;
+			}
+		}
+
+		private void ConfigureTreeRouteListProfitability()
+		{
+			treeRouteListProfitability.ColumnsConfig = FluentColumnsConfig<RouteListProfitability>.Create()
+				.AddColumn("№ МЛ")
+					.AddNumericRenderer(x => Entity.Id)
+				.AddColumn("Фактический пробег, км")
+					.AddNumericRenderer(x => x.Mileage)
+				.AddColumn("Аммортизация, руб")
+					.AddNumericRenderer(x => x.Amortisation)
+					.Digits(2)
+				.AddColumn("Ремонт, руб")
+					.AddNumericRenderer(x => x.RepairCosts)
+					.Digits(2)
+				.AddColumn("Топливо, руб")
+					.AddNumericRenderer(x => x.FuelCosts)
+					.Digits(2)
+				.AddColumn("Затраты ЗП\nвод + эксп, руб")
+					.AddNumericRenderer(x => x.DriverAndForwarderWages)
+					.Digits(2)
+				.AddColumn("Оплата доставки\nклиентом: Доставка за\nчас, платная доставка, руб")
+					.AddNumericRenderer(x => x.PaidDelivery)
+					.Digits(2)
+				.AddColumn("Затраты на МЛ, руб")
+					.AddNumericRenderer(x => x.RouteListExpenses)
+					.Digits(2)
+				.AddColumn("Вывезено, кг")
+					.AddNumericRenderer(x => x.TotalGoodsWeight)
+					.Digits(2)
+				.AddColumn("Затраты на кг")
+					.AddNumericRenderer(x => x.RouteListExpensesPerKg)
+					.Digits(2)
+				.AddColumn("")
+				.Finish();
+
+			treeRouteListProfitability.ItemsDataSource = _routeListProfitabilities;
 		}
 
 		private void ObservableGeographicGroups_ListContentChanged(object sender, EventArgs e)
@@ -442,6 +524,9 @@ namespace Vodovoz
 			}
 
 			Entity.CalculateWages(_wageParameterService);
+			_logger.Debug("Пересчитываем рентабельность МЛ");
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			_logger.Debug("Закончили пересчет рентабельности МЛ");
 
 			if(_oldDriver != Entity.Driver)
 			{

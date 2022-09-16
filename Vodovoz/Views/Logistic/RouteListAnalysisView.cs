@@ -21,7 +21,7 @@ namespace Vodovoz.Views.Logistic
 
 		public RouteListAnalysisView(RouteListAnalysisViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			table1.Sensitive = false;
 
-			buttonSave.Clicked += (sender, e) => Save();
+			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			buttonSave.Sensitive = ViewModel.CanEditRouteList;
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
@@ -228,19 +228,5 @@ namespace Vodovoz.Views.Logistic
 		private void UpdateBottlesSummaryInfo() => labelBottleInfo.Markup = ViewModel.UpdateBottlesSummaryInfo();
 
 		private void UpdateTreeAddresses() => ytreeviewAddresses.YTreeModel.EmitModelChanged();
-
-		private void Save()
-		{
-			var valid = new QSValidator<RouteList>(ViewModel.UoWGeneric.Root, new Dictionary<object, object>(){ { nameof(IRouteListItemRepository), new EntityRepositories.Logistic.RouteListItemRepository() } });
-			
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
-				return;
-
-			ViewModel.SetLogisticianCommentAuthor();
-			ViewModel.CalculateWages();
-
-			ViewModel.UoW.Save();
-			ViewModel.Close(false, CloseSource.Save);
-		}
 	}
 }
