@@ -31,7 +31,6 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
@@ -84,12 +83,9 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
-using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.WageCalculation;
 
 public partial class MainWindow : Window
 {
@@ -118,7 +114,6 @@ public partial class MainWindow : Window
 	Action ActionRouteListsAtDay;
 	Action ActionRouteListsPrint;
 	Action ActionRouteListClosingTable;
-	Action ActionRouteListKeeping;
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
 	Action ActionFastDeliveryAvailabilityJournal;
@@ -206,7 +201,6 @@ public partial class MainWindow : Window
 		ActionRouteListsPrint = new Action("ActionRouteListsPrint", "Печать МЛ", null, "print");
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Работа кассы с МЛ", null, "table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин", null, "table");
-		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
 		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "Доставка за час", null, "table");
@@ -289,7 +283,6 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListsAtDay, null);
 		w1.Add(ActionRouteListsPrint, null);
 		w1.Add(ActionRouteListClosingTable, null);
-		w1.Add(ActionRouteListKeeping, null);
 		w1.Add(ActionRouteListTracking, null);
 		w1.Add(ActionRouteListMileageCheck, null);
 
@@ -377,7 +370,6 @@ public partial class MainWindow : Window
 		ActionRouteListsAtDay.Activated += ActionRouteListsAtDay_Activated;
 		ActionRouteListsPrint.Activated += ActionRouteListsPrint_Activated;
 		ActionRouteListClosingTable.Activated += ActionRouteListClosingTable_Activated;
-		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
 		ActionFastDeliveryAvailabilityJournal.Activated += ActionFastDeliveryAvailabilityJournal_Activated;
@@ -955,14 +947,6 @@ public partial class MainWindow : Window
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
 			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, routeListRepository, scheduleRestrictionRepository,
 				deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
-		);
-	}
-
-	void ActionRouteListKeeping_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListKeepingView>(),
-			() => new RouteListKeepingView()
 		);
 	}
 
