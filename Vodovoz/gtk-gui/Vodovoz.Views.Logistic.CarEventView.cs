@@ -351,7 +351,7 @@ namespace Vodovoz.Views.Logistic
 			this.labelOriginalCarEvent = new global::Gtk.Label();
 			this.labelOriginalCarEvent.Name = "labelOriginalCarEvent";
 			this.labelOriginalCarEvent.Xalign = 1F;
-			this.labelOriginalCarEvent.LabelProp = global::Mono.Unix.Catalog.GetString("Исходное ремонтное событе:");
+			this.labelOriginalCarEvent.LabelProp = global::Mono.Unix.Catalog.GetString("Исходное ремонтное событие:");
 			this.table1.Add(this.labelOriginalCarEvent);
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.labelOriginalCarEvent]));
 			w25.TopAttach = ((uint)(7));
