@@ -358,6 +358,7 @@ namespace Vodovoz
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
 				AddCommentFromDeliveryPoint();
+				AddCommentLogistFromDeliveryPoint();
 			}
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -410,6 +411,7 @@ namespace Vodovoz
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 			AddCommentFromDeliveryPoint();
+			AddCommentLogistFromDeliveryPoint();
 		}
 
 		public void ConfigureDlg()
@@ -2548,6 +2550,7 @@ namespace Vodovoz
 				OnFormOrderActions();
 
 			AddCommentFromDeliveryPoint();
+			AddCommentLogistFromDeliveryPoint();
 		}
 
 		private void AddCommentFromDeliveryPoint()
@@ -2567,6 +2570,22 @@ namespace Vodovoz
 				}
 
 				_previousDeliveryPointId = DeliveryPoint.Id;
+			}
+		}
+
+		private void AddCommentLogistFromDeliveryPoint()
+		{
+			if(DeliveryPoint == null)
+			{
+				return;
+			}
+			if(string.IsNullOrWhiteSpace(Entity.CommentLogist))
+			{
+				Entity.CommentLogist = DeliveryPoint.CommentLogist;
+			}
+			else
+			{
+				Entity.CommentLogist = string.Join("\n", DeliveryPoint.CommentLogist, $"Предыдущий комментарий: {Entity.CommentLogist}");
 			}
 		}
 
@@ -2701,6 +2720,7 @@ namespace Vodovoz
 			if(DeliveryPoint != null)
 			{
 				AddCommentFromDeliveryPoint();
+				AddCommentLogistFromDeliveryPoint();
 			}
 
 			//Проверяем возможность добавления Акции "Бутыль"

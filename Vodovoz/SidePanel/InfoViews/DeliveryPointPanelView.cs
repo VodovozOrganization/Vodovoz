@@ -67,20 +67,20 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddNumericRenderer(node => node.Total19LBottlesToDeliver).Editing(false)
 				.Finish();
 		}
-		
+
 		private void Refresh(object changedObj)
 		{
 			if(InfoProvider == null)
 			{
 				return;
 			}
-			
+
 			DeliveryPoint = changedObj as DeliveryPoint;
 			RefreshData();
 		}
 
 		#region IPanelView implementation
-		
+
 		public IInfoProvider InfoProvider { get; set; }
 
 		public void Refresh()
@@ -139,6 +139,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
+			textviewCommentLogist.Buffer.Text = DeliveryPoint.CommentLogist;
 
 			var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
 			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
@@ -146,18 +147,23 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			table2.ShowAll();
 
-			buttonSaveComment.Sensitive = btn.Sensitive = textviewComment.Editable = _deliveryPointPermissionResult.CanUpdate;
+			buttonSaveComment.Sensitive = 
+				btn.Sensitive = 
+				textviewComment.Editable = _deliveryPointPermissionResult.CanUpdate;
 		}
 
-		public bool VisibleOnPanel {
-			get {
+		public bool VisibleOnPanel
+		{
+			get
+			{
 				return DeliveryPoint != null;
 			}
 		}
 
 		public void OnCurrentObjectChanged(object changedObject)
 		{
-			if(changedObject is DeliveryPoint deliveryPoint) {
+			if(changedObject is DeliveryPoint deliveryPoint)
+			{
 				DeliveryPoint = deliveryPoint;
 				Refresh();
 			}
@@ -190,15 +196,17 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			ytreeLastOrders.HasTooltip = false;
 
-			if(order == null) {
+			if(order == null)
+			{
 				return;
 			}
 			string tooltip = "Заказ №" + order.Id + ":";
 
-			foreach(OrderItem orderItem in order.OrderItems) {
+			foreach(OrderItem orderItem in order.OrderItems)
+			{
 				tooltip += "\n"
-		           + orderItem.Nomenclature.Name + ": "
-		           + orderItem.Count.ToString(orderItem.Nomenclature.Unit != null ? $"N{orderItem.Nomenclature.Unit.Digits}" : "G29");
+				   + orderItem.Nomenclature.Name + ": "
+				   + orderItem.Count.ToString(orderItem.Nomenclature.Unit != null ? $"N{orderItem.Nomenclature.Unit.Digits}" : "G29");
 			}
 
 			ytreeLastOrders.TooltipText = tooltip;
@@ -207,8 +215,18 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий» на панели точки доставки")) {
+			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий» на панели точки доставки"))
+			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
+				uow.Save();
+			}
+		}
+
+		protected void OnButtonSaveCommentLogistClicked(object sender, EventArgs e)
+		{
+			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий для логиста» на панели точки доставки"))
+			{
+				uow.Root.CommentLogist = textviewCommentLogist.Buffer.Text;
 				uow.Save();
 			}
 		}

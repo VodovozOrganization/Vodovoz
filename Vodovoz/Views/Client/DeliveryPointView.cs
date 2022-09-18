@@ -159,6 +159,10 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+			textCommentLogist.Binding
+				.AddBinding(ViewModel.Entity, e => e.CommentLogist, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			labelCompiledAddress.Binding
 				.AddBinding(ViewModel.Entity, e => e.CompiledAddress, w => w.LabelProp)
 				.InitializeFromSource();
