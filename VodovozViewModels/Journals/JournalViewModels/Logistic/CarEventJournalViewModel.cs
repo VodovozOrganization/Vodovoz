@@ -23,6 +23,8 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Logistic;
+using System.Linq;
+using QS.Deletion;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -36,6 +38,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeSettings _employeeSettings;
+		private bool CanChangeWithClosedPeriod { get; }
 
 		public CarEventJournalViewModel(
 			CarEventFilterViewModel filterViewModel,
@@ -59,11 +62,68 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			CanChangeWithClosedPeriod = commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 
 			UpdateOnChanges(
 				typeof(CarEvent),
 				typeof(CarEventType)
 				);
+		}
+
+		protected override void CreateNodeActions()
+		{
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateDefaultEditAction();
+			CreateCustomDeleteAction();
+		}
+
+		private void CreateCustomDeleteAction()
+		{
+			var deleteAction = new JournalAction("Удалить",
+				   (selected) => {
+					   var selectedNodes = selected.OfType<CarEventJournalNode>();
+					   if(selectedNodes == null || selectedNodes.Count() != 1)
+					   {
+						   return false;
+					   }
+					   CarEventJournalNode selectedNode = selectedNodes.First();
+					   if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					   {
+						   return false;
+					   }
+					   if(!CanDelete(selectedNode.EndDate))
+					   {
+						   return false;
+					   }
+					   var config = EntityConfigs[selectedNode.EntityType];
+					   return config.PermissionResult.CanDelete;
+				   },
+				   (selected) => true,
+				   (selected) => {
+					   var selectedNodes = selected.OfType<CarEventJournalNode>();
+					   if(selectedNodes == null || selectedNodes.Count() != 1)
+					   {
+						   return;
+					   }
+					   CarEventJournalNode selectedNode = selectedNodes.First();
+					   if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					   {
+						   return;
+					   }
+					   if(!CanDelete(selectedNode.EndDate))
+					   {
+						   return;
+					   }
+					   var config = EntityConfigs[selectedNode.EntityType];
+					   if(config.PermissionResult.CanDelete)
+					   {
+						   DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
+					   }
+				   },
+				   "Delete"
+			   );
+			NodeActionsList.Add(deleteAction);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<CarEvent>> ItemsSourceQueryFunction => (uow) =>
@@ -210,5 +270,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_employeeJournalFactory,
 				_undeliveryViewOpener,
 				_employeeSettings);
+
+		private bool CanDelete(DateTime endDate)
+		{
+			if (CanChangeWithClosedPeriod)
+			{
+				return true;
+			}
+
+			var today = DateTime.Now;
+			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
+			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
+			if(today.Day <= 10 && endDate > startPreviousMonth)
+			{
+				return true;
+			}
+
+			if(today.Day > 10 && endDate >= startCurrentMonth)
+			{
+				return true;
+			}
+
+			return false;
+		}
 	}
 }

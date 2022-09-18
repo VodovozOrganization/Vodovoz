@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
-		public bool CanCreateOrEditWithClosedPeriod { get; }
+		public bool CanChangeWithClosedPeriod { get; }
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 		public IEmployeeService EmployeeService { get; }
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 
-			CanCreateOrEditWithClosedPeriod =
+			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 
 			UpdateFileItems();
@@ -97,32 +97,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		public bool CheckDatePeriod()
+		private bool CheckDatePeriod()
 		{
 			if(UoW.IsNew)
 			{
 				return true;
 			}
 
-			if(CanCreateOrEditWithClosedPeriod)
+			if(CanChangeWithClosedPeriod)
 			{
 				return true;
 			}
 
-			var today = DateTime.Now;
-			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
-			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
-			if(today.Day <= 10 && Entity.EndDate > startPreviousMonth)
-			{
-				return true;
-			}
-
-			if(today.Day > 10 && Entity.EndDate > startCurrentMonth)
-			{
-				return true;
-			}
-
-			return false;
+			return InCorrectPeriod(Entity.EndDate);
 		}
 
 		public new void SaveAndClose()
@@ -133,9 +120,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			if(CanCreateOrEditWithClosedPeriod)
+			if(CanChangeWithClosedPeriod)
 			{
-				base.SaveAndClose();
+				if(InCorrectPeriod(Entity.EndDate) || AskQuestion("Вы уверенны что хотите сохранить изменения в закрытом периоде?"))
+				{
+					base.SaveAndClose();
+				}
 				return;
 			}
 
@@ -155,6 +145,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			base.SaveAndClose();
+		}
+
+		private bool InCorrectPeriod(DateTime endDate)
+		{
+			var today = DateTime.Now;
+			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
+			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
+			if(today.Day <= 10 && endDate > startPreviousMonth)
+			{
+				return true;
+			}
+
+			if(today.Day > 10 && endDate >= startCurrentMonth)
+			{
+				return true;
+			}
+			return false;
 		}
 
 		public override void Dispose()
