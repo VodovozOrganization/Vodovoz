@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Vodovoz.Domain.Sale;
 
 namespace DeliveryRulesService.DTO
 {
-	[DataContract]
 	public class WeekDayDeliveryInfoDTO
 	{
 		private WeekDayName weekDayEnum;
-		public WeekDayName WeekDayEnum {
+		[JsonIgnore]
+		public WeekDayName WeekDayEnum
+		{
 			get => weekDayEnum;
 			set {
 				weekDayEnum = value;
@@ -16,38 +17,13 @@ namespace DeliveryRulesService.DTO
 			}
 		}
 
-		[DataMember]
+		[JsonInclude]
 		public string WeekDay { get; set; }
 		
-		[DataMember]
+		[JsonInclude]
 		public IList<DeliveryRuleDTO> DeliveryRules { get; set; }
 		
-		[DataMember]
+		[JsonInclude]
 		public IList<string> ScheduleRestrictions { get; set; }
-	}
-
-	[DataContract]
-	public class DeliveryRuleDTO
-	{
-		[DataMember]
-		public string Bottles19l { get; set; }
-		
-		[DataMember]
-		public string Bottles6l { get; set; }
-		
-		[DataMember]
-		public string Bottles1500ml { get; set; }
-		
-		[DataMember]
-		public string Bottles600ml { get; set; }
-		
-		[DataMember]
-		public string Bottles500ml { get; set; }
-		
-		[DataMember]
-		public string MinOrder { get; set; }
-		
-		[DataMember]
-		public string Price { get; set; }
 	}
 }

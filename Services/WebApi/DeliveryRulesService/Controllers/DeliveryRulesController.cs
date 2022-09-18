@@ -59,7 +59,7 @@ namespace DeliveryRulesService.Controllers
 		}
 
 		[HttpGet]
-		[Route("/DeliveryRules/GetRulesByDistrict")]
+		[Route("GetRulesByDistrict")]
 		public DeliveryRulesDTO GetRulesByDistrict([FromQuery] decimal latitude, [FromQuery] decimal longitude)
 		{
 			try
@@ -152,7 +152,7 @@ namespace DeliveryRulesService.Controllers
 		}
 
 		[HttpPost]
-		[Route("/DeliveryRules/GetRulesByDistrictAndNomenclatures")]
+		[Route("GetRulesByDistrictAndNomenclatures")]
 		public async Task<DeliveryRulesDTO> GetRulesByDistrictAndNomenclatures([FromBody] DeliveryRulesRequest request)
 		{
 			var deliveryInfo = GetRulesByDistrict(request.Latitude, request.Longitude);
@@ -179,7 +179,7 @@ namespace DeliveryRulesService.Controllers
 		}
 
 		[HttpGet]
-		[Route("/DeliveryRules/GetDeliveryInfo")]
+		[Route("GetDeliveryInfo")]
 		public DeliveryInfoDTO GetDeliveryInfo([FromQuery] decimal latitude, [FromQuery] decimal longitude)
 		{
 			try
@@ -241,7 +241,7 @@ namespace DeliveryRulesService.Controllers
 		}
 
 		[HttpGet]
-		[Route("/DeliveryRules/ServiceStatus")]
+		[Route("ServiceStatus")]
 		public bool ServiceStatus()
 		{
 			var response = GetDeliveryInfo(59.886134m, 30.394007m);

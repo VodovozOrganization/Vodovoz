@@ -19,6 +19,8 @@ using QS.Services;
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.NhibernateExtensions;
@@ -43,6 +45,12 @@ namespace DeliveryRulesService
         {
 
 			services.AddMvc().AddControllersAsServices();
+
+			services.AddControllers().AddJsonOptions(j =>
+			{
+				//Необходимо для сериализации свойств как PascalCase
+				j.JsonSerializerOptions.PropertyNamingPolicy = null;
+			});
 
 			NLogBuilder.ConfigureNLog("NLog.config");
 

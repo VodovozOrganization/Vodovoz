@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace DeliveryRulesService.DTO
 {
-    [DataContract]
-    public class DeliveryInfoDTO
+	public class DeliveryInfoDTO
     {
         private DeliveryRulesResponseStatus statusEnum;
+		[JsonIgnore]
         public DeliveryRulesResponseStatus StatusEnum {
             get => statusEnum;
             set {
@@ -15,16 +15,16 @@ namespace DeliveryRulesService.DTO
             }
         }
 
-        [DataMember]
+		[JsonInclude]
         public string Status { get; set; }
 
-        [DataMember]
+		[JsonInclude]
         public string Message { get; set; }
         
-        [DataMember]
+		[JsonInclude]
         public string GeoGroup { get; set; }
 
-        [DataMember]
+		[JsonInclude]
         public IList<WeekDayDeliveryInfoDTO> WeekDayDeliveryInfos { get; set; }
     }
 }
