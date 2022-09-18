@@ -27,6 +27,7 @@ namespace DeliveryRulesService.Controllers
 		private readonly ILogger<DeliveryRulesController> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly FiasApiClientFactory _fiasApiClientFactory;
 		private readonly IFiasApiClient _fiasApiClient;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly FastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
@@ -38,7 +39,7 @@ namespace DeliveryRulesService.Controllers
 			ILogger<DeliveryRulesController> logger,
 			IUnitOfWorkFactory uowFactory,
 			IDeliveryRepository deliveryRepository,
-			IFiasApiClient fiasApiClient,
+			FiasApiClientFactory fiasApiClientFactory,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			FastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
 			DistrictCache districtCache)
@@ -46,11 +47,13 @@ namespace DeliveryRulesService.Controllers
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-			_fiasApiClient = fiasApiClient ?? throw new ArgumentNullException(nameof(fiasApiClient));
+			_fiasApiClientFactory = fiasApiClientFactory ?? throw new ArgumentNullException(nameof(fiasApiClientFactory));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_fastDeliveryAvailabilityHistoryModel = fastDeliveryAvailabilityHistoryModel ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryModel));
 			_districtCache = districtCache ?? throw new ArgumentNullException(nameof(districtCache));
 			_cancellationTokenSource = new CancellationTokenSource();
+
+			_fiasApiClient = _fiasApiClientFactory.CreateClient();
 
 			using(var uow = _uowFactory.CreateWithoutRoot("Получение графика быстрой доставки"))
 			{

@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using DeliveryRulesService.Cache;
 using Fias.Service;
+using Fias.Service.Cache;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -62,14 +63,13 @@ namespace DeliveryRulesService
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(new ParametersProvider());
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
-
 			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
-			builder.RegisterInstance(fiasApiClient).AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<DistrictCache>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<GeocoderCache>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<FiasApiClientFactory>().AsSelf().AsImplementedInterfaces();
+			
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()
 				.AsImplementedInterfaces();
