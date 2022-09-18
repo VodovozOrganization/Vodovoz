@@ -557,10 +557,6 @@
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
-      <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
-      <Name>QSProjectsLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Services\Library\FiasService\Fias.Service.csproj">
       <Project>{C90274E4-4BDD-41A1-9A9F-576E16A0A236}</Project>
       <Name>Fias.Service</Name>
