@@ -36,10 +36,10 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, VodovozOrder orderBaseAlias = null)
 		{
-			var query = QueryOver.Of<VodovozOrder>(()=> orderBaseAlias)
-				.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery)
+			var query = QueryOver.Of<VodovozOrder>(() => orderBaseAlias)
+				.Where(o => o.DeliveryDate == date.Date && !o.SelfDelivery)
 				.Where(o => o.DeliverySchedule != null)
-				.Where(x => x.DeliveryPoint != null);
+				.Where(o => o.DeliveryPoint != null);
 				
 			if(!showShipped)
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);

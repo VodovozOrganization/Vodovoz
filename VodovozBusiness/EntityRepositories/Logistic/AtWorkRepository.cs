@@ -26,7 +26,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			if(carTypesOfUse != null)
 			{
-				querry.JoinQueryOver(awd => awd.Car)
+				querry
+					.JoinQueryOver(awd => awd.Car)
 					.JoinQueryOver(c => c.CarModel)
 					.WhereRestrictionOn(cm => cm.CarTypeOfUse).IsIn(carTypesOfUse.ToArray());
 			}
@@ -36,7 +37,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 				Car carAlias = null;
 				CarVersion carVersionAlias = null;
 
-				querry.JoinAlias(() => atWorkDriverAlias.Car, () => carAlias)
+				querry
+					.JoinAlias(() => atWorkDriverAlias.Car, () => carAlias)
 					.JoinEntityAlias(() => carVersionAlias,
 						() => carVersionAlias.Car.Id == carAlias.Id
 							  && carVersionAlias.StartDate <= date

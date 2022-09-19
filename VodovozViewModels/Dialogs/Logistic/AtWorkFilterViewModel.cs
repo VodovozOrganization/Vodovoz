@@ -27,8 +27,7 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 
 			var geographicGroups = geographicGroupRepository.GeographicGroupsWithCoordinates(uow, isActiveOnly: true);
 			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(
-				geographicGroups.Select(ggn =>
-					new GeographicGroupNode(ggn)).ToList());
+				geographicGroups.Select(ggn => new GeographicGroupNode(ggn)).ToList());
 
 			foreach(var geographicGroupNode in GeographicGroupNodes)
 			{

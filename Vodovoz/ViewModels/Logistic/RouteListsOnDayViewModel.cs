@@ -1221,7 +1221,8 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					RouteList routeListAlias = null;
 					RouteListItem routeListItemAlias = null;
-					baseOrderQuery.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderBaseAlias.Id)
+					baseOrderQuery
+						.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderBaseAlias.Id)
 						.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 						.WhereRestrictionOn(() => routeListAlias.Shift).IsIn(selectedDeliveryShifts);
 				}
