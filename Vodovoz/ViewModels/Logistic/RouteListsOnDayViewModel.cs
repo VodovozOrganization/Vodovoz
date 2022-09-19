@@ -139,7 +139,7 @@ namespace Vodovoz.ViewModels.Logistic
 			NHibernateUtil.Initialize(defaultDeliveryDaySchedule.Shifts);
 
 			var deliveryShifts = UoW.GetAll<DeliveryShift>();
-			DeliveryShiftNodes = deliveryShifts.Select(ds => new DeliveryShiftNode(ds, true)).ToList();
+			DeliveryShiftNodes = deliveryShifts.Select(ds => new DeliveryShiftNode(ds)).ToList();
 
 			CreateCommands();
 			LoadAddressesTypesDefaults();

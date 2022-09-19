@@ -4,16 +4,15 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 {
 	public class DeliveryShiftNode
 	{
-		public  bool Selected { get; set; }
+		public bool Selected { get; set; }
 
 		public DeliveryShift DeliveryShift { get; }
 
 		public string Title => DeliveryShift.Name;
 
-		public DeliveryShiftNode(DeliveryShift deliveryShift, bool selected = false)
+		public DeliveryShiftNode(DeliveryShift deliveryShift)
 		{
 			DeliveryShift = deliveryShift;
-			Selected = selected;
 		}
 	}
 }
