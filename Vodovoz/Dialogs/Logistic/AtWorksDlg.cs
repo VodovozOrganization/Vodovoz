@@ -120,8 +120,15 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Район города").AddTextRenderer(x => x.GeographicGroup.Name)
 				.Finish();
 
-			ytreeviewGeographicGroup.Binding.AddBinding(_filterViewModel, vm => vm.GeographicGroupNodes, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewGeographicGroup.Binding
+				.AddBinding(_filterViewModel, vm => vm.GeographicGroupNodes, w => w.ItemsDataSource)
+				.InitializeFromSource();
 			ytreeviewGeographicGroup.HeadersVisible = false;
+
+			yenumComboBoxSortBy.ItemsEnum = typeof(SortAtWorkDriversType);
+			yenumComboBoxSortBy.Binding
+				.AddBinding(_filterViewModel, vm => vm.SortType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 
 			_filterViewModel.PropertyChanged += (s, a) =>
 			{
@@ -179,7 +186,7 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => x.Comment)
 						.Editable(true)
 				.AddColumn("Принадлежность\nавто")
-					.AddTextRenderer(x => x.CarVersion.CarOwnType.GetEnumTitle())
+					.AddTextRenderer(x => x.CarOwnTypeDisplayName)
 				.AddColumn("Тип\nавто")
 					.AddTextRenderer(x => x.Car.CarModel.CarTypeOfUse.GetEnumTitle())
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Status == AtWorkDriver.DriverStatus.NotWorking? "gray": "black")
@@ -774,6 +781,20 @@ namespace Vodovoz.Dialogs.Logistic
 			DriversAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetDriversAtDay(UoW, DialogAtDate,
 				driverStatuses: _filterViewModel.SelectedDriverStatuses, carTypesOfUse: _filterViewModel.SelectedCarTypesOfUse,
 				carOwnTypes: _filterViewModel.SelectedCarOwnTypes, geoGroupIds: selectedGeographicGroupIds);
+
+			switch(_filterViewModel.SortType)
+			{
+				case SortAtWorkDriversType.ByName:
+					{
+						DriversAtDay = DriversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
+						break;
+					}
+				case SortAtWorkDriversType.ByCarOwn:
+					{
+						DriversAtDay = DriversAtDay.OrderBy(x => x.CarOwnTypeDisplayName).ToList();
+						break;
+					}
+			}
 
 			logger.Info("Ок");
 

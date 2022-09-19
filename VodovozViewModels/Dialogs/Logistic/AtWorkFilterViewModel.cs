@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using QS.Utilities.Enums;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
@@ -16,6 +17,7 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 		private IEnumerable<CarTypeOfUse> _selectedCarTypesOfUse;
 		private IEnumerable<CarOwnType> _selectedCarOwnTypes;
 		private IEnumerable<AtWorkDriver.DriverStatus> _selectedDriverStatuses;
+		private SortAtWorkDriversType _sortType;
 
 		public AtWorkFilterViewModel(IUnitOfWork uow, IGeographicGroupRepository geographicGroupRepository)
 		{
@@ -57,6 +59,20 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 			set => SetField(ref _selectedDriverStatuses, value);
 		}
 
+		public SortAtWorkDriversType SortType
+		{
+			get => _sortType;
+			set => SetField(ref _sortType, value);
+		}
+
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
+	}
+
+	public enum SortAtWorkDriversType
+	{
+		[Display(Name = "ФИО")]
+		ByName,
+		[Display(Name = "Принадлежность авто")]
+		ByCarOwn
 	}
 }

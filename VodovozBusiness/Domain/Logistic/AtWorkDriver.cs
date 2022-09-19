@@ -6,6 +6,7 @@ using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -151,6 +152,8 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual CarVersion CarVersion => _carVersion ?? (_carVersion = Car.GetActiveCarVersionOnDate(Date));
+
+		public virtual string CarOwnTypeDisplayName => CarVersion.CarOwnType.GetEnumTitle();
 
 		protected AtWorkDriver()
 		{ }
