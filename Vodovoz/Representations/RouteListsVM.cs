@@ -598,7 +598,8 @@ namespace Vodovoz.ViewModel
 									new UndeliveredOrdersJournalOpener(),
 									new DeliveryShiftRepository(),
 									new EmployeeSettings(new ParametersProvider()),
-									new UndeliveredOrdersRepository()
+									new UndeliveredOrdersRepository(),
+									new SubdivisionParametersProvider(new ParametersProvider())
 								)
 							);
 					},

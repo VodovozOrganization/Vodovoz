@@ -159,6 +159,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Controllers;
 using QS.Utilities;
+using Vodovoz.ViewModels.Profitability;
 using Fias.Service.Cache;
 using Vodovoz.ViewModels.Dialogs.Goods;
 
@@ -283,6 +284,10 @@ public partial class MainWindow : Gtk.Window
 		MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		MangoManager.Connect();
 
+		// Отдел продаж
+
+		ActionSalesDepartment.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
+
 		#region Пользователь с правом работы только со складом и рекламациями
 
 		bool accessToWarehouseAndComplaints;
@@ -372,6 +377,10 @@ public partial class MainWindow : Gtk.Window
 		ActionAdditionalLoadSettings.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 
+		//Доступ к константам рентабельности (Справочники - Финансы - Константы рентабельности)
+		ProfitabilityConstantsAction.Sensitive =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
+
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 	}
 
@@ -396,7 +405,7 @@ public partial class MainWindow : Gtk.Window
 
 	private void UpdateSendedMovementsNotification(string notification)
 	{
-		lblMovementsNotification.Markup = notification;			
+		lblMovementsNotification.Markup = notification;
 	}
 
 	#endregion
@@ -1059,6 +1068,7 @@ public partial class MainWindow : Gtk.Window
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
+		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		var journal = new ComplaintsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
@@ -1072,7 +1082,8 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.CommonServices,
 				subdivisionRepository,
 				employeeJournalFactory,
-				counterpartySelectorFactory
+				counterpartySelectorFactory,
+				subdivisionParametersProvider
 			)
 			{
 				HidenByDefault = true
@@ -2185,6 +2196,7 @@ public partial class MainWindow : Gtk.Window
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
+		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		tdiMain.OpenTab(
 			() =>
@@ -2201,7 +2213,8 @@ public partial class MainWindow : Gtk.Window
 						ServicesConfig.CommonServices,
 						subdivisionRepository,
 						employeeJournalFactory,
-						counterpartySelectorFactory
+						counterpartySelectorFactory,
+						subdivisionParametersProvider
 					)
 					{ IsForRetail = true },
 					fileDialogService,
@@ -2633,21 +2646,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
-		var entityChangeWatcher = autofacScope.Resolve<IEntityChangeWatcher>();
-		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = autofacScope.Resolve<IInteractiveService>();
-		var carSelectorFactory = new CarJournalFactory(NavigationManager);
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		var viewModel = new CostCarExploitationReportViewModel(
-			uowFactory,
-			interactiveService,
-			NavigationManager,
-			carSelectorFactory,
-			entityChangeWatcher,
-			fileDialogService);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<CostCarExploitationReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
@@ -2689,8 +2688,19 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(viewModel);
 	}
 
+	protected void OnProfitabilityConstantsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ProfitabilityConstantsViewModel, IValidator>(
+			null, ServicesConfig.ValidationService, OpenPageOptions.IgnoreHash);
+	}
+	
 	private void ActionGroupPricingActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
+	}
+
+	protected void OnActionSalesDepartmentAcivated(System.Object sender, System.EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
 	}
 }

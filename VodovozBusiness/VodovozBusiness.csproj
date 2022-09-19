@@ -71,6 +71,7 @@
     <Compile Include="Controllers\OrderDiscountsController.cs" />
     <Compile Include="Controllers\PaymentFromBankClientController.cs" />
     <Compile Include="Controllers\IRouteListsWageController.cs" />
+    <Compile Include="Controllers\ProfitabilityConstantsViewModelHandler.cs" />
     <Compile Include="Controllers\RouteListsWageController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
+    <Compile Include="Domain\ProfitabilityConstants.cs" />
     <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemHistory.cs" />
@@ -318,6 +320,8 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Profitability\IProfitabilityConstantsRepository.cs" />
+    <Compile Include="EntityRepositories\Profitability\ProfitabilityConstantsRepository.cs" />
     <Compile Include="EntityRepositories\Roboats\IRoboatsRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\OrganizationRepository.cs" />
     <Compile Include="EntityRepositories\Roboats\NomenclatureQuantity.cs" />
@@ -442,6 +446,7 @@
     <Compile Include="HibernateMapping\Organizations\RoboatsStreetMap.cs" />
     <Compile Include="HibernateMapping\Organizations\RoboatsWaterTypeMap.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromAvangardMap.cs" />
+    <Compile Include="HibernateMapping\Profitability\ProfitabilityConstantsMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
     <Compile Include="HibernateMapping\Roboats\RoboatsCallDetailMap.cs" />

@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels;
 
@@ -22,6 +23,7 @@ namespace Vodovoz.JournalViewModels
 	public class ResidueJournalViewModel : FilterableSingleEntityJournalViewModelBase<Residue, ResidueViewModel, ResidueJournalNode, ResidueFilterViewModel>
 	{
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public ResidueJournalViewModel(
 			ResidueFilterViewModel filterViewModel,
@@ -32,7 +34,8 @@ namespace Vodovoz.JournalViewModels
 			IBottlesRepository bottlesRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			ISubdivisionParametersProvider subdivisionParametersProvider
 		) 
 		: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -45,6 +48,7 @@ namespace Vodovoz.JournalViewModels
 			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 
 			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
@@ -127,7 +131,8 @@ namespace Vodovoz.JournalViewModels
 			depositRepository, 
 			moneyRepository, 
 			commonServices,
-			employeeSelectorFactory
+			employeeSelectorFactory,
+			_subdivisionParametersProvider
 		);
 
 		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction => (node) => new ResidueViewModel(
@@ -139,7 +144,8 @@ namespace Vodovoz.JournalViewModels
 			depositRepository, 
 			moneyRepository, 
 			commonServices,
-			employeeSelectorFactory
+			employeeSelectorFactory,
+			_subdivisionParametersProvider
 		);
 	}
 }
