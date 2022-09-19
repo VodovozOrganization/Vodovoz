@@ -284,6 +284,10 @@ public partial class MainWindow : Gtk.Window
 		MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		MangoManager.Connect();
 
+		// Отдел продаж
+
+		ActionSalesDepartment.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
+
 		#region Пользователь с правом работы только со складом и рекламациями
 
 		bool accessToWarehouseAndComplaints;
@@ -401,7 +405,7 @@ public partial class MainWindow : Gtk.Window
 
 	private void UpdateSendedMovementsNotification(string notification)
 	{
-		lblMovementsNotification.Markup = notification;			
+		lblMovementsNotification.Markup = notification;
 	}
 
 	#endregion
@@ -1064,6 +1068,7 @@ public partial class MainWindow : Gtk.Window
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
+		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		var journal = new ComplaintsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
@@ -1077,7 +1082,8 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.CommonServices,
 				subdivisionRepository,
 				employeeJournalFactory,
-				counterpartySelectorFactory
+				counterpartySelectorFactory,
+				subdivisionParametersProvider
 			)
 			{
 				HidenByDefault = true
@@ -2190,6 +2196,7 @@ public partial class MainWindow : Gtk.Window
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
+		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		tdiMain.OpenTab(
 			() =>
@@ -2206,7 +2213,8 @@ public partial class MainWindow : Gtk.Window
 						ServicesConfig.CommonServices,
 						subdivisionRepository,
 						employeeJournalFactory,
-						counterpartySelectorFactory
+						counterpartySelectorFactory,
+						subdivisionParametersProvider
 					)
 					{ IsForRetail = true },
 					fileDialogService,
@@ -2689,5 +2697,10 @@ public partial class MainWindow : Gtk.Window
 	private void ActionGroupPricingActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
+	}
+
+	protected void OnActionSalesDepartmentAcivated(System.Object sender, System.EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
 	}
 }
