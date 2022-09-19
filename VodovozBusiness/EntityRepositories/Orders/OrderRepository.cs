@@ -34,12 +34,13 @@ namespace Vodovoz.EntityRepositories.Orders
 			.Where(x => x.OrderStatus == OrderStatus.WaitForPayment);
 		}
 
-		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped)
+		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped, VodovozOrder orderBaseAlias = null)
 		{
-			var query = QueryOver.Of<VodovozOrder>().Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery)
-													.Where(o => o.DeliverySchedule != null)
-													.Where(x => x.DeliveryPoint != null)
-													;
+			var query = QueryOver.Of<VodovozOrder>(()=> orderBaseAlias)
+				.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery)
+				.Where(o => o.DeliverySchedule != null)
+				.Where(x => x.DeliveryPoint != null);
+				
 			if(!showShipped)
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 			else

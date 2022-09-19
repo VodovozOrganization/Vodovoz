@@ -37,6 +37,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -69,8 +70,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
-			ICarModelJournalFactory carModelJournalFactory,
-			IGeographicGroupParametersProvider geographicGroupParametersProvider) : base(commonServices?.InteractiveService, navigationManager)
+			ICarModelJournalFactory carModelJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
 			{
@@ -80,10 +80,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				throw new ArgumentNullException(nameof(geographicGroupRepository));
 			}
-			if(geographicGroupParametersProvider == null)
-			{
-				throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
-			}
+
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -125,8 +122,8 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			GeographicGroupsExceptEast =
-				geographicGroupRepository.GeographicGroupsWithCoordinatesExceptEast(UoW, geographicGroupParametersProvider);
-			var geographicGroups = geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
+				geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
+			var geographicGroups = geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
 			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(geographicGroups.Select(x => new GeographicGroupNode(x)).ToList());
 			GeoGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
 			if(employeeGeographicGroup != null) {
@@ -140,7 +137,10 @@ namespace Vodovoz.ViewModels.Logistic
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 			//Необходимо сразу проинициализировать, т.к вызывается Session.Clear() в методе InitializeData()
 			NHibernateUtil.Initialize(defaultDeliveryDaySchedule.Shifts);
-			
+
+			var deliveryShifts = UoW.GetAll<DeliveryShift>();
+			DeliveryShiftNodes = deliveryShifts.Select(ds => new DeliveryShiftNode(ds, true)).ToList();
+
 			CreateCommands();
 			LoadAddressesTypesDefaults();
 		}
@@ -637,6 +637,8 @@ namespace Vodovoz.ViewModels.Logistic
 			new OrderAddressTypeNode(OrderAddressType.StorageLogistics)
 		};
 
+		public IList<DeliveryShiftNode> DeliveryShiftNodes { get; set; }
+
 		private void LoadAddressesTypesDefaults()
 		{
 			var currentUserSettings = userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId);
@@ -776,6 +778,16 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(row is RouteListItem rli)
 				return rli.Order.TotalWeight.ToString();
+			return null;
+		}
+
+		public string GetRowDeliveryShift(object row)
+		{
+			if(row is RouteList rl)
+			{
+				return rl.Shift?.Name;
+			}
+
 			return null;
 		}
 
@@ -1172,12 +1184,14 @@ namespace Vodovoz.ViewModels.Logistic
 			District districtAlias = null;
 			GeoGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
+			Order orderBaseAlias = null;
 
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
+			var selectedDeliveryShifts = DeliveryShiftNodes.Where(x => x.Selected).Select(x => x.DeliveryShift).ToArray();
 
 			if(OrderAddressTypes.Any(x => x.Selected))
 			{
-				var query = QueryOver.Of<Order>()
+				var query = QueryOver.Of(() => orderBaseAlias)
 					.Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
 					.Where(o => o.DeliverySchedule != null)
 					.Where(x => x.DeliveryPoint != null)
@@ -1201,6 +1215,15 @@ namespace Vodovoz.ViewModels.Logistic
 						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
 							selectedGeographicGroup.Select(x => x.Id).ToArray()));
+				}
+
+				if(selectedDeliveryShifts.Any())
+				{
+					RouteList routeListAlias = null;
+					RouteListItem routeListItemAlias = null;
+					baseOrderQuery.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderBaseAlias.Id)
+						.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+						.WhereRestrictionOn(() => routeListAlias.Shift).IsIn(selectedDeliveryShifts);
 				}
 
 				var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
@@ -1286,6 +1309,11 @@ namespace Vodovoz.ViewModels.Logistic
 						selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
 
+			if(selectedDeliveryShifts.Any())
+			{
+				routesQuery1.WhereRestrictionOn(rl => rl.Shift).IsIn(selectedDeliveryShifts);
+			}
+
 			var routesQuery = routesQuery1
 				.Fetch(SelectMode.Undefined, x => x.Addresses)
 				.Future();
@@ -1299,7 +1327,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			logger.Info("Загружаем водителей на {0:d}...", DateForRouting);
 			ObservableDriversOnDay.Clear();
-			atWorkRepository.GetDriversAtDay(UoW, DateForRouting, AtWorkDriver.DriverStatus.IsWorking).ToList().ForEach(x => ObservableDriversOnDay.Add(x));
+			atWorkRepository.GetDriversAtDay(UoW, DateForRouting, driverStatuses: new [] { AtWorkDriver.DriverStatus.IsWorking }).ToList().ForEach(x => ObservableDriversOnDay.Add(x));
 			logger.Info("Загружаем экспедиторов на {0:d}...", DateForRouting);
 			ObservableForwardersOnDay.Clear();
 			atWorkRepository.GetForwardersAtDay(UoW, DateForRouting).ToList().ForEach(x => ObservableForwardersOnDay.Add(x));
@@ -1420,10 +1448,11 @@ namespace Vodovoz.ViewModels.Logistic
 			District districtAlias = null;
 			GeoGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
+			Order orderBaseAlias = null;
 
 			ObservableDeliverySummary.Clear();
 
-			var baseQuery = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+			var baseQuery = OrderRepository.GetOrdersForRLEditingQuery(DateForRouting, true, orderBaseAlias)
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
 				.And(o => o.OrderAddressType != OrderAddressType.Service);
@@ -1440,6 +1469,18 @@ namespace Vodovoz.ViewModels.Logistic
 						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
 							selectedGeographicGroup.Select(x => x.Id).ToArray()));
+				}
+
+				var selectedDeliveryShifts = DeliveryShiftNodes.Where(x => x.Selected).Select(x => x.DeliveryShift).ToArray();
+				if(selectedDeliveryShifts.Any())
+				{
+					RouteList routeListAlias = null;
+					RouteListItem routeListItemAlias = null;
+
+					baseQuery
+						.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderBaseAlias.Id)
+						.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+						.WhereRestrictionOn(() => routeListAlias.Shift).IsIn(selectedDeliveryShifts);
 				}
 			}
 

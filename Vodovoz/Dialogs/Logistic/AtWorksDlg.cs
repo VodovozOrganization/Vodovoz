@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gamma.Widgets.Additions;
 using Gdk;
 using Gtk;
 using QS.Dialog;
@@ -38,11 +39,13 @@ using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -56,7 +59,6 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly DriverApiUserRegisterEndpoint _driverApiRegistrationEndpoint;
-		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
 		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
 		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
@@ -78,12 +80,12 @@ namespace Vodovoz.Dialogs.Logistic
         private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
         private readonly EmployeeFilterViewModel _forwarderFilter;
 		private IList<RouteList> _routelists = new List<RouteList>();
+		private readonly AtWorkFilterViewModel  _filterViewModel;
 
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
-			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
-			IGeographicGroupParametersProvider geographicGroupParametersProvider)
+			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
 			{
@@ -92,11 +94,42 @@ namespace Vodovoz.Dialogs.Logistic
 
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_driverApiRegistrationEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
-			_geographicGroupParametersProvider = geographicGroupParametersProvider ?? throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
+			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository);
+
 			Build();
 
+			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.Binding
+				.AddBinding(_filterViewModel, vm => vm.SelectedCarTypesOfUse, w => w.SelectedValuesList, 
+					new EnumsListConverter<CarTypeOfUse>())
+				.InitializeFromSource();
+
+			enumcheckCarOwnType.EnumType = typeof(CarOwnType);
+			enumcheckCarOwnType.Binding
+				.AddBinding(_filterViewModel, vm => vm.SelectedCarOwnTypes, w => w.SelectedValuesList, new EnumsListConverter<CarOwnType>())
+				.InitializeFromSource();
+
+			enumcheckDriverStatus.EnumType = typeof(AtWorkDriver.DriverStatus);
+			enumcheckDriverStatus.Binding
+				.AddBinding(_filterViewModel, vm => vm.SelectedDriverStatuses, w => w.SelectedValuesList, new EnumsListConverter<AtWorkDriver.DriverStatus>())
+				.InitializeFromSource();
+
+			ytreeviewGeographicGroup.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>
+				.Create()
+				.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing()
+				.AddColumn("Район города").AddTextRenderer(x => x.GeographicGroup.Name)
+				.Finish();
+
+			ytreeviewGeographicGroup.Binding.AddBinding(_filterViewModel, vm => vm.GeographicGroupNodes, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewGeographicGroup.HeadersVisible = false;
+
+			_filterViewModel.PropertyChanged += (s, a) =>
+			{
+				FillDialogAtDay();
+			};
+
 			var geographicGroups =
-				_geographicGroupRepository.GeographicGroupsWithCoordinatesExceptEast(UoW, _geographicGroupParametersProvider);
+				_geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
 			var colorWhite = new Color(0xff, 0xff, 0xff);
 			var colorLightRed = new Color(0xff, 0x66, 0x66);
 			ytreeviewAtWorkDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
@@ -145,6 +178,10 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Комментарий")
 					.AddTextRenderer(x => x.Comment)
 						.Editable(true)
+				.AddColumn("Принадлежность\nавто")
+					.AddTextRenderer(x => x.CarVersion.CarOwnType.GetEnumTitle())
+				.AddColumn("Тип\nавто")
+					.AddTextRenderer(x => x.Car.CarModel.CarTypeOfUse.GetEnumTitle())
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Status == AtWorkDriver.DriverStatus.NotWorking? "gray": "black")
 				.Finish();
 
@@ -450,7 +487,6 @@ namespace Vodovoz.Dialogs.Logistic
 					new OdometerReadingsViewModelFactory(ServicesConfig.CommonServices),
 					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
 						new BaseParametersProvider(new ParametersProvider()))),
-					_geographicGroupParametersProvider,
 					geoGroupJournalFactory,
 					MainClass.MainWin.NavigationManager
 				)
@@ -730,7 +766,14 @@ namespace Vodovoz.Dialogs.Logistic
 			ForwardersAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetForwardersAtDay(UoW, DialogAtDate);
 
 			logger.Info("Загружаем водителей на {0:d}...", DialogAtDate);
-			DriversAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetDriversAtDay(UoW, DialogAtDate);
+			var selectedGeographicGroupIds = _filterViewModel
+				.GeographicGroupNodes
+				.Where(ggn => ggn.Selected)
+				.Select(ggn => ggn.GeographicGroup.Id)
+				.ToArray();
+			DriversAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetDriversAtDay(UoW, DialogAtDate,
+				driverStatuses: _filterViewModel.SelectedDriverStatuses, carTypesOfUse: _filterViewModel.SelectedCarTypesOfUse,
+				carOwnTypes: _filterViewModel.SelectedCarOwnTypes, geoGroupIds: selectedGeographicGroupIds);
 
 			logger.Info("Ок");
 
