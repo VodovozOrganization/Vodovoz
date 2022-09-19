@@ -548,6 +548,8 @@ namespace Vodovoz
 				.InitializeFromSource();
 			yspinExpirationDatePercent.Sensitive = CanEdit;
 
+			ycheckRoboatsExclude.Binding.AddBinding(Entity, e => e.RoboatsExclude, w => w.Active).InitializeFromSource();
+
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
 			{
