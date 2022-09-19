@@ -13,6 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -24,6 +25,7 @@ namespace Vodovoz.ViewModels.Complaints
 		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
         private readonly IFileDialogService _fileDialogService;
         private readonly IUserRepository _userRepository;
+        private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
         private IList<ComplaintObject> _complaintObjectSource;
         private ComplaintObject _complaintObject;
         private readonly IList<ComplaintKind> _complaintKinds;
@@ -36,7 +38,8 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
             IFileDialogService fileDialogService,
-			IUserRepository userRepository
+			IUserRepository userRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider
             ) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
             _fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -44,6 +47,7 @@ namespace Vodovoz.ViewModels.Complaints
             _employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			Entity.ComplaintType = ComplaintType.Inner;
 			Entity.SetStatus(ComplaintStatuses.Checking);
 
@@ -94,7 +98,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory, _subdivisionParametersProvider);
 				}
 
 				return guiltyItemsViewModel;

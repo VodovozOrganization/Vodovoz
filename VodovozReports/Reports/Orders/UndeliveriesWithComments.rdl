@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -776,6 +776,8 @@ FROM
 	AND
 		(un.status = @undelivery_status OR @undelivery_status = '')
 	AND
+		(un.undelivered_order_status = @old_order_status OR @old_order_status = '')
+	AND
 		(un.author_employee_id = @undelivery_author_id OR @undelivery_author_id = 0)
 	GROUP BY un.id
 	ORDER BY oldo.delivery_date
@@ -824,6 +826,9 @@ ORDER BY order_by_column ASC
           </QueryParameter>
           <QueryParameter Name="undelivery_author_id">
             <Value>={?undelivery_author_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="old_order_status">
+            <Value>={?old_order_status}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1107,6 +1112,14 @@ GROUP BY
     </ReportParameter>
     <ReportParameter Name="are_guilties_filtred">
       <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="old_order_status">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

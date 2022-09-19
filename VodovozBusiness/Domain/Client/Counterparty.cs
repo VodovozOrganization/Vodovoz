@@ -46,6 +46,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IUnitOfWork UoW { get; set; }
 		private const int _cargoReceiverLimitSymbols = 500;
 		private bool _roboatsExclude;
+		private bool _isForSalesDepartment;
 
 		#region Свойства
 
@@ -659,6 +660,13 @@ namespace Vodovoz.Domain.Client
         {
             get => isForRetail;
             set => SetField(ref isForRetail, value);
+        }
+
+        [Display(Name = "Для отдела продаж")]
+        public virtual bool IsForSalesDepartment
+		{
+	        get => _isForSalesDepartment;
+	        set => SetField(ref _isForSalesDepartment, value);
         }
 
         private bool noPhoneCall;

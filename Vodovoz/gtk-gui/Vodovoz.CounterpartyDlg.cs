@@ -144,6 +144,8 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.ySpecComboBox ySpecCmbCameFrom;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckIsForSalesDepartment;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckIsForRetail;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckNoPhoneCall;
@@ -1141,6 +1143,18 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w69 = ((global::Gtk.Box.BoxChild)(this.hbox26[this.hboxCameFrom]));
 			w69.Position = 0;
 			// Container child hbox26.Gtk.Box+BoxChild
+			this.ycheckIsForSalesDepartment = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckIsForSalesDepartment.CanFocus = true;
+			this.ycheckIsForSalesDepartment.Name = "ycheckIsForSalesDepartment";
+			this.ycheckIsForSalesDepartment.Label = global::Mono.Unix.Catalog.GetString("Для отдела продаж");
+			this.ycheckIsForSalesDepartment.DrawIndicator = true;
+			this.ycheckIsForSalesDepartment.UseUnderline = true;
+			this.hbox26.Add(this.ycheckIsForSalesDepartment);
+			global::Gtk.Box.BoxChild w69 = ((global::Gtk.Box.BoxChild)(this.hbox26[this.ycheckIsForSalesDepartment]));
+			w69.Position = 1;
+			w69.Expand = false;
+			w69.Fill = false;
+			// Container child hbox26.Gtk.Box+BoxChild
 			this.ycheckIsForRetail = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckIsForRetail.CanFocus = true;
 			this.ycheckIsForRetail.Name = "ycheckIsForRetail";
@@ -1149,7 +1163,7 @@ namespace Vodovoz
 			this.ycheckIsForRetail.UseUnderline = true;
 			this.hbox26.Add(this.ycheckIsForRetail);
 			global::Gtk.Box.BoxChild w70 = ((global::Gtk.Box.BoxChild)(this.hbox26[this.ycheckIsForRetail]));
-			w70.Position = 1;
+			w70.Position = 2;
 			w70.Expand = false;
 			w70.Fill = false;
 			// Container child hbox26.Gtk.Box+BoxChild
@@ -1161,7 +1175,7 @@ namespace Vodovoz
 			this.ycheckNoPhoneCall.UseUnderline = true;
 			this.hbox26.Add(this.ycheckNoPhoneCall);
 			global::Gtk.Box.BoxChild w71 = ((global::Gtk.Box.BoxChild)(this.hbox26[this.ycheckNoPhoneCall]));
-			w71.Position = 2;
+			w71.Position = 3;
 			w71.Expand = false;
 			w71.Fill = false;
 			this.table1.Add(this.hbox26);
@@ -1170,7 +1184,7 @@ namespace Vodovoz
 			w72.BottomAttach = ((uint)(2));
 			w72.LeftAttach = ((uint)(2));
 			w72.RightAttach = ((uint)(4));
-			w72.XOptions = ((global::Gtk.AttachOptions)(4));
+			w72.XOptions = ((global::Gtk.AttachOptions)(0));
 			w72.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.hboxWorksThroughOrganization = new global::Gamma.GtkWidgets.yHBox();

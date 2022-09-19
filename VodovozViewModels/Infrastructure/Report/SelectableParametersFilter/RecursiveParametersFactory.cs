@@ -25,6 +25,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			this.childsSelector = childsSelector ?? throw new ArgumentNullException(nameof(childsSelector));
 		}
 
+		public bool IsRecursiveFactory => true;
+
 		public IList<SelectableParameter> GetParameters(IEnumerable<Func<ICriterion>> filterRelations)
 		{
 			var entities = sourceFunc(filterRelations);

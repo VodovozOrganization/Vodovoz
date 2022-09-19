@@ -59,6 +59,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IOrderDiscountsController _discountsController;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public RetailOrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel,
@@ -76,7 +77,8 @@ namespace Vodovoz.JournalViewModels
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			IOrderDiscountsController discountsController) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IOrderDiscountsController discountsController,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -97,6 +99,7 @@ namespace Vodovoz.JournalViewModels
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 
 			TabName = "Журнал заказов";
 
@@ -842,7 +845,8 @@ namespace Vodovoz.JournalViewModels
 							_undeliveredOrdersJournalOpener,
 							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
-							new EmployeeSettings(new ParametersProvider())
+							new EmployeeSettings(new ParametersProvider()),
+							_subdivisionParametersProvider
 							);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);

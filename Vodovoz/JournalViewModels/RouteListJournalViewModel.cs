@@ -50,6 +50,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -79,6 +80,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IReportPrinter _reportPrinter;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IEmployeeSettings _employeeSettings;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
 
@@ -108,8 +110,9 @@ namespace Vodovoz.JournalViewModels
 			IReportPrinter reportPrinter,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IEmployeeSettings employeeSettings,
-			ICommonServices commonServices
-			)
+			ICommonServices commonServices,
+			ISubdivisionParametersProvider subdivisionParametersProvider
+		)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -139,6 +142,7 @@ namespace Vodovoz.JournalViewModels
 			_reportPrinter = reportPrinter ?? throw new ArgumentNullException(nameof(reportPrinter));
 			_terminalNomenclatureProvider = terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			TabName = "Журнал МЛ";
 
 			NotifyConfiguration.Enable();
@@ -591,7 +595,8 @@ namespace Vodovoz.JournalViewModels
 								_undeliveredOrdersJournalOpener,
 								_deliveryShiftRepository,
 								_employeeSettings,
-								_undeliveredOrdersRepository
+								_undeliveredOrdersRepository,
+								_subdivisionParametersProvider
 							),
 							this,
 							false
