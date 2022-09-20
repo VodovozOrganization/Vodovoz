@@ -169,6 +169,7 @@
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\CurrentWarehousePermissions.cs" />
     <Compile Include="Domain\ProfitabilityConstants.cs" />
     <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />

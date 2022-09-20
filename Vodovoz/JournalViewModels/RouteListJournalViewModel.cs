@@ -18,7 +18,6 @@ using QS.Project.Domain;
 using QS.Report;
 using QS.Tdi;
 using Vodovoz.Additions.Store;
-using Vodovoz.Core;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -38,7 +37,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
@@ -50,6 +48,8 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
+using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.JournalViewModels
@@ -81,6 +81,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
 
@@ -111,8 +112,8 @@ namespace Vodovoz.JournalViewModels
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IEmployeeSettings employeeSettings,
 			ICommonServices commonServices,
-			ISubdivisionParametersProvider subdivisionParametersProvider
-		)
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IWarehousePermissionService warehousePermissionService)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -143,6 +144,10 @@ namespace Vodovoz.JournalViewModels
 			_terminalNomenclatureProvider = terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_warehousePermissionValidator =
+				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService)))
+				.GetValidator(UoW, commonServices.UserService.CurrentUserId);
+			
 			TabName = "Журнал МЛ";
 
 			NotifyConfiguration.Enable();
@@ -414,7 +419,8 @@ namespace Vodovoz.JournalViewModels
 
 			if(defaultWarehouse != null
 			   && !cashWarehouseIds.Contains(defaultWarehouse.Id)
-			   && CurrentPermissions.Warehouse[WarehousePermissions.CarLoadEdit, defaultWarehouse])
+			   && _warehousePermissionValidator.Validate(
+					WarehousePermissionsType.CarLoadEdit, defaultWarehouse, _employeeRepository.GetEmployeeForCurrentUser(UoW).User))
 			{
 				return new JournalAction(
 					$"Отправить МЛ на погрузку со скалада\n'{defaultWarehouse.Name}' и распечатать",
@@ -431,9 +437,10 @@ namespace Vodovoz.JournalViewModels
 				);
 			}
 
-			var warehousesAvailableForUser = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarLoadEdit)
-				.Where(x => !cashWarehouseIds.Contains(x.Id))
-				.ToList();
+			var warehousesAvailableForUser =
+				new StoreDocumentHelper().GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit)
+					.Where(x => !cashWarehouseIds.Contains(x.Id))
+					.ToList();
 
 			if(!warehousesAvailableForUser.Any())
 			{

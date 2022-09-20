@@ -7,9 +7,6 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
-using Vodovoz.Infrastructure.Permissions;
-using Vodovoz.JournalViewModels;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
@@ -22,7 +19,7 @@ namespace Vodovoz
 
         protected override void ConfigureWithUow()
 		{
-            var warehousesList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissions.WarehouseView })
+            var warehousesList = new StoreDocumentHelper().GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WarehouseView)
                                     .OrderBy(w => w.Name).ToList();
             
             bool accessToWarehouseAndComplaints =

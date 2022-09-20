@@ -166,6 +166,8 @@ using Vodovoz.Controllers;
 using QS.Utilities;
 using Vodovoz.ViewModels.Profitability;
 using Fias.Service.Cache;
+using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Dialogs.Goods;
 
 public partial class MainWindow : Gtk.Window
@@ -221,7 +223,8 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
+		var currentWarehousePermissions = new CurrentWarehousePermissions();
+		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
 		bool hasAccessToCRM = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
 		bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
@@ -1428,7 +1431,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(new Vodovoz.Dialogs.HistoryView());
+		tdiMain.AddTab(new Vodovoz.Dialogs.HistoryView(new UserJournalFactory()));
 	}
 
 	protected void OnAction45Activated(object sender, EventArgs e)
@@ -2174,6 +2177,7 @@ public partial class MainWindow : Gtk.Window
 			new RegisteredRMJournalViewModel(
 				new RegisteredRMJournalFilterViewModel(),
 				UnitOfWorkFactory.GetDefaultFactory,
+				new PermissionRepository(),
 				ServicesConfig.CommonServices
 			)
 		);

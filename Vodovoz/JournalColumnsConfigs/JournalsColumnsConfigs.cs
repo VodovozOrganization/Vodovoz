@@ -1022,7 +1022,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) =>
-							c.ForegroundGdk = n.Deactivated ? colorDarkGrey : colorBlack)
+							c.ForegroundGdk = n.Deactivated ? _colorDarkGrey : _colorBlack)
 					.Finish()
 			);
 

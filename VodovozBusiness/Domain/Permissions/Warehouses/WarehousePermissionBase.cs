@@ -60,7 +60,8 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 
 	public enum WarehousePermissionsType
 	{
-		[Display(Name = "Просмотр склада")] WarehouseView,
+		[Display(Name = "Просмотр склада")]
+		WarehouseView,
 
 		[Display(Name = "Архивирование склада")]
 		Archive,

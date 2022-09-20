@@ -3,22 +3,18 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
-using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
-using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -31,7 +27,6 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -45,6 +40,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
+		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper();
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
@@ -63,7 +59,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.SelfDeliveryEdit);
+			Entity.Warehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.SelfDeliveryEdit);
 			var validationResult = CheckPermission();
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
@@ -110,7 +106,7 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
-			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
+			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
@@ -119,12 +115,12 @@ namespace Vodovoz
 			vbxMain.Sensitive = canEditDocument;
 			buttonCancel.Sensitive = true;
 
-			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);
+			var editing = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.SelfDeliveryEdit, Entity.Warehouse);
 			evmeOrder.IsEditable = lstWarehouse.Sensitive = ytextviewCommnet.Editable = editing && canEditDocument;
 			selfdeliverydocumentitemsview1.Sensitive = hbxTareToReturn.Sensitive = editing && canEditDocument;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			lstWarehouse.ItemsList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.SelfDeliveryEdit);
+			lstWarehouse.ItemsList = _storeDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.SelfDeliveryEdit);
 			lstWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
 			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -9,9 +8,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.JournalViewModels;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
@@ -22,6 +19,7 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper();
 
 		public RegradingOfGoodsDocumentDlg()
 		{
@@ -35,10 +33,9 @@ namespace Vodovoz
 				return;
 			}
 			
-			var storeDocument = new StoreDocumentHelper();
-			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.RegradingOfGoodsEdit);
+			Entity.Warehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.RegradingOfGoodsEdit);
 
-			ConfigureDlg(storeDocument);
+			ConfigureDlg();
 		}
 
 		public RegradingOfGoodsDocumentDlg (int id)
@@ -46,22 +43,21 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument> (id);
 			
-			var storeDocument = new StoreDocumentHelper();
-			ConfigureDlg (storeDocument);
+			ConfigureDlg();
 		}
 
 		public RegradingOfGoodsDocumentDlg (RegradingOfGoodsDocument sub) : this (sub.Id)
 		{
 		}
 
-		void ConfigureDlg (StoreDocumentHelper storeDocument)
+		void ConfigureDlg ()
 		{
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse)) {
+			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
-			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse);
+			var editing = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse);
 			regradingofgoodsitemsview.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
@@ -79,7 +75,8 @@ namespace Vodovoz
 				warehouseEntry.CanEditReference = true;
 			}
 
-			var availableWarehousesIds = StoreDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissions.RegradingOfGoodsEdit);
+			var availableWarehousesIds =
+				_storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.RegradingOfGoodsEdit);
 			var warehouseFilter = new WarehouseJournalFilterViewModel
 			{
 				IncludeWarehouseIds = availableWarehousesIds

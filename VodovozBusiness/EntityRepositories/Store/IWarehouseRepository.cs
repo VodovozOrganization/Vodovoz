@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.EntityRepositories.Store

@@ -5,6 +5,7 @@ namespace Vodovoz.Infrastructure.Services
 {
 	public interface IWarehousePermissionService
 	{
-		IWarehousePermissionValidator GetValidator(IUnitOfWork uow, int subdivisionId);
+		IWarehousePermissionValidator GetValidator(IUnitOfWork uow, int userId);
+		IWarehousePermissionValidator GetValidator(Subdivision subdivision);
 	}
 }

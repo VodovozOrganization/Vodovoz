@@ -24,6 +24,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Infrastructure.Services;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
@@ -63,7 +64,7 @@ namespace Vodovoz.ViewModels.Warehouses
             this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_nomenclatureCostPurchasePriceModel = nomenclatureCostPurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPurchasePriceModel));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
-            warehousePermissionValidator = warehousePermissionService.GetValidator(CommonServices.UserService.CurrentUserId);
+            warehousePermissionValidator = warehousePermissionService.GetValidator(CurrentEmployee.Subdivision);
 
             canEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
             ConfigureEntityChangingRelations();
@@ -88,7 +89,9 @@ namespace Vodovoz.ViewModels.Warehouses
         
         private void ReloadAllowedWarehousesFrom()
         {
-            var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(isNew? WarehousePermissions.IncomingInvoiceCreate: WarehousePermissions.IncomingInvoiceEdit);
+			var allowedWarehouses =
+				warehousePermissionValidator.GetAllowedWarehouses(
+					isNew ? WarehousePermissionsType.IncomingInvoiceCreate : WarehousePermissionsType.IncomingInvoiceEdit, CurrentEmployee);
             allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
                 .Where(x => !x.IsArchive)
                 .WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Autofac;
 using QS.Deletion;
@@ -168,70 +167,15 @@ using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
-using Vodovoz.ViewModels.Goods;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
-using Vodovoz.ViewModels.ViewModels.Cash;
-using Vodovoz.Views.Goods;
-using Vodovoz.Core.DataService;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.JournalFilters;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Views.Mango.Talks;
-using Vodovoz.ViewModels.Mango.Talks;
-using Vodovoz.ViewModels.ViewModels;
-using Vodovoz.ViewModels.ViewModels.Goods;
-using Vodovoz.ViewModels.ViewModels.Store;
-using Vodovoz.Views.Store;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
-using Vodovoz.JournalFilters.Proposal;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.ViewModels.ViewModels.Proposal;
-using Vodovoz.Views.Proposal;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Security;
-using Vodovoz.Views.Security;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
-using Vodovoz.ViewModels.ViewModels.Retail;
-using Vodovoz.Views.Retail;
-using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Complaints;
-using Vodovoz.ViewModels.ViewModels.Employees;
-using Vodovoz.Views.Reports;
-using Vodovoz.ViewModels.ViewModels.Orders;
-using Vodovoz.ViewModels.ViewModels.Reports;
-using Vodovoz.JournalViewers.Complaints;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.ViewModels.Dialogs.Orders;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
-using Vodovoz.Views.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
-using Vodovoz.ViewModels.ViewModels.Flyers;
-using Vodovoz.ViewModels.ViewModels.Rent;
-using Vodovoz.ViewModels.ViewModels.Suppliers;
-using Vodovoz.Views.Flyers;
-using Vodovoz.Views.Print;
-using Vodovoz.Views.Rent;
-using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using Vodovoz.Views.Permissions;
 using UserView = Vodovoz.Views.Users.UserView;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using Vodovoz.ReportsParameters.Orders;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
-using Vodovoz.ViewModels.ViewModels.Profitability;
-using Vodovoz.Views.Profitability;
 using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.Views.Sale;
 using Vodovoz.Models;
@@ -261,7 +205,6 @@ namespace Vodovoz
 			{
 				WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory()
 			};
-
 		}
 
 		static void ConfigureViewModelWidgetResolver()

@@ -32,7 +32,10 @@ namespace Vodovoz.Services.Permissions
 		{
 			var repository = new EmployeeRepository();
 			var employee = repository.GetEmployeeForCurrentUser(uow);
-			return WarehousePermissionValidatorFactory.CreateValidator(employee.Subdivision);
+			return GetValidator(employee.Subdivision);
 		}
+
+		public IWarehousePermissionValidator GetValidator(Subdivision subdivision) =>
+			WarehousePermissionValidatorFactory.CreateValidator(subdivision);
 	}
 }

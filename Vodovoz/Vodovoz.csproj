@@ -896,7 +896,6 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.ReplaceEntityLinksDlg.cs" />
     <Compile Include="ReportsParameters\Store\StockMovements.cs" />
     <Compile Include="Core\CurrentUserSettings.cs" />
-    <Compile Include="Core\CurrentWarehousePermissions.cs" />
     <Compile Include="Additions\Store\StoreDocumentHelper.cs" />
     <Compile Include="ReportsParameters\Bottles\BottlesMovementReport.cs" />
     <Compile Include="ReportsParameters\Bottles\BottlesMovementSummaryReport.cs" />

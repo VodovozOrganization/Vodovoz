@@ -6,6 +6,9 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -64,7 +67,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
             var permission = new CurrentWarehousePermissions();
             foreach (var p in warehousePermissions)
             {
-                disjunction.Add<Warehouse>(w => w.Id.IsIn(permission.WarehousePermissions.Where(x=>x.WarehousePermissionType == p && x.PermissionValue == true).Select(x => x.Warehouse.Id).ToArray()));
+                disjunction.Add<Warehouse>(
+					w =>
+						w.Id.IsIn(permission.WarehousePermissions.Where(x => x.WarehousePermissionType == p && x.PermissionValue == true)
+						.Select(x => x.Warehouse.Id).ToArray()));
             }
             query.Where(disjunction);
 

@@ -19,8 +19,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ydatepicker.Date = DateTime.Now.Date;
-			var storeDocument = new StoreDocumentHelper();
-			referenceWarehouse.ItemsQuery = storeDocument.GetWarehouseQuery();
+			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetNotArchiveWarehousesQuery();
 			ButtonSensitivity();
 		}
 

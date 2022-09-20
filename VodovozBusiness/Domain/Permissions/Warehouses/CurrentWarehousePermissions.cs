@@ -5,10 +5,9 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 
-namespace Vodovoz.Core
+namespace Vodovoz.Domain.Permissions.Warehouses
 {
 	public class CurrentWarehousePermissions
 	{
