@@ -267,7 +267,7 @@ FROM
         LEFT JOIN
     organizations ON organizations.id = counterparty_contract.organization_id
         LEFT JOIN
-    (SELECT * FROM organization_versions GROUP BY organization_versions.organization_id DESC) ov
+   organization_versions ov
         ON
             organizations.id = ov.organization_id 
         AND
@@ -452,7 +452,7 @@ WHERE o.id = @order_id
 		        LEFT JOIN
 		    organizations ON organizations.id = counterparty_contract.organization_id
 		        LEFT JOIN    
-		    (SELECT * FROM organization_versions GROUP BY organization_versions.organization_id DESC) ov
+		    organization_versions ov
 		        ON
 		            organizations.id = ov.organization_id 
 		        AND
@@ -471,7 +471,7 @@ WHERE o.id = @order_id
 		        LEFT JOIN
 		    organizations ON organizations.id = counterparty_contract.organization_id
 		        LEFT JOIN    
-		    (SELECT * FROM organization_versions GROUP BY organization_versions.organization_id DESC) ov
+		    organization_versions ov
 		        ON
 		            organizations.id = ov.organization_id 
 		        AND

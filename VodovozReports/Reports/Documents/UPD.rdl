@@ -407,14 +407,6 @@ WHERE o.id = @order_id
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	(SELECT binary_file FROM stored_resource WHERE id = 16) as chief,
-	(SELECT binary_file FROM stored_resource WHERE id = 24) as bookkeeper
-;
-
-select * from organization_versions ov WHERE ov.id = 22
-
-
-SELECT 
 	(SELECT binary_file FROM stored_resource WHERE id = 
 		(SELECT 
 			 ov.signature_leader_id
@@ -425,7 +417,7 @@ SELECT
 		        LEFT JOIN
 		    organizations ON organizations.id = counterparty_contract.organization_id
 		        LEFT JOIN    
-		    (SELECT * FROM organization_versions GROUP BY organization_versions.organization_id DESC) ov
+		   organization_versions ov
 		        ON
 		            organizations.id = ov.organization_id 
 		        AND
@@ -444,7 +436,7 @@ SELECT
 		        LEFT JOIN
 		    organizations ON organizations.id = counterparty_contract.organization_id
 		        LEFT JOIN    
-		    (SELECT * FROM organization_versions GROUP BY organization_versions.organization_id DESC) ov
+		    organization_versions ov
 		        ON
 		            organizations.id = ov.organization_id 
 		        AND
@@ -786,8 +778,8 @@ SELECT
             <Width>419.75pt</Width>
             <Value>=Fields!org_name.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>152.5pt</Left>
-            <Top>25.2pt</Top>
+            <Left>152.50pt</Left>
+            <Top>25.20pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -4208,7 +4200,7 @@ SELECT
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
+            <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
             <MIMEType>image/jpeg</MIMEType>
             <Visibility>
@@ -4226,7 +4218,7 @@ SELECT
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
+            <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
             <MIMEType>image/jpeg</MIMEType>
             <Visibility>
@@ -4255,15 +4247,15 @@ SELECT
           <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>20.21pt</Height>
             <Width>30.53pt</Width>
-            <Left>275.8pt</Left>
-            <Top>0.0pt</Top>
+            <Left>275.80pt</Left>
+            <Top>0.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
+            <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
             <MIMEType>image/jpeg</MIMEType>
             <Visibility>
