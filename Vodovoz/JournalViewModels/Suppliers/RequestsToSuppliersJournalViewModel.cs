@@ -19,20 +19,21 @@ using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Suppliers;
 
 namespace Vodovoz.JournalViewModels.Suppliers
 {
 	public class RequestsToSuppliersJournalViewModel : FilterableSingleEntityJournalViewModelBase<RequestToSupplier, RequestToSupplierViewModel, RequestToSupplierJournalNode, RequestsToSuppliersFilterViewModel>
 	{
-		private readonly RequestsToSuppliersFilterViewModel filterViewModel;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 
 		public RequestsToSuppliersJournalViewModel(
 			RequestsToSuppliersFilterViewModel filterViewModel,
@@ -40,8 +41,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -50,7 +51,6 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
-			this.filterViewModel = filterViewModel;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -61,6 +61,55 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			threadLoader.MergeInOrderBy(x => x.Id, true);
 
 			UpdateOnChanges(typeof(RequestToSupplier));
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateEditAction();
+			CreateDefaultDeleteAction();
+		}
+
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<RequestToSupplierJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return false;
+					}
+					RequestToSupplierJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<RequestToSupplierJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return;
+					}
+					RequestToSupplierJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<RequestToSupplier>> ItemsSourceQueryFunction => (uow) => {
@@ -77,24 +126,23 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			);
 
 			var query = uow.Session.QueryOver<RequestToSupplier>()
-								   .Left.JoinAlias(x => x.Creator, () => authorAlias)
-								   .Left.JoinAlias(x => x.RequestingNomenclatureItems, () => nomenclaturesAlias)
-								   ;
+				.Left.JoinAlias(x => x.Creator, () => authorAlias)
+				.Left.JoinAlias(x => x.RequestingNomenclatureItems, () => nomenclaturesAlias);
 
 			if(FilterViewModel?.RestrictNomenclature != null) {
 				var subquery = QueryOver.Of<RequestToSupplierItem>()
-										.Where(r => r.Nomenclature.Id == FilterViewModel.RestrictNomenclature.Id && !r.Transfered)
-										.Select(r => r.RequestToSupplier.Id);
+					.Where(r => r.Nomenclature.Id == FilterViewModel.RestrictNomenclature.Id && !r.Transfered)
+					.Select(r => r.RequestToSupplier.Id);
 				query.WithSubquery.WhereProperty(r => r.Id).In(subquery);
 			}
 
-			if(FilterViewModel != null && FilterViewModel.RestrictStartDate.HasValue)
+			if(FilterViewModel?.RestrictStartDate != null)
 				query.Where(x => x.CreatingDate >= FilterViewModel.RestrictStartDate.Value);
 
-			if(FilterViewModel != null && FilterViewModel.RestrictEndDate.HasValue)
+			if(FilterViewModel?.RestrictEndDate != null)
 				query.Where(o => o.CreatingDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 
-			if(FilterViewModel != null && FilterViewModel.RestrictStatus.HasValue)
+			if(FilterViewModel?.RestrictStatus != null)
 				query.Where(o => o.Status == FilterViewModel.RestrictStatus.Value);
 
 			query.Where(

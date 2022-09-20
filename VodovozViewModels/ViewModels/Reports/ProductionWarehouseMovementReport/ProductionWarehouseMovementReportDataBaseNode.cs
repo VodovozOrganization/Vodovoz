@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModels.Reports
 			public int MovementDocumentId { get; set; }
 			public int NomenclatureId { get; set; }
 			public string NomenclatureName { get; set; }
-			public IList<NomenclaturePurchasePrice> PurchasePrices { get; set; }
+			public IList<NomenclatureCostPurchasePrice> PurchasePrices { get; set; }
 			public decimal Amount { get; set; }
 		}
 	}

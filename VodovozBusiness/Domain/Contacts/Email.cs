@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Contacts
 {
@@ -8,6 +9,8 @@ namespace Vodovoz.Domain.Contacts
 		Nominative = "E-mail адрес")]
 	public class Email : PropertyChangedBase, IDomainObject
 	{
+		private Counterparty _counterparty;
+
 		public virtual int Id { get; set; }
 
 		private string address;
@@ -24,5 +27,11 @@ namespace Vodovoz.Domain.Contacts
 			set { SetField(ref emailType, value, () => EmailType); }
 		}
 
+		[Display(Name = "Контрагент")]
+		public virtual Counterparty Counterparty
+		{
+			get { return _counterparty; }
+			set { SetField(ref _counterparty, value); }
+		}
 	}
 }

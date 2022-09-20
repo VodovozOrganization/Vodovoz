@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Complaints
 	[EntityPermission]
 	public class Complaint : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private const int _phoneLimit = 45;
 
 		public virtual int Id { get; set; }
 
@@ -140,11 +140,18 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref resultText, value, () => ResultText);
 		}
 
-		private ComplaintResult complaintResult;
-		[Display(Name = "Результат")]
-		public virtual ComplaintResult ComplaintResult {
-			get => complaintResult;
-			set => SetField(ref complaintResult, value, () => ComplaintResult);
+		private ComplaintResultOfCounterparty _complaintResultOfCounterparty;
+		[Display(Name = "Результат по клиенту")]
+		public virtual ComplaintResultOfCounterparty ComplaintResultOfCounterparty {
+			get => _complaintResultOfCounterparty;
+			set => SetField(ref _complaintResultOfCounterparty, value, () => ComplaintResultOfCounterparty);
+		}
+		
+		private ComplaintResultOfEmployees _complaintResultOfEmployees;
+		[Display(Name = "Результат по сотрудникам")]
+		public virtual ComplaintResultOfEmployees ComplaintResultOfEmployees {
+			get => _complaintResultOfEmployees;
+			set => SetField(ref _complaintResultOfEmployees, value);
 		}
 
 		private DateTime? actualCompletionDate;
@@ -211,7 +218,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		IList<ComplaintGuiltyItem> guilties = new List<ComplaintGuiltyItem>();
-		[Display(Name = "Виновные в рекламации")]
+		[Display(Name = "Ответственные в рекламации")]
 		public virtual IList<ComplaintGuiltyItem> Guilties {
 			get => guilties;
 			set => SetField(ref guilties, value, () => Guilties);
@@ -287,6 +294,7 @@ namespace Vodovoz.Domain.Complaints
 			}
 
 			ComplaintDiscussion newDiscussion = new ComplaintDiscussion();
+			newDiscussion.StartSubdivisionDate = DateTime.Now;
 			newDiscussion.PlannedCompletionDate = DateTime.Today;
 			newDiscussion.Complaint = this;
 			newDiscussion.Subdivision = subdivision;
@@ -304,17 +312,30 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual IList<string> SetStatus(ComplaintStatuses newStatus)
 		{
-			var oldStatus = Status;
-			List<string> result = new List<string>();
-			if(newStatus == ComplaintStatuses.Closed) {
-				if(ComplaintResult == null)
-					result.Add("Заполните поле \"Итог работы\".");
+			IList<string> result = new List<string>();
+			if(newStatus == ComplaintStatuses.Closed)
+			{
+				if(ComplaintResultOfCounterparty == null)
+				{
+					result.Add("Заполните поле \"Итог работы по клиенту\".");
+				}
+				
+				if(ComplaintResultOfEmployees == null)
+				{
+					result.Add("Заполните поле \"Итог работы по сотрудникам\".");
+				}
+
 				if(string.IsNullOrWhiteSpace(ResultText))
+				{
 					result.Add("Заполните поле \"Результат\".");
+				}
 			}
 
 			if(!result.Any())
+			{
 				Status = newStatus;
+			}
+
 			return result;
 		}
 
@@ -355,18 +376,31 @@ namespace Vodovoz.Domain.Complaints
 					yield return new ValidationResult("Необходимо выбрать источник");
 				}
 			}
+			
+			if(Phone != null && Phone.Length > _phoneLimit)
+			{
+				yield return new ValidationResult($"Длина поля телефон превышена на {Phone.Length - _phoneLimit}",
+					new[] { nameof(Phone) });
+			}
 
-			if(Status == ComplaintStatuses.Closed) {
-				if(ComplaintResult == null)
+			if(Status == ComplaintStatuses.Closed) 
+			{
+				if(ComplaintResultOfCounterparty == null)
+				{
 					yield return new ValidationResult(
-					"Заполните поле \"Итог работы\".",
-					new[] { this.GetPropertyName(o => o.ComplaintResult) }
-				);
+						"Заполните поле \"Итог работы по клиенту\".", new[] { nameof(ComplaintResultOfCounterparty) });
+				}
+				
+				if(ComplaintResultOfEmployees == null)
+				{
+					yield return new ValidationResult(
+						"Заполните поле \"Итог работы по сотрудникам\".", new[] { nameof(ComplaintResultOfEmployees) });
+				}
+
 				if(string.IsNullOrWhiteSpace(ResultText))
-					yield return new ValidationResult(
-						"Заполните поле \"Результат\".",
-						new[] { this.GetPropertyName(o => o.ComplaintResult) }
-					);
+				{
+					yield return new ValidationResult("Заполните поле \"Результат\".", new[] { nameof(ResultText) });
+				}
 			}
 		}
 

@@ -6,6 +6,7 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -42,7 +43,10 @@ namespace Vodovoz.JournalViewers
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),
 				new OrderSelectorFactory(),
-				new UndeliveredOrdersRepository());
+				new UndeliveredOrdersRepository(),
+				new EmployeeSettings(new ParametersProvider()),
+				new SubdivisionParametersProvider(new ParametersProvider())
+			);
 
 			tab.TabParent.AddSlaveTab(tab, dlg);
 		}

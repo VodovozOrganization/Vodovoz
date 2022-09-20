@@ -15,6 +15,7 @@ namespace Vodovoz.HibernateMapping
 
 			Map (x => x.Latitude).Column ("latitude");
 			Map (x => x.Longitude).Column ("longitude");
+			Map(x => x.ReceiveTimeStamp).Column("receive_time_stamp").ReadOnly();
 		}
 	}
 }

@@ -19,7 +19,9 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OfficialName).Column("official_name");
 			Map(x => x.Model).Column("model");
 			Map(x => x.Weight).Column("weight");
-			Map(x => x.Volume).Column("volume");
+			Map(x => x.Length).Column("length");
+			Map(x => x.Width).Column("width");
+			Map(x => x.Height).Column("height");
 			Map(x => x.VAT).Column("vat").CustomType<VATStringType>();
 			Map(x => x.DoNotReserve).Column("reserve");
 			Map(x => x.RentPriority).Column("rent_priority");
@@ -32,7 +34,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.SumOfDamage).Column("sum_of_damage");
 			Map(x => x.ShortName).Column("short_name");
 			Map(x => x.Hide).Column("hide");
-			Map(x => x.NoDelivey).Column("no_delivery");
+			Map(x => x.NoDelivery).Column("no_delivery");
 			Map(x => x.IsNewBottle).Column("is_new_bottle");
 			Map(x => x.IsDefectiveBottle).Column("is_defective_bottle");
 			Map(x => x.IsShabbyBottle).Column("is_shabby_bottle");
@@ -46,6 +48,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Description).Column("description");
 			Map(x => x.BottleCapColor).Column("bottle_cap_color");
 			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
+			Map(x => x.UsingInGroupPriceSet).Column("using_in_group_price_set");
 
 			//Характеристики товара
 			Map(x => x.Color).Column("color");
@@ -89,6 +92,7 @@ namespace Vodovoz.HibernateMapping
 			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.PurchasePrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.InnerDeliveryPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 		}
 	}
 }

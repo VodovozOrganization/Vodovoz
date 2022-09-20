@@ -1,19 +1,20 @@
-﻿using System;
-using System.IO;
-using EmailService;
-using fyiReporting.RDL;
+﻿using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NLog.Extensions.Logging;
 using QS.DomainModel.UoW;
-using QS.Report;
-using Vodovoz.Parameters;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.StoredEmails;
+using RabbitMQ.Infrastructure;
+using RabbitMQ.MailSending;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using fyiReporting.RdlGtkViewer;
-using RdlEngine;
+using System.Text;
+using System.Text.Json;
+using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Domain.StoredEmails;
+using VodovozInfrastructure.Configuration;
 
 namespace Vodovoz.Additions
 {
@@ -25,16 +26,9 @@ namespace Vodovoz.Additions
 
 		public void ResendEmailWithErrorSendingStatus(DateTime date)
 		{
-			IEmailService service = EmailServiceSetting.GetEmailService();
-			if(service == null) {
-				return;
-			}
-
-			IList<StoredEmail> errorSendedEmails;
-			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot()) {
-
-				StoredEmail unsendedEmailAlias = null;
-				StoredEmail alreadyResendedEmailAlias = null;
+			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var configuration = uowLocal.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
 				var dateCriterion = Projections.SqlFunction(
 				   new SQLFunctionTemplate(
@@ -47,48 +41,194 @@ namespace Vodovoz.Additions
 				ICriterion dateResctict = Restrictions.Eq(dateCriterion, date.Date);
 				ICriterion dateResctictGe = Restrictions.Ge(dateCriterion, date.Date);
 
-				var resendedQuery = QueryOver.Of<StoredEmail>()
-					.Where(Restrictions.EqProperty(Projections.Property<StoredEmail>(x => x.Order.Id), Projections.Property(() => unsendedEmailAlias.Order.Id)))
+				#region OrderDocument
+
+				OrderDocumentEmail orderDocumentEmailAlias = null;
+				OrderDocumentEmail orderDocumentEmailInnerAlias = null;
+				OrderDocument orderDocumentAlias = null;
+				OrderDocument orderDocumentAliasInner = null;
+
+				var resendedOrderDocumentQuery = QueryOver.Of<OrderDocumentEmail>(() => orderDocumentEmailInnerAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
 					.Where(x => x.State != StoredEmailStates.SendingError)
-					.Where(dateResctictGe)
-					.Select(Projections.Count(Projections.Id()));
-				
-				errorSendedEmails = uowLocal.Session.QueryOver<StoredEmail>(() => unsendedEmailAlias)
-					.Where(x => x.State == StoredEmailStates.SendingError)
-					.Where(dateResctict)
-					.WithSubquery.WhereValue(0).Eq(resendedQuery)
-					.List();
+					.And(dateResctictGe)
+					.JoinAlias(() => orderDocumentEmailInnerAlias.OrderDocument, () => orderDocumentAliasInner)
+					.Where(() => orderDocumentAliasInner.Order.Id == orderDocumentAlias.Order.Id)
+					.Select(o => o.Id);
 
-				foreach(var sendedEmail in errorSendedEmails) {
-					var billDocument = sendedEmail.Order.OrderDocuments.FirstOrDefault(y => y.Type == OrderDocumentType.Bill) as BillDocument;
-					if(billDocument == null) {
-						continue;
-					}
+				var errorSendedOrderDocumentQuery = uowLocal.Session.QueryOver<OrderDocumentEmail>(() => orderDocumentEmailAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se => se.State == StoredEmailStates.SendingError)
+					.And(dateResctict)
+					.JoinAlias(() => orderDocumentEmailAlias.OrderDocument, () => orderDocumentAlias)
+					.WithSubquery.WhereNotExists(resendedOrderDocumentQuery)
+					.Future();
 
-					billDocument.HideSignature = false;
-					ReportInfo ri = billDocument.GetReportInfo();
+				#endregion
 
-				   var billTemplate = billDocument.GetEmailTemplate();
-					OrderEmail email = new OrderEmail {
-						Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
-						Text = billTemplate.Text,
-						HtmlText = billTemplate.TextHtml,
-						Recipient = new EmailContact("", sendedEmail.RecipientAddress),
-						Sender = new EmailContact("vodovoz-spb.ru", new ParametersProvider().GetParameterValue("email_for_email_delivery")),
-						Order = billDocument.Order.Id,
-						OrderDocumentType = OrderDocumentType.Bill
-					};
-					foreach(var item in billTemplate.Attachments) {
-						email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
+				#region Order OrderWithoutShipmentForDebt
+
+				OrderWithoutShipmentForDebtEmail orderWithoutShipmentForDebtEmailAlias = null;
+				OrderWithoutShipmentForDebtEmail orderWithoutShipmentForDebtEmailInnerAlias = null;
+				OrderWithoutShipmentForDebt orderWithoutShipmentForDebtAlias = null;
+				OrderWithoutShipmentForDebt orderWithoutShipmentForDebtAliasInner = null;
+
+				var resendedOrderWithoutShipmentForDebtQuery = QueryOver.Of<OrderWithoutShipmentForDebtEmail>(() => orderWithoutShipmentForDebtEmailInnerAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(x => x.State != StoredEmailStates.SendingError)
+					.And(dateResctictGe)
+					.JoinAlias(() => orderWithoutShipmentForDebtEmailInnerAlias.OrderWithoutShipmentForDebt, () => orderWithoutShipmentForDebtAliasInner)
+					.Where(() => orderWithoutShipmentForDebtAliasInner.Id == orderWithoutShipmentForDebtAlias.Id)
+					.Select(o => o.Id);
+
+				var errorSendedOrderWithoutShipmentForDebtEmailQuery = uowLocal.Session
+					.QueryOver<OrderWithoutShipmentForDebtEmail>(() => orderWithoutShipmentForDebtEmailAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se => se.State == StoredEmailStates.SendingError)
+					.And(dateResctict)
+					.JoinAlias(() => orderWithoutShipmentForDebtEmailAlias.OrderWithoutShipmentForDebt, () => orderWithoutShipmentForDebtAlias)
+					.WithSubquery.WhereNotExists(resendedOrderWithoutShipmentForDebtQuery)
+					.Future();
+
+				#endregion
+
+				#region Order OrderWithoutShipmentForAdvancePayment
+
+				OrderWithoutShipmentForAdvancePaymentEmail orderWithoutShipmentForAdvancePaymentEmailAlias = null;
+				OrderWithoutShipmentForAdvancePaymentEmail orderWithoutShipmentForAdvancePaymentEmailInnerAlias = null;
+				OrderWithoutShipmentForAdvancePayment orderWithoutShipmentForAdvancePaymentAlias = null;
+				OrderWithoutShipmentForAdvancePayment orderWithoutShipmentForAdvancePaymentAliasInner = null;
+
+				var resendedOrderWithoutShipmentForAdvancePaymentQuery = QueryOver.Of<OrderWithoutShipmentForAdvancePaymentEmail>(() => orderWithoutShipmentForAdvancePaymentEmailInnerAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(x => x.State != StoredEmailStates.SendingError)
+					.And(dateResctictGe)
+					.JoinAlias(() => orderWithoutShipmentForAdvancePaymentEmailInnerAlias.OrderWithoutShipmentForAdvancePayment, () => orderWithoutShipmentForAdvancePaymentAliasInner)
+					.Where(() => orderWithoutShipmentForAdvancePaymentAliasInner.Id == orderWithoutShipmentForAdvancePaymentAlias.Id)
+					.Select(o => o.Id);
+
+				var errorSendedOrderWithoutShipmentForAdvancePaymentEmailQuery = uowLocal.Session
+					.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>(() => orderWithoutShipmentForAdvancePaymentEmailAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se => se.State == StoredEmailStates.SendingError)
+					.And(dateResctict)
+					.JoinAlias(() => orderWithoutShipmentForAdvancePaymentEmailAlias.OrderWithoutShipmentForAdvancePayment, () => orderWithoutShipmentForAdvancePaymentAlias)
+					.WithSubquery.WhereNotExists(resendedOrderWithoutShipmentForAdvancePaymentQuery)
+					.Future();
+
+				#endregion
+
+				#region Order OrderWithoutShipmentForPayment
+
+				OrderWithoutShipmentForPaymentEmail orderWithoutShipmentForPaymentEmailAlias = null;
+				OrderWithoutShipmentForPaymentEmail orderWithoutShipmentForPaymentEmailInnerAlias = null;
+				OrderWithoutShipmentForPayment orderWithoutShipmentForPaymentAlias = null;
+				OrderWithoutShipmentForPayment orderWithoutShipmentForPaymentAliasInner = null;
+
+				var resendedOrderWithoutShipmentForPaymentQuery = QueryOver.Of<OrderWithoutShipmentForPaymentEmail>(() => orderWithoutShipmentForPaymentEmailInnerAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(x => x.State != StoredEmailStates.SendingError)
+					.And(dateResctictGe)
+					.JoinAlias(() => orderWithoutShipmentForPaymentEmailInnerAlias.OrderWithoutShipmentForPayment, () => orderWithoutShipmentForPaymentAliasInner)
+					.Where(() => orderWithoutShipmentForPaymentAliasInner.Id == orderWithoutShipmentForPaymentAlias.Id)
+					.Select(o => o.Id);
+
+				var errorSendedOrderWithoutShipmentForPaymentEmailQuery = uowLocal.Session
+					.QueryOver<OrderWithoutShipmentForPaymentEmail>(() => orderWithoutShipmentForPaymentEmailAlias)
+					.JoinQueryOver(ode => ode.StoredEmail)
+					.Where(se => se.State == StoredEmailStates.SendingError)
+					.And(dateResctict)
+					.JoinAlias(() => orderWithoutShipmentForPaymentEmailAlias.OrderWithoutShipmentForPayment, () => orderWithoutShipmentForPaymentAlias)
+					.WithSubquery.WhereNotExists(resendedOrderWithoutShipmentForPaymentQuery)
+					.Future();
+
+				#endregion
+
+				var errorSendedCounterpartyEmails = errorSendedOrderDocumentQuery
+					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForDebtEmailQuery)
+					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForAdvancePaymentEmailQuery)
+					.Union<CounterpartyEmail>(errorSendedOrderWithoutShipmentForPaymentEmailQuery);
+
+				var errorSendedCounterpartyEmailsList = errorSendedCounterpartyEmails.ToList();
+
+				foreach(var sendedEmail in errorSendedCounterpartyEmailsList)
+				{
+					try
+					{
+
+						using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("StoredEmail"))
+						{
+							var storedEmail = new StoredEmail
+							{
+								State = StoredEmailStates.PreparingToSend,
+								Author = sendedEmail.StoredEmail.Author,
+								ManualSending = true,
+								SendDate = DateTime.Now,
+								StateChangeDate = DateTime.Now,
+								Subject = sendedEmail.StoredEmail.Subject,
+								RecipientAddress = sendedEmail.StoredEmail.RecipientAddress
+							};
+
+							unitOfWork.Save(storedEmail);
+
+							switch(sendedEmail.Type)
+							{
+								case CounterpartyEmailType.OrderDocument:
+									var orderDocumentEmail = new OrderDocumentEmail
+									{
+										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
+										OrderDocument = ((OrderDocumentEmail)sendedEmail).OrderDocument
+									};
+
+									unitOfWork.Save(orderDocumentEmail);
+
+									break;
+
+								case CounterpartyEmailType.OrderWithoutShipmentForDebt:
+									var orderWithoutShipmentForDebtEmail = new OrderWithoutShipmentForDebtEmail()
+									{
+										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
+										OrderWithoutShipmentForDebt = (OrderWithoutShipmentForDebt) sendedEmail.EmailableDocument
+									};
+
+									unitOfWork.Save(orderWithoutShipmentForDebtEmail);
+
+									break;
+
+								case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
+									var orderWithoutShipmentForAdvancePaymentEmail = new OrderWithoutShipmentForAdvancePaymentEmail()
+									{
+										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
+										OrderWithoutShipmentForAdvancePayment = (OrderWithoutShipmentForAdvancePayment)sendedEmail.EmailableDocument
+									};
+
+									unitOfWork.Save(orderWithoutShipmentForAdvancePaymentEmail);
+
+									break;
+
+								case CounterpartyEmailType.OrderWithoutShipmentForPayment:
+									var orderWithoutShipmentForPaymentEmail = new OrderWithoutShipmentForPaymentEmail()
+									{
+										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
+										OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)sendedEmail.EmailableDocument
+									};
+
+									unitOfWork.Save(orderWithoutShipmentForPaymentEmail);
+
+									break;
+							}
+
+							unitOfWork.Commit();
+						}
 					}
-					using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-						string billDate = billDocument.DocumentDate.HasValue ? "_" + billDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
-						email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);
+					catch(Exception e)
+					{
+						Console.WriteLine($"Ошибка отправки { sendedEmail.Id } : { e.Message }");
 					}
-					email.AuthorId = sendedEmail.Author.Id;
-					email.ManualSending = sendedEmail.ManualSending ?? false;
-				
-					service.SendOrderEmail(email);
 				}
 			}
 		}

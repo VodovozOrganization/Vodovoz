@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers
@@ -58,17 +59,20 @@ namespace DriverAPI.Controllers
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
 		[Route("/api/GetOrderSmsPaymentStatus")]
-		public OrderPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
+		public OrderSmsPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(orderId: {orderId}) User token: {tokenStr}");
+
 			var additionalInfo = _aPIOrderData.GetAdditionalInfo(orderId)
 				?? throw new Exception($"Не удалось получить информацию о заказе {orderId}");
 
-			var response = new OrderPaymentStatusResponseDto()
+			var response = new OrderSmsPaymentStatusResponseDto()
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanSendSms = additionalInfo.CanSendSms,
 				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(
-					_aPISmsPaymentData.GetOrderPaymentStatus(orderId)
+					_aPISmsPaymentData.GetOrderSmsPaymentStatus(orderId)
 				)
 			};
 
@@ -83,6 +87,10 @@ namespace DriverAPI.Controllers
 		[Route("/api/PayBySms")]
 		public void PayBySms(PayBySmsRequestDto payBySmsRequestModel)
 		{
+			return;
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(OrderId: {payBySmsRequestModel.OrderId}) User token: {tokenStr}");
+
 			var recievedTime = DateTime.Now;
 
 			var user = _userManager.GetUserAsync(User).Result;

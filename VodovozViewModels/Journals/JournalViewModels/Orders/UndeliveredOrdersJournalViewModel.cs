@@ -18,6 +18,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -38,13 +40,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
-
+		private readonly IEmployeeSettings _employeeSettings;
 		private Employee _currentEmployee;
 
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
 			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository, IEmployeeSettings employeeSettings,
+			ISubdivisionParametersProvider subdivisionParametersProvider)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
@@ -54,6 +57,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			_canCloseUndeliveries = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
@@ -69,6 +73,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 
+			if(FilterViewModel.IsForSalesDepartment.HasValue && FilterViewModel.IsForSalesDepartment.Value)
+			{
+				var salesSubDivisionId = subdivisionParametersProvider.GetSalesSubdivisionId();
+				FilterViewModel.RestrictInProcessAtDepartment = UoW.GetById<Subdivision>(salesSubDivisionId);
+			}
+
 			FinishJournalConfiguration();
 		}
 
@@ -77,12 +87,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 		private void RegisterUndeliveredOrders()
 		{
+			var isFosSalesDepartment = FilterViewModel.IsForSalesDepartment.HasValue && FilterViewModel.IsForSalesDepartment.Value;
 			var undeliveredrdersConfig = RegisterEntity<UndeliveredOrder>(GetUndeliveredOrdersQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => _gtkDlgOpener.OpenUndeliveredOrderDlg(this),
+					() => _gtkDlgOpener.OpenUndeliveredOrderDlg(this,  isForSalesDepartment: isFosSalesDepartment),
 					//функция диалога открытия документа
-					(UndeliveredOrderJournalNode node) => _gtkDlgOpener.OpenUndeliveredOrderDlg(this, node.Id),
+					(UndeliveredOrderJournalNode node) => _gtkDlgOpener.OpenUndeliveredOrderDlg(this, id: node.Id),
 					//функция идентификации документа 
 					(UndeliveredOrderJournalNode node) => node.EntityType == typeof(UndeliveredOrder),
 					"Недовоз"
@@ -187,6 +198,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 							$"WHEN '{nameof(GuiltyTypes.Department)}' THEN 'Отд' " +
 							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
 							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN 'Директор ЛО (Доставка за час)' " +
 							$"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
 							"ELSE 'Неизвестно' " +
 							"END, " +
@@ -282,6 +294,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			if(FilterViewModel?.RestrictGuiltySide != null)
 			{
 				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == FilterViewModel.RestrictGuiltySide);
+			}
+
+			if(FilterViewModel?.OldOrderStatus != null)
+			{
+				query.Where(() => undeliveredOrderAlias.OldOrderStatus == FilterViewModel.OldOrderStatus);
 			}
 
 			if(FilterViewModel != null && FilterViewModel.RestrictIsProblematicCases)
@@ -556,6 +573,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 							_undeliveryViewOpener,
 							_employeeService,
 							_driverEmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(),
+							_employeeSettings,
 							_commonServices
 						);
 

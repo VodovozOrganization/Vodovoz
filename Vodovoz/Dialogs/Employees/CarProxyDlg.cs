@@ -7,15 +7,10 @@ using QS.Validation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModel;
-using Vodovoz.Filters.ViewModels;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.JournalFilters;
-using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -53,28 +48,24 @@ namespace Vodovoz.Dialogs.Employees
 
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
 
-			yentryOrganization.SubjectType = typeof(Organization);
-			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			yentryOrganization.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			var orgFactory = new OrganizationJournalFactory();
+			evmeOrganisation.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganizationAutocompleteSelectorFactory());
+			evmeOrganisation.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
+			evmeOrganisation.Changed += (sender, e) => UpdateStates();
 
-			var filterDefaultForwarder = new EmployeeRepresentationFilterViewModel();
-			filterDefaultForwarder.Status = EmployeeStatus.IsWorking;
-			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
-			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
-			yentryDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
-			yentryDriver.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			var driverFilter = new EmployeeFilterViewModel();
+			driverFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.driver);
+			var employeeFactory = new EmployeeJournalFactory(driverFilter);
+			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
+			evmeDriver.Changed += (sender, e) => UpdateStates();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
-			entityviewmodelentryCar.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			entityviewmodelentryCar.Changed += (sender, e) => UpdateStates();
 
 			RefreshParserRootObject();
 
@@ -95,6 +86,29 @@ namespace Vodovoz.Dialogs.Employees
 
 		void Templatewidget_BeforeOpen(object sender, EventArgs e)
 		{
+			var organizationVersion = Entity.Organization.OrganizationVersionOnDate(Entity.Date);
+			
+			if(organizationVersion == null)
+			{
+				MessageDialogHelper.RunErrorDialog($"На дату доверенности {Entity.Date.ToString("G")} отсутствует версия организации. Создайте версию организации.") ;
+				templatewidget.CanOpenDocument = false;
+				return;
+			}
+
+			if(organizationVersion.Leader == null)
+			{
+				MessageDialogHelper.RunErrorDialog($"Не выбран руководитель в версии №{organizationVersion.Id} организации \"{Entity.Organization.Name}\"");
+				templatewidget.CanOpenDocument = false;
+				return;
+			}
+
+			if(organizationVersion.Accountant == null)
+			{
+				MessageDialogHelper.RunErrorDialog($"Не выбран бухгалтер в версии №{organizationVersion.Id} организации \"{Entity.Organization.Name}\"");
+				templatewidget.CanOpenDocument = false;
+				return;
+			}
+
 			if(Entity.EmployeeDocument == null)
 				GetDocument();
 			if(UoW.HasChanges) {
@@ -117,8 +131,8 @@ namespace Vodovoz.Dialogs.Employees
 		void UpdateStates()
 		{
 			bool isNewDoc = !(Entity.Id > 0);
-			yentryOrganization.Sensitive = isNewDoc;
-			yentryDriver.Sensitive = isNewDoc;
+			evmeOrganisation.Sensitive = isNewDoc;
+			evmeDriver.Sensitive = isNewDoc;
 			entityviewmodelentryCar.Sensitive = isNewDoc;
 			if(Entity.Organization == null 
 				|| Entity.Car == null 

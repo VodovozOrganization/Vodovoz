@@ -143,14 +143,18 @@ namespace Vodovoz
 			goodsColumnsCount = goodsColumns.Length;
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
-			    .AddColumn("Еж.\n №").HeaderAlignment(0.5f)
-											 .AddTextRenderer(node => node.Order.DailyNumber.ToString())
+				.AddColumn("Еж.\n №").HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.Order.DailyNumber.ToString())
 				.AddColumn("Заказ").HeaderAlignment(0.5f)
-			                                 .AddTextRenderer(node => node.Order.Id.ToString())
-			                                 .AddPixbufRenderer(x => GetRowIcon(x))
-				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.DeliveryPoint == null ? String.Empty : String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
-				.AddColumn("Опл.").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle());
-			
+					.AddTextRenderer(node => node.Order.Id.ToString())
+					.AddPixbufRenderer(x => GetRowIcon(x))
+				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node =>
+					node.Order.DeliveryPoint == null
+						? String.Empty
+						: $"{node.Order.DeliveryPoint.Street} д.{node.Order.DeliveryPoint.Building}")
+				.AddColumn("Опл.").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle())
+				.AddColumn("Доставка за час")
+					.AddToggleRenderer(x => x.Order.IsFastDelivery).Editing(false);
 			if (columnsInfo != null)
 			{
 				foreach (var column in columnsInfo)
@@ -163,8 +167,6 @@ namespace Vodovoz
 							.AddSetter((cell,node)=>cell.Markup = WaterToClientString(node,id));
 				}
 			}
-			var colorBlack = new Gdk.Color (0, 0, 0);
-			var colorBlue = new Gdk.Color (0, 0, 0xff);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
 			var colorDarkRed = new Gdk.Color(0xee, 0, 0);
@@ -198,7 +200,7 @@ namespace Vodovoz
 				.AddColumn("Итого\n(терм.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => 
 						(node.Status != RouteListItemStatus.Transfered && 
-						node.Order.PaymentType == PaymentType.Terminal) ? node.Order.ActualTotalSum : 0)
+						node.Order.PaymentType == PaymentType.Terminal) ? node.Order.OrderSum : 0)
 				.AddColumn ("Комментарий\nкассира")
 					.AddTextRenderer (node => node.CashierComment).EditedEvent(CommentCellEdited).Editable()
 				// Комментарий менеджера ответственного за водительский телефон
@@ -288,20 +290,20 @@ namespace Vodovoz
 			if (item.Status == RouteListItemStatus.Transfered)
 			{
 				if(item.TransferedTo != null)
-					return String.Format("Заказ был перенесен в МЛ №{0} водителя {1}.", 
-				                     item.TransferedTo.RouteList.Id,
-				                     item.TransferedTo.RouteList.Driver.ShortName
-				                    );
+					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.", 
+						item.TransferedTo.RouteList.Id, 
+						item.TransferedTo.RouteList.Driver.ShortName, 
+						item.TransferedTo.NeedToReload ? "с погрузкой" : "без поргрузки");
 				else
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
 			if (item.WasTransfered) {
 				var transferedFrom = _routeListItemRepository.GetTransferedFrom(UoW, item);
 				if (transferedFrom != null)
-					return String.Format ("Заказ из МЛ №{0} водителя {1}.",
-										 transferedFrom.RouteList.Id,
-										 transferedFrom.RouteList.Driver.ShortName
-										);
+					return String.Format("Заказ из МЛ №{0} водителя {1} {2}.", 
+						transferedFrom.RouteList.Id, 
+						transferedFrom.RouteList.Driver.ShortName, 
+						transferedFrom.TransferedTo.NeedToReload ? "с погрузкой" : "без поргрузки");
 				else
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}

@@ -1,69 +1,88 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
+using Gtk;
+using NHibernate;
+using NHibernate.Transform;
 using NLog;
-using QS.Banks.Domain;
-using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
+using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
+using QS.Project.Services.FileDialog;
+using QS.Services;
+using QS.Tdi;
+using QS.Utilities;
+using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.SidePanel;
-using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.ViewModel;
-using Gtk;
-using Vodovoz.Domain.Goods;
-using QS.Project.Services;
-using QS.Tdi;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
-using Vodovoz.ViewModels.ViewModels.Goods;
-using Vodovoz.TempAdapters;
-using Vodovoz.Models;
-using Vodovoz.Domain;
-using Vodovoz.Domain.EntityFactories;
-using QS.DomainModel.Entity;
-using Vodovoz.Domain.Retail;
-using System.Data.Bindings.Collections.Generic;
-using NHibernate.Transform;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain.Service.BaseParametersServices;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.EntityFactories;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Retail;
+using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Factories;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Models;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
+using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewModels.Journals.JournalNodes.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewWidgets;
 
 namespace Vodovoz
 {
-	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab
+	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab,
+		IAskSaveOnCloseViewModel
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
+		private readonly bool _canSetWorksThroughOrganization =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
+		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IUserRepository _userRepository = new UserRepository();
@@ -72,27 +91,34 @@ namespace Vodovoz
 		private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
 		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
+		private readonly IEmailRepository _emailRepository = new EmailRepository();
+		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
+			new SubdivisionParametersProvider(new ParametersProvider());
+		private RoboatsJournalsFactory _roboatsJournalsFactory;
+		private readonly IEmailParametersProvider _emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
+		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
-		private IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
-		private IFilePickerService _filePickerService;
+		private IFileDialogService _fileDialogService;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private INomenclatureRepository _nomenclatureRepository;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
+		private PhonesViewModel _phonesViewModel;
+		private double _emailLastScrollPosition;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 
+		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
+
 		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
 			_undeliveredOrdersJournalOpener ?? (_undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener());
-
-		public virtual IEntityAutocompleteSelectorFactory EmployeeSelectorFactory =>
-			_employeeSelectorFactory ??
-			(_employeeSelectorFactory = new EmployeeJournalFactory().CreateEmployeeAutocompleteSelectorFactory());
 
 		public virtual ISubdivisionRepository SubdivisionRepository =>
 			_subdivisionRepository ?? (_subdivisionRepository = new SubdivisionRepository(new ParametersProvider()));
@@ -100,8 +126,8 @@ namespace Vodovoz
 		public virtual IRouteListItemRepository RouteListItemRepository =>
 			_routeListItemRepository ?? (_routeListItemRepository = new RouteListItemRepository());
 
-		public virtual IFilePickerService FilePickerService =>
-			_filePickerService ?? (_filePickerService = new GtkFilePicker());
+		public virtual IFileDialogService FilePickerService =>
+			_fileDialogService ?? (_fileDialogService = new FileDialogService());
 
 		public virtual INomenclatureRepository NomenclatureRepository =>
 			_nomenclatureRepository ?? (_nomenclatureRepository =
@@ -114,7 +140,7 @@ namespace Vodovoz
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(),
-					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+					CounterpartySelectorFactory,
 					NomenclatureRepository, _userRepository));
 
 		#region Список каналов сбыта
@@ -177,16 +203,26 @@ namespace Vodovoz
 
 		public Counterparty Counterparty => UoWGeneric.Root;
 
+		public bool HasOgrn => Counterparty.CounterpartyType == CounterpartyType.Dealer;
+
+		private bool CanEdit => permissionResult.CanUpdate || permissionResult.CanCreate && Entity.Id == 0;
+
 		public override bool HasChanges
 		{
 			get
 			{
-				phonesView.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				emailsView.RemoveEmpty();
 				return base.HasChanges;
 			}
 			set => base.HasChanges = value;
 		}
+
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => CanEdit;
+
+		#endregion
 
 		public CounterpartyDlg()
 		{
@@ -206,6 +242,23 @@ namespace Vodovoz
 		{
 		}
 
+		public CounterpartyDlg(NewCounterpartyParameters parameters)
+		{
+			Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+
+			Entity.Name = parameters.Name;
+			Entity.FullName = parameters.FullName;
+			Entity.INN = parameters.INN;
+			Entity.KPP = parameters.KPP;
+			Entity.PaymentMethod = parameters.PaymentMethod;
+			Entity.TypeOfOwnership = parameters.TypeOfOwnership;
+			Entity.PersonType = parameters.PersonType;
+			Entity.AddAccount(parameters.Account);
+
+			ConfigureDlg();
+		}
+
 		public CounterpartyDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			this.Build();
@@ -217,27 +270,34 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			phone.Counterparty = Entity;
 			Entity.Phones.Add(phone);
 			ConfigureDlg();
 		}
 
-		private Employee CurrentEmployee => _currentEmployee ??
-		                                    (_currentEmployee =
-			                                    _employeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId));
+		private Employee CurrentEmployee =>
+			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
 		private void ConfigureDlg()
 		{
+			var roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
+			var fileDialogService = new FileDialogService();
+			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
+			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
+
+			buttonSave.Sensitive = CanEdit;
+			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
+
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
 			radioSpecialDocFields.Visible = Entity.UseSpecialDocFields;
 			rbnPrices.Toggled += OnRbnPricesToggled;
 
 			_currentUserCanEditCounterpartyDetails =
-				UoW.IsNew
-				|| ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
-					"can_edit_counterparty_details",
-					ServicesConfig.CommonServices.UserService.CurrentUserId);
-
+				UoW.IsNew || ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
+					"can_edit_counterparty_details", _currentUserId);
 
 			if(UoWGeneric.Root.CounterpartyContracts == null)
 			{
@@ -275,7 +335,7 @@ namespace Vodovoz
 
 			menuActions.Sensitive = !UoWGeneric.IsNew;
 
-			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails;
+			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
 			UpdateCargoReceiver();
 			Entity.PropertyChanged += (sender, args) =>
@@ -291,27 +351,42 @@ namespace Vodovoz
 
 		private void ConfigureTabInfo()
 		{
-			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails;
+			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			enumPersonType.ItemsEnum = typeof(PersonType);
 			enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
-			yEnumCounterpartyType.Binding.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
-			yEnumCounterpartyType.Changed += YEnumCounterpartyType_Changed;
-			yEnumCounterpartyType.ChangedByUser += YEnumCounterpartyType_ChangedByUser;
-			YEnumCounterpartyType_Changed(this, EventArgs.Empty);
+			yEnumCounterpartyType.Binding
+				.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			yEnumCounterpartyType.Sensitive = CanEdit;
+			yEnumCounterpartyType.Changed += OnEnumCounterpartyTypeChanged;
+			yEnumCounterpartyType.ChangedByUser += OnEnumCounterpartyTypeChangedByUser;
+			OnEnumCounterpartyTypeChanged(this, EventArgs.Empty);
 
-			if(Entity.Id != 0 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-				"can_change_delay_days_for_buyers_and_chain_store"))
+			if((Entity.Id == 0 && permissionResult.CanCreate)
+				|| (Entity.Id > 0
+					&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+						"can_change_delay_days_for_buyers_and_chain_store")
+					&& permissionResult.CanUpdate))
+			{
+				checkIsChainStore.Sensitive = true;
+				DelayDaysForBuyerValue.Sensitive = true;
+			}
+			else
 			{
 				checkIsChainStore.Sensitive = false;
 				DelayDaysForBuyerValue.Sensitive = false;
 			}
 
 			checkIsChainStore.Toggled += CheckIsChainStoreOnToggled;
-			checkIsChainStore.Binding.AddBinding(Entity, e => e.IsChainStore, w => w.Active).InitializeFromSource();
+			checkIsChainStore.Binding
+				.AddBinding(Entity, e => e.IsChainStore, w => w.Active)
+				.InitializeFromSource();
 
-			ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			ycheckIsArchived.Binding
+				.AddBinding(Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
 			SetSensitivityByPermission("can_arc_counterparty_and_deliverypoint", ycheckIsArchived);
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
@@ -320,54 +395,93 @@ namespace Vodovoz
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 
-			ySpecCmbCameFrom.Sensitive = Entity.Id == 0;
+			ySpecCmbCameFrom.Sensitive = Entity.Id == 0 && CanEdit;
 			ySpecCmbCameFrom.ItemsList = _counterpartyRepository.GetPlacesClientCameFrom(
 				UoW,
 				Entity.CameFrom == null || !Entity.CameFrom.IsArchive
 			);
 
-			ySpecCmbCameFrom.Binding.AddBinding(Entity, f => f.CameFrom, w => w.SelectedItem).InitializeFromSource();
+			ySpecCmbCameFrom.Binding
+				.AddBinding(Entity, f => f.CameFrom, w => w.SelectedItem)
+				.InitializeFromSource();
 
-			ycheckIsForRetail.Binding.AddBinding(Entity, e => e.IsForRetail, w => w.Active).InitializeFromSource();
+			ycheckIsForRetail.Binding
+				.AddBinding(Entity, e => e.IsForRetail, w => w.Active)
+				.InitializeFromSource();
+			ycheckIsForRetail.Sensitive = CanEdit;
 
-			ycheckNoPhoneCall.Binding.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active).InitializeFromSource();
+			ycheckIsForSalesDepartment.Binding
+				.AddBinding(Entity, e => e.IsForSalesDepartment, w => w.Active)
+				.InitializeFromSource();
+			ycheckIsForSalesDepartment.Sensitive = CanEdit;
+
+			ycheckNoPhoneCall.Binding
+				.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active)
+				.InitializeFromSource();
 			SetSensitivityByPermission("user_can_activate_no_phone_call_in_counterparty", ycheckNoPhoneCall);
 			ycheckNoPhoneCall.Visible = Entity.IsForRetail;
 
-			DelayDaysForBuyerValue.Binding.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt).InitializeFromSource();
+			DelayDaysForBuyerValue.Binding
+				.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt)
+				.InitializeFromSource();
 			lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = Entity?.IsChainStore ?? false;
 
-			yspinDelayDaysForTechProcessing.Binding.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
+			yspinDelayDaysForTechProcessing.Binding
+				.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
 				.InitializeFromSource();
+			yspinDelayDaysForTechProcessing.Sensitive = CanEdit;
 
-			entryFIO.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			entryFIO.Binding
+				.AddBinding(Entity, e => e.Name, w => w.Text)
+				.InitializeFromSource();
+			entryFIO.Sensitive = CanEdit;
 
-			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails;
-
+			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			datalegalname1.Binding.AddSource(Entity)
 				.AddBinding(s => s.Name, t => t.OwnName)
 				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
 				.InitializeFromSource();
 
-			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails;
-			entryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
+			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			entryFullName.Binding
+				.AddBinding(Entity, e => e.FullName, w => w.Text)
+				.InitializeFromSource();
 
 			entryMainCounterparty
 				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
-			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
+			entryMainCounterparty.Binding
+				.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject)
+				.InitializeFromSource();
+			entryMainCounterparty.Sensitive = CanEdit;
 
 			entryPreviousCounterparty
 				.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
-			entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
+			entryPreviousCounterparty.Binding
+				.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject)
+				.InitializeFromSource();
+			entryPreviousCounterparty.Sensitive = CanEdit;
 
 			enumPayment.ItemsEnum = typeof(PaymentType);
-			enumPayment.Binding.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumPayment.Binding
+				.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			enumPayment.Sensitive = CanEdit;
 
 			enumDefaultDocumentType.ItemsEnum = typeof(DefaultDocumentType);
-			enumDefaultDocumentType.Binding.AddBinding(Entity, s => s.DefaultDocumentType, w => w.SelectedItemOrNull)
+			enumDefaultDocumentType.Binding
+				.AddBinding(Entity, s => s.DefaultDocumentType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			enumDefaultDocumentType.Sensitive = CanEdit;
+
+			lblTax.Binding
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible)
 				.InitializeFromSource();
 
-			lblTax.Binding.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Visible).InitializeFromSource();
+			specialListCmbWorksThroughOrganization.ItemsList = UoW.GetAll<Organization>();
+			specialListCmbWorksThroughOrganization.Binding
+				.AddBinding(Entity, e => e.WorksThroughOrganization, w => w.SelectedItem)
+				.InitializeFromSource();
+			specialListCmbWorksThroughOrganization.Sensitive = _canSetWorksThroughOrganization && CanEdit;
 
 			enumTax.ItemsEnum = typeof(TaxType);
 
@@ -381,35 +495,62 @@ namespace Vodovoz
 				.AddBinding(e => e.TaxType, w => w.SelectedItem)
 				.AddFuncBinding(e => e.PersonType == PersonType.legal, w => w.Visible)
 				.InitializeFromSource();
+			enumTax.Sensitive = CanEdit;
 
-			spinMaxCredit.Binding.AddBinding(Entity, e => e.MaxCredit, w => w.ValueAsDecimal).InitializeFromSource();
+			spinMaxCredit.Binding
+				.AddBinding(Entity, e => e.MaxCredit, w => w.ValueAsDecimal)
+				.InitializeFromSource();
 			SetSensitivityByPermission("max_loan_amount", spinMaxCredit);
 
-			dataComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+			dataComment.Binding
+				.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text)
+				.InitializeFromSource();
+			dataComment.Editable = CanEdit;
 
 			// Прикрепляемые документы
 
-			var filesViewModel = new CounterpartyFilesViewModel(
-				Entity, UoW, new GtkFilePicker(), ServicesConfig.CommonServices, _userRepository);
+			var filesViewModel =
+				new CounterpartyFilesViewModel(Entity, UoW, new FileDialogService(), ServicesConfig.CommonServices, _userRepository)
+				{
+					ReadOnly = !CanEdit
+				};
 			counterpartyfilesview1.ViewModel = filesViewModel;
 
-			chkNeedNewBottles.Binding.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active).InitializeFromSource();
+			chkNeedNewBottles.Binding
+				.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active)
+				.InitializeFromSource();
+			chkNeedNewBottles.Sensitive = CanEdit;
 
-			ycheckSpecialDocuments.Binding.AddBinding(Entity, e => e.UseSpecialDocFields, w => w.Active).InitializeFromSource();
+			ycheckSpecialDocuments.Binding
+				.AddBinding(Entity, e => e.UseSpecialDocFields, w => w.Active)
+				.InitializeFromSource();
+			ycheckSpecialDocuments.Sensitive = CanEdit;
 
-			ycheckAlwaysSendReceitps.Binding.AddBinding(Entity, e => e.AlwaysSendReceipts, w => w.Active).InitializeFromSource();
+			ycheckAlwaysPrintInvoice.Binding
+				.AddBinding(Entity, e => e.AlwaysPrintInvoice, w => w.Active)
+				.InitializeFromSource();
+			ycheckAlwaysPrintInvoice.Sensitive = CanEdit;
+
+			ycheckAlwaysSendReceitps.Binding
+				.AddBinding(Entity, e => e.AlwaysSendReceipts, w => w.Active)
+				.InitializeFromSource();
 			ycheckAlwaysSendReceitps.Visible =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
+			ycheckAlwaysSendReceitps.Sensitive = CanEdit;
 
-			ycheckExpirationDateControl.Binding.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Active)
+			ycheckExpirationDateControl.Binding
+				.AddBinding(Entity, e => e.SpecialExpireDatePercentCheck, w => w.Active)
 				.InitializeFromSource();
+			ycheckExpirationDateControl.Sensitive = CanEdit;
 			yspinExpirationDatePercent.Binding.AddSource(Entity)
 				.AddBinding(e => e.SpecialExpireDatePercentCheck, w => w.Visible)
 				.AddBinding(e => e.SpecialExpireDatePercent, w => w.ValueAsDecimal)
 				.InitializeFromSource();
+			yspinExpirationDatePercent.Sensitive = CanEdit;
+
+			ycheckRoboatsExclude.Binding.AddBinding(Entity, e => e.RoboatsExclude, w => w.Active).InitializeFromSource();
 
 			// Настройка каналов сбыта
-
 			if(Entity.IsForRetail)
 			{
 				ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
@@ -434,6 +575,7 @@ namespace Vodovoz
 				}
 
 				ytreeviewSalesChannels.ItemsDataSource = SalesChannels;
+				ytreeviewSalesChannels.Sensitive = CanEdit;
 			}
 			else
 			{
@@ -447,19 +589,20 @@ namespace Vodovoz
 				label49.Visible = false;
 			}
 
+			buttonCloseDelivery.Sensitive = CanEdit;
 			SetVisibilityForCloseDeliveryComments();
 		}
 
 		private void ConfigureTabContacts()
 		{
-			phonesView.UoW = UoWGeneric;
-			if(UoWGeneric.Root.Phones == null)
+			_phonesViewModel =
+				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboatsJournalsFactory, _commonServices)
 			{
-				UoWGeneric.Root.Phones = new List<Phone>();
-			}
-
-			phonesView.Phones = UoWGeneric.Root.Phones;
-			phonesView.Counterparty = Entity;
+				PhonesList = Entity.ObservablePhones,
+				Counterparty = Entity,
+				ReadOnly = !CanEdit
+			};
+			phonesView.ViewModel = _phonesViewModel;
 
 			emailsView.UoW = UoWGeneric;
 			if(UoWGeneric.Root.Emails == null)
@@ -468,6 +611,7 @@ namespace Vodovoz
 			}
 
 			emailsView.Emails = UoWGeneric.Root.Emails;
+			emailsView.Sensitive = CanEdit;
 
 			var employeeJournalFactory = new EmployeeJournalFactory();
 			if(SetSensitivityByPermission("can_set_personal_sales_manager", entrySalesManager))
@@ -475,14 +619,18 @@ namespace Vodovoz
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
 
-			entrySalesManager.Binding.AddBinding(Entity, e => e.SalesManager, w => w.Subject).InitializeFromSource();
+			entrySalesManager.Binding
+				.AddBinding(Entity, e => e.SalesManager, w => w.Subject)
+				.InitializeFromSource();
 
 			if(SetSensitivityByPermission("can_set_personal_accountant", entryAccountant))
 			{
 				entryAccountant.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
 
-			entryAccountant.Binding.AddBinding(Entity, e => e.Accountant, w => w.Subject).InitializeFromSource();
+			entryAccountant.Binding
+				.AddBinding(Entity, e => e.Accountant, w => w.Subject)
+				.InitializeFromSource();
 
 			if(SetSensitivityByPermission("can_set_personal_bottles_manager", entryBottlesManager))
 			{
@@ -490,63 +638,97 @@ namespace Vodovoz
 			}
 
 			entryBottlesManager.CanEditReference = true;
-			entryBottlesManager.Binding.AddBinding(Entity, e => e.BottlesManager, w => w.Subject).InitializeFromSource();
+			entryBottlesManager.Binding
+				.AddBinding(Entity, e => e.BottlesManager, w => w.Subject)
+				.InitializeFromSource();
 
 			//FIXME данный виджет создан с Visible = false и нигде не меняется
 			dataentryMainContact.RepresentationModel = new ContactsVM(UoW, Entity);
-			dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
+			dataentryMainContact.Binding
+				.AddBinding(Entity, e => e.MainContact, w => w.Subject)
+				.InitializeFromSource();
 
 			//FIXME данный виджет создан с Visible = false и нигде не меняется
 			dataentryFinancialContact.RepresentationModel = new ContactsVM(UoW, Entity);
-			dataentryFinancialContact.Binding.AddBinding(Entity, e => e.FinancialContact, w => w.Subject).InitializeFromSource();
+			dataentryFinancialContact.Binding
+				.AddBinding(Entity, e => e.FinancialContact, w => w.Subject)
+				.InitializeFromSource();
 
-			txtRingUpPhones.Binding.AddBinding(Entity, e => e.RingUpPhone, w => w.Buffer.Text).InitializeFromSource();
+			txtRingUpPhones.Binding
+				.AddBinding(Entity, e => e.RingUpPhone, w => w.Buffer.Text)
+				.InitializeFromSource();
+			txtRingUpPhones.Editable = CanEdit;
 
 			contactsview1.CounterpartyUoW = UoWGeneric;
 			contactsview1.Visible = true;
+			contactsview1.Sensitive = CanEdit;
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)
 		{
-			return widget.Sensitive =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(permission);
+			return widget.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(permission) && CanEdit;
 		}
 
 		private IEntityAutocompleteSelectorFactory GetEmployeeFactoryWithResetFilter(IEmployeeJournalFactory employeeJournalFactory)
 		{
-			var filter = new EmployeeFilterViewModel
-			{
-				RestrictCategory = EmployeeCategory.office,
-				Status = EmployeeStatus.IsWorking
-			};
+			var filter = new EmployeeFilterViewModel();
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.Status = EmployeeStatus.IsWorking);
 			employeeJournalFactory.SetEmployeeFilterViewModel(filter);
 			return employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 		}
 
 		private void ConfigureTabRequisites()
 		{
-			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
+			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			
+			validatedOGRN.Binding
+				.AddBinding(Entity, e => e.OGRN, w => w.Text)
+				.InitializeFromSource();
+			validatedOGRN.MaxLength = 13;
+			validatedOGRN.IsEditable = CanEdit;
 
-			yentrySignFIO.Binding.AddBinding(Entity, e => e.SignatoryFIO, w => w.Text).InitializeFromSource();
-			validatedKPP.Binding.AddBinding(Entity, e => e.KPP, w => w.Text).InitializeFromSource();
-			yentrySignPost.Binding.AddBinding(Entity, e => e.SignatoryPost, w => w.Text).InitializeFromSource();
-			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
-			yentrySignBaseOf.Binding.AddBinding(Entity, e => e.SignatoryBaseOf, w => w.Text).InitializeFromSource();
+			validatedINN.Binding
+				.AddBinding(Entity, e => e.INN, w => w.Text)
+				.InitializeFromSource();
+			validatedINN.IsEditable = CanEdit;
 
-			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails;
+			yentrySignFIO.Binding
+				.AddBinding(Entity, e => e.SignatoryFIO, w => w.Text)
+				.InitializeFromSource();
+			yentrySignFIO.IsEditable = CanEdit;
+			validatedKPP.Binding
+				.AddBinding(Entity, e => e.KPP, w => w.Text)
+				.InitializeFromSource();
+			validatedKPP.IsEditable = CanEdit;
+			yentrySignPost.Binding
+				.AddBinding(Entity, e => e.SignatoryPost, w => w.Text)
+				.InitializeFromSource();
+			yentrySignPost.IsEditable = CanEdit;
+			entryJurAddress.Binding
+				.AddBinding(Entity, e => e.RawJurAddress, w => w.Text)
+				.InitializeFromSource();
+			entryJurAddress.IsEditable = CanEdit;
+			yentrySignBaseOf.Binding
+				.AddBinding(Entity, e => e.SignatoryBaseOf, w => w.Text)
+				.InitializeFromSource();
+			yentrySignBaseOf.IsEditable = CanEdit;
 
-			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account>(UoWGeneric, c => c.Accounts);
+			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
+			accountsView.SetAccountOwner(UoW, Entity);
 		}
 
 		private void ConfigureTabProxies()
 		{
 			proxiesview1.CounterpartyUoW = UoWGeneric;
+			proxiesview1.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabContracts()
 		{
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
+			counterpartyContractsView.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabTags()
@@ -559,24 +741,54 @@ namespace Vodovoz
 				.Finish();
 
 			ytreeviewTags.ItemsDataSource = Entity.ObservableTags;
+			buttonAddTag.Sensitive = CanEdit;
+			buttonDeleteTag.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabSpecialFields()
 		{
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
-			enumcomboCargoReceiverSource.Binding.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem).InitializeFromSource();
+			enumcomboCargoReceiverSource.Binding
+				.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem)
+				.InitializeFromSource();
+			enumcomboCargoReceiverSource.Sensitive = CanEdit;
 
-			yentryCargoReceiver.Binding.AddBinding(Entity, e => e.CargoReceiver, w => w.Text).InitializeFromSource();
-			yentryCustomer.Binding.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text).InitializeFromSource();
-			yentrySpecialContract.Binding.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text).InitializeFromSource();
-			yentrySpecialKPP.Binding.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text).InitializeFromSource();
-			yentryGovContract.Binding.AddBinding(Entity, e => e.GovContract, w => w.Text).InitializeFromSource();
-			yentrySpecialDeliveryAddress.Binding.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text).InitializeFromSource();
+			yentryCargoReceiver.Binding
+				.AddBinding(Entity, e => e.CargoReceiver, w => w.Text)
+				.InitializeFromSource();
+			yentryCargoReceiver.IsEditable = CanEdit;
+			yentryCustomer.Binding
+				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
+				.InitializeFromSource();
+			yentryCustomer.IsEditable = CanEdit;
+			yentrySpecialContract.Binding
+				.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text)
+				.InitializeFromSource();
+			yentrySpecialContract.IsEditable = CanEdit;
+			yentrySpecialKPP.Binding
+				.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text)
+				.InitializeFromSource();
+			yentrySpecialKPP.IsEditable = CanEdit;
+			yentryGovContract.Binding
+				.AddBinding(Entity, e => e.GovContract, w => w.Text)
+				.InitializeFromSource();
+			yentryGovContract.IsEditable = CanEdit;
+			yentrySpecialDeliveryAddress.Binding
+				.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text)
+				.InitializeFromSource();
+			yentrySpecialDeliveryAddress.IsEditable = CanEdit;
 
-			buttonLoadFromDP.Clicked += ButtonLoadFromDP_Clicked;
+			buttonLoadFromDP.Clicked += OnButtonLoadFromDeliveryPointClicked;
+			buttonLoadFromDP.Sensitive = CanEdit;
 
-			yentryOKPO.Binding.AddBinding(Entity, e => e.OKPO, w => w.Text).InitializeFromSource();
-			yentryOKDP.Binding.AddBinding(Entity, e => e.OKDP, w => w.Text).InitializeFromSource();
+			yentryOKPO.Binding
+				.AddBinding(Entity, e => e.OKPO, w => w.Text)
+				.InitializeFromSource();
+			yentryOKPO.IsEditable = CanEdit;
+			yentryOKDP.Binding
+				.AddBinding(Entity, e => e.OKDP, w => w.Text)
+				.InitializeFromSource();
+			yentryOKDP.IsEditable = CanEdit;
 
 			int?[] docCount = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
@@ -584,9 +796,18 @@ namespace Vodovoz
 			yspeccomboboxTorg2Count.ItemsList = docCount;
 			yspeccomboboxUPDForNonCashlessCount.ItemsList = docCount;
 
-			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
-			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
-			yspeccomboboxUPDForNonCashlessCount.Binding.AddBinding(Entity, e => e.UPDCount, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxTorg2Count.Binding
+				.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem)
+				.InitializeFromSource();
+			yspeccomboboxTorg2Count.Sensitive = CanEdit;
+			yspeccomboboxTTNCount.Binding
+				.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem)
+				.InitializeFromSource();
+			yspeccomboboxTTNCount.Sensitive = CanEdit;
+			yspeccomboboxUPDForNonCashlessCount.Binding
+				.AddBinding(Entity, e => e.UPDCount, w => w.SelectedItem)
+				.InitializeFromSource();
+			yspeccomboboxUPDForNonCashlessCount.Sensitive = CanEdit;
 
 			if(Entity.IsForRetail)
 			{
@@ -595,11 +816,22 @@ namespace Vodovoz
 				yspeccomboboxShetFacturaCount.ItemsList = docCount;
 				yspeccomboboxCarProxyCount.ItemsList = docCount;
 
-				yspeccomboboxUPDCount.Binding.AddBinding(Entity, e => e.AllUPDCount, w => w.SelectedItem).InitializeFromSource();
-				yspeccomboboxTorg12Count.Binding.AddBinding(Entity, e => e.Torg12Count, w => w.SelectedItem).InitializeFromSource();
-				yspeccomboboxShetFacturaCount.Binding.AddBinding(Entity, e => e.ShetFacturaCount, w => w.SelectedItem)
+				yspeccomboboxUPDCount.Binding
+					.AddBinding(Entity, e => e.AllUPDCount, w => w.SelectedItem)
 					.InitializeFromSource();
-				yspeccomboboxCarProxyCount.Binding.AddBinding(Entity, e => e.CarProxyCount, w => w.SelectedItem).InitializeFromSource();
+				yspeccomboboxUPDCount.Sensitive = CanEdit;
+				yspeccomboboxTorg12Count.Binding
+					.AddBinding(Entity, e => e.Torg12Count, w => w.SelectedItem)
+					.InitializeFromSource();
+				yspeccomboboxTorg12Count.Sensitive = CanEdit;
+				yspeccomboboxShetFacturaCount.Binding
+					.AddBinding(Entity, e => e.ShetFacturaCount, w => w.SelectedItem)
+					.InitializeFromSource();
+				yspeccomboboxShetFacturaCount.Sensitive = CanEdit;
+				yspeccomboboxCarProxyCount.Binding
+					.AddBinding(Entity, e => e.CarProxyCount, w => w.SelectedItem)
+					.InitializeFromSource();
+				yspeccomboboxCarProxyCount.Sensitive = CanEdit;
 			}
 			else
 			{
@@ -615,16 +847,21 @@ namespace Vodovoz
 				.AddColumn("Код").AddNumericRenderer(node => node.SpecialId).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1)).Editing()
 				.Finish();
 			ytreeviewSpecialNomenclature.ItemsDataSource = Entity.ObservableSpecialNomenclatures;
+			ytreeviewSpecialNomenclature.Sensitive = CanEdit;
+
+			ybuttonAddNom.Sensitive = CanEdit;
+			ybuttonRemoveNom.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabDeliveryPoints()
 		{
-			deliveryPointsManagementView.DeliveryPointUoW = UoWGeneric;
+			deliveryPointsManagementView.Counterparty = Entity;
 		}
 
 		private void ConfigureTabDocuments()
 		{
 			counterpartydocumentsview.Config(UoWGeneric, Entity);
+			counterpartydocumentsview.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabPrices()
@@ -636,10 +873,11 @@ namespace Vodovoz
 					this,
 					ServicesConfig.CommonServices,
 					_employeeService,
-					CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
-					NomenclatureSelectorFactory,
+					CounterpartySelectorFactory,
+					new NomenclatureJournalFactory(),
 					NomenclatureRepository,
 					_userRepository);
+			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabFixedPrices()
@@ -648,9 +886,10 @@ namespace Vodovoz
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
 			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory, waterFixedPricesGenerator);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			var nomSelectorFactory = new NomenclatureSelectorFactory();
+			var nomSelectorFactory = new NomenclatureJournalFactory();
 			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
+			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
 		}
 
 		private void ConfigureValidationContext()
@@ -663,6 +902,95 @@ namespace Vodovoz
 			_validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
 			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
 		}
+
+		private void ConfigureTabEmails()
+		{
+			if(EmailDataLoader != null)
+			{
+				return;
+			}
+
+			_emailLastScrollPosition = 0;
+			EmailDataLoader = new ThreadDataLoader<EmailRow>(UnitOfWorkFactory.GetDefaultFactory) { PageSize = 50 };
+			EmailDataLoader.AddQuery(EmailItemsSourceQueryFunction);
+
+			ytreeviewEmails.ColumnsConfig = FluentColumnsConfig<EmailRow>.Create()
+				.AddColumn("Дата отправки").AddTextRenderer(x => x.Date.ToString())
+				.AddColumn("Тип письма").AddTextRenderer(x => x.Type.GetEnumTitle())
+				.AddColumn("Статус").AddTextRenderer(x => x.State.GetEnumTitle())
+				.AddColumn("Тема письма").AddTextRenderer(x => x.Subject)
+				.Finish();
+
+			EmailDataLoader.ItemsListUpdated += (sender, args) =>
+			{
+				Application.Invoke((s, arg) =>
+				{
+					ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
+					GtkHelper.WaitRedraw();
+					ytreeviewEmails.Vadjustment.Value = _emailLastScrollPosition;
+				});
+			};
+
+			ytreeviewEmails.Vadjustment.ValueChanged += (sender, args) =>
+			{
+				if(ytreeviewEmails.Vadjustment.Value + ytreeviewEmails.Vadjustment.PageSize < ytreeviewEmails.Vadjustment.Upper)
+				{
+					return;
+				}
+
+				if(EmailDataLoader.HasUnloadedItems)
+				{
+					_emailLastScrollPosition = ytreeviewEmails.Vadjustment.Value;
+					EmailDataLoader.LoadData(true);
+				}
+			};
+
+			ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
+
+			EmailDataLoader.LoadData(false);
+
+			RefreshBulkEmailEventStatus();
+		}
+
+		private void RefreshBulkEmailEventStatus()
+		{
+			var lastBulkEmailEvent = _emailRepository.GetLastBulkEmailEvent(UoW, Entity.Id);
+
+			if(lastBulkEmailEvent == null || lastBulkEmailEvent is SubscribingBulkEmailEvent)
+			{
+				ylabelBulkEmailEventDate.LabelProp = "Контрагент подписан на массовую рассылку";
+				ybuttonSubscribe.Visible = false;
+				ybuttonUnsubscribe.Visible = true;
+				return;
+			}
+
+			ylabelBulkEmailEventDate.LabelProp = lastBulkEmailEvent.ActionTime.ToString();
+			ybuttonSubscribe.Visible = true;
+			ybuttonUnsubscribe.Visible = false;
+		}
+
+		private Func<IUnitOfWork, IQueryOver<CounterpartyEmail>> EmailItemsSourceQueryFunction => (uow) =>
+		{
+			CounterpartyEmail counterpartyEmailAlias = null;
+			StoredEmail storedEmailAlias = null;
+			EmailRow resultAlias = null;
+
+			var itemsQuery = uow.Session.QueryOver(() => counterpartyEmailAlias)
+				.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
+				.Where(() => counterpartyEmailAlias.Counterparty.Id == Entity.Id);
+
+			itemsQuery
+				.SelectList(list => list
+					.Select(()=> storedEmailAlias.SendDate).WithAlias(() => resultAlias.Date)
+					.Select(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.Type)
+					.Select(() => storedEmailAlias.Subject).WithAlias(() => resultAlias.Subject)
+					.Select(() => storedEmailAlias.State).WithAlias(() => resultAlias.State)
+				)
+				.OrderBy(() => storedEmailAlias.SendDate).Desc
+				.TransformUsing(Transformers.AliasToBean<EmailRow>());
+
+			return itemsQuery;
+		};
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
@@ -677,19 +1005,22 @@ namespace Vodovoz
 			}
 		}
 
-		private void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
+		private void OnButtonLoadFromDeliveryPointClicked(object sender, EventArgs e)
 		{
-			var deliveryPointSelectDlg = new PermissionControlledRepresentationJournal(new ClientDeliveryPointsVM(UoW, Entity))
+			var filter = new DeliveryPointJournalFilterViewModel
 			{
-				Mode = JournalSelectMode.Single
+				Counterparty = Entity
 			};
-			deliveryPointSelectDlg.ObjectSelected += DeliveryPointRep_ObjectSelected;
-			TabParent.AddSlaveTab(this, deliveryPointSelectDlg);
+			var dpFactory = new DeliveryPointJournalFactory(filter);
+			var dpJournal = dpFactory.CreateDeliveryPointByClientJournal();
+			dpJournal.SelectionMode = JournalSelectionMode.Single;
+			dpJournal.OnEntitySelectedResult += OnDeliveryPointJournalEntitySelected;
+			TabParent.AddSlaveTab(this, dpJournal);
 		}
 
-		private void DeliveryPointRep_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
+		private void OnDeliveryPointJournalEntitySelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			if(e.GetNodes<ClientDeliveryPointVMNode>().FirstOrDefault() is ClientDeliveryPointVMNode node)
+			if(e.SelectedNodes.FirstOrDefault() is DeliveryPointByClientJournalNode node)
 			{
 				yentrySpecialDeliveryAddress.Text = node.CompiledAddress;
 			}
@@ -733,8 +1064,11 @@ namespace Vodovoz
 				subdivisionJournalFactory,
 				new GtkTabsOpener(),
 				new UndeliveredOrdersJournalOpener(),
-				new NomenclatureSelectorFactory(),
-				new UndeliveredOrdersRepository()
+				new NomenclatureJournalFactory(),
+				new UndeliveredOrdersRepository(),
+				new SubdivisionRepository(new ParametersProvider()),
+				new FileDialogService(),
+				new SubdivisionParametersProvider(new ParametersProvider())
 			);
 
 			TabParent.AddTab(orderJournalViewModel, this, false);
@@ -745,8 +1079,7 @@ namespace Vodovoz
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, EmployeeSelectorFactory,
-				CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
+				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory, _subdivisionParametersProvider);
 			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
 
 			var complaintsJournalViewModel = new ComplaintsJournalViewModel(
@@ -754,13 +1087,12 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				UndeliveredOrdersJournalOpener,
 				_employeeService,
-				CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+				CounterpartySelectorFactory,
 				RouteListItemRepository,
-				SubdivisionParametersProvider.Instance,
+				_subdivisionParametersProvider,
 				filter,
 				FilePickerService,
 				SubdivisionRepository,
-				new GtkReportViewOpener(),
 				new GtkTabsOpener(),
 				NomenclatureRepository,
 				_userRepository,
@@ -770,7 +1102,8 @@ namespace Vodovoz
 				new DeliveryPointJournalFactory(),
 				subdivisionJournalFactory,
 				new SalesPlanJournalFactory(),
-				new NomenclatureSelectorFactory(),
+				new NomenclatureJournalFactory(),
+				new EmployeeSettings(new ParametersProvider()),
 				new UndeliveredOrdersRepository()
 			);
 
@@ -793,7 +1126,7 @@ namespace Vodovoz
 		{
 			_canClose = isSensetive;
 			buttonSave.Sensitive = isSensetive;
-			buttonCancel.Sensitive = isSensetive;
+			btnCancel.Sensitive = isSensetive;
 		}
 
 		public override bool Save()
@@ -815,7 +1148,7 @@ namespace Vodovoz
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				phonesView.RemoveEmpty();
+				_phonesViewModel.RemoveEmpty();
 				emailsView.RemoveEmpty();
 				UoWGeneric.Save();
 				_logger.Info("Ok.");
@@ -935,12 +1268,26 @@ namespace Vodovoz
 			notebook1.CurrentPage = 10;
 		}
 
-		private void YEnumCounterpartyType_Changed(object sender, EventArgs e)
+		protected void OnRadioEmailsToggled(object sender, EventArgs e)
 		{
-			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
+			if(rbnEmails.Active)
+			{
+				notebook1.CurrentPage = 11;
+				ConfigureTabEmails();
+			}
 		}
 
-		private void YEnumCounterpartyType_ChangedByUser(object sender, EventArgs e)
+		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
+		{
+			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
+			validatedOGRN.Visible = labelOGRN.Visible = HasOgrn;
+			if (Entity.CounterpartyType == CounterpartyType.Dealer)
+			{
+				Entity.PersonType = PersonType.legal;
+			}
+		}
+
+		private void OnEnumCounterpartyTypeChangedByUser(object sender, EventArgs e)
 		{
 			if(Entity.ObservableSuplierPriceItems.Any() && Entity.CounterpartyType == CounterpartyType.Buyer)
 			{
@@ -994,6 +1341,10 @@ namespace Vodovoz
 
 		protected void OnYentrySignPostFocusInEvent(object o, Gtk.FocusInEventArgs args)
 		{
+			if(!CanEdit)
+			{
+				return;
+			}
 			if(yentrySignPost.Completion == null)
 			{
 				yentrySignPost.Completion = new EntryCompletion();
@@ -1006,6 +1357,10 @@ namespace Vodovoz
 
 		protected void OnYentrySignBaseOfFocusInEvent(object o, Gtk.FocusInEventArgs args)
 		{
+			if(!CanEdit)
+			{
+				return;
+			}
 			if(yentrySignBaseOf.Completion == null)
 			{
 				yentrySignBaseOf.Completion = new EntryCompletion();
@@ -1076,16 +1431,25 @@ namespace Vodovoz
 			labelCloseDelivery.LabelProp = "Поставки закрыл : " + Entity.GetCloseDeliveryInfo() + Environment.NewLine +
 			                               "<b>Комментарий по закрытию поставок:</b>";
 
-			if(string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment))
+			if(permissionResult.CanUpdate)
 			{
-				buttonSaveCloseComment.Sensitive = true;
-				buttonEditCloseDeliveryComment.Sensitive = false;
-				ytextviewCloseComment.Sensitive = true;
+				if(string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment))
+				{
+					buttonSaveCloseComment.Sensitive = true;
+					buttonEditCloseDeliveryComment.Sensitive = false;
+					ytextviewCloseComment.Sensitive = true;
+				}
+				else
+				{
+					buttonEditCloseDeliveryComment.Sensitive = true;
+					buttonSaveCloseComment.Sensitive = false;
+					ytextviewCloseComment.Sensitive = false;
+				}
 			}
 			else
 			{
-				buttonEditCloseDeliveryComment.Sensitive = true;
 				buttonSaveCloseComment.Sensitive = false;
+				buttonEditCloseDeliveryComment.Sensitive = false;
 				ytextviewCloseComment.Sensitive = false;
 			}
 		}
@@ -1189,6 +1553,46 @@ namespace Vodovoz
 
 			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
 		}
+
+		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
+		{
+			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+
+			var unsubscribingEvent = new UnsubscribingBulkEmailEvent
+			{
+				Reason = unsubscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
+				Counterparty = Entity
+			};
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение отписки от массовой рассылки"))
+			{
+				unitOfWork.Save(unsubscribingEvent);
+				unitOfWork.Commit();
+			}
+
+			RefreshBulkEmailEventStatus();
+		}
+
+		protected void OnButtonSubscribeClicked(object sender, EventArgs e)
+		{
+			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+
+			var subscribingEvent = new SubscribingBulkEmailEvent
+			{
+				Reason = subscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
+				Counterparty = Entity
+			};
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение подписки на массовую рассылку"))
+			{
+				unitOfWork.Save(subscribingEvent);
+				unitOfWork.Commit();
+			}
+
+			RefreshBulkEmailEventStatus();
+		}
 	}
 
 	public class SalesChannelSelectableNode : PropertyChangedBase
@@ -1228,5 +1632,13 @@ namespace Vodovoz
 			Id = salesChannel.Id;
 			Name = salesChannel.Name;
 		}
+	}
+
+	public class EmailRow
+	{
+		public DateTime Date { get; set; }
+		public CounterpartyEmailType Type { get; set; }
+		public string Subject { get; set; }
+		public StoredEmailStates State { get; set; }
 	}
 }

@@ -4,14 +4,16 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic
 {
 	public class AtWorkDriver : AtWorkBase
 	{
-		private Car car;
-		
+		private Car _car;
+		private CarVersion _carVersion;
+
 		public enum DriverStatus
 		{
 			[Display(Name = "Работает")]
@@ -22,8 +24,8 @@ namespace Vodovoz.Domain.Logistic
 
 		[Display(Name = "Автомобиль")]
 		public virtual Car Car {
-			get => car;
-			set => SetField(ref car, value, () => Car);
+			get => _car;
+			set => SetField(ref _car, value);
 		}
 
 		private short priorityAtDay;
@@ -119,11 +121,10 @@ namespace Vodovoz.Domain.Logistic
 			get => commentLastEditedAuthor;
 			set => SetField(ref commentLastEditedAuthor, value, () => Employee);
 		}
-		
 
-		GeographicGroup geographicGroup;
+		GeoGroup geographicGroup;
 		[Display(Name = "База")]
-		public virtual GeographicGroup GeographicGroup {
+		public virtual GeoGroup GeographicGroup {
 			get => geographicGroup;
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
 		}
@@ -149,14 +150,17 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		protected AtWorkDriver() { }
+		public virtual CarVersion CarVersion => _carVersion ?? (_carVersion = Car.GetActiveCarVersionOnDate(Date));
+
+		protected AtWorkDriver()
+		{ }
 
 		public AtWorkDriver(Employee driver, DateTime date, Car car, DeliveryDaySchedule daySchedule = null)
 		{
 			Date = date;
 			Employee = driver;
 			priorityAtDay = driver.TripPriority;
-			this.car = car;
+			_car = car;
 			DaySchedule = daySchedule;
 
 			var activePrioritySet = driver.DriverDistrictPrioritySets.SingleOrDefault(x => x.IsActive);
@@ -166,7 +170,7 @@ namespace Vodovoz.Domain.Logistic
 				);
 			}
 			if(car?.GeographicGroups.Count() == 1) {
-				this.GeographicGroup = car.GeographicGroups[0];
+				GeographicGroup = car.GeographicGroups[0];
 			}
 		}
 

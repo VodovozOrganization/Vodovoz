@@ -24,6 +24,8 @@ namespace Vodovoz.HibernateMapping.Accounting
 			Map(x => x.CounterpartyBik).Column("counterparty_bik");
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.Status).Column("status").CustomType<PaymentStateStringType>();
+			Map(x => x.IsManuallyCreated).Column("is_manually_created");
+			Map(x => x.RefundPaymentFromOrderId).Column("refund_payment_from_order_id");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.CounterpartyAccount).Column("counterparty_account_id");
@@ -33,6 +35,7 @@ namespace Vodovoz.HibernateMapping.Accounting
 			References(x => x.CashlessMovementOperation).Column("cashless_movement_operation_id")
 				.Cascade.AllDeleteOrphan();
 			References(x => x.RefundedPayment).Column("refunded_payment_id");
+			References(x => x.CurrentEditorUser).Column("current_editor_user_id");
 
 			HasMany(x => x.PaymentItems).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("payment_id");
 		}

@@ -40,9 +40,9 @@ namespace Vodovoz.Views.BusinessTasks
 			deadlineYdatepicker.Binding.AddBinding(ViewModel.Entity, vm => vm.EndActivePeriod, w => w.Date).InitializeFromSource();
 			//datepickerPaymentDate.Binding.AddBinding(ViewModel.Entity, vm => vm.Date, w => w.Date).InitializeFromSource();
 			//orderSumEntry.ValidationMode = ValidationType.numeric;
-			//currentPayEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.OrderSum, w => w.Text, new IntToStringConverter()).InitializeFromSource();
-			//lastPaymentsEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.OrderSum, w => w.Text, new IntToStringConverter()).InitializeFromSource();
-			//orderSumEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.OrderSum, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			//currentPayEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.OrderPositiveSum, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
+			//lastPaymentsEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.OrderPositiveSum, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
+			//orderSumEntry.Binding.AddBinding(ViewModel.Entity, vm => vm.OrderPositiveSum, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 			//textViewPaymentPurpose.Binding.AddBinding(ViewModel.Entity, vm => vm.PaymentPurpose, w => w.Buffer.Text).InitializeFromSource();
 
 			employeeViewModelEntry.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);

@@ -1,12 +1,11 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EmployeeFilterView : FilterViewBase<EmployeeFilterViewModel>
 	{
 		public EmployeeFilterView(EmployeeFilterViewModel viewModel) : base(viewModel)
@@ -54,9 +53,14 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.Subdivision, w => w.Subject)
 				.InitializeFromSource();
 
-			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
-			cmbDriverOf.Binding
-				.AddBinding(ViewModel, vm => vm.DriverOf, w => w.SelectedItemOrNull)
+			cmbDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			cmbDriverOfCarTypeOfUse.Binding
+				.AddBinding(ViewModel, vm => vm.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			cmbDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);
+			cmbDriverOfCarOwnType.Binding
+				.AddBinding(ViewModel, vm => vm.DriverOfCarOwnType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			registrationTypeCmb.ItemsEnum = typeof(RegistrationType);

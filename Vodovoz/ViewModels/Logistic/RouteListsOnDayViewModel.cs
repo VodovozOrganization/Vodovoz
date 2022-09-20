@@ -32,10 +32,12 @@ using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -46,7 +48,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IAtWorkRepository atWorkRepository;
 		private readonly IGtkTabsOpener gtkTabsOpener;
 		private readonly IUserRepository userRepository;
-		private readonly ICommonServices commonServices;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
 		private readonly int closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
@@ -67,20 +68,29 @@ namespace Vodovoz.ViewModels.Logistic
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IGeographicGroupRepository geographicGroupRepository,
-			IScheduleRestrictionRepository scheduleRestrictionRepository) : base(commonServices?.InteractiveService, navigationManager)
+			IScheduleRestrictionRepository scheduleRestrictionRepository,
+			ICarModelJournalFactory carModelJournalFactory,
+			IGeographicGroupParametersProvider geographicGroupParametersProvider) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
 			{
 				throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
 			}
-
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			if(geographicGroupRepository == null)
+			{
+				throw new ArgumentNullException(nameof(geographicGroupRepository));
+			}
+			if(geographicGroupParametersProvider == null)
+			{
+				throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
+			}
+			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			GeographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 			ScheduleRestrictionRepository =
 				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			CarModelJournalFactory = carModelJournalFactory;
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			this.OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -89,7 +99,9 @@ namespace Vodovoz.ViewModels.Logistic
 			
 			closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
 			                                    throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
-			
+
+			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
+
 			CreateUoW();
 
 			Employee currentEmployee = VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
@@ -112,14 +124,17 @@ namespace Vodovoz.ViewModels.Logistic
 				return;
 			}
 
-			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(UoW.GetAll<GeographicGroup>().Select(x => new GeographicGroupNode(x)).ToList());
-			GeographicGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
+			GeographicGroupsExceptEast =
+				geographicGroupRepository.GeographicGroupsWithCoordinatesExceptEast(UoW, geographicGroupParametersProvider);
+			var geographicGroups = geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
+			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(geographicGroups.Select(x => new GeographicGroupNode(x)).ToList());
+			GeoGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
 			if(employeeGeographicGroup != null) {
 				var foundGeoGroup = GeographicGroupNodes.FirstOrDefault(x => x.GeographicGroup.Id == employeeGeographicGroup.Id);
 				if(foundGeoGroup != null)
 					foundGeoGroup.Selected = true;
 			}
-			Optimizer = new RouteOptimizer(commonServices.InteractiveService);
+			Optimizer = new RouteOptimizer(commonServices.InteractiveService, new GeographicGroupRepository());
 
 			defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
@@ -129,10 +144,44 @@ namespace Vodovoz.ViewModels.Logistic
 			CreateCommands();
 			LoadAddressesTypesDefaults();
 		}
-		
+
+		private void AddAddressTypeFilter(IQueryOver<Order, Order> query)
+		{
+			foreach(var node in OrderAddressTypes)
+			{
+				if(node.Selected)
+				{
+					continue;
+				}
+
+				if(node.IsFastDelivery)
+				{
+					query.Where(x => !x.IsFastDelivery);
+				}
+				else if(node.OrderAddressType == OrderAddressType.Delivery)
+				{
+					var isFastDeliveryChecked = OrderAddressTypes.SingleOrDefault(x => x.IsFastDelivery && x.Selected) != null;
+					if(isFastDeliveryChecked)
+					{
+						query.Where(x => x.IsFastDelivery);
+					}
+					else
+					{
+						query.Where(x => x.OrderAddressType != node.OrderAddressType);
+					}
+				}
+				else
+				{
+					query.Where(x => x.OrderAddressType != node.OrderAddressType);
+				}
+			}
+		}
+
+		public ICommonServices CommonServices { get; }
 		public ICarRepository CarRepository { get; }
-		public IGeographicGroupRepository GeographicGroupRepository { get; }
+		public IList<GeoGroup> GeographicGroupsExceptEast { get; }
 		public IScheduleRestrictionRepository ScheduleRestrictionRepository { get; }
+		public ICarModelJournalFactory CarModelJournalFactory { get; }
 		public IOrderRepository OrderRepository { get; }
 
 		void CreateCommands()
@@ -210,7 +259,7 @@ namespace Vodovoz.ViewModels.Logistic
 							} else
 								return;
 						}
-						gtkTabsOpener.OpenCreateRouteListDlg(this, rl.Id);
+						gtkTabsOpener.OpenRouteListCreateDlg(this, rl.Id);
 					}
 				},
 				i => true
@@ -403,7 +452,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
 
-		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator(DistanceProvider.Osrm);
+		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator();
 
 		Employee driverFromRouteList;
 		public virtual Employee DriverFromRouteList {
@@ -482,12 +531,6 @@ namespace Vodovoz.ViewModels.Logistic
 					observableDriversOnDay = new GenericObservableList<AtWorkDriver>(DriversOnDay);
 				return observableDriversOnDay;
 			}
-		}
-
-		Subdivision closingSubdivision;
-		public virtual Subdivision ClosingSubdivision {
-			get => closingSubdivision;
-			set => SetField(ref closingSubdivision, value);
 		}
 
 		RouteOptimizer optimizer;
@@ -587,6 +630,7 @@ namespace Vodovoz.ViewModels.Logistic
 		#endregion
 
 		public IEnumerable<OrderAddressTypeNode> OrderAddressTypes { get; } = new[] {
+			new OrderAddressTypeNode(isFastDelivery:true),
 			new OrderAddressTypeNode(OrderAddressType.Delivery),
 			new OrderAddressTypeNode(OrderAddressType.Service),
 			new OrderAddressTypeNode(OrderAddressType.ChainStore),
@@ -595,7 +639,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void LoadAddressesTypesDefaults()
 		{
-			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
+			var currentUserSettings = userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId);
 			foreach(var addressTypeNode in OrderAddressTypes) {
 				switch(addressTypeNode.OrderAddressType) {
 					case OrderAddressType.Delivery:
@@ -618,11 +662,14 @@ namespace Vodovoz.ViewModels.Logistic
 		public string GenerateToolTip(RouteList routeList)
 		{
 			var firstDP = routeList.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
+			var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+			var geoGroupVersion = geoGroup.GetVersionOrNull(routeList.Date);
+
 			return string.Format(
 				"Первый адрес: {0:t}\nПуть со склада: {1:N1} км. ({2} мин.)\nВыезд со склада: {3:t}\nПогрузка на складе: {4} минут",
 				routeList.FirstAddressTime,
-				firstDP != null ? DistanceCalculator.DistanceFromBaseMeter(routeList.GeographicGroups.FirstOrDefault(), firstDP) * 0.001 : 0,
-				firstDP != null ? DistanceCalculator.TimeFromBase(routeList.GeographicGroups.FirstOrDefault(), firstDP) / 60 : 0,
+				firstDP != null && geoGroupVersion  != null ? DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, firstDP) * 0.001 : 0,
+				firstDP != null && geoGroupVersion != null ? DistanceCalculator.TimeFromBase(geoGroupVersion, firstDP) / 60 : 0,
 				routeList.OnLoadTimeEnd,
 				routeList.TimeOnLoadMinuts
 			);
@@ -724,7 +771,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl) {
 				var weight = rl.Addresses.Sum(x => x.Order.TotalWeight);
-				return FormatOccupancy(weight, null, rl.Car.MaxWeight);
+				return FormatOccupancy(weight, null, rl.Car.CarModel.MaxWeight);
 			}
 
 			if(row is RouteListItem rli)
@@ -736,7 +783,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			if(row is RouteList rl) {
 				var volume = rl.Addresses.Sum(x => x.Order.TotalVolume);
-				return FormatOccupancy(volume, null, rl.Car.MaxVolume);
+				return FormatOccupancy(volume, null, rl.Car.CarModel.MaxVolume);
 			}
 
 			if(row is RouteListItem rli)
@@ -759,8 +806,15 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			if(row is RouteListItem rli) {
-				if(rli.IndexInRoute == 0)
-					return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceFromBaseMeter(rli.RouteList.GeographicGroups.FirstOrDefault(), rli.Order.DeliveryPoint) / 1000);
+				if(rli.IndexInRoute == 0) {
+					var geoGroup = rli.RouteList.GeographicGroups.FirstOrDefault();
+					var geoGroupVersion = geoGroup.GetVersionOrNull(rli.RouteList.Date);
+					if(geoGroupVersion == null) 
+					{
+						return null;
+					}
+					return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceFromBaseMeter(geoGroupVersion, rli.Order.DeliveryPoint) / 1000);
+				}
 
 				return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000);
 			}
@@ -803,7 +857,7 @@ namespace Vodovoz.ViewModels.Logistic
 			return string.Format("<span foreground=\"{0}\">{1}</span>(min {2})", color, val, min);
 		}
 
-		string FormatOccupancy(double val, double? min, double? max)
+		string FormatOccupancy(decimal val, decimal? min, decimal? max)
 		{
 			string color = "green";
 			if(val > max)
@@ -1001,11 +1055,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool AddOrdersToRouteList(IList<Order> selectedOrders, RouteList routeList)
 		{
-			if(ClosingSubdivision == null) {
-				ShowWarningMessage("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
-				return false;
-			}
-
 			bool recalculateLoading = false;
 
 			if(IsAutoroutingModeActive) {
@@ -1065,18 +1114,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool SaveAutoroutingResults()
 		{
-			if(ClosingSubdivision == null) {
-				ShowWarningMessage("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
-				return false;
-			}
 			//Перестраиваем все маршруты
 			RebuildAllRoutes();
-			RoutesOnDay.ToList().ForEach(
-				x => {
-					x.ClosingSubdivision = ClosingSubdivision;
-					UoW.Save(x);
-				}
-			);
 			UoW.Commit();
 			HasNoChanges = true;
 			AutoroutingResultsSaved?.Invoke(this, EventArgs.Empty);
@@ -1131,7 +1170,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
 
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
@@ -1153,17 +1192,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 				var baseOrderQuery = query.GetExecutableQueryOver(UoW.Session);
 
-				#region AddressTypeFilter
-
-				foreach(var elem in OrderAddressTypes)
-				{
-					if(!elem.Selected)
-					{
-						baseOrderQuery.Where(x => x.OrderAddressType != elem.OrderAddressType);
-					}
-				}
-
-				#endregion
+				AddAddressTypeFilter(baseOrderQuery);
 
 				if(selectedGeographicGroup.Any())
 				{
@@ -1208,6 +1237,14 @@ namespace Vodovoz.ViewModels.Logistic
 								.Distinct().ToList()
 							;
 						break;
+					case DeliveryScheduleFilterType.OrderCreateDate:
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+								.Where(x => x.CreateDate.Value.TimeOfDay >= DeliveryFromTime)
+								.Where(x => x.CreateDate.Value.TimeOfDay <= DeliveryToTime)
+								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+								.Distinct().ToList()
+							;
+						break;
 				}
 
 
@@ -1240,7 +1277,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.GetExecutableQueryOver(UoW.Session);
 			if(!ShowCompleted)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
-			GeographicGroup routeGeographicGroupAlias = null;
+			GeoGroup routeGeographicGroupAlias = null;
 			if(selectedGeographicGroup.Any())
 			{
 				routesQuery1
@@ -1300,7 +1337,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer.Drivers = DriversOnDay;
 			Optimizer.Forwarders = ForwardersOnDay;
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
-			Optimizer.CreateRoutes(DriverStartTime, DriverEndTime);
+			Optimizer.CreateRoutes(DateForRouting, DriverStartTime, DriverEndTime);
 
 			if(optimizer.ProposedRoutes.Any()) {
 				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.
@@ -1352,8 +1389,12 @@ namespace Vodovoz.ViewModels.Logistic
 						driver.Employee.ShortName
 					)
 				)
-			) {
-				DriversOnDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => { x.Car = null; x.GeographicGroup = null; });
+			)
+			{
+				DriversOnDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x =>
+				{
+					x.Car = null; x.GeographicGroup = null;
+				});
 				driver.Car = car;
 			}
 		}
@@ -1377,7 +1418,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliverySummaryNode resultAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
 
 			ObservableDeliverySummary.Clear();
@@ -1388,13 +1429,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.And(o => o.OrderAddressType != OrderAddressType.Service);
 			if(OrderAddressTypes.Any(x => x.Selected))
 			{
-				foreach(var elem in OrderAddressTypes)
-				{
-					if(!elem.Selected)
-					{
-						baseQuery.Where(x => x.OrderAddressType != elem.OrderAddressType);
-					}
-				}
+				AddAddressTypeFilter(baseQuery);
 
 				var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 				
@@ -1490,5 +1525,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ObservableDeliverySummary.Add(totalLeft);
 			ObservableDeliverySummary.Add(totalForDay);
 		}
+
+		public bool CanСreateRoutelistInPastPeriod { get; }
 	}
 }

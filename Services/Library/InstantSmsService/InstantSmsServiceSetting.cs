@@ -7,16 +7,18 @@ namespace InstantSmsService
 		private static InstantSmsServiceSetting settingInstance;
 
 		public static bool SendingAllowed => settingInstance != null;
+		private static ChannelFactory<IInstantSmsService> factory;
 
 		public static IInstantSmsService GetInstantSmsService()
 		{
 			if(!SendingAllowed) {
 				return null;
 			}
-			return new ChannelFactory<IInstantSmsService>(
-					new BasicHttpBinding { SendTimeout = new System.TimeSpan(0, 0, 10)},
-					string.Format("http://{0}/InstantSmsService", settingInstance.serviceUrl)
-					).CreateChannel();
+
+			factory = new ChannelFactory<IInstantSmsService>(
+				new BasicHttpBinding { SendTimeout = new System.TimeSpan(0, 0, 10) },
+				$"http://{settingInstance.serviceUrl}/InstantSmsService");
+			return factory.CreateChannel();
 		}
 
 		public static void Init(string serviceUrl)
@@ -32,6 +34,11 @@ namespace InstantSmsService
 		private InstantSmsServiceSetting(string serviceUrl)
 		{
 			this.serviceUrl = serviceUrl;
+		}
+
+		public static void Close()
+		{
+			factory?.Close();
 		}
 	}
 }

@@ -29,12 +29,6 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref documentType, value);
 		}
 
-		private DateTime version;
-		public virtual DateTime Version {
-			get => version;
-			set => SetField(ref version, value);
-		}
-
 		private DateTime timeStamp;
 		public override DateTime TimeStamp {
 			get => timeStamp;
@@ -208,7 +202,6 @@ namespace Vodovoz.Domain.Documents
 					);
 				}
 
-
 				if(!(validationContext.GetService(typeof(IWarehouseRepository)) is IWarehouseRepository warehouseRepository))
 					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IWarehouseRepository)}");
 
@@ -255,6 +248,24 @@ namespace Vodovoz.Domain.Documents
 						yield return new ValidationResult(String.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
 							new[] { this.GetPropertyName(o => o.Items) });
 				}
+			}
+
+			var needWeightOrVolume = Items
+				.Select(item => item.Nomenclature)
+				.Where(nomenclature =>
+					Nomenclature.CategoriesWithWeightAndVolume.Contains(nomenclature.Category)
+					&& (nomenclature.Weight == default
+						|| nomenclature.Length == default
+						|| nomenclature.Width == default
+						|| nomenclature.Height == default))
+				.ToList();
+			if(needWeightOrVolume.Any())
+			{
+				yield return new ValidationResult(
+					"Для всех добавленных номенклатур должны быть заполнены вес и объём.\n" +
+					"Список номенклатур, в которых не заполнен вес или объём:\n" +
+					$"{string.Join("\n", needWeightOrVolume.Select(x => $"({x.Id}) {x.Name}"))}",
+					new[] { nameof(Items) });
 			}
 		}
 

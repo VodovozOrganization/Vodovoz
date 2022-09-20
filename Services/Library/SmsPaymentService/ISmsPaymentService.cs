@@ -24,8 +24,6 @@ namespace SmsPaymentService
         /// <summary>
         /// Формирует и отправляет платеж, обрабатывает метод POST
         /// </summary>
-        /// <param name="orderId">Номер заказа</param>
-        /// <param name="phoneNumber">Номер телефона клиента</param>
         [OperationContract, WebInvoke(RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
         PaymentResult SendPaymentPost(SendPaymentRequest sendPaymentRequest);
 

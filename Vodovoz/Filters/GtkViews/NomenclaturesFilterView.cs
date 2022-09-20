@@ -2,6 +2,7 @@
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Gamma.Utilities;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.Filters.GtkViews
 {

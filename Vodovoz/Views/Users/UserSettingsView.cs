@@ -1,6 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 using Gamma.ColumnConfig;
 using Gtk;
+using QS.Dialog;
 using QS.Views.GtkUI;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Complaints;
@@ -14,37 +18,58 @@ namespace Vodovoz.Views.Users
 	public partial class UserSettingsView : TabViewBase<UserSettingsViewModel>
 	{
 		public UserSettingsView(UserSettingsViewModel viewModel) : base(viewModel) {
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg()
 		{
-			var storeDocument = new StoreDocumentHelper();
-			yentryrefWarehouse.ItemsQuery = storeDocument.GetWarehouseQuery();
-			yentryrefWarehouse.Binding.AddBinding(ViewModel.Entity, e => e.DefaultWarehouse, w => w.Subject).InitializeFromSource();
+			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
+			yentryrefWarehouse.Binding
+				.AddBinding(ViewModel.Entity, e => e.DefaultWarehouse, w => w.Subject)
+				.InitializeFromSource();
 
 			yenumcomboDefaultCategory.ItemsEnum = typeof(NomenclatureCategory);
 			var itemsToHide = Nomenclature.GetAllCategories().Except(Nomenclature.GetCategoriesForSaleToOrder()).Cast<object>().ToArray();
 			yenumcomboDefaultCategory.AddEnumToHideList(itemsToHide);
-			yenumcomboDefaultCategory.Binding.AddBinding(ViewModel.Entity, e => e.DefaultSaleCategory, w => w.SelectedItemOrNull).InitializeFromSource();
+			yenumcomboDefaultCategory.Binding
+				.AddBinding(ViewModel.Entity, e => e.DefaultSaleCategory, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 
-			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
+			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			buttonSave.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFixedPricesUpdating, w => w.Sensitive)
+				.InitializeFromSource();
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+			buttonCancel.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsFixedPricesUpdating, w => w.Sensitive)
+				.InitializeFromSource();
 
-			ycheckbuttonDelivery.Binding.AddBinding(ViewModel.Entity, e => e.LogisticDeliveryOrders, w => w.Active).InitializeFromSource();
-			ycheckbuttonService.Binding.AddBinding(ViewModel.Entity, e => e.LogisticServiceOrders, w => w.Active).InitializeFromSource();
-			ycheckbuttonChainStore.Binding.AddBinding(ViewModel.Entity, e => e.LogisticChainStoreOrders, w => w.Active).InitializeFromSource();
+			ycheckbuttonDelivery.Binding
+				.AddBinding(ViewModel.Entity, e => e.LogisticDeliveryOrders, w => w.Active)
+				.InitializeFromSource();
+			ycheckbuttonService.Binding
+				.AddBinding(ViewModel.Entity, e => e.LogisticServiceOrders, w => w.Active)
+				.InitializeFromSource();
+			ycheckbuttonChainStore.Binding
+				.AddBinding(ViewModel.Entity, e => e.LogisticChainStoreOrders, w => w.Active)
+				.InitializeFromSource();
 
 			yenumcomboStatus.ShowSpecialStateAll = true;
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
-			yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.DefaultComplaintStatus, w => w.SelectedItemOrNull).InitializeFromSource();
+			yenumcomboStatus.Binding
+				.AddBinding(ViewModel.Entity, e => e.DefaultComplaintStatus, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 
 			frame2.Visible = ViewModel.IsUserFromRetail;
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
-			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.DefaultCounterparty, w => w.Subject).InitializeFromSource();
+			entryCounterparty.Binding
+				.AddBinding(ViewModel.Entity, e => e.DefaultCounterparty, w => w.Subject)
+				.InitializeFromSource();
 
-			ycheckbuttonUse.Binding.AddBinding(ViewModel.Entity, e => e.UseEmployeeSubdivision, w => w.Active).InitializeFromSource();
+			ycheckbuttonUse.Binding
+				.AddBinding(ViewModel.Entity, e => e.UseEmployeeSubdivision, w => w.Active)
+				.InitializeFromSource();
 
 			frameSortingCashInfo.Visible = ViewModel.UserIsCashier;
 			treeViewSubdivisionsToSort.ColumnsConfig = FluentColumnsConfig<CashSubdivisionSortingSettings>.Create()
@@ -76,8 +101,81 @@ namespace Vodovoz.Views.Users
 				};
 
 				yentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionSelectorDefaultFactory);
-				yentrySubdivision.Binding.AddBinding(ViewModel.Entity, s => s.DefaultSubdivision, w => w.Subject).InitializeFromSource();
+				yentrySubdivision.Binding
+					.AddBinding(ViewModel.Entity, s => s.DefaultSubdivision, w => w.Subject)
+					.InitializeFromSource();
 			}
+
+			#region Обновление фиксы
+
+			btnUpdateFixedPrices.Clicked += (sender, args) => UpdateFixedPrices();
+			btnUpdateFixedPrices.Binding
+				.AddFuncBinding(ViewModel, vm => vm.CanUpdateFixedPrices && !vm.IsFixedPricesUpdating, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			spinBtnIncrementFixedPrices.Binding
+				.AddBinding(ViewModel, vm => vm.IncrementFixedPrices, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+			#endregion
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			switch(e.PropertyName)
+			{
+				case nameof(ViewModel.ProgressMessage):
+					Application.Invoke((s, args) =>
+					{
+						updateFixedPricesProgress.Text = ViewModel.ProgressMessage;
+					});
+					break;
+				case nameof(ViewModel.ProgressFraction):
+					Application.Invoke((s, args) =>
+					{
+						updateFixedPricesProgress.Fraction = ViewModel.ProgressFraction;
+					});
+					break;
+			}
+		}
+
+		private async void UpdateFixedPrices()
+		{
+			if(ViewModel.IncrementFixedPrices == 0)
+			{
+				ViewModel.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя увеличить фиксу на 0 руб");
+				return;
+			}
+			if(!ViewModel.InteractiveService.Question(
+				"Вы уверены, что хотите обновить всю фиксу контрагентов и точек доставки для 19л воды?\n" +
+					"Обновление займет больше 5мин"))
+			{
+				return;
+			}
+			await Task.Run(() =>
+			{
+				try
+				{
+					ViewModel.UpdateFixedPricesCommand.Execute();
+				}
+				catch(Exception ex)
+				{
+					Application.Invoke((s, eventArgs) =>
+					{
+						updateFixedPricesProgress.Text = "При обновлении фиксы произошла ошибка. Попробуйте повторить позже...";
+						updateFixedPricesProgress.Fraction = 0;
+						throw ex;
+					});
+				}
+			});
+		}
+		
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.Destroy();
 		}
 	}
 }

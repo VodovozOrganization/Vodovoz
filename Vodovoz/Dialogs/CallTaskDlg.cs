@@ -1,6 +1,8 @@
 ﻿using System;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -17,9 +19,11 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Models;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.Dialogs
@@ -36,6 +40,9 @@ namespace Vodovoz.Dialogs
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private string _lastComment;
+		private readonly ICommonServices _commonServices;
+		private IParametersProvider _parametersProvider;
+		private IContactsParameters _contactsParameters;
 
 		public CallTaskDlg()
 		{
@@ -46,6 +53,7 @@ namespace Vodovoz.Dialogs
 			_callTaskRepository = new CallTaskRepository();
 			_phoneRepository = new PhoneRepository();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
+			_commonServices = ServicesConfig.CommonServices;
 			TabName = "Новая задача";
 			Entity.CreationDate = DateTime.Now;
 			Entity.Source = TaskSource.Handmade;
@@ -74,6 +82,7 @@ namespace Vodovoz.Dialogs
 			_callTaskRepository = new CallTaskRepository();
 			_phoneRepository = new PhoneRepository();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
+			_commonServices = ServicesConfig.CommonServices;
 			TabName = Entity.Counterparty?.Name;
 			labelCreator.Text = $"Создатель : {Entity.TaskCreator?.ShortName}";
 			ConfigureDlg();
@@ -82,6 +91,8 @@ namespace Vodovoz.Dialogs
 		private void ConfigureDlg()
 		{
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
+			_parametersProvider = new ParametersProvider();
+			_contactsParameters = new ContactParametersProvider(_parametersProvider);
 			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
 			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider);
 			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
@@ -120,10 +131,10 @@ namespace Vodovoz.Dialogs
 				.SetEntityAutocompleteSelectorFactory(counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			entityVMEntryCounterparty.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance);
+			ClientPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters,  _commonServices);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, ContactParametersProvider.Instance);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _commonServices);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)
@@ -141,7 +152,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(Entity.DeliveryPoint != null)
 			{
-				debtByAddressEntry.Text = _bottleRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
+				debtByAddressEntry.Text = _bottleRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
 				entryReserve.Text = Entity.DeliveryPoint.BottleReserv.ToString();
 				DeliveryPointPhonesView.ViewModel.PhonesList = Entity.DeliveryPoint.ObservablePhones;
 				ytextviewOldComments.Buffer.Text = _callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
@@ -160,7 +171,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(Entity.Counterparty != null)
 			{
-				debtByClientEntry.Text = _bottleRepository.GetBottlesAtCounterparty(UoW, Entity.Counterparty).ToString();
+				debtByClientEntry.Text = _bottleRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Counterparty).ToString();
 				ClientPhonesView.ViewModel.PhonesList = Entity.Counterparty?.ObservablePhones;
 				if(Entity.DeliveryPoint == null)
 				{

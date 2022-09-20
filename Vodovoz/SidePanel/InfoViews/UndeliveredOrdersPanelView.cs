@@ -30,7 +30,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			Gdk.Color wh = new Gdk.Color(255, 255, 255);
 			Gdk.Color gr = new Gdk.Color(223, 223, 223);
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
-				.AddColumn("Виновный")
+				.AddColumn("Ответственный")
 					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "")
 					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Кол-во")
@@ -66,7 +66,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void DrawRefreshed(UndeliveredOrdersFilterViewModel undeliveredOrdersFilter)
 		{
-			lblCaption.Markup = "<u><b>Сводка по недовозам\nСписок виновных:</b></u>";
+			lblCaption.Markup = "<u><b>Сводка по недовозам\nСписок ответственных:</b></u>";
 
 			yTreeView.ItemsDataSource = guilties;
 
@@ -142,6 +142,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(filter?.RestrictGuiltySide != null)
 				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == filter.RestrictGuiltySide);
 
+			if(filter?.OldOrderStatus != null)
+				query.Where(() => undeliveredOrderAlias.OldOrderStatus == filter.OldOrderStatus);
+
 			if(filter != null && filter.RestrictIsProblematicCases)
 				query.Where(() => !guiltyInUndeliveryAlias.GuiltySide.IsIn(filter.ExcludingGuiltiesForProblematicCases));
 
@@ -184,6 +187,7 @@ namespace Vodovoz.SidePanel.InfoViews
 							$"WHEN '{nameof(GuiltyTypes.Driver)}' THEN 'Водитель' " +
 							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
 							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN 'Директор ЛО (Доставка за час)' " +
 							$"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
 							"ELSE ?1 " +
 							"END ORDER BY ?1 ASC SEPARATOR '\n')"

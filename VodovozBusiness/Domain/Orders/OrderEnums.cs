@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -109,7 +109,9 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Водитель отзвонился с адреса")]
 		CallFromAddress,
 		[Display(Name = "Водитель отзвонился не с адреса")]
-		CallFromAnywhere
+		CallFromAnywhere,
+		[Display(Name = "Комментарий загружен из приложения")]
+		CommentFromMobileApp,
 	}
 
 	public class DriverCallTypeStringType : NHibernate.Type.EnumStringType

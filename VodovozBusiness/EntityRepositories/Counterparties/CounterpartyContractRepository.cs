@@ -34,32 +34,26 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			if(organization == null)
 				return null;
 
-			Counterparty counterpartyAlias = null;
-			Organization organizationAlias = null;
-			var result =
-			uow.Session.QueryOver<CounterpartyContract>()
-				.JoinAlias(co => co.Counterparty, () => counterpartyAlias)
-				.JoinAlias(co => co.Organization, () => organizationAlias)
-				.Where(
-					co => (
-						   counterpartyAlias.Id == order.Client.Id &&
-					       !co.IsArchive &&
-					       !co.OnCancellation &&
-					       organizationAlias.Id == organization.Id &&
-					       co.ContractType == contractType
-					)
-				)
-				.OrderBy(x => x.IssueDate).Desc.List();
+			var result = GetCounterpartyContractsOrderByIssueDateDesc(uow, order, organization, contractType);
 			
 			if(result.Count > 1 && errorReporter != null)
 			{
 				Exception ex = new ArgumentException("Query returned >1 CounterpartyContract");
-				errorReporter.SendErrorReport(new Exception[] {ex}, 
-					description: $"Ошибка в {nameof(CounterpartyContractRepository)}, GetCounterpartyContract() вернул больше 1 контракта");
+				errorReporter.AutomaticSendErrorReport($"Ошибка в {nameof(CounterpartyContractRepository)}, GetCounterpartyContract() вернул больше 1 контракта", ex);
 			}
 			return result.FirstOrDefault();
 		}
- 
+
+		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, Organization organization)
+		{
+			var personType = order.Client.PersonType;
+			var paymentType = order.PaymentType;
+			var contractType = GetContractTypeForPaymentType(personType, paymentType);
+
+			IList<CounterpartyContract> result = GetCounterpartyContractsOrderByIssueDateDesc(uow, order, organization, contractType);
+			return result.FirstOrDefault();
+		}
+
 		public IList<CounterpartyContract> GetActiveContractsWithOrganization(IUnitOfWork uow, Counterparty counterparty, Organization org, ContractType type)
 		{
 			return uow.Session.QueryOver<CounterpartyContract>()
@@ -82,12 +76,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 					}else {
 						return ContractType.CashFL;
 					}
-				case PaymentType.BeveragesWorld:
-					if(clientType == PersonType.legal) {
-						return ContractType.CashBeveragesUL;
-					} else {
-						return ContractType.CashBeveragesFL;
-					}
 				case PaymentType.cashless:
 				case PaymentType.ContractDoc:
 					return ContractType.Cashless;
@@ -98,6 +86,24 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 		}
 
+		private IList<CounterpartyContract> GetCounterpartyContractsOrderByIssueDateDesc(
+			IUnitOfWork uow, Order order, Organization organization, ContractType contractType)
+		{
+			Counterparty counterpartyAlias = null;
+			Organization organizationAlias = null;
+			var result = uow.Session.QueryOver<CounterpartyContract>()
+				.JoinAlias(co => co.Counterparty, () => counterpartyAlias)
+				.JoinAlias(co => co.Organization, () => organizationAlias)
+				.Where(co => counterpartyAlias.Id == order.Client.Id
+					&& !co.IsArchive
+					&& !co.OnCancellation
+					&& organizationAlias.Id == organization.Id
+					&& co.ContractType == contractType)
+				.OrderBy(x => x.IssueDate)
+				.Desc
+				.List();
+			return result;
+		}
 	}
 }
 

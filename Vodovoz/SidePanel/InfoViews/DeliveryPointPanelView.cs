@@ -1,30 +1,23 @@
 ﻿using System;
 using System.Linq;
+using Fias.Service;
+using Fias.Service.Cache;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Loaders;
-using QS.Project.Domain;
-using QS.Project.Services;
+using QS.Services;
 using QS.Tdi;
 using QSProjectsLib;
-using Vodovoz.Dialogs.OrderWidgets;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewWidgets.Mango;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
@@ -36,12 +29,25 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
 		private readonly IDepositRepository _depositRepository = new DepositRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
+		private readonly IPermissionResult _deliveryPointPermissionResult;
+		private readonly IPermissionResult _orderPermissionResult;
 		DeliveryPoint DeliveryPoint { get; set; }
 
-		public DeliveryPointPanelView()
+		public DeliveryPointPanelView(ICommonServices commonServices)
 		{
-			this.Build();
+			if(commonServices == null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+			Build();
+			_deliveryPointPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
+			_orderPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
+			IParametersProvider parametersProvider = new ParametersProvider();
+			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
+			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
+			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
 			Configure();
 		}
 
@@ -63,28 +69,48 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddNumericRenderer(node => node.Total19LBottlesToDeliver).Editing(false)
 				.Finish();
 		}
+		
+		private void Refresh(object changedObj)
+		{
+			if(InfoProvider == null)
+			{
+				return;
+			}
+			
+			DeliveryPoint = changedObj as DeliveryPoint;
+			RefreshData();
+		}
 
 		#region IPanelView implementation
+		
 		public IInfoProvider InfoProvider { get; set; }
 
 		public void Refresh()
 		{
 			DeliveryPoint = (InfoProvider as IDeliveryPointInfoProvider)?.DeliveryPoint;
-			if(DeliveryPoint == null) {
+			RefreshData();
+		}
+
+		private void RefreshData()
+		{
+			if(DeliveryPoint == null)
+			{
 				buttonSaveComment.Sensitive = false;
 				return;
 			}
-			buttonSaveComment.Sensitive = true;
+
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
 
-			foreach(var child in PhonesTable.Children) {
+			foreach(var child in PhonesTable.Children)
+			{
 				PhonesTable.Remove(child);
 				child.Destroy();
 			}
 
 			uint rowsCount = Convert.ToUInt32(DeliveryPoint.Phones.Count) + 1;
 			PhonesTable.Resize(rowsCount, 2);
-			for(uint row = 0; row < rowsCount - 1; row++) {
+			for(uint row = 0; row < rowsCount - 1; row++)
+			{
 				Label label = new Label();
 				label.Selectable = true;
 				label.Markup = $"{DeliveryPoint.Phones[Convert.ToInt32(row)].LongText}";
@@ -106,13 +132,14 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			PhonesTable.ShowAll();
 
-			var bottlesAtDeliveryPoint = _bottlesRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
+			var bottlesAtDeliveryPoint = _bottlesRepository.GetBottlesDebtAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			var bottlesAvgDeliveryPoint = _deliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
 			lblBottlesQty.LabelProp = $"{bottlesAtDeliveryPoint} шт. (сред. зак.: {bottlesAvgDeliveryPoint:G3})";
-			var bottlesAtCounterparty = _bottlesRepository.GetBottlesAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
+			var bottlesAtCounterparty = _bottlesRepository.GetBottlesDebtAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
 			debtByClientLabel.LabelProp = $"{bottlesAtCounterparty} шт.";
 			var depositsAtDeliveryPoint = _depositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
+
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 
 			var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
@@ -120,6 +147,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			vboxLastOrders.Visible = currentOrders.Any();
 
 			table2.ShowAll();
+
+			buttonSaveComment.Sensitive = btn.Sensitive = textviewComment.Editable = _deliveryPointPermissionResult.CanUpdate;
 		}
 
 		public bool VisibleOnPanel {
@@ -145,9 +174,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		void OnOrdersRowActivated(object sender, RowActivatedArgs args)
 		{
-			var order = ytreeLastOrders.GetSelectedObject() as Order;
-			if(InfoProvider is OrderDlg) {
-				(InfoProvider as OrderDlg)?.FillOrderItems(order);
+			if(InfoProvider is OrderDlg orderDlg &&
+			   (_orderPermissionResult.CanUpdate || _orderPermissionResult.CanCreate && orderDlg.Order.Id == 0))
+			{
+				var order = ytreeLastOrders.GetSelectedObject() as Order;
+				orderDlg.FillOrderItems(order);
 			}
 		}
 
@@ -187,6 +218,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
 			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(DeliveryPoint.Id);
+			dpViewModel.EntitySaved += (o, args) => Refresh(args.Entity);
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}
 	}

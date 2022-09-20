@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
@@ -69,10 +70,9 @@ namespace Vodovoz.Models
 
 		private bool NeedPremiumRaskatGAZelleInRouteListDate(IUnitOfWork uow)
 		{
-			if(routeList.RecalculatedDistance >= premiumRaskatGAZelleParametersProvider.MinRecalculatedDistanceForPremiumRaskatGAZelle &&
-			   routeList.Car.IsRaskat &&
-			   routeList.Car.TypeOfUse == CarTypeOfUse.DriverCar &&
-			   routeList.Car.RaskatType == RaskatType.RaskatGazelle)
+			if(routeList.RecalculatedDistance >= premiumRaskatGAZelleParametersProvider.MinRecalculatedDistanceForPremiumRaskatGAZelle
+			   && routeList.GetCarVersion.CarOwnType == CarOwnType.Raskat
+			   && routeList.GetCarVersion.Car.CarModel.CarTypeOfUse == CarTypeOfUse.GAZelle)
 			{
 				RouteListItem routeListAdressesAlias = null;
 				Order orderAlias = null;

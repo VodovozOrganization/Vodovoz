@@ -1,5 +1,5 @@
 ﻿using Vodovoz.Domain.Client;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 
 namespace Vodovoz.Factories
 {

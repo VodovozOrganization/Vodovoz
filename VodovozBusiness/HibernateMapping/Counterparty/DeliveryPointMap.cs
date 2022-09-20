@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using NHibernate.Type;
-using QS.Osm.DTO;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HibernateMapping
@@ -21,16 +20,21 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.EntranceType)			.Column("entrance_type").CustomType<EntranceTypeStringType>();
 			Map(x => x.Entrance)				.Column("entrance");
 			Map(x => x.City)			  		.Column("city");
-			Map(x => x.LocalityType)	  		.Column("locality_type").CustomType<LocalityTypeStringType>();
+			Map(x => x.CityFiasGuid)			.Column("city_fias_guid");
+			Map(x => x.LocalityType)  			.Column("locality_type");
+			Map(x => x.LocalityTypeShort)  		.Column("locality_type_short");
 			Map(x => x.CityDistrict)	  		.Column("city_district");
 			Map(x => x.Street)			  		.Column("street");
+			Map(x => x.StreetFiasGuid)			.Column("street_fias_guid");
 			Map(x => x.StreetDistrict)	  		.Column("street_district");
+			Map(x => x.StreetType)				.Column("street_type");
+			Map(x => x.StreetTypeShort)  		.Column("street_type_short");
 			Map(x => x.Building)		  		.Column("building");
+			Map(x => x.BuildingFiasGuid)  		.Column("building_fias_guid");
 			Map(x => x.RoomType)		  		.Column("room_type").CustomType<RoomTypeStringType>();
 			Map(x => x.Room)			    	.Column("room");
 			Map(x => x.Letter)					.Column("letter");
 			Map(x => x.Placement)		 		.Column("placement");
-			Map(x => x.АddressAddition)  		.Column("address_addition");
 			Map(x => x.Comment)		  			.Column("comment");
 			Map(x => x.FoundOnOsm)		  		.Column("found_on_osm");
 			Map(x => x.ManualCoordinates)		.Column("manual_coordinates");
@@ -67,10 +71,12 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.District)					.Column("district_id");
 			References(x => x.Category)					.Column("delivery_point_category_id");
 
-			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("delivery_point_id");
-			HasMany(x => x.NomenclatureFixedPrices).Cascade.All().LazyLoad().KeyColumn("delivery_point_id");
+			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("delivery_point_id");
+			HasMany(x => x.NomenclatureFixedPrices)
+				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("delivery_point_id");
             HasMany(x => x.ResponsiblePersons).Inverse().Cascade.All().LazyLoad().KeyColumn("delivery_point_id");
-			HasMany(x => x.DeliveryPointEstimatedCoordinates).Inverse().Cascade.All().LazyLoad().KeyColumn("delivery_point_id");
+			HasMany(x => x.DeliveryPointEstimatedCoordinates)
+				.Inverse().Cascade.All().LazyLoad().KeyColumn("delivery_point_id");
 		}
 	}
 }

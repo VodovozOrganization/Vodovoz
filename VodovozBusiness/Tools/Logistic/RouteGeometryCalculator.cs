@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using GMap.NET;
+﻿using GMap.NET;
 using Polylines;
 using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Osrm;
-using QS.Osm.Spuntik;
+using QS.Osrm;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -24,6 +25,7 @@ namespace Vodovoz.Tools.Logistic
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
 
@@ -34,11 +36,9 @@ namespace Vodovoz.Tools.Logistic
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
 
 		public List<WayHash> ErrorWays = new List<WayHash>();
-		public DistanceProvider Provider;
 
-		public RouteGeometryCalculator(DistanceProvider provider)
+		public RouteGeometryCalculator()
 		{
-			Provider = provider;
 		}
 
 		/// <summary>
@@ -75,7 +75,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от базы до точки.
 		/// </summary>
-		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(GeoGroupVersion fromBase, DeliveryPoint toDP)
 		{
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
 			var toHash = CachedDistance.GetHash(toDP);
@@ -85,7 +85,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Возвращаем время от базы в секундах
 		/// </summary>
-		public int TimeFromBase(GeographicGroup fromBase, DeliveryPoint toDP)
+		public int TimeFromBase(GeoGroupVersion fromBase, DeliveryPoint toDP)
 		{
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
 			var toHash = CachedDistance.GetHash(toDP);
@@ -95,7 +95,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Возвращаем время до базы в секундах
 		/// </summary>
-		public int TimeToBase(DeliveryPoint fromDP, GeographicGroup toBase)
+		public int TimeToBase(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
 			var toBaseHash = CachedDistance.GetHash(toBase);
@@ -105,7 +105,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от точки до базы.
 		/// </summary>
-		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
 			var toBaseHash = CachedDistance.GetHash(toBase);
@@ -212,10 +212,7 @@ namespace Vodovoz.Tools.Logistic
 				if(way?.PolylineGeometry != null)
 				{
 					var decodedPoints = Polyline.DecodePolyline(way.PolylineGeometry);
-					if(Provider == DistanceProvider.Sputnik)
-						resultRoute.AddRange(decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)));
-					else
-						resultRoute.AddRange(decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)));
+					resultRoute.AddRange(decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)));
 				}
 				else
 				{
@@ -303,22 +300,12 @@ namespace Vodovoz.Tools.Logistic
 			CachedDistance.GetLatLon(distance.ToGeoHash, out latitude, out longitude);
 			points.Add(new PointOnEarth(latitude, longitude));
 			bool ok = false;
-			if(Provider == DistanceProvider.Osrm) {
-				var result = OsrmMain.GetRoute(points, false, GeometryOverview.Full);
-				ok = result?.Code == "Ok";
-				if(ok && result.Routes.Any()) {
-					distance.DistanceMeters = result.Routes.First().TotalDistance;
-					distance.TravelTimeSec = result.Routes.First().TotalTimeSeconds;
-					distance.PolylineGeometry = result.Routes.First().RouteGeometry;
-				}
-			} else {
-				var result = SputnikMain.GetRoute(points, false, true);
-				ok = result.Status == 0;
-				if(ok) {
-					distance.DistanceMeters = result.RouteSummary.TotalDistance;
-					distance.TravelTimeSec = result.RouteSummary.TotalTimeSeconds;
-					distance.PolylineGeometry = result.RouteGeometry;
-				}
+			var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+			ok = result?.Code == "Ok";
+			if(ok && result.Routes.Any()) {
+				distance.DistanceMeters = result.Routes.First().TotalDistance;
+				distance.TravelTimeSec = result.Routes.First().TotalTimeSeconds;
+				distance.PolylineGeometry = result.Routes.First().RouteGeometry;
 			}
 
 			if(ok)

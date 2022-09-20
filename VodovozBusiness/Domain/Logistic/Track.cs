@@ -5,9 +5,12 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using GMap.NET;
 using QS.DomainModel.Entity;
-using QS.Osm;
-using QS.Osm.Osrm;
+using QS.Osrm;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -17,6 +20,7 @@ namespace Vodovoz.Domain.Logistic
 	public class Track : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		public virtual int Id { get; set; }
 
@@ -126,18 +130,23 @@ namespace Vodovoz.Domain.Logistic
 			var points = new List<PointOnEarth>();
 			var lastPoint = lastAddress.Order.DeliveryPoint;
 			points.Add(new PointOnEarth(lastPoint.Latitude.Value, lastPoint.Longitude.Value));
-			//Координаты базы
+
+			GeoGroupVersion geoGroupVersion = null;
+			if(lastPoint.District != null)
+			{
+				geoGroupVersion = lastPoint.District.GeographicGroup.GetActualVersionOrNull();
+			}
+
 			if(lastPoint.District == null) {
 				logger.Warn("Для точки доставки не удалось подобрать часть города. Расчёт расстояния до центра СПб");
 				points.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
-			} else if(lastPoint.District != null && lastPoint.District.GeographicGroup.BaseCoordinatesExist) {
-				var gg = lastPoint.District.GeographicGroup;
-				points.Add(new PointOnEarth((double)gg.BaseLatitude.Value, (double)gg.BaseLongitude.Value));
+			} else if(lastPoint.District != null && geoGroupVersion != null && geoGroupVersion.BaseCoordinatesExist) {
+				points.Add(new PointOnEarth((double)geoGroupVersion.BaseLatitude.Value, (double)geoGroupVersion.BaseLongitude.Value));
 			} else {
 				logger.Error("В подобранной части города не указаны координаты базы");
 				return null;
 			}
-			var response = OsrmMain.GetRoute(points, false, GeometryOverview.Simplified);
+			var response = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Simplified, _globalSettings.ExcludeToll);
 			if(response.Code == "Ok") {
 				DistanceToBase = (double)response.Routes.First().TotalDistanceKm;
 			} else

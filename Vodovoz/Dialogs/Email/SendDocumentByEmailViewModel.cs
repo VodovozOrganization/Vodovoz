@@ -1,61 +1,65 @@
-﻿using System.Collections.Generic;
-using EmailService;
+﻿using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Report;
 using QS.ViewModels;
+using RabbitMQ.Client;
+using RabbitMQ.Infrastructure;
+using RabbitMQ.MailSending;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
-using System.Data.Bindings.Collections.Generic;
-using QS.Report;
 using Vodovoz.Parameters;
-using Vodovoz.EntityRepositories.Employees;
-using System.IO;
-using fyiReporting.RDL;
-using QS.Commands;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using QS.Dialog;
-using QS.Project.Services;
-using QS.Services;
-using RdlEngine;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.Orders;
+using VodovozInfrastructure.Configuration;
 
 namespace Vodovoz.Dialogs.Email
 {
 	public class SendDocumentByEmailViewModel : UoWWidgetViewModelBase
 	{
-		private string emailString;
+		private string _emailString;
 		public string EmailString {
-			get => emailString;
-			set => SetField(ref emailString, value);
+			get => _emailString;
+			set => SetField(ref _emailString, value);
 		}
 
-		private string description;
+		private string _description;
 		public string Description {
-			get => description;
-			set => SetField(ref description, value);
+			get => _description;
+			set => SetField(ref _description, value);
 		}
 
-		private bool btnSendEmailSensitive;
+		private bool _btnSendEmailSensitive;
 		public bool BtnSendEmailSensitive {
-			get => btnSendEmailSensitive;
-			set => SetField(ref btnSendEmailSensitive, value);
+			get => _btnSendEmailSensitive;
+			set => SetField(ref _btnSendEmailSensitive, value);
 		}
 
-		private object selectedObj;
+		private object _selectedObj;
 		public object SelectedObj {
-			get => selectedObj;
-			set => SetField(ref selectedObj, value);
+			get => _selectedObj;
+			set => SetField(ref _selectedObj, value);
 		}
 
-		private readonly IEmailRepository emailRepository;
-		private readonly IInteractiveService interactiveService;
-		private readonly IParametersProvider _parametersProvider;
-		private readonly Employee _currentEmployee;
-		private IDocument Document { get; set; }
+		private readonly IEmailRepository _emailRepository;
+		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly Employee _employee;
+		private readonly IInteractiveService _interactiveService;
+
+		private IEmailableDocument Document { get; set; }
 
 		public GenericObservableList<StoredEmail> StoredEmails { get; set; }
 
@@ -63,18 +67,14 @@ namespace Vodovoz.Dialogs.Email
 
 		public DelegateCommand RefreshEmailListCommand { get; private set; }
 
-		public SendDocumentByEmailViewModel(
-			IEmailRepository emailRepository,
-			Employee currentEmployee,
-			IInteractiveService interactiveService,
-			IParametersProvider parametersProvider,
-			IUnitOfWork uow = null)
+		public SendDocumentByEmailViewModel(IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider,
+									  Employee employee, IInteractiveService interactiveService, IUnitOfWork uow = null)
 		{
-			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_currentEmployee = currentEmployee;
-            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-            _parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
-            StoredEmails = new GenericObservableList<StoredEmail>();
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_employee = employee;
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			StoredEmails = new GenericObservableList<StoredEmail>();
 			UoW = uow;
 
 			CreateCommands();
@@ -94,28 +94,29 @@ namespace Vodovoz.Dialogs.Email
 					switch (Document.Type)
 					{
 						case OrderDocumentType.Bill:
+						case OrderDocumentType.SpecialBill:
 							SendDocument();
 							break;
 						case OrderDocumentType.BillWSForDebt:
 							var billWSForDebt = Document as OrderWithoutShipmentForDebt;
-
-							if (Validate(billWSForDebt))
+							if(Validate(billWSForDebt))
+							{
 								SaveAndSend();
-
+							}
 							break;
 						case OrderDocumentType.BillWSForPayment:
 							var billWSForPayment = Document as OrderWithoutShipmentForPayment;
-
-							if (Validate(billWSForPayment))
+							if(Validate(billWSForPayment))
+							{
 								SaveAndSend();
-
+							}
 							break;
 						case OrderDocumentType.BillWSForAdvancePayment:
 							var billWSForAdvancePayment = Document as OrderWithoutShipmentForAdvancePayment;
-
 							if (Validate(billWSForAdvancePayment))
+							{
 								SaveAndSend();
-
+							}
 							break;
 					}
 				},
@@ -139,78 +140,84 @@ namespace Vodovoz.Dialogs.Email
 			RefreshEmailListCommand = new DelegateCommand(
 				UpdateEmails,
 				() => {
-					if(Document == null) {
+					if(Document == null)
+					{
 						return false;
 					}
-					if (Document.Type == OrderDocumentType.Bill) {
+					if(Document.Type == OrderDocumentType.Bill || Document.Type == OrderDocumentType.SpecialBill)
+					{
 						return Document?.Order != null;
 					}
-					else {
+					else
+					{
 						return Document?.Id != 0;
 					}
 				}
 			);
 		}
 
-		public void Update(IDocument document, string email)
+		public void Update(IEmailableDocument document, string email)
 		{
 			Document = document;
 			
 			EmailString = email;
 
-			if(!string.IsNullOrEmpty(EmailString))
-				UpdateEmails();
-			else
+			if(string.IsNullOrEmpty(EmailString) || Document == null)
+			{
 				BtnSendEmailSensitive = false;
+			}
+
+			UpdateEmails();
 		}
 
 		public void UpdateEmails()
 		{
 			StoredEmails.Clear();
-			
-			if (Document == null) return;
+
+			if(Document == null)
+			{
+				return;
+			}
 
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				IList<StoredEmail> listEmails = null;
-				switch (Document.Type)
-				{
-					case OrderDocumentType.Bill :
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(x => x.Order.Id == Document.Order.Id)
-							.And(x => x.DocumentType == OrderDocumentType.Bill)
-							.List();
 
-						BtnSendEmailSensitive = Document.Type == OrderDocumentType.Bill
-						                        && emailRepository.CanSendByTimeout(EmailString, Document.Order.Id, Document.Type) 
-						                        && Document.Order.Id > 0;
+				switch(Document.Type)
+				{
+					case OrderDocumentType.Bill:
+					case OrderDocumentType.SpecialBill:
+						listEmails = uow.Session.QueryOver<OrderDocumentEmail>()
+							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
+
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Order.Id, Document.Type) 
+												&& Document.Order.Id > 0;
 						break;
 					case OrderDocumentType.BillWSForDebt:
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(x => x.OrderWithoutShipmentForDebt.Id == Document.Id)
-							.And(x => x.DocumentType == OrderDocumentType.BillWSForDebt)
-							.List();
+						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForDebtEmail>()
+							.Where(o => o.OrderWithoutShipmentForDebt.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForDebt
-						                        && emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					case OrderDocumentType.BillWSForAdvancePayment:
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(x => x.OrderWithoutShipmentForAdvancePayment.Id == Document.Id)
-							.And(x => x.DocumentType == OrderDocumentType.BillWSForAdvancePayment)
-							.List();
+						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>()
+							.Where(o => o.OrderWithoutShipmentForAdvancePayment.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForAdvancePayment
-						                        && emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					case OrderDocumentType.BillWSForPayment:
-						listEmails = uow.Session.QueryOver<StoredEmail>()
-							.Where(x => x.OrderWithoutShipmentForPayment.Id == Document.Id)
-							.And(x => x.DocumentType == OrderDocumentType.BillWSForPayment)
-							.List();
+						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForPaymentEmail>()
+							.Where(o => o.OrderWithoutShipmentForPayment.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWSForPayment
-						                        && emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
 						break;
 					default:
 						BtnSendEmailSensitive = false;
@@ -218,7 +225,9 @@ namespace Vodovoz.Dialogs.Email
 				}
 				
 				if(listEmails != null && listEmails.Any())
+				{
 					UpdateSentEmailsList(listEmails);
+				}
 			}
 		}
 
@@ -230,201 +239,153 @@ namespace Vodovoz.Dialogs.Email
 			}
 		}
 
-		private void SendDocument()
+		private bool CanSendDocument(Counterparty client)
 		{
-			var client = Document.Order?.Client;
 			var rdlDoc = Document as IPrintableRDLDocument;
 
-			if(rdlDoc == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning,"Невозможно распечатать данный тип документа");
-				return;
-			}
+			var result = true;
 
-			if(Document.Type == OrderDocumentType.Bill && (Document.Order?.Id == 0 || Document.Order?.OrderStatus == OrderStatus.NewOrder)) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning,"Для отправки необходимо подтвердить заказ."); 
-				return;
-			}
+			var stringBuilder = new StringBuilder();
 
-			if(Document.Type == OrderDocumentType.Bill && client == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning,"Должен быть выбран клиент в заказе");
-				return;
-			}
-
-			if(!_parametersProvider.ContainsParameter("email_for_email_delivery"))
+			if(rdlDoc == null)
 			{
-				interactiveService.ShowMessage(ImportanceLevel.Warning,"В параметрах базы не определена почта для рассылки");
-				return;
+				stringBuilder.AppendLine("Невозможно распечатать данный тип документа");
+				result = false;
 			}
 
-			if(string.IsNullOrWhiteSpace(EmailString)) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning,"Необходимо ввести адрес электронной почты");
-				return;
-			}
-
-			EmailService.OrderEmail email = CreateDocumentEmail("", "vodovoz-spb.ru", Document);
-			if(email == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning,"Для данного типа документа не реализовано формирование письма");
-				return;
-			}
-			
-			email.AuthorId = _currentEmployee?.Id ?? 0;
-			email.ManualSending = true;
-
-			IEmailService service = EmailServiceSetting.GetEmailService();
-			if(service == null) {
-				return;
-			}
-			var result = service.SendOrderEmail(email);
-
-			switch (Document.Type)
+			if((Document.Type == OrderDocumentType.Bill || Document.Type == OrderDocumentType.SpecialBill)
+				&& (Document.Order?.Id == 0 || Document.Order?.OrderStatus == OrderStatus.NewOrder))
 			{
-				case OrderDocumentType.BillWSForDebt:
-					var docForDebt = UoW.GetById<OrderWithoutShipmentForDebt>(Document.Id);
-					docForDebt.IsBillWithoutShipmentSent = true;
-					UoW.Save();
-					break;
-				case OrderDocumentType.BillWSForAdvancePayment:
-					var docForAdvancePayment = UoW.GetById<OrderWithoutShipmentForAdvancePayment>(Document.Id);
-					docForAdvancePayment.IsBillWithoutShipmentSent = true;
-					UoW.Save();
-					break;
-				case OrderDocumentType.BillWSForPayment:
-					var docForPayment = UoW.GetById<OrderWithoutShipmentForPayment>(Document.Id);
-					docForPayment.IsBillWithoutShipmentSent = true;
-					UoW.Save();
-					break;
+				stringBuilder.AppendLine("Для отправки необходимо подтвердить заказ.");
+				result = false;
 			}
 
-			//Если произошла ошибка и письмо не отправлено
-			string resultMessage = "";
-			if(!result.Item1) {
-				resultMessage = "Письмо не было отправлено! Причина:\n";
+			if((Document.Type == OrderDocumentType.Bill || Document.Type == OrderDocumentType.SpecialBill)
+			   && client == null)
+			{
+				stringBuilder.AppendLine("Должен быть выбран клиент в заказе");
+				result = false;
 			}
-			interactiveService.ShowMessage(ImportanceLevel.Info,resultMessage + result.Item2);
 
-			UpdateEmails();
+			try
+			{
+				_ = _emailParametersProvider.DocumentEmailSenderAddress;
+			}
+			catch(InvalidProgramException)
+			{
+				stringBuilder.AppendLine("В параметрах базы не определена почта для рассылки");
+				result = false;
+			}
+
+			try
+			{
+				_ = _emailParametersProvider.DocumentEmailSenderName;
+			}
+			catch(InvalidProgramException)
+			{
+				stringBuilder.AppendLine("В параметрах базы не определено имя отправителя");
+				result = false;
+			}
+
+			if(string.IsNullOrWhiteSpace(EmailString))
+			{
+				stringBuilder.AppendLine("Необходимо ввести адрес электронной почты");
+				result = false;
+			}
+
+			if(!result)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, stringBuilder.ToString());
+			}
+
+			return result;
 		}
 
-		private EmailService.OrderEmail CreateDocumentEmail(string clientName, string organizationName, IDocument document)
+		private void SendDocument()
 		{
-			bool wasHideSignature;
-			ReportInfo ri = null;
-			EmailTemplate template = null;
-			EmailService.OrderEmail email = null;
+			var client = Document.Counterparty;
 
-			switch(document.Type) {
+			if(!CanSendDocument(client))
+			{
+				return;
+			}
 
-				case OrderDocumentType.Bill	:
-					var billDocument = document as BillDocument;
-					wasHideSignature = billDocument.HideSignature;
-					billDocument.HideSignature = false;
-					ri = billDocument.GetReportInfo();
-					billDocument.HideSignature = wasHideSignature;
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("StoredEmail"))
+			{
+				var storedEmail = new StoredEmail
+				{
+					State = StoredEmailStates.PreparingToSend,
+					Author = _employee,
+					ManualSending = true,
+					SendDate = DateTime.Now,
+					StateChangeDate = DateTime.Now,
+					Subject = Document.Title,
+					RecipientAddress = EmailString
+				};
 
-					template = billDocument.GetEmailTemplate();
-					email = new EmailService.OrderEmail();
-					email.Title = string.Format($"{template.Title} {billDocument.Title}");
-					email.Text = template.Text;
-					email.HtmlText = template.TextHtml;
-
-					foreach(var item in template.Attachments) {
-						email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
+				try
+				{
+					unitOfWork.Save(storedEmail);
+					
+					switch(Document.Type)
+					{
+						case OrderDocumentType.Bill:
+						case OrderDocumentType.SpecialBill:
+							var orderDocumentEmail = new OrderDocumentEmail
+							{
+								StoredEmail = storedEmail,
+								Counterparty = client,
+								OrderDocument = (OrderDocument) Document
+							};
+							unitOfWork.Save(orderDocumentEmail);
+							break;
+						case OrderDocumentType.BillWSForDebt:
+							var docForDebt = UoW.GetById<OrderWithoutShipmentForDebt>(Document.Id);
+							docForDebt.IsBillWithoutShipmentSent = true;
+							UoW.Save();
+							var orderWithoutShipmentForDebtEmail = new OrderWithoutShipmentForDebtEmail()
+							{
+								StoredEmail = storedEmail,
+								Counterparty = client,
+								OrderWithoutShipmentForDebt = (OrderWithoutShipmentForDebt) Document
+							};
+							unitOfWork.Save(orderWithoutShipmentForDebtEmail);
+							break;
+						case OrderDocumentType.BillWSForAdvancePayment:
+							var docForAdvancePayment = UoW.GetById<OrderWithoutShipmentForAdvancePayment>(Document.Id);
+							docForAdvancePayment.IsBillWithoutShipmentSent = true;
+							UoW.Save();
+							var orderWithoutShipmentForAdvancePaymentEmail = new OrderWithoutShipmentForAdvancePaymentEmail()
+							{
+								StoredEmail = storedEmail,
+								Counterparty = client,
+								OrderWithoutShipmentForAdvancePayment = (OrderWithoutShipmentForAdvancePayment)Document
+							};
+							unitOfWork.Save(orderWithoutShipmentForAdvancePaymentEmail);
+							break;
+						case OrderDocumentType.BillWSForPayment:
+							var docForPayment = UoW.GetById<OrderWithoutShipmentForPayment>(Document.Id);
+							docForPayment.IsBillWithoutShipmentSent = true;
+							UoW.Save();
+							var orderWithoutShipmentForPaymentEmail = new OrderWithoutShipmentForPaymentEmail()
+							{
+								StoredEmail = storedEmail,
+								Counterparty = client,
+								OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)Document
+							};
+							unitOfWork.Save(orderWithoutShipmentForPaymentEmail);
+							break;
 					}
 
-					email.Recipient = new EmailContact(clientName, EmailString);
-					email.Sender = new EmailContact(organizationName, _parametersProvider.GetParameterValue("email_for_email_delivery"));
-					email.Order = document.Order.Id;
-					email.OrderDocumentType = document.Type;
+					unitOfWork.Commit();
+				}
+				catch(Exception e)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, e.Message);
+				}
 
-					using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-						string billDate = billDocument.DocumentDate.HasValue ? "_" + billDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
-						email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);
-					}
-					return email;
-				case OrderDocumentType.BillWSForDebt:
-					var billWSFDDocument = document as OrderWithoutShipmentForDebt;
-					wasHideSignature = billWSFDDocument.HideSignature;
-					billWSFDDocument.HideSignature = false;
-					ri = billWSFDDocument.GetReportInfo();
-					billWSFDDocument.HideSignature = wasHideSignature;
-
-					template = billWSFDDocument.GetEmailTemplate();
-					email = new EmailService.OrderEmail();
-					email.Title = string.Format($"{template.Title} {billWSFDDocument.Title}");
-					email.Text = template.Text;
-					email.HtmlText = template.TextHtml;
-
-					foreach(var item in template.Attachments) {
-						email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
-					}
-
-					email.Recipient = new EmailContact(clientName, EmailString);
-					email.Sender = new EmailContact(organizationName, _parametersProvider.GetParameterValue("email_for_email_delivery"));
-					email.Order = document.Id;
-					email.OrderDocumentType = document.Type;
-
-					using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-						string billDate = billWSFDDocument.DocumentDate.HasValue ? "_" + billWSFDDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
-						email.AddAttachment($"Bill_{billWSFDDocument.Id}{billDate}.pdf", stream);
-					}
-					return email;
-				case OrderDocumentType.BillWSForAdvancePayment:
-					var billWSFAPDocument = document as OrderWithoutShipmentForAdvancePayment;
-					wasHideSignature = billWSFAPDocument.HideSignature;
-					billWSFAPDocument.HideSignature = false;
-					ri = billWSFAPDocument.GetReportInfo();
-					billWSFAPDocument.HideSignature = wasHideSignature;
-
-					template = billWSFAPDocument.GetEmailTemplate();
-					email = new EmailService.OrderEmail();
-					email.Title = string.Format($"{template.Title} {billWSFAPDocument.Title}");
-					email.Text = template.Text;
-					email.HtmlText = template.TextHtml;
-
-					foreach(var item in template.Attachments) {
-						email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
-					}
-
-					email.Recipient = new EmailContact(clientName, EmailString);
-					email.Sender = new EmailContact(organizationName, _parametersProvider.GetParameterValue("email_for_email_delivery"));
-					email.Order = document.Id;
-					email.OrderDocumentType = document.Type;
-
-					using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-						string billDate = billWSFAPDocument.DocumentDate.HasValue ? "_" + billWSFAPDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
-						email.AddAttachment($"Bill_{billWSFAPDocument.Id}{billDate}.pdf", stream);
-					}
-					return email;
-				case OrderDocumentType.BillWSForPayment:
-					var billWSFPDocument = document as OrderWithoutShipmentForPayment;
-					wasHideSignature = billWSFPDocument.HideSignature;
-					billWSFPDocument.HideSignature = false;
-					ri = billWSFPDocument.GetReportInfo();
-					billWSFPDocument.HideSignature = wasHideSignature;
-
-					template = billWSFPDocument.GetEmailTemplate();
-					email = new EmailService.OrderEmail();
-					email.Title = string.Format($"{template.Title} {billWSFPDocument.Title}");
-					email.Text = template.Text;
-					email.HtmlText = template.TextHtml;
-
-					foreach(var item in template.Attachments) {
-						email.AddInlinedAttachment(item.Key, item.Value.MIMEType, item.Value.FileName, item.Value.Base64Content);
-					}
-
-					email.Recipient = new EmailContact(clientName, EmailString);
-					email.Sender = new EmailContact(organizationName, _parametersProvider.GetParameterValue("email_for_email_delivery"));
-					email.Order = document.Id;
-					email.OrderDocumentType = document.Type;
-
-					using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {
-						string billDate = billWSFPDocument.DocumentDate.HasValue ? "_" + billWSFPDocument.DocumentDate.Value.ToString("ddMMyyyy") : "";
-						email.AddAttachment($"Bill_{billWSFPDocument.Id}{billDate}.pdf", stream);
-					}
-					return email;
-				default:
-					return null;
-			} 
+				UpdateEmails();
+			}
 		}
 	}
 }

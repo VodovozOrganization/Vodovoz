@@ -114,7 +114,7 @@ namespace Vodovoz.Views
 
 		private global::Gtk.HBox hbox8;
 
-		private global::Gamma.GtkWidgets.yLabel ylabel1;
+		private global::Gamma.GtkWidgets.yLabel lblCounterpartyDebtTitle;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCounterpartyDebt;
 
@@ -351,7 +351,7 @@ namespace Vodovoz.Views
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.labelTotalSum = new global::Gtk.Label();
 			this.labelTotalSum.Name = "labelTotalSum";
-			this.labelTotalSum.LabelProp = global::Mono.Unix.Catalog.GetString("TotalSum");
+			this.labelTotalSum.LabelProp = global::Mono.Unix.Catalog.GetString("OrderSum");
 			this.hbox4.Add(this.labelTotalSum);
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.labelTotalSum]));
 			w23.Position = 1;
@@ -607,11 +607,11 @@ namespace Vodovoz.Views
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Долг контрагента: ");
-			this.hbox8.Add(this.ylabel1);
-			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.ylabel1]));
+			this.lblCounterpartyDebtTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.lblCounterpartyDebtTitle.Name = "lblCounterpartyDebtTitle";
+			this.lblCounterpartyDebtTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Долг контрагента\n+ Ожидает оплаты\n+ Закр.Док: ");
+			this.hbox8.Add(this.lblCounterpartyDebtTitle);
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.lblCounterpartyDebtTitle]));
 			w52.Position = 0;
 			w52.Expand = false;
 			w52.Fill = false;

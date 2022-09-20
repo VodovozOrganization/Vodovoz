@@ -6,8 +6,9 @@ namespace Vodovoz.Services
 	{
 		int GetDaysWorkedForMinRatesLevel();
 		decimal GetFixedWageForNewLargusDrivers();
-		
+
 		DateTime DontRecalculateWagesForRouteListsBefore { get; }
 		int GetSuburbWageDistrictId { get; }
+		int GetCityWageDistrictId { get; }
 	}
 }

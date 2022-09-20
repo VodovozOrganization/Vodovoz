@@ -2,6 +2,7 @@
 using Gamma.Utilities;
 using QS.Project.Journal;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 {
@@ -16,46 +17,47 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public string GeographicGroups { get; set; }
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
+		public decimal RepairCost { get; set; }
 		public string Comment { get; set; }
 		public CarTypeOfUse CarTypeOfUse { get; set; }
-		public bool IsRaskat { get; set; }
-		public RaskatType CarRaskatType { get; set; }
+		public CarOwnType CarOwnType { get; set; }
 
-
-		public string CarTypeOfUseString
+		public string CarTypeOfUseAndOwnTypeString
 		{
 			get
 			{
+				string str;
 				switch(CarTypeOfUse)
 				{
-					case CarTypeOfUse.CompanyGAZelle:
-						return "ГК";
-
-					case CarTypeOfUse.CompanyLargus:
-						return "ЛК";
-
-					case CarTypeOfUse.DriverCar:
-					{
-						if(IsRaskat)
-						{
-							switch(CarRaskatType)
-							{
-								case RaskatType.RaskatGazelle:
-									return "НРГ";
-								case RaskatType.RaskatLargus:
-									return "НРЛ";
-							}
-
-							break;
-						}
-						else
-						{
-							return "Н";
-						}
-					}
+					case CarTypeOfUse.GAZelle:
+						str = "Г";
+						break;
+					case CarTypeOfUse.Largus:
+						str = "Л";
+						break;
+					case CarTypeOfUse.Truck:
+						str = "Ф";
+						break;
+					default:
+						throw new NotSupportedException($"{CarTypeOfUse.GetEnumTitle()} is not supported");
 				}
 
-				return CarTypeOfUse.GetEnumTitle();
+				switch(CarOwnType)
+				{
+					case CarOwnType.Company:
+						str += "К";
+						break;
+					case CarOwnType.Raskat:
+						str += "Р";
+						break;
+					case CarOwnType.Driver:
+						str += "В";
+						break;
+					default:
+						throw new NotSupportedException($"{CarOwnType.GetEnumTitle()} is not supported");
+				}
+
+				return str;
 			}
 		}
 	}

@@ -45,6 +45,7 @@ namespace Vodovoz
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
 		private readonly ICategoryRepository _categoryRepository;
@@ -65,6 +66,7 @@ namespace Vodovoz
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IRouteListRepository routeListRepository,
+			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			ICategoryRepository categoryRepository)
@@ -75,6 +77,7 @@ namespace Vodovoz
 			_terminalNomenclatureProvider = terminalNomenclatureProvider
 				?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
@@ -89,6 +92,7 @@ namespace Vodovoz
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IRouteListRepository routeListRepository,
+			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			ICategoryRepository categoryRepository)
@@ -96,6 +100,7 @@ namespace Vodovoz
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
 				routeListRepository,
+				routeListItemRepository,
 				employeeService,
 				commonServices,
 				categoryRepository)
@@ -199,7 +204,9 @@ namespace Vodovoz
 				.AddColumn("Дата").AddTextRenderer(node => node.Date)
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 				.AddColumn("Бутыли").AddTextRenderer(node => node.BottlesCount)
-				.AddColumn("Статус").AddEnumRenderer(node => node.Status);
+				.AddColumn("Статус").AddEnumRenderer(node => node.Status)
+				.AddColumn("Доставка за час")
+					.AddToggleRenderer(x => x.IsFastDelivery).Editing(false);
 
 			if(isRightPanel)
 			{
@@ -209,14 +216,12 @@ namespace Vodovoz
 			else
 			{
 				config.AddColumn("Нужна загрузка")
-					  .AddToggleRenderer(x => x.LeftNeedToReload).Radio()
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-					  .AddTextRenderer(x => "Да")
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-					  .AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-					  .AddTextRenderer(x => "Нет")
-					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered);
+					.AddToggleRenderer(x => x.LeftNeedToReload).Radio()
+					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery)
+					.AddTextRenderer(x => (x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery) ? "Да" : "")
+					.AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
+					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery)
+					.AddTextRenderer(x => (x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery) ? "Нет" : "");
 			}
 
 			return config.AddColumn("Нужен терминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
@@ -281,7 +286,9 @@ namespace Vodovoz
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
 			foreach(var item in routeListFrom.Addresses)
 			{
+
 				items.Add(new RouteListItemNode { RouteListItem = item });
+
 			}
 
 			ytreeviewRLFrom.ItemsDataSource = items;
@@ -369,6 +376,7 @@ namespace Vodovoz
 
 			List<RouteListItemNode> needReloadNotSet = new List<RouteListItemNode>();
 			List<RouteListItemNode> needReloadSetAndRlEnRoute = new List<RouteListItemNode>();
+			List<RouteListItemNode> fastDeliveryNotEnoughQuantity = new List<RouteListItemNode>();
 
 			foreach(var row in ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>())
 			{
@@ -380,7 +388,7 @@ namespace Vodovoz
 					continue;
 				}
 
-				if(!row.LeftNeedToReload && !row.LeftNotNeedToReload)
+				if(!row.IsFastDelivery && !row.LeftNeedToReload && !row.LeftNotNeedToReload)
 				{
 					needReloadNotSet.Add(row);
 					continue;
@@ -392,16 +400,43 @@ namespace Vodovoz
 					continue;
 				}
 
-				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, item.Status)
+				if(row.IsFastDelivery)
 				{
-					WasTransfered = true,
-					NeedToReload = row.LeftNeedToReload,
-					WithForwarder = routeListTo.Forwarder != null
-				};
+					var hasEnoughQuantityForFastDelivery = _routeListItemRepository
+						.HasEnoughQuantityForFastDelivery(UoW, row.RouteListItem, routeListTo);
 
-				routeListTo.ObservableAddresses.Add(newItem);
+					if(!hasEnoughQuantityForFastDelivery)
+					{
+						fastDeliveryNotEnoughQuantity.Add(row);
+						continue;
+					}
+				}
 
-				routeListFrom.TransferAddressTo(item.Id, newItem);
+				var transferredAddressFromRouteListTo =
+					_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(UoW, routeListTo.Id, item.Order.Id);
+
+				RouteListItem newItem = null;
+
+				if(transferredAddressFromRouteListTo != null)
+				{
+					newItem = transferredAddressFromRouteListTo;
+					item.WasTransfered = false;
+					routeListTo.RevertTransferAddress(_wageParameterService, newItem, item);
+					routeListFrom.TransferAddressTo(item, newItem);
+					newItem.WasTransfered = true;
+				}
+				else
+				{
+					newItem = new RouteListItem(routeListTo, item.Order, item.Status)
+					{
+						WasTransfered = true,
+						NeedToReload = row.LeftNeedToReload,
+						WithForwarder = routeListTo.Forwarder != null
+					};
+
+					routeListTo.ObservableAddresses.Add(newItem);
+					routeListFrom.TransferAddressTo(item, newItem);
+				}
 
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(_wageParameterService);
@@ -417,6 +452,8 @@ namespace Vodovoz
 
 				UoW.Save(item);
 				UoW.Save(newItem);
+
+				UoW.Commit();
 			}
 			
 			UpdateTranferDocuments(routeListFrom, routeListTo);
@@ -445,9 +482,15 @@ namespace Vodovoz
 
 			if(needReloadSetAndRlEnRoute.Count > 0)
 			{
-                MessageDialogHelper.RunWarningDialog("Для следующих адресов была указана необходимость загрузки при переносе в МЛ со статусом \"В пути\" и выше , поэтому они не были перенесены:\n * " +
-					string.Join("\n * ", needReloadSetAndRlEnRoute.Select(x => x.Address)));
+                MessageDialogHelper.RunWarningDialog("Для следующих адресов была указана необходимость загрузки при переносе в МЛ со статусом \"В пути\" и выше , поэтому они не были перенесены:\n * " + 
+                                                     string.Join("\n * ", needReloadSetAndRlEnRoute.Select(x => x.Address)));
             }
+
+			if(fastDeliveryNotEnoughQuantity.Count > 0)
+			{
+				MessageDialogHelper.RunWarningDialog("Для следующих адресов c доставкой за час у водителя не хватает остатков, поэтому они не были перенесены:\n * " + 
+				                                     string.Join("\n * ", fastDeliveryNotEnoughQuantity.Select(x => x.Address)));
+			}
 
 			if(messages.Count > 0)
 			{
@@ -486,19 +529,25 @@ namespace Vodovoz
 					(yentryreferenceRLFrom.Subject as RouteList)
 						?.Addresses
 						?.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id)
-					?? new RouteListItemRepository().GetTransferedFrom(UoW, address);
+					?? _routeListItemRepository.GetTransferedFrom(UoW, address);
 
 				var previousRouteList = pastPlace?.RouteList;
 
 				if(pastPlace != null)
 				{
 					previousRouteList.RevertTransferAddress(_wageParameterService, pastPlace, address);
+					pastPlace.NeedToReload = address.NeedToReload;
+					pastPlace.WasTransfered = true;
 					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
 					pastPlace.RecalculateTotalCash();
 					UoW.Save(pastPlace);
+					address.RouteList.TransferAddressTo(address, pastPlace);
+					address.WasTransfered = false;
 				}
 
-				address.RouteList.ObservableAddresses.Remove(address);
+				address.RouteList.CalculateWages(_wageParameterService);
+				address.RecalculateTotalCash();
+
 				UoW.Save(address.RouteList);
 			}
 			
@@ -615,18 +664,18 @@ namespace Vodovoz
 						return;
 					}
 
-					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+					var routeListFrom = yentryreferenceRLTo.Subject as RouteList;
 
-					var giveoutDocTo = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListTo?.Driver);
+					var giveoutDocTo = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListFrom?.Driver);
 					if(giveoutDocTo is DriverAttachedTerminalGiveoutDocument)
 					{
-						MessageDialogHelper.RunErrorDialog($"Нельзя вернуть терминал от водителя {routeListTo?.Driver.GetPersonNameWithInitials()}" +
+						MessageDialogHelper.RunErrorDialog($"Нельзя вернуть терминал от водителя {routeListFrom?.Driver.GetPersonNameWithInitials()}" +
 						                                   ", к которому привязан терминал.", "Ошибка");
 						return;
 					}
 
 					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
-					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+					
 
 					var operationFrom = new EmployeeNomenclatureMovementOperation {
 						Employee = routeListFrom.Driver,
@@ -634,6 +683,8 @@ namespace Vodovoz
 						Amount = -1,
 						OperationTime = DateTime.Now
 					};
+
+					var routeListTo = yentryreferenceRLFrom.Subject as RouteList;
 					
 					var operationTo = new EmployeeNomenclatureMovementOperation {
 						Employee = routeListTo.Driver,
@@ -677,7 +728,8 @@ namespace Vodovoz
 		public RouteListItemStatus Status => RouteListItem.Status;
 
 		public bool NeedToReload => RouteListItem.NeedToReload;
-		
+		public bool IsFastDelivery => RouteListItem.Order.IsFastDelivery;
+
 		bool _leftNeedToReload;
 		public bool LeftNeedToReload
 		{

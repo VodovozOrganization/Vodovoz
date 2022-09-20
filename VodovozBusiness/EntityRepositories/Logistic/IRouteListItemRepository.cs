@@ -10,11 +10,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		IList<RouteListItem> GetRouteListItemAtDay(IUnitOfWork uow, DateTime date, RouteListItemStatus? status);
 		RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, Order order);
+		IList<RouteListItem> GetRouteListItemsForOrder(IUnitOfWork uow, int orderId);
+		RouteListItem GetTransferredRouteListItemFromRouteListForOrder(IUnitOfWork uow, int routeListId, int orderId);
 		RouteListItem GetTransferedFrom(IUnitOfWork uow, RouteListItem item);
 		bool HasRouteListItemsForOrder(IUnitOfWork uow, Order order);
 		bool WasOrderInAnyRouteList(IUnitOfWork uow, Order order);
 		bool AnotherRouteListItemForOrderExist(IUnitOfWork uow, RouteListItem routeListItem);
 		bool CurrentRouteListHasOrderDuplicate(IUnitOfWork uow, RouteListItem routeListItem, int[] actualRouteListItemIds);
 		RouteListItem GetRouteListItemById(IUnitOfWork uow, int routeListAddressId);
+		bool HasEnoughQuantityForFastDelivery(IUnitOfWork uow, RouteListItem routeListItemFrom, RouteList routeListTo);
 	}
 }

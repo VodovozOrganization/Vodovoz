@@ -33,8 +33,6 @@ namespace DriverAPI.Library.Converters
 					}
 				case PaymentType.Terminal:
 					return PaymentDtoType.Terminal;
-				case PaymentType.BeveragesWorld:
-					return PaymentDtoType.BeveragesWorld;
 				case PaymentType.barter:
 					return PaymentDtoType.Barter;
 				case PaymentType.ContractDoc:

@@ -1,14 +1,14 @@
-﻿using System;
-using System.Linq;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Utilities;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -16,15 +16,15 @@ using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Suppliers;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Goods;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
-	public class RequestToSupplierViewModel : EntityTabViewModelBase<RequestToSupplier>
+	public class RequestToSupplierViewModel : EntityTabViewModelBase<RequestToSupplier>, IAskSaveOnCloseViewModel
 	{
 		private readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		private readonly INomenclatureRepository nomenclatureRepository;
@@ -32,8 +32,8 @@ namespace Vodovoz.ViewModels.Suppliers
 		private readonly IEmployeeService employeeService;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 		public event EventHandler ListContentChanged;
 
 		public RequestToSupplierViewModel(
@@ -42,11 +42,10 @@ namespace Vodovoz.ViewModels.Suppliers
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository
-		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			IUserRepository userRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -67,13 +66,23 @@ namespace Vodovoz.ViewModels.Suppliers
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<SupplierPriceItem>(PriceFromSupplierNotifyCriteria);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclaturePrice>(NomenclaturePriceNotifyCriteria);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty>(CounterpartyNotifyCriteria);
+			
+			SetPermissions();
 		}
 
-		bool canEdit = true;
-		public bool CanEdit {
-			get => canEdit;
-			set => SetField(ref canEdit, value);
+		private void SetPermissions()
+		{
+			CanEdit = PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
+			CanReadCounterparty = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Counterparty)).CanRead;
+			CanReadNomenclature = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Nomenclature)).CanRead;
 		}
+
+		private bool CanReadCounterparty { get; set; }
+		private bool CanReadNomenclature { get; set; }
+		
+		public bool CanEdit { get; private set; }
+
+		public bool AskSaveOnClose => CanEdit;
 
 		bool areNomenclatureNodesSelected;
 		public bool AreNomenclatureNodesSelected {
@@ -173,14 +182,16 @@ namespace Vodovoz.ViewModels.Suppliers
 		public string GenerateDelayDaysString(ILevelingRequestNode n)
 		{
 			if(n is SupplierNode)
-				return n.SupplierPriceItem.Supplier.DelayDaysForProviders > 0 ? string.Format("{0} дн.", n.SupplierPriceItem.Supplier.DelayDaysForProviders) : "Нет";
+				return n.SupplierPriceItem.Supplier.DelayDaysForProviders > 0
+					? $"{n.SupplierPriceItem.Supplier.DelayDaysForProviders} дн."
+					: "Нет";
 			return string.Empty;
 		}
 
 		void RefreshSuppliers()
 		{
 			Entity.RequestingNomenclaturesListRefresh(UoW, supplierPriceItemsRepository, Entity.SuppliersOrdering);
-			MinimalTotalSumText = string.Format("Минимальное ИТОГО: {0}", Entity.MinimalTotalSum.ToShortCurrencyString());
+			MinimalTotalSumText = $"Минимальное ИТОГО: {Entity.MinimalTotalSum.ToShortCurrencyString()}";
 			ListContentChanged?.Invoke(this, new EventArgs());
 			NeedRefresh = false;
 		}
@@ -265,8 +276,7 @@ namespace Vodovoz.ViewModels.Suppliers
 						);
 					};
 					this.TabParent.AddSlaveTab(this, journalViewModel);
-				},
-				() => CanEdit
+				}
 			);
 		}
 
@@ -282,8 +292,7 @@ namespace Vodovoz.ViewModels.Suppliers
 				array => {
 					foreach(var item in array)
 						Entity.RemoveNomenclatureRequest(item.Nomenclature.Id);
-				},
-				array => CanEdit && AreNomenclatureNodesSelected
+				}
 			);
 		}
 
@@ -327,8 +336,7 @@ namespace Vodovoz.ViewModels.Suppliers
 
 					vm.EntitySaved += (sender, e) => RefreshSuppliers();
 					this.TabParent.AddSlaveTab(this, vm);
-				},
-				array => array.Any() && AreNomenclatureNodesSelected
+				}
 			);
 		}
 
@@ -359,10 +367,10 @@ namespace Vodovoz.ViewModels.Suppliers
 					if(array.Count() != 1)
 						return false;
 
-					if(AreNomenclatureNodesSelected && commonServices.PermissionService.ValidateUserPermission(typeof(Nomenclature), UserService.CurrentUserId).CanRead)
+					if(AreNomenclatureNodesSelected && CanReadNomenclature)
 						return true;
 
-					if(AreSupplierNodesSelected && commonServices.PermissionService.ValidateUserPermission(typeof(Counterparty), UserService.CurrentUserId).CanRead)
+					if(AreSupplierNodesSelected && CanReadCounterparty)
 						return true;
 
 					return false;

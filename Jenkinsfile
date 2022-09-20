@@ -27,7 +27,7 @@ node('Vod6'){
 		echo "checkout My-FyiReporting"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/QSBuild']],
+			branches: [[name: '*/Vodovoz']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
@@ -38,7 +38,7 @@ node('Vod6'){
 		echo "checkout QSProjects"	
 		checkout changelog: false, poll: false, scm:([
 			$class: 'GitSCM',
-			branches: [[name: '*/master']],
+			branches: [[name: '*/VodovozMonitoring']],
 			doGenerateSubmoduleConfigurations: false,
 			extensions:
 			[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
@@ -85,22 +85,76 @@ node('Vod6'){
 			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
 		}
 	}
+	stage('FastPaymentsAPI Deploy')
+	{
+		if(env.BRANCH_NAME ==~ /(develop|master)/
+			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+		{
+			echo 'Publish FastPaymentsAPI to folder (' + env.BRANCH_NAME + ')'
+			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+			
+			echo 'Move files to CD folder'
+			bat 'xcopy "Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+		}
+		else
+		{
+			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+		}
+	}
+	stage('PayPageAPI Deploy')
+	{
+		if(env.BRANCH_NAME ==~ /(develop|master)/
+			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+		{
+			echo 'Publish PayPageAPI to folder (' + env.BRANCH_NAME + ')'
+			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+			
+			echo 'Move files to CD folder'
+			bat 'xcopy "Vodovoz\\Services\\WebApi\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+		}
+		else
+		{
+			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+		}
+	}
+	stage('MailjetEventsDistributorAPI Deploy')
+	{
+		if(env.BRANCH_NAME ==~ /(develop|master)/
+			|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+		{
+			echo 'Publish MailjetEventsDistributorAPI to folder (' + env.BRANCH_NAME + ')'
+			bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+			
+			echo 'Move files to CD folder'
+			bat 'xcopy "Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+		}
+		else
+		{
+			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+		}
+	}
 }
 node('Vod3') {
 	stage('Deploy'){
 		echo "Checking the deployment for a branch " + env.BRANCH_NAME
 		script{
-			def OUTPUT_PATH = "F:\\WORK\\_BUILDS\\" + env.BRANCH_NAME
+			def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
 			if(
 				env.BRANCH_NAME == 'master'
 				|| env.BRANCH_NAME == 'develop'
 				|| env.BRANCH_NAME == 'Beta'
 				|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 			{
+				def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
 				echo "Deploy branch " + env.BRANCH_NAME
 				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
-			}else{
+			} else if(env.CHANGE_ID != null){
+				def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
+				echo "Deploy pull request " + env.CHANGE_ID
+				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+			} else{
 				echo "Nothing to deploy"
 			}
 		}

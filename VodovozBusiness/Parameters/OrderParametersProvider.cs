@@ -18,6 +18,25 @@ namespace Vodovoz.Parameters
 		public int PaymentByCardFromSmsId => _parametersProvider.GetIntValue("sms_payment_by_card_from_id");
 		public int PaymentFromTerminalId => _parametersProvider.GetIntValue("paymentfrom_terminal_id");
 		public int OldInternalOnlineStoreId => _parametersProvider.GetIntValue("OldInternalOnlineStoreId");
+		public int GetPaymentByCardFromMarketplaceId => _parametersProvider.GetIntValue("payment_by_card_from_marketplace_id");
+		public int GetPaymentByCardFromFastPaymentServiceId =>
+			_parametersProvider.GetIntValue("payment_by_card_from_fast_payment_service_id");
+		public int GetPaymentByCardFromAvangardId =>
+			_parametersProvider.GetIntValue("payment_by_card_from_avangard_id");
+		public int GetPaymentByCardFromSiteByQrCode =>
+			_parametersProvider.GetIntValue("payment_by_card_from_site_by_qr_code_id");
+		public int GetDiscountReasonStockBottle10PercentsId =>
+			_parametersProvider.GetIntValue("discount_reason_stock_bottle_10_percents");
+		public int GetDiscountReasonStockBottle20PercentsId =>
+			_parametersProvider.GetIntValue("discount_reason_stock_bottle_20_percents");
+
+		public int[] PaymentsByCardFromAvangard =>
+			new[]
+			{
+				GetPaymentByCardFromFastPaymentServiceId,
+				GetPaymentByCardFromSiteByQrCode,
+				GetPaymentByCardFromAvangardId
+			};
 
 		public int[] PaymentsByCardFromNotToSendSalesReceipts =>
 			new[]
@@ -25,13 +44,13 @@ namespace Vodovoz.Parameters
 				PaymentByCardFromMobileAppId,
 				PaymentByCardFromOnlineStoreId,
 				PaymentByCardFromSiteId,
-				PaymentByCardFromSmsId
+				PaymentByCardFromSmsId,
+				GetPaymentByCardFromMarketplaceId
 			};
 
 		public int[] PaymentsByCardFromForNorthOrganization =>
 			new[]
 			{
-				PaymentFromTerminalId,
 				PaymentByCardFromMobileAppId,
 				PaymentByCardFromOnlineStoreId,
 				PaymentByCardFromSiteId

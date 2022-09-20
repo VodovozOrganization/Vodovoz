@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
 using System.Linq;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
@@ -11,7 +10,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Domain.Sale;
-using Vodovoz.ViewModel;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -23,6 +21,7 @@ namespace Vodovoz.Filters.ViewModels
 		private OrderStatus[] _allowStatuses;
 		private object[] _hideStatuses;
 		private bool? _isForRetail;
+		private bool? _isForSalesDepartment;
 		private OrderPaymentStatus? _orderPaymentStatus;
 		private Organization _organisation;
 		private PaymentFrom _paymentByCardFrom;
@@ -30,19 +29,24 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _paymentsFromVisibility;
 		private Counterparty _restrictCounterparty;
 		private DateTime? _restrictEndDate;
-		private DateTime? _restrictCreatedEndDate;
 		private bool? _restrictHideService;
 		private bool? _restrictLessThreeHours;
 		private bool? _restrictOnlySelfDelivery;
 		private bool? _restrictOnlyService;
 		private PaymentType? _restrictPaymentType;
 		private DateTime? _restrictStartDate;
-		private DateTime? _restrictCreatedStartDate;
 		private OrderStatus? _restrictStatus;
 		private bool? _restrictWithoutSelfDelivery;
 		private ViewTypes _viewTypes;
 		private bool _canChangeDeliveryPoint = true;
 		private DeliveryPoint _deliveryPoint;
+		private int? _orderId;
+		private string _counterpartyPhone;
+		private string _deliveryPointPhone;
+		private DateTime? _endDate;
+		private DateTime? _startDate;
+		private OrdersDateFilterType? _restrictFilterDateType;
+		private OrdersDateFilterType _filterDateType = OrdersDateFilterType.DeliveryDate;
 
 		#endregion
 
@@ -50,8 +54,6 @@ namespace Vodovoz.Filters.ViewModels
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
-			DaysToBack = -CurrentUserSettings.Settings.JournalDaysToAft;
-			DaysToForward = CurrentUserSettings.Settings.JournalDaysToFwd;
 			Organisations = UoW.GetAll<Organization>();
 			PaymentsFrom = UoW.GetAll<PaymentFrom>();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
@@ -60,15 +62,10 @@ namespace Vodovoz.Filters.ViewModels
 			                               ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
 			                              ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			GeographicGroups = UoW.Session.QueryOver<GeographicGroup>().List<GeographicGroup>().ToList();
-			RestrictStartDate = DateTime.Today.AddMonths(-2);
-			RestrictEndDate = DateTime.Today.AddDays(7);
+			GeographicGroups = UoW.Session.QueryOver<GeoGroup>().List<GeoGroup>().ToList();
 		}
 
 		#region Автосвойства
-
-		public int DaysToBack { get; }
-		public int DaysToForward { get; }
 		public int[] IncludeDistrictsIds { get; set; }
 		public int[] ExceptIds { get; set; }
 		public IEnumerable<Organization> Organisations { get; }
@@ -200,46 +197,6 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _canChangeDeliveryPoint, value);
 		}
 
-		public virtual DateTime? RestrictStartDate
-		{
-			get => _restrictStartDate;
-			set
-			{
-				if(UpdateFilterField(ref _restrictStartDate, value))
-				{
-					CanChangeStartDate = false;
-				}
-			}
-		}
-
-		public bool CanChangeStartDate { get; private set; } = true;
-
-		public virtual DateTime? RestrictEndDate
-		{
-			get => _restrictEndDate;
-			set
-			{
-				if(UpdateFilterField(ref _restrictEndDate, value))
-				{
-					CanChangeEndDate = false;
-				}
-			}
-		}
-
-		public bool CanChangeEndDate { get; private set; } = true;
-		
-		public virtual DateTime? RestrictCreatedStartDate
-		{
-			get => _restrictCreatedStartDate;
-			set => UpdateFilterField(ref _restrictCreatedStartDate, value);
-		}
-
-		public virtual DateTime? RestrictCreatedEndDate
-		{
-			get => _restrictCreatedEndDate;
-			set => UpdateFilterField(ref _restrictCreatedEndDate, value);
-		}
-
 		public virtual bool? RestrictLessThreeHours
 		{
 			get => _restrictLessThreeHours;
@@ -270,6 +227,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _isForRetail;
 			set => UpdateFilterField(ref _isForRetail, value);
+		}
+
+		public bool? IsForSalesDepartment
+		{
+			get => _isForSalesDepartment;
+			set => UpdateFilterField(ref _isForSalesDepartment, value);
 		}
 
 		#region Selfdelivery
@@ -375,31 +338,106 @@ namespace Vodovoz.Filters.ViewModels
 
 		#endregion
 		
-		private List<GeographicGroup> _geographicGroups;
+		private List<GeoGroup> _geographicGroups;
 		/// <summary>
 		/// Части города для отображения в фильтре
 		/// </summary>
-		public List<GeographicGroup> GeographicGroups
+		public List<GeoGroup> GeographicGroups
 		{
 			get => _geographicGroups; 
 			set => _geographicGroups = value;
 		}
 		
-		private GeographicGroup _geographicGroup;
+		private GeoGroup _geographicGroup;
 		/// <summary>
 		/// Часть города
 		/// </summary>
-		public GeographicGroup GeographicGroup
+		public GeoGroup GeographicGroup
 		{
 			get => _geographicGroup;
 			set => UpdateFilterField(ref _geographicGroup, value);
 		}
-		
-		private OrdersDateFilterType _filterDateType = OrdersDateFilterType.DeliveryDate;
-		public virtual OrdersDateFilterType FilterDateType 
+
+		#region Date
+
+		public bool CanChangeStartDate { get; private set; } = true;
+		public virtual DateTime? StartDate
+		{
+			get => _startDate;
+			set => UpdateFilterField(ref _startDate, value);
+		}
+
+		public bool CanChangeEndDate { get; private set; } = true;
+		public virtual DateTime? EndDate
+		{
+			get => _endDate;
+			set => UpdateFilterField(ref _endDate, value);
+		}
+
+		public virtual DateTime? RestrictStartDate
+		{
+			get => _restrictStartDate;
+			set
+			{
+				if(UpdateFilterField(ref _restrictStartDate, value))
+				{
+					StartDate = _restrictStartDate;
+					CanChangeStartDate = _restrictStartDate == null;
+				}
+			}
+		}
+
+		public virtual DateTime? RestrictEndDate
+		{
+			get => _restrictEndDate;
+			set
+			{
+				if(UpdateFilterField(ref _restrictEndDate, value))
+				{
+					EndDate = _restrictEndDate;
+					CanChangeEndDate = _restrictEndDate == null;
+				}
+			}
+		}
+
+		public virtual OrdersDateFilterType FilterDateType
 		{
 			get => _filterDateType;
 			set => UpdateFilterField(ref _filterDateType, value);
+		}
+
+		public bool CanChangeFilterDateType { get; private set; } = true;
+
+		public virtual OrdersDateFilterType? RestrictFilterDateType
+		{
+			get => _restrictFilterDateType;
+			set
+			{
+				if(UpdateFilterField(ref _restrictFilterDateType, value))
+				{
+					CanChangeFilterDateType = _restrictFilterDateType == null;
+				}
+			}
+		}
+
+		#endregion Date
+
+		public int? OrderId
+		{
+			get => _orderId;
+			set => SetField(ref _orderId, value);
+		}
+
+		public string CounterpartyPhone
+		{
+			get => _counterpartyPhone;
+			set => SetField(ref _counterpartyPhone, value);
+		}
+
+		public string DeliveryPointPhone
+		{
+			get => _deliveryPointPhone;
+			set => SetField(ref _deliveryPointPhone, value);
 		}
 
 	}

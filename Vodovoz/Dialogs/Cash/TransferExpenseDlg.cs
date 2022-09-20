@@ -1,10 +1,7 @@
 ﻿using System;
 using Gamma.Utilities;
 using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
-using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
 
@@ -19,24 +16,18 @@ namespace Vodovoz.Dialogs.Cash
 			throw new InvalidOperationException($"Для данного диалога невозможно создание новой сущности");
 		}
 
-		public TransferExpenseDlg(int id, IPermissionService permissionService)
+		public TransferExpenseDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
-			
-			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), ServicesConfig.UserService.CurrentUserId);
-			if(!userPermission.CanRead) {
-				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
-				FailInitialize = true;
-				return;
-			}
-			
+
 			if(Entity.TypeDocument != ExpenseInvoiceDocumentType.ExpenseTransferDocument) {
 				throw new InvalidOperationException($"Диалог доступен только для документа типа {nameof(ExpenseInvoiceDocumentType.ExpenseTransferDocument)}");
 			}
+			
 			ConfigureDlg();
 		}
-		public TransferExpenseDlg(Expense expense, IPermissionService permissionService) : this(expense.Id, permissionService) { }
+		public TransferExpenseDlg(Expense expense) : this(expense.Id) { }
 
 		private void ConfigureDlg()
 		{

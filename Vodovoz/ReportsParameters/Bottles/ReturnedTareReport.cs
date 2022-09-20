@@ -1,36 +1,137 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
+using QS.Project.DB;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ReturnedTareReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IInteractiveService _interactiveService;
-		public ReturnedTareReport(IEntityAutocompleteSelectorFactory employeeSelectorFactory, IInteractiveService interactiveService)
+		private readonly SelectableParametersReportFilter _filter;
+
+		#region IParametersWidget implementation
+
+		public string Title => "Отчет по забору тары";
+
+		public event EventHandler<LoadReportEventArgs> LoadReport;
+
+		#endregion
+
+		public ReturnedTareReport(IInteractiveService interactiveService)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			this.Build();
+			_filter = new SelectableParametersReportFilter(UoW);
+			Build();
+			
 			btnCreateReport.Clicked += (sender, e) => OnUpdate(true);
 			btnCreateReport.Sensitive = false;
 			daterangepicker.PeriodChangedByUser += Daterangepicker_PeriodChangedByUser;
 			yenumcomboboxDateType.ItemsEnum = typeof(OrderDateType);
 			yenumcomboboxDateType.SelectedItem = OrderDateType.CreationDate;
-			entityviewmodelentryAuthor.SetEntityAutocompleteSelectorFactory(employeeSelectorFactory);
 			buttonHelp.Clicked += OnButtonHelpClicked;
+			
+			ConfigureFilter();
 		}
+
+		private void ConfigureFilter()
+		{
+			var subdivisionsFilter = _filter.CreateParameterSet(
+				"Подразделения",
+				"subdivision",
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Subdivision> resultAlias = null;
+					var query = UoW.Session.QueryOver<Subdivision>();
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Subdivision>>());
+					return query.List<SelectableParameter>();
+				})
+			);
+			
+			var orderAuthorsFilter = _filter.CreateParameterSet(
+				"Авторы заказов",
+				"order_author",
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Employee> resultAlias = null;
+					var query = UoW.Session.QueryOver<Employee>();
+
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							var criterion = f();
+
+							if(criterion != null)
+							{
+								query.Where(criterion);
+							}
+						}
+					}
+
+					var authorProjection = CustomProjections.Concat_WS(
+						" ",
+						Projections.Property<Employee>(x => x.LastName),
+						Projections.Property<Employee>(x => x.Name),
+						Projections.Property<Employee>(x => x.Patronymic)
+					);
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(authorProjection).WithAlias(() => resultAlias.EntityTitle)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+					var paremetersSet = query.List<SelectableParameter>();
+
+					return paremetersSet;
+				})
+			);
+			
+			orderAuthorsFilter.AddFilterOnSourceSelectionChanged(subdivisionsFilter,
+				() =>
+				{
+					var selectedValues = subdivisionsFilter.GetSelectedValues().ToArray();
+
+					return !selectedValues.Any()
+						? null
+						: subdivisionsFilter.FilterType == SelectableFilterType.Include
+							? Restrictions.On<Employee>(x => x.Subdivision).IsIn(selectedValues)
+							: Restrictions.On<Employee>(x => x.Subdivision).Not.IsIn(selectedValues);
+				}
+			);
+
+			var viewModel = new SelectableParameterReportFilterViewModel(_filter);
+			var filterWidget = new SelectableParameterReportFilterView(viewModel);
+			vboxMultiParameters.Add(filterWidget);
+			filterWidget.Show();
+		}
+
 
 		private void OnButtonHelpClicked(object sender, EventArgs e)
 		{
@@ -42,36 +143,32 @@ namespace Vodovoz.ReportsParameters.Bottles
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
 		}
 
-		void Daterangepicker_PeriodChangedByUser(object sender, EventArgs e) =>
+		private void Daterangepicker_PeriodChangedByUser(object sender, EventArgs e) =>
 			btnCreateReport.Sensitive = daterangepicker.EndDateOrNull.HasValue && daterangepicker.StartDateOrNull.HasValue;
-
-
-		#region IParametersWidget implementation
-
-		public string Title => "Отчет по забору тары";
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion
-
+		
 		private ReportInfo GetReportInfo()
 		{
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", daterangepicker.StartDate },
+				{ "end_date", daterangepicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
+				{ "date", DateTime.Now },
+				{ "date_type", ((OrderDateType)yenumcomboboxDateType.SelectedItem) == OrderDateType.CreationDate },
+				{ "is_closed_order_only", chkClosedOrdersOnly.Active }
+			};
+			
+			foreach(var item in _filter.GetParameters())
+			{
+				parameters.Add(item.Key, item.Value);
+			}
+			
 			return new ReportInfo
 			{
 				Identifier = "Bottles.ReturnedTareReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{"start_date", daterangepicker.StartDate},
-					{"end_date", daterangepicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59)},
-					{"date", DateTime.Now},
-					{"date_type", ((OrderDateType) yenumcomboboxDateType.SelectedItem) == OrderDateType.CreationDate},
-					{"author_employee_id", entityviewmodelentryAuthor.Subject.GetIdOrNull()},
-					{"author_employee_name", (entityviewmodelentryAuthor.Subject as Employee)?.FullName},
-					{"is_closed_order_only", chkClosedOrdersOnly.Active}
-				}
+				Parameters = parameters
 			};
 		}
 
-		void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+		private void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 	}
 }

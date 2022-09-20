@@ -4,13 +4,15 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Criterion.Lambda;
+using NHibernate.Impl;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -19,7 +21,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
-using Order = NHibernate.Criterion.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -385,25 +386,6 @@ namespace Vodovoz.EntityRepositories.Orders
 			return rls;
 		}
 
-		/// <summary>
-		/// Возврат отсортированного списка скидок
-		/// </summary>
-		/// <returns>Список скидок</returns>
-		/// <param name="UoW">UoW</param>
-		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		public IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false)
-		{
-			var query = UoW.Session.QueryOver<DiscountReason>()
-						   .OrderBy(i => i.Name);
-			return orderByDescending ? query.Desc().List() : query.Asc().List();
-		}
-
-		public IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow)
-		{
-			return uow.Session.QueryOver<DiscountReason>()
-				.WhereNot(dr => dr.IsArchive).OrderBy(dr => dr.Name).Asc().List();
-		}
-
 		public VodovozOrder GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
 		{
 			var notSupportedStatuses = new OrderStatus[] {
@@ -490,6 +472,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			return new OrderStatus[] {
 				OrderStatus.UnloadingOnStock,
+				OrderStatus.Shipped,
 				OrderStatus.Closed
 			};
 		}
@@ -582,6 +565,17 @@ namespace Vodovoz.EntityRepositories.Orders
 					OrderStatus.Canceled
 				};
 		}
+		
+		public static OrderStatus[] GetUndeliveryAndNewStatuses()
+		{
+			return new []
+			{
+				OrderStatus.NewOrder,
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.Canceled
+			};
+		}
 
 		public IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
 			IUnitOfWork uow,
@@ -611,7 +605,12 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Add(() => counterpartyAlias.AlwaysSendReceipts))
 				.Add(Restrictions.Conjunction()
 					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
-					.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId));
+					.Add(Restrictions.Disjunction()
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
+						//Не выбираем данный источник отправки для чеков, пока нет оплаты на сайте по QR
+						/*.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCode)*/));
 
 			var statusRestriction = Restrictions.Disjunction()
 				.Add(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
@@ -651,7 +650,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return ordersToSend;
 		}
 
-		public SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId)
+		public SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId)
 		{
 			SmsPayment smsPaymentAlias = null;
 
@@ -685,50 +684,27 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.And(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
-				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)
-				.And(() => orderAlias.OrderStatus != OrderStatus.DeliveryCanceled)
-				.And(() => orderAlias.OrderStatus != OrderStatus.NotDelivered)
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
-				.Select(
-					Projections.Sum(
-						Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3) - ?4, 2)"),
-							NHibernateUtil.Decimal, new IProjection[] {
-								Projections.Property(() => orderItemAlias.Price),
-								Projections.Property(() => orderItemAlias.ActualCount),
-								Projections.Property(() => orderItemAlias.Count),
-								Projections.Property(() => orderItemAlias.DiscountMoney)})
-					)
-				).SingleOrDefault<decimal>();
+				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
+				.SingleOrDefault<decimal>();
 			
 			var totalPayPartiallyPaidOrders = uow.Session.QueryOver(() => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
 				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.And(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
-				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)
-				.And(() => orderAlias.OrderStatus != OrderStatus.DeliveryCanceled)
-				.And(() => orderAlias.OrderStatus != OrderStatus.NotDelivered)
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
-				.Select(
-					Projections.Sum(() => cashlessMovOperationAlias.Expense)
-				).SingleOrDefault<decimal>();
+				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum(() => cashlessMovOperationAlias.Expense))
+				.SingleOrDefault<decimal>();
 
 			return total - totalPayPartiallyPaidOrders;
 		}
 
-		public IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId)
-		{
-			var paymentItems = uow.Session.QueryOver<PaymentItem>()
-				.Where(x => x.Order.Id == orderId)
-				.List();
-
-			return paymentItems;
-		}
-		
 		public bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId)
 		{
 			var selfDeliveryDocument = uow.Session.QueryOver<SelfDeliveryDocument>()
@@ -811,5 +787,112 @@ namespace Vodovoz.EntityRepositories.Orders
         {
 			return unitOfWork.GetById<VodovozOrder>(orderId);
         }
-    }
+
+		public int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate)
+		{
+			int? dailyNumber;
+
+			using(var uow = uowFactory.CreateWithoutRoot(
+				$"Получение максимального ежедневного номера заказа на {deliveryDate}"))
+			{
+				dailyNumber = uow.Session.QueryOver<VodovozOrder>()
+					.Where(o => o.DeliveryDate == deliveryDate)
+					.Select(Projections.Max<VodovozOrder>(o => o.DailyNumber))
+					.SingleOrDefault<int?>();
+			}
+
+			return dailyNumber;
+		}
+		
+		public DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId)
+		{
+			DateTime? deliveryDate;
+			
+			using(var uow = uowFactory.CreateWithoutRoot($"Получение даты доставки заказа №{orderId}"))
+			{
+				deliveryDate = uow.Session.QueryOver<VodovozOrder>()
+					.Where(o => o.Id == orderId)
+					.Select(o => o.DeliveryDate)
+					.SingleOrDefault<DateTime?>();
+			}
+
+			return deliveryDate;
+		}
+
+		public static IProjection GetOrderSumProjection(OrderItem orderItemAlias)
+		{
+			return Projections.Sum(
+				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3) - ?4, 2)"),
+					NHibernateUtil.Decimal,
+						Projections.Property(() => orderItemAlias.Price),
+						Projections.Property(() => orderItemAlias.ActualCount),
+						Projections.Property(() => orderItemAlias.Count),
+						Projections.Property(() => orderItemAlias.DiscountMoney)));
+		}
+
+		public IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
+			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			PaymentItem paymentItemAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			Organization orderOrganizationAlias = null;
+			DeliverySchedule deliveryScheduleAlias = null;
+			CashlessMovementOperation cashlessMovementOperationAlias = null;
+			NotFullyPaidOrderNode resultAlias = null;
+			
+			var orderSumProjection = GetOrderSumProjection(orderItemAlias);
+			var allocatedSumProjection = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(pi => pi.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+				.Where(pi => pi.Order.Id == orderAlias.Id)
+				.Where(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
+					NHibernateUtil.Decimal,
+						Projections.Sum(() => cashlessMovementOperationAlias.Expense),
+						Projections.Constant(0)));
+			
+			return uow.Session.QueryOver(() => orderAlias)
+				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.Inner.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.Inner.JoinAlias(() => counterpartyContractAlias.Organization, () => orderOrganizationAlias)
+				.Inner.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.And(() => orderOrganizationAlias.Id == organizationId)
+				.And(() => orderAlias.OrderStatus == OrderStatus.Shipped
+							|| orderAlias.OrderStatus == OrderStatus.UnloadingOnStock
+							|| orderAlias.OrderStatus == OrderStatus.Closed)
+				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.And(() => deliveryScheduleAlias.Id != closingDocumentDeliveryScheduleId)
+				.SelectList(list => 
+					list.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
+						.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
+						.Select(o => o.CreateDate).WithAlias(() => resultAlias.OrderCreationDate)
+						.Select(orderSumProjection).WithAlias(() => resultAlias.OrderSum)
+						.SelectSubQuery(allocatedSumProjection).WithAlias(() => resultAlias.AllocatedSum))
+				.Where(Restrictions.Gt(orderSumProjection, 0))
+				.TransformUsing(Transformers.AliasToBean<NotFullyPaidOrderNode>())
+				.OrderBy(o => o.DeliveryDate).Asc
+				.OrderBy(o => o.CreateDate).Asc
+				.List<NotFullyPaidOrderNode>();
+		}
+
+		public PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.QueryOver<VodovozOrder>()
+				.Where(o => o.Id == orderId)
+				.Select(o => o.PaymentType)
+				.SingleOrDefault<PaymentType>();
+		}
+	}
+
+	public class NotFullyPaidOrderNode
+	{
+		public int Id { get; set; }
+		public DateTime? OrderDeliveryDate { get; set; }
+		public DateTime? OrderCreationDate { get; set; }
+		public decimal OrderSum { get; set; }
+		public decimal AllocatedSum { get; set; }
+	}
 }

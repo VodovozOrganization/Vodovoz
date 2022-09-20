@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Net.Http.Headers;
 
 namespace DriverAPI.Controllers
 {
@@ -43,6 +44,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/EnablePushNotifications")]
 		public void EnablePushNotifications([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(FirebaseToken: {enablePushNotificationsRequest.Token}) User token: {tokenStr}");
+
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
@@ -55,23 +59,67 @@ namespace DriverAPI.Controllers
 		[Route("/api/DisablePushNotifications")]
 		public void DisablePushNotifications()
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"User token: {tokenStr}");
+
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_employeeData.DisablePushNotifications(driver);
 		}
 
 		/// <summary>
-		/// 
+		/// Эндпоинт уведомления о смене формы оплаты в заказе
 		/// </summary>
-		/// <param name="orderId"></param>
+		/// <param name="orderId">Id заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/api/NotifyOfSmsPaymentStatusChanged")]
 		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
+			await SendPushNotificationAsync(orderId);
+		}
+		
+		[HttpPost]
+		[AllowAnonymous]
+		[Route("/api/NotifyOfFastPaymentStatusChanged")]
+		public async Task NotifyOfFastPaymentStatusChanged([FromBody] int orderId)
+		{
+			await SendPushNotificationAsync(orderId);
+		}
+
+		private async Task SendPushNotificationAsync(int orderId)
+		{
 			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
-			_logger.LogInformation($"Sending PUSH message of status changed for order: { orderId }");
-			await _iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа { orderId }");
+			if(string.IsNullOrWhiteSpace(token))
+			{
+				_logger.LogInformation($"No token found for order driver PUSH message. Order: {orderId}");
+			}
+			else
+			{
+				_logger.LogInformation($"Sending PUSH message of status changed for order: {orderId}");
+				await _iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа {orderId}");
+			}
+		}
+
+		/// <summary>
+		/// Эндпоинт уведомления о новом поступившем заказе с быстрой доставкой
+		/// </summary>
+		/// <param name="orderId">Id заказа</param>
+		[HttpPost]
+		[AllowAnonymous]
+		[Route("/api/NotifyOfFastDeliveryOrderAdded")]
+		public async Task NotifyOfFastDeliveryOrderAdded([FromBody] int orderId)
+		{
+			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+			if(string.IsNullOrWhiteSpace(token))
+			{
+				_logger.LogInformation($"No token found for order driver PUSH message. Order: {orderId}");
+			}
+			else
+			{
+				_logger.LogInformation($"Sending PUSH message of fast delivery order ({orderId}) added");
+				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", $"Добавлен заказ { orderId } с доставкой за час");
+			}
 		}
 	}
 }

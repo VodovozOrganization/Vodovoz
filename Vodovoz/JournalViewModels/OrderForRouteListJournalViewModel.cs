@@ -28,6 +28,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Services;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -42,6 +43,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public OrderForRouteListJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -55,7 +57,8 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -68,6 +71,7 @@ namespace Vodovoz.JournalViewModels
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 
 			TabName = "Журнал заказов";
 
@@ -138,12 +142,12 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
 			}
 
-			if(FilterViewModel.RestrictStartDate != null) {
-				query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate);
+			if(FilterViewModel.StartDate != null) {
+				query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.RestrictEndDate != null) {
-				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			if(FilterViewModel.EndDate != null) {
+				query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
 			if(FilterViewModel.RestrictLessThreeHours == true) {
@@ -330,7 +334,9 @@ namespace Vodovoz.JournalViewModels
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
 							_orderSelectorFactory,
-							_undeliveredOrdersRepository
+							_undeliveredOrdersRepository,
+							new EmployeeSettings(new ParametersProvider()),
+							_subdivisionParametersProvider
 							);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);

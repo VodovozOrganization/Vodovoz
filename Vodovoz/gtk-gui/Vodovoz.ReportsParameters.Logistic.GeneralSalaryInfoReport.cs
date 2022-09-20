@@ -12,7 +12,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gamma.Widgets.yEnumComboBox comboCategory;
 
-		private global::Gamma.Widgets.yEnumComboBox comboDriverOf;
+		private global::Gamma.Widgets.yEnumComboBox comboDriverOfCarOwnType;
+
+		private global::Gamma.Widgets.yEnumComboBox comboDriverOfCarTypeOfUse;
 
 		private global::Gamma.Widgets.yEnumComboBox comboMonth;
 
@@ -28,6 +30,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gtk.Label label4;
 
+		private global::Gtk.Label label5;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -35,7 +39,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport";
 			// Container child Vodovoz.ReportsParameters.Logistic.GeneralSalaryInfoReport.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(5)), ((uint)(4)), false);
+			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(4)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -64,8 +68,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.buttonRun.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.table1.Add(this.buttonRun);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.buttonRun]));
-			w3.TopAttach = ((uint)(4));
-			w3.BottomAttach = ((uint)(5));
+			w3.TopAttach = ((uint)(5));
+			w3.BottomAttach = ((uint)(6));
 			w3.RightAttach = ((uint)(4));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -85,20 +89,35 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.comboDriverOf = new global::Gamma.Widgets.yEnumComboBox();
-			this.comboDriverOf.Name = "comboDriverOf";
-			this.comboDriverOf.ShowSpecialStateAll = true;
-			this.comboDriverOf.ShowSpecialStateNot = false;
-			this.comboDriverOf.UseShortTitle = false;
-			this.comboDriverOf.DefaultFirst = false;
-			this.table1.Add(this.comboDriverOf);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.comboDriverOf]));
-			w5.TopAttach = ((uint)(2));
-			w5.BottomAttach = ((uint)(3));
+			this.comboDriverOfCarOwnType = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboDriverOfCarOwnType.Name = "comboDriverOfCarOwnType";
+			this.comboDriverOfCarOwnType.ShowSpecialStateAll = true;
+			this.comboDriverOfCarOwnType.ShowSpecialStateNot = false;
+			this.comboDriverOfCarOwnType.UseShortTitle = false;
+			this.comboDriverOfCarOwnType.DefaultFirst = false;
+			this.table1.Add(this.comboDriverOfCarOwnType);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.comboDriverOfCarOwnType]));
+			w5.TopAttach = ((uint)(3));
+			w5.BottomAttach = ((uint)(4));
 			w5.LeftAttach = ((uint)(1));
 			w5.RightAttach = ((uint)(4));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.comboDriverOfCarTypeOfUse = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboDriverOfCarTypeOfUse.Name = "comboDriverOfCarTypeOfUse";
+			this.comboDriverOfCarTypeOfUse.ShowSpecialStateAll = true;
+			this.comboDriverOfCarTypeOfUse.ShowSpecialStateNot = false;
+			this.comboDriverOfCarTypeOfUse.UseShortTitle = false;
+			this.comboDriverOfCarTypeOfUse.DefaultFirst = false;
+			this.table1.Add(this.comboDriverOfCarTypeOfUse);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.comboDriverOfCarTypeOfUse]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(4));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.comboMonth = new global::Gamma.Widgets.yEnumComboBox();
 			this.comboMonth.Name = "comboMonth";
@@ -107,11 +126,11 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.comboMonth.UseShortTitle = false;
 			this.comboMonth.DefaultFirst = false;
 			this.table1.Add(this.comboMonth);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.comboMonth]));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.comboMonth]));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.comboYear = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.comboYear.Name = "comboYear";
@@ -120,66 +139,77 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.comboYear.ShowSpecialStateAll = false;
 			this.comboYear.ShowSpecialStateNot = false;
 			this.table1.Add(this.comboYear);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.comboYear]));
-			w7.LeftAttach = ((uint)(2));
-			w7.RightAttach = ((uint)(3));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.comboYear]));
+			w8.LeftAttach = ((uint)(2));
+			w8.RightAttach = ((uint)(3));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.entryEmployee.Name = "entryEmployee";
 			this.entryEmployee.CanEditReference = false;
 			this.table1.Add(this.entryEmployee);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
-			w8.TopAttach = ((uint)(3));
-			w8.BottomAttach = ((uint)(4));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(4));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
+			w9.TopAttach = ((uint)(4));
+			w9.BottomAttach = ((uint)(5));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(4));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
 			this.table1.Add(this.label1);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Категория:");
 			this.table1.Add(this.label2);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
-			w10.TopAttach = ((uint)(1));
-			w10.BottomAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Управляет:");
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Управляет а/м типа:");
 			this.table1.Add(this.label3);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.label3]));
-			w11.TopAttach = ((uint)(2));
-			w11.BottomAttach = ((uint)(3));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.label3]));
+			w12.TopAttach = ((uint)(2));
+			w12.BottomAttach = ((uint)(3));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Сотрудник:");
 			this.table1.Add(this.label4);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
-			w12.TopAttach = ((uint)(3));
-			w12.BottomAttach = ((uint)(4));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
+			w13.TopAttach = ((uint)(4));
+			w13.BottomAttach = ((uint)(5));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label5 = new global::Gtk.Label();
+			this.label5.Name = "label5";
+			this.label5.Xalign = 1F;
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Принадлежности:");
+			this.table1.Add(this.label5);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.label5]));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{

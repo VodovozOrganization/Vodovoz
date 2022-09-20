@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Vodovoz.Domain.Logistic
@@ -39,14 +40,16 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public bool DriverOfOurCar => rl.Car.IsCompanyCar;
+		public bool DriverOfOurCar => rl.GetCarVersion.CarOwnType == CarOwnType.Company;
 
-		public bool IsLargusOrGazelle => rl.Car.TypeOfUse.HasValue 
-			&& (rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyLargus || rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyGAZelle);
+		public bool IsRaskatCar => rl.GetCarVersion.IsRaskat;
+
+		public CarTypeOfUse CarTypeOfUse => rl.Car?.CarModel?.CarTypeOfUse
+			?? throw new InvalidOperationException("Модель автомобиля в МЛ должна быть заполнена");
 
 		public DateTime RouteListDate => rl.Date;
 
-		public bool IsTruck => rl.Car.TypeOfUse.HasValue && rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyTruck;
+		public bool IsTruck => rl.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck;
 
 		public int RouteListId => rl.Id;
 

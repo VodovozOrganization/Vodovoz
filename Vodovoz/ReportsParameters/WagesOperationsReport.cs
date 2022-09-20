@@ -1,36 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
-using Vodovoz.Domain.Employees;
-using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class WagesOperationsReport: SingleUoWWidgetBase, IParametersWidget
+	public partial class WagesOperationsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public WagesOperationsReport()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-
-			repEntryEmployee.RepresentationModel = new EmployeesVM();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 		}
 
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по зарплатным операциям";
-			}
-		}
+		public string Title => "Отчет по зарплатным операциям";
 
 		private ReportInfo GetReportInfo()
 		{			
@@ -42,7 +36,7 @@ namespace Vodovoz.Reports
 				{ 
 					{ "start_date", dateperiodpicker.StartDate },
 					{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "employee_id", ((Employee)repEntryEmployee.Subject).Id }
+					{ "employee_id", evmeEmployee.SubjectId }
 				}
 			};
 		}
@@ -55,7 +49,7 @@ namespace Vodovoz.Reports
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
 			string errorString = string.Empty;
-			if (repEntryEmployee.Subject == null)
+			if (evmeEmployee.Subject == null)
 				errorString += "Не заполнено поле сотрудника\n";
 			if (dateperiodpicker.StartDateOrNull == null)
 				errorString += "Не заполнена дата\n";
@@ -68,4 +62,3 @@ namespace Vodovoz.Reports
 		#endregion
 	}
 }
-

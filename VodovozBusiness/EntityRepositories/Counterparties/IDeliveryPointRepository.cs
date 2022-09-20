@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 
@@ -8,8 +8,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 {
 	public interface IDeliveryPointRepository
 	{
-		QueryOver<DeliveryPoint> DeliveryPointsForCounterpartyQuery(Domain.Client.Counterparty counterparty);
-
 		/// <summary>
 		/// Запрос ищет точку доставки в контрагенте по коду 1с или целиком по адресной строке.
 		/// </summary>
@@ -23,5 +21,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="uow"></param>
 		/// <returns></returns>
 		IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow);
+
+		IList<DeliveryPoint> GetDeliveryPointsByCounterpartyId(IUnitOfWork uow, int counterpartyId);
+
+		IEnumerable<string> GetAddressesWithFixedPrices(int counterpartyId);
+
+		bool CheckingAnAddressForDeliveryForNewCustomers( IUnitOfWork uow, DeliveryPoint deliveryPoint );
 	}
 }

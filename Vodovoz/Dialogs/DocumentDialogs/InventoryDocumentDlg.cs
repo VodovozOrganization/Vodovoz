@@ -37,7 +37,7 @@ namespace Vodovoz
 	public partial class InventoryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<InventoryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private INomenclatureRepository nomenclatureRepository { get; } =
@@ -183,10 +183,15 @@ namespace Vodovoz
 				"Группы товаров",
 				"product_group",
 				new RecursiveParametersFactory<ProductGroup>(UoW,
-				(filters) => {
-					var query = UoW.Session.QueryOver<ProductGroup>();
-					if(filters != null && filters.Any()) {
-						foreach(var f in filters) {
+				(filters) =>
+				{
+					var query = UoW.Session.QueryOver<ProductGroup>()
+						.Where(p => p.Parent == null);
+					
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
 							query.Where(f());
 						}
 					}

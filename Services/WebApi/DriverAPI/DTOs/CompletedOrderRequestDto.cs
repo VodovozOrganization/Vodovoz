@@ -10,5 +10,6 @@ namespace DriverAPI.DTOs
 		public int DriverComplaintReasonId { get; set; }
 		public string OtherDriverComplaintReasonComment { get; set; }
 		public DateTime ActionTime { get; set; }
+		public string DriverComment { get; set; }
 	}
 }

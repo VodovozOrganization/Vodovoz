@@ -23,15 +23,10 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarLoadDocument : Document, IValidatableObject
 	{
+		private const int _commentLimit = 255;
+
 		#region Сохраняемые свойства
 		
-		DateTime version;
-		[Display(Name = "Версия")]
-		public virtual DateTime Version {
-			get => version;
-			set => SetField(ref version, value, () => Version);
-		}
-
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
 			set {
@@ -140,8 +135,8 @@ namespace Vodovoz.Domain.Documents
 				return;
 			var inStock = stockRepository.NomenclatureInStock(
 				uow,
-				Warehouse.Id,
 				Items.Select(x => x.Nomenclature.Id).ToArray(),
+				Warehouse.Id,
 				TimeStamp
 			);
 
@@ -172,6 +167,26 @@ namespace Vodovoz.Domain.Documents
 				if(found != null)
 				{
 					item.AmountLoaded = found.Amount;
+				}
+			}
+		}
+
+		public virtual void UpdateAmounts()
+		{
+			foreach(var item in Items)
+			{
+				item.Amount = item.AmountInRouteList - item.AmountLoaded;
+
+				var alreadyCounted = Items
+					.Where(x => x.Nomenclature == item.Nomenclature
+						&& Items.IndexOf(x) < Items.IndexOf(item))
+					.Sum(x => x.Amount);
+
+				var calculatedAvailableCount = item.AmountInStock - alreadyCounted;
+
+				if(item.Amount > calculatedAvailableCount)
+				{
+					item.Amount = calculatedAvailableCount;
 				}
 			}
 		}
@@ -243,6 +258,12 @@ namespace Vodovoz.Domain.Documents
 			if(Warehouse == null) {
 				yield return new ValidationResult("Не указан склад погрузки.",
 					new[] { nameof(Warehouse) });
+			}
+			
+			if(Comment?.Length > _commentLimit)
+			{
+				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
+					new[] { nameof(Comment) });
 			}
 
 			var uniqueNomenclaturesIds = Items.Select(x => x.Nomenclature.Id).Distinct();

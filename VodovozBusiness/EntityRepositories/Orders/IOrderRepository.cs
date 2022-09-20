@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
 
@@ -35,16 +35,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<Domain.Orders.Order> orders);
 
 		IList<Domain.Orders.Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
-
-		/// <summary>
-		/// Возврат отсортированного списка скидок
-		/// </summary>
-		/// <returns>Список скидок</returns>
-		/// <param name="UoW">UoW</param>
-		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false);
-
-		IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow);
 
 		/// <summary>
 		/// Оборудование заказа от клиента
@@ -137,17 +127,21 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);
 
-		SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId);
+		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 
 		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId);
 
-		IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Domain.Orders.Order> GetOrders(IUnitOfWork uow, int[] ids);
 		bool CanAddFlyerToOrder(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
-    }
+		int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate);
+		DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId);
+		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
+			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId);
+		PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId);
+	}
 
 	public class ClientEquipmentNode
 	{

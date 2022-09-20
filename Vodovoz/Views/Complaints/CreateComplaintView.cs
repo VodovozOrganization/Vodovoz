@@ -31,7 +31,7 @@ namespace Vodovoz.Views.Complaints
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.ComplainantName, w => w.Text).InitializeFromSource();
 			yentryName.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			EntryCounterparty_ChangedByUser(this, new EventArgs());
@@ -53,8 +53,8 @@ namespace Vodovoz.Views.Complaints
 				if(ViewModel.Entity.Counterparty != null) {
 					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
 				}
-				return new OrderJournalViewModel(filter, 
-												UnitOfWorkFactory.GetDefaultFactory, 
+				return new OrderJournalViewModel(filter,
+												UnitOfWorkFactory.GetDefaultFactory,
 												ServicesConfig.CommonServices,
 												ViewModel.EmployeeService,
 												ViewModel.NomenclatureRepository,
@@ -67,7 +67,10 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.GtkDialogsOpener,
 												ViewModel.UndeliveredOrdersJournalOpener,
 												ViewModel.NomenclatureSelector,
-												ViewModel.UndeliveredOrdersRepository);
+												ViewModel.UndeliveredOrdersRepository,
+												ViewModel.SubdivisionRepository,
+												ViewModel.FileDialogService,
+												ViewModel.SubdivisionParametersProvider);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);

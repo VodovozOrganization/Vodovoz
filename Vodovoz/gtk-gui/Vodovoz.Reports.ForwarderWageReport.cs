@@ -16,7 +16,7 @@ namespace Vodovoz.Reports
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryreferenceForwarder;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeForwarder;
 
 		private global::Gtk.CheckButton checkShowBalance;
 
@@ -73,11 +73,12 @@ namespace Vodovoz.Reports
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentryreferenceForwarder = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yentryreferenceForwarder.Events = ((global::Gdk.EventMask)(256));
-			this.yentryreferenceForwarder.Name = "yentryreferenceForwarder";
-			this.hbox3.Add(this.yentryreferenceForwarder);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryreferenceForwarder]));
+			this.evmeForwarder = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeForwarder.Events = ((global::Gdk.EventMask)(256));
+			this.evmeForwarder.Name = "evmeForwarder";
+			this.evmeForwarder.CanEditReference = true;
+			this.hbox3.Add(this.evmeForwarder);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.evmeForwarder]));
 			w5.Position = 1;
 			this.vbox1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
@@ -105,7 +106,6 @@ namespace Vodovoz.Reports
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w8.PackType = ((global::Gtk.PackType)(1));
 			w8.Position = 3;
 			w8.Expand = false;
 			w8.Fill = false;
@@ -115,9 +115,6 @@ namespace Vodovoz.Reports
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.dateperiodpicker.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpickerPeriodChanged);
-			this.yentryreferenceForwarder.Changed += new global::System.EventHandler(this.OnYentryreferenceForwarderChanged);
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

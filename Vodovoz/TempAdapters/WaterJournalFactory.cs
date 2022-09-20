@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -13,6 +13,8 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
 {
@@ -29,26 +31,23 @@ namespace Vodovoz.TempAdapters
             NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
             nomenclatureFilter.RestrictCategory = NomenclatureCategory.fuel;
             nomenclatureFilter.RestrictArchive = false;
-			
+
             var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
             var userRepository = new UserRepository();
+            var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
-            var counterpartySelectorFactory =
-                new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-                    ServicesConfig.CommonServices);
-			
             var nomenclatureSelectorFactory =
                 new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-                    ServicesConfig.CommonServices, nomenclatureFilter, counterpartySelectorFactory, nomenclatureRepository, userRepository);
-			
+                    ServicesConfig.CommonServices, nomenclatureFilter, counterpartyJournalFactory, nomenclatureRepository, userRepository);
+
             WaterJournalViewModel waterJournal = new WaterJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,
                 ServicesConfig.CommonServices,
                 new EmployeeService(),
-                nomenclatureSelectorFactory,
-                counterpartySelectorFactory,
+				new NomenclatureJournalFactory(),
+                counterpartyJournalFactory,
                 nomenclatureRepository,
-                userRepository	
+                userRepository
             );
 
             waterJournal.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;

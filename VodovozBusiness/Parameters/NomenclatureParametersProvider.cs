@@ -30,7 +30,12 @@ namespace Vodovoz.Parameters
 
         public string OnlineStoreExportFileUrl => _parametersProvider.GetStringValue("online_store_export_file_url");
 
-        #region Получение номенклатур воды
+        public int FastDeliveryNomenclatureId => _parametersProvider.GetIntValue("fast_delivery_nomenclature_id");
+
+		public int PromotionalNomenclatureGroupId => _parametersProvider.GetIntValue("promotional_nomenclature_group_id");
+
+
+		#region Получение номенклатур воды
 
 		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
 		{

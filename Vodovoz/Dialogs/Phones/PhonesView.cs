@@ -3,6 +3,7 @@ using Gamma.Widgets;
 using Gtk;
 using System.Linq;
 using Gamma.GtkWidgets;
+using QS.Widgets.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.ViewModels.ViewModels;
@@ -69,7 +70,7 @@ namespace Vodovoz.Dialogs.Phones
 			var phoneDataEntry = new yValidatedEntry();
 			phoneDataEntry.ValidationMode = ValidationType.phone;
 			phoneDataEntry.Tag = newPhone;
-			phoneDataEntry.WidthRequest = 125;
+			phoneDataEntry.WidthRequest = 110;
 			phoneDataEntry.WidthChars = 19;
 			phoneDataEntry.Binding.AddBinding(newPhone, e => e.Number, w => w.Text).InitializeFromSource();
 			phoneDataEntry.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
@@ -85,23 +86,59 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.SetChildPacking(textAdditionalLabel, false, false, 0, PackType.Start);
 
 			var additionalDataEntry = new yEntry();
-			additionalDataEntry.WidthRequest = 50;
+			additionalDataEntry.WidthRequest = 40;
 			additionalDataEntry.MaxLength = 10;
 			additionalDataEntry.Binding.AddBinding(newPhone, e => e.Additional, w => w.Text).InitializeFromSource();
 			additionalDataEntry.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(additionalDataEntry);
 			hBox.SetChildPacking(additionalDataEntry, false, false, 0, PackType.Start);
 
-			var labelName = new Label("имя:");
-			hBox.Add(labelName);
-			hBox.SetChildPacking(labelName, false, false, 0, PackType.Start);
+			var labelComment = new Label("коммент.:");
+			hBox.Add(labelComment);
+			hBox.SetChildPacking(labelComment, false, false, 0, PackType.Start);
 
-			var entryName = new yEntry();
-			entryName.MaxLength = 150;
-			entryName.Binding.AddBinding(newPhone, e => e.Name, w => w.Text).InitializeFromSource();
-			entryName.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
-			hBox.Add(entryName);
-			hBox.SetChildPacking(entryName, true, true, 0, PackType.Start);
+			var entryComment = new yEntry();
+			entryComment.MaxLength = 150;
+			entryComment.Binding.AddBinding(newPhone, e => e.Comment, w => w.Text).InitializeFromSource();
+			entryComment.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
+			hBox.Add(entryComment);
+			hBox.SetChildPacking(entryComment, true, true, 0, PackType.Start);
+
+			if(ViewModel.RoboAtsCounterpartyNameSelectorFactory != null)
+			{
+				var labelName = new Label("имя:");
+				hBox.PackStart(labelName, false, false, 0);
+
+				var entityviewmodelentryName = new EntityViewModelEntry();
+				entityviewmodelentryName.Binding.AddBinding(viewModel, vm => vm.CanEditCounterpartyName, w => w.CanEditReference)
+					.InitializeFromSource();
+				entityviewmodelentryName.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyName, w => w.Subject)
+					.InitializeFromSource();
+				entityviewmodelentryName.Binding
+					.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyName, w => w.IsEditable).InitializeFromSource();
+				entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
+				entityviewmodelentryName.WidthRequest = 170;
+				hBox.PackStart(entityviewmodelentryName, true, true, 0);
+			}
+
+			if(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory != null)
+			{
+
+				var labelPatronymic = new Label("отч.:");
+				hBox.PackStart(labelPatronymic,false,false,0);
+
+				var entityviewmodelentryPatronymic = new EntityViewModelEntry();
+				entityviewmodelentryPatronymic.Binding
+					.AddBinding(viewModel, vm => vm.CanEditCounterpartyPatronymic, w => w.CanEditReference).InitializeFromSource();
+				entityviewmodelentryPatronymic.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyPatronymic, w => w.Subject)
+					.InitializeFromSource();
+				entityviewmodelentryPatronymic.Binding
+					.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyPatronymic, w => w.IsEditable)
+					.InitializeFromSource();
+				entityviewmodelentryPatronymic.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory);
+				entityviewmodelentryPatronymic.WidthRequest = 170;
+				hBox.PackStart(entityviewmodelentryPatronymic, true,true,0);
+			}
 
 			yButton deleteButton = new yButton();
 			Image image = new Image();
@@ -125,8 +162,9 @@ namespace Vodovoz.Dialogs.Phones
 		{
 			buttonAddPhone.Visible = !ViewModel.ReadOnly;
 
-			foreach(var child in vboxPhones.Children) 
+			foreach(var child in vboxPhones.Children.ToList())
 			{
+				child.Destroy();
 				vboxPhones.Remove(child);
 			}
 
@@ -134,16 +172,6 @@ namespace Vodovoz.Dialogs.Phones
 			{
 				DrawNewRow(phone);
 			}
-		}
-
-		private void DeleteRow(int rowNumber)
-		{
-			hBoxList.RemoveAt(rowNumber);
-		}
-
-		private void DeleteRow(HBox widget)
-		{
-			hBoxList.Remove(widget);
 		}
 	}
 }

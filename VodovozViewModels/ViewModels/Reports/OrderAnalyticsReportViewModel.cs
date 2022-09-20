@@ -18,12 +18,12 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using QS.Navigation;
-using QS.Services;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
@@ -239,11 +239,13 @@ namespace Vodovoz.ViewModels.Reports
             RouteListItem routeListItemAlias2 = null;
             RouteList routeListAlias = null;
             Car carAlias = null;
+            CarVersion carVersionAlias = null;
+            CarModel carModelAlias = null;
             Employee driverAlias = null;
             Employee forwarderAlias = null;
             OrderItem orderItemAlias = null;
             Nomenclature nomenclatureAlias = null;
-            GeographicGroup geographicGroupAlias = null;
+            GeoGroup geographicGroupAlias = null;
 
             var query = UoW.Session.QueryOver(() => orderAlias)
                 .JoinAlias(x => x.DeliverySchedule, () => deliveryScheduleAlias)
@@ -256,14 +258,20 @@ namespace Vodovoz.ViewModels.Reports
                 .Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
                 .Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
                 .Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-                .Left.JoinAlias(() => routeListAlias.Forwarder, () => forwarderAlias);
+                .Left.JoinAlias(() => routeListAlias.Forwarder, () => forwarderAlias)
+                .Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+                .JoinEntityAlias(() => carVersionAlias,
+	                () => carVersionAlias.Car.Id == carAlias.Id
+		                && carVersionAlias.StartDate <= routeListAlias.Date
+		                && (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date),
+	                JoinType.LeftOuterJoin);
 
             query.Where(x => !x.SelfDelivery)
 	             .Where(x => !x.IsContractCloser)
                  .Where(x => x.OrderAddressType != OrderAddressType.Service)
                  .WhereRestrictionOn(x => x.OrderStatus)
                     .Not.IsIn(new[]{OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.WaitForPayment})
-	             .Where(() => carAlias.TypeOfUse == null || carAlias.TypeOfUse != CarTypeOfUse.CompanyTruck)
+	             .Where(() => carModelAlias.Id == null || carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
                  .Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
 	             .WithSubquery.WhereNotExists(
 		             QueryOver.Of(() => orderAlias2)
@@ -303,8 +311,8 @@ namespace Vodovoz.ViewModels.Reports
 	            .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 	            .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 	            .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-	            .Select(Projections.Sum(() => (orderItemAlias.Count * orderItemAlias.Price) - orderItemAlias.DiscountMoney)); 
-            
+	            .Select(Projections.Sum(() => (orderItemAlias.Count * orderItemAlias.Price) - orderItemAlias.DiscountMoney));
+
             var result = query
                 .SelectList(list => list
                     .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
@@ -314,10 +322,10 @@ namespace Vodovoz.ViewModels.Reports
                     .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
                     .Select(() => routeListItemAlias.Status).WithAlias(() => resultAlias.RouteListItemStatus)
                     .Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
-                    .Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
+                    .Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
                     .Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegNumber)
-                    .Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
-                    .Select(() => carAlias.IsRaskat).WithAlias(() => resultAlias.IsRaskat)
+                    .Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+                    .Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
                     .Select(() => driverAlias.IsDriverForOneDay).WithAlias(() => resultAlias.IsDriverForOneDay)
                     .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.Bottles19LCount)
                     .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
@@ -348,14 +356,14 @@ namespace Vodovoz.ViewModels.Reports
         public string DriverLastName { get; set; }
         public string DriverName { get; set; }
         public string DriverPatronymic { get; set; }
-        public string DriverFIO => $"{DriverLastName} {DriverName} {DriverPatronymic}";
+        public string DriverFullName => $"{DriverLastName} {DriverName} {DriverPatronymic}";
         public OrderStatus OrderStatus { get; set; }
         public RouteListItemStatus? RouteListItemStatus { get; set; }
         public int? RouteListId { get; set; }
-        public string CarModel { get; set; }
+        public string CarModelName { get; set; }
         public string CarRegNumber { get; set; }
         public CarTypeOfUse? CarTypeOfUse { get; set; }
-        public bool? IsRaskat { get; set; }
+        public CarOwnType? CarOwnType { get; set; }
         public bool? IsDriverForOneDay { get; set; }
         public decimal Bottles19LCount { get; set; }
         public string Address { get; set; }
@@ -370,7 +378,7 @@ namespace Vodovoz.ViewModels.Reports
         public string ForwarderLastName { get; set; }
         public string ForwarderName { get; set; }
         public string ForwarderPatronymic { get; set; }
-        public string ForwarderFIO => $"{ForwarderLastName} {ForwarderName} {ForwarderPatronymic}";
+        public string ForwarderFullName => $"{ForwarderLastName} {ForwarderName} {ForwarderPatronymic}";
         public decimal OrderSum { get; set; }
         public decimal Bottles19LSum { get; set; }
         public decimal Bottles19LAvgPrice => Bottles19LCount > 0 ? Bottles19LSum / Bottles19LCount: 0;
@@ -383,13 +391,13 @@ namespace Vodovoz.ViewModels.Reports
         {
             Map(x => x.Id).Index(0).Name("Номер заказа");
             Map(x => x.RouteListId).Index(1).Name("Номер МЛ");
-            Map(x => x.DriverFIO).Index(2).Name("ФИО водителя");
+            Map(x => x.DriverFullName).Index(2).Name("ФИО водителя");
             Map(x => x.OrderStatus).Index(3).Name("Статус заказа").TypeConverter<NullableEnumConverter>();
             Map(x => x.RouteListItemStatus).Index(4).Name("Статус адреса").TypeConverter<NullableEnumConverter>();
-            Map(x => x.CarModel).Index(5).Name("Модель авто");
+            Map(x => x.CarModelName).Index(5).Name("Модель авто");
             Map(x => x.CarRegNumber).Index(6).Name("Номер авто");
             Map(x => x.CarTypeOfUse).Index(7).Name("Тип авто").TypeConverter<NullableEnumConverter>();
-            Map(x => x.IsRaskat).Index(8).Name("Раскат?").TypeConverter<NullableBooleanConverter>();
+            Map(x => x.CarOwnType).Index(8).Name("Принадлежность авто").TypeConverter<NullableBooleanConverter>();
             Map(x => x.IsDriverForOneDay).Index(9).Name("Разовый водитель?").TypeConverter<NullableBooleanConverter>();
             Map(x => x.Bottles19LCount).Index(10).Name("19л бутылей").Default(0).TypeConverter<DecimalConverter>();
             Map(x => x.Address).Index(11).Name("Адрес");
@@ -401,7 +409,7 @@ namespace Vodovoz.ViewModels.Reports
             Map(x => x.DeliveryDate).Index(17).Name("Дата доставки").TypeConverter<DeliveryDateTimeConverter>();
             Map(x => x.CreationDate).Index(18).Name("Дата создания заказа").TypeConverter<CreationDateTimeConverter>();
             Map(x => x.DriverWage).Index(19).Name("ЗП водителя за адрес").TypeConverter<DecimalConverter>();
-            Map(x => x.ForwarderFIO).Index(20).Name("ФИО экспедитора").Default("Без экспедитора");
+            Map(x => x.ForwarderFullName).Index(20).Name("ФИО экспедитора").Default("Без экспедитора");
             Map(x => x.OrderSum).Index(21).Name("Общая сумма заказа").TypeConverter<DecimalConverter>();
             Map(x => x.Bottles19LSum).Index(22).Name("Сумма за 19л бутыли").TypeConverter<DecimalConverter>();
             Map(x => x.Bottles19LAvgPrice).Index(23).Name("Cредняя стоимость 19л в заказе").TypeConverter<DecimalConverter>();

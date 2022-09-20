@@ -1,13 +1,10 @@
 ﻿using QS.Commands;
 using QS.Project.Filter;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 {
@@ -23,9 +20,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		private EmployeeStatus? _status;
 		private DriverTerminalRelation? _driverTerminalRelation;
 		private WageParameterItemTypes? _restrictWageParameterItemType;
-
 		private Subdivision _subdivision;
-		private CarTypeOfUse? _driverOf;
+		private CarTypeOfUse? _driverOfCarTypeOfUse;
+		private CarOwnType? _driverOfCarOwnType;
 		private RegistrationType? _registrationType;
 		private DateTime? _hiredDatePeriodStart;
 		private DateTime? _hiredDatePeriodEnd;
@@ -121,10 +118,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 			set => UpdateFilterField(ref _subdivision, value);
 		}
 
-		public CarTypeOfUse? DriverOf
+		public CarTypeOfUse? DriverOfCarTypeOfUse
 		{
-			get => _driverOf;
-			set => UpdateFilterField(ref _driverOf, value);
+			get => _driverOfCarTypeOfUse;
+			set => UpdateFilterField(ref _driverOfCarTypeOfUse, value);
+		}
+
+		public CarOwnType? DriverOfCarOwnType
+		{
+			get => _driverOfCarOwnType;
+			set => UpdateFilterField(ref _driverOfCarOwnType, value);
 		}
 
 		public RegistrationType? RegistrationType

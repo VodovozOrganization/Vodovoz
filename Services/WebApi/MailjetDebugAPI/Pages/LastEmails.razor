@@ -1,0 +1,96 @@
+﻿@page "/lastemails"
+
+@inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
+
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Mailjet.Api.Abstractions;
+@using Hubs;
+
+@code {
+	protected List<EmailMessage> _emails = new List<EmailMessage>();
+	private string _hubUrl;
+	private HubConnection _hubConnection;
+	private string _downloadFunctionName = "DownloadFile";
+}
+
+<h1>Last Emails</h1>
+
+<table class="table table-hover">
+	<thead>
+		<tr>
+			<th>From</th>
+			<th>To</th>
+			<th>Subject</th>
+			<th>Inlined attachments count</th>
+			<th>Attachments count</th>
+			<th>Payload</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var email in _emails)
+		{
+			<tr class="clickable" data-toggle="collapse" id="row@_emails.IndexOf(email)" data-target=".row@_emails.IndexOf(email)">
+				<td>@email.From.Name (@email.From.Email)</td>
+				<td>@string.Join(", ", email.To.Select(recipient => $"{ recipient.Name } ({ recipient.Email })"))</td>
+				<td>@email.Subject</td>
+				<td>@email.InlinedAttachments?.Count()</td>
+				<td>@email.Attachments?.Count()</td>
+				<td>@email.EventPayload</td>
+			</tr>
+			<tr class="collapse row@_emails.IndexOf(email)">
+				<td colspan="6">
+					<div class="container-fluid">
+						<h4>Text part</h4>
+						<p>@email.TextPart</p>
+						<h4>Html part</h4>
+						<p>@email.HTMLPart</p>
+						<h4>Attachments:</h4>
+						@if (email.Attachments != null)
+						{
+							@foreach (var attachment in email.Attachments)
+							{
+								<button @onclick="async () => { 
+											  await JSRuntime.InvokeAsync<object>(
+												  _downloadFunctionName,
+												  new[] {
+													  attachment.Filename,
+													  attachment.ContentType,
+													  attachment.Base64Content
+												  }
+												);
+										  }">@attachment.Filename</button><br />
+							}
+						}
+					</div>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		_emails.Clear();
+
+		string baseUrl = navigationManager.BaseUri;
+
+		_hubUrl = baseUrl.TrimEnd('/') + EmailsHub.HubUrl;
+
+		_hubConnection = new HubConnectionBuilder()
+			.WithUrl(_hubUrl)
+			.Build();
+
+		_hubConnection.On<EmailMessage>("EmailRecieved", EmailRecieved);
+
+		await _hubConnection.StartAsync();
+	}
+
+	private void EmailRecieved(EmailMessage message)
+	{
+		_emails.Add(message);
+
+		StateHasChanged();
+	}
+}

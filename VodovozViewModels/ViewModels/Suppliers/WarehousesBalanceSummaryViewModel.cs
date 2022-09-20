@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Multi;
@@ -11,6 +12,7 @@ using NHibernate.Util;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -22,6 +24,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 {
 	public class WarehousesBalanceSummaryViewModel : DialogTabViewModelBase
 	{
+		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
+		private readonly string _parameterNom = "nomenclatures";
+		private readonly string _parameterNomType = "nomenclature_type";
+		private readonly string _parameterProducGroups = "product_groups";
+		private readonly string _parameterWarehouses = "warehouses";
+		private readonly IFileDialogService _fileDialogService;
 		private SelectableParameterReportFilterViewModel _nomsViewModel;
 		private SelectableParameterReportFilterViewModel _warsViewModel;
 		private SelectableParametersReportFilter _nomsFilter;
@@ -31,9 +39,10 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private BalanceSummaryReport _report;
 
 		public WarehousesBalanceSummaryViewModel(
-			IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation)
+			IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation, IFileDialogService fileDialogService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_fileDialogService = fileDialogService;
 			TabName = "Остатки по складам";
 		}
 
@@ -99,14 +108,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			cancellationToken.ThrowIfCancellationRequested();
 			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
 
-			var nomsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == "nomenclatures");
+			var nomsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNom);
 			var noms = nomsSet?.GetIncludedParameters()?.ToList();
-			var typesSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == "nomenclature_type");
+			var typesSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomType);
 			var types = typesSet?.GetIncludedParameters()?.ToList();
-			var groupsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == "product_groups");
+			var groupsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterProducGroups);
 			var groups = groupsSet?.GetIncludedParameters()?.ToList();
 			var wars = _warsFilter.ParameterSets
-				.FirstOrDefault(ps => ps.ParameterName == "warehouses")?.GetIncludedParameters()?.ToList();
+				.FirstOrDefault(ps => ps.ParameterName == _parameterWarehouses)?.GetIncludedParameters()?.ToList();
 
 			Nomenclature nomAlias = null;
 
@@ -267,6 +276,70 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			return await new ValueTask<BalanceSummaryReport>(report);
 		}
 
+		public void ExportReport()
+		{
+			using(var wb = new XLWorkbook())
+			{
+				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
+				var ws = wb.Worksheets.Add(sheetName);
+
+				InsertValues(ws);
+				ws.Columns().AdjustToContents();
+
+				if(TryGetSavePath(out string path))
+				{
+					wb.SaveAs(path);
+				}
+			}
+		}
+
+		private bool TryGetSavePath(out string path)
+		{
+			var extension = ".xlsx";
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
+			};
+
+			dialogSettings.FileFilters.Add(new DialogFileFilter(_xlsxFileFilter, $"*{extension}"));
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			path = result.Path;
+
+			return result.Successful;
+		}
+
+		private void InsertValues(IXLWorksheet ws)
+		{
+			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "Общий остаток", "Разница" };
+			var rows = from row in Report.SummaryRows
+					   select new
+					   {
+						   row.NomId,
+						   row.NomTitle,
+						   row.Min,
+						   row.Common,
+						   row.Diff
+					   };
+			int index = 1;
+			foreach(var name in colNames)
+			{
+				ws.Cell(1, index).Value = name;
+				index++;
+			}
+			ws.Cell(2, 1).InsertData(rows);
+			AddWarehouseCloumns(ws, index);
+		}
+
+		private void AddWarehouseCloumns(IXLWorksheet ws, int startIndex)
+		{
+			for(var i = 0; i < Report.WarehousesTitles.Count; i++)
+			{
+				ws.Cell(1, startIndex + i).Value = $"{Report.WarehousesTitles[i]}";
+				ws.Cell(2, startIndex + i).InsertData(Report.SummaryRows.Select(sr => sr.Separate[i]));
+			}
+		}
+
 		private void RemoveWarehousesByFilterCondition(ref BalanceSummaryReport report, CancellationToken cancellationToken)
 		{
 			if(AllWarehouses)
@@ -312,10 +385,10 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private SelectableParameterReportFilterViewModel CreateNomsViewModel()
 		{
 			_nomsFilter = new SelectableParametersReportFilter(UoW);
-			var nomenclatureTypeParam = _nomsFilter.CreateParameterSet("Типы номенклатур", "nomenclature_type",
+			var nomenclatureTypeParam = _nomsFilter.CreateParameterSet("Типы номенклатур", _parameterNomType,
 				new ParametersEnumFactory<NomenclatureCategory>());
 
-			var nomenclatureParam = _nomsFilter.CreateParameterSet("Номенклатуры", "nomenclatures",
+			var nomenclatureParam = _nomsFilter.CreateParameterSet("Номенклатуры", _parameterNom,
 				new ParametersFactory(UoW, (filters) =>
 				{
 					SelectableEntityParameter<Nomenclature> resultAlias = null;
@@ -354,10 +427,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
 
-			_nomsFilter.CreateParameterSet("Группы товаров", "product_groups",
+			_nomsFilter.CreateParameterSet("Группы товаров", _parameterProducGroups,
 				new RecursiveParametersFactory<ProductGroup>(UoW, (filters) =>
 					{
-						var query = UoW.Session.QueryOver<ProductGroup>();
+						var query = UoW.Session.QueryOver<ProductGroup>()
+							.Where(p => p.Parent == null);
+						
 						if(filters != null && EnumerableExtensions.Any(filters))
 						{
 							foreach(var f in filters)
@@ -379,7 +454,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		{
 			_warsFilter = new SelectableParametersReportFilter(UoW);
 
-			_warsFilter.CreateParameterSet("Склады", "warehouses", new ParametersFactory(UoW, (filters) =>
+			_warsFilter.CreateParameterSet("Склады", _parameterWarehouses, new ParametersFactory(UoW, (filters) =>
 			{
 				SelectableEntityParameter<Warehouse> resultAlias = null;
 				var query = UoW.Session.QueryOver<Warehouse>().Where(x => !x.IsArchive);

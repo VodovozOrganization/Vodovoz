@@ -19,15 +19,6 @@ namespace SmsPaymentService
 
 		public SmsPaymentDTO CreateSmsPaymentDTO(IUnitOfWork uow, SmsPayment smsPayment, Order order, PaymentFrom paymentFrom)
 		{
-			if(order == null)
-			{
-				throw new ArgumentNullException(nameof(order));
-			}
-			if(!order.DeliveryDate.HasValue)
-			{
-				throw new InvalidOperationException("Order delivery date cannot be null");
-			}
-
 			var newSmsPaymentDTO = new SmsPaymentDTO
 			{
 				Recepient = smsPayment.Recepient.Name,
@@ -39,16 +30,7 @@ namespace SmsPaymentService
 				Amount = smsPayment.Amount,
 				RecepientType = smsPayment.Recepient.PersonType,
 				Items = GetCalculatedSmsPaymentItemDTOs(order.OrderItems),
-				OrganizationId =
-					_organizationProvider.GetOrganization(
-						uow,
-						PaymentType.ByCard,
-						order.SelfDelivery,
-						order.DeliveryDate.Value,
-						order.OrderItems,
-						paymentFrom,
-						order.DeliveryPoint?.District?.GeographicGroup
-					).Id
+				OrganizationId = _organizationProvider.GetOrganization(uow, order, paymentFrom, PaymentType.ByCard).Id
 			};
 
 			return newSmsPaymentDTO;

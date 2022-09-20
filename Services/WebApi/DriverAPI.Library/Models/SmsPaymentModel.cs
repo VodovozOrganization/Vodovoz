@@ -18,9 +18,9 @@ namespace DriverAPI.Library.Models
 			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
-		public SmsPaymentStatus? GetOrderPaymentStatus(int orderId)
+		public SmsPaymentStatus? GetOrderSmsPaymentStatus(int orderId)
 		{
-			return _orderRepository.GetOrderPaymentStatus(_unitOfWork, orderId);
+			return _orderRepository.GetOrderSmsPaymentStatus(_unitOfWork, orderId);
 		}
 	}
 }

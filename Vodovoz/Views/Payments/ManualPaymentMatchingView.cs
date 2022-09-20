@@ -1,16 +1,17 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
-using Vodovoz.ViewModels;
 using Gtk;
 using Vodovoz.Domain.Orders;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using System;
+using QS.Navigation;
 using Vodovoz.Infrastructure.Converters;
 using QS.Project.Search.GtkUI;
 using QS.Project.Search;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.Views
 {
@@ -32,16 +33,19 @@ namespace Vodovoz.Views
             radioBtnAllocateOrders.Active = true;
             radioBtnAllocateOrders.Toggled += RadioBtnAllocateOrdersOnToggled;
             radioBtnAllocatedOrders.Toggled += RadioBtnAllocatedOrdersOnToggled;
-            radioBtnAllocatedOrders.Binding.AddBinding(ViewModel, vm => vm.HasPaymentItems, w => w.Sensitive).InitializeFromSource();
+			radioBtnAllocatedOrders.Sensitive = ViewModel.HasPaymentItems;
 
             #endregion
 
             btnSave.Clicked += (sender, args) => ViewModel.SaveViewModelCommand.Execute();
-            btnCancel.Clicked += (sender, args) => ViewModel.CloseViewModelCommand.Execute();
-            buttonComplete.Clicked += (sender, args) => ViewModel.CompleteAllocation.Execute();
-            btnAddCounterparty.Clicked += (sender, args) => ViewModel.AddCounterpatyCommand.Execute(ViewModel.Entity);
+			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+            buttonComplete.Clicked += (sender, args) => ViewModel.CompleteAllocationCommand.Execute();
+            btnAddCounterparty.Clicked += (sender, args) => ViewModel.AddCounterpatyCommand.Execute();
+			btnAddCounterparty.Binding
+				.AddBinding(ViewModel, vm => vm.CounterpartyIsNull, w => w.Sensitive)
+				.InitializeFromSource();
             ybtnRevertPayment.Clicked += (sender, args) => ViewModel.RevertAllocatedSum.Execute();
-            ybtnRevertPayment.Binding.AddBinding(ViewModel, vm => vm.CanRevertPayFromOrder, w => w.Sensitive).InitializeFromSource();
+            ybtnRevertPayment.Binding.AddBinding(ViewModel, vm => vm.CanRevertPay, w => w.Sensitive).InitializeFromSource();
 
             daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
             daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
@@ -76,7 +80,9 @@ namespace Vodovoz.Views
             {
                 ViewModel.UpdateNodes();
                 ViewModel.GetLastBalance();
-                ViewModel.GetCounterpatyDebt();
+				ViewModel.UpdateSumToAllocate();
+				ViewModel.UpdateCurrentBalance();
+                ViewModel.GetCounterpartyDebt();
             };
 
             var searchView = new SearchView((SearchViewModel)ViewModel.Search);
@@ -120,7 +126,7 @@ namespace Vodovoz.Views
 
             yTreeViewAllocatedOrders.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelAllocatedNode>.Create()
                 .AddColumn("№ заказа")
-                    .AddTextRenderer(node => node.Id.ToString())
+                    .AddNumericRenderer(node => node.OrderId)
                     .XAlign(0.5f)
                 .AddColumn("Статус")
                     .AddEnumRenderer(node => node.OrderStatus)
@@ -128,29 +134,35 @@ namespace Vodovoz.Views
                     .AddTextRenderer(node => node.OrderDate.ToShortDateString())
                     .XAlign(0.5f)
                 .AddColumn("Сумма заказа, р.")
-                    .AddTextRenderer(node => $"{node.ActualOrderSum}")
+                    .AddNumericRenderer(node => node.OrderSum)
+					.Digits(2)
                     .XAlign(0.5f)
-                .AddColumn("Прошлая оплата, р.")
-                    .AddNumericRenderer(node => node.LastPayments)
+                .AddColumn("Полная сумма оплаты\n(в т.ч. с др платежей), р.")
+                    .AddNumericRenderer(node => node.AllAllocatedSum)
                     .Digits(2)
                     .XAlign(0.5f)
-                .AddColumn("Распределенная сумма, р.").AddNumericRenderer(node => node.AllocatedSum)
-                    .Editing()
+                .AddColumn("Распределенная сумма\n(с этого платежа), р.")
+					.AddNumericRenderer(node => node.AllocatedSum)
                     .Digits(2)
                     .XAlign(0.5f)
-                    .Adjustment(new Adjustment(0, 0, 10000000, 1, 10, 10))
-                    .AddSetter((node, cell) => ViewModel.TreeViewAllocatedSumChangedByUser(cell))
-                .AddColumn("Статус оплаты")
+				.AddColumn("Статус оплаты")
                     .AddEnumRenderer(node => node.OrderPaymentStatus)
                     .XAlign(0.5f)
+				.AddColumn("Статус распределения")
+					.AddEnumRenderer(node => node.PaymentItemStatus)
+					.XAlign(0.5f)
                 .AddColumn("")
                 .Finish();
 
             yTreeViewAllocatedOrders.ItemsDataSource = ViewModel.ListAllocatedNodes;
-            yTreeViewAllocatedOrders.Binding.AddBinding(ViewModel, vm => vm.CanRevertPayFromOrder, w => w.Sensitive).InitializeFromSource();
-        }
+            yTreeViewAllocatedOrders.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanRevertPayFromOrderPermission, w => w.Sensitive)
+				.AddBinding(vm => vm.SelectedAllocatedNode, w => w.SelectedRow)
+				.InitializeFromSource();
+		}
 
-        #region Переключение вкладок
+		#region Переключение вкладок
 
         private void RadioBtnAllocateOrdersOnToggled(object sender, EventArgs e) {
 			if (radioBtnAllocateOrders.Active)

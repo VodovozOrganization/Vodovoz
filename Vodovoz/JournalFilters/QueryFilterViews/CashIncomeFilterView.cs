@@ -3,11 +3,9 @@ using QS.RepresentationModel.GtkUI;
 using QS.Tools;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Filters;
-using Vodovoz.ViewModel;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.JournalFilters.QueryFilterViews
 {
@@ -26,13 +24,10 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			ydateperiodPicker.Binding.AddBinding(Filter, x => x.EndDate, w => w.EndDate).InitializeFromSource();
 			ydateperiodPicker.PeriodChanged += (sender, e) => Refilter();
 
-			var counterpartyFilter = new EmployeeRepresentationFilterViewModel
-			{
-				Status = Domain.Employees.EmployeeStatus.IsWorking
-			};
-			entryEmployee.RepresentationModel = new EmployeesVM(counterpartyFilter);
-			entryEmployee.Binding.AddBinding(Filter, x => x.Employee, w => w.Subject).InitializeFromSource();
-			entryEmployee.ChangedByUser += (sender, e) => Refilter();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Binding.AddBinding(Filter, x => x.Employee, w => w.Subject).InitializeFromSource();
+			evmeEmployee.ChangedByUser += (sender, e) => Refilter();
 
 			var incomeCategoryVM = new EntityCommonRepresentationModelConstructor<IncomeCategory>(UoW)
 				.AddColumn("Имя", x => x.Name).AddSearch(x => x.Name)

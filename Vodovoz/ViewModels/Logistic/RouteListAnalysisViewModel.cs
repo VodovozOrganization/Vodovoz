@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using QS.Commands;
 using QS.Project.Journal;
+using QS.ViewModels.Extension;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
@@ -28,10 +29,11 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>
+	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
@@ -44,8 +46,10 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
+		private readonly IEmployeeSettings _employeeSettings;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly ICommonServices _commonServices;
-		
+
 		#region Constructor
 
 		public RouteListAnalysisViewModel(
@@ -60,7 +64,9 @@ namespace Vodovoz.ViewModels.Logistic
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IDeliveryShiftRepository deliveryShiftRepository,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			IEmployeeSettings employeeSettings,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -69,6 +75,8 @@ namespace Vodovoz.ViewModels.Logistic
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -111,6 +119,8 @@ namespace Vodovoz.ViewModels.Logistic
 		public Employee CurrentEmployee { get; }
 
 		public RouteListItem SelectedItem { get; set; }
+
+		public bool CanEditRouteList => PermissionResult.CanUpdate;
 
 		#endregion
 
@@ -165,7 +175,10 @@ namespace Vodovoz.ViewModels.Logistic
 						employeeService,
 						_undeliveredOrdersJournalOpener,
 						_orderSelectorFactory,
-						UndeliveredOrdersRepository);
+						UndeliveredOrdersRepository,
+						_employeeSettings,
+						_subdivisionParametersProvider
+					);
 
 					dlg.TabClosed += (s,e) => UpdateTreeAddresses?.Invoke();
 					
@@ -185,6 +198,7 @@ namespace Vodovoz.ViewModels.Logistic
 					undeliveryViewOpener,
 					employeeService,
 					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+					_employeeSettings,
 					CommonServices
 				);
 
@@ -221,7 +235,8 @@ namespace Vodovoz.ViewModels.Logistic
 					undeliveryViewOpener,
 					employeeService,
 					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					UnitOfWorkFactory,
+					UnitOfWorkFactory, 
+					_employeeSettings,
 					CommonServices
 				);
 				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -273,7 +288,8 @@ namespace Vodovoz.ViewModels.Logistic
 					undeliveryViewOpener,
 					employeeService,
 					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					UnitOfWorkFactory,
+					UnitOfWorkFactory, 
+					_employeeSettings,
 					CommonServices
 				);
 				fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -325,7 +341,8 @@ namespace Vodovoz.ViewModels.Logistic
 				Entity.LogisticiansCommentAuthor = CurrentEmployee;
 		}
 
-		public void CalculateWages() =>
-			Entity.CalculateWages(_wageParameterService);
+		public void CalculateWages() => Entity.CalculateWages(_wageParameterService);
+
+		public bool AskSaveOnClose => CanEditRouteList;
 	}
 }

@@ -16,6 +16,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using QS.Attachments.ViewModels.Widgets;
+using QS.ViewModels.Extension;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -27,6 +28,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
@@ -39,14 +41,13 @@ using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
-	public class EmployeeViewModel : TabViewModelBase, ITdiDialog, ISingleUoWDialog
+	public class EmployeeViewModel : TabViewModelBase, ITdiDialog, ISingleUoWDialog, IAskSaveOnCloseViewModel
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IAuthorizationService _authorizationService;
-		private readonly ISubdivisionService _subdivisionService;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
-		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter;
 		private readonly ICommonServices _commonServices;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
@@ -55,6 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
+		private readonly IPermissionResult _employeePermissionSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
 		private bool _canChangeTraineeToDriver;
 		private bool _canRegisterMobileUser;
@@ -88,8 +90,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IEmployeePostsJournalFactory employeePostsJournalFactory,
 			ICashDistributionCommonOrganisationProvider commonOrganisationProvider,
-			ISubdivisionService subdivisionService,
-			IEmailServiceSettingAdapter emailServiceSettingAdapter,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
 			IUnitOfWorkGeneric<Employee> uowGeneric,
@@ -113,8 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
-			_subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
-			_emailServiceSettingAdapter = emailServiceSettingAdapter ?? throw new ArgumentNullException(nameof(emailServiceSettingAdapter));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
@@ -164,8 +164,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				Entity.Phones = new List<Phone>();
 			}
-			
-			SetPermissions();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
@@ -173,12 +171,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			CanRegisterMobileUser = string.IsNullOrWhiteSpace(Entity.AndroidLogin) && string.IsNullOrWhiteSpace(Entity.AndroidPassword);
 
-			var permissionResult = 
-				_commonServices.PermissionService.ValidateUserPermission(typeof(Employee), _commonServices.UserService.CurrentUserId);
-			
-			if(!permissionResult.CanRead) {
+			_employeePermissionSet = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee));
+
+			if(!_employeePermissionSet.CanRead) {
 				AbortOpening(PermissionsSettings.GetEntityReadValidateResult(typeof(Employee)));
 			}
+
+			SetPermissions();
 		}
 
 		private Employee EmployeeForCurrentUser => 
@@ -216,10 +215,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				PhonesViewModel.RemoveEmpty();
 
 				return UoWGeneric.HasChanges
-				       || !string.IsNullOrEmpty(Entity.LoginForNewUser)
-					   || (_terminalManagementViewModel?.HasChanges ?? false);
+					|| !string.IsNullOrEmpty(Entity.LoginForNewUser)
+					|| (_terminalManagementViewModel?.HasChanges ?? false);
 			}
 		}
+
+		public bool AskSaveOnClose => CanEditEmployee;
 		
 		public IPermissionResult DriverDistrictPrioritySetPermission { get; private set; }
 		public IPermissionResult DriverWorkScheduleSetPermission { get; private set; }
@@ -247,13 +248,15 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public bool CanManageDriversAndForwarders { get; private set; }
 		public bool CanManageOfficeWorkers { get; private set; }
 		public bool CanCreateNewUser => Entity.User == null && CanManageUsers;
-		public bool CanEditEmployeeCategory => Entity?.Id == 0 && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
+		public bool CanEditEmployeeCategory => Entity?.Id == 0 && (CanManageOfficeWorkers || CanManageDriversAndForwarders) && CanEditEmployee;
 		public bool CanEditWage { get; private set; }
 		public bool CanEditOrganisationForSalary { get; private set; }
+		public bool CanEditEmployee { get; private set; }
+		public bool CanReadEmployee { get; private set; }
 
 		public bool CanRegisterMobileUser
 		{
-			get => _canRegisterMobileUser;
+			get => _canRegisterMobileUser && CanEditEmployee;
 			set
 			{
 				if(SetField(ref _canRegisterMobileUser, value))
@@ -265,7 +268,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public bool IsValidNewMobileUser => !string.IsNullOrWhiteSpace(Entity.AndroidLogin)
 										 && Entity.AndroidPassword?.Length >= 3
-										 && CanRegisterMobileUser;
+										 && CanRegisterMobileUser
+										 && CanEditEmployee;
 
 		public string AddMobileLoginInfo => CanRegisterMobileUser
 			? "<span color=\"red\">Имя пользователя и пароль нельзя будет изменить!\n" +
@@ -292,9 +296,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			&& SelectedDistrictPrioritySet.DateActivated == null
 			&& SelectedDistrictPrioritySet.ObservableDriverDistrictPriorities
 				.All(x => x.District.DistrictsSet.Status == DistrictsSetStatus.Active)
-			&& _canActivateDriverDistrictPrioritySetPermission;
+			&& _canActivateDriverDistrictPrioritySetPermission
+			&& CanEditEmployee;
 		
-		public bool CanCopyDistrictPrioritySet => SelectedDistrictPrioritySet != null && DriverDistrictPrioritySetPermission.CanCreate;
+		public bool CanCopyDistrictPrioritySet => SelectedDistrictPrioritySet != null && DriverDistrictPrioritySetPermission.CanCreate && CanEditEmployee;
 		public bool CanEditDistrictPrioritySet => 
 			SelectedDistrictPrioritySet != null 
 			&& (DriverDistrictPrioritySetPermission.CanUpdate || DriverDistrictPrioritySetPermission.CanRead);
@@ -319,16 +324,16 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				if(SetField(ref _selectedEmployeeDocuments, value))
 				{
-					OnPropertyChanged(nameof(CanEditEmployeeDocument));
+					OnPropertyChanged(nameof(CanReadEmployeeDocument));
 					OnPropertyChanged(nameof(CanRemoveEmployeeDocument));
 				}
 			}
 		}
 
-		public bool CanEditEmployeeDocument => (_employeeDocumentsPermissionsSet.CanRead 
-												|| _employeeDocumentsPermissionsSet.CanUpdate) 
-											&& SelectedEmployeeDocuments.Any();
-		public bool CanRemoveEmployeeDocument => _employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any();
+		public bool CanReadEmployeeDocument => CanReadEmployeeDocuments && SelectedEmployeeDocuments.Any() && CanReadEmployee;
+		
+		public bool CanRemoveEmployeeDocument =>
+			_employeeDocumentsPermissionsSet.CanDelete && SelectedEmployeeDocuments.Any() && CanEditEmployee;
 
 		public IEnumerable<EmployeeContract> SelectedEmployeeContracts
 		{
@@ -337,18 +342,20 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				if(SetField(ref _selectedEmployeeContracts, value))
 				{
-					OnPropertyChanged(nameof(CanEditEmployeeDocument));
-					OnPropertyChanged(nameof(CanRemoveEmployeeDocument));
+					OnPropertyChanged(nameof(CanEditEmployeeContract));
+					OnPropertyChanged(nameof(CanRemoveEmployeeContract));
 				}
 			}
 		}
 		
-		public bool CanEditEmployeeContract => SelectedEmployeeContracts.Any();
-		public bool CanRemoveEmployeeContract => SelectedEmployeeContracts.Any();
+		public bool CanEditEmployeeContract => SelectedEmployeeContracts.Any() && CanEditEmployee;
+		public bool CanRemoveEmployeeContract => SelectedEmployeeContracts.Any() && CanEditEmployee;
 		
-		public bool CanCopyDriverScheduleSet => SelectedDriverScheduleSet != null && DriverWorkScheduleSetPermission.CanCreate;
+		public bool CanCopyDriverScheduleSet => SelectedDriverScheduleSet != null && DriverWorkScheduleSetPermission.CanCreate && CanEditEmployee;
 		public bool CanEditDriverScheduleSet => 
-			SelectedDriverScheduleSet != null && (DriverWorkScheduleSetPermission.CanUpdate || DriverWorkScheduleSetPermission.CanRead);
+			SelectedDriverScheduleSet != null
+			&& (DriverWorkScheduleSetPermission.CanUpdate || DriverWorkScheduleSetPermission.CanRead)
+			&& CanEditEmployee;
 
 		public DelegateCommand OpenDistrictPrioritySetCreateWindowCommand =>
 			_openDistrictPrioritySetCreateWindowCommand ?? (_openDistrictPrioritySetCreateWindowCommand = new DelegateCommand(
@@ -636,15 +643,21 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeDocumentsPermissionsSet = _commonServices.PermissionService
 				.ValidateUserPermission(typeof(EmployeeDocument), _commonServices.UserService.CurrentUserId);
 
-			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead;
-			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate;
+			var isAdmin = _commonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+			var canWorkWithOnlyDriverDocuments = _commonServices.CurrentPermissionService.ValidatePresetPermission("work_with_only_driver_documents");
+			var canWorkWithDocuments = ((Entity.Category == EmployeeCategory.driver || Entity.Category == EmployeeCategory.forwarder) && canWorkWithOnlyDriverDocuments) || !canWorkWithOnlyDriverDocuments || isAdmin;
+			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead && canWorkWithDocuments;
+			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate && canWorkWithDocuments;
+
+			CanEditEmployee = _employeePermissionSet.CanUpdate || (_employeePermissionSet.CanCreate && Entity.Id == 0);
+			CanReadEmployee = _employeePermissionSet.CanRead;
 		}
 		
 		private bool Validate() => _commonServices.ValidationService.Validate(Entity, _validationContext);
 
 		private bool TrySaveNewUser()
 		{
-			if(!string.IsNullOrEmpty(Entity.LoginForNewUser) && _emailServiceSettingAdapter.SendingAllowed)
+			if(!string.IsNullOrEmpty(Entity.LoginForNewUser))
 			{
 				if(!_authorizationService.TryToSaveUser(Entity, UoWGeneric))
 				{
@@ -673,7 +686,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
 			
-			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionService), _subdivisionService);
+			_validationContext.ServiceContainer.AddService(typeof(ISubdivisionParametersProvider), _subdivisionParametersProvider);
 			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
 			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 		}

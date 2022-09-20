@@ -19,6 +19,7 @@ namespace Vodovoz.Domain.Logistic
     [HistoryTrace]
     public class DistrictsSet : PropertyChangedBase, IDomainObject, IValidatableObject, ICloneable
     {
+	    public const int NameMaxLength = 50;
         public virtual int Id { get; set; }
 
         private string name;
@@ -96,6 +97,11 @@ namespace Vodovoz.Domain.Logistic
                 yield return new ValidationResult("Название версии должно быть обязательно заполнено",
                     new[] { this.GetPropertyName(x => x.Name) }
                 );
+            }
+            if(Name?.Length > NameMaxLength) {
+	            yield return new ValidationResult($"Превышена максимально допустимая длина названия версии ({Name.Length}/{NameMaxLength})",
+		            new[] { nameof(Name) }
+	            );
             }
             const int commentLength = 500;
             if(Comment?.Length > commentLength) {

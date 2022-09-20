@@ -11,6 +11,7 @@ namespace Vodovoz.HibernateMapping.Payments
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Sum).Column("sum");
+			Map(x => x.PaymentItemStatus).Column("payment_item_status").CustomType<AllocationStatusStringType>();
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.Payment).Column("payment_id");

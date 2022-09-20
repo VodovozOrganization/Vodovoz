@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -10,18 +11,23 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -29,24 +35,29 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
-	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>
+	public class ComplaintViewModel : EntityTabViewModelBase<Complaint>, IAskSaveOnCloseViewModel
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		private readonly IFilePickerService _filePickerService;
-		private readonly ISubdivisionRepository _subdivisionRepository;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
 		private DelegateCommand _changeDeliveryPointCommand;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly IEmployeeSettings _employeeSettings;
+		private readonly IComplaintResultsRepository _complaintResultsRepository;
+
+		private readonly bool _canAddGuiltyInComplaintsPermissionResult;
+		private readonly bool _canCloseComplaintsPermissionResult;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public IFileDialogService FileDialogService { get; }
+		public ISubdivisionRepository SubdivisionRepository { get; }
 		public IEmployeeService EmployeeService { get; }
 		public INomenclatureRepository NomenclatureRepository { get; }
 		public IUserRepository UserRepository { get; }
-		
+
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
@@ -54,33 +65,37 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IFilePickerService filePickerService,
+			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
-			IEmployeeJournalFactory driverJournalFactory, 
+			IEmployeeJournalFactory driverJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureSelectorFactory nomenclatureSelector,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(uowBuilder, uowFactory, commonServices)
+			INomenclatureJournalFactory nomenclatureSelector,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IEmployeeSettings employeeSettings,
+			IComplaintResultsRepository complaintResultsRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
-			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
-			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+			FileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
@@ -89,6 +104,7 @@ namespace Vodovoz.ViewModels.Complaints
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			UndeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
@@ -111,7 +127,22 @@ namespace Vodovoz.ViewModels.Complaints
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
 
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
+
+			_canAddGuiltyInComplaintsPermissionResult = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints");
+			_canCloseComplaintsPermissionResult =  CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
+
+			if(Entity.ComplaintResultOfEmployees != null && Entity.ComplaintResultOfEmployees.IsArchive)
+			{
+				ComplaintResultsOfEmployees =
+					_complaintResultsRepository.GetActiveResultsOfEmployeesWithSelectedResult(UoW, Entity.ComplaintResultOfEmployees.Id);
+			}
+			else
+			{
+				ComplaintResultsOfEmployees = _complaintResultsRepository.GetActiveResultsOfEmployees(UoW);
+			}
 		}
+
+		public bool AskSaveOnClose => CanEdit;
 
 		protected void ConfigureEntityChangingRelations()
 		{
@@ -181,16 +212,10 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		public virtual ComplaintStatuses Status {
+		public virtual ComplaintStatuses Status
+		{
 			get => Entity.Status;
-			set {
-				var msg = Entity.SetStatus(value);
-				if(!msg.Any())
-					Entity.ActualCompletionDate = value == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
-				else
-					ShowWarningMessage(string.Join<string>("\n", msg), "Не удалось закрыть");
-				OnPropertyChanged(() => Status);
-			}
+			set => Entity.SetStatus(value);
 		}
 
 		private ComplaintDiscussionsViewModel discussionsViewModel;
@@ -201,7 +226,7 @@ namespace Vodovoz.ViewModels.Complaints
 						Entity,
 						this,
 						UoW,
-						_filePickerService,
+						FileDialogService,
 						EmployeeService,
 						CommonServices,
 						_employeeSelectorFactory,
@@ -222,7 +247,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, SubdivisionRepository, _employeeSelectorFactory, SubdivisionParametersProvider);
 				}
 
 				return guiltyItemsViewModel;
@@ -237,7 +262,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(filesViewModel == null)
 				{
-					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _filePickerService, CommonServices, UserRepository);
+					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, FileDialogService, CommonServices, UserRepository);
 				}
 				return filesViewModel;
 			}
@@ -249,7 +274,8 @@ namespace Vodovoz.ViewModels.Complaints
 					.Where(x => x.Status == ComplaintStatuses.InProcess)
 					.Where(x => !string.IsNullOrWhiteSpace(x.Subdivision?.ShortName))
 					.Select(x => x.Subdivision.ShortName));
-				string okk = (!Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess) && Status != ComplaintStatuses.Closed) ? "OKK" : null;
+				string okk = (!Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess)
+							&& Status != ComplaintStatuses.Closed) ? "OKK" : null;
 				string result;
 				if(!string.IsNullOrWhiteSpace(inWork) && !string.IsNullOrWhiteSpace(okk)) {
 					result = string.Join(", ", inWork, okk);
@@ -277,15 +303,29 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		private List<ComplaintResult> complaintResults;
-		public IEnumerable<ComplaintResult> ComplaintResults {
-			get {
-				if(complaintResults == null) {
-					complaintResults = UoW.GetAll<ComplaintResult>().ToList();
+		private IEnumerable<ComplaintResultOfCounterparty> _complaintResults;
+		public IEnumerable<ComplaintResultOfCounterparty> ComplaintResultsOfCounterparty
+		{
+			get
+			{
+				if(_complaintResults == null)
+				{
+					if(Entity.ComplaintResultOfCounterparty != null && Entity.ComplaintResultOfCounterparty.IsArchive)
+					{
+						_complaintResults =
+							_complaintResultsRepository.GetActiveResultsOfCounterpartyWithSelectedResult(
+								UoW, Entity.ComplaintResultOfCounterparty.Id);
+					}
+					else
+					{
+						_complaintResults = _complaintResultsRepository.GetActiveResultsOfCounterparty(UoW);
+					}
 				}
-				return complaintResults;
+				return _complaintResults;
 			}
 		}
+
+		public IEnumerable<ComplaintResultOfEmployees> ComplaintResultsOfEmployees { get; }
 
 		IList<ComplaintKind> complaintKindSource;
 
@@ -320,17 +360,13 @@ namespace Vodovoz.ViewModels.Complaints
 		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 
 		public bool IsInnerComplaint => Entity.ComplaintType == ComplaintType.Inner;
-
 		public bool IsClientComplaint => Entity.ComplaintType == ComplaintType.Client;
-
-		[PropertyChangedAlso(nameof(CanAddFine), nameof(CanAttachFine))]
+		[PropertyChangedAlso(nameof(CanAddFine), nameof(CanAttachFine), nameof(CanSelectDeliveryPoint),
+			nameof(CanAddGuilty), nameof(CanClose))]
 		public bool CanEdit => PermissionResult.CanUpdate;
-
-		public bool CanAddGuilty => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_guilty_in_complaints");
-		public bool CanClose => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
-
-		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
-
+		public bool CanAddGuilty => CanEdit && _canAddGuiltyInComplaintsPermissionResult;
+		public bool CanClose => CanEdit && _canCloseComplaintsPermissionResult;
+		public bool CanSelectDeliveryPoint => CanEdit && Entity.Counterparty != null;
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 
@@ -358,6 +394,7 @@ namespace Vodovoz.ViewModels.Complaints
 						EmployeeService,
 						_employeeSelectorFactory,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+						_employeeSettings,
 						CommonServices
 					);
 					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -391,6 +428,7 @@ namespace Vodovoz.ViewModels.Complaints
 						_undeliveryViewOpener,
 						EmployeeService,
 						_employeeSelectorFactory,
+						_employeeSettings,
 						CommonServices
 					);
 					fineViewModel.FineReasonString = Entity.GetFineReason();
@@ -407,7 +445,7 @@ namespace Vodovoz.ViewModels.Complaints
 		#endregion AddFineCommand
 
 		#region ChangeDeliveryPointCommand
-		
+
 		public DelegateCommand ChangeDeliveryPointCommand => _changeDeliveryPointCommand ?? (_changeDeliveryPointCommand =
 			new DelegateCommand(() =>
 				{
@@ -418,7 +456,7 @@ namespace Vodovoz.ViewModels.Complaints
 				},
 				() => true
 			));
-			
+
 		#endregion ChangeDeliveryPointCommand
 
 		#endregion Commands
@@ -431,7 +469,23 @@ namespace Vodovoz.ViewModels.Complaints
 		public IGtkTabsOpener GtkDialogsOpener { get; }
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
 		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
-		public INomenclatureSelectorFactory NomenclatureSelector { get; }
+		public INomenclatureJournalFactory NomenclatureSelector { get; }
+		public ISubdivisionParametersProvider SubdivisionParametersProvider { get; set; }
+
+		public void CloseComplaint(ComplaintStatuses status)
+		{
+			var msg = Entity.SetStatus(status);
+			if(!msg.Any())
+			{
+				Entity.ActualCompletionDate = status == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
+			}
+			else
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,string.Join<string>("\n", msg), "Не удалось закрыть");
+			}
+			OnPropertyChanged(nameof(Status));
+		}
 
 		public override void Close(bool askSave, CloseSource source)
 		{
@@ -440,7 +494,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				return;
 			}
-			
+
 			base.Close(askSave, source);
 		}
 
@@ -451,7 +505,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				return false;
 			}
-			
+
 			return base.Save(close);
 		}
 

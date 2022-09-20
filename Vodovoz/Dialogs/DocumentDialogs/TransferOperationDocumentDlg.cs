@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -55,16 +52,16 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			datepickerDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 
-			var counterpartyFilter = new CounterpartyFilter(UoW);
-			referenceCounterpartyFrom.SetEntitySelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
+			var clientFactory = new CounterpartyJournalFactory();
+			referenceCounterpartyFrom.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
-			counterpartyFilter = new CounterpartyFilter(UoW);
-			referenceCounterpartyTo.SetEntitySelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
+			referenceCounterpartyTo.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
-			repEntryEmployee.RepresentationModel = new EmployeesVM();
-			repEntryEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			transferoperationdocumentitemview1.DocumentUoW = UoWGeneric;
 
@@ -133,7 +130,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(bottlesRepository == null)
 				throw new ArgumentNullException(nameof(bottlesRepository));
 
-			int bottlesMax = bottlesRepository.GetBottlesAtCouterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, Entity.TimeStamp);
+			int bottlesMax = bottlesRepository.GetBottlesDebtAtCouterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, Entity.TimeStamp);
 			decimal depositsBottlesMax = depositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Bottles, Entity.TimeStamp);
 			decimal depositsEquipmentMax = depositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Equipment, Entity.TimeStamp);
 

@@ -1,58 +1,12 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Logistic
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "точки трека",
 		Nominative = "точка трека")]
-	public class TrackPoint : PropertyChangedBase
+	public class TrackPoint : TrackPointBase
 	{
-		Track track;
-
-		[Display (Name = "Трек")]
-		public virtual Track Track {
-			get { return track; }
-			set { SetField (ref track, value, () => Track); }
-		}
-
-		Double latitude;
-
-		[Display (Name = "Широта")]
-		public virtual Double Latitude {
-			get { return latitude; }
-			set { SetField (ref latitude, value, () => Latitude); }
-		}
-
-		Double longitude;
-
-		[Display (Name = "Долгота")]
-		public virtual Double Longitude {
-			get { return longitude; }
-			set { SetField (ref longitude, value, () => Longitude); }
-		}
-			
-		DateTime timeStamp;
-
-		[Display (Name = "Время")]
-		public virtual DateTime TimeStamp {
-			get { return timeStamp; }
-			set { SetField (ref timeStamp, value, () => TimeStamp); }
-		}
-
-		public override bool Equals (object obj)
-		{
-			var tp = obj as TrackPoint;
-			if (tp != null) {
-				return DomainHelper.EqualDomainObjects (tp.Track, this.Track) && tp.TimeStamp == this.TimeStamp;
-			}
-			return false;
-		}
-
-		public override int GetHashCode ()
-		{
-			return this.TimeStamp.GetHashCode () ^ this.Track.Id.GetHashCode ();
-		}
+		
 	}
 }

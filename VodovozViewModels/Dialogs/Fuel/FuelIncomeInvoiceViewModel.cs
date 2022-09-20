@@ -18,6 +18,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
@@ -25,17 +26,17 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 	public class FuelIncomeInvoiceViewModel : EntityTabViewModelBase<FuelIncomeInvoice>
 	{
 		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IFuelRepository fuelRepository;
 		private readonly ICounterpartyJournalFactory counterpartyJournalFactory;
 
 		public FuelIncomeInvoiceViewModel
 		(
-			IEntityUoWBuilder uowBuilder, 
+			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -87,10 +88,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			UpdateBalanceCache();
 		}
 
-		protected override void BeforeSave()
+		protected override bool BeforeSave()
 		{
 			Entity.UpdateOperations(fuelRepository);
-			base.BeforeSave();
+			return base.BeforeSave();
 		}
 
 		#region Properties
@@ -160,7 +161,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		{
 			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; private set; }
 
 		#endregion Entries

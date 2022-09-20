@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Services;
+using QS.Utilities.Extensions;
 using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.Mango
 		private MangoManager MangoManager { get; set; }
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -66,6 +68,7 @@ namespace Vodovoz.ViewModels.Mango
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IParametersProvider parametersProvider,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			int count = 5)
 		{
 			Client = client;
@@ -77,6 +80,7 @@ namespace Vodovoz.ViewModels.Mango
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -162,7 +166,7 @@ namespace Vodovoz.ViewModels.Mango
 							_employeeRepository,
 							new BaseParametersProvider(_parametersProvider),
 							ServicesConfig.CommonServices.UserService,
-							SingletonErrorReporter.Instance);
+							ErrorReporter.Instance);
 
 			if(order.OrderStatus == OrderStatus.InTravelList)
 			{
@@ -170,7 +174,8 @@ namespace Vodovoz.ViewModels.Mango
 				ValidationContext validationContext = new ValidationContext(order, null, new Dictionary<object, object> {
 					{ "NewStatus", OrderStatus.Canceled },
 				});
-				validationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), _orderParametersProvider);
+				validationContext.ServiceContainer.AddService(_orderParametersProvider);
+				validationContext.ServiceContainer.AddService(_deliveryRulesParametersProvider);
 				if(!ServicesConfig.ValidationService.Validate(order, validationContext))
 				{
 					return;
@@ -184,7 +189,7 @@ namespace Vodovoz.ViewModels.Mango
 					if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
 						routeListItem.RouteList.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Canceled);
 						routeListItem.StatusLastUpdate = DateTime.Now;
-						routeListItem.FillCountsOnCanceled();
+						routeListItem.SetOrderActualCountsToZeroOnCanceled();
 						UoW.Save(routeListItem.RouteList);
 						UoW.Save(routeListItem);
 					}

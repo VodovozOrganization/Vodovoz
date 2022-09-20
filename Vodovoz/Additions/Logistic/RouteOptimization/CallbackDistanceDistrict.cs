@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Google.OrTools.ConstraintSolver;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -78,7 +80,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 #if DEBUG
 				SGoToBase[Trip]++;
 #endif
-				return distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase);
+				var firstOrder = Nodes[first_index - 1];
+				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
+				return distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint, firstBaseVersion);
 			}
 
 			bool fromExistRoute = false;
@@ -135,9 +139,15 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			//Возвращаем расстояние в метрах либо от базы до первого адреса, либо между адресами.
 			if(first_index == 0)
-				distance += distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint);
+			{
+				var firstOrder = Nodes[second_index - 1];
+				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
+				distance += distanceCalculator.DistanceFromBaseMeter(firstBaseVersion, Nodes[second_index - 1].Order.DeliveryPoint);
+			}
 			else
+			{
 				distance += distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
+			}
 
 			return distance + fixedAddressPenality;
 		}
@@ -145,8 +155,25 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		private long GetSimpleDistance(int first_index, int second_index)
 		{
 			if(first_index == 0)//РАССТОЯНИЯ ПРЯМЫЕ без учета дорожной сети.
-				return (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+			{
+				var firstOrder = Nodes[second_index - 1];
+				var firstBaseVersion = GetGroupVersion(firstOrder.ShippingBase, firstOrder.Order.DeliveryDate.Value);
+
+				return (long)(DistanceCalculator.GetDistanceFromBase(firstBaseVersion, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+			}
 			return (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+		}
+
+
+		private GeoGroupVersion GetGroupVersion(GeoGroup geoGroup, DateTime date)
+		{
+			var version = geoGroup.GetVersionOrNull(date);
+			if(version == null)
+			{
+				throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать расстояние, так как на {date} у части города ({geoGroup.Name}) нет актуальных данных."); ;
+			}
+
+			return version;
 		}
 	}
 }

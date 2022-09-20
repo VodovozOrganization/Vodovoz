@@ -8,7 +8,6 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSBanks;
-using QSBanks.Repositories;
 using Vodovoz.Domain.Contacts;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -16,6 +15,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.LoadFrom1c;
 using QS.Project.Repositories;
 using QS.Banks.Domain;
+using QS.Banks.Repositories;
 using QS.Project.Services;
 
 namespace Vodovoz.ServiceDialogs
@@ -468,7 +468,7 @@ namespace Vodovoz.ServiceDialogs
 
 			var commentAttr = node.Attributes["Комментариий"];
 			if(commentAttr != null) {
-				deliveryPoint.АddressAddition = commentAttr.Value;
+				deliveryPoint.Comment = commentAttr.Value;
 			}
 
 

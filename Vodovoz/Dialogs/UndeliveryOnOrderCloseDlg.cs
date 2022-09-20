@@ -20,6 +20,7 @@ namespace Vodovoz.Dialogs
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly ISmsNotifierParametersProvider _smsNotifierParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private bool _addedCommentToOldUndelivery;
 
 		UndeliveredOrder undelivery;
 		Order order;
@@ -55,12 +56,25 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			if(Save() && undelivery.NewOrder != null
-			          && undelivery.OrderTransferType == TransferType.AutoTransferNotApproved
-			          && undelivery.NewOrder.OrderStatus != OrderStatus.Canceled)
+			var saved = Save();
+
+			if(!saved && _addedCommentToOldUndelivery)
+			{
+				DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery));
+				return;
+			}
+			if(!saved)
+			{
+				return;
+			}
+
+			if(undelivery.NewOrder != null
+				&& undelivery.OrderTransferType == TransferType.AutoTransferNotApproved
+				&& undelivery.NewOrder.OrderStatus != OrderStatus.Canceled)
 			{
 				ProcessSmsNotification();
 			}
+
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery));
 		}
 
@@ -99,8 +113,12 @@ namespace Vodovoz.Dialogs
 		{
 			var otherUndelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, order).FirstOrDefault();
 			if(otherUndelivery == null)
+			{
 				return true;
+			}
+
 			otherUndelivery.AddCommentToTheField(UoW, CommentedFields.Reason, undelivery.GetUndeliveryInfo(_orderRepository));
+			_addedCommentToOldUndelivery = true;
 			return false;
 		}
 

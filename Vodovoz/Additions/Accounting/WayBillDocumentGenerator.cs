@@ -1,4 +1,4 @@
-using QSReport;
+﻿using QSReport;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
@@ -23,363 +23,409 @@ using QS.Print;
 using QSDocTemplates;
 using QS.DocTemplates;
 using System.IO;
+using NHibernate;
+using NHibernate.Transform;
 using QS.Dialog.GtkUI;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Additions.Accounting
 {
-    public class WayBillDocumentGenerator : PropertyChangedBase, IDomainObject
-    {
-        private readonly IWayBillDocumentRepository _wayBillDocumentRepository;
-        private readonly RouteGeometryCalculator _distanceCalculator;
-        private readonly IDocTemplateRepository _docTemplateRepository;
+	public class WayBillDocumentGenerator : PropertyChangedBase
+	{
+		private readonly IWayBillDocumentRepository _wayBillDocumentRepository;
+		private readonly RouteGeometryCalculator _distanceCalculator;
+		private readonly IDocTemplateRepository _docTemplateRepository;
+		private readonly IUnitOfWork _uow;
 
-        public WayBillDocumentGenerator(
-	        IUnitOfWork unitOfWork,
-	        IWayBillDocumentRepository repository,
-	        RouteGeometryCalculator calculator,
-	        IDocTemplateRepository docTemplateRepository)
-        {
-            uow = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-            _wayBillDocumentRepository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _distanceCalculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
-            _docTemplateRepository = docTemplateRepository ?? throw new ArgumentNullException(nameof(docTemplateRepository));
-            DocPrinterInit();
-        }
+		private string _mechanicFIO;
+		private string _mechanicLastName;
+		private DateTime _startDate;
+		private DateTime _endDate;
+		private bool _cancelPrinting;
 
-        public int Id { get; }
+		private readonly TimeSpan[,] _timeSpans =
+		{
+			{
+				TimeSpan.FromHours(9),
+				TimeSpan.FromHours(18)
+			},
+			{
+				TimeSpan.FromHours(11),
+				TimeSpan.FromHours(21)
+			},
+			{
+				TimeSpan.FromHours(14),
+				TimeSpan.FromHours(23)
+			}
+		};
 
-        string mechanicFIO;
-        public string MechanicFIO
-        {
-            get => mechanicFIO;
-            set => SetField(ref mechanicFIO, value);
-        }
+		public WayBillDocumentGenerator(
+			IUnitOfWork unitOfWork,
+			IWayBillDocumentRepository repository,
+			RouteGeometryCalculator calculator,
+			IDocTemplateRepository docTemplateRepository)
+		{
+			_uow = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_wayBillDocumentRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_distanceCalculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
+			_docTemplateRepository = docTemplateRepository ?? throw new ArgumentNullException(nameof(docTemplateRepository));
+			DocPrinterInit();
+		}
 
-        string mechanicLastName;
-        public string MechanicLastName
-        {
-            get => mechanicLastName;
-            set => SetField(ref mechanicLastName, value);
-        }
+		public string MechanicFIO
+		{
+			get => _mechanicFIO;
+			set => SetField(ref _mechanicFIO, value);
+		}
 
-        IUnitOfWork uow;
+		public string MechanicLastName
+		{
+			get => _mechanicLastName;
+			set => SetField(ref _mechanicLastName, value);
+		}
 
-        #region Events
+		public event EventHandler PrintingCanceled;
 
-        public event EventHandler DocumentsPrinted;
-        public event EventHandler PrintingCanceled;
+		public GenericObservableList<SelectablePrintDocument> WayBillSelectableDocuments { get; set; }
+			= new GenericObservableList<SelectablePrintDocument>();
 
-        #endregion
+		public DateTime StartDate
+		{
+			get => _startDate;
+			set => SetField(ref _startDate, value);
+		}
 
-        #region Properties
-        public GenericObservableList<SelectablePrintDocument> WayBillSelectableDocuments { get; set; } =
-            new GenericObservableList<SelectablePrintDocument>();
-        
-        private TimeSpan[,] timeSpans = {
-            {
-                TimeSpan.FromHours(9),
-                TimeSpan.FromHours(18)
-            },
-            {
-                TimeSpan.FromHours(11),
-                TimeSpan.FromHours(21)
-            },
-            {
-                TimeSpan.FromHours(14),
-                TimeSpan.FromHours(23)
-            },
-        };
+		public DateTime EndDate
+		{
+			get => _endDate;
+			set => SetField(ref _endDate, value);
+		}
 
+		public static PrintSettings PrinterSettings { get; set; }
+		public string ODTTemplateNotFoundMessages { get; set; }
+		public MultipleDocumentPrinter MultiDocPrinter { get; set; }
 
-        private DateTime startDate;
-        public DateTime StartDate {
-            get => startDate;
-            set => SetField(ref startDate, value);
-        }
+		#region Printing
 
-        private DateTime endDate;
-        public DateTime EndDate {
-            get => endDate;
-            set => SetField(ref endDate, value);
-        }
-        #endregion
+		private void DocPrinterInit()
+		{
+			MultiDocPrinter = new MultipleDocumentPrinter
+			{
+				PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(WayBillSelectableDocuments)
+			};
+			MultiDocPrinter.PrintingCanceled += (o, args) => PrintingCanceled?.Invoke(o, args);
+		}
 
-        #region Printing
+		public void PrintSelected(SelectablePrintDocument document = null)
+		{
+			if(Environment.OSVersion.Platform != PlatformID.MacOSX && Environment.OSVersion.Platform != PlatformID.Unix)
+			{
+				var settingsOperaation = new PrintOperation();
+				settingsOperaation.Run(PrintOperationAction.PrintDialog, null);
+				PrinterSettings = settingsOperaation.PrintSettings;
+			}
 
-        public static PrintSettings PrinterSettings { get; set; }
-        bool cancelPrinting = false;
-        public string ODTTemplateNotFoundMessages { get; set; }
-        
-        public MultipleDocumentPrinter MultiDocPrinter { get; set; }
-        
-        void DocPrinterInit()
-        {
-            MultiDocPrinter = new MultipleDocumentPrinter {
-                PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(WayBillSelectableDocuments)
-            };
-            MultiDocPrinter.PrintingCanceled += (o, args) => PrintingCanceled?.Invoke(o, args);
-        }
-        
-        public void PrintSelected(SelectablePrintDocument document = null)
-        {
-            if (Environment.OSVersion.Platform != PlatformID.MacOSX && Environment.OSVersion.Platform != PlatformID.Unix)
-            {
-                var settingsOperaation = new PrintOperation();
-                settingsOperaation.Run(PrintOperationAction.PrintDialog, null);
-                PrinterSettings = settingsOperaation.PrintSettings;
-            }
+			if(!_cancelPrinting)
+			{
+				MultiDocPrinter.PrinterSettings = PrinterSettings;
+				if(document == null)
+				{
+					MultiDocPrinter.PrintSelectedDocuments();
+				}
+				else
+				{
+					MultiDocPrinter.PrintDocument(document);
+				}
+				PrinterSettings = MultiDocPrinter.PrinterSettings;
+			}
+			else
+			{
+				PrintingCanceled?.Invoke(this, EventArgs.Empty);
+			}
+		}
 
-            if (!cancelPrinting) {
-                MultiDocPrinter.PrinterSettings = PrinterSettings;
-                if(document == null)
-                    MultiDocPrinter.PrintSelectedDocuments();
-                else
-                    MultiDocPrinter.PrintDocument(document);
-                PrinterSettings = MultiDocPrinter.PrinterSettings;
-            } else 
-                PrintingCanceled?.Invoke(this, new EventArgs());
-        }
+		public void PrintDocuments()
+		{
+			if(WayBillSelectableDocuments.Count == WayBillSelectableDocuments.Count(x => x.Document is WayBillDocument))
+			{
+				QSMain.WaitRedraw();
 
-        public void PrintDocuments()
-        {
-            if (WayBillSelectableDocuments.Count == WayBillSelectableDocuments.Count(x => x.Document is WayBillDocument))
-            {
-                QSMain.WaitRedraw();
+				PrintingCanceled += (sender, args) => { _cancelPrinting = true; };
 
-                PrintingCanceled += (sender, args) =>
-                {
-                    cancelPrinting = true;
-                };
-                
-                PrintSelected();
-                if (!string.IsNullOrEmpty(ODTTemplateNotFoundMessages))
-                {
-                    MessageDialogHelper.RunWarningDialog(ODTTemplateNotFoundMessages);
-                }
-            }
-        }
+				PrintSelected();
+				if(!string.IsNullOrEmpty(ODTTemplateNotFoundMessages))
+				{
+					MessageDialogHelper.RunWarningDialog(ODTTemplateNotFoundMessages);
+				}
+			}
+		}
 
-        #endregion
+		#endregion
 
-        #region Generation
-        public void GenerateDocuments()
-        {
-            WayBillSelectableDocuments.Clear();
+		#region Generation
 
-            var manOfficialWithCarEmployeers = uow.Session.QueryOver<Employee>()
-                .Where(x => x.Gender == Gender.male)
-                .WhereStringIsNotNullOrEmpty(x => x.DrivingLicense)
-                .And(x => x.Registration == RegistrationType.LaborCode)
-                .List();
-            
-            var cars = uow.Session.QueryOver<Car>()
-                .And(Restrictions.On<Car>(x => x.TypeOfUse)
-                    .IsIn(new[] {CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyGAZelle}))
-                .List<Car>();
-            
-            //Распределяем автомобили на сотрудников
-            var employeeToCars = new Dictionary<Employee, Car>();
-            Stack<Car> carsStack = new Stack<Car>(cars);
-            
-            if (cars.Count < manOfficialWithCarEmployeers.Count)
-            {
-                MessageDialogHelper.RunWarningDialog("Количество водителей больше количества автомобилей");
-                return;
-            }
-            
-            foreach (var employee in manOfficialWithCarEmployeers)
-                employeeToCars[employee] = carsStack.Pop();
-            
-            var randomizer = new Random();
+		public void GenerateDocuments()
+		{
+			WayBillSelectableDocuments.Clear();
 
-            foreach (var day in startDate.Range(endDate)) {
-                var currentDayOrders = _wayBillDocumentRepository.GetOrdersForWayBillDocuments(uow, day, day.AddHours(23).AddMinutes(59).AddSeconds(59));
+			var manOfficialWithCarEmployeers = _uow.Session.QueryOver<Employee>()
+				.Where(x => x.Gender == Gender.male)
+				.WhereStringIsNotNullOrEmpty(x => x.DrivingLicense)
+				.And(x => x.Registration == RegistrationType.LaborCode)
+				.List();
 
-                foreach (var employeeToCarPair in employeeToCars)
-                {
-                    var routesCount = Math.Min(randomizer.Next(12, 15), currentDayOrders.Count);
-                    var randomTimeInterval = GenerateRandomRouteTime();
-                    GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, day, randomTimeInterval, employeeToCarPair.Key, employeeToCarPair.Value );
-                    
-                    currentDayOrders = currentDayOrders.Skip(routesCount).ToList();
-                }
-            }
-        }
+			Car carAlias = null;
+			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
+			CarNode resultAlias = null;
+			var currentDateTime = DateTime.Now;
 
-        private void GenerateWayBill(IList<Order> orders, int waypointsCount, DateTime generationDate, TimeSpan[] timeInterval, Employee employee, Car car)
-        {
-            var wayBillDocument = new WayBillDocument();
+			var carNodes = _uow.Session.QueryOver<Car>(() => carAlias)
+				.Inner.JoinAlias(c => c.CarModel, () => carModelAlias)
+				.JoinEntityAlias(() => carVersionAlias,
+					() => carVersionAlias.Car.Id == carAlias.Id
+						&& carVersionAlias.StartDate <= currentDateTime &&
+						(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= currentDateTime))
+				.Where(() => carVersionAlias.CarOwnType == CarOwnType.Company)
+				.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse),
+					new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle }))
+				.SelectList(list => list
+					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.RegistrationNumber)
+					.Select(() => carAlias.FuelType).WithAlias(() => resultAlias.FuelType)
+					.Select(() => carAlias.FuelConsumption).WithAlias(() => resultAlias.FuelConsumption)
+					.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
+					.Select(() => carAlias.DocPTSSeries).WithAlias(() => resultAlias.DocPTSSeries)
+					.Select(() => carAlias.DocPTSNumber).WithAlias(() => resultAlias.DocPTSNumber))
+				.TransformUsing(Transformers.AliasToBean<CarNode>())
+				.List<CarNode>();
 
-            if (orders.IsEmpty())
-            {
-                return;
-            }
+			//Распределяем автомобили на сотрудников
+			var employeeToCars = new Dictionary<Employee, CarNode>();
+			Stack<CarNode> carsStack = new Stack<CarNode>(carNodes);
 
-            var orderEnumerator = orders.GetEnumerator();
+			if(carNodes.Count < manOfficialWithCarEmployeers.Count)
+			{
+				MessageDialogHelper.RunWarningDialog("Количество водителей больше количества автомобилей");
+				return;
+			}
 
-            for (var i = 0; orderEnumerator.MoveNext() == true && i < waypointsCount; i++)
-            {
-                var wayBillDocumentItem = new WayBillDocumentItem()
-                {
-                    CounterpartyName = orderEnumerator.Current.Client.Name,
-                    DriverLastName = employee.LastName,
-                    HoursFrom = timeInterval[0],
-                    HoursTo = timeInterval[1],
-                    AddressTo = orderEnumerator.Current.DeliveryPoint.ShortAddress
-                };
+			foreach(var employee in manOfficialWithCarEmployeers)
+			{
+				employeeToCars[employee] = carsStack.Pop();
+			}
 
-                wayBillDocument.WayBillDocumentItems.Add(wayBillDocumentItem);
-            }
+			var randomizer = new Random();
 
-            wayBillDocument.WayBillDocumentItems.First().AddressFrom = employee.Subdivision.Name;
+			foreach(var day in _startDate.Range(_endDate))
+			{
+				var currentDayOrders =
+					_wayBillDocumentRepository.GetOrdersForWayBillDocuments(_uow, day, day.AddHours(23).AddMinutes(59).AddSeconds(59));
 
-            wayBillDocument.WayBillDocumentItems.Last().AddressTo = employee.Subdivision.Name;
+				foreach(var employeeToCarPair in employeeToCars)
+				{
+					var routesCount = Math.Min(randomizer.Next(12, 15), currentDayOrders.Count);
+					var randomTimeInterval = GenerateRandomRouteTime();
+					GenerateWayBill(currentDayOrders.Take(routesCount).ToList(), routesCount, day, randomTimeInterval,
+						employeeToCarPair.Key, employeeToCarPair.Value);
 
-            var waybillItemsEnumerator = wayBillDocument.WayBillDocumentItems.GetEnumerator();
+					currentDayOrders = currentDayOrders.Skip(routesCount).ToList();
+				}
+			}
+		}
 
-            string lastAddressTo = "";
+		private void GenerateWayBill(IList<Order> orders, int waypointsCount, DateTime generationDate, TimeSpan[] timeInterval,
+			Employee employee, CarNode carNode)
+		{
+			var wayBillDocument = new WayBillDocument();
 
-            orderEnumerator.Reset();
-            DeliveryPoint deliveryPointFrom = null;
+			if(orders.IsEmpty())
+			{
+				return;
+			}
 
-            var lastId = wayBillDocument.WayBillDocumentItems.Count - 2;
-            for (var i = 0; waybillItemsEnumerator.MoveNext() == true && orderEnumerator.MoveNext() == true; i++)
-            {
-                if (i != 0 && i != waypointsCount)
-                {
-                    waybillItemsEnumerator.Current.AddressFrom = lastAddressTo;
-                }
-                lastAddressTo = waybillItemsEnumerator.Current.AddressTo;
-                waybillItemsEnumerator.Current.SequenceNumber = i + 1;
+			for(var i = 0; i < orders.Count && i < waypointsCount; i++)
+			{
+				var order = orders[i];
+				var wayBillDocumentItem = new WayBillDocumentItem
+				{
+					CounterpartyName = order.Client.Name,
+					DriverLastName = employee.LastName,
+					HoursFrom = timeInterval[0],
+					HoursTo = timeInterval[1],
+					AddressTo = order.DeliveryPoint.ShortAddress
+				};
 
-                if (i == 0)
-                {
-                    waybillItemsEnumerator.Current.Mileage =
-                        _distanceCalculator.DistanceFromBaseMeter(employee.Subdivision.GeographicGroup, orderEnumerator.Current.DeliveryPoint) * 2 / 1000;
+				wayBillDocument.WayBillDocumentItems.Add(wayBillDocumentItem);
+			}
 
-                    wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
-                    deliveryPointFrom = orderEnumerator.Current.DeliveryPoint;
-                }
-                else if (i == lastId)
-                {
-                    waybillItemsEnumerator.Current.Mileage = _distanceCalculator.DistanceToBaseMeter(orderEnumerator.Current.DeliveryPoint,
-                        employee.Subdivision.GeographicGroup) * 2 / 1000;
+			wayBillDocument.WayBillDocumentItems.First().AddressFrom = employee.Subdivision.Name;
+			wayBillDocument.WayBillDocumentItems.Last().AddressTo = employee.Subdivision.Name;
 
-                    if (orderEnumerator.Current.DeliveryPoint.CoordinatesExist)
-                    {
-                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint));
-                    }
-                    wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(employee.Subdivision.GeographicGroup));
-                }
-                else
-                {
-                    waybillItemsEnumerator.Current.Mileage = _distanceCalculator.DistanceMeter(deliveryPointFrom,
-                        orderEnumerator.Current.DeliveryPoint) * 2 / 1000;
+			string lastAddressTo = "";
+			DeliveryPoint deliveryPointFrom = null;
 
-                    if (orderEnumerator.Current.DeliveryPoint.CoordinatesExist)
-                    {
-                        wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(orderEnumerator.Current.DeliveryPoint));
-                    }
-                    deliveryPointFrom = orderEnumerator.Current.DeliveryPoint;
-                }
-            }
+			var lastId = wayBillDocument.WayBillDocumentItems.Count - 2;
 
-            if (wayBillDocument.WayBillDocumentItems.IsEmpty())
-            {
-                return;
-            }
+			for(int i = 0; i < wayBillDocument.WayBillDocumentItems.Count && i < orders.Count; i++)
+			{
+				var wayBill = wayBillDocument.WayBillDocumentItems[i];
+				var order = orders[i];
 
-            wayBillDocument.Date = generationDate.Date;
-            wayBillDocument.CarModel = car.Model;
-            wayBillDocument.CarRegistrationNumber = car.RegistrationNumber;
-            wayBillDocument.DriverFIO = employee.FullName;
-            wayBillDocument.DriverLastName = employee.LastName;
+				if(i != 0 && i != waypointsCount)
+				{
+					wayBill.AddressFrom = lastAddressTo;
+				}
+				lastAddressTo = wayBill.AddressTo;
+				wayBill.SequenceNumber = i + 1;
 
-            wayBillDocument.MechanicFIO = MechanicFIO;
-            wayBillDocument.MechanicLastName = MechanicLastName;
+				if(i == 0)
+				{
+					var geoGroupVersion = GetActualGeoGroupVersion(employee, generationDate);
+					wayBill.Mileage = _distanceCalculator.DistanceFromBaseMeter(geoGroupVersion, order.DeliveryPoint) * 2 / 1000m;
+					
+					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion));
+					deliveryPointFrom = order.DeliveryPoint;
+				}
+				else if(i == lastId)
+				{
+					var geoGroupVersion = GetActualGeoGroupVersion(employee, generationDate);
+					wayBill.Mileage = _distanceCalculator.DistanceToBaseMeter(order.DeliveryPoint, geoGroupVersion) * 2 / 1000m;
 
-            wayBillDocument.DriverLicense = employee.DrivingLicense;
+					if(order.DeliveryPoint.CoordinatesExist)
+					{
+						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint));
+					}
+					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion));
+				}
+				else
+				{
+					wayBill.Mileage = _distanceCalculator.DistanceMeter(deliveryPointFrom, order.DeliveryPoint) * 2 / 1000m;
 
-            wayBillDocument.CarPassportSerialNumber = car.DocPTSSeries;
-            wayBillDocument.CarPassportNumber = car.DocPTSNumber;
+					if(order.DeliveryPoint.CoordinatesExist)
+					{
+						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint));
+					}
+					deliveryPointFrom = order.DeliveryPoint;
+				}
+			}
 
-            wayBillDocument.GarageLeavingDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom);
-            wayBillDocument.GarageReturningDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursTo);
-            wayBillDocument.CarFuelType = car.FuelType;
-            wayBillDocument.CarFuelConsumption = (decimal)car.FuelConsumption;
+			if(wayBillDocument.WayBillDocumentItems.IsEmpty())
+			{
+				return;
+			}
 
-            wayBillDocument.OrganizationName = "vodovoz-spb.ru";
-            wayBillDocument.RecalculatePlanedDistance(_distanceCalculator);
+			wayBillDocument.Date = generationDate.Date;
+			wayBillDocument.CarModelName = carNode.CarModelName;
+			wayBillDocument.CarRegistrationNumber = carNode.RegistrationNumber;
+			wayBillDocument.DriverFIO = employee.FullName;
+			wayBillDocument.DriverLastName = employee.LastName;
 
-            wayBillDocument.Organization = orders.First().Contract.Organization;
-            wayBillDocument.PrepareTemplate(uow, _docTemplateRepository);
+			wayBillDocument.MechanicFIO = MechanicFIO;
+			wayBillDocument.MechanicLastName = MechanicLastName;
 
-            if (wayBillDocument.DocumentTemplate == null)
-            {
-                throw new Exception($"Не обнаружен шаблон Путевого листа для организации: {wayBillDocument.Organization.Name}");
-            }
+			wayBillDocument.DriverLicense = employee.DrivingLicense;
 
-            (wayBillDocument.DocumentTemplate.DocParser as WayBillDocumentParser).RootObject = wayBillDocument;
+			wayBillDocument.CarPassportSerialNumber = carNode.DocPTSSeries;
+			wayBillDocument.CarPassportNumber = carNode.DocPTSNumber;
 
-            WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
-        }
+			wayBillDocument.GarageLeavingDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.First().HoursFrom);
+			wayBillDocument.GarageReturningDateTime = generationDate.Add(wayBillDocument.WayBillDocumentItems.Last().HoursTo);
+			wayBillDocument.CarFuelType = carNode.FuelType;
+			wayBillDocument.CarFuelConsumption = (decimal)carNode.FuelConsumption;
 
-        TimeSpan[] GenerateRandomRouteTime()
-        {
-            var rnd = new Random();
-            var rndInt = rnd.Next(0, 2);
-            return new[] { timeSpans[rndInt, 0], timeSpans[rndInt, 1] };
-        }
+			wayBillDocument.OrganizationName = "vodovoz-spb.ru";
+			wayBillDocument.RecalculatePlanedDistance(_distanceCalculator);
 
-        #endregion
+			wayBillDocument.Organization = orders.First().Contract.Organization;
+			wayBillDocument.PrepareTemplate(_uow, _docTemplateRepository);
 
-        #region Export
+			if(wayBillDocument.DocumentTemplate == null)
+			{
+				throw new Exception($"Не обнаружен шаблон Путевого листа для организации: {wayBillDocument.Organization.Name}");
+			}
 
-        public void ExportODTDocuments(string path)
-        {
+			((WayBillDocumentParser)wayBillDocument.DocumentTemplate.DocParser).RootObject = wayBillDocument;
 
-            List<IPrintableDocument> odtToPrinter = new List<IPrintableDocument>();
-            foreach (var document in WayBillSelectableDocuments.Where(x => x.Selected).Select(x => x.Document))
-            {
-                odtToPrinter.Add(document);
-            }
+			WayBillSelectableDocuments.Add(new SelectablePrintDocument(wayBillDocument));
+		}
 
-            var result = LongOperationDlg.StartOperation(
-                delegate (IWorker worker) {
-                    using (FileWorker fileWorker = new FileWorker())
-                    {
-                        int step = 0;
-                        foreach (IPrintableOdtDocument document in odtToPrinter)
-                        {
-                            worker.ReportProgress(step, document.Name);
-                            var filePath = "";
-                            var template = document.GetTemplate();
-                            if (template != null)
-                            {
-                                filePath = fileWorker.PrepareToExportODT(template, FileEditMode.Document);
-                            }
-                            var targetPath = path + "\\" + template.Name + " " + step + ".odt";
+		private GeoGroupVersion GetActualGeoGroupVersion(Employee employee, DateTime generationDate)
+		{
+			var geoGroupVersion = employee.Subdivision.GeographicGroup.GetVersionOrNull(generationDate);
+			if(geoGroupVersion == null)
+			{
+				throw new GeoGroupVersionNotFoundException($"Невозможно рассчитать километраж. Так как обслуживаемая часть города подразделения текущего пользователя ({employee.Subdivision.GeographicGroup.Name})" +
+					$"не имеет актуальной версии части города на {generationDate}. ");
+			}
+			return geoGroupVersion;
+		}
 
-                            if (File.Exists(targetPath))
-                            {
-                                File.SetAttributes(targetPath, FileAttributes.Normal);
-                                File.Delete(targetPath);
-                            }
+		private TimeSpan[] GenerateRandomRouteTime()
+		{
+			var rnd = new Random();
+			var rndInt = rnd.Next(0, 2);
+			return new[] { _timeSpans[rndInt, 0], _timeSpans[rndInt, 1] };
+		}
 
-                            File.Copy(filePath, targetPath, true);
+		#endregion
 
-                            step++;
-                        }
-                    }
-                },
-                "Выгрузка файлов...",
-                odtToPrinter.Count()
-            );
-            if (result == LongOperationResult.Canceled)
-                return;
-        }
+		#region Export
 
-        #endregion
-    }
+		public void ExportODTDocuments(string path)
+		{
+			var odtToPrinter = WayBillSelectableDocuments
+				.Where(x => x.Selected)
+				.Select(x => x.Document)
+				.OfType<IPrintableOdtDocument>()
+				.ToList();
+
+			LongOperationDlg.StartOperation(
+				delegate(IWorker worker)
+				{
+					using(FileWorker fileWorker = new FileWorker())
+					{
+						int step = 0;
+						foreach(IPrintableOdtDocument document in odtToPrinter)
+						{
+							worker.ReportProgress(step, document.Name);
+							var filePath = "";
+							var template = document.GetTemplate();
+							if(template != null)
+							{
+								filePath = fileWorker.PrepareToExportODT(template, FileEditMode.Document);
+							}
+							var targetPath = path + "\\" + (template?.Name ?? "TemplateName") + " " + step + ".odt";
+
+							if(File.Exists(targetPath))
+							{
+								File.SetAttributes(targetPath, FileAttributes.Normal);
+								File.Delete(targetPath);
+							}
+
+							File.Copy(filePath, targetPath, true);
+
+							step++;
+						}
+					}
+				},
+				"Выгрузка файлов...",
+				odtToPrinter.Count
+			);
+		}
+
+		#endregion
+
+		private class CarNode
+		{
+			public string RegistrationNumber { get; set; }
+			public string CarModelName { get; set; }
+			public string DocPTSSeries { get; set; }
+			public string DocPTSNumber { get; set; }
+			public FuelType FuelType { get; set; }
+			public double FuelConsumption { get; set; }
+		}
+	}
 }

@@ -25,6 +25,7 @@ namespace Vodovoz.Dialogs
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 		public event EventHandler<EventArgs> CommentAdded;
@@ -41,14 +42,14 @@ namespace Vodovoz.Dialogs
 						_employeeRepository,
 						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 				}
 				return callTaskWorker;
 			}
 			set { callTaskWorker = value; }
 		}
 
-		public UndeliveredOrderDlg()
+		public UndeliveredOrderDlg(bool isForSalesDepartment = false)
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithNewRoot<UndeliveredOrder>();
@@ -63,16 +64,16 @@ namespace Vodovoz.Dialogs
 			
 			TabName = "Новый недовоз";
 			UndeliveredOrder.TimeOfCreation = DateTime.Now;
-			ConfigureDlg();
+			ConfigureDlg(isForSalesDepartment);
 		}
 
-		public UndeliveredOrderDlg(int id)
+		public UndeliveredOrderDlg(int id, bool isForSalesDepartment = false)
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateForRoot<UndeliveredOrder>(id);
 			UndeliveredOrder = UoW.RootObject as UndeliveredOrder;
 			TabName = UndeliveredOrder.Title;
-			ConfigureDlg();
+			ConfigureDlg(isForSalesDepartment);
 		}
 
 		public UndeliveredOrderDlg(UndeliveredOrder sub) : this(sub.Id)
@@ -84,8 +85,14 @@ namespace Vodovoz.Dialogs
 			undeliveryView.OnTabAdded();
 		}
 
-		public void ConfigureDlg()
+		public void ConfigureDlg(bool isForSalesDepartment = false)
 		{
+			if(isForSalesDepartment)
+			{
+				var salesDepartmentId = _subdivisionParametersProvider.GetSalesSubdivisionId();
+				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
+			}
+
 			undeliveryView.ConfigureDlg(UoW, UndeliveredOrder);
 			undeliveryView.isSaved += () => Save(false);
 			SetAccessibilities();
@@ -161,8 +168,10 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			Save();
-			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
+			if(Save())
+			{
+				DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(UndeliveredOrder));
+			}
 		}
 
 		private void ProcessSmsNotification()

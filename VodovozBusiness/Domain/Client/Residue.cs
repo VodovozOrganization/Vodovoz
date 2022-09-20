@@ -289,9 +289,9 @@ namespace Vodovoz.Domain.Client
 				BottlesMovementOperation.DeliveryPoint = DeliveryPoint;
 				int bottleDebt;
 				if(DeliveryPoint == null)
-					bottleDebt = bottlesRepository.GetBottlesAtCounterparty(uow, Customer, Date);
+					bottleDebt = bottlesRepository.GetBottlesDebtAtCounterparty(uow, Customer, Date);
 				else
-					bottleDebt = bottlesRepository.GetBottlesAtDeliveryPoint(uow, DeliveryPoint, Date);
+					bottleDebt = bottlesRepository.GetBottlesDebtAtDeliveryPoint(uow, DeliveryPoint, Date);
 
 				var needCorrect = BottlesResidue.Value - bottleDebt;
 
@@ -307,7 +307,7 @@ namespace Vodovoz.Domain.Client
 
 		private void UpdateEquipmentDepositOperation(IUnitOfWork uow, IDepositRepository depositRepository)
 		{
-			decimal equipmentDeposit = EquipmentDepositItems.Sum(x => x.EquipmentDeposit);
+			decimal equipmentDeposit = EquipmentDepositItems.Sum(x => x.EquipmentDeposit * x.EquipmentCount);
 
 			//Обновляем операции по залогам за оборудование.
 			if(equipmentDeposit == 0)

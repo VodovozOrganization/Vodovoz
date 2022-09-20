@@ -3,8 +3,10 @@ using QS.Project.Journal.EntitySelector;
 using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
@@ -20,14 +22,26 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private Car _car;
 		private Employee _driver;
 		private CarEventType _carEventType;
-		public CarEventFilterViewModel(ICarJournalFactory carJournalFactory, ICarEventTypeJournalFactory carEventTypeJournalFactory)
+		public CarEventFilterViewModel(ICarJournalFactory carJournalFactory,
+			ICarEventTypeJournalFactory carEventTypeJournalFactory,
+			IEmployeeJournalFactory employeeJournalFactory)
 		{
-			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
-			CarEventTypeSelectorFactory = carEventTypeJournalFactory.CreateCarEventTypeAutocompleteSelectorFactory();
+			CarSelectorFactory =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory();
+			CarEventTypeSelectorFactory =
+				(carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory)))
+				.CreateCarEventTypeAutocompleteSelectorFactory();
+			EmployeeSelectorFactory =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingEmployeeAutocompleteSelectorFactory();
+			DriverSelectorFactory = employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 		}
 
 		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CarEventTypeSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 
 		public DateTime? CreateEventDateFrom
 		{

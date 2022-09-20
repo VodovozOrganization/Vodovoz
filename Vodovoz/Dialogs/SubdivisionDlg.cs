@@ -64,9 +64,12 @@ namespace Vodovoz
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text).InitializeFromSource();
 			yentryrefParentSubdivision.SubjectType = typeof(Subdivision);
 			yentryrefParentSubdivision.Binding.AddBinding(Entity, e => e.ParentSubdivision, w => w.Subject).InitializeFromSource();
-			yentryreferenceChief.RepresentationModel = new EmployeesVM();
-			yentryreferenceChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
-            yenumcomboType.ItemsEnum = typeof(SubdivisionType);
+
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeChief.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
+
+			yenumcomboType.ItemsEnum = typeof(SubdivisionType);
 			yenumcomboType.Binding.AddBinding(Entity, e => e.SubdivisionType, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboType.Sensitive = false;
 
@@ -74,7 +77,7 @@ namespace Vodovoz
 			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;
 			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
 
-			ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeographicGroup>().List();
+			ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeoGroup>().List();
 			ySpecCmbGeographicGroup.Binding.AddBinding(Entity, e => e.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
 			ySpecCmbGeographicGroup.ItemSelected += YSpecCmbGeographicGroup_ItemSelected;
 			SetControlsAccessibility();
@@ -105,7 +108,7 @@ namespace Vodovoz
 					() => new SalesPlanJournalViewModel(
 						UnitOfWorkFactory.GetDefaultFactory,
 						ServicesConfig.CommonServices,
-						new NomenclatureSelectorFactory())
+						new NomenclatureJournalFactory())
 					{
 						SelectionMode = JournalSelectionMode.Single
 					}

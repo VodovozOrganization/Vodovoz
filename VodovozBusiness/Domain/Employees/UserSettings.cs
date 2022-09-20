@@ -84,27 +84,6 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		int journalDaysToAft;
-		[Obsolete("Нужно выпиливать. Было сделано для запоминания интервала дат в фильтре. Потеряло актульность с введением журнала с динамической подгрузкой.")]
-		[Display (Name = "Дней в фильтре журнала заказов назад")]
-		public virtual int JournalDaysToAft {
-			get { return journalDaysToAft; }
-			set {
-				SetField (ref journalDaysToAft, value, () => JournalDaysToAft);
-			}
-		}
-
-		int journalDaysToFwd;
-
-		[Obsolete("Нужно выпиливать. Было сделано для запоминания интервала дат в фильтре. Потеряло актульность с введением журнала с динамической подгрузкой.")]
-		[Display(Name = "Дней в фильтре журнала заказов вперёд")]
-		public virtual int JournalDaysToFwd {
-			get { return journalDaysToFwd; }
-			set {
-				SetField(ref journalDaysToFwd, value, () => JournalDaysToFwd);
-			}
-		}
-
 		NomenclatureCategory? defaultSaleCategory;
 
 		[Display(Name = "Номенклатура на продажу")]
@@ -258,7 +237,11 @@ namespace Vodovoz.Domain.Employees
 
 			var listedIds = CashSubdivisionSortingSettings.Select(x => x.CashSubdivision.Id).ToList();
 			var notListedAsAvailable = availableSubdivisions.Where(x => listedIds.IndexOf(x.Id) == -1).ToList();
-			var lastIndex = CashSubdivisionSortingSettings.Max(x => x.SortingIndex);
+			int lastIndex = -1;
+			if(CashSubdivisionSortingSettings.Any())
+			{
+				lastIndex = CashSubdivisionSortingSettings.Max(x => x.SortingIndex);
+			}
 			foreach(var item in notListedAsAvailable)
 			{//добавляем кассы, к которым появился доступ
 				CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(++lastIndex, this, item));

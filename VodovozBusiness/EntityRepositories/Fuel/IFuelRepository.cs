@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.EntityRepositories.Fuel
 {

@@ -22,20 +22,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		<Employee, EmployeeViewModel, EmployeeJournalNode, SalaryByEmployeeJournalFilterViewModel>
 	{
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly IPermissionService _permissionService;
 
 		public SalaryByEmployeeJournalViewModel(
 			SalaryByEmployeeJournalFilterViewModel filterViewModel,
 			IGtkTabsOpener gtkTabsOpener,
-			IPermissionService permissionService,
-			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			bool hideJournalForOpenDialog = false,
+			bool hideJournalForCreateDialog = false)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			TabName = "Журнал выдач З/П";
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-			_permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
 
 			UpdateOnChanges(
 				typeof(Employee),
@@ -59,8 +58,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					}
 					else
 					{
-						_gtkTabsOpener.OpenCashExpenseDlg(master: this, node.Id, node.Balance, _permissionService, canChangeEmployee: false,
-							ExpenseType.Salary);
+						_gtkTabsOpener.OpenCashExpenseDlg(master: this, node.Id, node.Balance, canChangeEmployee: false, ExpenseType.Salary);
 					}
 				},
 				hotKeys: "Insert");
@@ -117,6 +115,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmpLastName)
 					.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmpMiddleName)
 					.Select(() => employeeAlias.Category).WithAlias(() => resultAlias.EmpCatEnum)
+					.Select(() => employeeAlias.Comment).WithAlias(() => resultAlias.EmployeeComment)
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionTitle)
 					.SelectSubQuery(wageQuery).WithAlias(() => resultAlias.Balance)
 				)

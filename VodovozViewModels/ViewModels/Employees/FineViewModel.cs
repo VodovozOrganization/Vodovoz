@@ -9,22 +9,28 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using QS.Project.Journal;
 using Vodovoz.Domain;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
 using QS.Project.Journal.EntitySelector;
 using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Services;
+using Vodovoz.Domain.Cash;
+using QS.Dialog;
 
 namespace Vodovoz.ViewModels.Employees
 {
-	public class FineViewModel : EntityTabViewModelBase<Fine>
+	public class FineViewModel : EntityTabViewModelBase<Fine>, IAskSaveOnCloseViewModel
 	{
 		private readonly IUnitOfWorkFactory uowFactory;
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly IEmployeeSettings _employeeSettings;
+		private readonly ICategoryRepository _categoryRepository;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -32,6 +38,7 @@ namespace Vodovoz.ViewModels.Employees
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
+			IEmployeeSettings employeeSettings,
 			ICommonServices commonServices
 		) : base(uowBuilder, uowFactory, commonServices)
 		{
@@ -39,6 +46,7 @@ namespace Vodovoz.ViewModels.Employees
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateEmployeeList();
@@ -52,7 +60,8 @@ namespace Vodovoz.ViewModels.Employees
 			);
 
 			SetPropertyChangeRelation(e => e.RouteList,
-				() => CanShowRequestRouteListMessage
+				() => CanShowRequestRouteListMessage,
+				() => DateEditable
 			);
 
 			OnEntityPropertyChanged(SetDefaultReason,
@@ -63,7 +72,28 @@ namespace Vodovoz.ViewModels.Employees
 				x => x.FineType
 			);
 
-			Entity.ObservableItems.ListChanged += (aList) => { OnPropertyChanged(() => CanEditFineType); };
+			Entity.ObservableItems.ListChanged += aList => OnPropertyChanged(() => CanEditFineType);
+		}
+
+		private void CalculateMoneyFromLiters()
+		{
+			if(Entity.ObservableItems.Count() > 1)
+			{
+				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
+			}
+			
+			if(RouteList != null)
+			{
+				decimal fuelCost = RouteList.Car.FuelType.Cost;
+				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
+				var item = Entity.ObservableItems.FirstOrDefault();
+				
+				if(item != null)
+				{
+					item.Money = Entity.TotalMoney;
+					item.LitersOverspending = Entity.LitersOverspending;
+				}
+			}
 		}
 
 		private Employee currentEmployee;
@@ -76,33 +106,48 @@ namespace Vodovoz.ViewModels.Employees
 			}
 		}
 
-		public FineTypes FineType {
-			get { return Entity.FineType; }
-			set {
+		public FineTypes FineType
+		{
+			get => Entity.FineType;
+			set
+			{
 				Entity.FineType = value;
 				UpdateEmployeeList();
 			}
 		}
 
-		public string FineReasonString {
+		public string FineReasonString
+		{
 			get => Entity.FineReasonString;
 			set => Entity.FineReasonString = value;
 		}
 
-		public virtual RouteList RouteList {
-			get { return Entity.RouteList; }
-			set {
+		public virtual RouteList RouteList
+		{
+			get => Entity.RouteList;
+			set
+			{
 				Entity.RouteList = value;
 				UpdateEmployeeList();
+				CalculateMoneyFromLiters();
 			}
 		}
-		
-		public virtual UndeliveredOrder UndeliveredOrder {
+
+		public virtual UndeliveredOrder UndeliveredOrder
+		{
 			get => Entity.UndeliveredOrder;
 			set => Entity.UndeliveredOrder = value;
 		}
 
-		public bool CanEdit => PermissionResult.CanUpdate;
+		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
+
+		public bool DateEditable => UoW.IsNew && Entity.RouteList == null;
+
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => CanEdit;
+
+		#endregion
 
 		[PropertyChangedAlso(nameof(CanShowRequestRouteListMessage))]
 		public bool IsFuelOverspendingFine => Entity.FineType == FineTypes.FuelOverspending;
@@ -113,6 +158,17 @@ namespace Vodovoz.ViewModels.Employees
 
 		public bool CanEditFineType => CanEdit;
 
+		public decimal Liters
+		{
+			get => Entity.LitersOverspending;
+
+			set
+			{
+				Entity.LitersOverspending = value;
+				CalculateMoneyFromLiters();
+			}
+		}
+
 		private void SetDefaultReason()
 		{
 			Entity.FineReasonString = Entity.FineType.GetEnumTitle();
@@ -120,9 +176,12 @@ namespace Vodovoz.ViewModels.Employees
 
 		private void UpdateEmployeeList()
 		{
-			if(Entity.RouteList != null) {
+			if(Entity.RouteList != null)
+			{
 				ClearItems(Entity.RouteList.Driver);
-			} else {
+			}
+			else
+			{
 				ClearItems();
 			}
 		}
@@ -130,33 +189,40 @@ namespace Vodovoz.ViewModels.Employees
 		private void ClearItems(Employee driver = null)
 		{
 			FineItem item = null;
-			if(driver != null) {
+			if(driver != null)
+			{
 				item = Entity.ObservableItems.Where(x => x.Employee == driver).FirstOrDefault();
 			}
 			Entity.ObservableItems.Clear();
-			if(driver != null) {
-				if(item != null) {
+			if(driver != null)
+			{
+				if(item != null)
+				{
 					Entity.ObservableItems.Add(item);
-				} else {
+				}
+				else
+				{
 					Entity.AddItem(driver);
 				}
 			}
 		}
 
-		protected override void BeforeSave()
+		protected override bool BeforeSave()
 		{
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
-			base.BeforeSave();
+			return base.BeforeSave();
 		}
 
 		public override bool Save(bool close)
 		{
-			if(Entity.Author == null) {
+			if(Entity.Author == null)
+			{
 				Entity.Author = CurrentEmployee;
 			}
+
 			return base.Save(close);
-		}
+		}		
 
 		#region Commands
 

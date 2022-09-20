@@ -12,6 +12,8 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.JournalViewModels
@@ -22,18 +24,18 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
-		
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+
 		public PromotionalSetsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
-			bool hideJournalForOpenDialog = false, 
+			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
@@ -57,7 +59,7 @@ namespace Vodovoz.JournalViewModels
 			PromotionalSetJournalNode resultAlias = null;
 			DiscountReason reasonAlias = null;
 
-			var query = uow.Session.QueryOver<PromotionalSet>().Left.JoinAlias(x => x.PromoSetDiscountReason, () => reasonAlias);
+			var query = uow.Session.QueryOver<PromotionalSet>();
 			query.Where(
 				GetSearchCriterion<PromotionalSet>(
 					x => x.Id
@@ -68,7 +70,7 @@ namespace Vodovoz.JournalViewModels
 									.Select(x => x.Id).WithAlias(() => resultAlias.Id)
 									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
 									.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-									.Select(() => reasonAlias.Name).WithAlias(() => resultAlias.PromoSetDiscountReasonName))
+									)
 									.TransformUsing(Transformers.AliasToBean<PromotionalSetJournalNode>())
 									.OrderBy(x => x.Name).Asc;
 			return result;

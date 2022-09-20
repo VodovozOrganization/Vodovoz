@@ -20,7 +20,7 @@ namespace Vodovoz.Views.WageCalculation
 
 		protected override void ConfigureWidget()
 		{
-			cmbLevels.SetRenderTextFunc<WageDistrictLevelRates>(x => x.Name);
+			cmbLevels.SetRenderTextFunc<WageDistrictLevelRates>(x => $"({x.Id}) {x.Name}");
 			cmbLevels.Binding.AddBinding(ViewModel, s => s.WageLevels, w => w.ItemsList).InitializeFromSource();
 			cmbLevels.Binding.AddBinding(ViewModel.Entity, s => s.WageDistrictLevelRates, w => w.SelectedItem).InitializeFromSource();
 			cmbLevels.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -84,7 +84,7 @@ namespace Vodovoz.Views.WageCalculation
 
 				Label tabLabel = new Label {
 					UseMarkup = true,
-					Markup = levelRate.WageDistrict.Name
+					Markup = $"{levelRate.CarTypeOfUse.GetEnumTitle()} {levelRate.WageDistrict.Name}"
 				};
 
 				nbDistricts.AppendPage(scrolledWindow, tabLabel);

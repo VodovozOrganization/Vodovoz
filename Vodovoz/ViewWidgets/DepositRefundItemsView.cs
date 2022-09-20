@@ -59,7 +59,7 @@ namespace Vodovoz.ViewWidgets
 						.Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1))
 						.Editing(true)
 				.AddColumn("Сумма")
-					.AddNumericRenderer(node => node.Total)
+					.AddNumericRenderer(node => node.ActualSum)
 				.Finish();
 
 			treeDepositRefundItems.ItemsDataSource = Order.ObservableOrderDepositItems;

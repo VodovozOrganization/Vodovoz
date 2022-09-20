@@ -2,63 +2,141 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
-using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class PlanImplementationReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		EmployeeRepresentationFilterViewModel filter;
+		private readonly SelectableParametersReportFilter _filter;
+		private const string _orderAuthorIncludeParameter = "order_author_include";
+		
 		public PlanImplementationReport(bool orderById = false)
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			_filter = new SelectableParametersReportFilter(UoW);
 			ConfigureDlg();
 		}
 
 		void ConfigureDlg()
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-			dateperiodpicker.EndDate = dateperiodpicker.StartDate.AddMonths(1).AddTicks(-1);
-
-			filter = new EmployeeRepresentationFilterViewModel();
+			dateperiodpicker.EndDate = dateperiodpicker.StartDate.AddMonths(1).AddDays(-1);
 
 			var availablePlansToUse = new[] { WageParameterItemTypes.SalesPlan };
 			lstCmbPlanType.SetRenderTextFunc<WageParameterItemTypes>(t => t.GetEnumTitle());
 			lstCmbPlanType.ItemsList = availablePlansToUse;
 			lstCmbPlanType.SelectedItem = availablePlansToUse.FirstOrDefault();
-			lstCmbPlanType.Changed += LstCmbPlanType_Changed;
-			LstCmbPlanType_Changed(this, new EventArgs());
-			yEntRefEmployee.RepresentationModel = new EmployeesVM(filter);
-			yEntRefEmployee.ChangedByUser += (sender, e) => {
-				var actualWageParameter = (yEntRefEmployee.Subject as Employee)?.GetActualWageParameter(DateTime.Now);
-				if(actualWageParameter == null || actualWageParameter.WageParameterItem.WageParameterItemType != WageParameterItemTypes.SalesPlan) {
-					return;
-				}
-
-				lblEmployeePlan.Markup = actualWageParameter.Title;
-			};
 			comboTypeOfDate.ItemsEnum = typeof(OrderDateType);
 			comboTypeOfDate.SelectedItem = OrderDateType.CreationDate;
+			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
+			
+			ConfigureFilter();
 		}
 
-		void LstCmbPlanType_Changed(object sender, EventArgs e)
+		private void ConfigureFilter()
 		{
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictWageParameterItemType = lstCmbPlanType.SelectedItem as WageParameterItemTypes?
+			var subdivisionsFilter = _filter.CreateParameterSet(
+				"Подразделения",
+				"subdivision",
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Subdivision> resultAlias = null;
+					var query = UoW.Session.QueryOver<Subdivision>();
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Subdivision>>());
+					return query.List<SelectableParameter>();
+				})
 			);
+
+			var orderAuthorsFilter = _filter.CreateParameterSet(
+				"Авторы заказов",
+				"order_author",
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Employee> resultAlias = null;
+					EmployeeWageParameter wageParameterAlias = null;
+					WageParameterItem wageParameterItemAlias = null;
+					
+					var query = UoW.Session.QueryOver<Employee>()
+						.JoinAlias(e => e.WageParameters, () => wageParameterAlias)
+						.JoinAlias(() => wageParameterAlias.WageParameterItem, () => wageParameterItemAlias);
+
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							var criterion = f();
+
+							if(criterion != null)
+							{
+								query.Where(criterion);
+							}
+						}
+					}
+
+					query.Where(e => e.Status == EmployeeStatus.IsWorking)
+						.And(e => e.Category == EmployeeCategory.office)
+						.And(() => wageParameterAlias.EndDate == null || wageParameterAlias.EndDate >= DateTime.Now)
+						.And(() => wageParameterItemAlias.WageParameterItemType == WageParameterItemTypes.SalesPlan);
+
+					var authorProjection = CustomProjections.Concat_WS(
+						" ",
+						Projections.Property<Employee>(x => x.LastName),
+						Projections.Property<Employee>(x => x.Name),
+						Projections.Property<Employee>(x => x.Patronymic)
+					);
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(authorProjection).WithAlias(() => resultAlias.EntityTitle)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+
+					return query.List<SelectableParameter>();
+				})
+			);
+			
+			orderAuthorsFilter.AddFilterOnSourceSelectionChanged(subdivisionsFilter,
+				() =>
+				{
+					var selectedValues = subdivisionsFilter.GetSelectedValues().ToArray();
+
+					return !selectedValues.Any()
+						? null
+						: subdivisionsFilter.FilterType == SelectableFilterType.Include
+							? Restrictions.On<Employee>(x => x.Subdivision).IsIn(selectedValues)
+							: Restrictions.On<Employee>(x => x.Subdivision).Not.IsIn(selectedValues);
+				}
+			);
+
+			var viewModel = new SelectableParameterReportFilterViewModel(_filter);
+			var filterWidget = new SelectableParameterReportFilterView(viewModel);
+			vboxParameters.Add(filterWidget);
+			filterWidget.Show();
 		}
 
 		#region IParametersWidget implementation
@@ -76,16 +154,36 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			int employeeId = (yEntRefEmployee.Subject as Employee)?.Id ?? 0;
-			return new ReportInfo {
-				Identifier = employeeId > 0 ? "Sales.PlanImplementationByEmployeeReport" : "Sales.PlanImplementationFullReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{"start_date", dateperiodpicker.StartDateOrNull},
-					{"end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1)},
-					{"employee_id", employeeId},
-					{"is_creation_date", (OrderDateType)comboTypeOfDate.SelectedItem == OrderDateType.CreationDate}
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{"start_date", dateperiodpicker.StartDateOrNull},
+				{"end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1)},
+				{"is_creation_date", (OrderDateType)comboTypeOfDate.SelectedItem == OrderDateType.CreationDate}
+			};
+			
+			foreach(var item in _filter.GetParameters())
+			{
+				parameters.Add(item.Key, item.Value);
+			}
+
+			string identifier;
+			//Если не выбран ни один сотрудник, открываем общий отчет, иначе подробный по сотрудникам
+			if(parameters.ContainsKey(_orderAuthorIncludeParameter)
+				&& parameters[_orderAuthorIncludeParameter] is object[] values
+				&& values.Length == 1
+				&& values[0] == "0")
+			{
+				identifier = "Sales.PlanImplementationFullReport";
+			}
+			else
+			{
+				identifier = "Sales.PlanImplementationByEmployeeReport";
+			}
+			
+			return new ReportInfo
+			{
+				Identifier = identifier,
+				Parameters = parameters
 			};
 		}
 

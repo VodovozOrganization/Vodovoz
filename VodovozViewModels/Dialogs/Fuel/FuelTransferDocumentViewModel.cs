@@ -17,6 +17,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {

@@ -3,13 +3,14 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gamma.GtkWidgets;
+using Gamma.Widgets.Additions;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.ErrorReporting;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using WrapMode = Pango.WrapMode;
 
@@ -17,26 +18,30 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class DriversInfoExportView : TabViewBase<DriversInfoExportViewModel>
 	{
+		private bool _isDestroyed;
+
 		public DriversInfoExportView(DriversInfoExportViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Configure();
-			Destroyed += (sender, args) => isDestroyed = true;
+			Destroyed += (sender, args) => _isDestroyed = true;
 		}
-
-		private bool isDestroyed;
 
 		private void Configure()
 		{
-			checkRaskat.RenderMode = QS.Widgets.RenderMode.Icon;
-			checkRaskat.Binding.AddBinding(ViewModel, vm => vm.IsRaskat, w => w.Active);
+			enumcheckCarTypeOfUse.ExpandCheckButtons = false;
+			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
+			enumcheckCarTypeOfUse.Binding.AddBinding(ViewModel, vm => vm.RestrictedCarTypesOfUse, w => w.SelectedValuesList,
+				new EnumsListConverter<CarTypeOfUse>()).InitializeFromSource();
+
+			enumcheckCarOwnType.EnumType = typeof(CarOwnType);
+			enumcheckCarOwnType.Binding.AddBinding(ViewModel, vm => vm.RestrictedCarOwnTypes, w => w.SelectedValuesList,
+				new EnumsListConverter<CarOwnType>()).InitializeFromSource();
 
 			datepickerPeriod.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull);
 			datepickerPeriod.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull);
 			datepickerPeriod.StartDate = datepickerPeriod.EndDate = DateTime.Today;
-
-			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
-			comboTypeOfUse.Binding.AddBinding(ViewModel, vm => vm.CarTypeOfUse, w => w.SelectedItemOrNull);
 
 			comboEmployeeStatus.ItemsEnum = typeof(EmployeeStatus);
 			comboEmployeeStatus.Binding.AddBinding(ViewModel, vm => vm.EmployeeStatus, w => w.SelectedItemOrNull);
@@ -77,7 +82,7 @@ namespace Vodovoz.Views.Logistic
 				var items = await Task.Run(() => ViewModel.GetDriverInfoNodes());
 				loadedSuccessfully = true;
 
-				if(!isDestroyed)
+				if(!_isDestroyed)
 				{
 					Application.Invoke((s, eventArgs) =>
 					{
@@ -110,7 +115,7 @@ namespace Vodovoz.Views.Logistic
 			}
 			finally
 			{
-				if(!isDestroyed)
+				if(!_isDestroyed)
 				{
 					Application.Invoke((s, eventArgs) =>
 					{
@@ -185,6 +190,21 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddEnumRenderer(x => x.DriverStatus)
 					.XAlign(0.5f)
+				.AddColumn("Планируемое\nрасстояние")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(x => x.RouteListPlanedDistance ?? 0)
+					.Digits(2)
+					.XAlign(0.5f)
+				.AddColumn("Рассчитанное\nрасстояние")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(x => x.RouteListRecalculatedDistance ?? 0)
+					.Digits(2)
+					.XAlign(0.5f)
+				.AddColumn("Подтвержденное\nрасстояние")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(x => x.RouteListConfirmedDistance)
+					.Digits(2)
+					.XAlign(0.5f)
 				.AddColumn("ЗП водителя за МЛ\n(план+факт)")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DriverRouteListWageForRouteListGroupingString)
@@ -197,12 +217,11 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.CarRegNumber)
 					.XAlign(0.5f)
-				.AddColumn("Раскат")
-					.HeaderAlignment(0.5f)
-					.AddToggleRenderer(x => x.CarIsRaskat)
-					.Editing(false)
-					.XAlign(0.5f)
 				.AddColumn("Принадлежность авто")
+					.HeaderAlignment(0.5f)
+					.AddEnumRenderer(x => x.CarOwnType)
+					.XAlign(0.5f)
+				.AddColumn("Тип авто")
 					.HeaderAlignment(0.5f)
 					.AddEnumRenderer(x => x.CarTypeOfUse)
 					.XAlign(0.5f)
@@ -335,12 +354,11 @@ namespace Vodovoz.Views.Logistic
 					.XAlign(0.5f)
 				.AddColumn("Принадлежность авто")
 					.HeaderAlignment(0.5f)
-					.AddEnumRenderer(x => x.CarTypeOfUse)
+					.AddEnumRenderer(x => x.CarOwnType)
 					.XAlign(0.5f)
-				.AddColumn("Раскат")
+				.AddColumn("Тип авто")
 					.HeaderAlignment(0.5f)
-					.AddToggleRenderer(x => x.CarIsRaskat)
-					.Editing(false)
+					.AddEnumRenderer(x => x.CarTypeOfUse)
 					.XAlign(0.5f)
 				.AddColumn("Гос. номер авто")
 					.HeaderAlignment(0.5f)

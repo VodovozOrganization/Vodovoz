@@ -7,16 +7,17 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Linq;
+using QS.Dialog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
 	public class PremiumViewModel : EntityTabViewModelBase<Premium>
 	{
-		private readonly IEmployeeService _employeeService;
 		private string _employeesSum;
 		private DelegateCommand _addEmployeeCommand;
 		private DelegateCommand<PremiumItem> _deleteEmployeeCommand;
@@ -27,9 +28,18 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmployeeService employeeService, IEmployeeJournalFactory employeeJournalFactory, IPremiumTemplateJournalFactory premiumTemplateJournalFactory)
 			: base(uowBuilder, uowFactory, commonServices)
 		{
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 
 			TabName = Entity.Title;
+
+			if(UoW.IsNew)
+			{
+				Entity.Author = employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
+				if(Entity.Author == null)
+				{
+					AbortOpening("Ваш пользователь не привязан к действующему сотруднику. Невозможно создать премию"
+					             + ", т.к. некого указать в качестве автора");
+				}
+			}
 
 			CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) || (Entity.Id != 0 && PermissionResult.CanUpdate);
 			Entity.ObservableItems.ListContentChanged += OnObservableItemsListContentChanged;
@@ -134,33 +144,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		#endregion
 
-		private bool GetAuthor(out Employee cashier)
-		{
-			cashier = _employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
-			if(cashier == null)
-			{
-				ShowErrorMessage("Ваш пользователь не привязан к действующему сотруднику.");
-				return false;
-			}
-			return true;
-		}
-
 		public override bool Save(bool close)
 		{
 			if(!CanEdit)
 			{
 				return false;
-			}
-
-			Employee author;
-			if(!GetAuthor(out author))
-			{
-				return false;
-			}
-
-			if(Entity.Author == null)
-			{
-				Entity.Author = author;
 			}
 
 			Entity.UpdateWageOperations(UoW);

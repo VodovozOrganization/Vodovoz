@@ -43,7 +43,7 @@ namespace Vodovoz.Dialogs.Logistic
 						new EmployeeRepository(),
 						_baseParametersProvider,
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 				}
 				return callTaskWorker;
 			}
@@ -91,9 +91,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateLists()
 		{
-			var goods = _routeListRepository.GetGoodsAndEquipsInRL(UoW, Entity);
 			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true, _baseParametersProvider.GetNomenclatureIdForTerminal);
-			
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);
 
 			ytreeviewNotLoaded.ItemsDataSource = ObservableNotLoadedList;
@@ -104,7 +102,7 @@ namespace Vodovoz.Dialogs.Logistic
 			#region костыль
 			//FIXME пока не можем найти причину бага с несменой статуса на в пути при полной отгрузке, позволяем логистам отправлять МЛ в путь из этого диалога
 			bool fullyLoaded = false;
-			if(Entity.ShipIfCan(UoW, CallTaskWorker)) {
+			if(Entity.ShipIfCan(UoW, CallTaskWorker, out _)) {
 				fullyLoaded = true;
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			}

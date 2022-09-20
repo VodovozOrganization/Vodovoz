@@ -13,7 +13,6 @@ using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -49,8 +48,8 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory = new EmployeePostsJournalFactory();
 		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-		private readonly ISubdivisionService _subdivisionService = SubdivisionParametersProvider.Instance;
-		private readonly IEmailServiceSettingAdapter _emailServiceSettingAdapter = new EmailServiceSettingAdapter();
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
+			new SubdivisionParametersProvider(new ParametersProvider());
 		private readonly IWageCalculationRepository _wageCalculationRepository  = new WageCalculationRepository();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -59,8 +58,9 @@ namespace Vodovoz.Dialogs.Employees
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IUserRepository _userRepository = new UserRepository();
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory = new AttachmentsViewModelFactory();
-		
+
 		private AttachmentsViewModel _attachmentsViewModel;
+		private bool canEdit;
 
 		public TraineeDlg()
 		{
@@ -85,6 +85,7 @@ namespace Vodovoz.Dialogs.Employees
 			OnRussianCitizenToggled(null, EventArgs.Empty);
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
+			canEdit = permissionResult.CanUpdate || (permissionResult.CanCreate && Entity.Id == 0);
 
 			CreateAttachmentsViewModel();
 			ConfigureBindings();
@@ -122,15 +123,15 @@ namespace Vodovoz.Dialogs.Employees
 			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
 
 			//Реквизиты
-			accountsView.ParentReference = new ParentReferenceGeneric<Trainee, Account>(UoWGeneric, o => o.Accounts);
+			accountsView.SetAccountOwner(UoW, Entity);
 			accountsView.SetTitle("Банковские счета стажера");
 
 			//Файлы
 			attachmentsView.ViewModel = _attachmentsViewModel;
-			
+
 			logger.Info("Ok");
 		}
-		
+
 		private void CreateAttachmentsViewModel()
 		{
 			_attachmentsViewModel = _attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
@@ -214,8 +215,7 @@ namespace Vodovoz.Dialogs.Employees
 				_subdivisionJournalFactory,
 				_employeePostsJournalFactory,
 				_cashDistributionCommonOrganisationProvider,
-				_subdivisionService,
-				_emailServiceSettingAdapter,
+				_subdivisionParametersProvider,
 				_wageCalculationRepository,
 				_employeeRepository,
 				employeeUow,
@@ -230,7 +230,7 @@ namespace Vodovoz.Dialogs.Employees
 				_baseParametersProvider,
 				_attachmentsViewModelFactory,
 				true);
-			
+
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
 							  () => employeeViewModel);
 			OnCloseTab(false);
@@ -252,8 +252,8 @@ namespace Vodovoz.Dialogs.Employees
 
 		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, null, ServicesConfig.CommonServices);
-			dlg.Save += (object sender1, EventArgs e1)=>Entity.ObservableDocuments.Add(dlg.Entity);
+			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, null, ServicesConfig.CommonServices, canEdit);
+			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableDocuments.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
@@ -265,9 +265,10 @@ namespace Vodovoz.Dialogs.Employees
 
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
-			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) 
+			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null)
 			{
-				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW, ServicesConfig.CommonServices);
+				EmployeeDocDlg dlg = new EmployeeDocDlg(
+					((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW, ServicesConfig.CommonServices, canEdit);
 				TabParent.AddSlaveTab(this, dlg);
 			}
 
@@ -278,7 +279,7 @@ namespace Vodovoz.Dialogs.Employees
 			buttonDocumentEdit.Click();
 		}
 		#endregion
-		
+
 		public override void Destroy()
 		{
 			attachmentsView.Destroy();

@@ -28,16 +28,16 @@ namespace VodovozBusinessTests.Domain.Documents
 			Nomenclature nomenclatureMock03 = Substitute.For<Nomenclature>();
 			nomenclatureMock03.Id.Returns(103);
 
-			List<GoodsInRouteListResult> listOfGoods = new List<GoodsInRouteListResult> {
-				new GoodsInRouteListResult {
+			List<GoodsInRouteListResultWithSpecialRequirements> listOfGoods = new List<GoodsInRouteListResultWithSpecialRequirements> {
+				new GoodsInRouteListResultWithSpecialRequirements {
 					NomenclatureId = nomenclatureMock01.Id,
 					Amount = 10
 				},
-				new GoodsInRouteListResult {
+				new GoodsInRouteListResultWithSpecialRequirements {
 					NomenclatureId = nomenclatureMock02.Id,
 					Amount = 20
 				},
-				new GoodsInRouteListResult {
+				new GoodsInRouteListResultWithSpecialRequirements {
 					NomenclatureId = nomenclatureMock03.Id,
 					Amount = 30
 				}
@@ -53,7 +53,7 @@ namespace VodovozBusinessTests.Domain.Documents
 			);
 
 			IRouteListRepository routeListRepositoryMock = Substitute.For<IRouteListRepository>();
-			routeListRepositoryMock.GetGoodsAndEquipsInRL(uowMock, routeListMock01, subdivisionRepositoryMock01, warehouseMock01).Returns(listOfGoods);
+			routeListRepositoryMock.GetGoodsAndEquipsInRLWithSpecialRequirements(uowMock, routeListMock01, subdivisionRepositoryMock01, warehouseMock01).Returns(listOfGoods);
 
 			CarLoadDocument loadDocumentUnderTest = new CarLoadDocument {
 				Warehouse = warehouseMock01,
@@ -92,16 +92,16 @@ namespace VodovozBusinessTests.Domain.Documents
 			Nomenclature nomenclatureMock03 = Substitute.For<Nomenclature>();
 			nomenclatureMock03.Id.Returns(103);
 
-			List<GoodsInRouteListResult> listOfGoods = new List<GoodsInRouteListResult> {
-				new GoodsInRouteListResult {
+			List<GoodsInRouteListResultWithSpecialRequirements> listOfGoods = new List<GoodsInRouteListResultWithSpecialRequirements> {
+				new GoodsInRouteListResultWithSpecialRequirements {
 					NomenclatureId = nomenclatureMock01.Id,
 					Amount = 1
 				},
-				new GoodsInRouteListResult {
+				new GoodsInRouteListResultWithSpecialRequirements {
 					NomenclatureId = nomenclatureMock02.Id,
 					Amount = 2
 				},
-				new GoodsInRouteListResult {
+				new GoodsInRouteListResultWithSpecialRequirements {
 					NomenclatureId = nomenclatureMock03.Id,
 					Amount = 3
 				}
@@ -110,7 +110,7 @@ namespace VodovozBusinessTests.Domain.Documents
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 
 			IRouteListRepository routeListRepositoryMock = Substitute.For<IRouteListRepository>();
-			routeListRepositoryMock.GetGoodsAndEquipsInRL(uowMock, routeListMock01, null).Returns(listOfGoods);
+			routeListRepositoryMock.GetGoodsAndEquipsInRLWithSpecialRequirements(uowMock, routeListMock01, null).Returns(listOfGoods);
 
 			CarLoadDocument loadDocumentUnderTest = new CarLoadDocument {
 				RouteList = routeListMock01,

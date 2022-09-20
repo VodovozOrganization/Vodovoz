@@ -18,15 +18,15 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeOrganisation;
+
 		private global::Gtk.Label labelCar;
 
 		private global::Gtk.Label labelDriver;
 
 		private global::Gtk.Label labelOrganization;
-
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryDriver;
-
-		private global::Gamma.Widgets.yEntryReference yentryOrganization;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelNumber;
 
@@ -84,7 +84,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(3)), false);
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -102,17 +102,43 @@ namespace Vodovoz.Dialogs.Employees
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.evmeDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
+			this.evmeDriver.Name = "evmeDriver";
+			this.evmeDriver.CanEditReference = true;
+			this.table1.Add(this.evmeDriver);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDriver]));
+			w7.TopAttach = ((uint)(2));
+			w7.BottomAttach = ((uint)(3));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.evmeOrganisation = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeOrganisation.Events = ((global::Gdk.EventMask)(256));
+			this.evmeOrganisation.Name = "evmeOrganisation";
+			this.evmeOrganisation.CanEditReference = true;
+			this.table1.Add(this.evmeOrganisation);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeOrganisation]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.labelCar = new global::Gtk.Label();
 			this.labelCar.Name = "labelCar";
 			this.labelCar.Xalign = 1F;
 			this.labelCar.LabelProp = global::Mono.Unix.Catalog.GetString("Автомобиль");
 			this.labelCar.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.labelCar);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.labelCar]));
-			w7.TopAttach = ((uint)(3));
-			w7.BottomAttach = ((uint)(4));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.labelCar]));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelDriver = new global::Gtk.Label();
 			this.labelDriver.Name = "labelDriver";
@@ -120,11 +146,11 @@ namespace Vodovoz.Dialogs.Employees
 			this.labelDriver.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель");
 			this.labelDriver.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.labelDriver);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDriver]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDriver]));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelOrganization = new global::Gtk.Label();
 			this.labelOrganization.Name = "labelOrganization";
@@ -132,33 +158,10 @@ namespace Vodovoz.Dialogs.Employees
 			this.labelOrganization.LabelProp = global::Mono.Unix.Catalog.GetString("Организация");
 			this.labelOrganization.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.labelOrganization);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.labelOrganization]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yentryDriver = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yentryDriver.Events = ((global::Gdk.EventMask)(256));
-			this.yentryDriver.Name = "yentryDriver";
-			this.table1.Add(this.yentryDriver);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryDriver]));
-			w10.TopAttach = ((uint)(2));
-			w10.BottomAttach = ((uint)(3));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yentryOrganization = new global::Gamma.Widgets.yEntryReference();
-			this.yentryOrganization.Events = ((global::Gdk.EventMask)(256));
-			this.yentryOrganization.Name = "yentryOrganization";
-			this.table1.Add(this.yentryOrganization);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryOrganization]));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.labelOrganization]));
 			w11.TopAttach = ((uint)(1));
 			w11.BottomAttach = ((uint)(2));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelNumber = new global::Gamma.GtkWidgets.yLabel();

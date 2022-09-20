@@ -11,6 +11,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
@@ -21,7 +22,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
-	public class CashRequestViewModel : EntityTabViewModelBase<CashRequest>
+	public class CashRequestViewModel : EntityTabViewModelBase<CashRequest>, IAskSaveOnCloseViewModel
 	{
 		private readonly ICashRepository _cashRepository;
 		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
@@ -367,6 +368,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#endregion Permissions
 
+		public bool IsSecurityServiceRole => UserRole == PayoutRequestUserRole.SecurityService;
+		
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => !IsSecurityServiceRole;
+
+		#endregion
+		
 		#endregion Properties
 
 		#region Methods
@@ -392,12 +401,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				roles.Add(PayoutRequestUserRole.Cashier);
 			}
 
-			if(Entity.Author == null
-			|| Entity.Author.Id == CurrentEmployee.Id)
+			if(Entity.Author == null || Entity.Author.Id == CurrentEmployee.Id)
 			{
 				roles.Add(PayoutRequestUserRole.RequestCreator);
 			}
 
+			if(CheckRole("role_security_service_cash_request", userId))
+			{
+				roles.Add(PayoutRequestUserRole.SecurityService);
+			}
+			
 			if(roles.Count == 0)
 			{
 				throw new Exception("Пользователь не подходит ни под одну из ролей, он не должен был иметь возможность сюда зайти");

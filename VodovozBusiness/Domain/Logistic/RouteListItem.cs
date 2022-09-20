@@ -69,6 +69,12 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref statusLastUpdate, value);
 		}
 
+		private DateTime _creationDate;
+		[Display(Name = "Дата создания")]
+		public virtual DateTime CreationDate => _creationDate == default
+			? DateTime.Now
+			: _creationDate;
+
 		private RouteListItem transferedTo;
 		[Display(Name = "Перенесен в другой маршрутный лист")]
 		public virtual RouteListItem TransferedTo {
@@ -206,7 +212,7 @@ namespace Vodovoz.Domain.Logistic
 				if(!IsDelivered()) {
 					return 0;
 				}
-				if(Order.PaymentType != Client.PaymentType.cash && Order.PaymentType != Client.PaymentType.BeveragesWorld) {
+				if(Order.PaymentType != PaymentType.cash) {
 					return 0;
 				}
 				return Order.OrderCashSum + OldBottleDepositsCollected + OldEquipmentDepositsCollected + ExtraCash;
@@ -499,7 +505,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
+		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, ICallTaskWorker callTaskWorker)
 		{
 			if(Status == status)
 				return;
@@ -510,7 +516,7 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
@@ -526,7 +532,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
 			uow.Save(Order);
@@ -545,7 +551,7 @@ namespace Vodovoz.Domain.Logistic
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
 					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
@@ -561,7 +567,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatus(OrderStatus.NotDelivered);
-					FillCountsOnCanceled();
+					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
 			uow.Save(Order);
@@ -645,23 +651,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Обнуляет фактическое количетво
 		/// Использовать если заказ отменен или полностью не доставлен
 		/// </summary>
-		public virtual void FillCountsOnCanceled()
-		{
-			foreach(var item in Order.OrderItems) {
-				if(!item.OriginalDiscountMoney.HasValue || !item.OriginalDiscount.HasValue) {
-					item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
-					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
-					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
-				}
-				item.ActualCount = 0m;
-                BottlesReturned = 0;
-            }
-            foreach (var equip in Order.OrderEquipments)
-                equip.ActualCount = 0;
-
-			foreach(var deposit in Order.OrderDepositItems)
-				deposit.ActualCount = 0;
-		}
+		public virtual void SetOrderActualCountsToZeroOnCanceled() => Order.SetActualCountsToZeroOnCanceled();
 
 		public virtual void RestoreOrder()
 		{
@@ -714,20 +704,20 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(item.Status == RouteListItemStatus.Transfered) {
 				if(item.TransferedTo != null)
-					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1}.",
-									 item.TransferedTo.RouteList.Id,
-									 item.TransferedTo.RouteList.Driver.ShortName
-									);
+					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.",
+						item.TransferedTo.RouteList.Id,
+						item.TransferedTo.RouteList.Driver.ShortName,
+						item.TransferedTo.NeedToReload ? "с погрузкой":"без поргрузки");
 				else
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
 			if(item.WasTransfered) {
 				var transferedFrom = new RouteListItemRepository().GetTransferedFrom(RouteList.UoW, item);
 				if(transferedFrom != null)
-					return string.Format("Заказ из МЛ №{0} водителя {1}.",
-										 transferedFrom.RouteList.Id,
-										 transferedFrom.RouteList.Driver.ShortName
-										);
+					return string.Format("Заказ из МЛ №{0} водителя {1} {2}.",
+						transferedFrom.RouteList.Id,
+						transferedFrom.RouteList.Driver.ShortName,
+						transferedFrom.TransferedTo.NeedToReload ? "с погрузкой" : "без поргрузки");
 				else
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}

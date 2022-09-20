@@ -7,6 +7,7 @@ using Vodovoz;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 
 namespace Dialogs.Employees
@@ -50,8 +51,9 @@ namespace Dialogs.Employees
 		{
 			DateTime now = DateTime.Now;
 
-			yentryEmployee.RepresentationModel = new EmployeesVM();
-			yentryEmployee.Changed += YentryEmployee_Changed;
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Changed += YentryEmployee_Changed;
 
 			yenumcomboMonth.ItemsEnum = typeof(Month);
 			yenumcomboMonth.SelectedItem = (Month)now.Month;
@@ -86,10 +88,10 @@ namespace Dialogs.Employees
 
 		private void ChangeTableData()
 		{
-			Employee emp = yentryEmployee.Subject as Employee;
-
-			if(emp == null)
+			if(!(evmeEmployee.Subject is Employee emp))
+			{
 				return;
+			}
 
 			employeeName = emp.ShortName;
 			OnTabNameChanged();
@@ -177,9 +179,10 @@ namespace Dialogs.Employees
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			Employee employee = yentryEmployee.Subject as Employee;
-			if(employee == null)
+			if(!(evmeEmployee.Subject is Employee employee))
+			{
 				return;
+			}
 
 			var chartsFromTable = workcharttable.GetWorkChart();
 			SetEmployeeForCharts(chartsFromTable, previousEmployee);
@@ -250,4 +253,3 @@ namespace Dialogs.Employees
 		
 	}
 }
-

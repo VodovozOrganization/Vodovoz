@@ -22,6 +22,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Warehouses
@@ -30,7 +31,7 @@ namespace Vodovoz.ViewModels.Warehouses
 	{
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
-		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 		private readonly IOrderSelectorFactory orderSelectorFactory;
 		private readonly IWarehouseRepository warehouseRepository;
 		private readonly IUserRepository userRepository;
@@ -45,7 +46,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			IWarehousePermissionService warehousePermissionService,
 			IEmployeeService employeeService,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
-			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IOrderSelectorFactory orderSelectorFactory,
 			IWarehouseRepository warehouseRepository,
 			IUserRepository userRepository,
@@ -429,7 +430,7 @@ namespace Vodovoz.ViewModels.Warehouses
 								var nomsAmount = new Dictionary<int, decimal>();
 								if (nomIds != null && nomIds.Any()) {
 									nomIds = nomIds.Distinct().ToList();
-									nomsAmount = _stockRepository.NomenclatureInStock(UoW, Entity.FromWarehouse.Id, nomIds.ToArray());
+									nomsAmount = _stockRepository.NomenclatureInStock(UoW, nomIds.ToArray(), Entity.FromWarehouse.Id);
 								}
 								foreach (var item in orderItems) {
 									var moveItem = Entity.Items.FirstOrDefault(x => x.Nomenclature.Id == item.Nomenclature.Id);

@@ -8,15 +8,20 @@ using QS.Services;
 using System;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -26,6 +31,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
 		private readonly IEmployeeService _employeeService;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private IEmployeeSettings _employeeSettings;
 
 		public CarEventJournalViewModel(
 			CarEventFilterViewModel filterViewModel,
@@ -33,7 +41,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICommonServices commonServices,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
-			IEmployeeService employeeService)
+			IEmployeeService employeeService,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
+			IEmployeeSettings employeeSettings)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
@@ -41,6 +52,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 
 			UpdateOnChanges(
 				typeof(CarEvent),
@@ -55,8 +69,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			Employee authorAlias = null;
 			Employee driverAlias = null;
 			Car carAlias = null;
-			GeographicGroup geographicGroupAlias = null;
+			GeoGroup geographicGroupAlias = null;
 			CarEventJournalNode resultAlias = null;
+			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -84,7 +100,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			itemsQuery.Left.JoinAlias(x => x.Author, () => authorAlias);
 			itemsQuery.Left.JoinAlias(x => x.Driver, () => driverAlias);
 			itemsQuery.Left.JoinAlias(x => x.Car, () => carAlias);
+			itemsQuery.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias);
 			itemsQuery.Left.JoinAlias(() => carAlias.GeographicGroups, () => geographicGroupAlias);
+			itemsQuery.JoinEntityAlias(
+				() => carVersionAlias,
+				() => carVersionAlias.Car.Id == carAlias.Id
+					&& carVersionAlias.StartDate <= carEventAlias.StartDate
+					&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= carEventAlias.StartDate),
+				JoinType.LeftOuterJoin);
 
 			if(FilterViewModel.CarEventType != null)
 			{
@@ -116,7 +139,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(FilterViewModel.Car != null)
 			{
-				itemsQuery.Where(x => x.Car == FilterViewModel.Car);
+				itemsQuery.Where(() => carAlias.Id == FilterViewModel.Car.Id);
 			}
 
 			if(FilterViewModel.Driver != null)
@@ -129,10 +152,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				() => carEventAlias.Comment,
 				() => carEventTypeAlias.Name,
 				() => carEventTypeAlias.ShortName,
-				() => carAlias.Model,
+				() => carModelAlias.Name,
 				() => carAlias.RegistrationNumber,
 				() => driverProjection)
 			);
+
+			itemsQuery.OrderBy(() => carEventAlias.CreateDate).Desc();
 
 			itemsQuery
 				.SelectList(list => list
@@ -140,13 +165,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => carEventAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 					.Select(() => carEventAlias.StartDate).WithAlias(() => resultAlias.StartDate)
 					.Select(() => carEventAlias.EndDate).WithAlias(() => resultAlias.EndDate)
+					.Select(() => carEventAlias.RepairCost).WithAlias(() => resultAlias.RepairCost)
 					.Select(() => carEventAlias.Comment).WithAlias(() => resultAlias.Comment)
 					.Select(() => carEventTypeAlias.Name).WithAlias(() => resultAlias.CarEventTypeName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarRegistrationNumber)
 					.Select(() => carAlias.OrderNumber).WithAlias(() => resultAlias.CarOrderNumber)
-					.Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
-					.Select(() => carAlias.IsRaskat).WithAlias(() => resultAlias.IsRaskat)
-					.Select(() => carAlias.RaskatType).WithAlias(() => resultAlias.CarRaskatType)
+					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+					.Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
 					.Select(authorProjection).WithAlias(() => resultAlias.AuthorFullName)
 					.Select(driverProjection).WithAlias(() => resultAlias.DriverFullName)
 					.Select(geographicGroupsProjection).WithAlias(() => resultAlias.GeographicGroups)
@@ -163,7 +188,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				commonServices,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
-				_employeeService);
+				_employeeService,
+				_employeeJournalFactory,
+				_undeliveryViewOpener,
+				_employeeSettings);
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
 			node => new CarEventViewModel(
@@ -172,6 +200,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				commonServices,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
-				_employeeService);
+				_employeeService,
+				_employeeJournalFactory,
+				_undeliveryViewOpener,
+				_employeeSettings);
 	}
 }

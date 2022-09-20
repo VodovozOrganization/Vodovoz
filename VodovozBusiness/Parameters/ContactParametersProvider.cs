@@ -1,25 +1,18 @@
-﻿using Vodovoz.Core.DataService;
+﻿using System;
 using Vodovoz.Services;
 
 namespace Vodovoz.Parameters
 {
 	public class ContactParametersProvider : IContactsParameters
 	{
-		public static ContactParametersProvider Instance { get; private set; }
-		private static IContactsParameters parameters;
+		private readonly IParametersProvider _parametersProvider;
 
-		static ContactParametersProvider()
-		{	
-			parameters = new BaseParametersProvider(new ParametersProvider());
-			Instance = new ContactParametersProvider();
-		}
-
-		private ContactParametersProvider()
+		public ContactParametersProvider(IParametersProvider parametersProvider)
 		{
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 		}
 
-		public int MinSavePhoneLength => parameters.MinSavePhoneLength;
-
-		public string DefaultCityCode => parameters.DefaultCityCode;
+		public int MinSavePhoneLength => _parametersProvider.GetValue<int>("MinSavePhoneLength");
+		public string DefaultCityCode => _parametersProvider.GetValue<string>("default_city_code");
 	}
 }

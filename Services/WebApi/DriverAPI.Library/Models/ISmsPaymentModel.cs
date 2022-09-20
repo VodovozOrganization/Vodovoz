@@ -4,6 +4,6 @@ namespace DriverAPI.Library.Models
 {
 	public interface ISmsPaymentModel
 	{
-		SmsPaymentStatus? GetOrderPaymentStatus(int orderId);
+		SmsPaymentStatus? GetOrderSmsPaymentStatus(int orderId);
 	}
 }

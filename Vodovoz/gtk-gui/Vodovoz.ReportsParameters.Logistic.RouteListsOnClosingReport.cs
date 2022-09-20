@@ -6,21 +6,37 @@ namespace Vodovoz.ReportsParameters.Logistic
 	{
 		private global::Gtk.VBox vbox1;
 
-		private global::Gtk.VBox vbox2;
+		private global::Gtk.Table table1;
 
-		private global::Gamma.GtkWidgets.yCheckButton chkRemTodayRLs;
+		private global::Gtk.HBox hbox3;
 
-		private global::Gamma.GtkWidgets.yCheckButton chkRemTruckRLs;
+		private global::QS.Widgets.NullableCheckButton nullCheckVisitingMasters;
 
-		private global::Gamma.GtkWidgets.yCheckButton chkRemServiceRLs;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckTodayRouteLists;
 
-		private global::Gamma.GtkWidgets.yCheckButton chkRemMercRLs;
+		private global::Gamma.GtkWidgets.yLabel ylabelGeoGroup;
 
-		private global::Gtk.HBox hbox2;
+		private global::Gamma.GtkWidgets.yLabel ylabelTodayRouteLists;
 
-		private global::Gtk.Label label3;
+		private global::Gamma.GtkWidgets.yLabel ylabelVisitingMasters;
 
 		private global::Gamma.Widgets.ySpecComboBox ySpecCmbGeographicGroup;
+
+		private global::Gtk.HSeparator hseparator2;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelTypeOfUse;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindowTypeOfUse;
+
+		private global::Gamma.Widgets.EnumCheckList enumcheckCarTypeOfUse;
+
+		private global::Gtk.HSeparator hseparator3;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOwnType;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindowOwnType;
+
+		private global::Gamma.Widgets.EnumCheckList enumcheckCarOwnType;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -37,85 +53,167 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.vbox2 = new global::Gtk.VBox();
-			this.vbox2.Name = "vbox2";
-			this.vbox2.Spacing = 6;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.chkRemTodayRLs = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkRemTodayRLs.CanFocus = true;
-			this.chkRemTodayRLs.Name = "chkRemTodayRLs";
-			this.chkRemTodayRLs.Label = global::Mono.Unix.Catalog.GetString("cегодняшние МЛ");
-			this.chkRemTodayRLs.DrawIndicator = false;
-			this.chkRemTodayRLs.UseUnderline = true;
-			this.vbox2.Add(this.chkRemTodayRLs);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.chkRemTodayRLs]));
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.table1.Name = "table1";
+			this.table1.RowSpacing = ((uint)(6));
+			this.table1.ColumnSpacing = ((uint)(6));
+			// Container child table1.Gtk.Table+TableChild
+			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.nullCheckVisitingMasters = new global::QS.Widgets.NullableCheckButton();
+			this.nullCheckVisitingMasters.CanFocus = true;
+			this.nullCheckVisitingMasters.Name = "nullCheckVisitingMasters";
+			this.nullCheckVisitingMasters.UseUnderline = true;
+			this.hbox3.Add(this.nullCheckVisitingMasters);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.nullCheckVisitingMasters]));
 			w1.Position = 0;
 			w1.Expand = false;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.chkRemTruckRLs = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkRemTruckRLs.CanFocus = true;
-			this.chkRemTruckRLs.Name = "chkRemTruckRLs";
-			this.chkRemTruckRLs.Label = global::Mono.Unix.Catalog.GetString("МЛ фур");
-			this.chkRemTruckRLs.DrawIndicator = false;
-			this.chkRemTruckRLs.UseUnderline = true;
-			this.vbox2.Add(this.chkRemTruckRLs);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.chkRemTruckRLs]));
-			w2.Position = 1;
-			w2.Expand = false;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.chkRemServiceRLs = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkRemServiceRLs.CanFocus = true;
-			this.chkRemServiceRLs.Name = "chkRemServiceRLs";
-			this.chkRemServiceRLs.Label = global::Mono.Unix.Catalog.GetString("МЛ мастеров");
-			this.chkRemServiceRLs.DrawIndicator = false;
-			this.chkRemServiceRLs.UseUnderline = true;
-			this.vbox2.Add(this.chkRemServiceRLs);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.chkRemServiceRLs]));
-			w3.Position = 2;
-			w3.Expand = false;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.chkRemMercRLs = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkRemMercRLs.CanFocus = true;
-			this.chkRemMercRLs.Name = "chkRemMercRLs";
-			this.chkRemMercRLs.Label = global::Mono.Unix.Catalog.GetString("МЛ наёмников");
-			this.chkRemMercRLs.DrawIndicator = false;
-			this.chkRemMercRLs.UseUnderline = true;
-			this.vbox2.Add(this.chkRemMercRLs);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.chkRemMercRLs]));
-			w4.Position = 3;
-			w4.Expand = false;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.label3 = new global::Gtk.Label();
-			this.label3.Name = "label3";
-			this.label3.Xalign = 1F;
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Район города:");
-			this.hbox2.Add(this.label3);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.label3]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
+			w1.Fill = false;
+			this.table1.Add(this.hbox3);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox3]));
+			w2.TopAttach = ((uint)(1));
+			w2.BottomAttach = ((uint)(2));
+			w2.LeftAttach = ((uint)(1));
+			w2.RightAttach = ((uint)(2));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ycheckTodayRouteLists = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckTodayRouteLists.CanFocus = true;
+			this.ycheckTodayRouteLists.Name = "ycheckTodayRouteLists";
+			this.ycheckTodayRouteLists.Label = "";
+			this.ycheckTodayRouteLists.DrawIndicator = true;
+			this.ycheckTodayRouteLists.UseUnderline = true;
+			this.ycheckTodayRouteLists.FocusOnClick = false;
+			this.ycheckTodayRouteLists.Xalign = 0F;
+			this.ycheckTodayRouteLists.Yalign = 0F;
+			this.table1.Add(this.ycheckTodayRouteLists);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckTodayRouteLists]));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelGeoGroup = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelGeoGroup.Name = "ylabelGeoGroup";
+			this.ylabelGeoGroup.Xalign = 1F;
+			this.ylabelGeoGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Район города:");
+			this.table1.Add(this.ylabelGeoGroup);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelGeoGroup]));
+			w4.TopAttach = ((uint)(2));
+			w4.BottomAttach = ((uint)(3));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelTodayRouteLists = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTodayRouteLists.Name = "ylabelTodayRouteLists";
+			this.ylabelTodayRouteLists.Xalign = 1F;
+			this.ylabelTodayRouteLists.LabelProp = global::Mono.Unix.Catalog.GetString("Включая сегодняшние МЛ:");
+			this.table1.Add(this.ylabelTodayRouteLists);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelTodayRouteLists]));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelVisitingMasters = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelVisitingMasters.Name = "ylabelVisitingMasters";
+			this.ylabelVisitingMasters.Xalign = 1F;
+			this.ylabelVisitingMasters.LabelProp = global::Mono.Unix.Catalog.GetString("Выездные мастера:");
+			this.table1.Add(this.ylabelVisitingMasters);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelVisitingMasters]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ySpecCmbGeographicGroup = new global::Gamma.Widgets.ySpecComboBox();
 			this.ySpecCmbGeographicGroup.Name = "ySpecCmbGeographicGroup";
 			this.ySpecCmbGeographicGroup.AddIfNotExist = false;
 			this.ySpecCmbGeographicGroup.DefaultFirst = false;
 			this.ySpecCmbGeographicGroup.ShowSpecialStateAll = true;
 			this.ySpecCmbGeographicGroup.ShowSpecialStateNot = false;
-			this.hbox2.Add(this.ySpecCmbGeographicGroup);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ySpecCmbGeographicGroup]));
-			w6.Position = 1;
-			this.vbox2.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
-			w7.Position = 4;
-			w7.Expand = false;
-			w7.Fill = false;
-			this.vbox1.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vbox2]));
+			this.table1.Add(this.ySpecCmbGeographicGroup);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.ySpecCmbGeographicGroup]));
+			w7.TopAttach = ((uint)(2));
+			w7.BottomAttach = ((uint)(3));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vbox1.Add(this.table1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
 			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hseparator2 = new global::Gtk.HSeparator();
+			this.hseparator2.Name = "hseparator2";
+			this.vbox1.Add(this.hseparator2);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator2]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelTypeOfUse = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTypeOfUse.Name = "ylabelTypeOfUse";
+			this.ylabelTypeOfUse.Xalign = 0F;
+			this.ylabelTypeOfUse.LabelProp = global::Mono.Unix.Catalog.GetString("Тип авто:");
+			this.vbox1.Add(this.ylabelTypeOfUse);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelTypeOfUse]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindowTypeOfUse = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowTypeOfUse.Name = "GtkScrolledWindowTypeOfUse";
+			this.GtkScrolledWindowTypeOfUse.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowTypeOfUse.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w11 = new global::Gtk.Viewport();
+			w11.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport1.Gtk.Container+ContainerChild
+			this.enumcheckCarTypeOfUse = new global::Gamma.Widgets.EnumCheckList();
+			this.enumcheckCarTypeOfUse.Name = "enumcheckCarTypeOfUse";
+			w11.Add(this.enumcheckCarTypeOfUse);
+			this.GtkScrolledWindowTypeOfUse.Add(w11);
+			this.vbox1.Add(this.GtkScrolledWindowTypeOfUse);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindowTypeOfUse]));
+			w14.Position = 3;
+			w14.Expand = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hseparator3 = new global::Gtk.HSeparator();
+			this.hseparator3.Name = "hseparator3";
+			this.vbox1.Add(this.hseparator3);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator3]));
+			w15.Position = 4;
+			w15.Expand = false;
+			w15.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelOwnType = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOwnType.Name = "ylabelOwnType";
+			this.ylabelOwnType.Xalign = 0F;
+			this.ylabelOwnType.LabelProp = global::Mono.Unix.Catalog.GetString("Принадлежность авто:");
+			this.vbox1.Add(this.ylabelOwnType);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelOwnType]));
+			w16.Position = 5;
+			w16.Expand = false;
+			w16.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindowOwnType = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowOwnType.Name = "GtkScrolledWindowOwnType";
+			this.GtkScrolledWindowOwnType.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowOwnType.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w17 = new global::Gtk.Viewport();
+			w17.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport2.Gtk.Container+ContainerChild
+			this.enumcheckCarOwnType = new global::Gamma.Widgets.EnumCheckList();
+			this.enumcheckCarOwnType.Name = "enumcheckCarOwnType";
+			w17.Add(this.enumcheckCarOwnType);
+			this.GtkScrolledWindowOwnType.Add(w17);
+			this.vbox1.Add(this.GtkScrolledWindowOwnType);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindowOwnType]));
+			w20.Position = 6;
+			w20.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -123,18 +221,18 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w9.PackType = ((global::Gtk.PackType)(1));
-			w9.Position = 1;
-			w9.Expand = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w21.PackType = ((global::Gtk.PackType)(1));
+			w21.Position = 7;
+			w21.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vbox1.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
-			w10.PackType = ((global::Gtk.PackType)(1));
-			w10.Position = 2;
-			w10.Expand = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
+			w22.PackType = ((global::Gtk.PackType)(1));
+			w22.Position = 8;
+			w22.Expand = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

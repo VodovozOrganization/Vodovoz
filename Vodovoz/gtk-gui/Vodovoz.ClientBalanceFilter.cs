@@ -10,7 +10,7 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryClient;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferencePoint;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDeliveryPoint;
 
 		private global::Gtk.Label label1;
 
@@ -56,12 +56,13 @@ namespace Vodovoz
 			w2.RightAttach = ((uint)(2));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferencePoint = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.entryreferencePoint.Sensitive = false;
-			this.entryreferencePoint.Events = ((global::Gdk.EventMask)(256));
-			this.entryreferencePoint.Name = "entryreferencePoint";
-			this.table1.Add(this.entryreferencePoint);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferencePoint]));
+			this.evmeDeliveryPoint = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeDeliveryPoint.Sensitive = false;
+			this.evmeDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.evmeDeliveryPoint.Name = "evmeDeliveryPoint";
+			this.evmeDeliveryPoint.CanEditReference = true;
+			this.table1.Add(this.evmeDeliveryPoint);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDeliveryPoint]));
 			w3.LeftAttach = ((uint)(3));
 			w3.RightAttach = ((uint)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -114,7 +115,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.entryreferencePoint.Changed += new global::System.EventHandler(this.OnEntryreferencePointChanged);
 			this.entryClient.Changed += new global::System.EventHandler(this.OnEntryClientChanged);
 			this.checkIncludeSold.Toggled += new global::System.EventHandler(this.OnCheckIncludeSoldToggled);
 		}

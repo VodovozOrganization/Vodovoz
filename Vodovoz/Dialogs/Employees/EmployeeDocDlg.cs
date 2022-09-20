@@ -5,23 +5,26 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.Validation;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EmployeeDocDlg : SingleUowTabBase
+	public partial class EmployeeDocDlg : SingleUowTabBase, IAskSaveOnCloseViewModel
 	{
 		public EmployeeDocument Entity;
 		IUnitOfWork _unitOfWork;
 		private readonly ICommonServices _commonServices;
-		private IPermissionResult _employeeDocumentsPermissionsSet;
+		private readonly bool _canEditEmployee;
+		private bool _canEdit;
 
-		public EmployeeDocDlg(IUnitOfWork uow, EmployeeDocumentType[] hiddenDocument, ICommonServices commonServices)
+		public EmployeeDocDlg(IUnitOfWork uow, EmployeeDocumentType[] hiddenDocument, ICommonServices commonServices, bool canEditEmployee)
 		{
 			Build();
 			_unitOfWork = uow;
 			_commonServices = commonServices;
+			_canEditEmployee = canEditEmployee;
 			if(hiddenDocument != null)
 			{
 				comboCategory.AddEnumToHideList(hiddenDocument.Cast<object>().ToArray());
@@ -35,18 +38,22 @@ namespace Vodovoz.Dialogs.Employees
 
 		public event EventHandler Save;
 
-		public EmployeeDocDlg(int id, IUnitOfWork uow, ICommonServices commonServices)
+		public EmployeeDocDlg(int id, IUnitOfWork uow, ICommonServices commonServices, bool canEditEmployee)
 		{
 			Build();
 			_unitOfWork = uow;
 			_commonServices = commonServices;
+			_canEditEmployee = canEditEmployee;
 			Entity = (EmployeeDocument)_unitOfWork.GetById(typeof(EmployeeDocument), id);
 			TabName = Entity.Document.GetEnumTitle();
 			ConfigureDlg();
 		}
 
-		public EmployeeDocDlg(EmployeeDocument sub, IUnitOfWork uow, ICommonServices commonServices) : this(sub.Id, uow, commonServices) { }
+		public EmployeeDocDlg(EmployeeDocument sub, IUnitOfWork uow, ICommonServices commonServices, bool canEditEmployee)
+			: this(sub.Id, uow, commonServices, canEditEmployee) { }
 
+		public bool AskSaveOnClose => _canEdit;
+		
 		private bool SaveDoc()
 		{
 			var valid = new QSValidator<EmployeeDocument>(Entity);
@@ -61,10 +68,9 @@ namespace Vodovoz.Dialogs.Employees
 
 		private void ConfigureDlg()
 		{
-			_employeeDocumentsPermissionsSet = _commonServices.PermissionService
-				.ValidateUserPermission(typeof(EmployeeDocument), _commonServices.UserService.CurrentUserId);
+			var employeeDocumentsPermission = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(EmployeeDocument));
 
-			if(Entity.Id != 0 && !_employeeDocumentsPermissionsSet.CanRead)
+			if(Entity.Id != 0 && !employeeDocumentsPermission.CanRead)
 			{
 				_commonServices.InteractiveService
 					.ShowMessage(QS.Dialog.ImportanceLevel.Error, "Недостаточно прав для просмотра документов", "Недостаточно прав");
@@ -72,31 +78,39 @@ namespace Vodovoz.Dialogs.Employees
 				TabParent?.ForceCloseTab(this, QS.Navigation.CloseSource.Self);
 			}
 
-			var canUpdate = _employeeDocumentsPermissionsSet.CanUpdate
-						 || (Entity.Id == 0 && _employeeDocumentsPermissionsSet.CanCreate);
-
-			foreach(var widget in table1.Children)
-			{
-				if(widget != GtkScrolledWindow)
-				{
-					widget.Sensitive = canUpdate;
-				}
-			}
-			buttonSave.Sensitive = canUpdate;
-			ytextviewIssueOrg.Sensitive = canUpdate;
+			_canEdit =
+				(employeeDocumentsPermission.CanUpdate || (Entity.Id == 0 && employeeDocumentsPermission.CanCreate)) && _canEditEmployee;
+			
+			buttonSave.Sensitive = _canEdit;
 
 			comboCategory.ItemsEnum = typeof(EmployeeDocumentType);
-			comboCategory.Binding.AddBinding(Entity, e => e.Document, w => w.SelectedItemOrNull).InitializeFromSource();
+			comboCategory.Sensitive = _canEdit;
+			comboCategory.Binding
+				.AddBinding(Entity, e => e.Document, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
 
 			yentryPasSeria.MaxLength = 30;
-			yentryPasSeria.Binding.AddBinding(Entity, e => e.PassportSeria, w => w.Text).InitializeFromSource();
+			yentryPasSeria.Binding
+				.AddBinding(Entity, e => e.PassportSeria, w => w.Text)
+				.InitializeFromSource();
 			yentryPassportNumber.MaxLength = 30;
-			yentryPassportNumber.Binding.AddBinding(Entity, e => e.PassportNumber, w => w.Text).InitializeFromSource();
-			yentryDocName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			yentryPassportNumber.Binding
+				.AddBinding(Entity, e => e.PassportNumber, w => w.Text)
+				.InitializeFromSource();
+			yentryDocName.Binding
+				.AddBinding(Entity, e => e.Name, w => w.Text)
+				.InitializeFromSource();
 
-			ytextviewIssueOrg.Binding.AddBinding(Entity, e => e.PassportIssuedOrg, w => w.Buffer.Text).InitializeFromSource();
-			ydatePassportIssuedDate.Binding.AddBinding(Entity, e => e.PassportIssuedDate, w => w.DateOrNull).InitializeFromSource();
-			ycheckMainDoc.Binding.AddBinding(Entity, e => e.MainDocument, w => w.Active).InitializeFromSource();
+			ytextviewIssueOrg.Binding
+				.AddBinding(Entity, e => e.PassportIssuedOrg, w => w.Buffer.Text)
+				.InitializeFromSource();
+			ydatePassportIssuedDate.Binding
+				.AddBinding(Entity, e => e.PassportIssuedDate, w => w.DateOrNull)
+				.InitializeFromSource();
+			ycheckMainDoc.Sensitive = _canEdit;
+			ycheckMainDoc.Binding
+				.AddBinding(Entity, e => e.MainDocument, w => w.Active)
+				.InitializeFromSource();
 			OnDocumentTypeSelected(this, null);
 		}
 

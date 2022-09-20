@@ -1,6 +1,4 @@
 using System;
-using System.IO;
-using LettuceEncrypt;
 using MangoService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -49,15 +47,6 @@ namespace VodovozMangoService
             services.AddHostedService<NotificationHostedService>(provider => provider.GetService<NotificationHostedService>());
 
             services.AddControllers();
-
-            services.AddLettuceEncrypt(options =>
-                {
-                    options.DomainNames = new []{"mango.vod.qsolution.ru"};
-                    options.AcceptTermsOfService = true;
-                    options.EmailAddress = "fix@qsolution.ru";
-                })
-                .PersistDataToDirectory(new DirectoryInfo("/var/lib/letsencrypt"), "vodovoz");
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

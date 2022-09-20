@@ -9,6 +9,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 
@@ -21,8 +22,6 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class IncomingInvoice : Document, IValidatableObject
 	{
-		//TODO Map invoice item to database
-
 		IList<IncomingInvoiceItem> items = new List<IncomingInvoiceItem>();
 
 		[Display(Name = "Строки")]
@@ -43,13 +42,9 @@ namespace Vodovoz.Domain.Documents
 				return observableItems;
 			}
 		}
-		
-		
-		
-		
 
 		#region Properties
-		
+
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
 			set {
@@ -176,6 +171,24 @@ namespace Vodovoz.Domain.Documents
 					);
 			}
 
+			var needWeightOrVolume = Items
+				.Select(item => item.Nomenclature)
+				.Where(nomenclature =>
+					Nomenclature.CategoriesWithWeightAndVolume.Contains(nomenclature.Category)
+					&& (nomenclature.Weight == default
+						|| nomenclature.Length == default
+						|| nomenclature.Width == default
+						|| nomenclature.Height == default))
+				.ToList();
+			if(needWeightOrVolume.Any())
+			{
+				yield return new ValidationResult(
+					"Для всех добавленных номенклатур должны быть заполнены вес и объём.\n" +
+					"Список номенклатур, в которых не заполнен вес или объём:\n" +
+					$"{string.Join("\n", needWeightOrVolume.Select(x => $"({x.Id}) {x.Name}"))}",
+					new[] { nameof(Items) });
+			}
+
 			if(string.IsNullOrWhiteSpace(WaybillNumber) || string.IsNullOrWhiteSpace(InvoiceNumber))
 				yield return new ValidationResult(
 					string.Format("\"Номер счета-фактуры\" и \"Номер входящей накладной\" должны быть указаны"),
@@ -203,7 +216,6 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#endregion
-		
 	}
 }
 

@@ -4,7 +4,6 @@ using Gtk;
 using NLog;
 using QSProjectsLib;
 using Vodovoz.Parameters;
-using EmailService;
 using QS.Project.Dialogs.GtkUI;
 using QS.Utilities.Text;
 using QS.Widgets.GtkUI;
@@ -16,7 +15,6 @@ using Vodovoz.Core.DataService;
 using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools;
-using QS.Osm;
 using QS.Tools;
 using SmsPaymentService;
 using System.Security.Principal;
@@ -35,11 +33,13 @@ using QS.Project.Versioning;
 using QS.Validation;
 using QS.ViewModels;
 using Vodovoz.Configuration;
+using Vodovoz.Services;
 using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {
@@ -60,8 +60,9 @@ namespace Vodovoz
 			applicationInfo = new ApplicationVersionInfo();
 
 			#region Первоначальная настройка обработки ошибок
-			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(), applicationInfo, new LogService(), null, false, null);
-			var errorMessageModelFactoryWithoutUserService = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, null, null);
+			ErrorReporter.Instance.AutomaticallySendEnabled = false;
+			ErrorReporter.Instance.SendedLogRowCount = 100;
+			var errorMessageModelFactoryWithoutUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, null, null);
 			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactoryWithoutUserService, applicationInfo);
 
 			exceptionHandler.SubscribeToUnhandledExceptions();
@@ -109,16 +110,13 @@ namespace Vodovoz
 
 			#region Настройка обработки ошибок c параметрами из базы и сервисами
 			var baseParameters = new BaseParametersProvider(parametersProvider);
-			SingletonErrorReporter.Initialize(
-				ReportWorker.GetReportService(),
-				applicationInfo,
-				new LogService(), 
-				LoginDialog.BaseName, 
-				LoginDialog.BaseName == baseParameters.GetDefaultBaseForErrorSend(),
-				baseParameters.GetRowCountForErrorLog()
-			);
 
-			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
+			bool canAutomaticallyErrorSend = LoginDialog.BaseName == baseParameters.GetDefaultBaseForErrorSend();
+			ErrorReporter.Instance.DatabaseName = LoginDialog.BaseName;
+			ErrorReporter.Instance.AutomaticallySendEnabled = canAutomaticallyErrorSend;
+			ErrorReporter.Instance.SendedLogRowCount = baseParameters.GetRowCountForErrorLog();
+
+			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
 			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;
 			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactoryWithUserService;
 			//Настройка обычных обработчиков ошибок.
@@ -129,7 +127,8 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionConnectionTimeoutHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuthHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SocketTimeoutException);
-			
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.GeoGroupVersionNotFoundException);
+
 			#endregion
 
 			passwordValidator = new PasswordValidator(
@@ -152,11 +151,6 @@ namespace Vodovoz
 
 			DatePicker.CalendarFontSize = 16;
 			DateRangePicker.CalendarFontSize = 16;
-
-			OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
-			OsmWorker.ServicePort = 7073;
-
-			QS.Osm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
 
@@ -280,11 +274,6 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 			
 			//Настройка сервисов
-			if(parametersProvider.ContainsParameter("email_send_enabled_database") && parametersProvider.ContainsParameter("email_service_address")) {
-				if(parametersProvider.GetParameterValue("email_send_enabled_database") == loginDialogName) {
-					EmailServiceSetting.Init(parametersProvider.GetParameterValue("email_service_address"));
-				}
-			}
 			if(parametersProvider.ContainsParameter("instant_sms_enabled_database") && parametersProvider.ContainsParameter("sms_service_address")) {
 				if(parametersProvider.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
 					InstantSmsServiceSetting.Init(parametersProvider.GetParameterValue("sms_service_address"));
@@ -296,6 +285,7 @@ namespace Vodovoz
 					SmsPaymentServiceSetting.Init(parametersProvider.GetParameterValue("sms_payment_send_service_address"));
 				}
 			}
+			DriverApiParametersProvider.InitializeNotifications(parametersProvider, loginDialogName);
 
 			CreateTempDir();
 

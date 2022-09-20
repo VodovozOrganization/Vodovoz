@@ -85,7 +85,7 @@ namespace Vodovoz.Views.Complaints
 			this.btnAddGuilty.CanFocus = true;
 			this.btnAddGuilty.Name = "btnAddGuilty";
 			this.btnAddGuilty.UseUnderline = true;
-			this.btnAddGuilty.Label = global::Mono.Unix.Catalog.GetString("Добавить виновника");
+			this.btnAddGuilty.Label = global::Mono.Unix.Catalog.GetString("Добавить ответственного");
 			this.hbox1.Add(this.btnAddGuilty);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnAddGuilty]));
 			w5.PackType = ((global::Gtk.PackType)(1));

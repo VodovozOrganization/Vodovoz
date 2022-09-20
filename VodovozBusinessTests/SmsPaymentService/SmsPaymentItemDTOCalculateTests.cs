@@ -74,7 +74,7 @@ namespace VodovozBusinessTests.SmsPaymentService
 
             // assert
 
-            Assert.That(result, Is.EqualTo(order.OrderSum));
+            Assert.That(result, Is.EqualTo(order.OrderPositiveSum));
         }
 
         [Test(Description = "Распределение цен по номенклатурам (число без дроби)")]

@@ -45,10 +45,11 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Users;
 using VodovozInfrastructure.Configuration;
 
@@ -89,10 +90,12 @@ namespace Vodovoz.Configuration
                 dbConfig,
                 new[] {
                     System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-                    System.Reflection.Assembly.GetAssembly(typeof(HibernateMapping.OrganizationMap)),
+                    System.Reflection.Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
+                    System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
                     System.Reflection.Assembly.GetAssembly(typeof(Bank)),
                     System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
-                    System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
+                    System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
+                    System.Reflection.Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings))
 				},
                 cnf => {
                     cnf.DataBaseIntegration(
@@ -103,7 +106,7 @@ namespace Vodovoz.Configuration
                     );
                 }
             );
-            
+
             logger.Debug("OK");
         }
 
@@ -112,7 +115,7 @@ namespace Vodovoz.Configuration
             logger.Debug("Конфигурация маппингов диалогов, HistoryTrace, принтеров и ParentReference...");
 
             #region Dialogs mapping
-            
+
             OrmMain.ClassMappingList = new List<IOrmObjectMapping> {
                 //Простые справочники
                 OrmObjectMapping<CullingCategory>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
@@ -122,9 +125,9 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<EquipmentColors>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsView>(),
-                OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name)
-                    .SearchColumn("Стоимость", x => x.Cost.ToString()).End(),
-                OrmObjectMapping<MovementWagon>.Create().Dialog<MovementWagonViewModel>().DefaultTableView()
+                OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeViewModel>().DefaultTableView()
+					.SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<MovementWagon>.Create().Dialog<MovementWagonViewModel>().DefaultTableView()
                     .SearchColumn("Название", x => x.Name).End(),
                 //Остальные справочники
                 OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),
@@ -133,8 +136,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView()
                     .SearchColumn("Шаблон комментария", x => x.Comment).End(),
                 OrmObjectMapping<FineTemplate>.Create().Dialog<FineTemplateDlg>().DefaultTableView()
-                    .SearchColumn("Шаблон комментария", x => x.Reason).End(),
-                OrmObjectMapping<PremiumTemplate>.Create().Dialog<PremiumTemplateDlg>().DefaultTableView()
                     .SearchColumn("Шаблон комментария", x => x.Reason).End(),
                 OrmObjectMapping<MeasurementUnits>.Create().Dialog<MeasurementUnitsDlg>().DefaultTableView()
                     .SearchColumn("ОКЕИ", x => x.OKEI).SearchColumn("Название", x => x.Name).Column("Точность", x => x.Digits.ToString())
@@ -146,12 +147,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<UndeliveredOrder>.Create().Dialog<UndeliveredOrderDlg>(),
                 OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString())
                     .SearchColumn("Название", x => x.Name).End(),
-                OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView()
-                    .SearchColumn("Название", x => x.Name)
-                    .SearchColumn("Время доставки", x => x.DeliveryTime)
-                    .Column("Архивный?", x => x.IsArchive ? "Да" : string.Empty)
-                    .OrderAsc(x => x.IsArchive).OrderAsc(x => x.From).OrderAsc(x => x.To)
-                    .End(),
                 OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()
                     .SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
                 OrmObjectMapping<EquipmentKind>.Create().Dialog<EquipmentKindDlg>().DefaultTableView()
@@ -160,8 +155,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Proxy>.Create().Dialog<ProxyDlg>()
                     .DefaultTableView().SearchColumn("Номер", x => x.Number).SearchColumn("С", x => x.StartDate.ToShortDateString())
                     .SearchColumn("По", x => x.ExpirationDate.ToShortDateString()).End(),
-                OrmObjectMapping<DeliveryPoint>.Create().Dialog<DeliveryPointDlg>().DefaultTableView()
-                    .SearchColumn("ID", x => x.Id.ToString()).Column("Адрес", x => x.Title).End(),
                 OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
                     .DefaultTableView().SearchColumn("Название", x => x.Name).Column("Вид оборудования", x => x.EquipmentKind.Name)
                     .SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString(x.PriceDaily))
@@ -206,7 +199,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Expense>.Create().Dialog<CashExpenseDlg>(),
                 OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportDlg>(),
                 OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
-                OrmObjectMapping<Premium>.Create().Dialog<PremiumDlg>(),
                 OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferDlg>(),
                 OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferDlg>(),
                 //Банкинг
@@ -251,17 +243,6 @@ namespace Vodovoz.Configuration
 
             #region Простые справочники
 
-            OrmMain.AddObjectDescription<GeographicGroup>()
-                .Dialog<GeographicGroupDlg>()
-                .DefaultTableView()
-                .SearchColumn("Название", x => x.Name)
-                .Column("Код", x => x.Id.ToString())
-                .End();
-            OrmMain.AddObjectDescription<TariffZone>()
-                .DefaultTableView()
-                .SearchColumn("Номер", x => x.Id.ToString())
-                .SearchColumn("Название", x => x.Name)
-                .End();
             OrmMain.AddObjectDescription<NonReturnReason>()
                 .DefaultTableView()
                 .SearchColumn("Код", x => x.Id.ToString())
@@ -300,12 +281,6 @@ namespace Vodovoz.Configuration
                 .SearchColumn("Имя класса", x => x.Type)
                 .OrderAsc(x => x.CustomName)
                 .End();
-            OrmMain.AddObjectDescription<Employee>().Dialog<EmployeeDlg>().DefaultTableView()
-                .Column("Код", x => x.Id.ToString())
-                .SearchColumn("Ф.И.О.", x => x.FullName)
-                .Column("Категория", x => x.Category.GetEnumTitle())
-                .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
-                .End();
             OrmMain.AddObjectDescription<Trainee>().Dialog<TraineeDlg>().DefaultTableView()
                 .Column("Код", x => x.Id.ToString())
                 .SearchColumn("Ф.И.О.", x => x.FullName)
@@ -320,12 +295,6 @@ namespace Vodovoz.Configuration
                 .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
                 .SearchColumn("Описание правила", x => x.Title)
                 .End();
-            OrmMain.AddObjectDescription<Car>().Dialog<CarsDlg>().DefaultTableView()
-                .SearchColumn("Код", x => x.Id.ToString())
-                .SearchColumn("Модель а/м", x => x.Model)
-                .SearchColumn("Гос. номер", x => x.RegistrationNumber)
-                .SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : string.Empty)
-                .End();
             OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
                 .SearchColumn("Имя", x => x.Name)
                 .Column("Тип", x => x.TypeOfCertificate.GetEnumTitle())
@@ -337,7 +306,7 @@ namespace Vodovoz.Configuration
                 .OrderAsc(x => x.IsArchive)
                 .OrderAsc(x => x.Id)
                 .End();
-            OrmMain.AddObjectDescription<StoredImageResource>().Dialog<ImageLoaderDlg>().DefaultTableView()
+            OrmMain.AddObjectDescription<StoredResource>().Dialog<ImageLoaderDlg>().DefaultTableView()
                 .SearchColumn("Номер", x => x.Id.ToString())
                 .SearchColumn("Название", x => x.Name)
                 .End();
@@ -353,7 +322,7 @@ namespace Vodovoz.Configuration
                 .End();
 
             #endregion
-            
+
             OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 
             #endregion
@@ -362,20 +331,6 @@ namespace Vodovoz.Configuration
             TemplatePrinter.InitPrinter();
             ImagePrinter.InitPrinter();
 
-            //Настройка ParentReference
-            ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, Account> {
-                AddNewChild = (o, a) => o.AddAccount(a)
-            });
-            ParentReferenceConfig.AddActions(new ParentReferenceActions<Counterparty, Account> {
-                AddNewChild = (c, a) => c.AddAccount(a)
-            });
-            ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, Account> {
-                AddNewChild = (c, a) => c.AddAccount(a)
-            });
-            ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, Account> {
-                AddNewChild = (c, a) => c.AddAccount(a)
-            });
-            
             logger.Debug("OK");
         }
     }

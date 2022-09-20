@@ -27,7 +27,7 @@ namespace Vodovoz.DocTemplates
 
             AddField(x => x.Organization.Name, "Организация.Название", PatternFieldType.FString);
 
-            AddField(x => x.CarModel, "Автомобиль.Модель", PatternFieldType.FString);
+            AddField(x => x.CarModelName, "Автомобиль.Модель", PatternFieldType.FString);
             AddField(x => x.CarRegistrationNumber, "Автомобиль.Номер", PatternFieldType.FString);
 
             AddField(x => x.DriverFIO, "Водитель.ФИО", PatternFieldType.FString);

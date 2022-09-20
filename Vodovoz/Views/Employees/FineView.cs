@@ -19,43 +19,82 @@ namespace Vodovoz.Views.Employees
 		private void ConfigureDlg()
 		{
 			enumFineType.ItemsEnum = typeof(FineTypes);
-			enumFineType.Binding.AddBinding(ViewModel, e => e.FineType, w => w.SelectedItem).InitializeFromSource();
-			enumFineType.Binding.AddBinding(ViewModel, vm => vm.CanEditFineType, w => w.Sensitive).InitializeFromSource();
+			enumFineType.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.FineType, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanEditFineType, w => w.Sensitive)
+				.InitializeFromSource();
 
-			ylabelOverspending.Binding.AddBinding(ViewModel, vm => vm.IsFuelOverspendingFine, w => w.Visible).InitializeFromSource();
-			yspinLiters.Binding.AddBinding(ViewModel.Entity, e => e.LitersOverspending, w => w.ValueAsDecimal).InitializeFromSource();
-			yspinLiters.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			yspinLiters.Binding.AddBinding(ViewModel, vm => vm.IsFuelOverspendingFine, w => w.Visible).InitializeFromSource();
+			ylabelOverspending.Binding
+				.AddBinding(ViewModel, vm => vm.IsFuelOverspendingFine, w => w.Visible)
+				.InitializeFromSource();
+			yspinLiters.Binding
+				.AddBinding(ViewModel, vm => vm.Liters, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsFuelOverspendingFine, w => w.Visible)
+				.InitializeFromSource();
 
-			ylabelRequestRouteList.Binding.AddBinding(ViewModel, vm => vm.CanShowRequestRouteListMessage, w => w.Visible).InitializeFromSource();
+			ylabelRequestRouteList.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowRequestRouteListMessage, w => w.Visible)
+				.InitializeFromSource();
 
-			ylabelAuthor.Binding.AddBinding(ViewModel.Entity, e => e.Author, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
+			ylabelAuthor.Binding
+				.AddBinding(ViewModel.Entity, e => e.Author, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter())
+				.InitializeFromSource();
 
 			var filterRouteList = new RouteListsFilter(ViewModel.UoW);
 			filterRouteList.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRouteList);
-			yentryreferenceRouteList.Binding.AddBinding(ViewModel, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryreferenceRouteList.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			yentryreferenceRouteList.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.RouteList, w => w.Subject)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
-			ylabelDate.Binding.AddFuncBinding(ViewModel.Entity, e => e.Date.ToString("D"), w => w.LabelProp).InitializeFromSource();
+			ylabelDate.Binding
+				.AddFuncBinding(ViewModel.Entity, e => e.Date.ToString("D"), w => w.LabelProp)
+				.AddBinding(ViewModel, e => e.DateEditable, w => w.Visible, new BooleanInvertedConverter())
+				.InitializeFromSource();
 
-			yspinMoney.Binding.AddBinding(ViewModel.Entity, e => e.TotalMoney, w => w.ValueAsDecimal).InitializeFromSource();
-			yspinMoney.Binding.AddBinding(ViewModel, vm => vm.IsStandartFine, w => w.Sensitive).InitializeFromSource();
+			ydatepicker.Binding
+				.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date)
+				.AddBinding(ViewModel, e => e.DateEditable, w => w.Visible)
+				.InitializeFromSource();
+			ydatepicker.IsEditable = true;
 
-			ybuttonDivideByAll.Binding.AddBinding(ViewModel, vm => vm.IsStandartFine, w => w.Visible).InitializeFromSource();
+
+			yspinMoney.Binding
+				.AddFuncBinding(ViewModel, vm => vm.IsStandartFine && vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.TotalMoney, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			ybuttonDivideByAll.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsStandartFine, w => w.Visible)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			ybuttonDivideByAll.Clicked += (sender, e) => ViewModel.DivideByAllCommand.Execute();
 
-			yentryFineReasonString.Binding.AddBinding(ViewModel, e => e.FineReasonString, w => w.Text).InitializeFromSource();
-			yentryFineReasonString.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			yentryFineReasonString.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.FineReasonString, w => w.Text)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryFineReasonString.Binding.InitializeFromSource();
 
-			ybuttonGetReasonFromTemplate.Binding.AddBinding(ViewModel, vm => vm.IsStandartFine, w => w.Visible).InitializeFromSource();
+			ybuttonGetReasonFromTemplate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsStandartFine, w => w.Visible)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			ybuttonGetReasonFromTemplate.Clicked += (sender, e) => ViewModel.SelectReasonTemplateCommand.Execute();
 
 			ybuttonAdd.Clicked += (sender, e) => ViewModel.AddFineItemCommand.Execute();
-			ViewModel.AddFineItemCommand.CanExecuteChanged += (sender, e) => { ybuttonAdd.Sensitive = ViewModel.AddFineItemCommand.CanExecute(); };
+			ViewModel.AddFineItemCommand.CanExecuteChanged += (sender, e) => ybuttonAdd.Sensitive = ViewModel.AddFineItemCommand.CanExecute();
 
 			ybuttonRemove.Clicked += (sender, e) => ViewModel.DeleteFineItemCommand.Execute(GetSelectedFineItem());
-			ViewModel.DeleteFineItemCommand.CanExecuteChanged += (sender, e) => { ybuttonRemove.Sensitive = ViewModel.DeleteFineItemCommand.CanExecute(GetSelectedFineItem()); };
+			ViewModel.DeleteFineItemCommand.CanExecuteChanged += (sender, e) =>
+				ybuttonRemove.Sensitive = ViewModel.DeleteFineItemCommand.CanExecute(GetSelectedFineItem());
 
 			ytreeviewItems.ColumnsConfig = FluentColumnsConfig<FineItem>.Create()
 				.AddColumn("Сотрудник").AddTextRenderer(x => x.Employee.FullName)
@@ -63,10 +102,13 @@ namespace Vodovoz.Views.Employees
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddColumn("Причина штрафа").AddTextRenderer(x => x.Fine.FineReasonString)
 				.Finish();
-			ytreeviewItems.Binding.AddBinding(ViewModel.Entity, e => e.ObservableItems, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewItems.Binding
+				.AddBinding(ViewModel.Entity, e => e.ObservableItems, w => w.ItemsDataSource)
+				.InitializeFromSource();
 
-			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
+			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			buttonSave.Sensitive = ViewModel.CanEdit;
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);
 		}
 
 		private FineItem GetSelectedFineItem()

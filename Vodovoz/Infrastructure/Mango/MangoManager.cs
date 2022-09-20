@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ClientMangoService;
 using Gtk;
 using MangoService;
-using NHibernate.Util;
 using NLog;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
@@ -15,11 +15,11 @@ using QS.Services;
 using QS.Utilities.Debug;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Mango;
 using Vodovoz.ViewModels.Mango.Talks;
+using xNetStandard;
 
 namespace Vodovoz.Infrastructure.Mango
 {
@@ -31,6 +31,7 @@ namespace Vodovoz.Infrastructure.Mango
 		private readonly IEmployeeService employeeService;
 		private readonly IUserService userService;
 		private readonly INavigationManager navigation;
+		private readonly IInteractiveService _interactiveService;
 		private ConnectionState connectionState;
 		private uint extension;
 		private MangoServiceClient mangoServiceClient;
@@ -44,13 +45,15 @@ namespace Vodovoz.Infrastructure.Mango
 			IEmployeeService employeeService,
 			IUserService userService,
 			INavigationManager navigation,
-			BaseParametersProvider parameters)
+			BaseParametersProvider parameters,
+			IInteractiveService interactiveService)
 		{
 			this.toolbarIcon = toolbarIcon;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			this.navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_mangoController = new MangoController(parameters.VpbxApiKey, parameters.VpbxApiSalt);
 
 			timer = GLib.Timeout.Add(1000, new GLib.TimeoutHandler(HandleTimeoutHandler));
@@ -348,7 +351,21 @@ namespace Vodovoz.Infrastructure.Mango
 
 		public void MakeCall(string to_extension)
 		{
-			_mangoController.MakeCall(Convert.ToString(this.extension), to_extension);
+			try
+			{
+				_mangoController.MakeCall(Convert.ToString(this.extension), to_extension);
+			}
+			catch(HttpException e)
+			{
+				if(e.HttpStatusCode == HttpStatusCode.TooManyRequests || e.HttpStatusCode == HttpStatusCode.ServiceUnavailable)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Все линии заняты.\nПопробуйте позвонить позже");
+				}
+				else
+				{
+					throw;
+				}
+			}
 		}
 
 		public void ForwardCall(string to_extension, ForwardingMethod method)

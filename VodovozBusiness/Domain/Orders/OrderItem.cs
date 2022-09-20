@@ -18,13 +18,20 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource
+	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource, IDiscount
 	{
+		private NomenclatureParametersProvider _nomenclatureParameterProvider = new NomenclatureParametersProvider(new ParametersProvider());
+
 		private int? paidDeliveryNomenclatureId;
-		private int PaidDeliveryNomenclatureId => 
-			paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId =
-				new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId).Value;
-		
+		private int PaidDeliveryNomenclatureId =>
+			paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = _nomenclatureParameterProvider.PaidDeliveryNomenclatureId).Value;
+
+		private int? _fastDeliveryNomenclatureId;
+		private int FastDeliveryNomenclatureId =>
+			_fastDeliveryNomenclatureId ?? (_fastDeliveryNomenclatureId = _nomenclatureParameterProvider.FastDeliveryNomenclatureId).Value;
+
+		private OrderItem _copiedFromUndelivery;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -184,7 +191,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref discountByStock, value, () => DiscountByStock);
 		}
 
-
 		decimal? valueAddedTax;
 		[Display(Name = "НДС на момент создания заказа")]
 		public virtual decimal? ValueAddedTax {
@@ -285,6 +291,12 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion Аренда
 
+		public OrderItem CopiedFromUndelivery
+		{
+			get => _copiedFromUndelivery;
+			set => SetField(ref _copiedFromUndelivery, value);
+		}
+		
 		#endregion
 
 		#region Вычисляемые
@@ -369,7 +381,8 @@ namespace Vodovoz.Domain.Orders
 			discountPercent = discountPercent > 100 ? 100 : discountPercent < 0 ? 0 : discountPercent;
 
 			var existingPercent = GetPercentDiscount();
-			if(existingPercent == 100 && DiscountByStock == 0) {
+			if(existingPercent == 100 && DiscountByStock == 0)
+			{
 				return;
 			}
 
@@ -381,9 +394,12 @@ namespace Vodovoz.Domain.Orders
 			DiscountMoney = Price * CurrentCount * Discount / 100;
 			DiscountByStock = discountPercent;
 
-			if(Discount == 0) {
+			if(Discount == 0)
+			{
 				DiscountReason = null;
-			} else if(DiscountReason == null) {
+			}
+			else if((DiscountReason == null && PromoSet == null) || (DiscountReason == null && PromoSet != null && existingPercent == 0))
+			{
 				DiscountReason = discountReasonForStockBottle;
 			}
 		}
@@ -409,6 +425,11 @@ namespace Vodovoz.Domain.Orders
 
 				if(PromoSet != null && !PromoSet.CanEditNomenclatureCount)
 					result = false;
+
+				if(Nomenclature.Id == FastDeliveryNomenclatureId)
+				{
+					result = false;
+				}
 
 				return result;
 			}

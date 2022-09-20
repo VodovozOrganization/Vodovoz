@@ -1,5 +1,4 @@
-﻿using System;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -9,11 +8,13 @@ using QS.Tdi;
 using QS.ViewModels;
 using QSOrmProject;
 using QSReport;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using System;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -66,8 +67,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на долг";
 			EntityUoWBuilder = uowBuilder;
 
-			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(), currentEmployee, commonServices.InteractiveService, _parametersProvider, UoW);
+			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), new EmailParametersProvider(new ParametersProvider()), currentEmployee, commonServices.InteractiveService, UoW);
 		}
 
 		

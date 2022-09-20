@@ -17,6 +17,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -31,12 +32,14 @@ namespace Vodovoz.Journals.JournalViewModels
 			ICommonServices commonServices,
 			IEmployeeRepository employeeRepository,
 			IEntityDeleteWorker entityDeleteWorker,
+			IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			bool hideJournalForOpenDialog = false, 
 			bool hideJournalForCreateDialog = false)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
+			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_deliveryRulesParametersProvider = 
@@ -57,7 +60,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly IEmployeeRepository employeeRepository;
 		private readonly IEntityDeleteWorker entityDeleteWorker;
-		
+		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
 		private readonly bool canUpdate;
 		private readonly bool canCreate;
 		private readonly bool canActivateDistrictsSet;
@@ -100,7 +103,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				commonServices,
 				entityDeleteWorker,
 				employeeRepository,
-				new DistrictRuleRepository());
+				new DistrictRuleRepository(),
+				_deliveryScheduleJournalFactory);
 
 		protected override Func<DistrictsSetJournalNode, DistrictsSetViewModel> OpenDialogFunction => node =>
 			new DistrictsSetViewModel(
@@ -109,7 +113,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				commonServices,
 				entityDeleteWorker,
 				employeeRepository,
-				new DistrictRuleRepository());
+				new DistrictRuleRepository(),
+				_deliveryScheduleJournalFactory);
 		
 		protected override void CreateNodeActions()
 		{
@@ -147,6 +152,10 @@ namespace Vodovoz.Journals.JournalViewModels
 					if(commonServices.InteractiveService.Question($"Скопировать версию районов \"{selectedNode.Name}\"")) {
 						var copy = (DistrictsSet)districtsSetToCopy.Clone();
 						copy.Name += " - копия";
+						if(copy.Name.Length > DistrictsSet.NameMaxLength)
+						{
+							copy.Name = copy.Name.Remove(DistrictsSet.NameMaxLength);
+						}
 						copy.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
 						copy.Status = DistrictsSetStatus.Draft;
 						copy.DateCreated = DateTime.Now;

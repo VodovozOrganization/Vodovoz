@@ -5,7 +5,6 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.Threading;
-using Android;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -30,8 +29,6 @@ namespace VodovozSmsPaymentService
 		private static string serviceHostName;
 		private static string servicePort;
 		private static string serviceWebPort;
-		private static string driverServiceHostName;
-		private static string driverServicePort;
 
 		//Bitrix
 		private static string baseAddress;
@@ -60,8 +57,6 @@ namespace VodovozSmsPaymentService
 				serviceHostName = serviceSection["service_host_name"];
 				servicePort = serviceSection["service_port"];
 				serviceWebPort = serviceSection["service_web_port"];
-				driverServiceHostName = serviceSection["driver_service_host_name"];
-				driverServicePort = serviceSection["driver_service_port"];
 
 				var bitrixSection = configuration.GetSection("Bitrix");
 				baseAddress = bitrixSection["base_address"];
@@ -88,7 +83,8 @@ namespace VodovozSmsPaymentService
 					Database = mysqlDatabase,
 					UserID = mysqlUser,
 					Password = mysqlPassword,
-					SslMode = MySqlSslMode.None
+					SslMode = MySqlSslMode.None,
+					ConnectionTimeout = 30
 				};
 
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
@@ -99,28 +95,33 @@ namespace VodovozSmsPaymentService
 				OrmConfig.ConfigureOrm(dbConfig,
 					new[]
 					{
-						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
 					});
 
 				QS.HistoryLog.HistoryMain.Enable();
 
-				ChannelFactory<IAndroidDriverService> channelFactory = new ChannelFactory<IAndroidDriverService>(
-					new BasicHttpBinding(),
-					$"http://{driverServiceHostName}:{driverServicePort}/AndroidDriverService"
-				);
-				IDriverPaymentService driverPaymentService = new DriverPaymentService(channelFactory);
-				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever = new DriverAPIHelper(configuration);
+				var driverApiSection = configuration.GetSection("DriverAPI");
+
+				var driverApiHelperConfiguration = new DriverApiHelperConfiguration
+				{
+					ApiBase = new Uri(driverApiSection["ApiBase"]),
+					NotifyOfSmsPaymentStatusChangedURI = driverApiSection["NotifyOfSmsPaymentStatusChangedURI"],
+					NotifyOfFastDeliveryOrderAddedURI = driverApiSection["NotifyOfFastDeliveryOrderAddedURI"]
+				};
+
+				ISmsPaymentStatusNotificationReciever smsPaymentStatusNotificationReciever =
+					new DriverAPIHelper(driverApiHelperConfiguration);
 				var paymentSender = new BitrixPaymentController(baseAddress);
 
 				var smsPaymentFileCache = new SmsPaymentFileCache("/tmp/VodovozSmsPaymentServiceTemp.txt");
 
 				SmsPaymentServiceInstanceProvider smsPaymentServiceInstanceProvider = new SmsPaymentServiceInstanceProvider(
 					paymentSender,
-					driverPaymentService,
 					smsPaymentStatusNotificationReciever,
 					new OrderParametersProvider(new ParametersProvider()),
 					smsPaymentFileCache,

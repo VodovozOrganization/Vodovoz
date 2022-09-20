@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using System;
+using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.Views.GtkUI;
@@ -11,7 +12,7 @@ namespace Vodovoz.Views.Logistic
 	{
 		public DistrictsSetActivationView(DistrictsSetActivationViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -19,13 +20,23 @@ namespace Vodovoz.Views.Logistic
 		{
 			ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveDistrictsSet?.Name ?? "-";
 			ylabelSelectedDistrictsSetStr.Text = ViewModel.Entity?.Name ?? "";
-			
-			ybuttonActivate.Clicked += (sender, args) => {
-				if(MessageDialogHelper.RunQuestionDialog($"Переключить базу на версию районов \"{ViewModel.Entity.Name}\"")) {
-					ViewModel.ActivateDistrictsSetCommand.Execute();
+
+			ybuttonActivate.Clicked += async (sender, args) =>
+			{
+				if(!MessageDialogHelper.RunQuestionDialog($"Переключить базу на версию районов \"{ViewModel.Entity.Name}\""))
+				{
+					return;
+				}
+				try
+				{
+					await ViewModel.ActivateAsync();
+				}
+				catch(Exception ex)
+				{
+					Application.Invoke((s, e) => throw ex);
 				}
 			};
-			
+
 			ytreePrioritiesToDelete.ColumnsConfig = ColumnsConfigFactory.Create<DriverDistrictPriority>()
 				.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
 				.AddColumn("Водитель").AddTextRenderer(x => x.DriverDistrictPrioritySet.Driver.ShortName)
@@ -33,19 +44,28 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("")
 				.Finish();
 
-			ViewModel.PropertyChanged += (sender, args) => {
-				Application.Invoke((s, e) => {
+			ViewModel.PropertyChanged += (sender, args) =>
+			{
+				Application.Invoke((s, e) =>
+				{
 					if(args.PropertyName == nameof(ViewModel.ActivationStatus))
+					{
 						ylabelActivationStatus.Text = ViewModel.ActivationStatus;
+					}
 					if(args.PropertyName == nameof(ViewModel.ActivationInProgress) || args.PropertyName == nameof(ViewModel.WasActivated))
+					{
 						ybuttonActivate.Sensitive = !ViewModel.ActivationInProgress && !ViewModel.WasActivated;
+					}
 					if(args.PropertyName == nameof(ViewModel.ActiveDistrictsSet))
+					{
 						ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveDistrictsSet.Name;
+					}
 					if(args.PropertyName == nameof(ViewModel.NotCopiedPriorities))
+					{
 						ytreePrioritiesToDelete.ItemsDataSource = ViewModel.NotCopiedPriorities;
+					}
 				});
 			};
 		}
-		
 	}
 }

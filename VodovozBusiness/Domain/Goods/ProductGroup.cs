@@ -178,6 +178,5 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		#endregion
-		
 	}
 }

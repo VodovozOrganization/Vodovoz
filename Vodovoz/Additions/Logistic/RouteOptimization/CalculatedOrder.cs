@@ -21,13 +21,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public RouteList ExistRoute { get; set; }
 
 		public int Bottles { get; set; }
-		public double Weight { get; set; }
-		public double Volume { get; set; }
+		public decimal Weight { get; set; }
+		public decimal Volume { get; set; }
 
 		public District District { get; set; }
 
-		GeographicGroup shippingBase;
-		public GeographicGroup ShippingBase {
+		GeoGroup shippingBase;
+		public GeoGroup ShippingBase {
 			get => shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroup;
 			set => shippingBase = value;
 		}
@@ -45,11 +45,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				x => x.Nomenclature.Category == NomenclatureCategory.water
 								&& x.Nomenclature.IsWater19L).Sum(x => x.Count);
 
-			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * (double) x.Count)
+			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count)
 						  + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 												 .Sum(x => x.Nomenclature.Weight * x.Count);
 
-			Volume = order.OrderItems.Sum(x => x.Nomenclature.Volume * (double) x.Count)
+			Volume = order.OrderItems.Sum(x => x.Nomenclature.Volume * x.Count)
 						  + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 												 .Sum(x => x.Nomenclature.Volume * x.Count);
 		}

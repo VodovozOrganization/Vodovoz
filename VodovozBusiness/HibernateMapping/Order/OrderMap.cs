@@ -33,7 +33,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Address1c)                         .Column("address_1c");
 			Map(x => x.Address1cCode)                     .Column("address_1c_code");
 			Map(x => x.DeliverySchedule1c)                .Column("delivery_schedule_1c");
-			Map(x => x.DailyNumber)                       .Column("daily_number_1c").ReadOnly();
+			Map(x => x.DailyNumber)                       .Column("daily_number_1c");
 			Map(x => x.ClientPhone)                       .Column("client_phone");
 			Map(x => x.LastEditedTime)                    .Column("last_edited_time");
 			Map(x => x.CommentManager)                    .Column("comment_manager");
@@ -58,8 +58,13 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.EShopOrder)                        .Column("e_shop_order");
 			Map(x => x.ContactlessDelivery)               .Column("contactless_delivery");
 			Map(x => x.PaymentBySms)                      .Column("payment_by_sms");
+			Map(x => x.PaymentByQr)                       .Column("payment_by_qr");
 			Map(x => x.ODZComment)                        .Column("odz_comment");
 			Map(x => x.OPComment)                         .Column("op_comment");
+			Map(x => x.IsFastDelivery)                    .Column("is_fast_delivery");
+			Map(x => x.IsCopiedFromUndelivery)            .Column("is_copied_from_undelivery");
+			Map(x => x.DriverMobileAppComment)            .Column("driver_app_comment");
+			Map(x => x.DriverMobileAppCommentTime)        .Column("driver_app_comment_time");
 
 			Map(x => x.OrderStatus)                       .Column("order_status")
 				.CustomType<OrderStatusStringType>();
@@ -76,7 +81,7 @@ namespace Vodovoz.HibernateMapping
 				.CustomType<OrderSourceStringType>();
 			Map(x => x.OrderPaymentStatus)                .Column("order_payment_status")
 				.CustomType<OrderPaymentStatusStringType>();
-			Map(x => x.OrderAddressType)				  .Column("order_address_type")
+			Map(x => x.OrderAddressType)                  .Column("order_address_type")
 				.CustomType<OrderAddressTypeStringType>();
 
 			References(x => x.Client)                     .Column("client_id");
@@ -94,6 +99,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.PaymentByCardFrom)          .Column("payment_from_id").Access.CamelCaseField(Prefix.Underscore);
 			References(x => x.ReturnTareReason)           .Column("return_tare_reason_id");
 			References(x => x.ReturnTareReasonCategory)   .Column("return_tare_reason_category_id");
+			References(x => x.OurOrganization)            .Column("our_organization_id");
 
 			HasMany(x => x.OrderDocuments)                .KeyColumn("attached_to_order_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();

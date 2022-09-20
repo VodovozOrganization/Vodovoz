@@ -27,6 +27,9 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
 {
@@ -193,9 +196,7 @@ namespace Vodovoz
 
 				var employeeService = VodovozGtkServicesConfig.EmployeeService;
 
-				var counterpartySelectorFactory =
-					new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-						ServicesConfig.CommonServices);
+				var counterpartySelectorFactory = new CounterpartyJournalFactory();
 
 				var nomenclatureAutoCompleteSelectorFactory =
 					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
@@ -212,7 +213,7 @@ namespace Vodovoz
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeService,
-					nomenclatureAutoCompleteSelectorFactory,
+					new NomenclatureJournalFactory(),
 					counterpartySelectorFactory,
 					_nomenclatureRepository,
 					userRepository
@@ -247,8 +248,8 @@ namespace Vodovoz
 		private void LoadStock()
 		{
 			var nomenclatureIds = DocumentUoW.Root.Items.Select(x => x.NomenclatureOld.Id).ToArray();
-			var inStock = _stockRepository.NomenclatureInStock(DocumentUoW, DocumentUoW.Root.Warehouse.Id, 
-				nomenclatureIds, DocumentUoW.Root.TimeStamp);
+			var inStock = _stockRepository.NomenclatureInStock(DocumentUoW, nomenclatureIds, DocumentUoW.Root.Warehouse.Id,
+				DocumentUoW.Root.TimeStamp);
 
 			foreach(var item in DocumentUoW.Root.Items)
 			{
@@ -289,16 +290,13 @@ namespace Vodovoz
 			var userRepository = new UserRepository();
 
 			var employeeService = VodovozGtkServicesConfig.EmployeeService;
-
-			var counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,CounterpartyJournalFilterViewModel>(
-					ServicesConfig.CommonServices);
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
 			var nomenclatureAutoCompleteSelectorFactory = 
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices,
 					filter,
-					counterpartySelectorFactory,
+					counterpartyJournalFactory,
 					_nomenclatureRepository,
 					userRepository
 					);
@@ -309,8 +307,8 @@ namespace Vodovoz
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					employeeService,
-					nomenclatureAutoCompleteSelectorFactory,
-					counterpartySelectorFactory,
+					new NomenclatureJournalFactory(),
+					counterpartyJournalFactory,
 					_nomenclatureRepository,
 					userRepository
 					);

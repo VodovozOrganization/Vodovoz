@@ -13,6 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Parameters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
@@ -22,6 +23,8 @@ namespace Vodovoz.Additions.Logistic
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
 		private const string _orderCommentTagName = "OrderComment";
 		private const string _orderPrioritizedTagName = "prioritized";
 		private const string _waterTagNamePrefix = "Water";
@@ -57,10 +60,10 @@ namespace Vodovoz.Additions.Logistic
 			RdlText = RdlText.Replace("<!--colspan-->", $"<ColSpan>{ RouteColumns.Count }</ColSpan>");
 
 			//Расширяем таблицу
-			string columnsXml = "<TableColumn><Width>18pt</Width></TableColumn>";
+			string columnsXml = "<TableColumn><Width>21pt</Width></TableColumn>";
 			string columns = string.Empty;
 
-			columns += "<TableColumn><Width>100pt</Width></TableColumn>"; // Первая колонка шире тк кк это коммент
+			columns += "<TableColumn><Width>85pt</Width></TableColumn>"; // Первая колонка шире тк кк это коммент
 			for(int i = 1; i < RouteColumns.Count; i++)
 			{
 				columns += columnsXml;
@@ -89,7 +92,8 @@ namespace Vodovoz.Additions.Logistic
 							TextBoxNumber++,
 							$"=Iif({{{ _orderPrioritizedTagName }}}, \'Приоритет! \', \"\") + {{{ _orderCommentTagName }}}",
 							"0",
-							isClosed
+							isClosed,
+							true
 						);
 				}
 				else
@@ -147,7 +151,7 @@ namespace Vodovoz.Additions.Logistic
 				//Запрос..
 				if(isFirstColumn)
 				{
-					SqlSelect += $", orders.comment AS { _orderCommentTagName }" +
+					SqlSelect += $", CONCAT_WS('\\n',orders.comment, CONCAT('Сдача с: ', orders.trifle, ' руб.')) AS { _orderCommentTagName }" +
 						$", (SELECT EXISTS (" +
 						$" SELECT * FROM guilty_in_undelivered_orders giuo" +
 						$" INNER JOIN undelivered_orders uo ON giuo.undelivery_id = uo.id" +
@@ -242,7 +246,8 @@ namespace Vodovoz.Additions.Logistic
 					{ "RouteListId", routeList.Id },
 					{ "Print_date", printDatestr},
 					{ "RouteListDate", routeList.Date},
-					{ "need_terminal", needTerminal }
+					{ "need_terminal", needTerminal },
+					{ "phones", _generalSettingsParametersProvider.GetRouteListPrintedFormPhones}
 				}
 			};
 		}
@@ -255,22 +260,23 @@ namespace Vodovoz.Additions.Logistic
 				   "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
 				   "<BorderStyle><Default>Solid</Default><Top>Solid</Top><Bottom>Solid</Bottom></BorderStyle>" +
 				   "<BorderColor /><BorderWidth /><FontSize>8pt</FontSize><TextAlign>Center</TextAlign></Style>" +
-				   "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
+				   "<CanGrow>false</CanGrow></Textbox></ReportItems></TableCell>";
 		}
 
-		private static string GetCellTag(int id, string value, string formatString, bool isClosed)
+		private static string GetCellTag(int id, string value, string formatString, bool isClosed, bool canGrow = false)
 		{
-			return "<TableCell><ReportItems>" +
+			var canGrowText = canGrow ? "true" : "false";
+			return $"<TableCell><ReportItems>" +
 				   $"<Textbox Name=\"Textbox{ id }\">" +
 				   $"<Value>{ value }</Value>" +
-				   "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
-				   "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
+				   $"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
+				   $"<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
 				   $"<TextAlign>Center</TextAlign><Format>{ formatString }</Format><VerticalAlign>Middle</VerticalAlign>" +
 				   (isClosed
 				   ? $"<BackgroundColor>=Iif((Fields!Status.Value = \"{ RouteListItemStatus.EnRoute }\") or (Fields!Status.Value = \"{ RouteListItemStatus.Completed }\"), White, Lightgrey)</BackgroundColor>"
 				   : "") +
-				   "<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
-				   "<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>";
+				   $"<PaddingTop>10pt</PaddingTop><PaddingBottom>10pt</PaddingBottom></Style>" +
+				   $"<CanGrow>{canGrowText}</CanGrow></Textbox></ReportItems></TableCell>";
 		}
 
 		public static ReportInfo GetRDLTimeList(int routeListId)
@@ -311,14 +317,14 @@ namespace Vodovoz.Additions.Logistic
 
 			var map = new GMapControl
 			{
-				MapProvider = GMapProviders.OpenCycleMap,
+				MapProvider = GMapProviders.GoogleMap,
 				MaxZoom = 18,
 				RoutesEnabled = true,
 				MarkersEnabled = true
 			};
 
 			GMapOverlay routeOverlay = new GMapOverlay("route");
-			using(var calc = new RouteGeometryCalculator(DistanceProvider.Osrm))
+			using(var calc = new RouteGeometryCalculator())
 			{
 				MapDrawingHelper.DrawRoute(routeOverlay, routeList, calc);
 			}
@@ -367,20 +373,6 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
-		public static ReportInfo GetRDLLoadSofiyskaya(int routeListId)
-		{
-			return new ReportInfo
-			{
-				Title = $"Погрузка Софийская для МЛ № { routeListId }",
-				Identifier = "RouteList.CarLoadDocSofiyskaya",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "id", routeListId },
-				},
-				UseUserVariables = true
-			};
-		}
-
 		public static ReportInfo GetRDLFine(RouteList routeList)
 		{
 
@@ -406,8 +398,6 @@ namespace Vodovoz.Additions.Logistic
 			{
 				case RouteListPrintableDocuments.LoadDocument:
 					return GetRDLLoadDocument(routeList.Id);
-				case RouteListPrintableDocuments.LoadSofiyskaya:
-					return GetRDLLoadSofiyskaya(routeList.Id);
 				case RouteListPrintableDocuments.RouteList:
 					return GetRDLRouteList(uow, routeList);
 				case RouteListPrintableDocuments.RouteMap:

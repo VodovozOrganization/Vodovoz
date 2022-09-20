@@ -14,9 +14,9 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryCashIncomeCategory;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryEmployee;
-
 		private global::Gamma.Widgets.yEnumComboBox enumcomboDocumentType;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeEmployee;
 
 		private global::Gtk.Label label1;
 
@@ -36,7 +36,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.CashDocumentsFilter";
 			// Container child Vodovoz.CashDocumentsFilter.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -90,18 +89,6 @@ namespace Vodovoz
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.entryEmployee.Name = "entryEmployee";
-			this.table1.Add(this.entryEmployee);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
-			w5.TopAttach = ((uint)(2));
-			w5.BottomAttach = ((uint)(3));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.enumcomboDocumentType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumcomboDocumentType.Name = "enumcomboDocumentType";
 			this.enumcomboDocumentType.ShowSpecialStateAll = true;
@@ -109,9 +96,22 @@ namespace Vodovoz
 			this.enumcomboDocumentType.UseShortTitle = false;
 			this.enumcomboDocumentType.DefaultFirst = false;
 			this.table1.Add(this.enumcomboDocumentType);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboDocumentType]));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboDocumentType]));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.evmeEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.evmeEmployee.Name = "evmeEmployee";
+			this.evmeEmployee.CanEditReference = true;
+			this.table1.Add(this.evmeEmployee);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeEmployee]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
@@ -174,7 +174,6 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.enumcomboDocumentType.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboDocumentTypeEnumItemSelected);
-			this.entryEmployee.Changed += new global::System.EventHandler(this.OnEntryEmployeeChanged);
 			this.entityVMEntryCashIncomeCategory.Changed += new global::System.EventHandler(this.OnEntityVMEntryCashIncomeCategoryChanged);
 			this.entityVMEntryCashExpenseCategory.Changed += new global::System.EventHandler(this.OnEntityVMEntryCashExpenseCategoryChanged);
 			this.dateperiodDocs.PeriodChanged += new global::System.EventHandler(this.OnDateperiodDocsPeriodChanged);

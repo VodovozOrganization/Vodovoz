@@ -37,7 +37,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		private List<SelectablePrintDocument> _routes = new List<SelectablePrintDocument>();
 		private GenericObservableList<OrderDocTypeNode> _orderDocTypesToPrint = new GenericObservableList<OrderDocTypeNode>();
-		private GenericObservableList<GeographicGroup> _geographicGroups;
+		private GenericObservableList<GeoGroup> _geographicGroups;
 		private GenericObservableList<string> _warnings;
 
 		private IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
@@ -60,29 +60,36 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Водитель")
 					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Driver.ShortName)
 				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null && (x.Document as RouteListPrintableDocs).routeList.Car.IsCompanyCar ? _vodovozCarIcon : null)
-					.AddTextRenderer(x => (x.Document as RouteListPrintableDocs).routeList.Car != null ? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber : "нет")
+					.AddPixbufRenderer(x =>
+						(x.Document as RouteListPrintableDocs).routeList.Car != null
+						&& (x.Document as RouteListPrintableDocs).routeList.GetCarVersion.IsCompanyCar
+							? _vodovozCarIcon
+							: null)
+					.AddTextRenderer(x =>
+						(x.Document as RouteListPrintableDocs).routeList.Car != null
+							? (x.Document as RouteListPrintableDocs).routeList.Car.RegistrationNumber
+							: "нет")
 				.AddColumn("Часть города")
 					.AddTextRenderer(x => string.Join(", ", (x.Document as RouteListPrintableDocs).routeList.GeographicGroups.Select(g => g.Name)))
 				.AddColumn("Время печати")
-					.AddTextRenderer(x => 
+					.AddTextRenderer(x =>
 					(x.Document as RouteListPrintableDocs).routeList.PrintsHistory != null &&
 					(x.Document as RouteListPrintableDocs).routeList.PrintsHistory.Any() ?
 						(x.Document as RouteListPrintableDocs).routeList.PrintsHistory.LastOrDefault().PrintingTime.ToString()
 						: "МЛ не распечатан")
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => 
+					.AddSetter<CellRendererText>((c, n) =>
 					c.Foreground = (n.Document as RouteListPrintableDocs).routeList.PrintsHistory?.Any() ?? false ? "grey" : "black")
 				.Finish();
 
 			geograficGroup.UoW = _uow;
 			geograficGroup.Label = "Часть города:";
-			_geographicGroups = new GenericObservableList<GeographicGroup>();
+			_geographicGroups = new GenericObservableList<GeoGroup>();
 			geograficGroup.Items = _geographicGroups;
 			geograficGroup.ListContentChanged += OnYdatePrintDateChanged;
 			
-			foreach(var gg in _uow.Session.QueryOver<GeographicGroup>().List())
+			foreach(var gg in _uow.Session.QueryOver<GeoGroup>().List())
 			{
 				_geographicGroups.Add(gg);
 			}
@@ -91,14 +98,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 			OrderDocumentType[] selectedByDefault = {
 				OrderDocumentType.Contract,
-				OrderDocumentType.Invoice,
-				OrderDocumentType.InvoiceBarter,
 				OrderDocumentType.InvoiceContractDoc,
 				OrderDocumentType.Bill,
 				OrderDocumentType.UPD,
 				OrderDocumentType.SpecialBill,
 				OrderDocumentType.SpecialUPD,
-				OrderDocumentType.DriverTicket,
 				OrderDocumentType.M2Proxy,
 				OrderDocumentType.EquipmentTransfer,
 				OrderDocumentType.DoneWorkReport,

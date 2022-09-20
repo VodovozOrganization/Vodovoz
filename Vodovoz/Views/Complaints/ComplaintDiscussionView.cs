@@ -5,6 +5,8 @@ using Gamma.ColumnConfig;
 using Gamma.Binding;
 using System.Linq;
 using Gtk;
+using System;
+using Gamma.Binding.Core.LevelTreeConfig;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -20,6 +22,7 @@ namespace Vodovoz.Views.Complaints
 		private void ConfigureDlg()
 		{
 			ylabelSubdivision.Binding.AddFuncBinding(ViewModel.Entity, e => $"<b>{e.Subdivision.Name}</b>", w => w.LabelProp).InitializeFromSource();
+			ylabelConnectTime.Binding.AddFuncBinding(ViewModel.Entity, e => $"подключен {e.StartSubdivisionDate:dd.MM.yy HH:mm}", w => w.LabelProp).InitializeFromSource();
 
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.Sensitive).InitializeFromSource();
@@ -57,13 +60,13 @@ namespace Vodovoz.Views.Complaints
 				ytreeviewComments.ExpandAll();
 			};
 			ytreeviewComments.ExpandAll();
-			ytreeviewComments.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
 
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			filesview.ViewModel = ViewModel.FilesViewModel;
+			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
 
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();

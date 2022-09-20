@@ -124,5 +124,31 @@ namespace Vodovoz.EntityRepositories.Store
 				.Select(Projections.Entity(() => nomenclatureAlias))
 				.List<Nomenclature>();
 		}
+
+		public bool WarehouseByMovementDocumentsNotificationsSubdivisionExists(IUnitOfWork uow, int subdivisionId)
+		{
+			return uow.Session.QueryOver<Warehouse>()
+					.Where(w => w.MovementDocumentsNotificationsSubdivisionRecipient.Id == subdivisionId)
+					.List()
+					.Any();
+		}
+		
+		public decimal GetTotalShippedKgByWarehousesAndProductGroups(
+			IUnitOfWork uow, DateTime dateFrom, DateTime dateTo, IEnumerable<int> productGroupsIds, IEnumerable<int> warehousesIds)
+		{
+			Warehouse warehouseAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			Equipment equipmentAlias = null;
+			Nomenclature nomenclatureEquipmentAlias = null;
+
+			return uow.Session.QueryOver<WarehouseMovementOperation>()
+				.JoinAlias(wmo => wmo.WriteoffWarehouse, () => warehouseAlias)
+				.JoinAlias(wmo => wmo.Nomenclature, () => nomenclatureAlias)
+				.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).IsInG(productGroupsIds)
+				.AndRestrictionOn(() => warehouseAlias.Id).IsInG(warehousesIds)
+				.And(wmo => wmo.OperationTime >= dateFrom && wmo.OperationTime < dateTo)
+				.Select(Projections.Sum(() => nomenclatureAlias.Weight))
+				.SingleOrDefault<decimal>();
+		}
 	}
 }

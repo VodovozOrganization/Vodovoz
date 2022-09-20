@@ -9,6 +9,7 @@ using QS.Navigation;
 using System.Threading.Tasks;
 using System;
 using NLog;
+using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.Views
 {

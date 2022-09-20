@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using GMap.NET;
-using QS.Osm;
+using QS.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 
@@ -9,7 +9,6 @@ namespace Vodovoz.Domain.Logistic
 {
 	public class CachedDistance
 	{
-
 		public virtual long FromGeoHash { get; set; }
 
 		public virtual long ToGeoHash { get; set; }
@@ -20,13 +19,22 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string PolylineGeometry { get; set; }
 
+		public virtual DateTime Created { get; set; }
+
 		public CachedDistance() { }
 
 		#region Static
 
 		public static long GetHash(DeliveryPoint point) => GetHash((double)point.Latitude.Value, (double)point.Longitude.Value);
 
-		public static long GetHash(GeographicGroup point) => GetHash((double)point.BaseLatitude.Value, (double)point.BaseLongitude.Value);
+		public static long GetHash(GeoGroupVersion geoGroupVersion)
+		{
+			if(geoGroupVersion is null)
+			{
+				throw new ArgumentNullException(nameof(geoGroupVersion));
+			}
+			return GetHash((double)geoGroupVersion.BaseLatitude.Value, (double)geoGroupVersion.BaseLongitude.Value);
+		}
 
 		public static long GetHash(double latitude, double longitude)
 		{
@@ -63,8 +71,6 @@ namespace Vodovoz.Domain.Logistic
 			GetLatLon(hash, out double latitude, out double longitude);
 			return String.Format(CultureInfo.InvariantCulture, "{0},{1}", longitude, latitude);
 		}
-
-		//public static long BaseHash => GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
 
 		#endregion
 

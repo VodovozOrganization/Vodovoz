@@ -2,36 +2,44 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Reports
 {
 	public partial class RevisionBottlesAndDeposits : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IOrderRepository _orderRepository;
-		public bool ShowStockBottle { get; set; }
+		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
+		private bool _showStockBottle;
 
-		public RevisionBottlesAndDeposits(IOrderRepository orderRepository)
+		public RevisionBottlesAndDeposits(IOrderRepository orderRepository,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty,
-				CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
-		}	
+			entityViewModelEntryCounterparty
+				.SetEntityAutocompleteSelectorFactory(
+				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory());
+			(deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory)))
+				.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilter);
+			evmeDeliveryPoint
+				.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+		}
 
 		public void SetDeliveryPoint(DeliveryPoint deliveryPoint)
 		{
 			entityViewModelEntryCounterparty.Subject = deliveryPoint.Counterparty;
-			referenceDeliveryPoint.Subject = deliveryPoint;
+			evmeDeliveryPoint.Subject = deliveryPoint;
 		}
 
 		public void SetCounterparty(Counterparty counterparty)
@@ -66,8 +74,8 @@ namespace Vodovoz.Reports
 					{ "startDate", new DateTime(2000,1,1) },
 					{ "endDate", DateTime.Today.AddYears(1) },
 					{ "client_id", entityViewModelEntryCounterparty.GetSubject<Counterparty>().Id},
-					{ "delivery_point_id", referenceDeliveryPoint.Subject == null ? -1 : referenceDeliveryPoint.GetSubject<DeliveryPoint>().Id},
-					{ "show_stock_bottle", ShowStockBottle }
+					{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId},
+					{ "show_stock_bottle", _showStockBottle }
 				}
 			};
 		}			
@@ -89,18 +97,16 @@ namespace Vodovoz.Reports
 
 			if(entityViewModelEntryCounterparty.Subject == null)
 			{
-				referenceDeliveryPoint.Subject = null;
-				referenceDeliveryPoint.Sensitive = false;
+				evmeDeliveryPoint.Subject = null;
+				evmeDeliveryPoint.Sensitive = false;
 			}
 			else
 			{
-				ShowStockBottle = _orderRepository.IsBottleStockExists(UoW, entityViewModelEntryCounterparty.GetSubject<Counterparty>());
-				referenceDeliveryPoint.Subject = null;
-				referenceDeliveryPoint.Sensitive = true;
-				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, 
-					entityViewModelEntryCounterparty.GetSubject<Counterparty>());
+				_showStockBottle = _orderRepository.IsBottleStockExists(UoW, entityViewModelEntryCounterparty.GetSubject<Counterparty>());
+				evmeDeliveryPoint.Subject = null;
+				evmeDeliveryPoint.Sensitive = true;
+				_deliveryPointJournalFilter.Counterparty = entityViewModelEntryCounterparty.Subject as Counterparty;
 			}
 		}
 	}
 }
-

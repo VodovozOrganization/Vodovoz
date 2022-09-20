@@ -82,22 +82,21 @@ namespace Vodovoz.Views.Reports
 					.AddTextRenderer(n => 
 						!n.RouteListId.HasValue ? string.Empty : n.RouteListId.ToString())
                 .AddColumn("ФИО водителя")
-                    .AddTextRenderer(n => n.DriverFIO)
+                    .AddTextRenderer(n => n.DriverFullName)
                 .AddColumn("Статус заказа")
                     .AddTextRenderer(n => n.OrderStatus.GetEnumTitle())
                 .AddColumn("Статус адреса")
                     .AddTextRenderer(n => 
 						!n.RouteListItemStatus.HasValue ? "" : n.RouteListItemStatus.GetEnumTitle())
                 .AddColumn("Модель авто")
-                    .AddTextRenderer(n => n.CarModel)
+                    .AddTextRenderer(n => n.CarModelName)
                 .AddColumn("Номер авто")
                     .AddTextRenderer(n => n.CarRegNumber)
                 .AddColumn("Тип авто")
                     .AddTextRenderer(n => 
 						!n.CarTypeOfUse.HasValue ? string.Empty : n.CarTypeOfUse.GetEnumTitle())
-                .AddColumn("Раскат?")
-                    .AddTextRenderer(n => 
-						!n.IsRaskat.HasValue ? string.Empty : n.IsRaskat.Value ? "Да" : "Нет")
+                .AddColumn("Принадлежность авто")
+					.AddTextRenderer(n => !n.CarOwnType.HasValue ? string.Empty : n.CarOwnType.GetEnumTitle())
                 .AddColumn("Разовый водитель?")
                     .AddTextRenderer(n => 
 						!n.IsDriverForOneDay.HasValue ? string.Empty : n.IsDriverForOneDay.Value ? "Да" : "Нет")
@@ -124,7 +123,7 @@ namespace Vodovoz.Views.Reports
                     .Digits(2)
                 .AddColumn("ФИО экспедитора")
                     .AddTextRenderer(n => 
-                        string.IsNullOrEmpty(n.ForwarderLastName) ? "Без экспедитора" : n.ForwarderFIO)
+                        string.IsNullOrEmpty(n.ForwarderLastName) ? "Без экспедитора" : n.ForwarderFullName)
                 .AddColumn("Общая сумма заказа")
                     .AddNumericRenderer(n => n.OrderSum)
                     .Digits(2)

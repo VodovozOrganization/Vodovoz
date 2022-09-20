@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers
@@ -53,6 +55,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterDriverActions")]
 		public void RegisterDriverActions([FromBody] IEnumerable<DriverActionDto> driverActionModels)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"User token: {tokenStr}");
+
 			_logger.LogInformation($"Регистрация действий в мобильном приложении пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			var user = _userManager.GetUserAsync(User).Result;
@@ -66,6 +71,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterRouteListAddressCoordinates")]
 		public void RegisterRouteListAddressCoordinate([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(RouteListAddressId: {routeListAddressCoordinate.RouteListAddressId}) User token: {tokenStr}");
+
 			var recievedTime = DateTime.Now;
 
 			var user = _userManager.GetUserAsync(User).Result;
@@ -107,6 +115,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterTrackCoordinates")]
 		public void RegisterTrackCoordinates([FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(RouteListId: {registerTrackCoordinateRequestModel.RouteListId}) User token: {tokenStr}");
+
 			var user = _userManager.GetUserAsync(User).Result;
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
@@ -115,7 +126,7 @@ namespace DriverAPI.Controllers
 
 			_trackPointsData.RegisterForRouteList(
 				registerTrackCoordinateRequestModel.RouteListId,
-				registerTrackCoordinateRequestModel.TrackList,
+				registerTrackCoordinateRequestModel.TrackList.ToList(),
 				driver.Id
 				);
 		}

@@ -13,18 +13,24 @@ using QS.Report;
 using QS.Services;
 using QSReport;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Services;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SalaryRatesReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly IWageParametersProvider _wageParametersProvider;
 		private readonly ICommonServices _commonServices;
 
-		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+		private readonly GenericObservableList<SalaryRateFilterNode> _salaryRateFilterNodes;
+
+		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, IWageParametersProvider wageParametersProvider,
+			ICommonServices commonServices)
 		{
-			Build();
+			_wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
+			Build();
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			SalaryRateFilterNode salaryRateFilterNodeAlias = null;
 			WageDistrictLevelRates wageDistrictLevelRatesAlias = null;
@@ -39,31 +45,25 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
-			
+
 			treeViewSalaryProperties.ItemsDataSource = _salaryRateFilterNodes;
 		}
 
 		public string Title => "Ставки для водителей";
 
-		private GenericObservableList<SalaryRateFilterNode> _salaryRateFilterNodes;
-		
 		private ReportInfo GetReportInfo()
 		{
-			var cityDistrict = UoW.Session.QueryOver<WageDistrict>().Where(x => x.Id == 1).SingleOrDefault();
-			var suburbDistrict = UoW.Session.QueryOver<WageDistrict>().Where(x => x.Id == 1).SingleOrDefault();
 			return new ReportInfo
 			{
 				Identifier = "Sales.SalaryRatesReport",
 				Parameters = new Dictionary<string, object>
-				{ 
+				{
 					{ "wageIds", _salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId) },
-					{ "cityId", cityDistrict.Id},
-					{ "suburbId", suburbDistrict.Id},
+					{ "cityId", _wageParametersProvider.GetCityWageDistrictId },
+					{ "suburbId", _wageParametersProvider.GetSuburbWageDistrictId },
 				}
 			};
 		}
-
-		private void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
@@ -79,18 +79,12 @@ namespace Vodovoz.ReportsParameters.Sales
 				return;
 			}
 
-			OnUpdate(true);
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
 	}
 
 	public class SalaryRateFilterNode : PropertyChangedBase
 	{
-		public int WageId { get; set; }
-		
-		public string Title { get; set; }
-		
-		public string Name { get; set; }
-
 		private bool _selected;
 
 		public bool Selected
@@ -98,5 +92,8 @@ namespace Vodovoz.ReportsParameters.Sales
 			get => _selected;
 			set => SetField(ref _selected, value);
 		}
+
+		public int WageId { get; set; }
+		public string Name { get; set; }
 	}
 }

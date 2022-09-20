@@ -13,6 +13,7 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -28,7 +29,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    private readonly ISubdivisionRepository _subdivisionRepository;
 	    private readonly IFuelRepository _fuelRepository;
 	    private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-	    private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+	    private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 	    private readonly IEmployeeJournalFactory _employeeJournalFactory;
 	    private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 	    private readonly ICarJournalFactory _carJournalFactory;
@@ -42,7 +43,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ISubdivisionRepository subdivisionRepository,
             IFuelRepository fuelRepository,
             ICounterpartyJournalFactory counterpartyJournalFactory,
-            INomenclatureSelectorFactory nomenclatureSelectorFactory,
+            INomenclatureJournalFactory nomenclatureSelectorFactory,
             IEmployeeJournalFactory employeeJournalFactory,
             ISubdivisionJournalFactory subdivisionJournalFactory,
             ICarJournalFactory carJournalFactory,

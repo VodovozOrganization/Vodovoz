@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -11,59 +12,70 @@ using Vodovoz.Tools.CallTasks;
 namespace Vodovoz.SidePanel.InfoViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CallTaskPanelView : Gtk.Bin , IPanelView
+	public partial class CallTaskPanelView : Gtk.Bin, IPanelView
 	{
-		Order Order{ get; set; }
+		private readonly IPersonProvider _personProvider;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IPermissionResult _callTaskPermissionResult;
+		private Order _order;
 
-		private IPersonProvider personProvider { get; set; }
-		private IEmployeeRepository employeeRepository { get; set; }
-
-		public CallTaskPanelView(IPersonProvider personProvider, IEmployeeRepository employeeRepository)
+		public CallTaskPanelView(IPersonProvider personProvider, IEmployeeRepository employeeRepository, ICommonServices commonServices)
 		{
-			this.Build();
-			this.personProvider = personProvider;
-			this.employeeRepository = employeeRepository;
+			if(commonServices == null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+			_personProvider = personProvider ?? throw new ArgumentNullException(nameof(personProvider));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			Build();
+			_callTaskPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CallTask));
 		}
 
 		#region IPanelView implementation
 
 		public IInfoProvider InfoProvider { get; set; }
 
-		public bool VisibleOnPanel {get {return true;} }
+		public bool VisibleOnPanel => true;
 
 		public void OnCurrentObjectChanged(object changedObject) => Refresh();
 
 		public void Refresh()
 		{
-			if(InfoProvider is ICallTaskProvider callTaskProvider) 
-				Order = callTaskProvider.Order;
-			if(Order == null)
+			if(InfoProvider is ICallTaskProvider callTaskProvider)
+			{
+				_order = callTaskProvider.Order;
+			}
+			if(_order == null)
+			{
 				return;
+			}
 
-			buttonCreateTask.Sensitive = true;
+			ytextview.Sensitive = buttonCreateTask.Sensitive = _callTaskPermissionResult.CanCreate;
 		}
 
 		#endregion
 
 		protected void OnButtonCreateTaskClicked(object sender, EventArgs e)
 		{
-			if(Order.DeliveryPoint == null) {
+			if(_order.DeliveryPoint == null)
+			{
 				MessageDialogHelper.RunInfoDialog("Необходимо выбрать точку доставки");
 				return;
 			}
-			if(String.IsNullOrWhiteSpace(ytextview.Buffer.Text)) {
+			if(String.IsNullOrWhiteSpace(ytextview.Buffer.Text))
+			{
 				MessageDialogHelper.RunInfoDialog("Необходимо оставить комментарий");
 				return;
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<CallTask>("Кнопка «Создать задачу» на панели \"Постановка задачи\"")) 
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<CallTask>("Кнопка «Создать задачу» на панели \"Постановка задачи\""))
 			{
-				CallTaskSingletonFactory.GetInstance().CreateTask(uow, employeeRepository, personProvider, uow.Root, Order, ytextview.Buffer.Text);
+				CallTaskSingletonFactory.GetInstance()
+					.CreateTask(uow, _employeeRepository, _personProvider, uow.Root, _order, ytextview.Buffer.Text);
 				uow.Root.Source = TaskSource.OrderPanel;
 				uow.Save();
 			}
 			ytextview.Buffer.Text = String.Empty;
 		}
-
 	}
 }

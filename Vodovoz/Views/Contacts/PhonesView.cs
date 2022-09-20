@@ -12,6 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.Views.Contacts
@@ -24,6 +25,7 @@ namespace Vodovoz.Views.Contacts
 		private IList<PhoneType> phoneTypes;
 		private IUnitOfWork uow;
 		private IPhoneRepository phoneRepository;
+		private static readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 
 		private bool isReadOnly;
 		public bool IsReadOnly {
@@ -73,14 +75,19 @@ namespace Vodovoz.Views.Contacts
 				phonesList = value;
 
 				buttonAdd.Sensitive = phonesList != null;
-				if(value != null) {
+				if(value != null)
+				{
 					PhonesList.ElementAdded += OnPhoneListElementAdded;
 					PhonesList.ElementRemoved += OnPhoneListElementRemoved;
-					if(PhonesList.Count == 0)
-						PhonesList.Add(new Phone().Init(ContactParametersProvider.Instance));
-					else {
-						foreach(Phone phone in PhonesList)
-							AddPhoneRow(phone);
+
+					foreach(Phone phone in PhonesList)
+					{
+						AddPhoneRow(phone);
+						
+						if(phone.Counterparty == null)
+						{
+							phone.Counterparty = Counterparty;
+						}
 					}
 				}
 				SetEditable();
@@ -123,7 +130,7 @@ namespace Vodovoz.Views.Contacts
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var phone = new Phone().Init(ContactParametersProvider.Instance);
+			var phone = new Phone().Init(_contactsParameters);
 			phone.Counterparty = Counterparty;
 			PhonesList.Add(phone);
 		}
@@ -167,7 +174,7 @@ namespace Vodovoz.Views.Contacts
 			var entryName = new yEntry();
 			//entryName.WidthRequest = 50;
 			entryName.MaxLength = 150;
-			entryName.Binding.AddBinding(newPhone, e => e.Name, w => w.Text).InitializeFromSource();
+			entryName.Binding.AddBinding(newPhone, e => e.Comment, w => w.Text).InitializeFromSource();
 			datatablePhones.Attach(entryName, (uint)7, (uint)8, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
 
 			Gtk.Button deleteButton = new Gtk.Button();
@@ -250,7 +257,7 @@ namespace Vodovoz.Views.Contacts
 		/// </summary>
 		public void RemoveEmpty()
 		{
-			PhonesList.Where(p => p.DigitsNumber.Length < ContactParametersProvider.Instance.MinSavePhoneLength)
+			PhonesList.Where(p => p.DigitsNumber.Length < _contactsParameters.MinSavePhoneLength)
 				.ToList().ForEach(p => PhonesList.Remove(p));
 		}
 	}

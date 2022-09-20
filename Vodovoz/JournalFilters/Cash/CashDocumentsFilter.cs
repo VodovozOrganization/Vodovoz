@@ -28,7 +28,9 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(CashDocumentType);
-			entryEmployee.RepresentationModel = new ViewModel.EmployeesVM();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Changed += (sender, args) => OnRefiltered();
 
 			ConfigureEntityViewModelEntry();
 
@@ -115,10 +117,10 @@ namespace Vodovoz
 		}
 
 		public Employee RestrictEmployee {
-			get { return entryEmployee.Subject as Employee; }
+			get { return evmeEmployee.Subject as Employee; }
 			set {
-				entryEmployee.Subject = value;
-				entryEmployee.Sensitive = false;
+				evmeEmployee.Subject = value;
+				evmeEmployee.Sensitive = false;
 			}
 		}
 
@@ -148,11 +150,6 @@ namespace Vodovoz
 			OnRefiltered();
 		}
 
-		protected void OnEntryEmployeeChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
 		void Accessfilteredsubdivisionselectorwidget_OnSelected(object sender, EventArgs e)
 		{
 			OnRefiltered();
@@ -169,4 +166,3 @@ namespace Vodovoz
 		}
 	}
 }
-

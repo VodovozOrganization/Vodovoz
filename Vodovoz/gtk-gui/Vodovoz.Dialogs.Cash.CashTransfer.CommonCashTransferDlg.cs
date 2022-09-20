@@ -34,7 +34,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private global::Gtk.Label labelDriver;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryDriver;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
 		private global::Gtk.Label labelCar;
 
@@ -251,11 +251,12 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			w16.Expand = false;
 			w16.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entryDriver = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
-			this.entryDriver.Name = "entryDriver";
-			this.hbox2.Add(this.entryDriver);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entryDriver]));
+			this.evmeDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
+			this.evmeDriver.Name = "evmeDriver";
+			this.evmeDriver.CanEditReference = true;
+			this.hbox2.Add(this.evmeDriver);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.evmeDriver]));
 			w17.Position = 1;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.labelCar = new global::Gtk.Label();

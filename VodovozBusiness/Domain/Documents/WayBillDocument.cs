@@ -64,11 +64,11 @@ namespace Vodovoz.Domain.Documents
             set => SetField(ref organizationName, value);
         }
         
-        string carModel;
+        string _carModelName;
         [Display (Name = "Модель автомобиля")]
-        public virtual string CarModel {
-            get => carModel;
-            set => SetField(ref carModel, value);
+        public virtual string CarModelName {
+	        get => _carModelName;
+	        set => SetField(ref _carModelName, value);
         }
         
         string carRegistrationNumber;

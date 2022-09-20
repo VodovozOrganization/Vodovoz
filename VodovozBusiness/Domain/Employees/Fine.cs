@@ -341,6 +341,11 @@ namespace Vodovoz.Domain.Employees
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines") && Id > 0) {
 				yield return new ValidationResult(string.Format("Недостаточно прав для изменения штрафа!"));
 			}
+
+			if(Id == 0 && (Date < DateTime.Today || Date > DateTime.Today.AddDays(14)) && RouteList == null)
+			{
+				yield return new ValidationResult(string.Format("Дату штрафа можно менять только в пределах 14 дней от даты создания."));
+			}
 		}
 
 

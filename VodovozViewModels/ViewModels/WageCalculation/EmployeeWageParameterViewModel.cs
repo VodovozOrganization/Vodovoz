@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
@@ -8,6 +9,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
 using QS.Navigation;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.WageCalculation;
 
 namespace Vodovoz.ViewModels.WageCalculation
@@ -22,6 +24,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		private readonly EmployeeWageParameter entity;
 		public event EventHandler<EmployeeWageParameter> OnWageParameterCreated;
 		private readonly bool isNewEntity;
+		private WidgetViewModelBase _raskatCarWageParameterItemViewModel;
 
 		public EmployeeWageParameterViewModel(
 			IUnitOfWork uow,
@@ -85,6 +88,12 @@ namespace Vodovoz.ViewModels.WageCalculation
 			set => SetField(ref driverWithCompanyCarWageParameterItemViewModel, value);
 		}
 
+		public virtual WidgetViewModelBase RaskatCarWageParameterItemViewModel
+		{
+			get => _raskatCarWageParameterItemViewModel;
+			set => SetField(ref _raskatCarWageParameterItemViewModel, value);
+		}
+
 		private DelegateCommand openWageParameterItemViewModelCommand;
 
 		public DelegateCommand OpenWageParameterItemViewModelCommand {
@@ -106,8 +115,17 @@ namespace Vodovoz.ViewModels.WageCalculation
 			}
 			WageParameterItemViewModel = GetWageParameterItemViewModel(entity.WageParameterItem);
 			WageParameterItemType = entity.WageParameterItem.WageParameterItemType;
-			DriverWithCompanyCarWageParameterItemViewModel =
-				GetWageParameterItemViewModel(entity.WageParameterItemForOurCars);
+			if(WageParameterItemType == WageParameterItemTypes.RatesLevel)
+			{
+				DriverWithCompanyCarWageParameterItemViewModel =
+					GetWageParameterItemViewModel(entity.WageParameterItemForOurCars);
+				RaskatCarWageParameterItemViewModel =
+					GetWageParameterItemViewModel(entity.WageParameterItemForRaskatCars);
+			}
+			else
+			{
+				DriverWithCompanyCarWageParameterItemViewModel = RaskatCarWageParameterItemViewModel = null;
+			}
 		}
 
 
@@ -150,6 +168,17 @@ namespace Vodovoz.ViewModels.WageCalculation
 			
 			OnWageParameterCreated?.Invoke(this, entity);
 			Close(false, CloseSource.Save);
+		}
+
+		public IList<WageParameterItemTypes> GetWageParameterItemTypesToHide()
+		{
+			if(entity.Employee != null
+			   && entity.Employee.DriverOfCarTypeOfUse == CarTypeOfUse.Truck
+			   && entity.WageParameterItem?.WageParameterItemType != WageParameterItemTypes.RatesLevel)
+			{
+				return new List<WageParameterItemTypes> { WageParameterItemTypes.RatesLevel };
+			}
+			return new List<WageParameterItemTypes>();
 		}
 	}
 }

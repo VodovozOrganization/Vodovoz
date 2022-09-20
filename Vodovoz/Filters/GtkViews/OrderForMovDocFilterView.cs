@@ -18,7 +18,7 @@ namespace Vodovoz.Filters.GtkViews
 		private void Configure()
 		{
 			ycheckIsOnlineStore.Active = true;
-			ycheckIsOnlineStore.Binding.AddBinding(ViewModel, wm => wm.IsOnlineStoreOrders, w => w.Active);
+			ycheckIsOnlineStore.Binding.AddBinding(ViewModel, vm => vm.IsOnlineStoreOrders, w => w.Active);
 
 			daterangepickerOrderCreateDate.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
 			daterangepickerOrderCreateDate.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();

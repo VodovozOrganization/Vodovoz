@@ -25,8 +25,9 @@ namespace VodovozBusinessTests.Deletion
 			OrmConfig.ConfigureOrm(db_config, new System.Reflection.Assembly[]
 			{
 				System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
-				System.Reflection.Assembly.GetAssembly(typeof(QSBanks.QSBanksMain)),
+				System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+				System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+				System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.HMap.BankMap)),
 				System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 				System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
 			});
@@ -34,7 +35,7 @@ namespace VodovozBusinessTests.Deletion
 			NhConfigered = true;
 		}
 
-		public static void ConfogureDeletion()
+		public static void ConfigureDeletion()
 		{
 			if(DeletionConfigured)
 				return;

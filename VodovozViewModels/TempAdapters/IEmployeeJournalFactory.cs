@@ -12,6 +12,12 @@ namespace Vodovoz.TempAdapters
 		EmployeesJournalViewModel CreateWorkingDriverEmployeeJournal();
 		IEntityAutocompleteSelectorFactory CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 		EmployeesJournalViewModel CreateWorkingForwarderEmployeeJournal();
+		EmployeesJournalViewModel CreateEmployeesJournal(EmployeeFilterViewModel filterViewModel = null);
 		IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+		/// <summary>
+		/// Журнал с фильтром по работающим сотрудникам любой категории
+		/// </summary>
+		/// <returns></returns>
+		IEntityAutocompleteSelectorFactory CreateWorkingEmployeeAutocompleteSelectorFactory();
 	}
 }

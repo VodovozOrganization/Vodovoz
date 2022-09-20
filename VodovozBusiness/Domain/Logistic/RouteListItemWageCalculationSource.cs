@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -47,6 +47,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public bool ContractCancelation => false;
 
+		public CarTypeOfUse CarTypeOfUse => item.RouteList.Car?.CarModel?.CarTypeOfUse
+			?? throw new InvalidOperationException("Модель автомобиля в МЛ должна быть заполнена");
+
 		public IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource => item.Order.OrderItems;
 
 		public IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource => item.Order.OrderDepositItems;
@@ -79,7 +82,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public WageDistrict WageDistrictOfAddress => item.Order.DeliveryPoint.District?.WageDistrict ?? throw new InvalidOperationException("Точке доставки не присвоен логистический или зарплатный район!");
+		public WageDistrict WageDistrictOfAddress => item.Order.DeliveryPoint.District?.WageDistrict
+			?? throw new InvalidOperationException($"Точке доставки не присвоен логистический или зарплатный район! (Id адреса: {item.Id})");
 
 		public bool WasVisitedByForwarder => item.WithForwarder;
 
@@ -90,6 +94,8 @@ namespace Vodovoz.Domain.Logistic
 				return result;
 			}
 		}
+
+		public bool IsFastDelivery => item.Order.IsFastDelivery;
 
 		#region Для старого расчета оплаты за оборудование
 

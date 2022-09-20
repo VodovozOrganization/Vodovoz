@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -6,7 +6,11 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
+using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 namespace Vodovoz
 {
@@ -16,9 +20,8 @@ namespace Vodovoz
         public Warehouse RestrictWarehouse { get; set; }
 
         protected override void ConfigureWithUow()
-        {
-	        var storeDocument = new StoreDocumentHelper();
-            var warehousesList = storeDocument.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissionsType.WarehouseView })
+		{
+            var warehousesList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissions.WarehouseView })
                                     .OrderBy(w => w.Name).ToList();
 
             bool accessToWarehouseAndComplaints =
@@ -28,7 +31,11 @@ namespace Vodovoz
             if (warehousesList.Count > 5)
             {
                 entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
-                entryWarehouses.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory());
+				var warehouseFilter = new WarehouseJournalFilterViewModel
+				{
+					IncludeWarehouseIds = warehousesList.Select(x => x.Id)
+				};
+                entryWarehouses.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory(warehouseFilter));
 
                 entryWarehouses.Visible = true;
                 yspeccomboWarehouse.Visible = false;

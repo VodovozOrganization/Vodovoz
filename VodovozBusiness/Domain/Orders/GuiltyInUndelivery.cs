@@ -5,10 +5,10 @@ using QS.DomainModel.Entity;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-				NominativePlural = "виновные в недовозе",
-				Nominative = "виновный в недовозе",
-				Prepositional = "виновном в недовозе",
-				PrepositionalPlural = "виновных в недовозе"
+				NominativePlural = "ответственные в недовозе",
+				Nominative = "ответственный в недовозе",
+				Prepositional = "ответственом в недовозе",
+				PrepositionalPlural = "ответственных в недовозе"
 			   )
 	]
 
@@ -26,14 +26,14 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		GuiltyTypes guiltySide;
-		[Display(Name = "Виновная сторона")]
+		[Display(Name = "Ответственная сторона")]
 		public virtual GuiltyTypes GuiltySide {
 			get { return guiltySide; }
 			set { SetField(ref guiltySide, value, () => GuiltySide); }
 		}
 
 		Subdivision guiltyDepartment;
-		[Display(Name = "Виновный отдел ВВ")]
+		[Display(Name = "Ответственный отдел ВВ")]
 		public virtual Subdivision GuiltyDepartment {
 			get { return guiltyDepartment; }
 			set { SetField(ref guiltyDepartment, value, () => GuiltyDepartment); }
@@ -91,7 +91,7 @@ namespace Vodovoz.Domain.Orders
 
 	/// <summary>
 	/// ВНИМАНИЕ! При добавлении эл-ов необходимо так же добавить их в SQL запрос в
-	/// журнале недовозов (UndeliveredOrdersVM.cs).
+	/// журнале недовозов
 	/// </summary>
 	public enum GuiltyTypes
 	{
@@ -105,6 +105,8 @@ namespace Vodovoz.Domain.Orders
 		ServiceMan,
 		[Display(Name = "Форс-мажор")]
 		ForceMajor,
+		[Display(Name = "Директор ЛО (Доставка за час)")]
+		DirectorLO,
 		[Display(Name = "Нет (не недовоз)")]
 		None
 	}

@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using QS.Dialog.GtkUI.FileDialog;
+using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -8,18 +9,24 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
+		private readonly OrderJournalFilterViewModel _orderJournalFilter;
+
+		public OrderSelectorFactory(OrderJournalFilterViewModel orderFilter = null)
+		{
+			_orderJournalFilter = orderFilter;
+		}
+
 		public IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
 		{
 			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel();
@@ -39,31 +46,123 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory()
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
+				typeof(Order),
+				CreateOrderJournalViewModel
+			);
+		}
 
+		public IEntityAutocompleteSelectorFactory CreateCashSelfDeliveryOrderAutocompleteSelector()
+		{
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
 
-			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order),
-				() => new OrderJournalViewModel(
-					new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					VodovozGtkServicesConfig.EmployeeService,
-					nomenclatureRepository,
-					userRepository,
-					new OrderSelectorFactory(),
-					new EmployeeJournalFactory(),
-					counterpartyJournalFactory,
-					new DeliveryPointJournalFactory(),
-					subdivisionJournalFactory,
-					new GtkTabsOpener(),
-					new UndeliveredOrdersJournalOpener(),
-					new NomenclatureSelectorFactory(),
-					new UndeliveredOrdersRepository()
-				)
+			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
+				typeof(Order),
+				() =>
+				{
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
+					filter.SetAndRefilterAtOnce(
+						x => x.RestrictStatus = OrderStatus.WaitForPayment,
+						x => x.AllowPaymentTypes = new[] { PaymentType.cash },
+						x => x.RestrictOnlySelfDelivery = true,
+						x => x.RestrictWithoutSelfDelivery = false,
+						x => x.RestrictHideService = true,
+						x => x.RestrictOnlyService = false);
+
+					return new OrderJournalViewModel(
+						filter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices,
+						VodovozGtkServicesConfig.EmployeeService,
+						nomenclatureRepository,
+						userRepository,
+						new OrderSelectorFactory(),
+						new EmployeeJournalFactory(),
+						counterpartyJournalFactory,
+						new DeliveryPointJournalFactory(),
+						subdivisionJournalFactory,
+						new GtkTabsOpener(),
+						new UndeliveredOrdersJournalOpener(),
+						new NomenclatureJournalFactory(),
+						new UndeliveredOrdersRepository(),
+						new SubdivisionRepository(new ParametersProvider()),
+						new FileDialogService(),
+						new SubdivisionParametersProvider(new ParametersProvider()));
+				});
+		}
+
+		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
+		{
+
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
+
+			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
+				typeof(Order),
+				() =>
+				{
+					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
+					filter.SetAndRefilterAtOnce(
+						x => x.RestrictOnlySelfDelivery = true,
+						x => x.RestrictStatus = OrderStatus.OnLoading
+					);
+
+					return new OrderJournalViewModel(
+						filter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices,
+						VodovozGtkServicesConfig.EmployeeService,
+						nomenclatureRepository,
+						userRepository,
+						new OrderSelectorFactory(),
+						new EmployeeJournalFactory(),
+						counterpartyJournalFactory,
+						new DeliveryPointJournalFactory(),
+						subdivisionJournalFactory,
+						new GtkTabsOpener(),
+						new UndeliveredOrdersJournalOpener(),
+						new NomenclatureJournalFactory(),
+						new UndeliveredOrdersRepository(),
+						new SubdivisionRepository(new ParametersProvider()),
+						new FileDialogService(),
+						new SubdivisionParametersProvider(new ParametersProvider()));
+				});
+		}
+
+		public OrderJournalViewModel CreateOrderJournalViewModel()
+		{
+			var subdivisionJournalFactory = new SubdivisionJournalFactory();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
+
+			return new OrderJournalViewModel(
+				_orderJournalFilter ?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				VodovozGtkServicesConfig.EmployeeService,
+				nomenclatureRepository,
+				userRepository,
+				new OrderSelectorFactory(),
+				new EmployeeJournalFactory(),
+				counterpartyJournalFactory,
+				new DeliveryPointJournalFactory(),
+				subdivisionJournalFactory,
+				new GtkTabsOpener(),
+				new UndeliveredOrdersJournalOpener(),
+				new NomenclatureJournalFactory(),
+				new UndeliveredOrdersRepository(),
+				new SubdivisionRepository(new ParametersProvider()),
+				new FileDialogService(),
+				new SubdivisionParametersProvider(new ParametersProvider())
 			);
 		}
 	}

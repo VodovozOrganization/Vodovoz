@@ -23,7 +23,11 @@ using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.Controllers;
+using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
@@ -34,6 +38,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Services;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -43,8 +48,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -53,10 +58,12 @@ namespace Vodovoz.JournalViewModels
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly IOrderDiscountsController _discountsController;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public RetailOrderJournalViewModel(
-			OrderJournalFilterViewModel filterViewModel, 
-			IUnitOfWorkFactory unitOfWorkFactory, 
+			OrderJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
@@ -68,8 +75,10 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
-			INomenclatureSelectorFactory nomenclatureSelector,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IOrderDiscountsController discountsController,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -83,13 +92,14 @@ namespace Vodovoz.JournalViewModels
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 
-			_nomenclatureSelectorFactory = nomenclatureSelector?.GetDefaultNomenclatureSelectorFactory()
-			                                   ?? throw new ArgumentNullException(nameof(_nomenclatureSelectorFactory));
-			_counterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_counterpartySelectorFactory = counterpartyJournalFactory;
 			_undeliveredOrdersJournalOpener =
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 
 			TabName = "Журнал заказов";
 
@@ -112,6 +122,55 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderWithoutShipmentForAdvancePaymentItem),
 				typeof(OrderItem)
 			);
+		}
+		
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateEditAction();
+			CreateDefaultDeleteAction();
+		}
+
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailOrderJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return false;
+					}
+					RetailOrderJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailOrderJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return;
+					}
+					RetailOrderJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
 		}
 
 		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
@@ -178,12 +237,12 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
 			}
 
-			if(FilterViewModel.RestrictStartDate != null) {
-				query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate);
+			if(FilterViewModel.StartDate != null) {
+				query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.RestrictEndDate != null) {
-				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			if(FilterViewModel.EndDate != null) {
+				query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
 			if(FilterViewModel.RestrictLessThreeHours == true) {
@@ -367,12 +426,12 @@ namespace Vodovoz.JournalViewModels
 				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
-			if (FilterViewModel.RestrictStartDate != null) {
-				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
+			if (FilterViewModel.StartDate != null) {
+				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.RestrictEndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			if(FilterViewModel.EndDate != null) {
+				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -476,12 +535,12 @@ namespace Vodovoz.JournalViewModels
 				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
-			if (FilterViewModel.RestrictStartDate != null) {
-				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
+			if (FilterViewModel.StartDate != null) {
+				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.RestrictEndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			if(FilterViewModel.EndDate != null) {
+				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -607,12 +666,12 @@ namespace Vodovoz.JournalViewModels
 				query.Left.JoinAlias(o => o.Client, () => counterpartyAlias);
 			}
 
-			if (FilterViewModel.RestrictStartDate != null) {
-				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
+			if (FilterViewModel.StartDate != null) {
+				query.Where(o => o.CreateDate >= FilterViewModel.StartDate);
 			}
 
-			if(FilterViewModel.RestrictEndDate != null) {
-				query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			if(FilterViewModel.EndDate != null) {
+				query.Where(o => o.CreateDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -675,8 +734,9 @@ namespace Vodovoz.JournalViewModels
 						_counterpartySelectorFactory,
 						_nomenclatureRepository,
 						_userRepository,
-						new OrderRepository(),
-						new ParametersProvider()
+						new DiscountReasonRepository(),
+						new ParametersProvider(),
+						_discountsController
 					),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
@@ -688,8 +748,9 @@ namespace Vodovoz.JournalViewModels
 						_counterpartySelectorFactory,
 						_nomenclatureRepository,
 						_userRepository,
-						new OrderRepository(),
-						new ParametersProvider()
+						new DiscountReasonRepository(),
+						new ParametersProvider(),
+						_discountsController
 					),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
@@ -703,20 +764,33 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			bool IsOrder(object[] objs) 
+			RetailOrderJournalNode GetSelectedNode(object[] selectedItems)
 			{
-				var selectedNodes = objs.Cast<RetailOrderJournalNode>();
-				if(selectedNodes.Count() != 1)
-					return false;
+				var selectedNodes = selectedItems.OfType<RetailOrderJournalNode>();
+				return selectedNodes.Count() != 1 ? null : selectedNodes.FirstOrDefault();
+			}
 
-				return selectedNodes.FirstOrDefault().EntityType == typeof(VodovozOrder);
+			bool IsOrder(RetailOrderJournalNode selectedNode)
+			{
+				if(selectedNode == null)
+				{
+					return false;
+				}
+
+				return selectedNode.EntityType == typeof(VodovozOrder);
+			}
+
+			bool CanCreateOrder(object[] selectedItems)
+			{
+				var selectedNode = GetSelectedNode(selectedItems);
+				return IsOrder(selectedNode) && EntityConfigs[selectedNode.EntityType].PermissionResult.CanCreate;
 			}
 
 			PopupActionsList.Add(
 				new JournalAction(
 					"Перейти в маршрутный лист",
 					selectedItems => selectedItems.Any(
-						x => AccessRouteListKeeping((x as RetailOrderJournalNode).Id)) && IsOrder(selectedItems),
+						x => AccessRouteListKeeping((x as RetailOrderJournalNode).Id)) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -741,7 +815,7 @@ namespace Vodovoz.JournalViewModels
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
 						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(
-							UoW, (o as RetailOrderJournalNode).Id).Any()) && IsOrder(selectedItems),
+							UoW, (o as RetailOrderJournalNode).Id).Any()) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -770,7 +844,9 @@ namespace Vodovoz.JournalViewModels
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
 							_orderSelectorFactory,
-							_undeliveredOrdersRepository
+							_undeliveredOrdersRepository,
+							new EmployeeSettings(new ParametersProvider()),
+							_subdivisionParametersProvider
 							);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);
@@ -781,7 +857,7 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Открыть диалог закрытия",
 					(selectedItems) => selectedItems.Any(
-						x => AccessToRouteListClosing((x as RetailOrderJournalNode).Id)) && IsOrder(selectedItems),
+						x => AccessToRouteListClosing((x as RetailOrderJournalNode).Id)) && IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -804,7 +880,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(координаты)",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -828,7 +904,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(адрес)",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -852,7 +928,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на карте OSM",
-					IsOrder,
+					selectedItems => IsOrder(GetSelectedNode(selectedItems)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();
@@ -870,7 +946,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Повторить заказ",
-					IsOrder,
+					CanCreateOrder,
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RetailOrderJournalNode>();

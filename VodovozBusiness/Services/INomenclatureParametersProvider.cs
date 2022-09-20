@@ -12,8 +12,10 @@ namespace Vodovoz.Services
         int CurrentOnlineStoreId { get; }
         decimal GetWaterPriceIncrement { get; }
         string OnlineStoreExportFileUrl { get; }
+        int FastDeliveryNomenclatureId { get; }
+		int PromotionalNomenclatureGroupId { get; }
 
-        Nomenclature GetWaterSemiozerie(IUnitOfWork uow);
+		Nomenclature GetWaterSemiozerie(IUnitOfWork uow);
         Nomenclature GetWaterKislorodnaya(IUnitOfWork uow);
         Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow);
         Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow);

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers
@@ -50,6 +51,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetOrder")]
 		public OrderDto Get(int orderId)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(orderId: {orderId}) User token: {tokenStr}");
+
 			return _aPIOrderData.Get(orderId);
 		}
 
@@ -58,6 +62,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/CompleteOrderDelivery")]
 		public void CompleteOrderDelivery([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(OrderId: {completedOrderRequestModel.OrderId}) User token: {tokenStr}");
+
 			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			var recievedTime = DateTime.Now;
@@ -78,6 +85,7 @@ namespace DriverAPI.Controllers
 					completedOrderRequestModel.Rating,
 					completedOrderRequestModel.DriverComplaintReasonId,
 					completedOrderRequestModel.OtherDriverComplaintReasonComment,
+					completedOrderRequestModel.DriverComment,
 					recievedTime
 				);
 			}
@@ -100,6 +108,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/ChangeOrderPaymentType")]
 		public void ChangeOrderPaymentType(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
+			var tokenStr = Request.Headers[HeaderNames.Authorization];
+			_logger.LogInformation($"(OrderId: {changeOrderPaymentTypeRequestModel.OrderId}) User token: {tokenStr}");
+
 			var recievedTime = DateTime.Now;
 
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;

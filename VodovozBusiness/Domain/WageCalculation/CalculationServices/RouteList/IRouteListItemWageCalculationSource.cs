@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
@@ -107,11 +108,18 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		decimal CurrentWage { get; }
 
+		/// <summary>
+		/// Тип авто в МЛ
+		/// </summary>
+		CarTypeOfUse CarTypeOfUse { get; }
+
 		IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource { get; }
 		IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource { get; }
 
 		bool IsDriverForeignDistrict { get; }
 
 		EmployeeCategory EmployeeCategory { get; }
+
+		bool IsFastDelivery { get; }
 	}
 }

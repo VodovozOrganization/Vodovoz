@@ -104,7 +104,11 @@ namespace Vodovoz.Domain.Contacts
 		[Display(Name = "Для чеков")]
 		ForReceipts,
 		[Display(Name = "Для счетов")]
-		ForBills
+		ForBills,
+		[Display(Name = "Рабочий")]
+		Work,
+		[Display(Name = "Личный")]
+		Personal
 	}
 
 	public class EmailPurposeStringType : NHibernate.Type.EnumStringType

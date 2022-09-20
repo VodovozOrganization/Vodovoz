@@ -3,7 +3,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate.Transform;
-using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Store;
 using Gamma.Binding;

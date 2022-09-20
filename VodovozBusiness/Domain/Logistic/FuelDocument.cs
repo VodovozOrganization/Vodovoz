@@ -7,6 +7,7 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Parameters;
@@ -40,12 +41,12 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref driver, value, () => Driver); }
 		}
 
-		private Car car;
+		private Car _car;
 
 		[Display(Name = "Транспортное средство")]
 		public virtual Car Car {
-			get { return car; }
-			set { SetField(ref car, value, () => Car); }
+			get { return _car; }
+			set { SetField(ref _car, value, () => Car); }
 		}
 
 		private RouteList routeList;
@@ -236,9 +237,11 @@ namespace Vodovoz.Domain.Logistic
 
 			var litersPaid = PayedForFuel.HasValue ? PayedLiters : 0;
 
+			var activeCarVersion = Car.GetActiveCarVersionOnDate(RouteList.Date);
+			
 			FuelOperation = new FuelOperation() {
-				Driver = Car.IsCompanyCar ? null : Driver,
-				Car = Car.IsCompanyCar ? Car : null,
+				Driver = activeCarVersion.IsCompanyCar ? null : Driver,
+				Car = activeCarVersion.IsCompanyCar ? Car : null,
 				Fuel = Fuel,
 				LitersGived = FuelCoupons + litersPaid,
 				LitersOutlayed = 0,
@@ -309,10 +312,6 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(RouteList.ClosingSubdivision == null) {
-				yield return new ValidationResult("Касса в маршрутном листе должна быть заполнена");
-			}
-
 			if(Subdivision == null) {
 				yield return new ValidationResult("Необходимо выбрать кассу, с которой будет списываться топливо");
 			}

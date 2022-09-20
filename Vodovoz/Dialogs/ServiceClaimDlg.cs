@@ -18,9 +18,11 @@ using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
@@ -32,6 +34,9 @@ namespace Vodovoz
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+
+		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
+			new DeliveryPointJournalFilterViewModel();
 		
 		#region IPanelInfoProvider implementation
 		public PanelViewType[] InfoWidgets{
@@ -49,29 +54,15 @@ namespace Vodovoz
 
 		#region ICounterpartyInfoProvider implementation
 
-		public Counterparty Counterparty
-		{
-			get
-			{
-				return referenceCounterparty.Subject as Counterparty;
-			}
-		}
+		public Counterparty Counterparty => evmeClient.Subject as Counterparty;
 
 		#endregion
 
-		public DeliveryPoint DeliveryPoint
-		{
-			get
-			{
-				return referenceDeliveryPoint.Subject as DeliveryPoint;
-			}
-		}
+		public DeliveryPoint DeliveryPoint => evmeDeliveryPoint.Subject as DeliveryPoint;
 
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		bool isEditable = true;
-
-		public bool IsEditable { get { return isEditable; } set { isEditable = value; } }
 
 		public ServiceClaimDlg (Order order)
 		{
@@ -136,11 +127,14 @@ namespace Vodovoz
 			textKit.Binding.AddBinding(Entity, e => e.Kit, w => w.Buffer.Text).InitializeFromSource();
 			textDiagnosticsResult.Binding.AddBinding(Entity, e => e.DiagnosticsResult, w => w.Buffer.Text).InitializeFromSource();
 
-			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
-			referenceCounterparty.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
+			var clientFactory = new CounterpartyJournalFactory();
+			evmeClient.SetEntityAutocompleteSelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeClient.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
+			evmeClient.Changed += OnReferenceCounterpartyChanged;
 
-			referenceEngineer.RepresentationModel = new EmployeesVM();
-			referenceEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEngineer.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 
 			yentryEquipmentReplacement.ItemsQuery = _equipmentRepository.AvailableOnDutyEquipmentQuery();
 			yentryEquipmentReplacement.SetObjectDisplayFunc<Equipment> (e => e.Title);
@@ -148,8 +142,12 @@ namespace Vodovoz
 				.AddBinding (UoWGeneric.Root, serviceClaim => serviceClaim.ReplacementEquipment, widget => widget.Subject)
 				.InitializeFromSource();
 
-			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
-			referenceDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
+			evmeDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
+			evmeDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
+			evmeDeliveryPoint.Changed += OnReferenceDeliveryPointChanged;
+			var dpFactory = new DeliveryPointJournalFactory();
+			dpFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
+			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 
 			referenceNomenclature.ItemsQuery = _nomenclatureRepository.NomenclatureOfItemsForService();
 			referenceNomenclature.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource();
@@ -187,7 +185,7 @@ namespace Vodovoz
 			Entity.PropertyChanged += Entity_PropertyChanged;
 
 			if (UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService) {
-				referenceDeliveryPoint.Visible = false;
+				evmeDeliveryPoint.Visible = false;
 				labelDeliveryPoint.Visible = false;
 				yentryEquipmentReplacement.Visible = false;
 				labelReplacement.Visible = false;
@@ -275,16 +273,17 @@ namespace Vodovoz
 
 		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
 		{
-			if (CurrentObjectChanged != null)
-				CurrentObjectChanged(this, new CurrentObjectChangedArgs(Counterparty));
-			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
-			FixNomenclatureAndEquipmentSensitivity ();
-			if (UoWGeneric.Root.DeliveryPoint != null &&
-			    UoWGeneric.Root.DeliveryPoint.Counterparty.Id != UoWGeneric.Root.Counterparty.Id) {
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Counterparty));
+			FixNomenclatureAndEquipmentSensitivity();
 
-				UoWGeneric.Root.DeliveryPoint = null;
+			evmeDeliveryPoint.Sensitive = Entity.Counterparty != null;
+			evmeDeliveryPoint.Subject = null;
+			if(Entity.Counterparty == null)
+			{
+				return;
 			}
-			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty);
+
+			_deliveryPointJournalFilterViewModel.Counterparty = Entity.Counterparty;
 		}
 
 		void RunContractCreateDialog ()
@@ -440,4 +439,3 @@ namespace Vodovoz
 		}
 	}
 }
-

@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Autofac;
 using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Linq;
 using NHibernate.Transform;
-using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -37,16 +35,17 @@ using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using QS.Project.Domain;
 using QS.DomainModel.NotifyChange;
+using QS.Navigation;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalViewers;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 
@@ -56,10 +55,10 @@ namespace Vodovoz.ViewModel
 	{
 		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private bool _userHasOnlyAccessToWarehouseAndComplaints;
-		
+
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
-			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
+			set => RepresentationFilter = value;
 		}
 
 		#region IRepresentationModel implementation
@@ -69,15 +68,33 @@ namespace Vodovoz.ViewModel
 			RouteListsVMNode resultAlias = null;
 			RouteList routeListAlias = null;
 			DeliveryShift shiftAlias = null;
-
 			Car carAlias = null;
+			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			Subdivision subdivisionAlias = null;
-			GeographicGroup geographicGroupsAlias = null;
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
 
 			var query = UoW.Session.QueryOver(() => routeListAlias);
 
-			query.Left.JoinAlias(o => o.Driver, () => driverAlias);
+			query.Left.JoinAlias(rl => rl.Driver, () => driverAlias)
+				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias,
+						Restrictions.Conjunction()
+							.Add(Restrictions.Where(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date))
+							.Add(
+								Restrictions.Disjunction()
+									.Add(Restrictions.IsNull(Projections.Property(() => geoGroupVersionAlias.ClosingDate)))
+									.Add(Restrictions.Where(() => geoGroupVersionAlias.ClosingDate >= routeListAlias.Date))
+							)
+				)
+				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
+				.JoinEntityAlias(() => carVersionAlias,
+					() => carVersionAlias.Car.Id == carAlias.Id
+						&& carVersionAlias.StartDate <= routeListAlias.Date
+						&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date));
 
 			if(Filter.SelectedStatuses != null) {
 				query.WhereRestrictionOn(o => o.Status).IsIn(Filter.SelectedStatuses);
@@ -96,8 +113,7 @@ namespace Vodovoz.ViewModel
 			}
 
 			if(Filter.RestrictGeographicGroup != null) {
-				query.Left.JoinAlias(o => o.GeographicGroups, () => geographicGroupsAlias)
-					 .Where(() => geographicGroupsAlias.Id == Filter.RestrictGeographicGroup.Id);
+				query.Where(() => geoGroupAlias.Id == Filter.RestrictGeographicGroup.Id);
 			}
 
 			if(Filter.ShowDriversWithTerminal)
@@ -151,42 +167,37 @@ namespace Vodovoz.ViewModel
 			}
 
 			#endregion
-			
-			switch(Filter.RestrictTransport) {
-				case RLFilterTransport.Mercenaries:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar && !carAlias.IsRaskat); break;
-				case RLFilterTransport.Raskat:
-					query.Where(() => carAlias.IsRaskat); break;
-				case RLFilterTransport.Largus:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyLargus); break;
-				case RLFilterTransport.GAZelle:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyGAZelle); break;
-				case RLFilterTransport.Waggon:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyTruck); break;
-				case RLFilterTransport.Others:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar); break;
-				default: break;
+
+			if(Filter.RestrictedCarOwnTypes != null)
+			{
+				query.WhereRestrictionOn(() => carVersionAlias.CarOwnType).IsIn(Filter.RestrictedCarOwnTypes.ToArray());
 			}
-			
+
+			if(Filter.RestrictedCarTypesOfUse != null)
+			{
+				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(Filter.RestrictedCarTypesOfUse.ToArray());
+			}
+
 			var result = query
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
 				.Left.JoinAlias(o => o.Car, () => carAlias)
-				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.SelectList(list => list
 				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
 				   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.StatusEnum)
 				   .Select(() => shiftAlias.Name).WithAlias(() => resultAlias.ShiftName)
-				   .Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
+				   .Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
 				   .Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 				   .Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 				   .Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 				   .Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+				   .Select(() => driverAlias.Comment).WithAlias(() => resultAlias.DriverComment)
 				   .Select(() => routeListAlias.LogisticiansComment).WithAlias(() => resultAlias.LogisticiansComment)
 				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
 				   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
 				   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
-				   .Select(() => carAlias.TypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+				   .Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+				   .Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListsVMNode>())
 				.List<RouteListsVMNode>();
@@ -213,6 +224,10 @@ namespace Vodovoz.ViewModel
 				.WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Комментарий по закрытию")
 				.AddTextRenderer(node => node.ClosinComments)
+				.WrapWidth(300)
+				.WrapMode(Pango.WrapMode.WordChar)
+			.AddColumn("Комментарий по водителю")
+				.AddTextRenderer(node => node.DriverComment)
 				.WrapWidth(300)
 				.WrapMode(Pango.WrapMode.WordChar)
 			.RowCells()
@@ -351,7 +366,7 @@ namespace Vodovoz.ViewModel
 					new EmployeeRepository(),
 					new BaseParametersProvider(_parametersProvider),
 					ServicesConfig.CommonServices.UserService,
-					SingletonErrorReporter.Instance);
+					ErrorReporter.Instance);
 
 				var result = new List<IJournalPopupItem>();
 
@@ -416,10 +431,13 @@ namespace Vodovoz.ViewModel
 							{
 								var routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 								int warehouseId = 0;
-								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionSofiiskayaId)
-									warehouseId = routeListParametersProvider.WarehouseSofiiskayaId;
-								if (routeList.ClosingSubdivision.Id == routeListParametersProvider.CashSubdivisionParnasId)
-									warehouseId = routeListParametersProvider.WarehouseParnasId;
+
+								var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+								var geoGroupVersion = geoGroup.GetVersionOrNull(routeList.Date);
+								if(geoGroupVersion != null)
+								{
+									warehouseId = geoGroupVersion.Warehouse.Id;
+								}
 
 								if (warehouseId > 0)
 								{
@@ -579,7 +597,9 @@ namespace Vodovoz.ViewModel
 									new GtkTabsOpener(),
 									new UndeliveredOrdersJournalOpener(),
 									new DeliveryShiftRepository(),
-									new UndeliveredOrdersRepository()
+									new EmployeeSettings(new ParametersProvider()),
+									new UndeliveredOrdersRepository(),
+									new SubdivisionParametersProvider(new ParametersProvider())
 								)
 							);
 					},
@@ -590,15 +610,16 @@ namespace Vodovoz.ViewModel
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						if(selectedNode != null && MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum) && selectedNode.CarTypeOfUse != CarTypeOfUse.CompanyTruck)
-							MainClass.MainWin.TdiMain.OpenTab(
-								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-								() => new RouteListMileageCheckDlg(selectedNode.Id)
-							);
+						if(selectedNode != null
+							&& MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum)
+							&& selectedNode.CarTypeOfUse != CarTypeOfUse.Truck)
+						{
+							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+						}
 					},
 					(selectedItems) => selectedItems.Any(
 						x => MileageCheckDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum)
-						&& (x as RouteListsVMNode).UsesCompanyCar && ((RouteListsVMNode) x).CarTypeOfUse != CarTypeOfUse.CompanyTruck
+						&& (x as RouteListsVMNode).UsesCompanyCar && ((RouteListsVMNode) x).CarTypeOfUse != CarTypeOfUse.Truck
 					)
 				));
 
@@ -656,7 +677,9 @@ namespace Vodovoz.ViewModel
 														new FuelRepository(),
 														NavigationManagerProvider.NavigationManager,
 														new TrackRepository(),
-														new CategoryRepository(_parametersProvider)
+														new CategoryRepository(_parametersProvider),
+														new EmployeeJournalFactory(),
+														new CarJournalFactory(MainClass.MainWin.NavigationManager)
 									)
 								);
 						}
@@ -718,20 +741,24 @@ namespace Vodovoz.ViewModel
 		public string DriverSurname { get; set; }
 		public string DriverName { get; set; }
 		public string DriverPatronymic { get; set; }
+		public string DriverComment { get; set; }
 
 		public string Driver => PersonHelper.PersonFullName(DriverSurname, DriverName, DriverPatronymic);
 
-		public string CarModel { get; set; }
+		public string CarModelName { get; set; }
 
 		public string CarNumber { get; set; }
 
 		[UseForSearch]
-		public string DriverAndCar => string.Format("{0} - {1} ({2})", Driver, CarModel, CarNumber);
+		public string DriverAndCar => string.Format("{0} - {1} ({2})", Driver, CarModelName, CarNumber);
 		public string LogisticiansComment { get; set; }
 		public string ClosinComments { get; set; }
 		public string ClosingSubdivision { get; set; }
 		public bool NotFullyLoaded { get; set; }
 		public CarTypeOfUse CarTypeOfUse { get; set; }
-		public bool UsesCompanyCar => !CarTypeOfUse.Equals(CarTypeOfUse.DriverCar);
+		
+		public CarOwnType CarOwnType { get; set; }
+
+		public bool UsesCompanyCar => CarOwnType == CarOwnType.Company;
 	}
 }

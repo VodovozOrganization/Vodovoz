@@ -7,6 +7,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Dialogs.Logistic;
+using Vodovoz.Domain.Employees;
+using System;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
@@ -20,7 +23,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
-		public void OpenCreateRouteListDlg(ITdiTab tab, int id)
+		public void OpenRouteListCreateDlg(ITdiTab tab, int id)
 		{
 			tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(id),
@@ -36,11 +39,11 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
-		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0)
+		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false)
 		{
 			return tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<UndeliveredOrder>(id),
-				() => id > 0 ? new UndeliveredOrderDlg(id) : new UndeliveredOrderDlg()
+				() => id > 0 ? new UndeliveredOrderDlg(id, isForSalesDepartment) : new UndeliveredOrderDlg(isForSalesDepartment)
 			);
 		}
 
@@ -59,10 +62,9 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				() => new CounterpartyDlg(counterpartyId));
 		}
 
-		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, IPermissionService permissionService,
-			bool canChangeEmployee, ExpenseType expenseType)
+		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType)
 		{
-			var dlg = new CashExpenseDlg(permissionService);
+			var dlg = new CashExpenseDlg();
 			if(dlg.FailInitialize)
 			{
 				return;
@@ -72,9 +74,9 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			master.TabParent.AddTab(dlg, master);
 		}
 
-		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description, IPermissionService permissionService)
+		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description)
 		{
-			var dlg = new CashExpenseDlg(permissionService);
+			var dlg = new CashExpenseDlg();
 			if(dlg.FailInitialize)
 			{
 				return;
@@ -82,6 +84,12 @@ namespace Vodovoz.Dialogs.OrderWidgets
 
 			dlg.ConfigureForRouteListChangeGiveout(employeeId, balance, description);
 			master.TabParent.AddTab(dlg, master);
+		}
+
+		public void OpenTrackOnMapWnd(int routeListId)
+		{
+			var track = new TrackOnMapWnd(routeListId);
+			track.Show();
 		}
 	}
 }

@@ -11,18 +11,23 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using QSOrmProject;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
 using System.Drawing;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
+using Gamma.Binding.Core.LevelTreeConfig;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -122,10 +127,10 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>
 				.Create()
 					.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
-					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
+					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.CarVersion.IsCompanyCar ? vodovozCarIcon : null)
 						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup).SetDisplayFunc(x => x.Name)
-						.FillItems(ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW))
+						.FillItems(ViewModel.GeographicGroupsExceptEast)
 						.AddSetter(
 							(c, n) => {
 								c.Editable = n.Car != null;
@@ -169,10 +174,6 @@ namespace Vodovoz.Views.Logistic
 			buttonRemoveForwarder.Clicked += (sender, e) => ViewModel.RemoveForwarderCommand.Execute(ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>());
 
 			yspinMaxTime.Binding.AddBinding(ViewModel.Optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt).InitializeFromSource();
-
-			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
-			yspeccomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.ObservableSubdivisions, w => w.ItemsList).InitializeFromSource();
-			yspeccomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.ClosingSubdivision, w => w.SelectedItem).InitializeFromSource();
 
 			ydateForRoutes.Binding.AddBinding(ViewModel, vm => vm.DateForRouting, w => w.DateOrNull).InitializeFromSource();
 			checkShowCompleted.Binding.AddBinding(ViewModel, vm => vm.ShowCompleted, w => w.Active).InitializeFromSource();
@@ -477,7 +478,8 @@ namespace Vodovoz.Views.Logistic
 			addressesOverlay.Clear();
 
 			//добавляем маркеры складов
-			foreach(var b in ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
+			foreach(var b in ViewModel.GeographicGroupsExceptEast)
+			{
 				addressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
@@ -502,8 +504,16 @@ namespace Vodovoz.Views.Logistic
 				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
 				{
 					bool overdueOrder = false;
-					var undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay.Where(x =>
-						x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department);
+
+					List<UndeliveryOrderNode> undeliveryOrderNodes = new List<UndeliveryOrderNode>();
+
+					if(ViewModel.UndeliveredOrdersOnDay != null)
+					{
+						undeliveryOrderNodes = ViewModel.UndeliveredOrdersOnDay
+							.Where(x => x.GuiltySide == GuiltyTypes.Driver || x.GuiltySide == GuiltyTypes.Department)
+							.ToList();
+					}
+
 					if(undeliveryOrderNodes.Any(x => x.NewOrderId == order.Id))
 					{
 						overdueOrder = true;
@@ -554,17 +564,23 @@ namespace Vodovoz.Views.Logistic
 				type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
 		}
 
-		private PointMarker FillBaseMarker(GeographicGroup baseMarker)
+		private PointMarker FillBaseMarker(GeoGroup geoGroup)
 		{
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+
 			var addressMarker = new PointMarker(
 				new PointLatLng(
-					(double)baseMarker.BaseLatitude,
-					(double)baseMarker.BaseLongitude
+					(double)geoGroupVersion.BaseLatitude,
+					(double)geoGroupVersion.BaseLongitude
 				),
 				PointMarkerType.vodonos,
 				PointMarkerShape.custom
 			) {
-				Tag = baseMarker
+				Tag = geoGroup
 			};
 			return addressMarker;
 		}
@@ -648,10 +664,10 @@ namespace Vodovoz.Views.Logistic
 			foreach(var route in ViewModel.RoutesOnDay) {
 				var carrierInfo = string.Format("№{0} - {1}", route.Id, route.Driver.ShortName);
 				if(route.GeographicGroups.Any())
-					carrierInfo = string.Concat(carrierInfo, " (", route.GeographicGroups.FirstOrDefault().Name, ')');
+					carrierInfo = string.Concat(carrierInfo, " (", route.GeographicGroups.First().Name, ')');
 				carrierInfo = string.Concat(
 					carrierInfo,
-					string.Format("; {0} кг; {1} куб.м.", route.Car?.MaxWeight, route.Car?.MaxVolume)
+					string.Format("; {0} кг; {1} куб.м.", route.Car?.CarModel?.MaxWeight, route.Car?.CarModel?.MaxVolume)
 				);
 				var item = new MenuItemId<RouteList>(carrierInfo) {
 					ID = route
@@ -797,7 +813,8 @@ namespace Vodovoz.Views.Logistic
 		{
 			driverAddressesOverlay.Clear();
 
-			foreach(var b in ViewModel.GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
+			foreach(var b in ViewModel.GeographicGroupsExceptEast)
+			{
 				driverAddressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
@@ -853,6 +870,14 @@ namespace Vodovoz.Views.Logistic
 		bool creatingInProgress;
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
+			if(ViewModel.DateForRouting < DateTime.Today.AddDays(-1) && !ViewModel.CanСreateRoutelistInPastPeriod)
+			{
+				ViewModel.CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Нельзя создавать маршруты на дату ранее вчерашнего дня!");
+				return;
+			}
+			
 			UpdateWarningButton();
 
 			if(creatingInProgress) {
@@ -877,20 +902,27 @@ namespace Vodovoz.Views.Logistic
 
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
-			var SelectDriverCar = new OrmReference(
-				ViewModel.UoW,
-				ViewModel.CarRepository.ActiveCompanyCarsQuery()
+			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
+			
+			if(driver == null)
+			{
+				ViewModel.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран водитель!");
+				return;
+			}
+			
+			var filter = new CarJournalFilterViewModel(ViewModel.CarModelJournalFactory);
+			filter.SetAndRefilterAtOnce(
+				x => x.Archive = false,
+				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
 			);
-			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
-			SelectDriverCar.Tag = driver;
-			SelectDriverCar.Mode = OrmReferenceMode.Select;
-			SelectDriverCar.ObjectSelected += SelectDriverCar_ObjectSelected;
-			ViewModel.TabParent.AddSlaveTab(ViewModel, SelectDriverCar);
-		}
-
-		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			ViewModel.SelectCarForDriver(e.Tag as AtWorkDriver, e.Subject as Car);
+			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ViewModel.CommonServices);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += (o, args) =>
+			{
+				var car = ViewModel.UoW.GetById<Car>(args.SelectedNodes.First().Id);
+				ViewModel.SelectCarForDriver(driver, car);
+			};
+			ViewModel.TabParent.AddSlaveTab(ViewModel, journal);
 		}
 
 		void OnLoadTimeEdited(object o, EditedArgs args)

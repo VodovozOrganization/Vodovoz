@@ -35,13 +35,14 @@ namespace Vodovoz.EntityRepositories.Stock
 
 			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And(() => operationAddAlias.IncomingWarehouse.Id != null)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-				
 
 			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And(() => operationRemoveAlias.WriteoffWarehouse.Id != null)
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-			
+
 			var amountProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?1 - ?2 )"),
 				NHibernateUtil.Int32, new IProjection[] {
 					Projections.SubQuery(subqueryAdd),
@@ -60,7 +61,7 @@ namespace Vodovoz.EntityRepositories.Stock
 			return (int)queryResult[1];
 		}
 		
-		public Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork uow, int warehouseId, int[] nomenclatureIds, DateTime? onDate = null)
+		public Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork uow, int[] nomenclatureIds, int? warehouseId = null, DateTime? onDate = null)
 		{
 			Nomenclature nomenclatureAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
@@ -69,16 +70,36 @@ namespace Vodovoz.EntityRepositories.Stock
 			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id);
 			if(onDate.HasValue)
+			{
 				subqueryAdd.Where(x => x.OperationTime < onDate.Value);
-			subqueryAdd.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse.Id), warehouseId))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+			}
+
+			if(warehouseId.HasValue)
+			{
+				subqueryAdd.And(() => operationAddAlias.IncomingWarehouse.Id == warehouseId);
+			}
+			else
+			{
+				subqueryAdd.And(() => operationAddAlias.IncomingWarehouse != null);
+			}
+			subqueryAdd.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
 
 			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id);
 			if(onDate.HasValue)
+			{
 				subqueryRemove.Where(x => x.OperationTime < onDate.Value);
-			subqueryRemove.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse.Id), warehouseId))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+			}
+
+			if(warehouseId.HasValue)
+			{
+				subqueryRemove.And(() => operationRemoveAlias.WriteoffWarehouse.Id == warehouseId);
+			}
+			else
+			{
+				subqueryRemove.And(() => operationRemoveAlias.WriteoffWarehouse != null);
+			}
+			subqueryRemove.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
 
 			ItemInStock inStock = null;
 			var stocklist = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
@@ -329,7 +350,7 @@ namespace Vodovoz.EntityRepositories.Stock
 			
 			foreach(var warehouse in warehouseIds)
 			{
-				var stockTotal = NomenclatureInStock(uow, warehouse, nomenclatureIds);
+				var stockTotal = NomenclatureInStock(uow, nomenclatureIds, warehouse);
 				
 				foreach(var pair in stockTotal)
 				{

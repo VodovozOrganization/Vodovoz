@@ -5,17 +5,9 @@ using QS.Tdi;
 using Gamma.Utilities;
 using Vodovoz.ViewModelBased;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModel;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using QS.Project.Services;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using Vodovoz.JournalFilters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -48,16 +40,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			yspinMoney.Binding.AddBinding(ViewModel.Entity, e => e.TransferedSum, w => w.ValueAsDecimal).InitializeFromSource();
 			yspinMoney.Binding.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			var filterDriver = new EmployeeRepresentationFilterViewModel();
-			filterDriver.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			entryDriver.RepresentationModel = new EmployeesVM(filterDriver);
-			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
-			entryDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
+			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			evmeDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, x => x.Car, x => x.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 

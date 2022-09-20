@@ -33,6 +33,7 @@ namespace Vodovoz.Reports
 		private readonly bool _userIsSalesRepresentative;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
+		private readonly bool _canSeePhones;
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 		public string Title => "Отчет по продажам";
@@ -50,6 +51,8 @@ namespace Vodovoz.Reports
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
 
+			_canSeePhones = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("phones_in_detailed_sales_report");
+
 			ConfigureDlg();
 		}
 
@@ -57,6 +60,12 @@ namespace Vodovoz.Reports
 		{
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			buttonInfo.Clicked += (sender, args) => ShowInfoWindow();
+
+			ycheckbuttonDetail.Toggled += (sender, args) =>
+			{
+				ycheckbuttonPhones.Sensitive = _canSeePhones && ycheckbuttonDetail.Active;
+			};
+
 			SetupFilter();
 		}
 
@@ -98,7 +107,8 @@ namespace Vodovoz.Reports
 			{
 				{ "start_date", dateperiodpicker.StartDateOrNull },
 				{ "end_date", dateperiodpicker.EndDateOrNull },
-				{ "creation_date", DateTime.Now }
+				{ "creation_date", DateTime.Now },
+				{ "show_phones", ycheckbuttonPhones.Active },
 			};
 
 			if(_userIsSalesRepresentative)
@@ -196,7 +206,9 @@ namespace Vodovoz.Reports
 				new RecursiveParametersFactory<ProductGroup>(UoW,
 					(filters) =>
 					{
-						var query = UoW.Session.QueryOver<ProductGroup>();
+						var query = UoW.Session.QueryOver<ProductGroup>()
+							.Where(p => p.Parent == null);
+						
 						if(filters != null && filters.Any())
 						{
 							foreach(var f in filters)
@@ -350,8 +362,8 @@ namespace Vodovoz.Reports
 				"geographic_group",
 				new ParametersFactory(UoW, (filters) =>
 				{
-					SelectableEntityParameter<GeographicGroup> resultAlias = null;
-					var query = UoW.Session.QueryOver<GeographicGroup>();
+					SelectableEntityParameter<GeoGroup> resultAlias = null;
+					var query = UoW.Session.QueryOver<GeoGroup>();
 
 					if(filters != null && filters.Any())
 					{
@@ -365,7 +377,7 @@ namespace Vodovoz.Reports
 						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
 						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
 					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<GeographicGroup>>());
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<GeoGroup>>());
 					return query.List<SelectableParameter>();
 				})
 			);

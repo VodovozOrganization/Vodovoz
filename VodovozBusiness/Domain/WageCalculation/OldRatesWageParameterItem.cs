@@ -31,6 +31,7 @@ namespace Vodovoz.Domain.WageCalculation
 		{
 			CreateMercenariesWageRates();
 			CreateOurWageRates();
+			CreateRaskatWageRates();
 		}
 
 		public OldRatesWageParameterItem()
@@ -39,6 +40,7 @@ namespace Vodovoz.Domain.WageCalculation
 
 		private static List<WageRateNode> wageRatesMercenaries;
 		private static List<WageRateNode> wageRatesOur;
+		private static List<WageRateNode> _wageRatesRaskat;
 
 		private static void CreateMercenariesWageRates()
 		{
@@ -96,6 +98,34 @@ namespace Vodovoz.Domain.WageCalculation
 			};
 		}
 
+		private static void CreateRaskatWageRates()
+		{
+			const decimal bottle19 = 10;
+			const decimal bottle19WOForw = 10;
+			const decimal forwarderBottle19 = 5;
+			const decimal address = 32;
+			const decimal foreignAddress = 32;
+			_wageRatesRaskat = new List<WageRateNode> {
+				new WageRateNode(new DateTime(2019, 05, 14), WageRateTypes.PhoneCompensation, 2, 2, 0),
+				new WageRateNode(new DateTime(2017, 08, 08), WageRateTypes.Bottle19L, 7, 7, forwarderBottle19),
+				new WageRateNode(WageRateTypes.Bottle19L, bottle19, bottle19WOForw, forwarderBottle19),
+				new WageRateNode(WageRateTypes.Bottle19LInBigOrder, 4, 4, 4),
+				new WageRateNode(WageRateTypes.EmptyBottle19L, 5, 5, 5),
+				new WageRateNode(WageRateTypes.EmptyBottle19LInBigOrder, 1, 1, 1),
+				new WageRateNode(WageRateTypes.MinBottlesQtyInBigOrder, 100, 100, 100),
+				new WageRateNode(WageRateTypes.Bottle6L, 1.4m, 1.4m, 1),
+				new WageRateNode(new DateTime(2017, 08, 08), WageRateTypes.PackOfBottles600ml, 7, 7, 5),
+				new WageRateNode(WageRateTypes.PackOfBottles600ml, 10, 10, 5),
+				new WageRateNode(WageRateTypes.Equipment, 14, 14, 10),
+				new WageRateNode(new DateTime(2019, 05, 14), WageRateTypes.Address, 30, 30, 0),
+				new WageRateNode(WageRateTypes.Address, address, address, 0),
+				new WageRateNode(new DateTime(2019, 05, 14), WageRateTypes.ForeignAddress, 30, 30, 0),
+				new WageRateNode(WageRateTypes.ForeignAddress, foreignAddress, foreignAddress, 0),
+				//Расчитывается по формуле: Адрес + (Бутыль19л * 2), для экспедитора: (Бутыль19л * 2)
+				new WageRateNode(WageRateTypes.ContractCancelation, address + (bottle19 * 2), address + (bottle19WOForw * 2), forwarderBottle19 * 2)
+			};
+		}
+
 		public virtual WageRate GetRateForMercenaries(DateTime date, WageRateTypes wageRateType)
 		{
 			return GetActualRate(wageRatesMercenaries, date, wageRateType);
@@ -104,6 +134,11 @@ namespace Vodovoz.Domain.WageCalculation
 		public virtual WageRate GetRateForOurs(DateTime date, WageRateTypes wageRateType)
 		{
 			return GetActualRate(wageRatesOur, date, wageRateType);
+		}
+
+		public virtual WageRate GetRateForRaskat(DateTime date, WageRateTypes wageRateType)
+		{
+			return GetActualRate(_wageRatesRaskat, date, wageRateType);
 		}
 
 		private WageRate GetActualRate(List<WageRateNode> rateNodes, DateTime date, WageRateTypes wageRateType)

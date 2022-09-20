@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -28,7 +29,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			decimal resultSum = 0;
 
-			if(!src.IsValidForWageCalculation)
+			if(!src.IsValidForWageCalculation || !Car.GetCarTypesOfUseForRatesLevelWageCalculation().Contains(src.CarTypeOfUse))
 			{
 				return new RouteListItemWageResult(0, GetCurrentWageDistrictLevelRate(src));
 			}
@@ -46,6 +47,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			resultSum += CalculateWageFor6LBottles(src);
 			resultSum += CalculateWageFor1500mlBottles(src);
 			resultSum += CalculateWageFor500mlBottles(src);
+			resultSum += CalculateWageForFastDelivery(src);
 
 			return new RouteListItemWageResult(
 				resultSum,
@@ -197,30 +199,47 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		}
 
 		/// <summary>
+		/// Оплата доставки за час
+		/// </summary>
+		decimal CalculateWageForFastDelivery(IRouteListItemWageCalculationSource src)
+		{
+			if(!src.IsFastDelivery)
+			{
+				return 0;
+			}
+
+			WageDistrictLevelRate wageCalcMethodic = GetCurrentWageDistrictLevelRate(src);
+
+			var rate = wageCalcMethodic.WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.FastDelivery);
+
+			return GetRateValue(src, rate);
+		}
+
+		/// <summary>
 		/// Возврат текущей методики расчёта ЗП. Берёться значение либо
 		/// актуальное из сотрудника, в случае первого расчёта, либо из
 		/// сохранённого в уже посчитанном адресе МЛ
 		/// </summary>
 		WageDistrictLevelRate GetCurrentWageDistrictLevelRate(IRouteListItemWageCalculationSource src)
 		{
-			return src.WageCalculationMethodic ?? wageParameterItem.WageDistrictLevelRates
-															   .LevelRates
-															   .FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress);
+			return src.WageCalculationMethodic
+				?? wageParameterItem.WageDistrictLevelRates.LevelRates
+					.FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress && r.CarTypeOfUse == src.CarTypeOfUse);
 		}
 
 		public RouteListItemWageCalculationDetails GetWageCalculationDetailsForRouteListItem(IRouteListItemWageCalculationSource src)
 		{
-			RouteListItemWageCalculationDetails addressWageDetails = new RouteListItemWageCalculationDetails()
+			var levelRate = GetCurrentWageDistrictLevelRate(src);
+			var addressWageDetails = new RouteListItemWageCalculationDetails
 			{
-				RouteListItemWageCalculationName = wageParameterItem.Title,
+				RouteListItemWageCalculationName = $"{WageParameterItemTypes.RatesLevel.GetEnumTitle()}, {levelRate.WageDistrictLevelRates.Name} №{levelRate.WageDistrictLevelRates.Id}. ",
 				WageCalculationEmployeeCategory = src.EmployeeCategory
 			};
 
-			if(!src.IsValidForWageCalculation)
+			if(!src.IsValidForWageCalculation || !Car.GetCarTypesOfUseForRatesLevelWageCalculation().Contains(src.CarTypeOfUse))
 			{
 				return addressWageDetails;
 			}
-
 
 			IList<WageRate> wageRates = GetCurrentWageDistrictLevelRate(src).WageRates;
 
@@ -318,6 +337,17 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 					Count = src.Bottle500mlCount,
 					Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Bottle500ml))
 				});
+
+			if(src.IsFastDelivery)
+			{
+				addressWageDetails.WageCalculationDetailsList.Add(
+					new WageCalculationDetailsItem()
+					{
+						Name = WageRateTypes.FastDelivery.GetEnumTitle(),
+						Count = 1,
+						Price = GetRateValue(src, wageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.FastDelivery))
+					});
+			}
 
 			return addressWageDetails;
 		}

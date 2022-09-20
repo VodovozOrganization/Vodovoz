@@ -14,6 +14,8 @@ namespace Vodovoz.HibernateMapping.Contacts
 			Map(x => x.Address).Column("address").Not.Nullable();
 
 			References(x => x.EmailType).Column("type_id");
+
+			References(x => x.Counterparty).Column("counterparty_id");
 		}
 	}
 }

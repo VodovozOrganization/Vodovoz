@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vodovoz.Services;
 
 namespace Vodovoz.Parameters
@@ -22,5 +22,7 @@ namespace Vodovoz.Parameters
         public int VodovozDeshitsOrganizationId => _parametersProvider.GetIntValue("vodovoz_Deshits_organization_id");
         public int CommonCashDistributionOrganisationId =>
             _parametersProvider.GetIntValue("common_cash_distribution_organisation_id");
+        public TimeSpan LatestCreateTimeForSouthOrganizationInByCardOrder =>
+	        _parametersProvider.GetValue<TimeSpan>("latest_create_time_for_south_organization_in_by_card_order");
     }
 }

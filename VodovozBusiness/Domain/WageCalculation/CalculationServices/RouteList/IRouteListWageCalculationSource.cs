@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -30,7 +31,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		bool DriverOfOurCar { get; }
 
-		bool IsLargusOrGazelle { get; }
+		/// <summary>
+		/// Раскатный автомобиль
+		/// </summary>
+		bool IsRaskatCar { get; }
+
+		CarTypeOfUse CarTypeOfUse { get; }
 
 		/// <summary>
 		/// Фура

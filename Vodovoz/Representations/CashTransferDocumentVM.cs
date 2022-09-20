@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalFilters.Cash;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Representations
 {
@@ -83,7 +84,7 @@ namespace Vodovoz.Representations
 
 		public override string GetSummaryInfo()
 		{
-			return $"{ base.GetSummaryInfo() }. В сейфе инкасcатора: { CurrencyWorks.GetShortCurrencyString(_cashRepository.GetCashInTransfering(UoW)) }";
+			return $"{ base.GetSummaryInfo() }. В сейфе инкасcатора: { CurrencyWorks.GetShortCurrencyString(_cashRepository.GetCashInTransferring(UoW)) }";
 		}
 
 		private void RegisterIncomeTransfer()
@@ -157,7 +158,9 @@ namespace Vodovoz.Representations
 						_unitOfWorkFactory,
 						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
-						new SubdivisionRepository(_parametersProvider));
+						new SubdivisionRepository(_parametersProvider),
+						new EmployeeJournalFactory(),
+						new CarJournalFactory(MainClass.MainWin.NavigationManager));
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
@@ -167,7 +170,9 @@ namespace Vodovoz.Representations
 						_unitOfWorkFactory,
 						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
-						new SubdivisionRepository(_parametersProvider));
+						new SubdivisionRepository(_parametersProvider),
+						new EmployeeJournalFactory(),
+						new CarJournalFactory(MainClass.MainWin.NavigationManager));
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);
@@ -248,7 +253,8 @@ namespace Vodovoz.Representations
 						_unitOfWorkFactory,
 						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
-						new SubdivisionRepository(_parametersProvider));
+						new SubdivisionRepository(_parametersProvider),
+						new EmployeeJournalFactory());
 					return viewModel.View as CommonCashTransferDlg;
 				},
 				//функция диалога открытия документа
@@ -258,7 +264,8 @@ namespace Vodovoz.Representations
 						_unitOfWorkFactory,
 						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
-						new SubdivisionRepository(_parametersProvider));
+						new SubdivisionRepository(_parametersProvider),
+						new EmployeeJournalFactory());
 					return viewModel.View as CommonCashTransferDlg;
 				}
 			);

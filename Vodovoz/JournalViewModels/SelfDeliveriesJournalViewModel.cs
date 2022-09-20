@@ -26,6 +26,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
@@ -38,6 +39,7 @@ namespace Vodovoz.Representations
         private readonly Employee _currentEmployee;
         private readonly OrderPaymentSettings _orderPaymentSettings;
         private readonly OrderParametersProvider _orderParametersProvider;
+        private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
         private readonly bool _userCanChangePayTypeToByCard;
 
         public SelfDeliveriesJournalViewModel(
@@ -47,12 +49,14 @@ namespace Vodovoz.Representations
             CallTaskWorker callTaskWorker,
             OrderPaymentSettings orderPaymentSettings,
 			OrderParametersProvider orderParametersProvider,
+	        IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 	        IEmployeeService employeeService) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
             _callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
             _orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
             _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+            _deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
             _currentEmployee =
 	            (employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
 		            UoW,
@@ -112,11 +116,11 @@ namespace Vodovoz.Representations
 			if(FilterViewModel.DeliveryPoint != null)
 				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
 
-			if(FilterViewModel.RestrictStartDate != null)
-				query.Where(o => o.DeliveryDate >= FilterViewModel.RestrictStartDate);
+			if(FilterViewModel.StartDate != null)
+				query.Where(o => o.DeliveryDate >= FilterViewModel.StartDate);
 
-			if(FilterViewModel.RestrictEndDate != null)
-				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
+			if(FilterViewModel.EndDate != null)
+				query.Where(o => o.DeliveryDate <= FilterViewModel.EndDate.Value.AddDays(1).AddTicks(-1));
 
 			if(FilterViewModel.PaymentOrder != null) {
 				bool paymentAfterShipment = false || FilterViewModel.PaymentOrder == PaymentOrder.AfterShipment;
@@ -258,8 +262,8 @@ namespace Vodovoz.Representations
 					"Оплата по карте",
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
-                        var selectedNode = selectedNodes.First();
-                        return selectedNodes.Count() == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
+                        var selectedNode = selectedNodes.FirstOrDefault();
+                        return selectedNodes.Count == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
 					selectedItems => {
@@ -274,6 +278,7 @@ namespace Vodovoz.Representations
                                     _callTaskWorker,
                                     _orderPaymentSettings,
 									_orderParametersProvider,
+									_deliveryRulesParametersProvider,
 									_currentEmployee), 
 								this
 							);
@@ -295,17 +300,17 @@ namespace Vodovoz.Representations
 				return;
 			}
 
-			if(order.OrderSum > 0 && !order.SelfDeliveryIsFullyIncomePaid()) {
+			if(order.OrderPositiveSum > 0 && !order.SelfDeliveryIsFullyIncomePaid()) {
 				MainClass.MainWin.TdiMain.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Income>(orderId),
-					() => new CashIncomeSelfDeliveryDlg(order, PermissionsSettings.PermissionService)
+					() => new CashIncomeSelfDeliveryDlg(order)
 				);
 			}
 
-			if(order.OrderSumReturn > 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
+			if(order.OrderNegativeSum > 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
 				MainClass.MainWin.TdiMain.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Expense>(orderId),
-					() => new CashExpenseSelfDeliveryDlg(order, PermissionsSettings.PermissionService)
+					() => new CashExpenseSelfDeliveryDlg(order)
 				);
 			}
 		}

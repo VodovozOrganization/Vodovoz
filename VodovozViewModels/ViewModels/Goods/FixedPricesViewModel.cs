@@ -20,10 +20,10 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 	public class FixedPricesViewModel : UoWWidgetViewModelBase
 	{
 		private readonly IFixedPricesModel fixedPricesModel;
-		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 		private readonly ITdiTab parentTab;
 
-		public FixedPricesViewModel(IUnitOfWork uow, IFixedPricesModel fixedPricesModel, INomenclatureSelectorFactory nomenclatureSelectorFactory, ITdiTab parentTab)
+		public FixedPricesViewModel(IUnitOfWork uow, IFixedPricesModel fixedPricesModel, INomenclatureJournalFactory nomenclatureSelectorFactory, ITdiTab parentTab)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			this.fixedPricesModel = fixedPricesModel ?? throw new ArgumentNullException(nameof(fixedPricesModel));

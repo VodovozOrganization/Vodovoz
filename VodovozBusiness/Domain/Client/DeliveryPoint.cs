@@ -3,21 +3,23 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamma.Utilities;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Osm;
-using QS.Osm.DTO;
-using QS.Osm.Osrm;
+using QS.Osrm;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Client
 {
@@ -31,10 +33,18 @@ namespace Vodovoz.Domain.Client
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		private TimeSpan? _lunchTimeFrom;
 		private TimeSpan? _lunchTimeTo;
 		private bool? _isBeforeIntervalDelivery;
+		private Guid? _cityFiasGuid;
+		private Guid? _streetFiasGuid;
+		private string _streetTypeShort;
+		private string _streetDistrict;
+		private string _localityTypeShort;
+		private string _localityType;
+		private Guid? _buildingFiasGuid;
 
 		#region Свойства
 
@@ -55,15 +65,7 @@ namespace Vodovoz.Domain.Client
 			get => letter;
 			set => SetField(ref letter, value, () => Letter);
 		}
-
-		string addressAddition;
-
-		[Display(Name = "Дополнение к адресу")]
-		public virtual string АddressAddition {
-			get => addressAddition;
-			set => SetField(ref addressAddition, value, () => АddressAddition);
-		}
-
+		
 		string placement;
 
 		[Display(Name = "Помещение")]
@@ -102,8 +104,12 @@ namespace Vodovoz.Domain.Client
 		public virtual string CompiledAddress {
 			get {
 				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City))
-					address += $"{LocalityType.GetEnumShortTitle()} {City}, ";
+					address += $"{City}, ";
+				if(!string.IsNullOrWhiteSpace(StreetType))
+					address += $"{StreetType.ToLower()} ";
 				if(!string.IsNullOrWhiteSpace(Street))
 					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
@@ -116,8 +122,8 @@ namespace Vodovoz.Domain.Client
 					address += $"эт.{Floor}, ";
 				if(!string.IsNullOrWhiteSpace(Room))
 					address += $"{RoomType.GetEnumShortTitle()} {Room}, ";
-				if(!string.IsNullOrWhiteSpace(АddressAddition))
-					address += $"{АddressAddition}, ";
+				if(!string.IsNullOrWhiteSpace(Comment))
+					address += $"{Comment}, ";
 
 				return address.TrimEnd(',', ' ');
 			}
@@ -128,8 +134,12 @@ namespace Vodovoz.Domain.Client
 		public virtual string CompiledAddressWOAddition {
 			get {
 				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City))
-					address += $"{LocalityType.GetEnumShortTitle()} {City}, ";
+					address += $"{City}, ";
+				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
+					address += GetStreetTypeShort();
 				if(!string.IsNullOrWhiteSpace(Street))
 					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
@@ -152,10 +162,14 @@ namespace Vodovoz.Domain.Client
 		public virtual string ShortAddress {
 			get {
 				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(LocalityTypeShort) && City != "Санкт-Петербург")
+					address += $"{LocalityTypeShort}. ";
 				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
-					address += $"{LocalityType.GetEnumShortTitle()} {AddressHelper.ShortenCity(City)}, ";
+					address += $"{City}, ";
+				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
+					address += GetStreetTypeShort();
 				if(!string.IsNullOrWhiteSpace(Street))
-					address += $"{AddressHelper.ShortenStreet(Street)}, ";
+					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
 					address += $"д.{Building}, ";
 				if(!string.IsNullOrWhiteSpace(Letter))
@@ -171,26 +185,45 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		public virtual Guid? CityFiasGuid
+		{
+			get => _cityFiasGuid;
+			set => SetField(ref _cityFiasGuid, value);
+		}
+
+		public virtual Guid? StreetFiasGuid
+		{
+			get => _streetFiasGuid;
+			set => SetField(ref _streetFiasGuid, value);
+		}
+
+		public virtual Guid? BuildingFiasGuid
+		{
+			get => _buildingFiasGuid;
+			set => SetField(ref _buildingFiasGuid, value);
+		}
+		
 		string city;
 
 		[Display(Name = "Город")]
-		public virtual string City {
+		public virtual string City
+		{
 			get => city;
-			set {
-				if(SetField(ref city, value, () => City)) {
-					Building = null;
-					Street = null;
-					StreetDistrict = null;
-				}
-			}
+			set => SetField(ref city, value);
 		}
 
-		LocalityType localityType;
-
 		[Display(Name = "Тип населенного пункта")]
-		public virtual LocalityType LocalityType {
-			get => localityType;
-			set => SetField(ref localityType, value, () => LocalityType);
+		public virtual string LocalityType
+		{
+			get => _localityType;
+			set => SetField(ref _localityType, value);
+		}
+
+		[Display(Name = "Тип населенного пункта (сокращ.)")]
+		public virtual string LocalityTypeShort
+		{
+			get => _localityTypeShort;
+			set => SetField(ref _localityTypeShort, value);
 		}
 
 		string cityDistrict;
@@ -198,7 +231,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Район области")]
 		public virtual string CityDistrict {
 			get => cityDistrict;
-			set => SetField(ref cityDistrict, value, () => CityDistrict);
+			set => SetField(ref cityDistrict, value);
 		}
 
 		string street;
@@ -206,15 +239,29 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Улица")]
 		public virtual string Street {
 			get => street;
-			set => SetField(ref street, value, () => Street);
+			set => SetField(ref street, value);
 		}
 
-		string streetDistrict;
+		string streetType;
+
+		[Display(Name = "Тип улицы")]
+		public virtual string StreetType
+		{
+			get => streetType;
+			set => SetField(ref streetType, value);
+		}
+
+		[Display(Name = "Тип улицы (сокр.)")]
+		public virtual string StreetTypeShort
+		{
+			get => _streetTypeShort;
+			set => SetField(ref _streetTypeShort, value);
+		}
 
 		[Display(Name = "Район города")]
 		public virtual string StreetDistrict {
-			get => streetDistrict;
-			set => SetField(ref streetDistrict, value, () => StreetDistrict);
+			get => _streetDistrict;
+			set => SetField(ref _streetDistrict, value);
 		}
 
 
@@ -631,13 +678,14 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		/// <returns><c>true</c>, если район города найден</returns>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
-		public bool FindAndAssociateDistrict(IUnitOfWork uow)
+		/// <param name="districtsSet">Версия районов, из которой будет ассоциироваться район. Если равно null, то будет браться активная версия</param>
+		public bool FindAndAssociateDistrict(IUnitOfWork uow, DistrictsSet districtsSet = null)
 		{
 			if(!CoordinatesExist) {
 				return false;
 			}
 
-			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value);
+			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
 			if(foundDistrict == null) {
 				return false;
 			}
@@ -649,7 +697,7 @@ namespace Vodovoz.Domain.Client
 		{
 			CompiledAddress = string.Empty;
 			City = "Санкт-Петербург";
-			LocalityType = LocalityType.city;
+			LocalityTypeShort = "г";
 			Street = string.Empty;
 			Building = string.Empty;
 			Room = string.Empty;
@@ -672,14 +720,22 @@ namespace Vodovoz.Domain.Client
 			OnPropertyChanged(nameof(CoordinatesExist));
 
 			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
+			{
 				return true;
-			var gg = District.GeographicGroup;
+			}
+
+			var geoGroupVersion = District.GeographicGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {District.GeographicGroup.Name}");
+			}
+
 			var route = new List<PointOnEarth>(2) {
-				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),
+				new PointOnEarth(geoGroupVersion.BaseLatitude.Value, geoGroupVersion.BaseLongitude.Value),
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
-
-			var result = OsrmMain.GetRoute(route, false, GeometryOverview.False);
+			
+			var result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
 			if(result == null) {
 				logger.Error("Сервер расчета расстояний не вернул ответа.");
 				return false;
@@ -768,11 +824,6 @@ namespace Vodovoz.Domain.Client
 					string.Format("Длина строки \"Этаж\" не должна превышать 20 символов"),
 					new[] { this.GetPropertyName(o => o.Floor) });
 
-			if(Comment?.Length > 200)
-				yield return new ValidationResult(
-					string.Format("Длина строки \"Комментарий\" не должна превышать 200 символов"),
-					new[] { this.GetPropertyName(o => o.Comment) });
-
 			if(Code1c?.Length > 10)
 				yield return new ValidationResult(
 					string.Format("Длина строки \"Код 1С\" не должна превышать 10 символов"),
@@ -814,9 +865,38 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult("При заполненной дате начала обеда должна быть указана и дата окончания обеда.",
 					new[] { nameof(LunchTimeTo) });
 			}
+
+			StringBuilder phonesValidationStringBuilder = new StringBuilder();
+
+			foreach(var phone in Phones)
+			{
+				if(phone.RoboAtsCounterpartyName == null)
+				{
+					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано имя контрагента.");
+				}
+
+				if(phone.RoboAtsCounterpartyPatronymic == null)
+				{
+					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
+				}
+			}
+
+			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
+
+			if(!string.IsNullOrEmpty(phonesValidationMessage))
+			{
+				yield return new ValidationResult(phonesValidationMessage);
+			}
 		}
 
 		#endregion
+
+		private string GetStreetTypeShort()
+		{
+			return string.Equals(streetType, StreetTypeShort, StringComparison.CurrentCultureIgnoreCase)
+				? $"{StreetTypeShort} "
+				: $"{StreetTypeShort}. ";
+		}
 	}
 
 	public enum EntranceType
@@ -827,7 +907,7 @@ namespace Vodovoz.Domain.Client
 		TradeCenter,
 		[Display(Name = "Торговый комплекс", ShortName = "ТК")]
 		TradeComplex,
-		[Display(Name = "Бизнесс центр", ShortName = "БЦ")]
+		[Display(Name = "Бизнес-центр", ShortName = "БЦ")]
 		BusinessCenter,
 		[Display(Name = "Школа", ShortName = "шк.")]
 		School,

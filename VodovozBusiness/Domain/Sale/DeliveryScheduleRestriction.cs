@@ -2,13 +2,15 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Sale
 {
-    [Appellative(Gender = GrammaticalGender.Neuter,
-        NominativePlural = "ограничения времени доставки",
-        Nominative = "ограничение времени доставки")]
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		Nominative = "ограничение времени доставки района",
+		NominativePlural = "ограничения времени доставки района")]
+	[EntityPermission]
     public class DeliveryScheduleRestriction : PropertyChangedBase, IDomainObject, ICloneable
     {
         public virtual int Id { get; set; }

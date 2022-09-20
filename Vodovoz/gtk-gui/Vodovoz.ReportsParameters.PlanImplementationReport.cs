@@ -24,13 +24,9 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox lstCmbPlanType;
 
-		private global::Gtk.HBox hboxDriver;
-
-		private global::Gtk.Label lblEmployee;
-
-		private global::QS.Widgets.GtkUI.RepresentationEntry yEntRefEmployee;
-
 		private global::Gamma.GtkWidgets.yLabel lblEmployeePlan;
+
+		private global::Gamma.GtkWidgets.yVBox vboxParameters;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -133,37 +129,20 @@ namespace Vodovoz.ReportsParameters
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hboxDriver = new global::Gtk.HBox();
-			this.hboxDriver.Name = "hboxDriver";
-			this.hboxDriver.Spacing = 6;
-			// Container child hboxDriver.Gtk.Box+BoxChild
-			this.lblEmployee = new global::Gtk.Label();
-			this.lblEmployee.Name = "lblEmployee";
-			this.lblEmployee.Xalign = 1F;
-			this.lblEmployee.LabelProp = global::Mono.Unix.Catalog.GetString("Сотрудник:");
-			this.hboxDriver.Add(this.lblEmployee);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.lblEmployee]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
-			// Container child hboxDriver.Gtk.Box+BoxChild
-			this.yEntRefEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yEntRefEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.yEntRefEmployee.Name = "yEntRefEmployee";
-			this.hboxDriver.Add(this.yEntRefEmployee);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxDriver[this.yEntRefEmployee]));
-			w11.Position = 1;
-			this.vbox1.Add(this.hboxDriver);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxDriver]));
-			w12.Position = 3;
-			w12.Expand = false;
-			// Container child vbox1.Gtk.Box+BoxChild
 			this.lblEmployeePlan = new global::Gamma.GtkWidgets.yLabel();
 			this.lblEmployeePlan.Name = "lblEmployeePlan";
 			this.vbox1.Add(this.lblEmployeePlan);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.lblEmployeePlan]));
-			w13.Position = 4;
-			w13.Expand = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.lblEmployeePlan]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.vboxParameters = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxParameters.Name = "vboxParameters";
+			this.vboxParameters.Spacing = 6;
+			this.vbox1.Add(this.vboxParameters);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxParameters]));
+			w11.Position = 4;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -171,18 +150,16 @@ namespace Vodovoz.ReportsParameters
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w14.PackType = ((global::Gtk.PackType)(1));
-			w14.Position = 5;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w12.Position = 5;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

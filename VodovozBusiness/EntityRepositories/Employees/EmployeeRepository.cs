@@ -93,38 +93,6 @@ namespace Vodovoz.EntityRepositories.Employees
 				.List();
 		}
 
-		public QueryOver<Employee> DriversQuery()
-		{
-			return QueryOver.Of<Employee>().Where(e => e.Category == EmployeeCategory.driver);
-		}
-
-		public QueryOver<Employee> OfficeWorkersQuery()
-		{
-			return QueryOver.Of<Employee>().Where(e => e.Category == EmployeeCategory.office);
-		}
-
-		public QueryOver<Employee> ForwarderQuery()
-		{
-			return QueryOver.Of<Employee>().Where(e => e.Category == EmployeeCategory.forwarder);
-		}
-
-		public QueryOver<Employee> ActiveEmployeeQuery()
-		{
-			return QueryOver.Of<Employee>().Where(e => e.Status != EmployeeStatus.IsFired);
-		}
-
-		public QueryOver<Employee> ActiveDriversOrderedQuery()
-		{
-			return QueryOver.Of<Employee>().Where(e => e.Category == EmployeeCategory.driver && e.Status != EmployeeStatus.IsFired)
-							.OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;
-		}
-
-		public QueryOver<Employee> ActiveForwarderOrderedQuery()
-		{
-			return QueryOver.Of<Employee>().Where(e => e.Category == EmployeeCategory.forwarder && e.Status != EmployeeStatus.IsFired)
-							.OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;
-		}
-
 		public QueryOver<Employee> ActiveEmployeeOrderedQuery()
 		{
 			return QueryOver.Of<Employee>().Where(e => e.Status != EmployeeStatus.IsFired).OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;

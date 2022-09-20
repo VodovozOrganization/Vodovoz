@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.Models;
 
 namespace Vodovoz
 {
@@ -99,7 +100,7 @@ namespace Vodovoz
 								VodovozGtkServicesConfig.EmployeeService,
 								new EntityExtendedPermissionValidator(
 									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-								new NomenclatureSelectorFactory(),
+								new NomenclatureJournalFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
 								new UserRepository(),
@@ -122,11 +123,12 @@ namespace Vodovoz
 								VodovozGtkServicesConfig.EmployeeService,
 								new EntityExtendedPermissionValidator(
 									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-								new NomenclatureSelectorFactory(),
+								new NomenclatureJournalFactory(),
 								new OrderSelectorFactory(),
 								new WarehouseRepository(),
 								new RdlPreviewOpener(),
 								ServicesConfig.CommonServices,
+								new NomenclatureCostPurchasePriceModel(),
 								new StockRepository()
 							);
 						},
@@ -175,11 +177,12 @@ namespace Vodovoz
 									VodovozGtkServicesConfig.EmployeeService,
 									new EntityExtendedPermissionValidator(
 										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-									new NomenclatureSelectorFactory(),
+									new NomenclatureJournalFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
 									new RdlPreviewOpener(),
 									ServicesConfig.CommonServices,
+									new NomenclatureCostPurchasePriceModel(),
 									new StockRepository()
 								);
 							},
@@ -204,7 +207,7 @@ namespace Vodovoz
 									VodovozGtkServicesConfig.EmployeeService,
 									new EntityExtendedPermissionValidator(
 										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-									new NomenclatureSelectorFactory(),
+									new NomenclatureJournalFactory(),
 									new OrderSelectorFactory(),
 									new WarehouseRepository(),
 									new UserRepository(),

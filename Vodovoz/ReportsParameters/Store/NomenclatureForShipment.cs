@@ -34,7 +34,7 @@ namespace Vodovoz.ReportsParameters.Store
 		void ConfigureDlg()
 		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			lstGeoGrp.SetRenderTextFunc<GeographicGroup>(g => string.Format("{0}", g.Name));
+			lstGeoGrp.SetRenderTextFunc<GeoGroup>(g => string.Format("{0}", g.Name));
 			lstGeoGrp.ItemsList = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
 
 			var nomenclatureTypeParam = _filter.CreateParameterSet(
@@ -85,10 +85,15 @@ namespace Vodovoz.ReportsParameters.Store
 				"Группы товаров",
 				"product_group",
 				new RecursiveParametersFactory<ProductGroup>(UoW,
-				(filters) => {
-					var query = UoW.Session.QueryOver<ProductGroup>();
-					if(filters != null && filters.Any()) {
-						foreach(var f in filters) {
+				(filters) =>
+				{
+					var query = UoW.Session.QueryOver<ProductGroup>()
+						.Where(p => p.Parent == null);
+					
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
 							query.Where(f());
 						}
 					}
@@ -118,7 +123,7 @@ namespace Vodovoz.ReportsParameters.Store
 			var parameters = new Dictionary<string, object> 
 			{ 
 					{ "date", ydatepicker.Date.ToString("yyyy-MM-dd") },
-					{ "geo_group_id", (lstGeoGrp.SelectedItem as GeographicGroup)?.Id ?? 0 },
+					{ "geo_group_id", (lstGeoGrp.SelectedItem as GeoGroup)?.Id ?? 0 },
 					{ "creation_date", DateTime.Now}
 			};
 			foreach(var item in _filter.GetParameters()) {

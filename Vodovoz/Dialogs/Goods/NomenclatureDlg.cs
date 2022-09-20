@@ -153,7 +153,7 @@ namespace Vodovoz
 			referenceRouteColumn.Binding.AddBinding(Entity, n => n.RouteListColumn, w => w.Subject).InitializeFromSource();
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceManufacturer.Binding.AddBinding(Entity, e => e.Manufacturer, w => w.Subject).InitializeFromSource();
-			checkNoDeliver.Binding.AddBinding(Entity, e => e.NoDelivey, w => w.Active).InitializeFromSource();
+			checkNoDeliver.Binding.AddBinding(Entity, e => e.NoDelivery, w => w.Active).InitializeFromSource();
 
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter()).InitializeFromSource();
 			yentryShortName.MaxLength = 220;
@@ -168,7 +168,7 @@ namespace Vodovoz
 			yentryStorageCell.Binding.AddBinding(Entity, s => s.StorageCell, w => w.Text).InitializeFromSource();
 			UpdateVisibilityForEshopParam();
 
-			nomenclaturePurchasePricesView.ViewModel = new NomenclaturePurchasePricesViewModel(Entity, this, UoW, ServicesConfig.CommonServices);
+			nomenclaturePurchasePricesView.ViewModel = new NomenclaturePurchasePricesViewModel(Entity, new Models.NomenclatureCostPurchasePriceModel());
 
 			#region Вкладка характиристики
 

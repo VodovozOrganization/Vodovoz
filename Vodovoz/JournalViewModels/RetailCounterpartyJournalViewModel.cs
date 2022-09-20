@@ -54,12 +54,37 @@ namespace Vodovoz.JournalViewModels
                 }
 			}
 
-			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
+			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive)
+			{
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(FilterViewModel?.CounterpartyType != null) {
+			if(FilterViewModel?.CounterpartyType != null)
+			{
 				query.Where(t => t.CounterpartyType == FilterViewModel.CounterpartyType);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
+			{
+				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => counterpartyAlias.Name),
+					$"%{FilterViewModel.CounterpartyName}%"));
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
+			{
+				query.Where(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone);
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
@@ -144,8 +169,57 @@ namespace Vodovoz.JournalViewModels
 			return counterpartyResultQuery;
 		};
 
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateEditAction();
+			CreateDefaultDeleteAction();
+		}
+
 		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
 
 		protected override Func<RetailCounterpartyJournalNode, CounterpartyDlg> OpenDialogFunction => (node) => new CounterpartyDlg(node.Id);
+
+		private void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailCounterpartyJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return false;
+					}
+					RetailCounterpartyJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailCounterpartyJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1) {
+						return;
+					}
+					RetailCounterpartyJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
+		}
 	}
 }

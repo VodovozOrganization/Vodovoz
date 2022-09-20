@@ -1,19 +1,20 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using QS.Osrm;
+using QSProjectsLib;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Osrm;
-using QS.Osm.Spuntik;
-using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -42,7 +43,7 @@ namespace Vodovoz.Tools.Logistic
 
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
-		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 
@@ -70,7 +71,6 @@ namespace Vodovoz.Tools.Logistic
 		CachedDistance[,] matrix;
 		public int[,] matrixcount;
 #endif
-		public DistanceProvider Provider;
 		public bool MultiTaskLoad = true;
 
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
@@ -81,14 +81,13 @@ namespace Vodovoz.Tools.Logistic
 		/// <param name="points">Точки для первоначального заполенения из базы.</param>
 		/// <param name="statisticsTxtAction">Функция для буфера для отображения статистики</param>
 		/// <param name="multiThreadLoad">Если <c>true</c> включается моногопоточная загрузка.</param>
-		public ExtDistanceCalculator(DistanceProvider provider, DeliveryPoint[] points, Action<string> statisticsTxtAction, bool multiThreadLoad = true)
+		public ExtDistanceCalculator(DeliveryPoint[] points, IEnumerable<GeoGroupVersion> geoGroupVersions, Action<string> statisticsTxtAction, bool multiThreadLoad = true)
 		{
 			this.statisticsTxtAction = statisticsTxtAction;
 			UoW.Session.SetBatchSize(SaveBy);
-			Provider = provider;
 			MultiTaskLoad = multiThreadLoad;
 			Canceled = false;
-			var basesHashes = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
+			var basesHashes = geoGroupVersions.Select(x => CachedDistance.GetHash(x));
 			hashes = points.Select(CachedDistance.GetHash)
 						   .Concat(basesHashes)
 						   .Distinct()
@@ -222,7 +221,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от базы до точки.
 		/// </summary>
-		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(GeoGroupVersion fromBase, DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
@@ -232,7 +231,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от точки до базы.
 		/// </summary>
-		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
 			var toBaseHash = CachedDistance.GetHash(toBase);
@@ -252,7 +251,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Время пути в секундах от базы до точки
 		/// </summary>
-		public int TimeFromBaseSec(GeographicGroup fromBase, DeliveryPoint toDP)
+		public int TimeFromBaseSec(GeoGroupVersion fromBase, DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
@@ -262,7 +261,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Время пути в секундах от точки до базы.
 		/// </summary>
-		public int TimeToBaseSec(DeliveryPoint fromDP, GeographicGroup toBase)
+		public int TimeToBaseSec(DeliveryPoint fromDP, GeoGroupVersion toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
 			var toBaseHash = CachedDistance.GetHash(toBase);
@@ -344,28 +343,15 @@ namespace Vodovoz.Tools.Logistic
 					CachedDistance.GetPointOnEarth(fromHash),
 					CachedDistance.GetPointOnEarth(toHash)
 				};
-				if(Provider == DistanceProvider.Osrm) {
-					var result = OsrmMain.GetRoute(points, false, GeometryOverview.False);
-					ok = result?.Code == "Ok";
-					if(ok && result.Routes.Any()) {
-						cachedValue = new CachedDistance {
-							DistanceMeters = result.Routes.First().TotalDistance,
-							TravelTimeSec = result.Routes.First().TotalTimeSeconds,
-							FromGeoHash = fromHash,
-							ToGeoHash = toHash
-						};
-					}
-				} else {
-					var result = SputnikMain.GetRoute(points, false, false);
-					ok = result.Status == 0;
-					if(ok) {
-						cachedValue = new CachedDistance {
-							DistanceMeters = result.RouteSummary.TotalDistance,
-							TravelTimeSec = result.RouteSummary.TotalTimeSeconds,
-							FromGeoHash = fromHash,
-							ToGeoHash = toHash
-						};
-					}
+				var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.False, _globalSettings.ExcludeToll);
+				ok = result?.Code == "Ok";
+				if(ok && result.Routes.Any()) {
+					cachedValue = new CachedDistance {
+						DistanceMeters = result.Routes.First().TotalDistance,
+						TravelTimeSec = result.Routes.First().TotalTimeSeconds,
+						FromGeoHash = fromHash,
+						ToGeoHash = toHash
+					};
 				}
 			}
 			if(MultiTaskLoad && ok) {

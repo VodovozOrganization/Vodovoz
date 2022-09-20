@@ -1,14 +1,14 @@
-using System.ServiceModel;
+﻿using System.ServiceModel;
 
 namespace SmsPaymentService
 {
     public class SmsPaymentServiceSetting
     {
         private static SmsPaymentServiceSetting settingInstance;
-        
+
         public static bool SendingAllowed => settingInstance != null;
 
-        public static ISmsPaymentService GetSmsmPaymentServite()
+        public static ISmsPaymentService GetSmsPaymentService()
         {
             if (!SendingAllowed)
             {
@@ -28,7 +28,7 @@ namespace SmsPaymentService
             }
             settingInstance = new SmsPaymentServiceSetting(serviceUrl);
         }
-        
+
         private string serviceUrl;
 
         private SmsPaymentServiceSetting(string serviceUrl)

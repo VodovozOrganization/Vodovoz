@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
 
@@ -42,7 +43,8 @@ namespace Vodovoz.ViewModels
 			IDepositRepository depositRepository,
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			ISubdivisionParametersProvider subdivisionParametersProvider
 		)
 		: base(uowBuilder, uowFactory, commonServices)
 		{
@@ -64,7 +66,8 @@ namespace Vodovoz.ViewModels
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
 			GuiltyItemsVM = new GuiltyItemsViewModel(
-				new Complaint(), UoW, commonServices, new SubdivisionRepository(new ParametersProvider()), employeeSelectorFactory);
+				new Complaint(), UoW, commonServices, new SubdivisionRepository(new ParametersProvider()), employeeSelectorFactory,
+				subdivisionParametersProvider);
 
 			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;
 		}
@@ -101,7 +104,7 @@ namespace Vodovoz.ViewModels
 
 		public bool CanEdit => true;
 
-		protected override void BeforeSave()
+		protected override bool BeforeSave()
 		{
 			Entity.LastEditAuthor = CurrentEmployee;
 			Entity.LastEditTime = DateTime.Now;
@@ -109,7 +112,7 @@ namespace Vodovoz.ViewModels
 				Entity.DeliveryPoint.HaveResidue = true;
 			Entity.UpdateOperations(UoW, bottlesRepository, moneyRepository, depositRepository, CommonServices.ValidationService);
 
-			base.BeforeSave();
+			return base.BeforeSave();
 		}
 
 		private string currentBottlesDebt;
@@ -140,12 +143,12 @@ namespace Vodovoz.ViewModels
 		{
 			if(Entity.Customer == null)
 				return;
-			
+
 			int bottleDebt;
 			if(Entity.DeliveryPoint == null)
-				bottleDebt = bottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Customer, Entity.Date);
+				bottleDebt = bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Customer, Entity.Date);
 			else
-				bottleDebt = bottlesRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint, Entity.Date);
+				bottleDebt = bottlesRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint, Entity.Date);
 			CurrentBottlesDebt = NumberToTextRus.FormatCase(bottleDebt, "{0} бутыль", "{0} бутыли", "{0} бутылей");
 
 			decimal bottleDeposit;

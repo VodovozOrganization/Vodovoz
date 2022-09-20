@@ -16,6 +16,11 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -24,16 +29,16 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
-		
+		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+
 		public PromotionalSetViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -42,7 +47,8 @@ namespace Vodovoz.ViewModels.Orders
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			
+			CanChangeType = commonServices.CurrentPermissionService.ValidatePresetPermission( "can_change_the_type_of_promo_set" );
+
 			if(!CanRead)
 				AbortOpening("У вас недостаточно прав для просмотра");
 
@@ -53,40 +59,20 @@ namespace Vodovoz.ViewModels.Orders
 
 		public string CreationDate => Entity.Id != 0 ? Entity.CreateDate.ToString("dd-MM-yyyy") : String.Empty;
 
-		private IEnumerable<DiscountReason> discountReasonSource;
-		public IEnumerable<DiscountReason> DiscountReasonSource {
-			get => discountReasonSource ?? (discountReasonSource = UoW.GetAll<DiscountReason>());
-		}
-
-		private DiscountReason discountReason;
-		public DiscountReason DiscountReason {
-			get {
-				discountReason = Entity.PromoSetDiscountReason;
-				return discountReason;
-			}
-			set {
-				if(SetField(ref discountReason, value)) {
-					Entity.PromoSetDiscountReason = value;
-					if(value != null)
-						Entity.Name = value.Name;
-				}
-			}
-		}
-
-		private PromotionalSetItem selectedPromoItem;
+		private PromotionalSetItem _selectedPromoItem;
 		public PromotionalSetItem SelectedPromoItem {
-			get => selectedPromoItem;
+			get => _selectedPromoItem;
 			set {
-				SetField(ref selectedPromoItem, value);
+				SetField(ref _selectedPromoItem, value);
 				OnPropertyChanged(nameof(CanRemoveNomenclature));
 			}
 		}
 
-		private PromotionalSetActionBase selectedAction;
+		private PromotionalSetActionBase _selectedAction;
 		public PromotionalSetActionBase SelectedAction {
-			get => selectedAction;
+			get => _selectedAction;
 			set {
-				SetField(ref selectedAction, value);
+				SetField(ref _selectedAction, value);
 				OnPropertyChanged(nameof(CanRemoveAction));
 			}
 		}
@@ -108,7 +94,9 @@ namespace Vodovoz.ViewModels.Orders
 
 		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
 		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanUpdate;
-		public bool CanRemoveAction => selectedAction != null && CanDelete && Entity.Id == 0;
+		public bool CanRemoveAction => _selectedAction != null && CanDelete && Entity.Id == 0;
+
+		public bool CanChangeType { get; }
 
 		#endregion
 
@@ -134,7 +122,7 @@ namespace Vodovoz.ViewModels.Orders
 					x => x.SelectCategory = NomenclatureCategory.water,
 					x => x.SelectSaleCategory = SaleCategory.forSale);
 
-				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory, 
+				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory,
 					CommonServices, _employeeService, _nomenclatureSelectorFactory, _counterpartySelectorFactory,
 					_nomenclatureRepository, _userRepository) {
 					SelectionMode = JournalSelectionMode.Single
@@ -178,7 +166,7 @@ namespace Vodovoz.ViewModels.Orders
 		{
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) => {
-				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW, 
+				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW,
 					_counterpartySelectorFactory, _nomenclatureRepository, _userRepository);
 				SelectedActionViewModel = resolver.Resolve(Entity, actionType);
 

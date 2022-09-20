@@ -15,10 +15,14 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.ViewModel;
 using QS.Navigation;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
@@ -72,10 +76,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		}
 
 		private bool autoCommit;
-		public virtual bool AutoCommit {
-			get => autoCommit;
-			set => SetField(ref autoCommit, value);
-		}
 
 		private bool fuelInMoney;
 		public virtual bool FuelInMoney {
@@ -89,17 +89,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			set => SetField(ref canOpenExpense, value);
 		}
 
-		public bool CanEditFuelPrice { get { return FuelInMoney && CanEdit; } }
+		public virtual string CashExpenseInfo => UpdateCashExpenseInfo();
 
-		public virtual string CashExpenseInfo { get { return UpdateCashExpenseInfo(); } }
+		public virtual string BalanceState => $"Доступно к выдаче: {Balance} л.";
 
-		public virtual string BalanceState { get { return $"Доступно к выдаче: {Balance} л."; } }
+		public virtual bool IsNewEditable => FuelDocument.Id <= 0 && CanEdit;
 
-		public virtual bool IsNewEditable { get { return FuelDocument.Id <= 0 && CanEdit; } }
-
-		public virtual bool CanChangeDate { get => CanEdit &&
-		CommonServices.PermissionService.ValidateUserPresetPermission("can_change_fuel_card_number", CommonServices.UserService.CurrentUserId);
-		} 
+		public virtual bool CanChangeDate =>
+			CanEdit
+			&& CommonServices.PermissionService.ValidateUserPresetPermission("can_change_fuel_card_number",
+				CommonServices.UserService.CurrentUserId);
 
 		public virtual decimal Balance {
 			get {
@@ -107,27 +106,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					return FuelRepository?.GetFuelBalanceForSubdivision(UoW, FuelDocument.Subdivision, FuelDocument.Fuel) ?? 0m;
 				return 0m;
 			}
-		}
-
-		public virtual decimal NeedLiters { get { return fuelOutlayed - fuelBalance; } }
-
-		private EmployeesVM employeeJournal;
-		public virtual EmployeesVM EmployeeJournal {
-			get 
-			{
-				if(employeeJournal != null)
-					return employeeJournal;
-
-				var filterDriver = new EmployeeRepresentationFilterViewModel();
-				filterDriver.SetAndRefilterAtOnce(
-					x => x.RestrictCategory = EmployeeCategory.driver,
-					x => x.Status = EmployeeStatus.IsWorking
-				);
-				employeeJournal = new EmployeesVM(filterDriver);
-
-				return employeeJournal;
-			}
-			set => SetField(ref employeeJournal, value);
 		}
 
 		public IList<Subdivision> AvailableSubdivisionsForUser 
@@ -145,12 +123,15 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				} 
 		}
 
-		public string FuelInfo { get { return UpdateFuelInfo(); } set { } }
+		public string FuelInfo => UpdateFuelInfo();
 
-		public string ResultInfo { get { return UpdateResutlInfo(); } }
+		public string ResultInfo => UpdateResutlInfo();
 
 		decimal fuelBalance;
 		decimal fuelOutlayed;
+
+		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelector { get; }
+		public IEntityAutocompleteSelectorFactory CarAutocompleteSelector { get; }
 
 		#region ctor
 
@@ -167,7 +148,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelRepository fuelRepository,
 			INavigationManager navigationManager,
 			ITrackRepository trackRepository,
-			ICategoryRepository categoryRepository) : base(commonServices?.InteractiveService, navigationManager)
+			ICategoryRepository categoryRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
@@ -175,6 +158,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			EmployeeAutocompleteSelector =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			CarAutocompleteSelector =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory();
 
 			UoW = uow;
 			FuelDocument = new FuelDocument();
@@ -195,7 +184,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelRepository fuelRepository,
 			INavigationManager navigationManager,
 			ITrackRepository trackRepository,
-			ICategoryRepository categoryRepository) : base(commonServices?.InteractiveService, navigationManager)
+			ICategoryRepository categoryRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
@@ -203,6 +194,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			EmployeeAutocompleteSelector =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			CarAutocompleteSelector =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory();
 
 			UoW = uow;
 			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
@@ -225,7 +222,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelRepository fuelRepository,
 			INavigationManager navigationManager,
 			ITrackRepository trackRepository,
-			ICategoryRepository categoryRepository) : base(commonServices?.InteractiveService, navigationManager)
+			ICategoryRepository categoryRepository,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
@@ -233,6 +232,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			EmployeeAutocompleteSelector =
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
+				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
+			CarAutocompleteSelector =
+				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
+				.CreateCarAutocompleteSelectorFactory();
 
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
 			UoW = uow;
@@ -287,7 +292,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private bool CarHasFuelType()
 		{
 			if(RouteList.Car.FuelType == null) {
-				ShowWarningMessage($"У машины {RouteList.Car.Model} {RouteList.Car.Title} отсутствует тип топлива");
+				ShowWarningMessage($"У машины {RouteList.Car.CarModel.Name} {RouteList.Car.Title} отсутствует тип топлива");
 				return false;
 			}
 
@@ -419,13 +424,18 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				if(exclude.Count == 0) 
 					exclude = null;
 
-				Car car = RouteList.Car;
-				Employee driver = RouteList.Driver;
+				var car = RouteList.Car;
+				var carVersion = car.GetActiveCarVersionOnDate(RouteList.Date);
+				var driver = RouteList.Driver;
 
-				if(car.IsCompanyCar) 
+				if(carVersion.IsCompanyCar)
+				{
 					driver = null;
-				else 
+				}
+				else
+				{
 					car = null;
+				}
 
 				fuelBalance = FuelRepository.GetFuelBalance(UoW, driver, car, null, exclude?.ToArray());
 

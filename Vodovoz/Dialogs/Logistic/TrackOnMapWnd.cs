@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using GMap.NET;
+﻿using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using Polylines;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Osrm;
+using QS.Project.Services;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
-using QS.Project.Services;
-using QS.Dialog;
-using QS.Osm;
-using QS.Osm.Osrm;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Dialogs.Logistic
 {
@@ -23,6 +25,7 @@ namespace Dialogs.Logistic
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
+		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		#region Поля
 
@@ -369,7 +372,7 @@ namespace Dialogs.Logistic
 					}
 					routePoints.Add (new PointOnEarth (point.Latitude, point.Longitude));
 
-					var missedTrack = OsrmMain.GetRoute(routePoints, false, GeometryOverview.Simplified);
+					var missedTrack = OsrmClientFactory.Instance.GetRoute(routePoints, false, GeometryOverview.Simplified, _globalSettings.ExcludeToll);
 					if (missedTrack == null)
 					{
 						MessageDialogHelper.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
@@ -523,8 +526,21 @@ namespace Dialogs.Logistic
 		{
 			var pointsToRecalculate = new List<PointOnEarth>();
 			var pointsToBase = new List<PointOnEarth>();
-			var baseLat = (double)routeList.GeographicGroups.FirstOrDefault().BaseLatitude.Value;
-			var baseLon = (double)routeList.GeographicGroups.FirstOrDefault().BaseLongitude.Value;
+
+			var geoGroup = routeList.GeographicGroups.FirstOrDefault();
+			if(geoGroup == null)
+			{
+				throw new InvalidOperationException($"В маршрутном листе должна быть добавлена часть города");
+			}
+
+			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
+			if(geoGroupVersion == null)
+			{
+				throw new InvalidOperationException($"Не установлена активная версия данных в части города {geoGroup.Name}");
+			}
+
+			var baseLat = (double)geoGroupVersion.BaseLatitude.Value;
+			var baseLon = (double)geoGroupVersion.BaseLongitude.Value;
 
 			decimal totalDistanceTrack = 0;
 
@@ -543,7 +559,7 @@ namespace Dialogs.Logistic
 					}
 				}
 
-				var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 				var decodedPoints = Polyline.DecodePolyline(recalculatedTrack.RouteGeometry);
 				var pointsRecalculated = decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
@@ -568,7 +584,7 @@ namespace Dialogs.Logistic
 			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
 			pointsToBase.Add(pointsToRecalculate.First());
 
-			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, GeometryOverview.Full);
+			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 			var decodedToBase = Polyline.DecodePolyline(recalculatedToBase.RouteGeometry);
 			var pointsRecalculatedToBase = decodedToBase.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();

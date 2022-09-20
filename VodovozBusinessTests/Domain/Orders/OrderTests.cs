@@ -8,6 +8,8 @@ using NUnit.Framework;
 using QS.Dialog;
 using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
+using Vodovoz.Controllers;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -15,6 +17,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
@@ -631,15 +634,18 @@ namespace VodovozBusinessTests.Domain.Orders
 			Order testOrder = new Order();
 			testOrder.OrderItems = OrderItems;
 			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
-			testOrder.OrderItems.ToList().ForEach(x => x.IsDiscountInMoney = true);
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
+			var discountController = Substitute.For<IOrderDiscountsController>();
 
 			// act
-			testOrder.SetDiscount(discountReason, discountInMoney, DiscountUnits.money);
+			discountController.SetCustomDiscountForOrder(
+				discountReason, discountInMoney, DiscountUnits.money, testOrder.ObservableOrderItems);
 
 			// assert
 			for(int i = 0; i < OrderItems.Count; i++)
+			{
 				Assert.AreEqual(discountForOrderItems[i], testOrder.OrderItems[i].DiscountMoney);
+			}
 		}
 
 
@@ -658,13 +664,17 @@ namespace VodovozBusinessTests.Domain.Orders
 			testOrder.OrderItems = OrderItems;
 			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
+			var discountController = Substitute.For<IOrderDiscountsController>();
 
 			// act
-			testOrder.SetDiscount(discountReason, discountInPercent, DiscountUnits.percent);
+			discountController.SetCustomDiscountForOrder(
+				discountReason, discountInPercent, DiscountUnits.percent, testOrder.ObservableOrderItems);
 
 			// assert
 			for(int i = 0; i < OrderItems.Count; i++)
+			{
 				Assert.AreEqual(discountForOrderItems[i], testOrder.OrderItems[i].DiscountMoney);
+			}
 		}
 
 		#endregion
@@ -877,10 +887,10 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
-			nomenclatureMockOrderItem.Volume.Returns(.35d);
+			nomenclatureMockOrderItem.Volume.Returns(.35m);
 
 			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
-			nomenclatureMockOrderEquipment.Volume.Returns(.40d);
+			nomenclatureMockOrderEquipment.Volume.Returns(.40m);
 
 			OrderItem orderItem = new OrderItem {
 				Nomenclature = nomenclatureMockOrderItem,
@@ -918,10 +928,10 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
-			nomenclatureMockOrderItem.Weight.Returns(.3d);
+			nomenclatureMockOrderItem.Weight.Returns(.3m);
 
 			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
-			nomenclatureMockOrderEquipment.Weight.Returns(1.6d);
+			nomenclatureMockOrderEquipment.Weight.Returns(1.6m);
 
 			OrderItem orderItem = new OrderItem {
 				Nomenclature = nomenclatureMockOrderItem,
@@ -1000,7 +1010,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("9211234567"));
+			Assert.That(contact, Is.EqualTo("+79211234567"));
 		}
 
 		[Test(Description = "Возврат электронного адреса клиента если самовывоз и у клиента есть не мобильный номер и эл.адрес")]
@@ -1056,7 +1066,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("9211234567"));
+			Assert.That(contact, Is.EqualTo("+79211234567"));
 		}
 
 		[Test(Description = "Возврат мобильного телефона точки доставки если не самовывоз, у точки доставки есть мобильный номер и у клиента есть эл.адрес")]
@@ -1086,7 +1096,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("9211234567"));
+			Assert.That(contact, Is.EqualTo("+79211234567"));
 		}
 
 		[Test(Description = "Возврат электронного адреса клиента если не самовывоз, у точки доставки есть НЕ мобильный номер и у клиента есть эл.адрес")]
@@ -1140,7 +1150,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("8121234567"));
+			Assert.That(contact, Is.EqualTo("+78121234567"));
 		}
 
 		[Test(Description = "Возврат телефона для чеков точки доставки если он есть")]
@@ -1168,7 +1178,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var contact = order.GetContact();
 
 			// assert
-			Assert.That(contact, Is.EqualTo("1234567"));
+			Assert.That(contact, Is.EqualTo("+71234567"));
 		}
 
 		[Test(Description = "Возврат e-mail не для чеков или счетов, если отсутствуют мобильные телефоны и телефоны и email для чеков и счетов")]

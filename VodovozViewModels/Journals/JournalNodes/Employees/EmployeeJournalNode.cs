@@ -9,6 +9,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 		public string EmpLastName { get; set; }
 		public string EmpFirstName { get; set; }
 		public string EmpMiddleName { get; set; }
+		public string EmployeeComment { get; set; }
 		public EmployeeCategory EmpCatEnum { get; set; }
 		public EmployeeStatus Status { get; set; }
 		public string FullName => $"{EmpLastName} {EmpFirstName} {EmpMiddleName}";

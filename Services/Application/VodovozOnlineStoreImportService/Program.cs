@@ -66,8 +66,9 @@ namespace VodovozOnlineStoreImportService
 				OrmConfig.ConfigureOrm(db_config,
 					new [] {
 						Assembly.GetAssembly (typeof(QS.Banks.Domain.Bank)),
-						Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+						Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 						Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 						Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
 				});
 

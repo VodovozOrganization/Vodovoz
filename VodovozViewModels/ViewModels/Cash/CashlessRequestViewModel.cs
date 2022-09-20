@@ -6,8 +6,10 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
@@ -18,7 +20,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
-	public class CashlessRequestViewModel : EntityTabViewModelBase<CashlessRequest>
+	public class CashlessRequestViewModel : EntityTabViewModelBase<CashlessRequest>, IAskSaveOnCloseViewModel
 	{
 		private PayoutRequestUserRole _userRole;
 		private readonly Employee _currentEmployee;
@@ -26,7 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private IEntityAutocompleteSelectorFactory _expenseCategoryAutocompleteSelectorFactory;
 
 		public CashlessRequestViewModel(
-			IFilePickerService filePickerService,
+			IFileDialogService fileDialogService,
 			IExpenseCategorySelectorFactory expenseCategoryJournalFactory,
 			IUserRepository userRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -60,9 +62,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			UserRole = UserRoles.First();
 
 			OurOrganisations = UoW.Session.QueryOver<Organization>().List();
-			var filesViewModel = new CashlessRequestFilesViewModel(Entity, UoW, filePickerService, CommonServices, userRepository)
+			var filesViewModel = new CashlessRequestFilesViewModel(Entity, UoW, fileDialogService, CommonServices, userRepository)
 			{
-				ReadOnly = !IsNotClosed
+				ReadOnly = !IsNotClosed || IsSecurityServiceRole
 			};
 			CashlessRequestFilesViewModel = filesViewModel;
 
@@ -131,8 +133,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		                                     || Entity.PayoutRequestState == PayoutRequestState.Agreed
 		                                     || Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
 
-		public bool CanSetCancelReason => UserRole == PayoutRequestUserRole.Coordinator
-		                                  && IsNotClosed;
+		public bool CanSetCancelReason => UserRole == PayoutRequestUserRole.Coordinator && IsNotClosed;
 
 		public PayoutRequestUserRole UserRole
 		{
@@ -152,6 +153,14 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(nameof(CanSetCancelReason));
 			}
 		}
+
+		public bool IsSecurityServiceRole => UserRole == PayoutRequestUserRole.SecurityService;
+
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => !IsSecurityServiceRole;
+
+		#endregion
 
 		#endregion
 
@@ -262,6 +271,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			if(CheckRole("role_cashless_payout_accountant", userId))
 			{
 				roles.Add(PayoutRequestUserRole.Accountant);
+			}
+
+			if(CheckRole("role_security_service_cash_request", userId))
+			{
+				roles.Add(PayoutRequestUserRole.SecurityService);
 			}
 
 			if(roles.Count == 0)

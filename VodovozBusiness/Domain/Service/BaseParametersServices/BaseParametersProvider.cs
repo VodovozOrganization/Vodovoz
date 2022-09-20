@@ -10,15 +10,13 @@ namespace Vodovoz.Core.DataService
 		IStandartNomenclatures, 
 		IImageProvider, 
 		IStandartDiscountsService, 
-		IPersonProvider,
-		ICommonParametersProvider, 
+		IPersonProvider, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
 		IDefaultDeliveryDayScheduleSettings,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
 		IEmailServiceSettings,
-		IContactsParameters,
 		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,
 		IProfitCategoryProvider,
@@ -133,20 +131,6 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроен индикатор важности задачи для CRM (crm_importance_indicator_id).");
 			}
 			return int.Parse(_parametersProvider.GetParameterValue("crm_importance_indicator_id"));
-		}
-
-		#endregion
-
-		#region ICommonParametersProvider
-
-		public bool UseOldAutorouting()
-		{
-			if(!_parametersProvider.ContainsParameter("use_old_autorouting") || !bool.TryParse(_parametersProvider.GetParameterValue("use_old_autorouting"), out bool res))
-			{
-				return false;
-			}
-
-			return res;
 		}
 
 		#endregion
@@ -293,6 +277,26 @@ namespace Vodovoz.Core.DataService
 			}
 		}
 
+		public int GetCityWageDistrictId
+		{
+			get
+			{
+				if(!_parametersProvider.ContainsParameter("city_wage_district_id"))
+				{
+					throw new InvalidProgramException(
+						"В параметрах базы не указан код зарплатного района Город (city_wage_district_id).");
+				}
+				string idString = _parametersProvider.GetParameterValue("city_wage_district_id");
+
+				if(!int.TryParse(idString, out int id))
+				{
+					throw new InvalidProgramException(
+						"В параметрах базы неверно указан код зарплатного района Город (city_wage_district_id)");
+				}
+				return id;
+			}
+		}
+
 		#endregion IWageParametersProvider implementation
 
 		#region ISmsNotificationServiceSettings implementation
@@ -381,48 +385,6 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IEmailServiceSettings implementation
-
-		#region IContactsParameters
-
-		public int MinSavePhoneLength
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("MinSavePhoneLength"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено значение минимальной длины телефонного номера (MinSavePhoneLength)");
-				}
-				string value = _parametersProvider.GetParameterValue("MinSavePhoneLength");
-
-				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение минимальной длины телефонного номера (MinSavePhoneLength)");
-				}
-
-				return result;
-			}
-	 	}
-		public string DefaultCityCode
-		{
-			get
-			{
-				if(!_parametersProvider.ContainsParameter("default_city_code"))
-				{
-					throw new InvalidProgramException("В параметрах базы не заполнено значение стандартного кода города (default_city_code)");
-				}
-
-				string value = _parametersProvider.GetParameterValue("default_city_code");
-
-				if(string.IsNullOrWhiteSpace(value))
-				{
-					throw new InvalidProgramException("В параметрах базы неверно заполнено значение стандартного кода города (default_city_code)");
-				}
-
-				return value;
-			}
-		}
-
-		#endregion
 
 		#region IDriverServiceParametersProvider
 

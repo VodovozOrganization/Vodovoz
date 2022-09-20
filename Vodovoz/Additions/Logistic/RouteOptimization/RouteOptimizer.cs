@@ -12,6 +12,7 @@ using QS.Tools;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -32,6 +33,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	public class RouteOptimizer : PropertyChangedBase
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IGeographicGroupRepository _geographicGroupRepository;
+		private readonly IInteractiveService _interactiveService;
 
 		#region Настройки оптимизации
 		// <summary>
@@ -107,16 +110,16 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public List<ProposedRoute> ProposedRoutes = new List<ProposedRoute>();
 		#endregion
 
-		IInteractiveService interactiveService;
-		public RouteOptimizer(IInteractiveService service) {
-			interactiveService = service ?? throw new ArgumentNullException(nameof(service));
+		public RouteOptimizer(IInteractiveService service, IGeographicGroupRepository geographicGroupRepository) {
+			_interactiveService = service ?? throw new ArgumentNullException(nameof(service));
+			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
 		}
 
 		// <summary>
 		// Метод создаем маршруты на день основываясь на данных всесенных в поля <c>Routes</c>, <c>Orders</c>,
 		// <c>Drivers</c> и <c>Forwarders</c>.
 		// </summary>
-		public void CreateRoutes(TimeSpan drvStartTime, TimeSpan drvEndTime)
+		public void CreateRoutes(DateTime date, TimeSpan drvStartTime, TimeSpan drvEndTime)
 		{
 			WarningMessages.Clear();
 			ProposedRoutes.Clear(); //Очищаем сразу, так как можем выйти из метода ранее.
@@ -190,7 +193,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша
 			// и в фоновом режиме начинает считать недостающую матрицу.
-			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
+			
+			var geoGroupVersions = _geographicGroupRepository.GetGeographicGroupVersionsOnDate(UoW, date);
+			distanceCalculator = new ExtDistanceCalculator(Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), geoGroupVersions, StatisticsTxtAction);
 
 			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
@@ -213,10 +218,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles");
 
-			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.MaxWeight).ToArray();
+			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.CarModel.MaxWeight).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(Nodes), 0, weightCapacity, true, "Weight");
 
-			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxVolume * 1000)).ToArray();
+			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.CarModel.MaxVolume * 1000)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(Nodes), 0, volumeCapacity, true, "Volume");
 
 			var addressCapacity = possibleRoutes.Select(x => (long)(x.Driver.MaxRouteAddresses)).ToArray();
@@ -305,7 +310,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Закрываем модель...");
 
 			if(
-				WarningMessages.Any() && !interactiveService.Question(
+				WarningMessages.Any() && !_interactiveService.Question(
 					string.Join("\n", WarningMessages.Select(x => "⚠ " + x)),
 					"При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?"
 				)
@@ -346,7 +351,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 				//Читаем полученные маршруты.
 				for(int route_number = 0; route_number < routing.Vehicles(); route_number++) {
-					var route = new ProposedRoute(possibleRoutes[route_number]);
+					var route = new ProposedRoute(possibleRoutes[route_number], _interactiveService);
 					long first_node = routing.Start(route_number);
 					long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
 					route.RouteCost = routing.GetCost(first_node, second_node, route_number);
@@ -439,7 +444,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 			Nodes = calculatedOrders.ToArray();
 
-			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
+			var geoGroupVersions = _geographicGroupRepository.GetGeographicGroupVersionsOnDate(route.UoW, route.Date);
+			distanceCalculator = new ExtDistanceCalculator(Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), geoGroupVersions, StatisticsTxtAction);
 
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
 
@@ -507,7 +513,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 				int route_number = 0;
 
-				proposedRoute = new ProposedRoute(null);
+				proposedRoute = new ProposedRoute(null, _interactiveService);
 				long first_node = routing.Start(route_number);
 				long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
 				proposedRoute.RouteCost = routing.GetCost(first_node, second_node, route_number);
@@ -601,12 +607,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				AddWarning("Автомобили {0} не смогут везти воду, так как максимальное количество бутылей у них меньше 1.",
 						   string.Join(", ", bottlesProblems.Select(x => x.RegistrationNumber)));
 
-			var volumeProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxVolume < 1).ToList();
+			var volumeProblems = trips.Select(x => x.Car).Distinct().Where(x => x.CarModel.MaxVolume < 1).ToList();
 			if(volumeProblems.Count > 1)
 				AddWarning("Автомобили {0} смогут погрузить только безобъёмные товары, так как максимальный объём погрузки у них меньше 1.",
 						   string.Join(", ", volumeProblems.Select(x => x.RegistrationNumber)));
 
-			var weightProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxWeight < 1).ToList();
+			var weightProblems = trips.Select(x => x.Car).Distinct().Where(x => x.CarModel.MaxWeight < 1).ToList();
 			if(weightProblems.Count > 1)
 				AddWarning("Автомобили {0} не смогут везти грузы, так как грузоподъёмность у них меньше 1 кг.",
 						   string.Join(", ", weightProblems.Select(x => x.RegistrationNumber)));

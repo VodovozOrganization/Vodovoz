@@ -3,26 +3,24 @@ using System.Collections.Generic;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
-using QS.Project.Services;
-using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class WayBillReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		
-		public WayBillReport(IEmployeeJournalFactory employeeJournalFactory)
+		private readonly ICarJournalFactory _carJournalFactory;
+
+		public WayBillReport(IEmployeeJournalFactory employeeJournalFactory, ICarJournalFactory carJournalFactory)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			
+			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
+
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
@@ -33,34 +31,30 @@ namespace Vodovoz.ReportsParameters
 			datepicker.Date = DateTime.Today;
 			timeHourEntry.Text = DateTime.Now.Hour.ToString("00.##");
 			timeMinuteEntry.Text = DateTime.Now.Minute.ToString("00.##");
-			
+
 			entryDriver.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
-			entryCar.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory
-				<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
 		}
 
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Путевой лист";
-			}
-		}
+		public string Title => "Путевой лист";
 
 		#endregion
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
+			return new ReportInfo
+			{
 				Identifier = "Logistic.WayBillReport",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "date", datepicker.Date },
-					{ "driver_id", (entryDriver?.Subject  as Employee)?.Id ?? -1 },
+					{ "driver_id", (entryDriver?.Subject as Employee)?.Id ?? -1 },
 					{ "car_id", (entryCar?.Subject as Car)?.Id ?? -1 },
 					{ "time", timeHourEntry.Text + ":" + timeMinuteEntry.Text },
 					{ "need_date", !datepicker.IsEmpty }
@@ -68,14 +62,9 @@ namespace Vodovoz.ReportsParameters
 			};
 		}
 
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
 		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
 		{
-			OnUpdate(true);
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
 	}
 }

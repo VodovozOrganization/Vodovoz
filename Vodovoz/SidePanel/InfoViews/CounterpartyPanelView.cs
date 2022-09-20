@@ -6,6 +6,7 @@ using Pango;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
@@ -17,14 +18,20 @@ using Vodovoz.ViewWidgets.Mango;
 namespace Vodovoz.SidePanel.InfoViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CounterpartyPanelView : Gtk.Bin, IPanelView
+	public partial class CounterpartyPanelView : Bin, IPanelView
 	{
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private Counterparty _counterparty;
+		private IPermissionResult _counterpartyPermissionResult;
 
-		public CounterpartyPanelView()
+		public CounterpartyPanelView(ICommonServices commonServices)
 		{
-			this.Build();
+			if(commonServices == null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+			Build();
+			_counterpartyPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Counterparty));
 			Configure();
 		}
 
@@ -32,14 +39,26 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			labelName.LineWrapMode = Pango.WrapMode.WordChar;
 			labelLatestOrderDate.LineWrapMode = Pango.WrapMode.WordChar;
+			textviewComment.Editable = _counterpartyPermissionResult.CanUpdate;
 			ytreeCurrentOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
 				.AddColumn("Номер")
-					.AddNumericRenderer(node => node.Id)
+				.AddNumericRenderer(node => node.Id)
 				.AddColumn("Дата")
 				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
 				.AddColumn("Статус")
-					.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
+				.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
 				.Finish();
+		}
+		
+		private void Refresh(object changedObj)
+		{
+			if(InfoProvider == null)
+			{
+				return;
+			}
+			
+			_counterparty = changedObj as Counterparty;
+			RefreshData();
 		}
 
 		#region IPanelView implementation
@@ -49,13 +68,17 @@ namespace Vodovoz.SidePanel.InfoViews
 		public void Refresh()
 		{
 			_counterparty = (InfoProvider as ICounterpartyInfoProvider)?.Counterparty;
+			RefreshData();
+		}
+
+		private void RefreshData()
+		{
 			if(_counterparty == null)
 			{
 				buttonSaveComment.Sensitive = false;
 				return;
 			}
 
-			buttonSaveComment.Sensitive = true;
 			labelName.Text = _counterparty.FullName;
 			SetupPersonalManagers();
 			textviewComment.Buffer.Text = _counterparty.Comment;
@@ -110,7 +133,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			btn.Clicked += OnBtnAddPhoneClicked;
 			PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			PhonesTable.ShowAll();
-			btn.Sensitive = buttonSaveComment.Sensitive = _counterparty.Id != 0;
+			btn.Sensitive = buttonSaveComment.Sensitive = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
 		}
 
 		private void SetupPersonalManagers()
@@ -182,10 +205,9 @@ namespace Vodovoz.SidePanel.InfoViews
 				DialogHelper.GenerateDialogHashName<Counterparty>(_counterparty.Id),
 				() =>
 				{
-					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(_counterparty.Id, InfoProvider.UoW),
-						UnitOfWorkFactory.GetDefaultFactory);
+					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpen(_counterparty.Id), UnitOfWorkFactory.GetDefaultFactory);
 					dlg.ActivateContactsTab();
-					dlg.TabClosed += (senderObject, eventArgs) => { this.Refresh(); };
+					dlg.EntitySaved += (o, args) => Refresh(args.Entity);
 					return dlg;
 				}
 			);

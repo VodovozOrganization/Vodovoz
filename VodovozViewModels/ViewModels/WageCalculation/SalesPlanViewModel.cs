@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class SalesPlanViewModel : EntityTabViewModelBase<SalesPlan>
 	{
-		private readonly INomenclatureSelectorFactory _nomenclatureSelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICommonServices _commonServices;
 		private DelegateCommand _addNomenclatureItemCommand;
@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		private DelegateCommand<EquipmentTypeSalesPlanItem> _removeEquipmentTypeItemCommand;
 
 
-		public SalesPlanViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INomenclatureSelectorFactory nomenclatureSelectorFactory) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+		public SalesPlanViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INomenclatureJournalFactory nomenclatureSelectorFactory) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

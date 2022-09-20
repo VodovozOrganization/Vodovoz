@@ -147,6 +147,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			{
 				return PayoutRequestUserRole.Accountant;
 			}
+			
+			if(CheckRole("role_security_service_cash_request", userId))
+			{
+				return PayoutRequestUserRole.SecurityService;
+			}
 
 			return PayoutRequestUserRole.Other;
 		}

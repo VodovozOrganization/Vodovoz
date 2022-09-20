@@ -11,31 +11,35 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
 using QS.Dialog;
 using Vodovoz.EntityRepositories;
+using QS.Project.Services.FileDialog;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionViewModel : EntityWidgetViewModelBase<ComplaintDiscussion>
 	{
-		private readonly IFilePickerService _filePickerService;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserRepository _userRepository;
 		private readonly bool _canCompleteComplaintDiscussionPermission;
+		private readonly IPermissionResult _complaintPermissionResult;
 
 		public ComplaintDiscussionViewModel(
 			ComplaintDiscussion complaintDiscussion,
-			IFilePickerService filePickerService,
+			IFileDialogService fileDialogService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			IUnitOfWork uow,
 			IUserRepository userRepository
 			) : base(complaintDiscussion, commonServices)
 		{
-			_filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			newCommentFiles = new GenericObservableList<ComplaintFile>();
 			_canCompleteComplaintDiscussionPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion");
 			UoW = uow;
+			_complaintPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Complaint));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 		}
@@ -61,7 +65,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public FilesViewModel FilesViewModel {
 			get {
 				if(filesViewModel == null) {
-					filesViewModel = new FilesViewModel(_filePickerService, CommonServices.InteractiveService, UoW, _userRepository);
+					filesViewModel = new FilesViewModel(_fileDialogService, CommonServices.InteractiveService, UoW, _userRepository);
 					filesViewModel.FilesList = NewCommentFiles;
 				}
 
@@ -70,7 +74,7 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		[PropertyChangedAlso(nameof(CanEditDate), nameof(CanEditStatus))]
-		public bool CanEdit => PermissionResult.CanUpdate;
+		public bool CanEdit => PermissionResult.CanUpdate && _complaintPermissionResult.CanUpdate;
 
 		public bool CanEditDate => CanEdit && CanCompleteDiscussion;
 

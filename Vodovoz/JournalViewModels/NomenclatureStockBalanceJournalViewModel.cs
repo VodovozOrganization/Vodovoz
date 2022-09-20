@@ -14,7 +14,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Journals.JournalNodes;
-using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
@@ -158,8 +158,10 @@ namespace Vodovoz.JournalViewModels
 			return queryStock;
 		};
 
-		protected override Func<NomenclatureViewModel> CreateDialogFunction => () => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
+		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
+			() => throw new InvalidOperationException("Нельзя создавать номенклатуры из данного журнала");
 
-		protected override Func<NomenclatureStockJournalNode, NomenclatureViewModel> OpenDialogFunction => (node) => throw new InvalidOperationException("Нельзя изменять номенклатуры из данного журнала");
+		protected override Func<NomenclatureStockJournalNode, NomenclatureViewModel> OpenDialogFunction =>
+			(node) => throw new InvalidOperationException("Нельзя изменять номенклатуры из данного журнала");
 	}
 }

@@ -9,10 +9,10 @@ using Vodovoz.Domain.Employees;
 namespace Vodovoz.Domain.Complaints
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "виновные в рекламации",
-		Nominative = "виновный в рекламации",
-		Prepositional = "виновном в рекламации",
-		PrepositionalPlural = "виновных в рекламации")]
+		NominativePlural = "ответственные в рекламации",
+		Nominative = "ответственный в рекламации",
+		Prepositional = "ответственом в рекламации",
+		PrepositionalPlural = "ответственных в рекламации")]
 	[HistoryTrace]
 	public class ComplaintGuiltyItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		private ComplaintGuiltyTypes? guiltyType;
-		[Display(Name = "Виновник")]
+		[Display(Name = "Ответственный")]
 		public virtual ComplaintGuiltyTypes? GuiltyType {
 			get => guiltyType;
 			set {
@@ -52,18 +52,19 @@ namespace Vodovoz.Domain.Complaints
 		public virtual string Title {
 			get {
 				if(!GuiltyType.HasValue)
-					return string.Format("Виновный №{0} в рекламации №{1}", Id, Complaint?.Id);
+					return string.Format("Ответственный №{0} в рекламации №{1}", Id, Complaint?.Id);
 				switch(GuiltyType.Value) {
 					case ComplaintGuiltyTypes.None:
 					case ComplaintGuiltyTypes.Client:
+					case ComplaintGuiltyTypes.Depreciation:
 					case ComplaintGuiltyTypes.Supplier:
-						return $"Виновный \"{GuiltyType.GetEnumTitle()}\"";
+						return $"Ответственный \"{GuiltyType.GetEnumTitle()}\"";
 					case ComplaintGuiltyTypes.Subdivision:
-						return $"Виновный \"{Subdivision?.Name}\"";
+						return $"Ответственный \"{Subdivision?.Name}\"";
 					case ComplaintGuiltyTypes.Employee:
-						return $"Виновный сотрудник {Employee?.ShortName}";
+						return $"Ответственный сотрудник {Employee?.ShortName}";
 					default:
-						return string.Format("Виновный №{0} в рекламации №{1}", Id, Complaint?.Id);
+						return string.Format("Ответственный №{0} в рекламации №{1}", Id, Complaint?.Id);
 				}
 			}
 		}
@@ -80,17 +81,17 @@ namespace Vodovoz.Domain.Complaints
 		{
 			if(GuiltyType == null)
 				yield return new ValidationResult(
-					"Виновная сторона не выбрана",
+					"Ответственная сторона не выбрана",
 					new[] { this.GetPropertyName(o => o.GuiltyType) }
 				);
 			if(GuiltyType == ComplaintGuiltyTypes.Employee && Employee == null)
 				yield return new ValidationResult(
-					"Укажите виновного сотрудника",
+					"Укажите ответственного сотрудника",
 					new[] { this.GetPropertyName(o => o.Employee) }
 				);
 			if(GuiltyType == ComplaintGuiltyTypes.Subdivision && Subdivision == null)
 				yield return new ValidationResult(
-					"Укажите виновный отдел ВВ",
+					"Укажите ответственный отдел ВВ",
 					new[] { this.GetPropertyName(o => o.Subdivision) }
 				);
 		}

@@ -25,8 +25,10 @@ using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.JournalNodes;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Models;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 
 namespace Vodovoz.JournalViewModels
@@ -43,6 +45,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrganizationProvider organizationProvider;
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
+		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
+		private readonly IContactsParameters _contactsParameters;
 
 		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
 
@@ -57,7 +61,9 @@ namespace Vodovoz.JournalViewModels
 			IPhoneRepository phoneRepository,
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			CounterpartyContractFactory counterpartyContractFactory
+			CounterpartyContractFactory counterpartyContractFactory,
+			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
+			IContactsParameters contactsParameters
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задач для обзвона";
@@ -70,11 +76,13 @@ namespace Vodovoz.JournalViewModels
 			this.counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			this.footerViewModel = footerViewModel;
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
+			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
 
 			actionsViewModel = new BusinessTasksJournalActionsViewModel(new EmployeeJournalFactory());
 
 			RegisterTasks();
-			
+
 			var threadLoader = DataLoader as ThreadDataLoader<BusinessTaskJournalNode>;
 
 			FinishJournalConfiguration();
@@ -312,7 +320,9 @@ namespace Vodovoz.JournalViewModels
 						organizationProvider,
 						counterpartyContractRepository,
 						counterpartyContractFactory,
-						commonServices
+						_contactsParameters,
+						commonServices,
+						_roboAtsCounterpartyJournalFactory
 					),
 					//функция диалога открытия документа
 					(BusinessTaskJournalNode node) => new ClientTaskViewModel(
@@ -325,9 +335,11 @@ namespace Vodovoz.JournalViewModels
 						organizationProvider,
 						counterpartyContractRepository,
 						counterpartyContractFactory,
-						commonServices
+						_contactsParameters,
+						commonServices,
+						_roboAtsCounterpartyJournalFactory
 					),
-					//функция идентификации документа 
+					//функция идентификации документа
 					(BusinessTaskJournalNode node) => {
 						return node.EntityType == typeof(ClientTask);
 					},
@@ -348,7 +360,7 @@ namespace Vodovoz.JournalViewModels
 						UnitOfWorkFactory,
 						commonServices
 					),
-					//функция идентификации документа 
+					//функция идентификации документа
 					(BusinessTaskJournalNode node) => {
 						return node.EntityType == typeof(PaymentTask);
 					},

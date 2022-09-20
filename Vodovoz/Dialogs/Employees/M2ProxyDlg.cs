@@ -17,6 +17,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.Employees
@@ -27,10 +28,8 @@ namespace Vodovoz.Dialogs.Employees
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
-		
-		private List<OrderEquipment> equipmentList;
-		public IUnitOfWork UoWOrder { get; private set; }
 
+		private List<OrderEquipment> equipmentList;
 		public bool IsEditable { get; set; } = true;
 
 		public M2ProxyDlg()
@@ -51,12 +50,12 @@ namespace Vodovoz.Dialogs.Employees
 			ConfigureDlg();
 		}
 
-		public M2ProxyDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
+		public M2ProxyDlg(Order order)
 		{
 			this.Build();
-			UoWGeneric = uowBuilder.CreateUoW<M2ProxyDocument>(unitOfWorkFactory);
-			UoWOrder = uowBuilder.RootUoW;
-			Entity.Order = UoWOrder.RootObject as Order;
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
+			TabName = "Новая доверенность М-2";
+			Entity.Order = order;
 
 			ConfigureDlg();
 		}
@@ -67,31 +66,31 @@ namespace Vodovoz.Dialogs.Employees
 				GetDocument();
 
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
-			var filterOrders = new OrdersFilter(UoW);
-			yEForOrder.RepresentationModel = new OrdersVM(filterOrders);
-			yEForOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
-			yEForOrder.Changed += (sender, e) => {
+			var orderFactory = new OrderSelectorFactory();
+			evmeOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
+			evmeOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
+			evmeOrder.Changed += (sender, e) => {
 				FillForOrder();
 			};
-			yEForOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			yentryOrganization.SubjectType = typeof(Organization);
-			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			yentryOrganization.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			var orgFactory = new OrganizationJournalFactory();
+			evmeOrganization.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganizationAutocompleteSelectorFactory());
+			evmeOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
+			evmeOrganization.Changed += (sender, e) => UpdateStates();
 
 			FillForOrder();
 
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.Date, x => x.StartDate).InitializeFromSource();
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.ExpirationDate, x => x.EndDate).InitializeFromSource();
 
-			yEEmployee.RepresentationModel = new EmployeesVM();
-			yEEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
 
-			var filterSupplier = new CounterpartyFilter(UoW);
-			yESupplier.RepresentationModel = new CounterpartyVM(filterSupplier);
-			yESupplier.Binding.AddBinding(Entity, x => x.Supplier, x => x.Subject).InitializeFromSource();
+			var supplierFactory = new CounterpartyJournalFactory();
+			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory());
+			evmeSupplier.Binding.AddBinding(Entity, x => x.Supplier, x => x.Subject).InitializeFromSource();
 
 			yETicketNr.Binding.AddBinding(Entity, x => x.TicketNumber, w => w.Text).InitializeFromSource();
 
@@ -131,7 +130,12 @@ namespace Vodovoz.Dialogs.Employees
 				Entity.Date = order.DeliveryDate != null ? order.DeliveryDate.Value : DateTime.Now;
 				Entity.ExpirationDate = Entity.Date.AddDays(10);
 				Entity.Supplier = order.Client;
-				Entity.Organization = order.Contract.Organization;
+
+				if(Entity.Id == 0)
+				{
+					Entity.Organization = order.Contract.Organization;
+				}
+				
 				yTWEquipment.ItemsDataSource = equipmentList;
 			} else {
 				yDPDatesRange.StartDateOrNull = DateTime.Today;
@@ -141,6 +145,29 @@ namespace Vodovoz.Dialogs.Employees
 
 		void Templatewidget_BeforeOpen(object sender, EventArgs e)
 		{
+			var organizationVersion = Entity.Organization.OrganizationVersionOnDate(Entity.Date);
+
+			if(organizationVersion == null)
+			{
+				MessageDialogHelper.RunErrorDialog($"На дату М-2 доверенности {Entity.Date.ToString("G")} отсутствует версия организации. Создайте версию организации.");
+				templatewidget.CanOpenDocument = false;
+				return;
+			}
+
+			if(organizationVersion.Leader == null)
+			{
+				MessageDialogHelper.RunErrorDialog($"Не выбран руководитель в версии №{organizationVersion.Id} организации \"{Entity.Organization.Name}\"");
+				templatewidget.CanOpenDocument = false;
+				return;
+			}
+
+			if(organizationVersion.Accountant == null)
+			{
+				MessageDialogHelper.RunErrorDialog($"Не выбран бухгалтер в версии №{organizationVersion.Id} организации \"{Entity.Organization.Name}\"");
+				templatewidget.CanOpenDocument = false;
+				return;
+			}
+
 			if(UoW.HasChanges) {
 				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
 					UoWGeneric.Save();
@@ -163,8 +190,8 @@ namespace Vodovoz.Dialogs.Employees
 		void UpdateStates()
 		{
 			bool isNewDoc = !(Entity.Id > 0);
-			yEForOrder.Sensitive = yDPDatesRange.Sensitive = yEEmployee.Sensitive = yESupplier.Sensitive = yETicketNr.Sensitive
-				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = yentryOrganization.Sensitive = isNewDoc;
+			evmeOrder.Sensitive = yDPDatesRange.Sensitive = evmeEmployee.Sensitive = evmeSupplier.Sensitive = yETicketNr.Sensitive
+				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = evmeOrganization.Sensitive = isNewDoc;
 
 			if(Entity.Organization == null || !isNewDoc) {
 				return;
@@ -175,7 +202,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override bool Save()
 		{
-			if(UoWOrder == null)
+			if(Entity.Order == null)
 				return true;
 
 			var valid = new QSValidator<M2ProxyDocument>(Entity);
@@ -190,7 +217,7 @@ namespace Vodovoz.Dialogs.Employees
 						Order = Entity.Order
 					}
 				};
-				(UoWOrder.RootObject as Order).AddAdditionalDocuments(list);
+				Entity.Order.AddAdditionalDocuments(list);
 			}
 
 			return true;

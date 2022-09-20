@@ -8,6 +8,7 @@ using QS.Project.Domain;
 using QSReport;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
@@ -19,6 +20,8 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks
@@ -34,7 +37,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IParametersProvider _parametersProvider;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IUnitOfWork _uow;
+		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
@@ -53,7 +58,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureRepository nomenclatureRepository,
 			IOrderRepository orderRepository,
-			IParametersProvider parametersProvider) : base(navigation, manager)
+			IParametersProvider parametersProvider,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(navigation, manager)
 		{
 			NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
@@ -66,17 +73,21 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
+			_deliveryPointJournalFactory =
+				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 
 			if(ActiveCall.CounterpartyIds.Any())
 			{
 				var clients = _uow.GetById<Counterparty>(ActiveCall.CounterpartyIds);
-				
+
 				foreach(Counterparty client in clients)
 				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(
 						client, unitOfWorkFactory, tdinavigation, routedListRepository, MangoManager, _orderParametersProvider,
-						_employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository, _parametersProvider);
+						_employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository, _parametersProvider,
+						_deliveryRulesParametersProvider);
 					CounterpartyOrdersViewModels.Add(model);
 				}
 				
@@ -102,9 +113,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 		public void NewClientCommand()
 		{
-			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg>(this);
-			var tab = page.TdiTab as CounterpartyDlg;
-			page.PageClosed += NewCounerpatry_PageClosed;
+			var page = _tdiNavigation.OpenTdiTab<CounterpartyDlg, Phone>(this, ActiveCall.Phone);
+			page.PageClosed += OnNewCounterpartyPageClosed;
 		}
 
 		public void ExistingClientCommand()
@@ -114,14 +124,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
 		}
 
-		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
+		private void OnNewCounterpartyPageClosed(object sender, PageClosedEventArgs e)
 		{
-			if(e.CloseSource == CloseSource.Save) {
-				List<Counterparty> clients = new List<Counterparty>();
+			if(e.CloseSource == CloseSource.Save)
+			{
 				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
-				client.Phones.Add(ActiveCall.Phone);
-				clients.Add(client);
-				_uow.Save<Counterparty>(client);
 				
 				CounterpartyOrderViewModel model = 
 					new CounterpartyOrderViewModel(
@@ -134,14 +141,15 @@ namespace Vodovoz.ViewModels.Mango.Talks
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
 						_nomenclatureRepository,
-						_parametersProvider);
+						_parametersProvider,
+						_deliveryRulesParametersProvider);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
 				MangoManager.AddCounterpartyToCall(client.Id);
 				CounterpartyOrdersModelsUpdateEvent();
 			}
-			(sender as IPage).PageClosed -= NewCounerpatry_PageClosed;
+			(sender as IPage).PageClosed -= OnNewCounterpartyPageClosed;
 		}
 
 		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
@@ -159,7 +167,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 					new CounterpartyOrderViewModel(
 						client, UnitOfWorkFactory.GetDefaultFactory, _tdiNavigation, _routedListRepository, MangoManager,
 						_orderParametersProvider, _employeeJournalFactory, _counterpartyJournalFactory, _nomenclatureRepository,
-						_parametersProvider);
+						_parametersProvider, _deliveryRulesParametersProvider);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -203,7 +211,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void BottleActCommand()
 		{
-			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(_orderRepository);
+			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				_orderRepository,
+				_counterpartyJournalFactory,
+				_deliveryPointJournalFactory);
 			parameters.SetCounterparty(currentCounterparty);
 			ReportViewDlg dialog = _tdiNavigation.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, parameters) as ReportViewDlg;
 			parameters.OnUpdate(true);

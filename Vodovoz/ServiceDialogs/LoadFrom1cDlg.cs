@@ -6,8 +6,8 @@ using System.Xml;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Banks.Domain;
+using QS.Banks.Repositories;
 using QS.DomainModel.UoW;
-using QSBanks.Repositories;
 using QS.BusinessCommon.Domain;
 using QS.BusinessCommon.Repository;
 using QSProjectsLib;
@@ -82,7 +82,7 @@ namespace Vodovoz
 						new EmployeeRepository(),
 						new BaseParametersProvider(new ParametersProvider()),
 						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
+						ErrorReporter.Instance);
 				}
 				return callTaskWorker;
 			}
@@ -688,9 +688,13 @@ namespace Vodovoz
 				Code1c = code1cNode?.InnerText,
 				Name = nameNode?.InnerText,
 				OfficialName = officialNameNode?.InnerText,
-				Weight = Double.TryParse(weightNode?.InnerText, out number)?number:0,  
-				Volume = Double.TryParse(volumeNode?.InnerText, out number)?number:0
+				Weight = Double.TryParse(weightNode?.InnerText, out number) ? (decimal)number : 0
 			};
+
+			//Перевод кубических метров в сантиметры
+			nomenclature.Length = nomenclature.Width = nomenclature.Height =
+				Double.TryParse(volumeNode?.InnerText, out number) ? (decimal)Math.Ceiling(Math.Pow(number * 1000000, (double)1 / 3)) : 0;
+
 			nomenclature.Category = servicelNode?.InnerText == "true"
 				? NomenclatureCategory.service
 				: NomenclatureCategory.additional;

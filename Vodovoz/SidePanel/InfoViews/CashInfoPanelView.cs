@@ -76,6 +76,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			var allCashString = "";
 			var distinctBalances = _cashRepository
 				.CurrentCashForGivenSubdivisions(_uow, filter.SelectedSubdivisions.Select(x => x.Id).ToArray()).ToList();
+
+			var inTransferring = _cashRepository.GetCashInTransferring(_uow);
+
 			if(filter.SelectedSubdivisions.Count() > 1)
 			{
 				distinctBalances = distinctBalances.OrderBy(x => _sortedSubdivisionsIds.IndexOf(x.Id)).ToList();
@@ -89,7 +92,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";
 			var separatedCash = filter.SelectedSubdivisions.Any() ? $"\r\n\tИз них: {allCashString}" : "";
-			return total + separatedCash;
+			var cashInTransferringMessage = $"\n\nВ сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}";
+			return total + separatedCash + cashInTransferringMessage;
 		}
 
 		#endregion

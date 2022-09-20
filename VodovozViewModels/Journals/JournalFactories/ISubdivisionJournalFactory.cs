@@ -1,4 +1,4 @@
-using QS.Project.Journal.EntitySelector;
+﻿using QS.Project.Journal.EntitySelector;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
@@ -12,5 +12,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 
 		IEntityAutocompleteSelectorFactory CreateLogisticSubdivisionAutocompleteSelectorFactory(
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory = null);
+
+		IEntityAutocompleteSelectorFactory CreateCashSubdivisionAutocompleteSelectorFactory();
 	}
 }

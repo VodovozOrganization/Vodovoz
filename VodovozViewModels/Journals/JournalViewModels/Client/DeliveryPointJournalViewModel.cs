@@ -1,16 +1,16 @@
-﻿using System;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
 using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 {
@@ -45,11 +45,51 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 	{
 		NodeActionsList.Clear();
 		CreateDefaultSelectAction();
-		CreateDefaultEditAction();
+		CreateEditAction();
 		CreateDeleteAction();
 	}
 
-	protected void CreateDeleteAction()
+	private void CreateEditAction()
+	{
+		var editAction = new JournalAction("Изменить",
+			(selected) => {
+				var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
+				if(selectedNodes == null || selectedNodes.Count() != 1) {
+					return false;
+				}
+				DeliveryPointJournalNode selectedNode = selectedNodes.First();
+				if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+					return false;
+				}
+				var config = EntityConfigs[selectedNode.EntityType];
+				return config.PermissionResult.CanRead;
+			},
+			(selected) => true,
+			(selected) => {
+				var selectedNodes = selected.OfType<DeliveryPointJournalNode>();
+				if(selectedNodes == null || selectedNodes.Count() != 1) {
+					return;
+				}
+				DeliveryPointJournalNode selectedNode = selectedNodes.First();
+				if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+					return;
+				}
+				var config = EntityConfigs[selectedNode.EntityType];
+				var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+				TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
+				if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+					HideJournal(TabParent);
+				}
+			}
+		);
+		if(SelectionMode == JournalSelectionMode.None) {
+			RowActivatedAction = editAction;
+		}
+		NodeActionsList.Add(editAction);
+	}
+
+	private void CreateDeleteAction()
 	{
 		var deleteAction = new JournalAction("Удалить",
 			(selected) =>
@@ -135,8 +175,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			.SelectList(list => list
 				.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.Id)
 				.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
-				.Select(() => deliveryPointAlias.FoundOnOsm).WithAlias(() => resultAlias.FoundOnOsm)
-				.Select(() => deliveryPointAlias.IsFixedInOsm).WithAlias(() => resultAlias.FixedInOsm)
+				.Select(() => deliveryPointAlias.FoundOnOsm).WithAlias(() => resultAlias.FoundInFias)
+				.Select(() => deliveryPointAlias.IsFixedInOsm).WithAlias(() => resultAlias.FixedInFias)
 				.Select(() => deliveryPointAlias.IsActive).WithAlias(() => resultAlias.IsActive)
 				.Select(() => deliveryPointAlias.Address1c).WithAlias(() => resultAlias.Address1c)
 				.Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.Counterparty)

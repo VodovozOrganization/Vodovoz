@@ -186,7 +186,7 @@ namespace Android
 					
 					var result = new List<RouteListDTO>();
 					var driver = _employeeRepository.GetDriverByAuthKey(uow, authKey);
-					var routeLists = _routeListRepository.GetDriverRouteLists(uow, driver, RouteListStatus.EnRoute, DateTime.Today);
+					var routeLists = _routeListRepository.GetDriverRouteLists(uow, driver, DateTime.Today, RouteListStatus.EnRoute);
 
 					foreach (RouteList rl in routeLists)
 					{
@@ -250,7 +250,7 @@ namespace Android
 						return null;
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(orderUoW, orderUoW.Root);
 					OrderDTO orderDTO = new OrderDTO(routeListItem);
-					SmsPaymentStatus? smsPaymentStatus = _orderRepository.GetOrderPaymentStatus(orderUoW, orderUoW.Root.Id);
+					SmsPaymentStatus? smsPaymentStatus = _orderRepository.GetOrderSmsPaymentStatus(orderUoW, orderUoW.Root.Id);
 					if(smsPaymentStatus == null) {
 						orderDTO.PaymentStatus = PaymentStatus.None;
 					} else {

@@ -17,6 +17,7 @@ using Vodovoz.Domain.Goods;
 using Gtk;
 using Gdk;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.ViewModel
@@ -26,7 +27,7 @@ namespace Vodovoz.ViewModel
 		public StockDocumentsFilter Filter
 		{
 			get => RepresentationFilter as StockDocumentsFilter;
-			set => RepresentationFilter = value as IRepresentationFilter;
+			set => RepresentationFilter = value;
 		}
 
 		#region IRepresentationModel implementation
@@ -43,7 +44,6 @@ namespace Vodovoz.ViewModel
 			RegradingOfGoodsDocument regradingOfGoodsAlias = null;
 			DocumentVMNode resultAlias = null;
 			Counterparty counterpartyAlias = null;
-			Counterparty secondCounterpartyAlias = null;
 			Warehouse warehouseAlias = null;
 			Warehouse secondWarehouseAlias = null;
 			MovementWagon wagonAlias = null;
@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModel
 			CarUnloadDocument unloadCarAlias = null;
 			RouteList routeListAlias = null;
 			Car carAlias = null;
+			CarModel carModelAlias = null;
 			Employee driverAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
@@ -438,7 +439,8 @@ namespace Vodovoz.ViewModel
 					.JoinQueryOver(() => loadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => loadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 				if(Filter.RestrictWarehouse != null)
 				{
@@ -464,7 +466,7 @@ namespace Vodovoz.ViewModel
 						.Select(() => loadCarAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => loadCarAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 						.Select(() => DocumentType.CarLoadDocument).WithAlias(() => resultAlias.DocTypeEnum)
-						.Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
+						.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
 						.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 						.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 						.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
@@ -490,7 +492,8 @@ namespace Vodovoz.ViewModel
 					.JoinQueryOver(() => unloadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => unloadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 				if(Filter.RestrictWarehouse != null)
 				{
@@ -519,7 +522,7 @@ namespace Vodovoz.ViewModel
 						.Select(() => unloadCarAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => unloadCarAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 						.Select(() => DocumentType.CarUnloadDocument).WithAlias(() => resultAlias.DocTypeEnum)
-						.Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
+						.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
 						.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 						.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 						.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
@@ -862,7 +865,7 @@ namespace Vodovoz.ViewModel
 					case DocumentType.CarLoadDocument:
 						return string.Format(
 							"Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}",
-							CarModel,
+							CarModelName,
 							CarNumber,
 							PersonHelper.PersonNameWithInitials(
 								DriverSurname,
@@ -874,7 +877,7 @@ namespace Vodovoz.ViewModel
 					case DocumentType.CarUnloadDocument:
 						return string.Format(
 							"Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}",
-							CarModel,
+							CarModelName,
 							CarNumber,
 							PersonHelper.PersonNameWithInitials(
 								DriverSurname,
@@ -907,15 +910,13 @@ namespace Vodovoz.ViewModel
 
 		public int OrderId { get; set; }
 
-		public string SecondCounterparty { get; set; }
-
 		public string Warehouse { get; set; }
 
 		public string SecondWarehouse { get; set; }
 
 		public int Amount { get; set; }
 
-		public string CarModel { get; set; }
+		public string CarModelName { get; set; }
 
 		public string Comment { get; set; }
 

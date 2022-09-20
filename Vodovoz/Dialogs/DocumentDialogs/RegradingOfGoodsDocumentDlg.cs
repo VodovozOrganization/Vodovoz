@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -8,8 +9,11 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.JournalViewModels;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
 {
@@ -72,10 +76,15 @@ namespace Vodovoz
 			}
 			else
 			{
-				warehouseEntry.CanEditReference = false;
+				warehouseEntry.CanEditReference = true;
 			}
 
-			warehouseEntry.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory());
+			var availableWarehousesIds = StoreDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissions.RegradingOfGoodsEdit);
+			var warehouseFilter = new WarehouseJournalFilterViewModel
+			{
+				IncludeWarehouseIds = availableWarehousesIds
+			};
+			warehouseEntry.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory(warehouseFilter));
 			warehouseEntry.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 

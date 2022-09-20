@@ -1,14 +1,16 @@
-﻿using System;
+﻿using NetTopologySuite.Geometries;
+using QS.DomainModel.UoW;
+using QS.Osrm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NetTopologySuite.Geometries;
-using QS.DomainModel.UoW;
-using QS.Osm;
-using QS.Osm.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Factories;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -17,6 +19,7 @@ namespace Vodovoz.Tools.Logistic
 		private static readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
 		private static readonly IScheduleRestrictionRepository _scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		private static readonly IFuelRepository _fuelRepository = new FuelRepository();
+		private static readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 		private static void Calculate() => throw new NotImplementedException();
 
 		static double fuelCost;
@@ -58,20 +61,29 @@ namespace Vodovoz.Tools.Logistic
 
 				//Расчет растояния
 				if(deliveryPoint == null) {
-					var gg =
-						_geographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
+					var gg = _geographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
 					var route = new List<PointOnEarth>(2);
-					if(gg != null && gg.BaseCoordinatesExist)
-						route.Add(new PointOnEarth((double)gg.BaseLatitude, (double)gg.BaseLongitude));
+					GeoGroupVersion geoGroupVersion = null;
+					if(gg != null)
+					{
+						geoGroupVersion = gg.GetActualVersionOrNull();
+					}
+
+					if(gg != null && geoGroupVersion != null && geoGroupVersion.BaseCoordinatesExist)
+					{
+						route.Add(new PointOnEarth((double)geoGroupVersion.BaseLatitude, (double)geoGroupVersion.BaseLongitude));
+					}
 					else if(gg == null)
+					{
 						//если не найдена часть города, то расстояние считается до его центра
 						route.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
+					}
 					else {
 						result.ErrorMessage = "В подобранной части города не указаны координаты базы";
 						return result;
 					}
 					route.Add(new PointOnEarth(latitude.Value, longitude.Value));
-					var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
+					var osrmResult = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
 					if(osrmResult == null) {
 						result.ErrorMessage = "Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.";
 						return result;

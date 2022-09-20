@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QS.Commands;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -16,6 +17,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
@@ -33,7 +35,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		public IExpenseCategorySelectorFactory ExpenseSelectorFactory { get; }
 
 		public FuelWriteoffDocumentViewModel(
-			IEntityUoWBuilder uoWBuilder, 
+			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IFuelRepository fuelRepository,
@@ -43,7 +45,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IReportViewOpener reportViewOpener,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory
-		) 
+		)
 		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -100,19 +102,19 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		{
 			EmployeeAutocompleteSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 		}
-		
+
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; private set; }
-		
+
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
 
 		#endregion Entries
 
-		protected override void BeforeSave()
-		{
-			Entity.UpdateOperations();
-			base.BeforeSave();
-		}
+		protected override bool BeforeSave()
+        {
+            Entity.UpdateOperations();
+            return base.BeforeSave();
+        }
 
 		public bool CanEdit => true;
 		public bool CanEditDate => CanEdit && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_fuelwriteoff_document_date");
@@ -183,6 +185,23 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 						}
 						Entity.AddNewWriteoffItem(UoW.GetById<FuelType>(node.Id));
 					};
+
+					var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
+					if(fuelTypePermissionSet.CanRead && !fuelTypePermissionSet.CanUpdate)
+					{
+						var viewAction = new JournalAction("Просмотр",
+							(selected) => selected.Any(),
+							(selected) => true,
+							(selected) =>
+							{
+								var tab = fuelTypeJournalViewModel.GetTabToOpen(typeof(FuelType), selected.First().GetId());
+								fuelTypeJournalViewModel.TabParent.AddTab(tab, fuelTypeJournalViewModel);
+							}
+						);
+
+						(fuelTypeJournalViewModel.NodeActions as IList<IJournalAction>)?.Add(viewAction);
+					}
+
 					TabParent.AddSlaveTab(this, fuelTypeJournalViewModel);
 				},
 				() => CanEdit

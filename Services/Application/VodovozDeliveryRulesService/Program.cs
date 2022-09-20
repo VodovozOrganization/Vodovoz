@@ -5,13 +5,15 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.Threading;
+using Fias.Service;
+using Fias.Service.Cache;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using Nini.Config;
 using NLog;
 using QS.Banks.Domain;
-using QS.Osm.Osrm;
+using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSProjectsLib;
 using Vodovoz.EntityRepositories.Delivery;
@@ -22,88 +24,85 @@ namespace VodovozDeliveryRulesService
 {
 	class Service
 	{
-		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-		private static readonly string configFile = "/etc/vodovoz-delivery-rules-service.conf";
+		private const string _configFile = "/etc/vodovoz-delivery-rules-service.conf";
 
 		//Service
-		private static string serviceHostName;
-		private static string servicePort;
-
-		//OsrmService
-		private static string serverUrl;
+		private static string _serviceHostName;
+		private static string _servicePort;
 
 		//Mysql
-		private static string mysqlServerHostName;
-		private static string mysqlServerPort;
-		private static string mysqlUser;
-		private static string mysqlPassword;
-		private static string mysqlDatabase;
+		private static string _mysqlServerHostName;
+		private static string _mysqlServerPort;
+		private static string _mysqlUser;
+		private static string _mysqlPassword;
+		private static string _mysqlDatabase;
 
 		public static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 
 			try {
-				IniConfigSource confFile = new IniConfigSource(configFile);
+				IniConfigSource confFile = new IniConfigSource(_configFile);
 				confFile.Reload();
 				IConfig serviceConfig = confFile.Configs["Service"];
-				serviceHostName = serviceConfig.GetString("service_host_name");
-				servicePort = serviceConfig.GetString("service_port");
-
-				IConfig osrmConfig = confFile.Configs["OsrmService"];
-				serverUrl = osrmConfig.GetString("server_url");
+				_serviceHostName = serviceConfig.GetString("service_host_name");
+				_servicePort = serviceConfig.GetString("service_port");
 
 				IConfig mysqlConfig = confFile.Configs["Mysql"];
-				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
-				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
-				mysqlUser = mysqlConfig.GetString("mysql_user");
-				mysqlPassword = mysqlConfig.GetString("mysql_password");
-				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+				_mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
+				_mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
+				_mysqlUser = mysqlConfig.GetString("mysql_user");
+				_mysqlPassword = mysqlConfig.GetString("mysql_password");
+				_mysqlDatabase = mysqlConfig.GetString("mysql_database");
 			}
 			catch(Exception ex) {
-				logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
+				_logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
 				return;
 			}
 
-			logger.Info("Запуск службы правил доставки...");
+			_logger.Info("Запуск службы правил доставки...");
 			try {
 				var conStrBuilder = new MySqlConnectionStringBuilder();
-				conStrBuilder.Server = mysqlServerHostName;
-				conStrBuilder.Port = UInt32.Parse(mysqlServerPort);
-				conStrBuilder.Database = mysqlDatabase;
-				conStrBuilder.UserID = mysqlUser;
-				conStrBuilder.Password = mysqlPassword;
+				conStrBuilder.Server = _mysqlServerHostName;
+				conStrBuilder.Port = UInt32.Parse(_mysqlServerPort);
+				conStrBuilder.Database = _mysqlDatabase;
+				conStrBuilder.UserID = _mysqlUser;
+				conStrBuilder.Password = _mysqlPassword;
 				conStrBuilder.SslMode = MySqlSslMode.None;
 
 				QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
-				var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+				var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 										 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
 										 .ConnectionString(QSMain.ConnectionString);
 
-				OrmConfig.ConfigureOrm(db_config,
+				OrmConfig.ConfigureOrm(dbConfig,
 					new[]
 					{
-						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(Bank)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
 					});
-				OsrmMain.ServerUrl = serverUrl;
 
 				IDeliveryRepository deliveryRepository = new DeliveryRepository();
 				var backupDistrictService = new BackupDistrictService();
 				IDeliveryRulesParametersProvider deliveryRulesParametersProvider
 					= new DeliveryRulesParametersProvider(new ParametersProvider());
-				
+				CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+				IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(new ParametersProvider());
+				var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
+				IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
 				DeliveryRulesInstanceProvider deliveryRulesInstanceProvider = 
-					new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService, deliveryRulesParametersProvider);
+					new DeliveryRulesInstanceProvider(deliveryRepository, backupDistrictService, deliveryRulesParametersProvider, fiasApiClient, cancellationTokenSource);
 				ServiceHost deliveryRulesHost = new DeliveryRulesServiceHost(deliveryRulesInstanceProvider);
 
 				ServiceEndpoint webEndPoint = deliveryRulesHost.AddServiceEndpoint(
 					typeof(IDeliveryRulesService),
 					new WebHttpBinding(),
-					$"http://{serviceHostName}:{servicePort}/DeliveryRules"
+					$"http://{_serviceHostName}:{_servicePort}/DeliveryRules"
 				);
 				WebHttpBehavior httpBehavior = new WebHttpBehavior();
 				webEndPoint.Behaviors.Add(httpBehavior);
@@ -115,27 +114,37 @@ namespace VodovozDeliveryRulesService
 				
 				deliveryRulesHost.Open();
 
-				logger.Info("Server started.");
+				_logger.Info("Server started.");
 
-				UnixSignal[] signals = {
-					new UnixSignal (Signum.SIGINT),
-					new UnixSignal (Signum.SIGHUP),
-					new UnixSignal (Signum.SIGTERM)};
-				UnixSignal.WaitAny(signals);
+				if(Environment.OSVersion.Platform == PlatformID.Unix)
+				{
+					UnixSignal[] signals = {
+						new UnixSignal (Signum.SIGINT),
+						new UnixSignal (Signum.SIGHUP),
+						new UnixSignal (Signum.SIGTERM)
+					};
+					UnixSignal.WaitAny(signals);
+				}
+				else
+				{
+					Console.ReadLine();
+				}
 			}
 			catch(Exception e) {
-				logger.Fatal(e);
+				_logger.Fatal(e);
 			}
 			finally {
 				if(Environment.OSVersion.Platform == PlatformID.Unix)
+				{
 					Thread.CurrentThread.Abort();
+				}
 				Environment.Exit(0);
 			}
 		}
 
 		static void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			logger.Fatal((Exception)e.ExceptionObject, "UnhandledException");
+			_logger.Fatal((Exception)e.ExceptionObject, "UnhandledException");
 		}
 	}
 
@@ -151,15 +160,20 @@ namespace VodovozDeliveryRulesService
 
 		public void ApplyDispatchBehavior(ServiceDescription desc, ServiceHostBase host)
 		{
-			foreach(ChannelDispatcher cDispatcher in host.ChannelDispatchers)
+			foreach(var channelDispatcherBase in host.ChannelDispatchers)
+			{
+				var cDispatcher = (ChannelDispatcher)channelDispatcherBase;
 				foreach(EndpointDispatcher eDispatcher in cDispatcher.Endpoints)
+				{
 					eDispatcher.DispatchRuntime.MessageInspectors.Add(new ConsoleMessageTracer());
+				}
+			}
 		}
 	}
 
 	public class ConsoleMessageTracer : IDispatchMessageInspector
 	{
-		static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
 		enum Action
 		{
@@ -172,14 +186,18 @@ namespace VodovozDeliveryRulesService
 			Message msg = buffer.CreateMessage();
 			try {
 				if(action == Action.Receive) {
-					logger.Info("Received: {0}", msg.Headers.To.AbsoluteUri);
+					_logger.Info("Received: {0}", msg.Headers.To.AbsoluteUri);
 					if(!msg.IsEmpty)
-						logger.Debug("Received Body: {0}", msg);
+					{
+						_logger.Debug("Received Body: {0}", msg);
+					}
 				} else
-					logger.Debug("Sended: {0}", msg);
+				{
+					_logger.Debug("Sended: {0}", msg);
+				}
 			}
 			catch(Exception ex) {
-				logger.Error(ex, "Ошибка логгирования сообщения.");
+				_logger.Error(ex, "Ошибка логгирования сообщения.");
 			}
 			return buffer.CreateMessage();
 		}

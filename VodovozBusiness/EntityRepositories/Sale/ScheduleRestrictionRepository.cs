@@ -23,6 +23,22 @@ namespace Vodovoz.EntityRepositories.Sale
 				.And(x => x.DistrictBorder != null);
 		}
 
+		public IList<District> GetDistrictsWithBorderForFastDelivery(IUnitOfWork uow)
+		{
+			DistrictsSet districtsSetAlias = null;
+			District districtAlias = null;
+			TariffZone tariffZoneAlias = null;
+
+			return uow.Session.QueryOver(() => districtAlias)
+				.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
+				.JoinAlias(() => districtAlias.TariffZone, () => tariffZoneAlias)
+				.Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
+				.And(() => districtAlias.DistrictBorder != null)
+				.And(() => tariffZoneAlias.IsFastDeliveryAvailable)
+				.Select(Projections.Entity(() => districtAlias))
+				.List();
+		}
+
 		public IList<District> GetDistrictsWithBorder(IUnitOfWork uow)
 		{
 			return GetDistrictsWithBorder()
@@ -64,7 +80,7 @@ namespace Vodovoz.EntityRepositories.Sale
 				.Where(x => x.Category == Domain.Goods.NomenclatureCategory.water && !x.IsDisposableTare)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.SelectList(list => list.SelectGroup(x => x.Id).WithAlias(() => resultAlias.OrderId)
-					.SelectSum(() => (int)orderItemsAlias.Count).WithAlias(() => resultAlias.WaterCount)
+					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.WaterCount)
 					.SelectSubQuery(districtSubquery).WithAlias(() => resultAlias.DistrictId)
 				)
 				.Where(Restrictions.Gt(

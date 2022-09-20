@@ -69,57 +69,59 @@ namespace VodovozBusinessTests.Employees
 			//arrange
 			var newDate = new DateTime(2019, 01, 01);
 			var employee = new Employee();
-			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
-			var wageParameter = new EmployeeWageParameter() {
+			var wageParameter = new EmployeeWageParameter
+			{
 				WageParameterItem = new ManualWageParameterItem()
 			};
-			
+
 			//act
 			employee.ChangeWageParameter(wageParameter, newDate);
 			//assert
-			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(1));
-			Assert.That(employee.ObservableWageParameters.FirstOrDefault().Employee, Is.EqualTo(employee));
-			Assert.That(employee.ObservableWageParameters.FirstOrDefault().StartDate, Is.EqualTo(newDate.AddTicks(1)));
+			Assert.That(employee.ObservableWageParameters.Count, Is.EqualTo(1));
+			Assert.That(employee.ObservableWageParameters.First().Employee, Is.EqualTo(employee));
+			Assert.That(employee.ObservableWageParameters.First().StartDate, Is.EqualTo(newDate));
 		}
 
 		[Test(Description = "Если до добавления ЗП в списке была ЗП с датой начала раньшей чем новая дата, то добавляем новую ЗП с установкой в неё даты поздней на момент и сотрудника. Выставляем у старой ЗП дату окончания.")]
-		public void ChangeWageParameter_IfThereWereWageInList_ThenAddNewWageAndSetNewDateWithOneTickAndSetCurrentEmployeeAndSetEndDateForExistingWage()
+		public void
+			ChangeWageParameter_IfThereWereWageInList_ThenAddNewWageAndSetNewDateWithOneTickAndSetCurrentEmployeeAndSetEndDateForExistingWage()
 		{
 			//arrange
 			var newDate = new DateTime(2019, 01, 01);
-			var existingWage = new EmployeeWageParameter(){
+			var existingWage = new EmployeeWageParameter
+			{
 				StartDate = new DateTime(2018, 01, 01),
 				WageParameterItem = new FixedWageParameterItem()
 			};
-			
+
 			var employee = new Employee();
 			employee.WageParameters.Add(existingWage);
-			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
-			var wageParameter = new EmployeeWageParameter() {
+			var wageParameter = new EmployeeWageParameter
+			{
 				WageParameterItem = new ManualWageParameterItem()
 			};
-			
+
 			//act
 			employee.ChangeWageParameter(wageParameter, newDate);
 			//assert
-			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(2));
+			Assert.That(employee.ObservableWageParameters.Count, Is.EqualTo(2));
 			Assert.That(
 				employee.ObservableWageParameters
-						.FirstOrDefault(w => w.WageParameterItem.WageParameterItemType == WageParameterItemTypes.Manual)
-						.Employee,
+					.First(w => w.WageParameterItem.WageParameterItemType == WageParameterItemTypes.Manual)
+					.Employee,
 				Is.EqualTo(employee)
 			);
 			Assert.That(
 				employee.ObservableWageParameters
-						.FirstOrDefault(w => w.WageParameterItem.WageParameterItemType == WageParameterItemTypes.Manual)
-						.StartDate,
-				Is.EqualTo(newDate.AddTicks(1))
+					.First(w => w.WageParameterItem.WageParameterItemType == WageParameterItemTypes.Manual)
+					.StartDate,
+				Is.EqualTo(newDate)
 			);
 			Assert.That(
 				employee.ObservableWageParameters
-						.FirstOrDefault(w => w.WageParameterItem.WageParameterItemType == WageParameterItemTypes.Fixed)
-						.EndDate,
-				Is.EqualTo(newDate)
+					.First(w => w.WageParameterItem.WageParameterItemType == WageParameterItemTypes.Fixed)
+					.EndDate,
+				Is.EqualTo(newDate.AddMilliseconds(-1))
 			);
 		}
 

@@ -12,6 +12,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Journal.Search;
 using QS.Project.Search;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using System;
@@ -39,7 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly INomenclaturePlanParametersProvider _nomenclaturePlanParametersProvider;
 		private readonly IInteractiveService _interactiveService;
-		private readonly IFilePickerService _filePicker;
+		private readonly IFileDialogService _fileDialogService;
 
 		private List<SelectedNomenclature> _savedNomenclatures;
 		private List<SelectedEquipmentKind> _savedEquipmentKinds;
@@ -68,7 +69,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		public NomenclaturePlanReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
 			INavigationManager navigation, ICommonServices commonServices, IProductGroupJournalFactory productGroupJournalFactory,
-			INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider, IFilePickerService filePicker) : base(unitOfWorkFactory, interactiveService,
+			INomenclaturePlanParametersProvider nomenclaturePlanParametersProvider, IFileDialogService fileDialogService) : base(unitOfWorkFactory, interactiveService,
 			navigation)
 		{
 			Title = "Отчёт по мотивации КЦ";
@@ -77,7 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 			_nomenclaturePlanParametersProvider = nomenclaturePlanParametersProvider ??
 												  throw new ArgumentNullException(nameof(nomenclaturePlanParametersProvider));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
 			ProductGroupSelectorFactory =
 				(productGroupJournalFactory ?? throw new ArgumentNullException(nameof(productGroupJournalFactory)))
@@ -699,10 +700,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		public DelegateCommand SaveReportCommand =>
 			_saveReportCommand ?? (_saveReportCommand = new DelegateCommand(() =>
 			{
-				var extension = ".xlsx";
-				if(Report != null && _filePicker.OpenSaveFilePicker($"{TabName} {Report.CreationDate:yyyy-MM-dd-HH-mm}{extension}", out string filePath))
+				var dialogSettings = new DialogSettings();
+				dialogSettings.Title = "Сохранить";
+				dialogSettings.DefaultFileExtention = ".xlsx";
+				dialogSettings.FileName = $"{TabName} {Report.CreationDate:yyyy-MM-dd-HH-mm}.xlsx";
+
+				var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+				if(Report != null && result.Successful)
 				{
-					ExportReport(filePath.Contains(extension) ? filePath : filePath += extension);
+					ExportReport(result.Path);
 				}
 			},
 				() => true

@@ -12,20 +12,21 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
-using QS.Tdi;
-using QS.Navigation;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
-		private bool userHaveAccessToRetail = false;
+		private readonly bool _userHaveAccessToRetail;
 
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CounterpartyJournalViewModel(
+			CounterpartyJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 
-			userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 
 			UpdateOnChanges(
 				typeof(Counterparty),
@@ -60,7 +61,7 @@ namespace Vodovoz.JournalViewModels
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanUpdate;
+					return config.PermissionResult.CanRead;
 				},
 				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),
 				(selected) => {
@@ -109,14 +110,6 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Add(selectAction);
 		}
 
-		private void HideJournal(ITdiTabParent parenTab)
-		{
-			if (TabParent is ITdiSliderTab slider)
-			{
-				slider.IsHideJournal = true;
-			}
-		}
-
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
 			CounterpartyJournalNode resultAlias = null;
 			Counterparty counterpartyAlias = null;
@@ -142,6 +135,29 @@ namespace Vodovoz.JournalViewModels
 
 			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
 				query.Where(c => !c.IsArchive);
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
+			{
+				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => counterpartyAlias.Name),
+					$"%{FilterViewModel.CounterpartyName}%"));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyPhone))
+			{
+				Phone counterpartyPhoneAlias = null;
+
+				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
+					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
+					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!String.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
+			{
+				query.Where(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone);
 			}
 
 			if(FilterViewModel?.CounterpartyType != null) {
@@ -181,12 +197,15 @@ namespace Vodovoz.JournalViewModels
 				query.JoinAlias(c => c.Tags, () => tagAliasForSubquery)
 					 .Where(() => tagAliasForSubquery.Id == FilterViewModel.Tag.Id);
 
+			if(FilterViewModel != null && FilterViewModel.IsForSalesDepartment != null)
+			{
+				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment);
+			}
+
 			query
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
-
-
 
 			var searchHealperNew = new TempAdapters.SearchHelper(Search);
 
@@ -208,25 +227,26 @@ namespace Vodovoz.JournalViewModels
 				compiledAdressParam
 			));
 
-			var counterpartyResultQuery = query.SelectList(list => list
-				   .SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
-				   .SelectGroup(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
-				   .Select(c => c.Name).WithAlias(() => resultAlias.Name)
-				   .Select(c => c.INN).WithAlias(() => resultAlias.INN)
-				   .Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
-				   .SelectSubQuery(contractsSubquery).WithAlias(() => resultAlias.Contracts)
-				   .Select(Projections.SqlFunction(
-					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
-					   NHibernateUtil.String,
-					   Projections.Property(() => phoneAlias.Number),
-					   Projections.Constant("\n"))
-					   ).WithAlias(() => resultAlias.Phones)
+			var counterpartyResultQuery = query
+				.SelectList(list => list
+					.SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
+					.SelectGroup(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
+					.Select(c => c.Name).WithAlias(() => resultAlias.Name)
+					.Select(c => c.INN).WithAlias(() => resultAlias.INN)
+					.Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
+					.SelectSubQuery(contractsSubquery).WithAlias(() => resultAlias.Contracts)
+					.Select(Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						Projections.Property(() => phoneAlias.Number),
+						Projections.Constant("\n"))
+					).WithAlias(() => resultAlias.Phones)
 					.Select(
 						Projections.Conditional(
 							Restrictions.Or(
-								Restrictions.Eq(Projections.Constant(true), userHaveAccessToRetail),
+								Restrictions.Eq(Projections.Constant(true), _userHaveAccessToRetail),
 								Restrictions.Not(Restrictions.Eq(Projections.Property(() => counterpartyAlias.IsForRetail), true))
-								),
+							),
 							Projections.Constant(true),
 							Projections.Constant(false)
 						)).WithAlias(() => resultAlias.Sensitive
@@ -234,8 +254,7 @@ namespace Vodovoz.JournalViewModels
 					.SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
 					.SelectSubQuery(tagsSubquery).WithAlias(() => resultAlias.Tags)
 				)
-				.TransformUsing(Transformers.AliasToBean<CounterpartyJournalNode>())
-				;
+				.TransformUsing(Transformers.AliasToBean<CounterpartyJournalNode>());
 
 			return counterpartyResultQuery;
 		};

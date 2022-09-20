@@ -5,9 +5,11 @@ using System.Text;
 using Gamma.GtkWidgets;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
@@ -19,8 +21,13 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Factories;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -49,14 +56,15 @@ namespace Vodovoz.ViewWidgets
 		{
 			//если новый недовоз без выбранного недовезённого заказа
 			if(UoW.IsNew && _undelivery.OldOrder == null)
-				//открыть окно выбора недовезённого заказа
-				yEForUndeliveredOrder.OpenSelectDialog("Выбор недовезённого заказа");
+			{//открыть окно выбора недовезённого заказа
+				evmeOldUndeliveredOrder.OpenSelectDialog("Выбор недовезённого заказа");
+			}
 		}
 
 		public void ConfigureDlg(IUnitOfWork uow, UndeliveredOrder undelivery)
 		{
 			Sensitive = false;
-			yEForUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
+			evmeOldUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
 
 			_canChangeProblemSource = _commonServices.PermissionService.ValidateUserPresetPermission("can_change_undelivery_problem_source", _commonServices.UserService.CurrentUserId);
 			_undelivery = undelivery;
@@ -77,15 +85,15 @@ namespace Vodovoz.ViewWidgets
 					);
 				}
 			}
-			var filterOrders = new OrdersFilter(UoW);
 			List<OrderStatus> hiddenStatusesList = new List<OrderStatus>();
 			var grantedStatusesArray = _orderRepository.GetStatusesForOrderCancelation();
 			foreach(OrderStatus status in Enum.GetValues(typeof(OrderStatus))) {
 				if(!grantedStatusesArray.Contains(status))
 					hiddenStatusesList.Add(status);
 			}
+			var filterOrders = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory());
 			filterOrders.SetAndRefilterAtOnce(x => x.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray());
-			yEForUndeliveredOrder.Changed += (sender, e) => {
+			evmeOldUndeliveredOrder.Changed += (sender, e) => {
 				_oldOrder = undelivery.OldOrder;
 				lblInfo.Markup = undelivery.GetOldOrderInfo(_orderRepository);
 				if(undelivery.Id <= 0)
@@ -100,9 +108,11 @@ namespace Vodovoz.ViewWidgets
 				GetFines();
 				RemoveItemsFromEnums();
 			};
-			yEForUndeliveredOrder.RepresentationModel = new OrdersVM(filterOrders);
-			yEForUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
-			yEForUndeliveredOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			var orderFactory = new OrderSelectorFactory(filterOrders);
+			evmeOldUndeliveredOrder.SetEntityAutocompleteSelectorFactory(orderFactory.CreateOrderAutocompleteSelectorFactory());
+			evmeOldUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
+			evmeOldUndeliveredOrder.CanEditReference =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yDateDriverCallTime.Binding.AddBinding(undelivery, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
 			if(undelivery.Id <= 0)
@@ -115,10 +125,16 @@ namespace Vodovoz.ViewWidgets
 			if(undelivery.Id <= 0)
 				yDateDispatcherCallTime.DateOrNull = DateTime.Now;
 
-			referenceNewDeliverySchedule.ItemsQuery = _deliveryScheduleRepository.AllQuery();
-			referenceNewDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule>(e => e.Name);
-			referenceNewDeliverySchedule.Binding.AddBinding(undelivery, s => s.NewDeliverySchedule, w => w.Subject).InitializeFromSource();
-			referenceNewDeliverySchedule.Sensitive = false;
+
+			var roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
+			var deliveryScheduleRepository = new DeliveryScheduleRepository();
+			var fileDialogService = new FileDialogService();
+			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
+			var deliveryScheduleJournalFactory = new DeliveryScheduleJournalFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, _roboatsViewModelFactory);
+			entryNewDeliverySchedule.SetEntityAutocompleteSelectorFactory(deliveryScheduleJournalFactory);
+			entryNewDeliverySchedule.Binding.AddBinding(undelivery, s => s.NewDeliverySchedule, w => w.Subject).InitializeFromSource();
+			entryNewDeliverySchedule.Sensitive = false;
 
 			SetLabelsAcordingToNewOrder();
 
@@ -133,8 +149,8 @@ namespace Vodovoz.ViewWidgets
 			yentInProcessAtDepartment.Binding.AddBinding(undelivery, d => d.InProcessAtDepartment, w => w.Subject).InitializeFromSource();
 			yentInProcessAtDepartment.ChangedByUser += (s, e) => {
 				undelivery.AddCommentToTheField(
-					UoW, 
-					CommentedFields.Reason, 
+					UoW,
+					CommentedFields.Reason,
 					String.Format(
 						"сменил(а) \"в работе у отдела\" \nс \"{0}\" на \"{1}\"",
 						_initialProcDepartmentName,
@@ -143,13 +159,14 @@ namespace Vodovoz.ViewWidgets
 				);
 			};
 
-			if(undelivery.Id <= 0)
+			if(undelivery.Id <= 0 && undelivery.InProcessAtDepartment == null)
 			{
 				yentInProcessAtDepartment.Subject = _subdivisionRepository.GetQCDepartment(UoW);
 			}
 
-			refRegisteredBy.RepresentationModel = new EmployeesVM(UoW);
-			refRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
+			var employeeFactory = new EmployeeJournalFactory();
+			evmeRegisteredBy.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
 
 			yEnumCMBDriverCallPlace.EnumItemSelected += CMBSelectedItemChanged;
 
@@ -214,7 +231,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			lblTransferDate.Text = _undelivery.NewOrder == null ?
 				"Заказ не\nсоздан" :
-				_undelivery.NewOrder.Title + " на сумму " + String.Format(CurrencyWorks.GetShortCurrencyString(_undelivery.NewOrder.TotalSum));
+				_undelivery.NewOrder.Title + " на сумму " + String.Format(CurrencyWorks.GetShortCurrencyString(_undelivery.NewOrder.OrderSum));
 			btnNewOrder.Label = _undelivery.NewOrder == null ? "Создать новый заказ" : "Открыть заказ";
 
 			SetVisibilities();
@@ -246,7 +263,7 @@ namespace Vodovoz.ViewWidgets
 			yEnumCMBDriverCallPlace.Sensitive =
 				yDateDriverCallTime.Sensitive =
 					yDateDispatcherCallTime.Sensitive =
-						refRegisteredBy.Sensitive =
+						evmeRegisteredBy.Sensitive =
 							vbxReasonAndFines.Sensitive = (
 								_undelivery.OldOrder != null
 								&& hasPermissionOrNew
@@ -270,14 +287,14 @@ namespace Vodovoz.ViewWidgets
 				;
 
 			//кнопки для выбора/создания нового заказа и группа "В работе у отдела"
-			//доступны всегда, если статус недовоза не "Закрыт"			 
+			//доступны всегда, если статус недовоза не "Закрыт"
 			hbxInProcessAtDepartment.Sensitive =
 				hbxForNewOrder.Sensitive = _undelivery.UndeliveryStatus != UndeliveryStatus.Closed;
 		}
 
 		void AddAutocomment()
 		{
-			#region удаление дублей из спсика виновных
+			#region удаление дублей из спсика ответственных
 			IList<GuiltyInUndelivery> guiltyTempList = new List<GuiltyInUndelivery>();
 			foreach(GuiltyInUndelivery g in _undelivery.ObservableGuilty)
 				guiltyTempList.Add(g);
@@ -286,7 +303,7 @@ namespace Vodovoz.ViewWidgets
 				_undelivery.ObservableGuilty.Add(g);
 			#endregion
 
-			#region формирование и добавление автокомментарния об изменении списка виновных
+			#region формирование и добавление автокомментарния об изменении списка ответственных
 			if(_undelivery.Id > 0) {
 				IList<GuiltyInUndelivery> removedGuiltyList = new List<GuiltyInUndelivery>();
 				IList<GuiltyInUndelivery> addedGuiltyList = new List<GuiltyInUndelivery>();
@@ -306,12 +323,12 @@ namespace Vodovoz.ViewWidgets
 				}
 				StringBuilder sb = new StringBuilder();
 				if(addedGuiltyList.Any()) {
-					sb.AppendLine("добавил(а) виновных:");
+					sb.AppendLine("добавил(а) ответственных:");
 					foreach(var a in addedGuiltyList)
 						sb.AppendLine(String.Format("\t- {0}", a));
 				}
 				if(removedGuiltyList.Any()) {
-					sb.AppendLine("удалил(а) виновных:");
+					sb.AppendLine("удалил(а) ответственных:");
 					foreach(var r in removedGuiltyList)
 						sb.AppendLine(String.Format("\t- {0}", r));
 				}
@@ -349,21 +366,22 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnChooseOrderClicked(object sender, EventArgs e)
 		{
-			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
+			var filter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory());
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCounterparty = _oldOrder.Client,
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
 			);
-			Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete") ? Buttons.All : (Buttons.Add | Buttons.Edit);
-			PermissionControlledRepresentationJournal dlg = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
-				Mode = JournalSelectMode.Single
-			};
+			var orderFactory = new OrderSelectorFactory(filter);
+			var orderJournal = orderFactory.CreateOrderJournalViewModel();
+			orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-			MyTab.TabParent.AddTab(dlg, MyTab, false);
+			MyTab.TabParent.AddTab(orderJournal, MyTab, false);
 
-			dlg.ObjectSelected += (s, ea) => {
-				var selectedId = ea.GetSelectedIds().FirstOrDefault();
-				if(selectedId == 0) {
+			orderJournal.OnEntitySelectedResult += (s, ea) =>
+			{
+				var selectedId = ea.SelectedNodes.FirstOrDefault()?.Id ?? 0;
+				if(selectedId == 0)
+				{
 					return;
 				}
 				if(_oldOrder.Id == selectedId) {
@@ -375,8 +393,8 @@ namespace Vodovoz.ViewWidgets
 				_newOrder.Author = this._oldOrder.Author;
 				SetLabelsAcordingToNewOrder();
 				_undelivery.NewDeliverySchedule = _newOrder.DeliverySchedule;
-				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) && 
-					(_oldOrder.OrderTotalSum == _newOrder.OrderTotalSum) &&
+				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) &&
+					(_oldOrder.OrderSum == _newOrder.OrderSum) &&
 					MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?")){
 					_newOrder.PaymentType = _oldOrder.PaymentType;
 					_newOrder.OnlineOrder = _oldOrder.OnlineOrder;
@@ -452,12 +470,12 @@ namespace Vodovoz.ViewWidgets
 				} else
 					return;
 			}
-			
+
 			FineDlg fineDlg;
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				fineDlg = new FineDlg(uow.GetById<UndeliveredOrder>(_undelivery.Id));
 			}
-			
+
 			MyTab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Fine>(_undelivery.Id),
 				() => fineDlg
@@ -467,11 +485,11 @@ namespace Vodovoz.ViewWidgets
 
 			if (address != null)
 				fineDlg.Entity.AddAddress(address);
-			
-			fineDlg.EntitySaved += (object sender2, QS.Tdi.EntitySavedEventArgs args) => { 
+
+			fineDlg.EntitySaved += (object sender2, QS.Tdi.EntitySavedEventArgs args) => {
 				_undelivery.Fines.Add(args.Entity as Fine);
 
-				GetFines(); 
+				GetFines();
 			};
 		}
 	}

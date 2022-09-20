@@ -6,7 +6,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Employees
@@ -17,6 +17,8 @@ namespace Vodovoz.Domain.Employees
 	[EntityPermission]
 	public class CarProxyDocument : ProxyDocument, IValidatableObject
 	{
+		ICounterpartyRepository counterpartyRepository = new CounterpartyRepository();
+
 		public virtual string Title {
 			get {
 				return String.Format("Доверенность на ТС № {0}", Id);
@@ -79,6 +81,17 @@ namespace Vodovoz.Domain.Employees
 				return;
 			}
 			DocumentTemplate = docTemplateRepository.GetFirstAvailableTemplate(uow, TemplateType.CarProxy, Organization);
+		}
+
+		public virtual string GetDealers()
+		{
+			List<string> dealers = new List<string>();
+			foreach(var dealer in counterpartyRepository.GetDealers())
+			{
+				dealers.Add($"{dealer.FullName} (ОГРН {dealer.OGRN})");
+			}
+
+			return string.Join(", ", dealers);
 		}
 
 		#region IValidatableObject implementation

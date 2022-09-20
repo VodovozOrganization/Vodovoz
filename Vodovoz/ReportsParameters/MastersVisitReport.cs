@@ -5,75 +5,67 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MastersVisitReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public MastersVisitReport(IEmployeeRepository employeeRepository)
+		public MastersVisitReport(IEmployeeJournalFactory employeeJournalFactory)
 		{
-			if(employeeRepository == null)
+			if(employeeJournalFactory == null)
 			{
-				throw new ArgumentNullException(nameof(employeeRepository));
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
 			}
-			
+
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryrefEmployee.ItemsQuery = employeeRepository.DriversQuery();
-			ButtonSensivity();
+			var driversFilter = new EmployeeFilterViewModel();
+			driversFilter.SetAndRefilterAtOnce(
+				x => x.Category = EmployeeCategory.driver,
+				x => x.Status = null);
+			employeeJournalFactory.SetEmployeeFilterViewModel(driversFilter);
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 		}
 
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчёт по выездам мастеров";
-			}
-		}
+		public string Title => "Отчёт по выездам мастеров";
 
 		#endregion
 
-		void OnUpdate(bool hide = false)
+		private ReportInfo GetReportInfo()
 		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
-		}
-
-		ReportInfo GetReportInfo()
-		{
-			return new ReportInfo {
+			return new ReportInfo
+			{
 				Identifier = "ServiceCenter.MastersVisitReport",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
 					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "master", (yentryrefEmployee.Subject as Employee).Id}
+					{ "master", evmeEmployee.SubjectId }
 				}
 			};
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
-			if(dateperiodpicker.StartDateOrNull == null) {
+			if(dateperiodpicker.StartDateOrNull == null)
+			{
 				MessageDialogHelper.RunErrorDialog("Необходимо выбрать дату");
 				return;
 			}
-			OnUpdate(true);
-		}
 
-		void ButtonSensivity()
-		{
-			buttonCreateReport.Sensitive = yentryrefEmployee.Subject != null;
-		}
-
-		protected void OnYentryrefEmployeeChanged(object sender, EventArgs e)
-		{
-			ButtonSensivity();
+			if(evmeEmployee.Subject == null)
+			{
+				MessageDialogHelper.RunErrorDialog("Необходимо выбрать сотрудника");
+				return;
+			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
 	}
 }

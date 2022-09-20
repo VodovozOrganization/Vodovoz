@@ -1,22 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Sale
 {
 	public class GeographicGroupRepository : IGeographicGroupRepository
 	{
-		private QueryOver<GeographicGroup> GeographicGroupsWithCoordinatesQuery()
+		public GeoGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
 		{
-			return QueryOver.Of<GeographicGroup>().Where(x => x.BaseLatitude != null && x.BaseLongitude != null);
-		}
-		
-		public GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
-		{
-			GeographicGroup gg = null;
+			GeoGroup gg = null;
 			
 			if(lat.HasValue && lon.HasValue)
 			{
@@ -28,11 +25,51 @@ namespace Vodovoz.EntityRepositories.Sale
 			return gg;
 		}
 
-		public IList<GeographicGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow)
+		public IList<GeoGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow)
 		{
-			return GeographicGroupsWithCoordinatesQuery()
-							.GetExecutableQueryOver(uow.Session)
-							.List();
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
+
+			var query = uow.Session.QueryOver(() => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias)
+				.Where(
+					Restrictions.Conjunction()
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLatitude)))
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLongitude)))
+				);
+			return query.List();
+		}
+
+		public IList<GeoGroupVersion> GetGeographicGroupVersionsOnDate(IUnitOfWork uow, DateTime date)
+		{
+			GeoGroupVersion geoGroupVersionAlias = null;
+
+			var query = uow.Session.QueryOver(() => geoGroupVersionAlias)
+				.Where(() => geoGroupVersionAlias.ActivationDate <= date)
+				.Where(() => geoGroupVersionAlias.ClosingDate >= date)
+				.Where(
+					Restrictions.Conjunction()
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLatitude)))
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLongitude)))
+				);
+			return query.List();
+		}
+
+		public IList<GeoGroup> GeographicGroupsWithCoordinatesExceptEast(
+			IUnitOfWork uow, IGeographicGroupParametersProvider geographicGroupParametersProvider)
+		{
+			GeoGroup geoGroupAlias = null;
+			GeoGroupVersion geoGroupVersionAlias = null;
+
+			var query = uow.Session.QueryOver(() => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias)
+				.Where(
+					Restrictions.Conjunction()
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLatitude)))
+						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLongitude)))
+				)
+				.Where(gg => gg.Id != geographicGroupParametersProvider.EastGeographicGroupId);
+			return query.List();
 		}
 	}
 }

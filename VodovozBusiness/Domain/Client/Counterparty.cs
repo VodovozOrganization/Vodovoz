@@ -19,6 +19,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
@@ -43,6 +44,9 @@ namespace Vodovoz.Domain.Client
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		public virtual IUnitOfWork UoW { get; set; }
+		private const int _cargoReceiverLimitSymbols = 500;
+		private bool _roboatsExclude;
+		private bool _isForSalesDepartment;
 
 		#region Свойства
 
@@ -220,6 +224,14 @@ namespace Vodovoz.Domain.Client
 		public virtual string KPP {
 			get => kPP;
 			set => SetField(ref kPP, value, () => KPP);
+		}
+
+		string oGRN;
+
+		[Display(Name = "ОГРН")]
+		public virtual string OGRN {
+			get => oGRN;
+			set => SetField(ref oGRN, value, () => OGRN);
 		}
 
 		string jurAddress;
@@ -445,13 +457,19 @@ namespace Vodovoz.Domain.Client
 
 		#region ОсобаяПечать
 		bool useSpecialDocFields;
-
-		[Display(Name = "Особая печать документов ")]
+		[Display(Name = "Особая печать документов")]
 		public virtual bool UseSpecialDocFields {
 			get => useSpecialDocFields;
 			set => SetField(ref useSpecialDocFields, value, () => UseSpecialDocFields);
 		}
 
+		bool alwaysPrintInvoice;
+		[Display(Name = "Всегда печатать накладную")]
+		public virtual bool AlwaysPrintInvoice
+		{
+			get => alwaysPrintInvoice;
+			set => SetField(ref alwaysPrintInvoice, value);
+		}
 		#region Особое требование срок годности
 		[Display(Name = "Особое требование: требуется срок годности")]
 		bool specialExpireDatePercentCheck;
@@ -644,6 +662,13 @@ namespace Vodovoz.Domain.Client
             set => SetField(ref isForRetail, value);
         }
 
+        [Display(Name = "Для отдела продаж")]
+        public virtual bool IsForSalesDepartment
+		{
+	        get => _isForSalesDepartment;
+	        set => SetField(ref _isForSalesDepartment, value);
+        }
+
         private bool noPhoneCall;
         [Display(Name = "Без прозвона")]
         public virtual bool NoPhoneCall
@@ -652,7 +677,14 @@ namespace Vodovoz.Domain.Client
             set => SetField(ref noPhoneCall, value);
         }
 
-        IList<SalesChannel> salesChannels = new List<SalesChannel>();
+		[Display(Name = "Исключение из Roboats звонков")]
+		public virtual bool RoboatsExclude
+		{
+			get => _roboatsExclude;
+			set => SetField(ref _roboatsExclude, value);
+		}
+
+		IList<SalesChannel> salesChannels = new List<SalesChannel>();
 		[PropertyChangedAlso(nameof(ObservableSalesChannels))]
 		[Display(Name = "Каналы сбыта")]
 		public virtual IList<SalesChannel> SalesChannels
@@ -740,6 +772,14 @@ namespace Vodovoz.Domain.Client
 					observableFiles = new GenericObservableList<CounterpartyFile>(Files);
 				return observableFiles;
 			}
+		}
+
+		private Organization _worksThroughOrganization;
+		[Display(Name = "Работает через организацию")]
+		public virtual Organization WorksThroughOrganization
+		{
+			get => _worksThroughOrganization;
+			set => SetField(ref _worksThroughOrganization, value);
 		}
 
 		#region Calculated Properties
@@ -927,6 +967,7 @@ namespace Vodovoz.Domain.Client
 			FullName = string.Empty;
 			Comment = string.Empty;
 			INN = string.Empty;
+			OGRN = string.Empty;
 			KPP = string.Empty;
 			JurAddress = string.Empty;
 			PhoneFrom1c = string.Empty;
@@ -974,6 +1015,11 @@ namespace Vodovoz.Domain.Client
 			
 			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver)) {
 				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
+			}
+			
+			if(CargoReceiver != null && CargoReceiver.Length > _cargoReceiverLimitSymbols) {
+				yield return new ValidationResult(
+					$"Длина строки \"Грузополучатель\" не должна превышать {_cargoReceiverLimitSymbols} символов");
 			}
 
 			if(CheckForINNDuplicate(counterpartyRepository))
@@ -1050,7 +1096,7 @@ namespace Vodovoz.Domain.Client
 						string.Format("Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {0}", CurrencyWorks.GetShortCurrencyString(deposit)));
 				}
 
-				var bottles = bottlesRepository.GetBottlesAtCounterparty(UoW, this);
+				var bottles = bottlesRepository.GetBottlesDebtAtCounterparty(UoW, this);
 				
 				if(bottles != 0)
 				{
@@ -1061,6 +1107,10 @@ namespace Vodovoz.Domain.Client
 
 			if(Id == 0 && CameFrom == null) {
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Откуда клиент\"");
+			}
+
+			if (CounterpartyType == CounterpartyType.Dealer && string.IsNullOrEmpty(OGRN)) {
+				yield return new ValidationResult("Для дилеров необходимо заполнить поле \"ОГРН\"");
 			}
 			
 			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
@@ -1075,6 +1125,28 @@ namespace Vodovoz.Domain.Client
 
 			if (TechnicalProcessingDelay > 0 && Files.Count == 0)
 				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
+
+			StringBuilder phonesValidationStringBuilder = new StringBuilder();
+			
+			foreach(var phone in Phones)
+			{
+				if(phone.RoboAtsCounterpartyName == null)
+				{
+					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано имя контрагента.");
+				}
+
+				if(phone.RoboAtsCounterpartyPatronymic == null)
+				{
+					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
+				}
+			}
+
+			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
+
+			if(!string.IsNullOrEmpty(phonesValidationMessage))
+			{
+				yield return new ValidationResult(phonesValidationMessage);
+			}
 		}
 
 		#endregion
@@ -1098,7 +1170,9 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Покупатель")]
 		Buyer,
 		[Display(Name = "Поставщик")]
-		Supplier
+		Supplier,
+		[Display(Name = "Дилер")]
+		Dealer
 	}
 
 	public class CounterpartyTypeStringType : NHibernate.Type.EnumStringType

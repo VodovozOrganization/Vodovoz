@@ -9,28 +9,29 @@ using Vodovoz.Domain.Complaints;
 using System.Diagnostics;
 using QS.Dialog;
 using Vodovoz.EntityRepositories;
+using QS.Project.Services.FileDialog;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintFilesViewModel : EntityWidgetViewModelBase<Complaint>
 	{
-		private readonly IFilePickerService _filePicker;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly IUserRepository _userRepository;
-		private bool readOnly;
+		private bool _readOnly;
 
 		public virtual bool ReadOnly {
-			get => readOnly;
-			set => SetField(ref readOnly, value, () => ReadOnly);
+			get => _readOnly;
+			set => SetField(ref _readOnly, value, () => ReadOnly);
 		}
 
 		public ComplaintFilesViewModel(
 			Complaint entity,
 			IUnitOfWork uow,
-			IFilePickerService filePicker,
+			IFileDialogService fileDialogService,
 			ICommonServices commonServices,
 			IUserRepository userRepository) : base(entity, commonServices)
 		{
-			_filePicker = filePicker ?? throw new ArgumentNullException(nameof(filePicker));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			UoW = uow;
 			CreateCommands();
@@ -55,12 +56,13 @@ namespace Vodovoz.ViewModels.Complaints
 			AddItemCommand = new DelegateCommand(
 				() =>
 				{
-					if(!_filePicker.OpenSelectFilePicker(out string[] filePaths))
+					var result = _fileDialogService.RunOpenFileDialog();
+					if(!result.Successful)
 					{
 						return;
 					}
 
-					foreach(var filePath in filePaths)
+					foreach(var filePath in result.Paths)
 					{
 						var complaintFile = new ComplaintFile
 						{
@@ -141,9 +143,14 @@ namespace Vodovoz.ViewModels.Complaints
 			LoadItemCommand = new DelegateCommand<ComplaintFile>(
 				(file) =>
 				{
-					if(_filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
+					var dialogSettings = new DialogSettings();
+					dialogSettings.Title = "Сохранить";
+					dialogSettings.FileName = file.FileStorageId;
+
+					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+					if(result.Successful)
 					{
-						File.WriteAllBytes(filePath, file.ByteFile);
+						File.WriteAllBytes(result.Path, file.ByteFile);
 					}
 				},
 				(file) => !ReadOnly);

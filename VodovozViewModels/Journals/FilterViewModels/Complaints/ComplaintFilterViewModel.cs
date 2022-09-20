@@ -11,7 +11,9 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.FilterViewModels
@@ -19,14 +21,16 @@ namespace Vodovoz.FilterViewModels
 	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
 		private readonly ICommonServices commonServices;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
-		
-		public ISubdivisionService SubdivisionService { get; set; }
+		private bool _isForSalesDepartment;
+
 		public IEmployeeService EmployeeService { get; set; }
 		
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
 		public ComplaintFilterViewModel()
 		{
@@ -40,26 +44,39 @@ namespace Vodovoz.FilterViewModels
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
 				x => x.ComplaintDiscussionStatus,
-				x => x.ComplaintObject
+				x => x.ComplaintObject,
+				x => x.CurrentUserSubdivision
 			);
 		}
 
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory
+			IEmployeeJournalFactory employeeSelectorFactory,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
+			ISubdivisionParametersProvider subdivisionParametersProvider
 		) {
+
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider)); ;
 			CounterpartySelectorFactory =
-				counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
+				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
+				.CreateCounterpartyAutocompleteSelectorFactory();
+			EmployeeSelectorFactory =
+				(employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory)))
+				.CreateWorkingEmployeeAutocompleteSelectorFactory();
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
 				subdivisionRepository,
-				employeeSelectorFactory,
-				UoW
+				employeeSelectorFactory.CreateEmployeeAutocompleteSelectorFactory(),
+				_subdivisionParametersProvider,
+				UoW,
+				true
 			);
+
+			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
+			CanChangeSubdivision = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_subdivision_on_complaint");
 
 			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => {
 				if (GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Employee)
@@ -82,9 +99,12 @@ namespace Vodovoz.FilterViewModels
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
 				x => x.ComplaintDiscussionStatus,
-				x => x.ComplaintObject
+				x => x.ComplaintObject,
+				x => x.CurrentUserSubdivision
 			);
 		}
+
+		public virtual bool CanChangeSubdivision { get; }
 
 		GuiltyItemViewModel guiltyItemVM;
 		public virtual GuiltyItemViewModel GuiltyItemVM {
@@ -96,6 +116,13 @@ namespace Vodovoz.FilterViewModels
 		public virtual ComplaintKind ComplaintKind {
 			get => complaintKind;
 			set => SetField(ref complaintKind, value);
+		}
+
+		private IList<Subdivision> allDepartments;
+		public IList<Subdivision> AllDepartments
+		{
+			get => allDepartments;
+			private set => SetField(ref allDepartments, value);
 		}
 
 		public virtual ComplaintObject ComplaintObject
@@ -158,7 +185,7 @@ namespace Vodovoz.FilterViewModels
 		public virtual Subdivision Subdivision {
 			get => subdivision;
 			set {
-				if(value?.Id == SubdivisionService?.GetOkkId())
+				if(value?.Id == _subdivisionParametersProvider?.GetOkkId())
 					ComplaintStatus = ComplaintStatuses.Checking;
 
 				SetField(ref subdivision, value);
@@ -184,6 +211,18 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref isForRetail, value);
 		}
 
+		public bool IsForSalesDepartment
+		{
+			get => _isForSalesDepartment;
+			set
+			{
+				if(SetField(ref _isForSalesDepartment, value))
+				{
+					GuiltyItemVM.IsForSalesDepartment = value;
+				}
+			}
+		}
+
 		public void SelectMyComplaint()
 		{
 			if(EmployeeService == null)
@@ -205,26 +244,6 @@ namespace Vodovoz.FilterViewModels
 
 		public IEnumerable<ComplaintObject> ComplaintObjectSource => 
 			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().ToList());
-
-		public ReportInfo GetReportInfo()
-		{
-			return new ReportInfo {
-				Title = "Рекламации",
-				Identifier = "Complaints",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "subdivision_id", Subdivision?.Id ?? 0},
-					{ "start_date", StartDate ?? null},
-					{ "end_date", EndDate},
-					{ "employee_id", Employee?.Id ?? 0},
-					{ "status", ComplaintStatus?.ToString() ?? String.Empty},
-					{ "date_type", filterDateType},
-					{ "type", ComplaintType?.ToString() ?? String.Empty},
-					{ "guilty_type", guiltyItemVM.Entity.GuiltyType?.ToString() ?? String.Empty},
-					{ "complaint_kind", complaintKind?.Name ?? String.Empty}
-				}
-			};
-		}
 	}
 
 	public enum DateFilterType

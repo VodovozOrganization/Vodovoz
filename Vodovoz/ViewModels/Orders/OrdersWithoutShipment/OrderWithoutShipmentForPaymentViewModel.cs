@@ -1,28 +1,29 @@
-﻿using System;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using QS.Services;
-using QS.ViewModels;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.Orders;
-using System.Data.Bindings.Collections.Generic;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Services;
 using QS.Tdi;
+using QS.ViewModels;
 using QSOrmProject;
 using QSReport;
+using System;
+using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
@@ -85,7 +86,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			EntityUoWBuilder = uowBuilder;
 			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(), currentEmployee, commonServices.InteractiveService, _parametersProvider, UoW);
+				new EmailRepository(), new EmailParametersProvider(new ParametersProvider()), currentEmployee, commonServices.InteractiveService, UoW);
 			
 			ObservableNodes = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 		}

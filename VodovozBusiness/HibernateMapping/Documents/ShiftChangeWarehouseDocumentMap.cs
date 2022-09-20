@@ -10,6 +10,10 @@ namespace Vodovoz.HibernateMapping.Documents
 			Table("store_shiftchange");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
+
+			OptimisticLock.Version();
+			Version(x => x.Version).Column("version");
+
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.TimeStamp).Column("time_stamp");
 			Map(x => x.LastEditedTime).Column("last_edit_time");

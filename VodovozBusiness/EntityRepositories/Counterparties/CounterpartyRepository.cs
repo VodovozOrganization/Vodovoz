@@ -95,7 +95,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.List<string>();
 		}
 
-		public PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld };
+		public PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.cash };
 
 		public PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.cashless, PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
 
@@ -130,6 +130,18 @@ namespace Vodovoz.EntityRepositories.Counterparties
 						   .TransformUsing(Transformers.AliasToBean<CounterpartyTo1CNode>())
 						   .List<CounterpartyTo1CNode>();
 			return query.Where(x => !String.IsNullOrEmpty(x.EMails) || !String.IsNullOrEmpty(x.Phones)).ToList();
+		}
+
+		public IList<Counterparty> GetDealers()
+		{
+			IList<Counterparty> result;
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение списка адресов имеющих фиксированную цену"))
+			{
+				result = uow.Session.QueryOver<Counterparty>()
+				   .Where(c => c.CounterpartyType == CounterpartyType.Dealer)
+				   .List<Counterparty>();
+			}
+			return result;
 		}
 	}
 }

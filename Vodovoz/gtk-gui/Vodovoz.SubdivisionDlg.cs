@@ -8,6 +8,8 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDefaultSalesPlan;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeChief;
+
 		private global::Gtk.Frame frmWarehoses;
 
 		private global::Gtk.Alignment GtkAlignment4;
@@ -78,8 +80,6 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryreferenceChief;
-
 		private global::Gamma.Widgets.yEntryReference yentryrefParentSubdivision;
 
 		private global::Gamma.GtkWidgets.yEntry yentryShortName;
@@ -94,7 +94,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.SubdivisionDlg";
 			// Container child Vodovoz.SubdivisionDlg.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(8)), ((uint)(3)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -110,6 +109,19 @@ namespace Vodovoz
 			w1.RightAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.evmeChief = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeChief.Events = ((global::Gdk.EventMask)(256));
+			this.evmeChief.Name = "evmeChief";
+			this.evmeChief.CanEditReference = true;
+			this.table1.Add(this.evmeChief);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeChief]));
+			w2.TopAttach = ((uint)(3));
+			w2.BottomAttach = ((uint)(4));
+			w2.LeftAttach = ((uint)(1));
+			w2.RightAttach = ((uint)(2));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.frmWarehoses = new global::Gtk.Frame();
 			this.frmWarehoses.Name = "frmWarehoses";
@@ -133,12 +145,12 @@ namespace Vodovoz
 			this.GtkLabel8.UseMarkup = true;
 			this.frmWarehoses.LabelWidget = this.GtkLabel8;
 			this.table1.Add(this.frmWarehoses);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.frmWarehoses]));
-			w4.TopAttach = ((uint)(2));
-			w4.BottomAttach = ((uint)(6));
-			w4.LeftAttach = ((uint)(2));
-			w4.RightAttach = ((uint)(3));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.frmWarehoses]));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(6));
+			w5.LeftAttach = ((uint)(2));
+			w5.RightAttach = ((uint)(3));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
@@ -169,8 +181,8 @@ namespace Vodovoz
 			this.repTreeChildSubdivisions.Name = "repTreeChildSubdivisions";
 			this.GtkScrolledWindow2.Add(this.repTreeChildSubdivisions);
 			this.notebook1.Add(this.GtkScrolledWindow2);
-			global::Gtk.Notebook.NotebookChild w7 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.GtkScrolledWindow2]));
-			w7.Position = 1;
+			global::Gtk.Notebook.NotebookChild w8 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.GtkScrolledWindow2]));
+			w8.Position = 1;
 			// Notebook tab
 			this.labelChildSubdivizions = new global::Gtk.Label();
 			this.labelChildSubdivizions.Name = "labelChildSubdivizions";
@@ -191,8 +203,8 @@ namespace Vodovoz
 			this.ytreeviewDocuments.Name = "ytreeviewDocuments";
 			this.GtkScrolledWindow4.Add(this.ytreeviewDocuments);
 			this.vboxDocuments.Add(this.GtkScrolledWindow4);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.GtkScrolledWindow4]));
-			w9.Position = 0;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.GtkScrolledWindow4]));
+			w10.Position = 0;
 			// Container child vboxDocuments.Gtk.Box+BoxChild
 			this.hbox5 = new global::Gtk.HBox();
 			this.hbox5.Name = "hbox5";
@@ -204,10 +216,10 @@ namespace Vodovoz
 			this.buttonAddDocument.UseUnderline = true;
 			this.buttonAddDocument.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			this.hbox5.Add(this.buttonAddDocument);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonAddDocument]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonAddDocument]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.buttonDeleteDocument = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDeleteDocument.CanFocus = true;
@@ -215,18 +227,18 @@ namespace Vodovoz
 			this.buttonDeleteDocument.UseUnderline = true;
 			this.buttonDeleteDocument.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hbox5.Add(this.buttonDeleteDocument);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonDeleteDocument]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
-			this.vboxDocuments.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.hbox5]));
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonDeleteDocument]));
 			w12.Position = 1;
 			w12.Expand = false;
 			w12.Fill = false;
+			this.vboxDocuments.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.hbox5]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.notebook1.Add(this.vboxDocuments);
-			global::Gtk.Notebook.NotebookChild w13 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxDocuments]));
-			w13.Position = 2;
+			global::Gtk.Notebook.NotebookChild w14 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxDocuments]));
+			w14.Position = 2;
 			// Notebook tab
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
@@ -238,8 +250,8 @@ namespace Vodovoz
 			this.vboxPresetPermissions.Name = "vboxPresetPermissions";
 			this.vboxPresetPermissions.Spacing = 6;
 			this.notebook1.Add(this.vboxPresetPermissions);
-			global::Gtk.Notebook.NotebookChild w14 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxPresetPermissions]));
-			w14.Position = 3;
+			global::Gtk.Notebook.NotebookChild w15 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxPresetPermissions]));
+			w15.Position = 3;
 			// Notebook tab
 			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
@@ -413,17 +425,6 @@ namespace Vodovoz
 			w32.LeftAttach = ((uint)(1));
 			w32.RightAttach = ((uint)(2));
 			w32.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yentryreferenceChief = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yentryreferenceChief.Events = ((global::Gdk.EventMask)(256));
-			this.yentryreferenceChief.Name = "yentryreferenceChief";
-			this.table1.Add(this.yentryreferenceChief);
-			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryreferenceChief]));
-			w33.TopAttach = ((uint)(3));
-			w33.BottomAttach = ((uint)(4));
-			w33.LeftAttach = ((uint)(1));
-			w33.RightAttach = ((uint)(2));
-			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryrefParentSubdivision = new global::Gamma.Widgets.yEntryReference();
 			this.yentryrefParentSubdivision.Events = ((global::Gdk.EventMask)(256));

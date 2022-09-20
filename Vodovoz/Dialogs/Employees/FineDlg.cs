@@ -3,6 +3,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Dialogs;
 using QSOrmProject;
 using Vodovoz.Domain;
@@ -10,8 +11,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewers;
-using Vodovoz.ViewModel;
 using QS.Project.Services;
+using QS.ViewModels.Extension;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -19,10 +20,12 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
-	public partial class FineDlg : QS.Dialog.Gtk.EntityDialogBase<Fine>
+	public partial class FineDlg : QS.Dialog.Gtk.EntityDialogBase<Fine>, IAskSaveOnCloseViewModel
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -33,6 +36,14 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Fine> ();
+			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Author == null)
+			{
+				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику. Невозможно создать штраф"
+				                                   + ", т.к. некого указать в качестве автора");
+				FailInitialize = true;
+				return;
+			}
 			ConfigureDlg ();
 		}
 
@@ -54,17 +65,20 @@ namespace Vodovoz
 		public FineDlg(decimal money, RouteList routeList, string reasonString, DateTime date, params Employee[] employees) : this()
 		{
 			Entity.Fill(money, routeList, reasonString, date, employees);
+			UpdateDateEditable();
 		}
 
 		public FineDlg(decimal money, RouteList routeList) : this(money, routeList.Driver)
 		{
 			Entity.RouteList = routeList;
 			Entity.Date = routeList.Date;
+			UpdateDateEditable();
 		}
 
 		public FineDlg(RouteList routeList) : this(default(decimal), routeList.Driver)
 		{
 			Entity.RouteList = routeList;
+			UpdateDateEditable();
 		}
 
 		public FineDlg(UndeliveredOrder undeliveredOrder) : this()
@@ -72,6 +86,7 @@ namespace Vodovoz
 			Entity.UndeliveredOrder = undeliveredOrder;
 			var RouteList = _routeListItemRepository.GetRouteListItemForOrder(UoW, undeliveredOrder.OldOrder)?.RouteList;
 			Entity.RouteList = RouteList;
+			UpdateDateEditable();
 		}
 
 		public FineDlg (int id)
@@ -85,46 +100,86 @@ namespace Vodovoz
 		{
 		}
 
-		void ConfigureDlg ()
+		private bool CanEdit => permissionResult.CanUpdate || (permissionResult.CanCreate && Entity.Id == 0);
+		
+		#region IAskSaveOnCloseViewModel
+
+		public bool AskSaveOnClose => CanEdit;
+
+		#endregion
+		
+		private void ConfigureDlg()
 		{
+			buttonSave.Sensitive = CanEdit;
+			btnCancel.Clicked += (sender, args) => OnCloseTab(AskSaveOnClose, CloseSource.Cancel); 
+			buttonDivideAtAll.Sensitive = CanEdit;
+			buttonGetReasonFromTemplate.Sensitive = CanEdit;
+			
 			enumFineType.ItemsEnum = typeof(FineTypes);
-			enumFineType.Binding.AddBinding(Entity, s => s.FineType, w => w.SelectedItem).InitializeFromSource();
+			enumFineType.Sensitive = CanEdit;
+			enumFineType.Binding
+				.AddBinding(Entity, s => s.FineType, w => w.SelectedItem)
+				.InitializeFromSource();
 
-			yspinLiters.Binding.AddBinding(Entity, s => s.LitersOverspending, w => w.ValueAsDecimal);
+			yspinLiters.Sensitive = CanEdit;
+			yspinLiters.Binding
+				.AddBinding(Entity, s => s.LitersOverspending, w => w.ValueAsDecimal);
 
-			ylabelDate.Binding.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp).InitializeFromSource();
-			yspinMoney.Binding.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal).InitializeFromSource();
-			yentryFineReasonString.Binding.AddBinding(Entity, e => e.FineReasonString, w => w.Text).InitializeFromSource();
+			ylabelAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.LabelProp,
+				new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
+
+			ylabelDate.Binding
+				.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp)
+				.InitializeFromSource();
+
+			ydatepicker.Binding
+				.AddBinding(Entity, e => e.Date, w => w.Date)
+				.InitializeFromSource();
+			ydatepicker.IsEditable = true;
+
+			yspinMoney.Binding
+				.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			yentryFineReasonString.Sensitive = CanEdit;
+			yentryFineReasonString.Binding
+				.AddBinding(Entity, e => e.FineReasonString, w => w.Text)
+				.InitializeFromSource();
 			fineitemsview1.FineUoW = UoWGeneric;
+			fineitemsview1.Sensitive = CanEdit;
 
 			var filterRouteList = new RouteListsFilter(UoW);
 			filterRouteList.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRouteList);
-			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryreferenceRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			yentryreferenceRouteList.Sensitive = CanEdit;
+			yentryreferenceRouteList.Binding
+				.AddBinding(Entity, e => e.RouteList, w => w.Subject)
+				.InitializeFromSource();
+			yentryreferenceRouteList.CanEditReference =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
-			yentryAuthor.RepresentationModel = new EmployeesVM();
-            yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
 			
             UpdateControlsState();
 			ShowLiters();
+
+			ylabelDate.Visible = !UoW.IsNew;
+			UpdateDateEditable();
+		}
+
+		private void UpdateDateEditable()
+		{
+			var dateEditable = UoW.IsNew && Entity.RouteList == null;
+			ydatepicker.Visible = dateEditable;
+			ylabelDate.Visible = !dateEditable;
 		}
 
 		void ObservableItems_ListChanged(object aList)
 		{
-			enumFineType.Sensitive = !(Entity.ObservableItems.Count() > 1);
+			enumFineType.Sensitive = !(Entity.ObservableItems.Count() > 1) && CanEdit;
 		}
 
 		public override bool Save ()
 		{
-            Employee author;
-            if (!GetAuthor(out author)) return false;
-
-            if (Entity.Author == null)
-            {
-                Entity.Author = author;
-            }
 			var valid = new QS.Validation.QSValidator<Fine> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -171,8 +226,8 @@ namespace Vodovoz
 				case FineTypes.Standart:
 					fineitemsview1.IsFuelOverspending = false;
 					buttonDivideAtAll.Visible = true;
-					yspinMoney.IsEditable = true;
-					yspinMoney.Sensitive = true;
+					yspinMoney.IsEditable = CanEdit;
+					yspinMoney.Sensitive = CanEdit;
 					labelOverspending.Visible = false;
 					yspinLiters.Visible = false;
 					labelRequestRouteList.Visible = false;
@@ -187,9 +242,13 @@ namespace Vodovoz
 					buttonGetReasonFromTemplate.Visible = false;
 					yentryFineReasonString.Text = Entity.FineType.GetEnumTitle();
 					labelRequestRouteList.Visible = yentryreferenceRouteList.Subject == null;
-					if(Entity.RouteList != null) {
+					
+					if(Entity.RouteList != null)
+					{
 						ClearItems(Entity.RouteList.Driver);
-					}else {
+					}
+					else
+					{
 						ClearItems();
 					}
 					break;
@@ -227,7 +286,6 @@ namespace Vodovoz
 		{
 			UpdateControlsState();
 			CalculateMoneyFromLiters();
-
 		}
 
 		private void ClearItems(Employee driver = null)
@@ -253,18 +311,6 @@ namespace Vodovoz
 				CalculateMoneyFromLiters();
 			}
 		}
-
-        private bool GetAuthor(out Employee cashier)
-        {
-            cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-            if (cashier == null)
-            {
-                MessageDialogHelper.RunErrorDialog(
-                    "Ваш пользователь не привязан к действующему сотруднику.");
-                return false;
-            }
-            return true;
-        }
 
 		protected void OnBtnShowUndeliveryClicked(object sender, EventArgs e)
 		{
@@ -292,7 +338,9 @@ namespace Vodovoz
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),
 				new OrderSelectorFactory(),
-				new UndeliveredOrdersRepository()
+				new UndeliveredOrdersRepository(),
+				new EmployeeSettings(new ParametersProvider()),
+				new SubdivisionParametersProvider(new ParametersProvider())
 				);
 
 			TabParent.AddSlaveTab(this, dlg);

@@ -78,9 +78,9 @@ namespace Vodovoz.Domain.Sale
 			set => SetField(ref wageDistrict, value);
 		}
 		
-		private GeographicGroup geographicGroup;
+		private GeoGroup geographicGroup;
 		[Display(Name = "Часть города")]
-		public virtual GeographicGroup GeographicGroup {
+		public virtual GeoGroup GeographicGroup {
 			get => geographicGroup;
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
 		}
@@ -591,7 +591,7 @@ namespace Vodovoz.Domain.Sale
 			}
 			if(ObservableTodayDeliveryScheduleRestrictions.Any(i => i.AcceptBefore == null)) {
 				yield return new ValidationResult(
-					$"Для графиков доставки для района \"{DistrictName}\" должно быть указано время приема до"
+					$"Для графиков доставки \"день в день\" для района \"{DistrictName}\" должно быть указано время приема до"
 				);
 			}
 		}

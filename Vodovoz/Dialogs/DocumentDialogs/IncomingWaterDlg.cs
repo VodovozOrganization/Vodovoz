@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
@@ -21,6 +22,10 @@ using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
 {
@@ -29,8 +34,6 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly IEntityAutocompleteSelectorFactory _warehouseAutocompleteSelectorFactory =
-			new WarehouseSelectorFactory();
 
 		public IncomingWaterDlg()
 		{
@@ -89,9 +92,16 @@ namespace Vodovoz
 				sourceWarehouseEntry.CanEditReference = destinationWarehouseEntry.CanEditReference = true;
 			}
 
-			sourceWarehouseEntry.SetEntityAutocompleteSelectorFactory(_warehouseAutocompleteSelectorFactory);
+			var availableWarehousesIds = StoreDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissions.IncomingWaterEdit);
+			var warehouseFilter = new WarehouseJournalFilterViewModel
+			{
+				IncludeWarehouseIds = availableWarehousesIds
+			};
+			var warehouseAutocompleteSelectorFactory = new WarehouseSelectorFactory(warehouseFilter);
+			
+			sourceWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
 			sourceWarehouseEntry.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
-			destinationWarehouseEntry.SetEntityAutocompleteSelectorFactory(_warehouseAutocompleteSelectorFactory);
+			destinationWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
 			destinationWarehouseEntry.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
@@ -118,16 +128,13 @@ namespace Vodovoz
 			var nomenclatureFilter = new NomenclatureFilterViewModel() { HidenByDefault = true };
 			var nomenclatureRepository = 
 				new EntityRepositories.Goods.NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
-			var counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
-					ServicesConfig.CommonServices);
-			
 			var nomenclatureAutoCompleteSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices,
 					nomenclatureFilter,
-					counterpartySelectorFactory,
+					counterpartyJournalFactory,
 					nomenclatureRepository,
 					_userRepository
 				);

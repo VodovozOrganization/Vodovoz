@@ -13,12 +13,14 @@ using QSReport;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.ViewModel;
 using System.Linq;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using QS.Project.Services;
+using QS.Dialog;
 
 namespace Vodovoz.Reports
 {
@@ -55,12 +57,14 @@ namespace Vodovoz.Reports
 			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
 			dateEnd.Date = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
 
-			var filterCasher = new EmployeeRepresentationFilterViewModel();
-			filterCasher.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
-			filterCasher.Status = EmployeeStatus.IsWorking;
-			yentryrefCasher.RepresentationModel = new EmployeesVM(filterCasher);
+			var officeFilter = new EmployeeFilterViewModel();
+			officeFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.office);
+			var employeeFactory = new EmployeeJournalFactory(officeFilter);
+			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
 
-			yentryrefEmployee.RepresentationModel = new EmployeesVM();
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 
 			var recurciveConfig = OrmMain.GetObjectDescription<ExpenseCategory>().TableView.RecursiveTreeConfig;
 			var list = categoryRepository.ExpenseCategories(UoW);
@@ -116,8 +120,16 @@ namespace Vodovoz.Reports
 
 		#endregion
 
-		void OnUpdate (bool hide = false) => 
-			LoadReport?.Invoke (this, new LoadReportEventArgs (GetReportInfo (), hide));
+		void OnUpdate(bool hide = false)
+		{
+			if(!UserSubdivisions.Any())
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "Пользователь не имеет доступа к кассам. Отчет сформировать невозможно.");
+				return;
+			}
+
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+		}
 
 		protected void OnButtonRunClicked (object sender, EventArgs e) => OnUpdate (true);
 
@@ -197,10 +209,10 @@ namespace Vodovoz.Reports
 			else
 				ids.Add(0); //Add fake value
 
-			int casherId = yentryrefCasher.Subject == null ? -1 : (yentryrefCasher.Subject as Employee).Id;
-			var casherName = yentryrefCasher.Subject == null ? "" : (yentryrefCasher.Subject as Employee).ShortName;
-			int employeeId = yentryrefEmployee.Subject == null ? -1 : (yentryrefEmployee.Subject as Employee).Id;
-			var employeeName = yentryrefEmployee.Subject == null ? "" : (yentryrefEmployee.Subject as Employee).ShortName;
+			var casherId = evmeCashier.Subject == null ? -1 : evmeCashier.SubjectId;
+			var casherName = evmeCashier.Subject == null ? "" : ((Employee)evmeCashier.Subject).ShortName;
+			var employeeId = evmeEmployee.Subject == null ? -1 : evmeEmployee.SubjectId;
+			var employeeName = evmeEmployee.Subject == null ? "" : ((Employee)evmeEmployee.Subject).ShortName;
 
 			IEnumerable<int> cashSubdivisions;
 			IEnumerable<int> organisations;

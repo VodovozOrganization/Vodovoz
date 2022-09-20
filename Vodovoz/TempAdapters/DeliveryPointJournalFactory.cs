@@ -1,10 +1,14 @@
 ﻿using System;
+using Fias.Service;
+using Fias.Service.Cache;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -13,11 +17,17 @@ namespace Vodovoz.TempAdapters
 	public class DeliveryPointJournalFactory : IDeliveryPointJournalFactory
 	{
 		private DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter;
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory = new DeliveryPointViewModelFactory();
+		
+		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 
 		public DeliveryPointJournalFactory(DeliveryPointJournalFilterViewModel deliveryPointJournalFilter = null)
 		{
-			_deliveryPointJournalFilter = deliveryPointJournalFilter;
+			_deliveryPointJournalFilter = deliveryPointJournalFilter; 
+			IParametersProvider parametersProvider = new ParametersProvider();
+			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
+			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
+			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
+			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
 		}
 
 		public void SetDeliveryPointJournalFilterViewModel(DeliveryPointJournalFilterViewModel filter)

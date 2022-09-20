@@ -1,36 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gamma.Widgets;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.Logistic;
-using Vodovoz.EntityRepositories;
 using QS.Project.Services;
 using Gamma.ColumnConfig;
 using System.ComponentModel;
 using Gamma.GtkWidgets;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Gamma.Widgets.Additions;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered(true)]
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class RouteListsFilter : RepresentationFilterBase<RouteListsFilter>
 	{
 		private bool _showDriversWithTerminal;
-		private bool _hasAccessToDriverTerminal;
+		private RouteListStatus[] _onlyStatuses;
+
+		private EnumsListConverter<CarTypeOfUse> _carTypeOfUseConverter;
+		private EnumsListConverter<CarOwnType> _carOwnTypeConverter;
 
 		protected override void ConfigureWithUow()
 		{
 			SetAndRefilterAtOnce(
 				x => x.yentryreferenceShift.SubjectType = typeof(DeliveryShift),
-				x => x.yEnumCmbTransport.ItemsEnum = typeof(RLFilterTransport),
-				x => x.ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeographicGroup>().List()
+				x => x.enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse),
+				x => x.enumcheckCarTypeOfUse.SelectAll(),
+				x => x.enumcheckCarOwnType.EnumType = typeof(CarOwnType),
+				x => x.enumcheckCarOwnType.SelectAll(),
+				x => x.ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeoGroup>().List()
 			);
+
+			_carTypeOfUseConverter = new EnumsListConverter<CarTypeOfUse>();
+			_carOwnTypeConverter = new EnumsListConverter<CarOwnType>();
+
+			enumcheckCarTypeOfUse.CheckStateChanged += (sender, args) => OnRefiltered();
+			enumcheckCarOwnType.CheckStateChanged += (sender, args) => OnRefiltered();
+
+			ySpecCmbGeographicGroup.Changed += OnYSpecCmbGeographicGroupChanged;
+			yentryreferenceShift.Changed += OnYentryreferenceShiftChanged;
+			dateperiodOrders.PeriodChanged += OnDateperiodOrdersPeriodChanged;
+			buttonStatusNone.Clicked += OnButtonStatusNoneClicked;
+			buttonStatusAll.Clicked += OnButtonStatusAllClicked;
+
 			LoadAddressesTypesDefaults();
 			LoadRouteListStatusesDefaults();
 		}
@@ -42,11 +60,11 @@ namespace Vodovoz
 
 		public RouteListsFilter()
 		{
-			this.Build();
+			Build();
 
-			_hasAccessToDriverTerminal = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier") ||
-							             ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-			checkDriversWithAttachedTerminals.Sensitive = _hasAccessToDriverTerminal;
+			var hasAccessToDriverTerminal = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier")
+				|| ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			checkDriversWithAttachedTerminals.Sensitive = hasAccessToDriverTerminal;
 			checkDriversWithAttachedTerminals.Toggled += (sender, args) => { ShowDriversWithTerminal = ((yCheckButton)sender).Active; };
 		}
 
@@ -92,24 +110,34 @@ namespace Vodovoz
 			}
 		}
 
-		public GeographicGroup RestrictGeographicGroup {
-			get => ySpecCmbGeographicGroup.SelectedItem as GeographicGroup;
+		public GeoGroup RestrictGeographicGroup {
+			get => ySpecCmbGeographicGroup.SelectedItem as GeoGroup;
 			set {
 				ySpecCmbGeographicGroup.SelectedItem = value;
 				ySpecCmbGeographicGroup.Sensitive = false;
 			}
 		}
 
-		RouteListStatus[] onlyStatuses;
+		public IList<CarTypeOfUse> RestrictedCarTypesOfUse
+		{
+			get => (IList<CarTypeOfUse>)_carTypeOfUseConverter.ConvertBack(enumcheckCarTypeOfUse.SelectedValuesList, null, null, null);
+			set => enumcheckCarTypeOfUse.SelectedValuesList = (IList<Enum>)_carTypeOfUseConverter.Convert(value, null, null, null);
+		}
+
+		public IList<CarOwnType> RestrictedCarOwnTypes
+		{
+			get => (IList<CarOwnType>)_carOwnTypeConverter.ConvertBack(enumcheckCarOwnType.SelectedValuesList, null, null, null);
+			set => enumcheckCarOwnType.SelectedValuesList = (IList<Enum>)_carOwnTypeConverter.Convert(value, null, null, null);
+		}
 
 		/// <summary>
 		/// Показывать только МЛ со статусом из массива
 		/// </summary>
 		/// <value>массив отображаемых статусов</value>
 		public RouteListStatus[] OnlyStatuses {
-			get => onlyStatuses;
+			get => _onlyStatuses;
 			set{
-				onlyStatuses = value;
+				_onlyStatuses = value;
 				UpdateAvailableStatuses();
 				SelectedStatuses = value;
 			}
@@ -172,7 +200,7 @@ namespace Vodovoz
 			RouteListStatuses.Clear();
 
 			foreach(RouteListStatus status in Enum.GetValues(typeof(RouteListStatus))) {
-				if(!onlyStatus || onlyStatuses.Contains(status)) {
+				if(!onlyStatus || _onlyStatuses.Contains(status)) {
 					RouteListStatuses.Add(new RouteListStatusNode(status));
 				}
 			}
@@ -217,11 +245,6 @@ namespace Vodovoz
 
 		public bool WithChainStoreAddresses => AddressTypes.Any(x => x.AddressType == AddressType.ChainStore && x.Selected);
 
-		protected void OnEnumcomboStatusEnumItemSelected(object sender, ItemSelectedEventArgs e)
-		{
-			OnRefiltered();
-		}
-
 		protected void OnDateperiodOrdersPeriodChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
@@ -236,20 +259,6 @@ namespace Vodovoz
 		{
 			dateperiodOrders.StartDateOrNull = startDate;
 			dateperiodOrders.EndDateOrNull = endDate;
-		}
-
-		//возврат выбранного значения в списке ТС и засерение списка в случае программной установки значения
-		public RLFilterTransport? RestrictTransport {
-			get { return yEnumCmbTransport.SelectedItem as RLFilterTransport?; }
-			set {
-				yEnumCmbTransport.SelectedItemOrNull = value;
-				yEnumCmbTransport.Sensitive = false;
-			}
-		}
-
-		protected void OnYEnumCmbTransportChangedByUser(object sender, EventArgs e)
-		{
-			OnRefiltered();
 		}
 
 		protected void OnYSpecCmbGeographicGroupChanged(object sender, EventArgs e)

@@ -6,7 +6,6 @@ using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -36,8 +35,7 @@ namespace Vodovoz.TempAdapters
 		private ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private IEmployeePostsJournalFactory _employeePostsJournalFactory;
 		private ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
-		private ISubdivisionService _subdivisionService;
-		private IEmailServiceSettingAdapter _emailServiceSettingAdapter;
+		private ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private IWageCalculationRepository _wageCalculationRepository;
 		private IEmployeeRepository _employeeRepository;
 		private IValidationContextFactory _validationContextFactory;
@@ -74,9 +72,8 @@ namespace Vodovoz.TempAdapters
 		{
 			_cashDistributionCommonOrganisationProvider =
 				new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-		
-			_subdivisionService = SubdivisionParametersProvider.Instance;
-			_emailServiceSettingAdapter = new EmailServiceSettingAdapter();
+
+			_subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 			_wageCalculationRepository = new WageCalculationRepository();
 			_employeeRepository = new EmployeeRepository();
 			_warehouseRepository = new WarehouseRepository();
@@ -95,8 +92,7 @@ namespace Vodovoz.TempAdapters
 				_subdivisionJournalFactory,
 				_employeePostsJournalFactory,
 				_cashDistributionCommonOrganisationProvider,
-				_subdivisionService,
-				_emailServiceSettingAdapter,
+				_subdivisionParametersProvider,
 				_wageCalculationRepository,
 				_employeeRepository,
 				_warehouseRepository,
@@ -171,7 +167,46 @@ namespace Vodovoz.TempAdapters
 				}
 			);
 		}
-		
+
+		public IEntityAutocompleteSelectorFactory CreateWorkingEmployeeAutocompleteSelectorFactory()
+		{
+			CreateNewDependencies();
+
+			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
+				typeof(Employee),
+				() =>
+				{
+					var filter = new EmployeeFilterViewModel
+					{
+						HidenByDefault = true,
+						Status = EmployeeStatus.IsWorking
+					};
+
+					return new EmployeesJournalViewModel(
+						filter,
+						_authorizationServiceFactory,
+						_employeeWageParametersFactory,
+						_employeeJournalFactory,
+						_subdivisionJournalFactory,
+						_employeePostsJournalFactory,
+						_cashDistributionCommonOrganisationProvider,
+						_subdivisionParametersProvider,
+						_wageCalculationRepository,
+						_employeeRepository,
+						_warehouseRepository,
+						_routeListRepository,
+						CurrentUserSettings.Settings,
+						_validationContextFactory,
+						_phonesViewModelFactory,
+						_driverApiUserRegisterEndpoint,
+						ServicesConfig.CommonServices,
+						UnitOfWorkFactory.GetDefaultFactory,
+						_attachmentsViewModelFactory
+					);
+				}
+			);
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateWorkingForwarderEmployeeAutocompleteSelectorFactory()
 		{
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(

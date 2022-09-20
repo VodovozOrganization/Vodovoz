@@ -1,87 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
-using Gamma.GtkWidgets;
+using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
+using QS.Widgets;
 using QSReport;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListsOnClosingReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public RouteListsOnClosingReport()
 		{
-			this.Build();
-			ConfigureChkBtns();
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeographicGroup>();
+
+			Configure();
 		}
 
-		#region IParametersWidget implementation
+		private void Configure()
+		{
+			ycheckTodayRouteLists.Active = true;
+			nullCheckVisitingMasters.RenderMode = RenderMode.Icon;
+			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeoGroup>();
+
+			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.SelectAll();
+
+			enumcheckCarOwnType.EnumType = typeof(CarOwnType);
+			enumcheckCarOwnType.SelectAll();
+		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		public string Title => "Отчет по незакрытым МЛ";
 
-		#endregion
-
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
 		private ReportInfo GetReportInfo()
 		{
-			var parameters = new Dictionary<string, object>();
-
-			parameters.Add("todayRloff", chkRemTodayRLs.Active);
-			parameters.Add("RemTruckRLs", chkRemTruckRLs.Active);
-			parameters.Add("RemServiceRLs", chkRemServiceRLs.Active);
-			parameters.Add("RemMercRLs", chkRemMercRLs.Active);
-			parameters.Add("geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeographicGroup)?.Id ?? 0);
+			var carTypesOfUse = enumcheckCarTypeOfUse.SelectedValues.ToArray();
+			var carOwnTypes = enumcheckCarOwnType.SelectedValues.ToArray();
 
 			return new ReportInfo
 			{
 				Identifier = "Logistic.RouteListOnClosing",
-				Parameters = parameters
+				Parameters = new Dictionary<string, object>
+				{
+					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Id ?? 0 },
+					{ "car_types_of_use", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
+					{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } },
+					{ "show_today_route_lists", ycheckTodayRouteLists.Active },
+					{ "include_visiting_masters", nullCheckVisitingMasters.Active }
+				}
 			};
 		}
 
-		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
+		private void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
-			OnUpdate(true);
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
-
-		#region Настройка смены названий кнопок
-		Dictionary<yCheckButton, string> chkLabels = new Dictionary<yCheckButton, string>();
-
-		void ConfigureChkBtns()
-		{
-			AddChkBtnToListForRenaming(chkRemTodayRLs);
-			AddChkBtnToListForRenaming(chkRemTruckRLs);
-			AddChkBtnToListForRenaming(chkRemServiceRLs);
-			AddChkBtnToListForRenaming(chkRemMercRLs);
-		}
-
-		void AddChkBtnToListForRenaming(yCheckButton btn) { 
-			chkLabels.Add(btn, btn.Label);
-			btn.Toggled += OnChkBtnToggled;
-			SetChkBtnTitle(btn);
-		}
-
-		void SetChkBtnTitle(yCheckButton btn){
-			if(!chkLabels.ContainsKey(btn))
-				throw new NotImplementedException(String.Format("Переключатель {0} - {1} не найден в словаре", btn.Name, btn.Label));
-			btn.Label = String.Format("{0} {1}", btn.Active ? "Показать" : "Скрыть", chkLabels[btn]);
-		}
-
-		protected void OnChkBtnToggled(object sender, EventArgs e)
-		{
-			SetChkBtnTitle((yCheckButton)sender);
-		}
-		#endregion
 	}
 }

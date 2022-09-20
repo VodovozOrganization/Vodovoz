@@ -15,6 +15,10 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Client
 {
@@ -24,21 +28,23 @@ namespace Vodovoz.ViewModels.Client
 		private readonly IEmployeeService employeeService;
 		private readonly INomenclatureRepository nomenclatureRepository;
 		private readonly IUserRepository userRepository;
-		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
+		private readonly ICounterpartyJournalFactory counterpartySelectorFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+
 		public event EventHandler ListContentChanged;
 
 		public IJournalSearch Search { get; private set; }
 
-		public SupplierPricesWidgetViewModel(Counterparty entity, 
-		                                     IUnitOfWork uow, 
-		                                     ITdiTab dialogTab, 
-		                                     ICommonServices commonServices,
-		                                     IEmployeeService employeeService,
-		                                     IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-		                                     IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory,
-		                                     INomenclatureRepository nomenclatureRepository,
-		                                     IUserRepository userRepository) : base(entity, commonServices)
+		public SupplierPricesWidgetViewModel(Counterparty entity,
+			IUnitOfWork uow,
+			ITdiTab dialogTab,
+			ICommonServices commonServices,
+			IEmployeeService employeeService,
+			ICounterpartyJournalFactory counterpartySelectorFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			INomenclatureRepository nomenclatureRepository,
+			IUserRepository userRepository)
+			: base(entity, commonServices)
 		{
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -46,8 +52,8 @@ namespace Vodovoz.ViewModels.Client
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			
+			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+
 			CreateCommands();
 			RefreshPrices();
 			
@@ -98,7 +104,7 @@ namespace Vodovoz.ViewModels.Client
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
 						employeeService,
-						nomenclatureSelectorFactory,
+						_nomenclatureSelectorFactory,
 						counterpartySelectorFactory,
 						nomenclatureRepository,
 						userRepository

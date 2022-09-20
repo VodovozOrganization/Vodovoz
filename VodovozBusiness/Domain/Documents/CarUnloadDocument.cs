@@ -25,7 +25,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarUnloadDocument : Document, IValidatableObject
 	{
-
+		private const int _commentLimit = 255;
+		
 		#region Сохраняемые свойства
 
 		public override DateTime TimeStamp {
@@ -219,6 +220,12 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult("Не указан склад разгрузки.",
 					new[] { nameof(Warehouse) });
 
+			if(Comment?.Length > _commentLimit)
+			{
+				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
+					new[] { nameof(Comment) });
+			}
+
 			foreach(var item in Items) {
 				if(item.WarehouseMovementOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.WarehouseMovementOperation.Amount < 0) {
 					yield return new ValidationResult(
@@ -244,6 +251,24 @@ namespace Vodovoz.Domain.Documents
 					"Имеются продублированные заявки на сервис.",
 					new[] { nameof(Items) }
 				);
+			}
+
+			var needWeightOrVolume = Items
+				.Select(item => item.WarehouseMovementOperation.Nomenclature)
+				.Where(nomenclature =>
+					Nomenclature.CategoriesWithWeightAndVolume.Contains(nomenclature.Category)
+					&& (nomenclature.Weight == default
+						|| nomenclature.Length == default
+						|| nomenclature.Width == default
+						|| nomenclature.Height == default))
+				.ToList();
+			if(needWeightOrVolume.Any())
+			{
+				yield return new ValidationResult(
+					"Для всех добавленных на возврат номенклатур должны быть заполнены вес и объём.\n" +
+					"Список номенклатур, в которых не заполнен вес или объём:\n" +
+					$"{string.Join("\n", needWeightOrVolume.Select(x => $"({x.Id}) {x.Name}"))}",
+					new[] { nameof(Items) });
 			}
 		}
 
