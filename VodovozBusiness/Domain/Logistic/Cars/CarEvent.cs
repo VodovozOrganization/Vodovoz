@@ -156,11 +156,6 @@ namespace Vodovoz.Domain.Logistic
 			ObservableFines.Add(fine);
 		}
 
-		public virtual void SetRepairCostCompensation(decimal value)
-		{
-			RepairCost = -value;
-		}
-
 		public virtual string GetFineReason()
 		{
 			return $"Событие №{Id} от {CreateDate.ToShortDateString()}";

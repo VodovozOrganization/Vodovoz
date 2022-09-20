@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
 		public decimal RepairCost
 		{
-			get => GetRepairCost();
+			get => Math.Abs(Entity.RepairCost);
 			set => SetRepairCost(value);
 		}
 
@@ -212,16 +212,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				() => true
 			));
 
-		private decimal GetRepairCost()
-		{
-			return Entity.RepairCost < 0 ? -(Entity.RepairCost) : Entity.RepairCost;
-		}
-
 		private void SetRepairCost(decimal value)
 		{
 			if(Entity.CompensationFromInsuranceByCourt)
 			{
-				Entity.SetRepairCostCompensation(value);
+				Entity.RepairCost = -value;
 			}
 			else
 			{
