@@ -197,6 +197,11 @@ namespace Vodovoz.JournalViewModels
 				query.JoinAlias(c => c.Tags, () => tagAliasForSubquery)
 					 .Where(() => tagAliasForSubquery.Id == FilterViewModel.Tag.Id);
 
+			if(FilterViewModel != null && FilterViewModel.IsForSalesDepartment != null)
+			{
+				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment);
+			}
+
 			query
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)

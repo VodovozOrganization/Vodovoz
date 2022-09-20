@@ -284,6 +284,8 @@ namespace Vodovoz
 
 		private bool? isForRetail = null;
 
+		public bool? IsForSalesDepartment;
+
 		public bool AskSaveOnClose => CanEditByPermission;
 
 		#endregion
@@ -319,6 +321,7 @@ namespace Vodovoz
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
 			Entity.PaymentType = Entity.Client.PaymentMethod;
 			IsForRetail = Entity.Client.IsForRetail;
+			IsForSalesDepartment = Entity.Client.IsForSalesDepartment;
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -328,6 +331,7 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
+			IsForSalesDepartment = UoWGeneric.Root.Client.IsForSalesDepartment;
 			ConfigureDlg();
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -571,7 +575,7 @@ namespace Vodovoz
 			enumTax.AddEnumToHideList(hideTaxTypeEnums);
 			enumTax.ChangedByUser += (sender, args) => { Entity.Client.TaxType = (TaxType)enumTax.SelectedItem; };
 
-			var counterpartyFilter = new CounterpartyJournalFilterViewModel() { IsForRetail = this.IsForRetail, RestrictIncludeArchive = false };
+			var counterpartyFilter = new CounterpartyJournalFilterViewModel() { IsForRetail = this.IsForRetail, IsForSalesDepartment = IsForSalesDepartment, RestrictIncludeArchive = false };
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty),
 				() => new CounterpartyJournalViewModel(counterpartyFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices))
@@ -1617,6 +1621,7 @@ namespace Vodovoz
 
 			if(routeListToAddOrderTo != null)
 			{
+				UoW.Session.Refresh(routeListToAddOrderTo);
 				routeListToAddOrderTo.AddAddressFromOrder(Entity);
 				Entity.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, CallTaskWorker);
 				Entity.UpdateDocuments();

@@ -390,6 +390,7 @@
       <LogicalName>retail.xml</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="icons\toolbar\car_service.png" />
+    <EmbeddedResource Include="icons\toolbar\sales_department.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -1735,6 +1736,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Sale.GeoGroupView.cs" />
     <Compile Include="Views\Organization\OrganizationVersionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.OrganizationVersionsView.cs" />
+    <Compile Include="Views\Profitability\ProfitabilityConstantsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Profitability.ProfitabilityConstantsView.cs" />
+    <Compile Include="ViewWidgets\Profitability\MonthPickerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Profitability.MonthPickerView.cs" />
+    <Compile Include="ViewWidgets\Profitability\SelectableParametersFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Profitability.SelectableParametersFilterView.cs" />
+    <Compile Include="Views\Profitability\ProfitabilityConstantsDataView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Profitability.ProfitabilityConstantsDataView.cs" />
     <Compile Include="Views\Goods\NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureInnerDeliveryPricesView.cs" />
     <Compile Include="Views\Goods\GroupNomenclaturePriceView.cs" />
@@ -2083,6 +2092,8 @@
     <Folder Include="Views\ReportsParameters\" />
     <Folder Include="Views\ReportsParameters\Cash\" />
     <Folder Include="Views\Settings\" />
+    <Folder Include="Views\Profitability\" />
+    <Folder Include="ViewWidgets\Profitability\" />
     <Folder Include="Views\Sale\" />
   </ItemGroup>
   <ItemGroup>
@@ -2142,9 +2153,9 @@
     <PackageReference Include="NHibernate" Version="5.3.11" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog" Version="4.7.14" />
+    <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="NLog.Extensions.Logging">
-      <Version>1.7.4</Version>
+      <Version>5.0.1</Version>
     </PackageReference>
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="RabbitMQ.Client">
@@ -2165,6 +2176,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="toolbars\car_service.xml" />
+	<EmbeddedResource Include="toolbars\sales_department.xml" />
     <EmbeddedResource Include="icons\map\points\overduecircle\black.png" />
     <EmbeddedResource Include="icons\map\points\overduecircle\black_and_red.png" />
     <EmbeddedResource Include="icons\map\points\overduecircle\blue.png" />

@@ -71,6 +71,7 @@
     <Compile Include="Controllers\OrderDiscountsController.cs" />
     <Compile Include="Controllers\PaymentFromBankClientController.cs" />
     <Compile Include="Controllers\IRouteListsWageController.cs" />
+    <Compile Include="Controllers\ProfitabilityConstantsViewModelHandler.cs" />
     <Compile Include="Controllers\RouteListsWageController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
@@ -137,6 +138,9 @@
     <Compile Include="Domain\FastPayments\FastPaymentStatus.cs" />
     <Compile Include="Domain\FinancialDistrict.cs" />
     <Compile Include="Domain\FinancialDistrictsSet.cs" />
+    <Compile Include="Domain\Geocoder\AddressCacheBase.cs" />
+    <Compile Include="Domain\Geocoder\GeocoderAddressCache.cs" />
+    <Compile Include="Domain\Geocoder\GeocoderCoordinatesCache.cs" />
     <Compile Include="Domain\Goods\AdditionalLoadingNomenclatureDistribution.cs" />
     <Compile Include="Domain\Goods\NomenclatureInnerDeliveryPrice.cs" />
     <Compile Include="Domain\Goods\OrderItemComparerForCopyingFromUndelivery.cs" />
@@ -165,6 +169,7 @@
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
+    <Compile Include="Domain\ProfitabilityConstants.cs" />
     <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemHistory.cs" />
@@ -315,6 +320,8 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Profitability\IProfitabilityConstantsRepository.cs" />
+    <Compile Include="EntityRepositories\Profitability\ProfitabilityConstantsRepository.cs" />
     <Compile Include="EntityRepositories\Roboats\IRoboatsRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\OrganizationRepository.cs" />
     <Compile Include="EntityRepositories\Roboats\NomenclatureQuantity.cs" />
@@ -394,6 +401,8 @@
     <Compile Include="HibernateMapping\FastPayments\FastPaymentMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
+    <Compile Include="HibernateMapping\Geocoder\GeocoderCoordinatesCacheMap.cs" />
+    <Compile Include="HibernateMapping\Geocoder\GeocoderAddressCacheMap.cs" />
     <Compile Include="HibernateMapping\Goods\AdditionalLoadingNomenclatureDistributionMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
@@ -437,6 +446,7 @@
     <Compile Include="HibernateMapping\Organizations\RoboatsStreetMap.cs" />
     <Compile Include="HibernateMapping\Organizations\RoboatsWaterTypeMap.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromAvangardMap.cs" />
+    <Compile Include="HibernateMapping\Profitability\ProfitabilityConstantsMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
     <Compile Include="HibernateMapping\Roboats\RoboatsCallDetailMap.cs" />
@@ -1311,7 +1321,7 @@
     <PackageReference Include="NHibernate" Version="5.3.11" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog" Version="4.7.15" />
+    <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />

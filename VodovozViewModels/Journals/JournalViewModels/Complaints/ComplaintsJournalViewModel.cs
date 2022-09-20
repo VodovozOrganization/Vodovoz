@@ -126,7 +126,6 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			FinishJournalConfiguration();
 
-			FilterViewModel.SubdivisionParametersProvider = subdivisionParametersProvider;
 			FilterViewModel.EmployeeService = employeeService;
 
             var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
@@ -135,7 +134,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
             FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
 
-            if (FilterViewModel.SubdivisionParametersProvider.GetOkkId() == currentEmployeeSubdivision.Id)
+            if (_subdivisionParametersProvider.GetOkkId() == currentEmployeeSubdivision.Id)
             {
                 FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
             }
@@ -591,7 +590,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_gtkDlgOpener,
 						_undeliveredOrdersJournalOpener,
 						_nomenclatureSelector,
-						_undeliveredOrdersRepository
+						_undeliveredOrdersRepository,
+						_subdivisionParametersProvider
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -616,7 +616,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_nomenclatureSelector,
 						_undeliveredOrdersRepository,
 						_employeeSettings,
-						new ComplaintResultsRepository()
+						new ComplaintResultsRepository(),
+						_subdivisionParametersProvider
 					),
 					//функция идентификации документа
 					(ComplaintJournalNode node) => {
@@ -635,7 +636,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_commonServices,
 						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
                         _fileDialogService,
-						new UserRepository()
+						new UserRepository(),
+						_subdivisionParametersProvider
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
@@ -660,7 +662,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_nomenclatureSelector,
 						_undeliveredOrdersRepository,
 						_employeeSettings,
-						new ComplaintResultsRepository()
+						new ComplaintResultsRepository(),
+						_subdivisionParametersProvider
 					),
 					//функция идентификации документа
 					(ComplaintJournalNode node) => {
@@ -774,7 +777,8 @@ namespace Vodovoz.Journals.JournalViewModels
 								_nomenclatureSelector,
 								_undeliveredOrdersRepository,
 								_employeeSettings,
-								new ComplaintResultsRepository()
+								new ComplaintResultsRepository(),
+								_subdivisionParametersProvider
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
 						}
@@ -813,7 +817,8 @@ namespace Vodovoz.Journals.JournalViewModels
 								_nomenclatureSelector,
 								_undeliveredOrdersRepository,
 								_employeeSettings,
-								new ComplaintResultsRepository()
+								new ComplaintResultsRepository(),
+								_subdivisionParametersProvider
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))

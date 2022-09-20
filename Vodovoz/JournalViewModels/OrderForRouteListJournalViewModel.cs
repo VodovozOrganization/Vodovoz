@@ -43,6 +43,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public OrderForRouteListJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -56,7 +57,8 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpener gtkDialogsOpener,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -69,6 +71,7 @@ namespace Vodovoz.JournalViewModels
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 
 			TabName = "Журнал заказов";
 
@@ -332,7 +335,8 @@ namespace Vodovoz.JournalViewModels
 							_undeliveredOrdersJournalOpener,
 							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
-							new EmployeeSettings(new ParametersProvider())
+							new EmployeeSettings(new ParametersProvider()),
+							_subdivisionParametersProvider
 							);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);

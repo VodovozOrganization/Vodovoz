@@ -90,6 +90,6 @@
     <Folder Include="Observer\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.7.14" />
+    <PackageReference Include="NLog" Version="5.0.1" />
   </ItemGroup>
 </Project>
