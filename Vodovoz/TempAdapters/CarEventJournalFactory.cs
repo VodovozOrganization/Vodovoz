@@ -47,7 +47,8 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 				VodovozGtkServicesConfig.EmployeeService,
 				employeeFactory,
 				new UndeliveredOrdersJournalOpener(),
-				new EmployeeSettings(new ParametersProvider()));
+				new EmployeeSettings(new ParametersProvider()),
+				new ParametersProvider());
 			});
 		}
 	}

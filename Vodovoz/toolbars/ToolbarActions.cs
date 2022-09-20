@@ -1184,7 +1184,8 @@ public partial class MainWindow : Window
 			VodovozGtkServicesConfig.EmployeeService,
 			employeeFactory,
 			new UndeliveredOrdersJournalOpener(),
-			new EmployeeSettings(new ParametersProvider()))
+			new EmployeeSettings(new ParametersProvider()),
+			new ParametersProvider())
 		);
 	}
 

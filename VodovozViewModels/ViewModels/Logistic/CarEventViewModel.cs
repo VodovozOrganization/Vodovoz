@@ -47,6 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IList<FineItem> FineItems { get; private set; }
 		public bool ShowlabelOriginalCarEvent => UoW.IsNew || Entity.CompensationFromInsuranceByCourt;
+		private int _startNewPeriodDay;
 
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -58,7 +59,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IEmployeeSettings employeeSettings
+			IEmployeeSettings employeeSettings,
+			IParametersProvider parametersProvider
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -70,7 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
-
+			_startNewPeriodDay = parametersProvider?.GetIntValue("CarEventStartNewPeriodDay") ?? throw new ArgumentNullException(nameof(parametersProvider));
 			UpdateFileItems();
 
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
@@ -132,15 +134,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var today = DateTime.Now;
 			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
 			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
-			if(today.Day <= 10 && Entity.EndDate < startPreviousMonth)
+			if(today.Day <= _startNewPeriodDay && Entity.EndDate < startPreviousMonth)
 			{
-				ShowWarningMessage($"С 1 по {10} текущего месяца можно создать/изменить событие ТС с датой завершения равной или более 1 числа прошлого месяца.");
+				ShowWarningMessage($"С 1 по {_startNewPeriodDay} текущего месяца можно создать/изменить событие ТС с датой завершения равной или более 1 числа прошлого месяца.");
 				return;
 			}
 
-			if(today.Day > 10 && Entity.EndDate < startCurrentMonth)
+			if(today.Day > _startNewPeriodDay && Entity.EndDate < startCurrentMonth)
 			{
-				ShowWarningMessage($"С {10 + 1} числа текущего месяца можно создать/изменить событие ТС с датой завершения равной или более 1 числа текущего месяца");
+				ShowWarningMessage($"С {_startNewPeriodDay + 1} числа текущего месяца можно создать/изменить событие ТС с датой завершения равной или более 1 числа текущего месяца");
 				return;
 			}
 
@@ -152,12 +154,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var today = DateTime.Now;
 			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
 			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
-			if(today.Day <= 10 && endDate > startPreviousMonth)
+			if(today.Day <= _startNewPeriodDay && endDate > startPreviousMonth)
 			{
 				return true;
 			}
 
-			if(today.Day > 10 && endDate >= startCurrentMonth)
+			if(today.Day > _startNewPeriodDay && endDate >= startCurrentMonth)
 			{
 				return true;
 			}

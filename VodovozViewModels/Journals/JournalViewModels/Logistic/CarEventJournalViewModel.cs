@@ -25,6 +25,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Logistic;
 using System.Linq;
 using QS.Deletion;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -38,7 +39,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeSettings _employeeSettings;
-		private bool CanChangeWithClosedPeriod { get; }
+		private readonly IParametersProvider _parametersProvider;
+
+		private bool _canChangeWithClosedPeriod;
+		private int _startNewPeriodDay;
 
 		public CarEventJournalViewModel(
 			CarEventFilterViewModel filterViewModel,
@@ -50,7 +54,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IEmployeeSettings employeeSettings)
+			IEmployeeSettings employeeSettings,
+			IParametersProvider parametersProvider)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
@@ -62,7 +67,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			CanChangeWithClosedPeriod = commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_canChangeWithClosedPeriod = commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
+			_startNewPeriodDay = parametersProvider?.GetIntValue("CarEventStartNewPeriodDay") ?? throw new ArgumentNullException(nameof(parametersProvider));
 
 			UpdateOnChanges(
 				typeof(CarEvent),
@@ -81,7 +88,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private void CreateCustomDeleteAction()
 		{
 			var deleteAction = new JournalAction("Удалить",
-				   (selected) => {
+				   (selected) =>
+				   {
 					   var selectedNodes = selected.OfType<CarEventJournalNode>();
 					   if(selectedNodes == null || selectedNodes.Count() != 1)
 					   {
@@ -100,7 +108,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					   return config.PermissionResult.CanDelete;
 				   },
 				   (selected) => true,
-				   (selected) => {
+				   (selected) =>
+				   {
 					   var selectedNodes = selected.OfType<CarEventJournalNode>();
 					   if(selectedNodes == null || selectedNodes.Count() != 1)
 					   {
@@ -256,7 +265,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_employeeService,
 				_employeeJournalFactory,
 				_undeliveryViewOpener,
-				_employeeSettings);
+				_employeeSettings,
+				_parametersProvider);
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
 			node => new CarEventViewModel(
@@ -269,11 +279,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_employeeService,
 				_employeeJournalFactory,
 				_undeliveryViewOpener,
-				_employeeSettings);
+				_employeeSettings,
+				_parametersProvider);
 
 		private bool CanDelete(DateTime endDate)
 		{
-			if (CanChangeWithClosedPeriod)
+			if(_canChangeWithClosedPeriod)
 			{
 				return true;
 			}
@@ -281,12 +292,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var today = DateTime.Now;
 			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
 			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
-			if(today.Day <= 10 && endDate > startPreviousMonth)
+			if(today.Day <= _startNewPeriodDay && endDate > startPreviousMonth)
 			{
 				return true;
 			}
 
-			if(today.Day > 10 && endDate >= startCurrentMonth)
+			if(today.Day > _startNewPeriodDay && endDate >= startCurrentMonth)
 			{
 				return true;
 			}
