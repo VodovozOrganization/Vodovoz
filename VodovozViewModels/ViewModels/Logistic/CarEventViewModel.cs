@@ -182,11 +182,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private FinesJournalViewModel CreateFinesJournalViewModel()
 		{
-			var fineFilter = new FineFilterViewModel()
+			var fineFilter = new FineFilterViewModel(true)
 			{
-				CanEditFineDate = true,
-				CanEditRouteListDate = true,
-				CanEditSubdivision = true,
 				ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray()
 			};
 
