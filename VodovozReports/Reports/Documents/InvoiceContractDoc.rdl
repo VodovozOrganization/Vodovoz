@@ -673,7 +673,7 @@ WHERE stored_resource.id = @id21</CommandText>
     <DataSet Name="Signature" >
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>	(SELECT binary_file FROM stored_resource WHERE id = 
+        <CommandText>SELECT	(SELECT binary_file FROM stored_resource WHERE id = 
 		(SELECT 
 			 ov.signature_leader_id
 		FROM
@@ -687,9 +687,9 @@ WHERE stored_resource.id = @id21</CommandText>
 		        ON
 		            organizations.id = ov.organization_id 
 		        AND
-		            ov.start_date &amp;lt;= orders.bill_date 
+		            ov.start_date &lt;= orders.bill_date 
 		        AND
-		            (ov.end_date is null OR ov.end_date &amp;gt;= orders.bill_date)
+		            ov.end_date is null
 		    WHERE
 		    	orders.id = @order_id)) as chief</CommandText>
         <QueryParameters>
@@ -2432,11 +2432,11 @@ WHERE stored_resource.id = @id21</CommandText>
         <Left>274.6pt</Left>
         <Top>67.7pt</Top>
       </fyi:Grid>
-      <Image Name="Image6" >
-        <Height>108.41pt</Height>
-        <Width>108.41pt</Width>
-        <Left>229.10pt</Left>
-        <Top>260.10pt</Top>
+      <Image Name="Image6">
+        <Height>69.97pt</Height>
+        <Width>83.58pt</Width>
+        <Left>237.7pt</Left>
+        <Top>247.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

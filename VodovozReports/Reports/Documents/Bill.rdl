@@ -458,7 +458,7 @@ WHERE o.id = @order_id
 		        AND
 		            ov.start_date &lt;= orders.bill_date 
 		        AND
-		            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+		            ov.end_date is null
 		    WHERE
 		    	orders.id = @order_id)) as chief,
 	(SELECT binary_file FROM stored_resource WHERE id = 
@@ -477,7 +477,7 @@ WHERE o.id = @order_id
 		        AND
 		            ov.start_date &lt;= orders.bill_date 
 		        AND
-		            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+		            ov.end_date is null
 		    WHERE
 		    	orders.id = @order_id)) as bookkeeper
 ;</CommandText>
