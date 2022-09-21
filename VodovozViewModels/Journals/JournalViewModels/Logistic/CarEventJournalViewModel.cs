@@ -22,6 +22,10 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.EntityRepositories.Logistic;
+using System.Linq;
+using QS.Deletion;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -30,10 +34,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	{
 		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly ICarEventTypeJournalFactory _carEventTypeJournalFactory;
+		private readonly ICarEventJournalFactory _carEventJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private IEmployeeSettings _employeeSettings;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private readonly IEmployeeSettings _employeeSettings;
+		private readonly ICarEventSettings _carEventSettings;
+
+		private bool _canChangeWithClosedPeriod;
+		private int _startNewPeriodDay;
 
 		public CarEventJournalViewModel(
 			CarEventFilterViewModel filterViewModel,
@@ -41,25 +50,89 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICommonServices commonServices,
 			ICarJournalFactory carJournalFactory,
 			ICarEventTypeJournalFactory carEventTypeJournalFactory,
+			ICarEventJournalFactory carEventJournalFactory,
 			IEmployeeService employeeService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
-			IEmployeeSettings employeeSettings)
+			IEmployeeSettings employeeSettings,
+			ICarEventSettings carEventSettings)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
 
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_carEventTypeJournalFactory = carEventTypeJournalFactory ?? throw new ArgumentNullException(nameof(carEventTypeJournalFactory));
+			_carEventJournalFactory = carEventJournalFactory ?? throw new ArgumentNullException(nameof(carEventJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			_canChangeWithClosedPeriod = commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
+			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
 
 			UpdateOnChanges(
 				typeof(CarEvent),
 				typeof(CarEventType)
 				);
+		}
+
+		protected override void CreateNodeActions()
+		{
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateDefaultEditAction();
+			CreateCustomDeleteAction();
+		}
+
+		private void CreateCustomDeleteAction()
+		{
+			var deleteAction = new JournalAction("Удалить",
+				   (selected) =>
+				   {
+					   var selectedNodes = selected.OfType<CarEventJournalNode>();
+					   if(selectedNodes == null || selectedNodes.Count() != 1)
+					   {
+						   return false;
+					   }
+					   CarEventJournalNode selectedNode = selectedNodes.First();
+					   if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					   {
+						   return false;
+					   }
+					   if(!CanDelete(selectedNode.EndDate))
+					   {
+						   return false;
+					   }
+					   var config = EntityConfigs[selectedNode.EntityType];
+					   return config.PermissionResult.CanDelete;
+				   },
+				   (selected) => true,
+				   (selected) =>
+				   {
+					   var selectedNodes = selected.OfType<CarEventJournalNode>();
+					   if(selectedNodes == null || selectedNodes.Count() != 1)
+					   {
+						   return;
+					   }
+					   CarEventJournalNode selectedNode = selectedNodes.First();
+					   if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					   {
+						   return;
+					   }
+					   if(!CanDelete(selectedNode.EndDate))
+					   {
+						   return;
+					   }
+					   var config = EntityConfigs[selectedNode.EntityType];
+					   if(config.PermissionResult.CanDelete)
+					   {
+						   DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
+					   }
+				   },
+				   "Delete"
+			   );
+			NodeActionsList.Add(deleteAction);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<CarEvent>> ItemsSourceQueryFunction => (uow) =>
@@ -188,10 +261,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				commonServices,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
+				_carEventJournalFactory,
 				_employeeService,
 				_employeeJournalFactory,
 				_undeliveryViewOpener,
-				_employeeSettings);
+				_employeeSettings,
+				_carEventSettings);
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
 			node => new CarEventViewModel(
@@ -200,9 +275,34 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				commonServices,
 				_carJournalFactory,
 				_carEventTypeJournalFactory,
+				_carEventJournalFactory,
 				_employeeService,
 				_employeeJournalFactory,
 				_undeliveryViewOpener,
-				_employeeSettings);
+				_employeeSettings,
+				_carEventSettings);
+
+		private bool CanDelete(DateTime endDate)
+		{
+			if(_canChangeWithClosedPeriod)
+			{
+				return true;
+			}
+
+			var today = DateTime.Now;
+			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
+			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
+			if(today.Day <= _startNewPeriodDay && endDate > startPreviousMonth)
+			{
+				return true;
+			}
+
+			if(today.Day > _startNewPeriodDay && endDate >= startCurrentMonth)
+			{
+				return true;
+			}
+
+			return false;
+		}
 	}
 }
