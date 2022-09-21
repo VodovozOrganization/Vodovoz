@@ -1754,6 +1754,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMileageDistributionView.cs" />
     <Compile Include="Views\Logistic\OdometerReadingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.OdometerReadingView.cs" />
+    <Compile Include="Filters\Views\UsersJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.UsersJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
