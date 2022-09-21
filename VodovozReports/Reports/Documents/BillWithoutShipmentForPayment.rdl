@@ -435,9 +435,26 @@ WHERE org.id = @organization_id</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	(SELECT binary_file FROM stored_resource WHERE id = 16) as chief,
-	(SELECT binary_file FROM stored_resource WHERE id = 24) as bookkeeper
+	(SELECT binary_file FROM stored_resource WHERE id = 
+	(SELECT 
+	ov.signature_leader_id
+FROM
+	organization_versions ov
+	GROUP BY organization_id DESC
+	HAVING organizations.id = @organization_id)) as chief,
+	(SELECT binary_file FROM stored_resource WHERE id = 
+	(SELECT 
+		ov.signature_accountant_id 
+	FROM
+		organization_versions ov
+		GROUP BY organization_id DESC
+		HAVING organizations.id = @organization_id)) as bookkeeper
 ;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="organization_id">
+            <Value>={?organization_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
       </Query>
       <Fields>
         <Field Name="chief">

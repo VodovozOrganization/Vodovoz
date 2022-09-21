@@ -12,11 +12,15 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Gtk.HBox hbox3;
+		private global::Gtk.Table datatableMain;
 
-		private global::Gtk.Label label1;
+		private global::Gamma.Widgets.yEnumComboBox comboType;
 
 		private global::Gamma.GtkWidgets.yEntry imageNameYentry;
+
+		private global::Gtk.Label label15;
+
+		private global::Gtk.Label label2;
 
 		private global::QS.Widgets.GtkUI.PhotoView photoview;
 
@@ -70,34 +74,63 @@ namespace Vodovoz.Dialogs
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.label1 = new global::Gtk.Label();
-			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Название");
-			this.hbox3.Add(this.label1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label1]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
+			this.datatableMain = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
+			this.datatableMain.Name = "datatableMain";
+			this.datatableMain.RowSpacing = ((uint)(6));
+			this.datatableMain.ColumnSpacing = ((uint)(6));
+			this.datatableMain.BorderWidth = ((uint)(2));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.comboType = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboType.Name = "comboType";
+			this.comboType.ShowSpecialStateAll = false;
+			this.comboType.ShowSpecialStateNot = false;
+			this.comboType.UseShortTitle = false;
+			this.comboType.DefaultFirst = true;
+			this.datatableMain.Add(this.comboType);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.comboType]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.imageNameYentry = new global::Gamma.GtkWidgets.yEntry();
 			this.imageNameYentry.CanFocus = true;
 			this.imageNameYentry.Name = "imageNameYentry";
 			this.imageNameYentry.IsEditable = true;
 			this.imageNameYentry.InvisibleChar = '•';
-			this.hbox3.Add(this.imageNameYentry);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.imageNameYentry]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
-			this.vbox1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
+			this.datatableMain.Add(this.imageNameYentry);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.imageNameYentry]));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.label15 = new global::Gtk.Label();
+			this.label15.Name = "label15";
+			this.label15.Xalign = 1F;
+			this.label15.LabelProp = global::Mono.Unix.Catalog.GetString("Тип изображения:");
+			this.datatableMain.Add(this.label15);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label15]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.label2 = new global::Gtk.Label();
+			this.label2.Name = "label2";
+			this.label2.Xalign = 1F;
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
+			this.datatableMain.Add(this.label2);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label2]));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vbox1.Add(this.datatableMain);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.datatableMain]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.photoview = new global::QS.Widgets.GtkUI.PhotoView();
 			this.photoview.WidthRequest = 500;
@@ -106,20 +139,20 @@ namespace Vodovoz.Dialogs
 			this.photoview.Name = "photoview";
 			this.photoview.CanPrint = false;
 			this.vbox1.Add(this.photoview);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.photoview]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.photoview]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ylabelId = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelId.Name = "ylabelId";
 			this.ylabelId.LabelProp = global::Mono.Unix.Catalog.GetString("id");
 			this.vbox1.Add(this.ylabelId);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelId]));
-			w10.PackType = ((global::Gtk.PackType)(1));
-			w10.Position = 3;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelId]));
+			w12.PackType = ((global::Gtk.PackType)(1));
+			w12.Position = 3;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
