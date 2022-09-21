@@ -271,7 +271,7 @@ namespace Vodovoz
 			// Notebook tab
 			this.label5 = new global::Gtk.Label();
 			this.label5.Name = "label5";
-			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Права на склад");
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Права на склады");
 			this.notebook1.SetTabLabel(this.vboxSubdivision, this.label5);
 			this.label5.ShowAll();
 			this.hbox3.Add(this.notebook1);

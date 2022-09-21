@@ -115,6 +115,7 @@ namespace Vodovoz
 			));
 			entryDefaultSalesPlan.Binding.AddBinding(Entity, s => s.DefaultSalesPlan, w => w.Subject).InitializeFromSource();
 			entryDefaultSalesPlan.CanEditReference = false;
+			notebook1.SwitchPage += OnNotebook1SwitchPage;
 		}
 
 		void YSpecCmbGeographicGroup_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)

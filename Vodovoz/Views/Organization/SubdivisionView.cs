@@ -71,8 +71,6 @@ namespace Vodovoz.Views.Organization
 			}
 
 			vboxDocuments.Visible = ViewModel.CurrentUser.IsAdmin;
-			widgetcontainerview2.Visible = ViewModel.CurrentUser.IsAdmin;
-            widgetcontainerview3.Visible = ViewModel.CurrentUser.IsAdmin;
 
 			buttonAddDocument.Clicked += ButtonAddDocument_Clicked;
 			buttonAddDocument.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -85,8 +83,15 @@ namespace Vodovoz.Views.Organization
 
 			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.SavePermissions(subdivisionentitypermissionwidget.UoW);
 
-            widgetcontainerview3.Binding.AddBinding(ViewModel, vm => vm.WarehousePermissionsVM, w => w.WidgetViewModel).InitializeFromSource();
-			widgetcontainerview2.Binding.AddBinding(ViewModel, vm => vm.PresetSubdivisionPermissionVM, w => w.WidgetViewModel).InitializeFromSource();
+			permissionsPresetContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
+			permissionsPresetContainerView.Binding
+				.AddBinding(ViewModel, vm => vm.PresetSubdivisionPermissionVM, w => w.WidgetViewModel)
+				.InitializeFromSource();
+
+			warehousesPermissionsContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
+			warehousesPermissionsContainerView.Binding
+				.AddBinding(ViewModel, vm => vm.WarehousePermissionsVM, w => w.WidgetViewModel)
+				.InitializeFromSource();
 
 			entryDefaultSalesPlan.SetEntityAutocompleteSelectorFactory(ViewModel.SalesPlanSelectorFactory);
 			entryDefaultSalesPlan.Binding.AddBinding(ViewModel.Entity, e => e.DefaultSalesPlan, w => w.Subject).InitializeFromSource();
