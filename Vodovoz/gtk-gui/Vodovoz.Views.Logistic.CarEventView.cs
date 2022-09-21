@@ -52,8 +52,6 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Label labelDriver;
 
-		private global::Gtk.Label labelOriginalCarEvent;
-
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry originalCarEvent;
 
 		private global::Gamma.Widgets.yDatePicker ydatepickerEndEventDate;
@@ -63,6 +61,8 @@ namespace Vodovoz.Views.Logistic
 		private global::Gamma.GtkWidgets.yLabel ylabelAuthor;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCreateDate;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOriginalCarEvent;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinPaymentTotalCarEvent;
 
@@ -348,30 +348,19 @@ namespace Vodovoz.Views.Logistic
 			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelOriginalCarEvent = new global::Gtk.Label();
-			this.labelOriginalCarEvent.Name = "labelOriginalCarEvent";
-			this.labelOriginalCarEvent.Xalign = 1F;
-			this.labelOriginalCarEvent.LabelProp = global::Mono.Unix.Catalog.GetString("Исходное ремонтное событие:");
-			this.table1.Add(this.labelOriginalCarEvent);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.labelOriginalCarEvent]));
-			w25.TopAttach = ((uint)(7));
-			w25.BottomAttach = ((uint)(8));
-			w25.XOptions = ((global::Gtk.AttachOptions)(4));
-			w25.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.originalCarEvent = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.originalCarEvent.Events = ((global::Gdk.EventMask)(256));
 			this.originalCarEvent.Name = "originalCarEvent";
 			this.originalCarEvent.CanEditReference = true;
 			this.originalCarEvent.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.originalCarEvent);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1[this.originalCarEvent]));
-			w26.TopAttach = ((uint)(7));
-			w26.BottomAttach = ((uint)(8));
-			w26.LeftAttach = ((uint)(1));
-			w26.RightAttach = ((uint)(2));
-			w26.XOptions = ((global::Gtk.AttachOptions)(4));
-			w26.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.originalCarEvent]));
+			w25.TopAttach = ((uint)(7));
+			w25.BottomAttach = ((uint)(8));
+			w25.LeftAttach = ((uint)(1));
+			w25.RightAttach = ((uint)(2));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ydatepickerEndEventDate = new global::Gamma.Widgets.yDatePicker();
 			this.ydatepickerEndEventDate.Events = ((global::Gdk.EventMask)(256));
@@ -381,13 +370,13 @@ namespace Vodovoz.Views.Logistic
 			this.ydatepickerEndEventDate.IsEditable = true;
 			this.ydatepickerEndEventDate.AutoSeparation = false;
 			this.table1.Add(this.ydatepickerEndEventDate);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table1[this.ydatepickerEndEventDate]));
-			w27.TopAttach = ((uint)(6));
-			w27.BottomAttach = ((uint)(7));
-			w27.LeftAttach = ((uint)(1));
-			w27.RightAttach = ((uint)(2));
-			w27.XOptions = ((global::Gtk.AttachOptions)(4));
-			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1[this.ydatepickerEndEventDate]));
+			w26.TopAttach = ((uint)(6));
+			w26.BottomAttach = ((uint)(7));
+			w26.LeftAttach = ((uint)(1));
+			w26.RightAttach = ((uint)(2));
+			w26.XOptions = ((global::Gtk.AttachOptions)(4));
+			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ydatepickerStartEventDate = new global::Gamma.Widgets.yDatePicker();
 			this.ydatepickerStartEventDate.Events = ((global::Gdk.EventMask)(256));
@@ -397,36 +386,48 @@ namespace Vodovoz.Views.Logistic
 			this.ydatepickerStartEventDate.IsEditable = true;
 			this.ydatepickerStartEventDate.AutoSeparation = false;
 			this.table1.Add(this.ydatepickerStartEventDate);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table1[this.ydatepickerStartEventDate]));
-			w28.TopAttach = ((uint)(5));
-			w28.BottomAttach = ((uint)(6));
-			w28.LeftAttach = ((uint)(1));
-			w28.RightAttach = ((uint)(2));
-			w28.XOptions = ((global::Gtk.AttachOptions)(4));
-			w28.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table1[this.ydatepickerStartEventDate]));
+			w27.TopAttach = ((uint)(5));
+			w27.BottomAttach = ((uint)(6));
+			w27.LeftAttach = ((uint)(1));
+			w27.RightAttach = ((uint)(2));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
+			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelAuthor = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelAuthor.Name = "ylabelAuthor";
 			this.ylabelAuthor.Xalign = 0F;
 			this.ylabelAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("ylabelAuthor");
 			this.table1.Add(this.ylabelAuthor);
-			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelAuthor]));
-			w29.TopAttach = ((uint)(1));
-			w29.BottomAttach = ((uint)(2));
-			w29.LeftAttach = ((uint)(1));
-			w29.RightAttach = ((uint)(2));
-			w29.XOptions = ((global::Gtk.AttachOptions)(4));
-			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelAuthor]));
+			w28.TopAttach = ((uint)(1));
+			w28.BottomAttach = ((uint)(2));
+			w28.LeftAttach = ((uint)(1));
+			w28.RightAttach = ((uint)(2));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelCreateDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCreateDate.Name = "ylabelCreateDate";
 			this.ylabelCreateDate.Xalign = 0F;
 			this.ylabelCreateDate.LabelProp = global::Mono.Unix.Catalog.GetString("ylabelCreateDate");
 			this.table1.Add(this.ylabelCreateDate);
-			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDate]));
-			w30.LeftAttach = ((uint)(1));
-			w30.RightAttach = ((uint)(2));
-			w30.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDate]));
+			w29.LeftAttach = ((uint)(1));
+			w29.RightAttach = ((uint)(2));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelOriginalCarEvent = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOriginalCarEvent.Name = "ylabelOriginalCarEvent";
+			this.ylabelOriginalCarEvent.Xalign = 1F;
+			this.ylabelOriginalCarEvent.Yalign = 0F;
+			this.ylabelOriginalCarEvent.LabelProp = global::Mono.Unix.Catalog.GetString("Исходное ремонтное событие:");
+			this.table1.Add(this.ylabelOriginalCarEvent);
+			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelOriginalCarEvent]));
+			w30.TopAttach = ((uint)(7));
+			w30.BottomAttach = ((uint)(8));
+			w30.XOptions = ((global::Gtk.AttachOptions)(4));
+			w30.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.yspinPaymentTotalCarEvent = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
 			this.yspinPaymentTotalCarEvent.CanFocus = true;

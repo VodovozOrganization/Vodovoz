@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			ylabelCreateDate.Binding.AddFuncBinding(ViewModel.Entity, e => e.CreateDate.ToString("g"), w => w.LabelProp).InitializeFromSource();
 
-			labelOriginalCarEvent.Visible = ViewModel.CompensationFromInsuranceByCourt;
+			ylabelOriginalCarEvent.Binding.AddBinding(ViewModel, vm => vm.CompensationFromInsuranceByCourt, w => w.Visible).InitializeFromSource();
 
 			ylabelAuthor.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.Author != null ? e.Author.GetPersonNameWithInitials() : "", w => w.LabelProp)
@@ -31,7 +31,6 @@ namespace Vodovoz.Views.Logistic
 
 			entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
 			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel, vm => vm.CarEventType, e => e.Subject).InitializeFromSource();
-			entityviewmodelentryCarEventType.ChangedByUser += (sender, e) => UpdateVisibleOriginalCarEvent();
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel, e => e.Car, w => w.Subject).InitializeFromSource();
@@ -74,11 +73,6 @@ namespace Vodovoz.Views.Logistic
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
-		}
-
-		private void UpdateVisibleOriginalCarEvent()
-		{
-			labelOriginalCarEvent.Visible = ViewModel.Entity.CompensationFromInsuranceByCourt;
 		}
 
 		private void CheckPeriod()
