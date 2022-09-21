@@ -4,6 +4,7 @@ using Vodovoz.Core;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.ViewModels.Infrastructure.Services;
 
 namespace Vodovoz.Services.Permissions
 {

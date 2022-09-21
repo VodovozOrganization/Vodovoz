@@ -5,9 +5,8 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Employees;
 
-namespace Vodovoz.Core
+namespace Vodovoz.ViewModels.Infrastructure.Services
 {
 	public class WarehousePermissionValidator : IWarehousePermissionValidator
 	{

@@ -15,8 +15,7 @@ namespace Vodovoz.Views.Users
 
 		public UserView(UserViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-
+			Build();
 			ConfigureDialog();
 		}
 
@@ -70,8 +69,6 @@ namespace Vodovoz.Views.Users
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
 
-			
-
 			vboxPresetPrivileges.Add(presetPermissionWidget);
 			presetPermissionWidget.Show();
 
@@ -94,8 +91,6 @@ namespace Vodovoz.Views.Users
 				specialDocumentPermissionWidget.Show();
 				ybuttonSpecialDocumentPrivileges.Sensitive = true;
 			}
-
-
 		}
 	}
 }

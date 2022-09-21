@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using QS.DomainModel.UoW;
-using QS.Permissions;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
-namespace Vodovoz.Core
+
+namespace Vodovoz.ViewModels.Infrastructure.Services
 {
 	public class WarehousePermissionValidatorFactory : IWarehousePermissionValidatorFactory
 	{

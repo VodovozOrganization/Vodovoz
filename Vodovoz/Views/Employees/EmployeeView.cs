@@ -5,7 +5,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
-using QS.Banks.Domain;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -24,7 +23,6 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.Views.Employees
 {
-	//TODO исправить недочеты
 	public partial class EmployeeView : TabViewBase<EmployeeViewModel>, IEntityDialog
 	{
 		public EmployeeView(EmployeeViewModel viewModel) : base(viewModel)
@@ -99,12 +97,12 @@ namespace Vodovoz.Views.Employees
 
 			ConfigureCategory();
 
-			/*comboDriverOfCarTypeOfUse.ShowSpecialStateNot = true;
+			comboDriverOfCarTypeOfUse.ShowSpecialStateNot = true;
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboDriverOfCarTypeOfUse.Binding
 				.AddBinding(ViewModel.Entity, e => e.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
-				.InitializeFromSource();*/
+				.InitializeFromSource();
 
 			checkVisitingMaster.Binding
 				.AddBinding(ViewModel.Entity, e => e.VisitingMaster, w => w.Active)
@@ -171,10 +169,10 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			/*textComment.Binding
+			textComment.Binding
 				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Editable)
-				.InitializeFromSource();*/
+				.InitializeFromSource();
 
 			dataentryDrivingNumber.MaxLength = 20;
 			dataentryDrivingNumber.Binding
@@ -644,14 +642,14 @@ namespace Vodovoz.Views.Employees
 				comboCategory.AddEnumToHideList(ViewModel.HiddenCategories.OfType<object>().ToArray());
 			}
 
-			/*comboCategory.ChangedByUser += (sender, e) =>
+			comboCategory.ChangedByUser += (sender, e) =>
 			{
 				if(ViewModel.Entity.Category != EmployeeCategory.driver)
 				{
 					comboDriverOfCarOwnType.SelectedItemOrNull = null;
 					comboDriverOfCarTypeOfUse.SelectedItemOrNull = null;
 				}
-			};*/
+			};
 		}
 
 		private void ConfigureSubdivision()
@@ -766,7 +764,7 @@ namespace Vodovoz.Views.Employees
 		{
 			radioTabLogistic.Visible
 				= lblDriverOf.Visible
-				//= hboxDriverCheckParameters.Visible
+				= hboxDriverCheckParameters.Visible
 				= (EmployeeCategory)e.SelectedItem == EmployeeCategory.driver;
 
 			wageParametersView.Sensitive = ViewModel.CanEditWage && ViewModel.CanEditEmployee;

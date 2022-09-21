@@ -180,6 +180,7 @@ using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.Views.Sale;
 using Vodovoz.Models;
 using QS.Validation;
+using Vodovoz.ViewModels.Infrastructure.Services;
 
 namespace Vodovoz
 {
