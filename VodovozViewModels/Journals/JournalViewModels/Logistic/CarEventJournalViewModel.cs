@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeSettings _employeeSettings;
-		private readonly IParametersProvider _parametersProvider;
+		private readonly ICarEventSettings _carEventSettings;
 
 		private bool _canChangeWithClosedPeriod;
 		private int _startNewPeriodDay;
@@ -55,7 +55,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeSettings employeeSettings,
-			IParametersProvider parametersProvider)
+			ICarEventSettings carEventSettings)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал событий ТС";
@@ -67,9 +67,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_canChangeWithClosedPeriod = commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
-			_startNewPeriodDay = parametersProvider?.GetIntValue("CarEventStartNewPeriodDay") ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
 
 			UpdateOnChanges(
 				typeof(CarEvent),
@@ -266,7 +266,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_employeeJournalFactory,
 				_undeliveryViewOpener,
 				_employeeSettings,
-				_parametersProvider);
+				_carEventSettings);
 
 		protected override Func<CarEventJournalNode, CarEventViewModel> OpenDialogFunction =>
 			node => new CarEventViewModel(
@@ -280,7 +280,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				_employeeJournalFactory,
 				_undeliveryViewOpener,
 				_employeeSettings,
-				_parametersProvider);
+				_carEventSettings);
 
 		private bool CanDelete(DateTime endDate)
 		{

@@ -9,6 +9,7 @@ namespace Vodovoz.Services
 	public interface ICarEventSettings
 	{
 		int DontShowCarEventByReportId { get; }
+		int CarEventStartNewPeriodDay { get;  }
 		int CompensationFromInsuranceByCourtId { get; }
 	}
 }

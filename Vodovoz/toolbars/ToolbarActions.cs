@@ -1185,7 +1185,7 @@ public partial class MainWindow : Window
 			employeeFactory,
 			new UndeliveredOrdersJournalOpener(),
 			new EmployeeSettings(new ParametersProvider()),
-			new ParametersProvider())
+			new CarEventSettings(new ParametersProvider()))
 		);
 	}
 

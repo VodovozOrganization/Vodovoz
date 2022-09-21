@@ -10,9 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -25,18 +24,38 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class CarEventViewModel : EntityTabViewModelBase<CarEvent>
 	{
-		private readonly ICarEventSettings _carEventSettingsSettings = new CarEventSettings(new ParametersProvider());
-		private DelegateCommand _changeDriverCommand;
-		private DelegateCommand _changeEventTypeCommand;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
 		private readonly IEmployeeSettings _employeeSettings;
-
+		private readonly ICarEventSettings _carEventSettings;
 		public string CarEventTypeCompensation = "Компенсация от страховой, по суду";
 		public decimal RepairCost
 		{
 			get => Math.Abs(Entity.RepairCost);
 			set => SetRepairCost(value);
+		}
+
+		public CarEventType CarEventType { 
+			get => Entity.CarEventType; 
+			set => SetCarEventType(value); 
+		}
+
+		public bool DoNotShowInOperation
+		{
+			get => Entity.DoNotShowInOperation;
+			set => Entity.DoNotShowInOperation = value;
+		}
+
+		public bool CompensationFromInsuranceByCourt
+		{
+			get => Entity.CompensationFromInsuranceByCourt;
+			set => Entity.CompensationFromInsuranceByCourt = value;
+		}
+
+		public Car Car
+		{
+			get => Entity.Car;
+			set => SetCar(value);
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate && CheckDatePeriod();
@@ -60,7 +79,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeSettings employeeSettings,
-			IParametersProvider parametersProvider
+			ICarEventSettings carEventSettings
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -69,10 +88,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
-			_startNewPeriodDay = parametersProvider?.GetIntValue("CarEventStartNewPeriodDay") ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
 			UpdateFileItems();
 
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
@@ -96,6 +115,31 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				Entity.Author = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				Entity.CreateDate = DateTime.Now;
+			}
+			Entity.PropertyChanged += EntityPropertyChanged;
+		}
+
+		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			switch(e.PropertyName)
+			{
+				case nameof(Entity.CarEventType):
+					OnPropertyChanged(nameof(CarEventType));
+					break;
+				case nameof(Entity.RepairCost):
+					OnPropertyChanged(nameof(RepairCost));
+					break;
+				case nameof(Entity.DoNotShowInOperation):
+					OnPropertyChanged(nameof(DoNotShowInOperation));
+					break;
+				case nameof(Entity.CompensationFromInsuranceByCourt):
+					OnPropertyChanged(nameof(CompensationFromInsuranceByCourt));
+					break;
+				case nameof(Entity.Car):
+					OnPropertyChanged(nameof(Car));
+					break;
+				default:
+					break;
 			}
 		}
 
@@ -177,46 +221,40 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CarEventSelectorFactory { get; }
 
-		public DelegateCommand ChangeDriverCommand => _changeDriverCommand ?? (_changeDriverCommand =
-			new DelegateCommand(() =>
-				{
-					if(Entity.Car != null)
-					{
-						Entity.Driver = (Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired)
-							? Entity.Car.Driver
-							: null;
-					}
-				},
-				() => true
-			));
+		private void SetCar(Car car)
+		{
+			Entity.Car = car;
 
-		public DelegateCommand ChangeEventTypeCommand => _changeEventTypeCommand ?? (_changeEventTypeCommand =
-			new DelegateCommand(() =>
-				{
-					if(Entity.CarEventType?.Id == _carEventSettingsSettings.DontShowCarEventByReportId)
-					{
-						Entity.DoNotShowInOperation = true;
-					}
+			if(Car != null)
+			{
+				Entity.Driver = (Car.Driver != null && Car.Driver.Status != EmployeeStatus.IsFired)
+					? Car.Driver
+					: null;
+			}
+		}
 
-					if(Entity.CarEventType?.Id == _carEventSettingsSettings.CompensationFromInsuranceByCourtId)
-					{
-						Entity.CompensationFromInsuranceByCourt = true;
-					}
-					else
-					{
-						if(Entity.CompensationFromInsuranceByCourt)
-						{
-							Entity.CompensationFromInsuranceByCourt = false;
-						}
-					}
+		private void SetCarEventType(CarEventType carEventType)
+		{
+			Entity.CarEventType = carEventType;
+			ChangeEventType();
+		}
 
-				},
-				() => true
-			));
+		public void ChangeEventType()
+		{
+			ChangeDoNotShowInOperation();
+			SetCompensationFromInsuranceByCourt();
+		}
+		public void ChangeDoNotShowInOperation()
+		{
+			if(CarEventType?.Id == _carEventSettings.DontShowCarEventByReportId)
+			{
+				DoNotShowInOperation = true;
+			}
+		}
 
 		private void SetRepairCost(decimal value)
 		{
-			if(Entity.CompensationFromInsuranceByCourt)
+			if(IsCompensationFromInsuranceByCourt())
 			{
 				Entity.RepairCost = -value;
 			}
@@ -226,10 +264,30 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		private void SetCompensationFromInsuranceByCourt()
+		{
+			if(IsCompensationFromInsuranceByCourt())
+			{
+				CompensationFromInsuranceByCourt = true;
+			}
+			else
+			{
+				if(CompensationFromInsuranceByCourt)
+				{
+					CompensationFromInsuranceByCourt = false;
+				}
+			}
+		}
+
 		private void CreateCommands()
 		{
 			CreateAttachFineCommand();
 			CreateAddFineCommand();
+		}
+
+		private bool IsCompensationFromInsuranceByCourt()
+		{
+			return CarEventType?.Id == _carEventSettings.CompensationFromInsuranceByCourtId;
 		}
 
 		public DelegateCommand AddFineCommand { get; private set; }

@@ -23,24 +23,22 @@ namespace Vodovoz.Views.Logistic
 		{
 			ylabelCreateDate.Binding.AddFuncBinding(ViewModel.Entity, e => e.CreateDate.ToString("g"), w => w.LabelProp).InitializeFromSource();
 
-			labelOriginalCarEvent.Visible = ViewModel.Entity.CompensationFromInsuranceByCourt;
+			labelOriginalCarEvent.Visible = ViewModel.CompensationFromInsuranceByCourt;
 
 			ylabelAuthor.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.Author != null ? e.Author.GetPersonNameWithInitials() : "", w => w.LabelProp)
 				.InitializeFromSource();
 
 			entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
-			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel.Entity, e => e.CarEventType, e => e.Subject).InitializeFromSource();
-			entityviewmodelentryCarEventType.ChangedByUser += (sender, e) => ViewModel.ChangeEventTypeCommand.Execute();
+			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel, vm => vm.CarEventType, e => e.Subject).InitializeFromSource();
 			entityviewmodelentryCarEventType.ChangedByUser += (sender, e) => UpdateVisibleOriginalCarEvent();
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			entityviewmodelentryCar.ChangedByUser += (sender, e) => ViewModel.ChangeDriverCommand.Execute();
+			entityviewmodelentryCar.Binding.AddBinding(ViewModel, e => e.Car, w => w.Subject).InitializeFromSource();
 
 			originalCarEvent.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventSelectorFactory);
 			originalCarEvent.Binding.AddBinding(ViewModel.Entity, e => e.OriginalCarEvent, w => w.Subject)
-				.AddBinding(ViewModel.Entity, e => e.CompensationFromInsuranceByCourt, w => w.Visible).InitializeFromSource();
+				.AddBinding(ViewModel, vm => vm.CompensationFromInsuranceByCourt, w => w.Visible).InitializeFromSource();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
@@ -53,7 +51,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			checkbuttonDoNotShowInOperation.Binding
-				.AddBinding(ViewModel.Entity, e => e.DoNotShowInOperation, w => w.Active)
+				.AddBinding(ViewModel, vw => vw.DoNotShowInOperation, w => w.Active)
 				.InitializeFromSource();
 
 			ytextviewFoundation.Binding.AddBinding(ViewModel.Entity, e => e.Foundation, w => w.Buffer.Text).InitializeFromSource();

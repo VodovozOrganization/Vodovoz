@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 				employeeFactory,
 				new UndeliveredOrdersJournalOpener(),
 				new EmployeeSettings(new ParametersProvider()),
-				new ParametersProvider());
+				new CarEventSettings(new ParametersProvider()));
 			});
 		}
 	}
