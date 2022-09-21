@@ -829,6 +829,28 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="Signatures">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	(SELECT binary_file FROM stored_resource WHERE id = 15) as print,
+	(SELECT binary_file FROM stored_resource WHERE id = 
+		(SELECT ov.signature_leader_id FROM organization_versions ov 
+		WHERE ov.organization_id = 1 AND ov.end_date IS NULL GROUP BY ov.organization_id DESC)
+	) as chief
+;</CommandText>
+      </Query>
+      <Fields >
+        <Field Name="chief">
+          <DataField>chief</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="print">
+          <DataField>print</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>18.9pt</Height>
@@ -1186,7 +1208,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox12">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1203,7 +1226,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox13">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1375,7 +1399,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox25">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1396,7 +1421,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox55">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1445,7 +1471,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox38">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1457,7 +1484,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox39">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1507,7 +1535,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox46">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1524,7 +1553,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox47">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1541,7 +1571,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox48">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1558,7 +1589,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox62">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1575,7 +1607,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox49">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1592,7 +1625,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox50">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1608,7 +1642,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox56">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1624,7 +1659,8 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox51">
-                          <Value></Value>
+                          <Value>
+                          </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1920,7 +1956,8 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1932,7 +1969,8 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2080,7 +2118,8 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2096,7 +2135,8 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2166,15 +2206,15 @@ WHERE
         </Style>
       </Textbox>
       <Textbox Name="Textbox28">
-        <Height>54pt</Height>
-        <Width>200pt</Width>
+        <Height>54.00pt</Height>
+        <Width>200.00pt</Width>
         <Value>Руководитель
 
 ____________(                        )
      м.п.</Value>
         <ZIndex>1</ZIndex>
-        <Left>24.0pt</Left>
-        <Top>300pt</Top>
+        <Left>26.4pt</Left>
+        <Top>311.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2406,6 +2446,36 @@ ___________(                   )
           <Hidden>=!{?show_stock_bottle}</Hidden>
         </Visibility>
       </Textbox>
+      <Image Name="Image1">
+        <Height>69.95pt</Height>
+        <Width>82.08pt</Width>
+        <Left>35.5pt</Left>
+        <Top>323.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <MIMEType>image/png</MIMEType>
+        <Source>Database</Source>
+        <Value>=First({chief}, "Signatures")</Value>
+        <Sizing>FitProportional</Sizing>
+      </Image>
+      <Image Name="Image2">
+        <Height>108.41pt</Height>
+        <Width>108.41pt</Width>
+        <Left>119.8pt</Left>
+        <Top>315.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <MIMEType>image/png</MIMEType>
+        <Source>Database</Source>
+        <Value>=First({print}, "Signatures")</Value>
+        <Sizing>FitProportional</Sizing>
+      </Image>
     </ReportItems>
     <Height>452.0pt</Height>
     <Columns>1</Columns>
@@ -2453,7 +2523,8 @@ ___________(                   )
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="delivery_point_id">
       <DataType>Integer</DataType>
@@ -2465,7 +2536,8 @@ ___________(                   )
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
@@ -2477,7 +2549,8 @@ ___________(                   )
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
@@ -2489,7 +2562,8 @@ ___________(                   )
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="show_stock_bottle">
       <DataType>Boolean</DataType>
