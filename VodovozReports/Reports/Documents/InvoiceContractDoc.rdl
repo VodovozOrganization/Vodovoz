@@ -670,8 +670,8 @@ WHERE stored_resource.id = @id21</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Signature" >
-      <Query>
+    <DataSet Name="Signature">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT	(SELECT binary_file FROM stored_resource WHERE id = 
 		(SELECT 
@@ -689,7 +689,7 @@ WHERE stored_resource.id = @id21</CommandText>
 		        AND
 		            ov.start_date &lt;= orders.bill_date 
 		        AND
-		            ov.end_date is null
+		           (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
 		    WHERE
 		    	orders.id = @order_id)) as chief</CommandText>
         <QueryParameters>
@@ -698,7 +698,7 @@ WHERE stored_resource.id = @id21</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="chief">
           <DataField>chief</DataField>
           <TypeName>System.String</TypeName>

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>286.405mm</Width>
@@ -93,7 +95,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -184,7 +186,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -404,7 +406,7 @@ WHERE o.id = @order_id
       </Fields>
     </DataSet>
     <DataSet Name="Signatures">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	(SELECT binary_file FROM stored_resource WHERE id = 
@@ -423,7 +425,7 @@ WHERE o.id = @order_id
 		        AND
 		            ov.start_date &lt;= orders.bill_date 
 		        AND
-		            ov.end_date is null
+		           (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
 		    WHERE
 		    	orders.id = @order_id)) as chief,
 	(SELECT binary_file FROM stored_resource WHERE id = 
@@ -442,7 +444,7 @@ WHERE o.id = @order_id
 		        AND
 		            ov.start_date &lt;= orders.bill_date 
 		        AND
-		            ov.end_date is null
+		            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
 		    WHERE
 		    	orders.id = @order_id)) as bookkeeper;</CommandText>
         <QueryParameters>
@@ -451,7 +453,7 @@ WHERE o.id = @order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="chief">
           <DataField>chief</DataField>
           <TypeName>System.String</TypeName>
@@ -1154,7 +1156,8 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <BackgroundColor></BackgroundColor>
+              <BackgroundColor>
+              </BackgroundColor>
               <BackgroundGradientType>None</BackgroundGradientType>
               <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
               <TextAlign>Left</TextAlign>
@@ -1178,7 +1181,8 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox195">
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>1</ZIndex>
             <Left>152.5pt</Left>
             <Top>95.3pt</Top>
@@ -1715,7 +1719,8 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <Visibility></Visibility>
+                      <Visibility>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2523,7 +2528,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox184">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2847,7 +2853,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2966,7 +2973,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox114">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -4287,8 +4295,10 @@ WHERE o.id = @order_id
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundGradientEndColor></BackgroundGradientEndColor>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundGradientEndColor>
+          </BackgroundGradientEndColor>
+          <BackgroundColor>
+          </BackgroundColor>
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
@@ -4409,14 +4419,16 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -4428,7 +4440,8 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
