@@ -32,7 +32,7 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Одометр")
 					.AddNumericRenderer(x => x.Odometer)
 					.Adjustment(new Adjustment(1, 0, 10000000, 1, 100, 100))
-					.AddSetter((c, n) => { c.Editable = n.Id == 0; })
+					.AddSetter((c, n) => { c.Editable = n.Id == 0 || ViewModel.CanEdit; })
 					.XAlign(0.5f)
 				.AddColumn("Начало действия")
 					.AddTextRenderer(x => x.StartDate.ToString("g")).XAlign(0.5f)

@@ -22,9 +22,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			_odometerReadingController = odometerReadingController ?? throw new ArgumentNullException(nameof(odometerReadingController));
 
 			CanRead = PermissionResult.CanRead;
-			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
-				|| commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_odometer_reading");
-			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_odometer_reading_date");
+			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_odometer_reading");
+			CanCreate = PermissionResult.CanCreate && Entity.Id == 0 || CanEdit;
+			CanChangeDate = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_odometer_reading_date");
 
 			if(IsNewCar)
 			{
@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			}
 		}
 
-		public virtual DateTime? SelectedDate
+		public DateTime? SelectedDate
 		{
 			get => _selectedDate;
 			set
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			}
 		}
 
-		public virtual OdometerReading SelectedOdometerReading
+		public OdometerReading SelectedOdometerReading
 		{
 			get => _selectedOdometerReading;
 			set
@@ -57,9 +57,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			}
 		}
 
-		public virtual bool CanRead { get; }
-		public virtual bool CanCreate { get; }
-		public virtual bool CanEdit { get; }
+		public bool CanRead { get; }
+		public bool CanCreate { get; }
+		public bool CanChangeDate { get; }
+		public bool CanEdit { get; }
 
 		public bool IsNewCar => Entity.Id == 0;
 
@@ -72,7 +73,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		public bool CanChangeOdometerReadingDate =>
 			SelectedDate.HasValue
 			&& SelectedOdometerReading != null
-			&& (CanEdit || SelectedOdometerReading.Id == 0)
+			&& (CanChangeDate || SelectedOdometerReading.Id == 0)
 			&& _odometerReadingController.IsValidDateForOdometerReadingStartDateChange(SelectedOdometerReading, SelectedDate.Value);
 
 
