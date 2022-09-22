@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
@@ -34,6 +37,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityPropertyChanges();
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 			HideClientFromGuilty = !fromComplaintsJournalFilter;
+			ResponsibleList = uow.GetAll<Responsible>();
 		}
 
 		public event EventHandler OnGuiltyItemReady;
@@ -48,6 +52,8 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public bool CanChooseSubdivision => Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision;
 		public bool HideClientFromGuilty { get; }
+		public IList<Responsible> ResponsibleList { get; }
+		public Responsible Responsible { get; set; }
 
 		public bool IsForSalesDepartment
 		{
