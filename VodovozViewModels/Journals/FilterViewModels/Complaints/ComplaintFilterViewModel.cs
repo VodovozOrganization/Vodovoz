@@ -21,11 +21,12 @@ namespace Vodovoz.FilterViewModels
 	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
 		private readonly ICommonServices commonServices;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
+		private bool _isForSalesDepartment;
 
-		public ISubdivisionParametersProvider SubdivisionParametersProvider { get; set; }
 		public IEmployeeService EmployeeService { get; set; }
 		
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
@@ -52,10 +53,12 @@ namespace Vodovoz.FilterViewModels
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeSelectorFactory,
-			ICounterpartyJournalFactory counterpartySelectorFactory
+			ICounterpartyJournalFactory counterpartySelectorFactory,
+			ISubdivisionParametersProvider subdivisionParametersProvider
 		) {
 
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider)); ;
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
@@ -67,6 +70,7 @@ namespace Vodovoz.FilterViewModels
 				commonServices,
 				subdivisionRepository,
 				employeeSelectorFactory.CreateEmployeeAutocompleteSelectorFactory(),
+				_subdivisionParametersProvider,
 				UoW,
 				true
 			);
@@ -181,7 +185,7 @@ namespace Vodovoz.FilterViewModels
 		public virtual Subdivision Subdivision {
 			get => subdivision;
 			set {
-				if(value?.Id == SubdivisionParametersProvider?.GetOkkId())
+				if(value?.Id == _subdivisionParametersProvider?.GetOkkId())
 					ComplaintStatus = ComplaintStatuses.Checking;
 
 				SetField(ref subdivision, value);
@@ -205,6 +209,18 @@ namespace Vodovoz.FilterViewModels
 		{
 			get => isForRetail;
 			set => SetField(ref isForRetail, value);
+		}
+
+		public bool IsForSalesDepartment
+		{
+			get => _isForSalesDepartment;
+			set
+			{
+				if(SetField(ref _isForSalesDepartment, value))
+				{
+					GuiltyItemVM.IsForSalesDepartment = value;
+				}
+			}
 		}
 
 		public void SelectMyComplaint()

@@ -16,6 +16,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			this.sourceFunc = sourceFunc ?? throw new ArgumentNullException(nameof(sourceFunc));
 		}
 
+		public bool IsRecursiveFactory { get; }
+
 		public IList<SelectableParameter> GetParameters(IEnumerable<Func<ICriterion>> filterRelations)
 		{
 			if(filterRelations == null) {

@@ -39,11 +39,11 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
-		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0)
+		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false)
 		{
 			return tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<UndeliveredOrder>(id),
-				() => id > 0 ? new UndeliveredOrderDlg(id) : new UndeliveredOrderDlg()
+				() => id > 0 ? new UndeliveredOrderDlg(id, isForSalesDepartment) : new UndeliveredOrderDlg(isForSalesDepartment)
 			);
 		}
 

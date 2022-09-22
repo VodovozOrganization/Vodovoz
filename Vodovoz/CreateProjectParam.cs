@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Autofac;
 using QS.Deletion;
@@ -174,6 +175,8 @@ using QS.DomainModel.NotifyChange;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.ViewModels.Profitability;
+using Vodovoz.Views.Profitability;
 using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.Views.Sale;
 using Vodovoz.Models;
@@ -575,6 +578,7 @@ namespace Vodovoz
 			builder.RegisterType<OrderDiscountsController>().As<IOrderDiscountsController>();
 			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>();
 			builder.RegisterType<MovementDocumentsNotificationsController>().AsImplementedInterfaces();
+			builder.RegisterType<ProfitabilityConstantsViewModelHandler>().AsSelf();
 
 			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf().AsImplementedInterfaces();
 
@@ -659,12 +663,6 @@ namespace Vodovoz
 
 			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
 				.Where(t => t.Name.EndsWith("Provider"))
-				.AsImplementedInterfaces()
-				.AsSelf()
-				.SingleInstance();
-
-			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
-				.Where(t => t.Name.EndsWith("Settings"))
 				.AsImplementedInterfaces()
 				.AsSelf()
 				.SingleInstance();

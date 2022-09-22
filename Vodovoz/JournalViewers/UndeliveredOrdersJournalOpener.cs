@@ -44,7 +44,8 @@ namespace Vodovoz.JournalViewers
 				new UndeliveredOrdersJournalOpener(),
 				new OrderSelectorFactory(),
 				new UndeliveredOrdersRepository(),
-				new EmployeeSettings(new ParametersProvider())
+				new EmployeeSettings(new ParametersProvider()),
+				new SubdivisionParametersProvider(new ParametersProvider())
 			);
 
 			tab.TabParent.AddSlaveTab(tab, dlg);

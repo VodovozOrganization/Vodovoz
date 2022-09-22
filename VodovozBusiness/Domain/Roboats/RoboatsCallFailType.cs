@@ -17,6 +17,8 @@ namespace Vodovoz.Domain.Roboats
 		ClientNotFound,
 		[Display (Name = "Не найдено имя клиента")]
 		ClientNameNotFound,
+		[Display(Name = "Контрагент отключен")]
+		ClientExcluded,
 		[Display (Name = "Не найдено отчество клиента")]
 		ClientPatronymicNotFound,
 		[Display (Name = "Не найдены точки доставки")]

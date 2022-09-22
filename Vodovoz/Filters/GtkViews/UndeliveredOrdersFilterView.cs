@@ -22,6 +22,9 @@ namespace Vodovoz.Filters.GtkViews
 			yEnumCMBActionWithInvoice.ItemsEnum = typeof(ActionsWithInvoice);
 			yEnumCMBActionWithInvoice.Binding.AddBinding(ViewModel, vm => vm.RestrictActionsWithInvoice, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			yEnumStatusOnOldOrderCancels.ItemsEnum = typeof(OrderStatus);
+			yEnumStatusOnOldOrderCancels.Binding.AddBinding(ViewModel, vm => vm.OldOrderStatus, w => w.SelectedItemOrNull).InitializeFromSource();
+
 			ySpecCMBinProcessAt.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Subdivisions, w => w.ItemsList)
 				.AddBinding(vm => vm.RestrictInProcessAtDepartment, w => w.SelectedItem)

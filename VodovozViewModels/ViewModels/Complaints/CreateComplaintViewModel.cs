@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -38,6 +39,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public INomenclatureRepository NomenclatureRepository { get; }
 		public IUserRepository UserRepository { get; }
 		public IFileDialogService FileDialogService { get; }
+		public ISubdivisionParametersProvider SubdivisionParametersProvider { get; }
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 
 		public CreateComplaintViewModel(
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			INomenclatureJournalFactory nomenclatureSelector,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
 			string phone = null
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -78,6 +81,7 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
@@ -111,10 +115,11 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			INomenclatureJournalFactory nomenclatureSelector,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService,
 			subdivisionRepository, commonServices, nomenclatureRepository, userRepository, filePickerService,
 			orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory,
-			gtkDialogsOpener, undeliveredOrdersJournalOpener, nomenclatureSelector, undeliveredOrdersRepository,
+			gtkDialogsOpener, undeliveredOrdersJournalOpener, nomenclatureSelector, undeliveredOrdersRepository, subdivisionParametersProvider,
 			phone)
 		{
 			var currentClient = UoW.GetById<Counterparty>(client.Id);
@@ -140,10 +145,11 @@ namespace Vodovoz.ViewModels.Complaints
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			INomenclatureJournalFactory nomenclatureSelector,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, subdivisionRepository,
 			commonServices, nomenclatureRepository, userRepository, filePickerService, orderSelectorFactory,
 			employeeJournalFactory, counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, gtkDialogsOpener,
-			undeliveredOrdersJournalOpener, nomenclatureSelector, undeliveredOrdersRepository, phone)
+			undeliveredOrdersJournalOpener, nomenclatureSelector, undeliveredOrdersRepository, subdivisionParametersProvider, phone)
 		{
 			var currentOrder = UoW.GetById<Order>(order.Id);
 			Entity.Order = currentOrder;
@@ -215,7 +221,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public GuiltyItemsViewModel GuiltyItemsViewModel {
 			get {
 				if(guiltyItemsViewModel == null) {
-					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, SubdivisionRepository, _employeeSelectorFactory);
+					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, SubdivisionRepository, _employeeSelectorFactory, SubdivisionParametersProvider);
 				}
 
 				return guiltyItemsViewModel;

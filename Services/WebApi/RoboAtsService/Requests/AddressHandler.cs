@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using RoboAtsService.Monitoring;
+using RoboAtsService.OrderValidation;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -16,14 +17,16 @@ namespace RoboAtsService.Requests
 		private readonly ILogger<AddressHandler> _logger;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
+		private readonly ValidOrdersProvider _validOrdersProvider;
 
 		public override string Request => RoboatsRequestType.Address;
 
-		public AddressHandler(ILogger<AddressHandler> logger, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public AddressHandler(ILogger<AddressHandler> logger, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator, ValidOrdersProvider validOrdersProvider) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
+			_validOrdersProvider = validOrdersProvider ?? throw new ArgumentNullException(nameof(validOrdersProvider));
 		}
 
 		public override string Execute()
@@ -49,12 +52,12 @@ namespace RoboAtsService.Requests
 			{
 				if(counterpartyCount > 1)
 				{
-					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck,
+					_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck,
 						$"Найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				}
 				else
 				{
-					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
+					_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
 						$"Не найден контрагент.");
 				}
 
@@ -82,16 +85,13 @@ namespace RoboAtsService.Requests
 
 		public string GetDeliveryPoints(int counterpartyId)
 		{
-			var deliveryPointIds = _roboatsRepository.GetLastDeliveryPointIds(counterpartyId);
-
+			var deliveryPointIds = _validOrdersProvider.GetLastDeliveryPointIds(ClientPhone, counterpartyId, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.GetDeliveryPoints);
 			if(deliveryPointIds.Any())
 			{
 				return string.Join('|', deliveryPointIds);
 			}
 			else
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.GetDeliveryPoints,
-					$"Для контрагента {counterpartyId} не найдены подходящие точки доставки или последние заказы не соответствуют условиям.");
 				return "NO DATA";
 			}
 		}

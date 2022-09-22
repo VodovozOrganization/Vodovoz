@@ -19,6 +19,7 @@ namespace Vodovoz.Parameters
 		public string CounterpartyNameAudiofilesFolder => _parametersProvider.GetStringValue("roboats_counterparty_name_audiofiles_path");
 		public string CounterpartyPatronymicAudiofilesFolder => _parametersProvider.GetStringValue("roboats_counterparty_patronymic_audiofiles_path");
 		public int MaxBanknoteForReturn => _parametersProvider.GetIntValue("roboats_max_banknote_for_return");
+		public int CallRegistryAutoRefreshInterval => _parametersProvider.GetIntValue("roboats_call_registry_autorefresh_interval");
 		public bool RoboatsEnabled
 		{
 			get

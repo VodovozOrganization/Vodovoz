@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Services;
+
+namespace RoboAtsService.OrderValidation
+{
+	public sealed class OnlyWaterOrderValidator : OrderValidatorBase
+	{
+		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+
+		public OnlyWaterOrderValidator(INomenclatureParametersProvider nomenclatureParametersProvider)
+		{
+			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+		}
+
+		public override IEnumerable<string> GetProblemMessages(IEnumerable<Order> orders)
+		{
+			var result = orders.Where(x => !IsValid(x)).Select(x => $"В заказе №{x.Id} добавлены товары не относящиеся к воде (кроме платной доставки)");
+			return result;
+		}
+
+		public override void Validate(IEnumerable<Order> orders)
+		{
+			foreach(var order in orders)
+			{
+				var hasOnlyWater = !order.OrderItems
+					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
+					.Any(x => x.Nomenclature.Category != NomenclatureCategory.water);
+
+				if(hasOnlyWater)
+				{
+					AddValidOrder(order);
+				}
+			}
+		}
+	}
+}
