@@ -406,7 +406,7 @@ WHERE o.id = @order_id
       </Fields>
     </DataSet>
     <DataSet Name="Signatures">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	(SELECT binary_file FROM stored_resource WHERE id = 
@@ -453,7 +453,7 @@ WHERE o.id = @order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="chief">
           <DataField>chief</DataField>
           <TypeName>System.String</TypeName>
@@ -3283,8 +3283,8 @@ WHERE o.id = @order_id
             <Width>367.44pt</Width>
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
             <ZIndex>1</ZIndex>
-            <Left>7.30pt</Left>
-            <Top>168.30pt</Top>
+            <Left>7.3pt</Left>
+            <Top>151.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3762,8 +3762,8 @@ WHERE o.id = @order_id
             <Value>Индивидуальный предприниматель
 или иное уполномоченное лицо</Value>
             <ZIndex>1</ZIndex>
-            <Left>123.9pt</Left>
-            <Top>20.0pt</Top>
+            <Left>123.90pt</Left>
+            <Top>20.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3856,8 +3856,8 @@ WHERE o.id = @order_id
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
-            <Left>284.7pt</Left>
-            <Top>32.9pt</Top>
+            <Left>284.70pt</Left>
+            <Top>32.90pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3873,8 +3873,8 @@ WHERE o.id = @order_id
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
-            <Left>590.6pt</Left>
-            <Top>15.2pt</Top>
+            <Left>590.60pt</Left>
+            <Top>15.20pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -4197,24 +4197,65 @@ WHERE o.id = @order_id
               <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
-          <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>102.39pt</Height>
-            <Width>112.93pt</Width>
-            <Left>242.6pt</Left>
-            <Top>114.5pt</Top>
+          <Image Name="Image6" >
+            <Height>53.45pt</Height>
+            <Width>72.30pt</Width>
+            <Left>131.2pt</Left>
+            <Top>156.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
-            <Source>Database</Source>
-            <Value>=First( {image} , "Stamp" )</Value>
-            <Sizing>Fit</Sizing>
             <MIMEType>image/png</MIMEType>
-            <Visibility>
-              <Hidden>={?hide_signature}</Hidden>
-            </Visibility>
-            <ZIndex>20</ZIndex>
+            <Source>Database</Source>
+            <Value>=First({chief}, "Signatures" )</Value>
+            <Sizing>FitProportional</Sizing>
+          </Image>
+          <Image Name="Image4" >
+            <Height>54.95pt</Height>
+            <Width>66.25pt</Width>
+            <Left>136.5pt</Left>
+            <Top>84.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <MIMEType>image/png</MIMEType>
+            <Source>Database</Source>
+            <Value>=First({chief}, "Signatures" )</Value>
+            <Sizing>FitProportional</Sizing>
+          </Image>
+          <Image Name="Image1" >
+            <Height>45.94pt</Height>
+            <Width>45.20pt</Width>
+            <Left>288.1pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <MIMEType>image/png</MIMEType>
+            <Source>Database</Source>
+            <Value>=First({chief}, "Signatures" )</Value>
+            <Sizing>FitProportional</Sizing>
+          </Image>
+          <Image Name="Image2" >
+            <Height>33.15pt</Height>
+            <Width>45.97pt</Width>
+            <Left>603.8pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <MIMEType>image/png</MIMEType>
+            <Source>Database</Source>
+            <Value>=First({bookkeeper}, "Signatures" )</Value>
+            <Sizing>FitProportional</Sizing>
           </Image>
         </ReportItems>
         <Style>
@@ -4316,82 +4357,6 @@ WHERE o.id = @order_id
         <Left>81.0pt</Left>
         <Top>7.1pt</Top>
       </Line>
-      <Image Name="Image2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>54.97pt</Height>
-        <Width>65.87pt</Width>
-        <Left>594.4pt</Left>
-        <Top>270.9pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Database</Source>
-        <Value>=First({bookkeeper}, "Signatures" )</Value>
-        <Sizing>FitProportional</Sizing>
-        <MIMEType>image/png</MIMEType>
-        <Visibility>
-          <Hidden>={?hide_signature}</Hidden>
-        </Visibility>
-        <ZIndex>0</ZIndex>
-      </Image>
-      <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>54.10pt</Height>
-        <Width>55.34pt</Width>
-        <Left>285.4pt</Left>
-        <Top>271.4pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Database</Source>
-        <Value>=First({chief}, "Signatures" )</Value>
-        <Sizing>FitProportional</Sizing>
-        <MIMEType>image/png</MIMEType>
-        <Visibility>
-          <Hidden>={?hide_signature}</Hidden>
-        </Visibility>
-        <ZIndex>0</ZIndex>
-      </Image>
-      <Image Name="Image4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>54.10pt</Height>
-        <Width>55.34pt</Width>
-        <Left>141.8pt</Left>
-        <Top>449.3pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Database</Source>
-        <Value>=First({chief}, "Signatures" )</Value>
-        <Sizing>FitProportional</Sizing>
-        <MIMEType>image/png</MIMEType>
-        <Visibility>
-          <Hidden>={?hide_signature}</Hidden>
-        </Visibility>
-        <ZIndex>0</ZIndex>
-      </Image>
-      <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>54.10pt</Height>
-        <Width>55.34pt</Width>
-        <Left>136.7pt</Left>
-        <Top>377.5pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Source>Database</Source>
-        <Value>=First({chief}, "Signatures" )</Value>
-        <Sizing>FitProportional</Sizing>
-        <MIMEType>image/png</MIMEType>
-        <Visibility>
-          <Hidden>={?hide_signature}</Hidden>
-        </Visibility>
-        <ZIndex>0</ZIndex>
-      </Image>
     </ReportItems>
   </Body>
   <PageFooter>
