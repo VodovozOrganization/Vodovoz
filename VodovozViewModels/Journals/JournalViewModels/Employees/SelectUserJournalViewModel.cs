@@ -20,7 +20,7 @@ namespace Vodovoz.Journals
 		public SelectUserJournalViewModel(UserJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository, ICommonServices commonServices)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
-            TabName = "Журнал пользователей";
+            TabName = "Журнал выбора пользователей";
 			_permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
 		}
 

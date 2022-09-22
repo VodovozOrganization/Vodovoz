@@ -1,116 +1,108 @@
-﻿using System.Linq;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
+using Gtk;
+using QS.DomainModel.Entity;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewModels.ViewModels.PermissionNode;
 
 namespace Vodovoz.Views.Permissions
 {
     [System.ComponentModel.ToolboxItem(true)]
     public partial class WarehousePermissionView : WidgetViewBase<WarehousePermissionsViewModel>
     {
-        public string Title => "Права на склад";
-        private NullableCheckButton[,] checkButtons;
+        private NullableCheckButton[,] _checkButtons;
 
         public WarehousePermissionView(WarehousePermissionsViewModel viewModel) : base(viewModel)
         {
-            this.Build();
+            Build();
             ConfigureView();
         }
 
-        void ConfigureView()
+		private void ConfigureView()
         {
-            tablePermissionMatrix.NRows = 2 + (uint) ViewModel.AllPermissionTypes.Count();
-            tablePermissionMatrix.NColumns = 2 + (uint) ViewModel.AllWarehouses.Count();
+			uint col = 2;
+			uint row = 2;
+			
+            tablePermissionMatrix.NRows = row + (uint) ViewModel.AllPermissionTypes.Count;
+			tablePermissionMatrix.NColumns = col + (uint)ViewModel.AllWarehouses.Count;
 
-            checkButtons = new NullableCheckButton[tablePermissionMatrix.NRows, tablePermissionMatrix.NColumns];
+            _checkButtons = new NullableCheckButton[tablePermissionMatrix.NRows, tablePermissionMatrix.NColumns];
             
-            var labelAllWarehouse = new yLabel();
-            labelAllWarehouse.Binding.AddBinding(ViewModel.AllPermissions, vm => vm.Title, x => x.Text).InitializeFromSource();
-            labelAllWarehouse.Angle = 90;
-            labelAllWarehouse.SetAlignment(0.5f, 1);
-            InsertCheckBoxAll();
-            tablePermissionMatrix.Attach(labelAllWarehouse, 1, 2, 0, 1);
-            
-            uint col = 2;
-            foreach (var warehouseAllNode in ViewModel.AllWarehouses)
+			//Лэйбл 'Все' и кнопка, проставляющая все права на все склады
+            InsertLabel(ViewModel.AllPermissions, col - 1, row - 2, 0.5f, 1);
+			InsertNullableCheckBtn(ViewModel.AllPermissions, col - 1, row - 1);
+
+			foreach (var warehouseAllNode in ViewModel.AllWarehouses)
             {
-                var labelColumn = new yLabel();
-                var checkButton = new NullableCheckButton();
-                uint count = 0;
+				uint subRow = 0;
+				
+				//Верхние подписи названия складов и кнопки, включающие все права для конкретного склада
+                InsertLabel(warehouseAllNode, col, row - 2, 0.5f, 1);
+				InsertNullableCheckBtn(warehouseAllNode, col, row - 1);
                 
-                labelColumn.Angle = 90;
-                labelColumn.SetAlignment(0.5f,1);
-                labelColumn.Binding.AddBinding(warehouseAllNode, 
-                    wm => wm.Title, x => x.Text).InitializeFromSource();
-                
-                checkButton.SetAlignment(0, 0);
-                checkButton.Binding.AddBinding(warehouseAllNode, 
-                    vm=> vm.PermissionValue,x=>x.Active).InitializeFromSource();
-                checkButton.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-                
+				//Внутренние, отвечающие за конкретное право конкретного склада
                 foreach (var warehousePermissionNode in warehouseAllNode.SubNodeViewModel)
-                {
-                    var subCheckButton = new NullableCheckButton();
-                    subCheckButton.SetAlignment(0, 0);
-                    subCheckButton.Binding.AddBinding(warehousePermissionNode, 
-                        vm => vm.PermissionValue, x => x.Active).InitializeFromSource();
-                    subCheckButton.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-
-                    checkButtons[count, col - 2] = subCheckButton;
-                    tablePermissionMatrix.Attach(subCheckButton, col, col + 2, count + 2, count + 3);
-                    count++;
-                }
+				{
+					_checkButtons[subRow, col - 2] = InsertNullableCheckBtn(warehousePermissionNode, col, subRow + 2);
+					subRow++;
+				}
                 
-                tablePermissionMatrix.Attach(checkButton, col, col + 2, 1, 2);
-                tablePermissionMatrix.Attach(labelColumn, col, col + 1, 0, 1);
                 col++;
             }
+			
+			InsertLabel(ViewModel.AllPermissions, 0, 1, 1, 0.5f, 0);
 
-            var labelAll = new yLabel();
-            labelAll.Binding.AddBinding(ViewModel.AllPermissions, vm => vm.Title, x => x.Text).InitializeFromSource();
-            labelAll.SetAlignment(1, 0.5f);
-            
-            tablePermissionMatrix.Attach(labelAll, 0, 1, 1, 2);
-            
-            
-            uint row = 2;
-            foreach (var permissionTypeAllNode in ViewModel.AllPermissionTypes)
+			foreach (var permissionTypeAllNode in ViewModel.AllPermissionTypes)
             {
-                var labelColumn = new yLabel();
-                var checkButton = new NullableCheckButton();
-                uint count = 0;
-                labelColumn.SetAlignment(1,0.5f);
-                labelColumn.Binding.AddBinding(permissionTypeAllNode, wm => wm.Title, x => x.Text).InitializeFromSource();
-
-                foreach (var permission in permissionTypeAllNode.SubNodeViewModel)
-                {
-                    checkButtons[row - 2, count].Binding.AddBinding(permission, 
-                        vm => vm.PermissionValue, x=>x.Active).InitializeFromSource();
-                    checkButtons[row - 2, count].Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-                    count++;
-                }
+				uint subCol = 0;
+				
+				//Лэйбл с названием права для кнопки по его установке для всех складов
+				InsertLabel(permissionTypeAllNode, 0, row, 1, 0.5f, 0);
                 
-                checkButton.SetAlignment(0, 0);
-                checkButton.Binding.AddBinding(permissionTypeAllNode, vm=> vm.PermissionValue,
-                    x=>x.Active).InitializeFromSource();
-                checkButton.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-
-                tablePermissionMatrix.Attach(checkButton, 1, 2, row, row + 2);
-                tablePermissionMatrix.Attach(labelColumn, 0,  1, row, row + 1);
+                foreach(var permission in permissionTypeAllNode.SubNodeViewModel)
+                {
+                    _checkButtons[row - 2, subCol].Binding
+						.AddBinding(permission, vm => vm.PermissionValue, x => x.Active)
+						.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+						.InitializeFromSource();
+                    subCol++;
+                }
+				
+				//Кнопка, устанавливающая конкретное право для всех складов
+				InsertNullableCheckBtn(permissionTypeAllNode, 1, row);
                 row++;
             }
         }
 
-        void InsertCheckBoxAll()
-        {
-            var checkButton = new NullableCheckButton();
-            checkButton.SetAlignment(0, 0);
-            checkButton.Binding.AddBinding(ViewModel.AllPermissions, vm=> vm.PermissionValue,
-                                                          x=>x.Active).InitializeFromSource();
-            checkButton.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+		private void InsertLabel<T>(T permissionNodeVM, uint column, uint row, float xAlign, float yAlign, double angle = 90)
+			where T : PropertyChangedBase, IPermissionNodeViewModel
+		{
+			var labelColumn = new yLabel();
 
-            tablePermissionMatrix.Attach(checkButton, 1, 2, 1, 2);
-        }
-    }
+			labelColumn.Angle = angle;
+			labelColumn.SetAlignment(xAlign, yAlign);
+			labelColumn.Binding
+				.AddBinding(permissionNodeVM, wm => wm.Title, x => x.Text)
+				.InitializeFromSource();
+
+			tablePermissionMatrix.Attach(labelColumn, column, column + 1, row, row + 1);
+		}
+		
+		private NullableCheckButton InsertNullableCheckBtn<T>(T permissionNodeVM, uint column, uint row)
+			where T : PropertyChangedBase, IPermissionNodeViewModel
+		{
+			var checkButton = new NullableCheckButton();
+
+			checkButton.SetAlignment(0, 0);
+			checkButton.Binding
+				.AddBinding(permissionNodeVM, vm => vm.PermissionValue, x => x.Active)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			tablePermissionMatrix.Attach(checkButton, column, column + 1, row, row + 1, AttachOptions.Shrink, AttachOptions.Shrink, 0, 0);
+
+			return checkButton;
+		}
+	}
 }

@@ -169,6 +169,7 @@ using Fias.Service.Cache;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1643,10 +1644,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionUsersActivated(object sender, EventArgs e)
 	{
-		UsersDialog usersDlg = new UsersDialog(ServicesConfig.InteractiveService);
-		usersDlg.Show();
-		usersDlg.Run();
-		usersDlg.Destroy();
+		NavigationManager.OpenViewModel<UsersJournalViewModel>(null);
 	}
 
 	protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)

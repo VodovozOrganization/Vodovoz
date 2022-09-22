@@ -4,7 +4,7 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 {
-    public class WarehousePermissionAllNodeViewModelBase : PropertyChangedBase
+    public class WarehousePermissionAllNodeViewModelBase : PropertyChangedBase, IPermissionNodeViewModel
     {
 	    private string _title;
         public string Title

@@ -11,34 +11,35 @@ namespace Vodovoz.ViewModels.Permissions
 {
 	public class WarehousePermissionsViewModel : UoWWidgetViewModelBase
 	{
-		private IUnitOfWork _uow;
 		private bool _canEdit;
 		private SelectAllNodePermissionViewModel _allPermissions;
 		private List<PermissionTypeAllNodeViewModel> _allPermissionTypes;
-		private WarehouseAllNodeViewModel _warehouseAllNode;
-		private PermissionTypeAllNodeViewModel _permissionAllNode;
 		private List<WarehouseAllNodeViewModel> _allWarehouses;
 		private WarehousePermissionModelBase _subdivisionWarehousePermissionModelBase;
+		
 		private IEnumerable<WarehousePermissionsType> AllPermissionsTypes() => Enum.GetValues(typeof(WarehousePermissionsType)).Cast<WarehousePermissionsType>();
-		private List<Warehouse> AllNamesOfWarehouses { get; set; }
 
-		public WarehousePermissionsViewModel(IUnitOfWork uoW, WarehousePermissionModelBase warehousePermissionModelBase)
+		public WarehousePermissionsViewModel(IUnitOfWork uow, WarehousePermissionModelBase warehousePermissionModelBase)
 		{
-			_uow = uoW;
-			AllNamesOfWarehouses =  _uow.Session.QueryOver<Warehouse>().List().ToList();
+			if(uow == null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+			
+			var allNamesOfWarehouses =  uow.Session.QueryOver<Warehouse>().List();
 			WarehousePermissionModelBase = warehousePermissionModelBase ?? throw new ArgumentNullException(nameof(warehousePermissionModelBase));
 			AllPermissionTypes = new List<PermissionTypeAllNodeViewModel>();
 			AllWarehouses = new List<WarehouseAllNodeViewModel>();
 
 			foreach(var permissionsType in AllPermissionsTypes())
 			{
-				_permissionAllNode = new PermissionTypeAllNodeViewModel(permissionsType, AllNamesOfWarehouses, _subdivisionWarehousePermissionModelBase);
-				AllPermissionTypes.Add(_permissionAllNode);
+				var permissionAllNode = new PermissionTypeAllNodeViewModel(permissionsType, allNamesOfWarehouses, _subdivisionWarehousePermissionModelBase);
+				AllPermissionTypes.Add(permissionAllNode);
 			}
-			foreach(var warehouse in AllNamesOfWarehouses)
+			foreach(var warehouse in allNamesOfWarehouses)
 			{
-				_warehouseAllNode = new WarehouseAllNodeViewModel(warehouse, AllPermissionsTypes(), _subdivisionWarehousePermissionModelBase);
-				AllWarehouses.Add(_warehouseAllNode);
+				var warehouseAllNode = new WarehouseAllNodeViewModel(warehouse, AllPermissionsTypes(), _subdivisionWarehousePermissionModelBase);
+				AllWarehouses.Add(warehouseAllNode);
 			}
 
 			AllPermissions = new SelectAllNodePermissionViewModel(AllWarehouses, AllPermissionTypes) { Title = "Все" };
@@ -76,16 +77,16 @@ namespace Vodovoz.ViewModels.Permissions
 
 		public void SaveWarehousePermissions()
 		{
-			foreach(var allWarehouse in AllWarehouses)
+			foreach(var warehouse in AllWarehouses.SelectMany(allWarehouse => allWarehouse.SubNodeViewModel))
 			{
-				foreach(var warehouse in allWarehouse.SubNodeViewModel)
+				if(warehouse.PermissionValue is null)
 				{
-					if(warehouse.PermissionValue is null)
-						WarehousePermissionModelBase.DeletePermission(warehouse.WarehousePermissionsType,
-							warehouse.Warehouse);
-					else
-						WarehousePermissionModelBase.AddOnUpdatePermission(warehouse.WarehousePermissionsType,
-							warehouse.Warehouse, warehouse.PermissionValue);
+					WarehousePermissionModelBase.DeletePermission(warehouse.WarehousePermissionsType, warehouse.Warehouse);
+				}
+				else
+				{
+					WarehousePermissionModelBase.AddOnUpdatePermission(warehouse.WarehousePermissionsType, warehouse.Warehouse,
+						warehouse.PermissionValue);
 				}
 			}
 		}

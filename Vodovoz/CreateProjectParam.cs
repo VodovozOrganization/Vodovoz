@@ -181,6 +181,7 @@ using Vodovoz.Views.Sale;
 using Vodovoz.Models;
 using QS.Validation;
 using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 
 namespace Vodovoz
 {
@@ -390,6 +391,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RoboatsCallsFilterViewModel, RoboatsCallsFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryScheduleFilterViewModel, DeliveryScheduleFilterView>()
 				.RegisterWidgetForWidgetViewModel<BulkEmailEventReportViewModel, BulkEmailEventReportView>()
+				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -543,26 +545,6 @@ namespace Vodovoz
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 
-			builder.RegisterType<NomenclatureJournalFactory>().As<INomenclatureJournalFactory>();
-			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
-			builder.RegisterType<DeliveryPointJournalFactory>().As<IDeliveryPointJournalFactory>();
-			builder.RegisterType<EmployeeJournalFactory>().As<IEmployeeJournalFactory>();
-			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
-			builder.RegisterType<SubdivisionJournalFactory>().As<ISubdivisionJournalFactory>();
-			builder.RegisterType<SalesPlanJournalFactory>().As<ISalesPlanJournalFactory>();
-			builder.RegisterType<ExpenseCategorySelectorFactory>().As<IExpenseCategorySelectorFactory>();
-			builder.RegisterType<CarJournalFactory>().As<ICarJournalFactory>();
-			builder.RegisterType<CarEventTypeJournalFactory>().As<ICarEventTypeJournalFactory>();
-			builder.RegisterType<CarModelJournalFactory>().As<ICarModelJournalFactory>();
-			builder.RegisterType<CarManufacturerJournalFactory>().As<ICarManufacturerJournalFactory>();
-			builder.RegisterType<NomenclatureFixedPriceFactory>().AsSelf();
-
-			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
-			builder.RegisterType<CarVersionsViewModelFactory>().As<ICarVersionsViewModelFactory>();
-			builder.RegisterType<RoboatsFileStorageFactory>().AsSelf();
-			builder.RegisterType<DeliveryScheduleJournalFactory>().AsImplementedInterfaces().AsSelf();
-			builder.RegisterType<GtkValidationViewFactory>().AsImplementedInterfaces().AsSelf();
-
 			builder.RegisterAssemblyTypes(
 					Assembly.GetExecutingAssembly(),
 					Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)),
@@ -571,9 +553,6 @@ namespace Vodovoz
 				.AsSelf()
 				.AsImplementedInterfaces()
 				.SingleInstance();
-				
-			builder.RegisterType<PaymentFromAvangardFactory>().As<IPaymentFromAvangardFactory>();
-			builder.RegisterType<OrganizationJournalFactory>().As<IOrganizationJournalFactory>();
 
 			#endregion
 
@@ -600,8 +579,7 @@ namespace Vodovoz
 			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
 
 			#endregion
-
-
+			
 			#region Models
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))

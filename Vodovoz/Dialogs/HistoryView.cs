@@ -63,7 +63,7 @@ namespace Vodovoz.Dialogs
 
 			comboAction.ItemsEnum = typeof(EntityChangeOperation);
 
-			entryUser.SetEntityAutocompleteSelectorFactory(userJournalFactory.CreateUserAutocompleteSelectorFactory());
+			entryUser.SetEntityAutocompleteSelectorFactory(userJournalFactory.CreateSelectUserAutocompleteSelectorFactory());
 			entryUser.ChangedByUser += (sender, e) => UpdateJournal();
 
 			entryObject3.SetNodeAutocompleteSelectorFactory(

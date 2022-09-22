@@ -18,7 +18,7 @@ namespace Vodovoz.TempAdapters
 {
 	public class UserJournalFactory : IUserJournalFactory
 	{
-		public IEntityAutocompleteSelectorFactory CreateUserAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateSelectUserAutocompleteSelectorFactory()
 		{
 			return new EntityAutocompleteSelectorFactory<SelectUserJournalViewModel>(typeof(User),
 				() => new SelectUserJournalViewModel(

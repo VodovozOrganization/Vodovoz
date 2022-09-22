@@ -57,6 +57,7 @@
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageDistributionNode.cs" />
@@ -74,7 +75,6 @@
     <Compile Include="Dialogs\Roboats\RoboatsWaterTypeViewModel.cs" />
     <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
     <Compile Include="Dialogs\Logistic\DeliveryScheduleViewModel.cs" />
-    <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
     <Compile Include="Factories\IAttachmentsViewModelFactory.cs" />
     <Compile Include="Factories\ICarVersionsViewModelFactory.cs" />
     <Compile Include="Factories\IDeliveryPointViewModelFactory.cs" />
@@ -140,8 +140,6 @@
     <Compile Include="Journals\JournalFactories\DistrictJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IBulkEmailEventReasonJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IDistrictJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
-    <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\SalesPlanJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\CarEventTypeJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISalesPlanJournalFactory.cs" />
@@ -153,8 +151,6 @@
     <Compile Include="Journals\JournalNodes\Client\BulkEmailEventReasonJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\DebtorJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\GeoGroupJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\Logistic\TariffZoneJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\Logistic\TrackPointJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\WaterJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\FastDeliveryAvailabilityHistoryJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Logistic\TariffZoneJournalNode.cs" />
@@ -231,13 +227,8 @@
     <Compile Include="Journals\JournalViewModels\Goods\EquipmentKindJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\NomenclaturesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\ProductGroupJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Logistic\TariffZoneJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Logistic\TrackPointJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\RoboatsWaterTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Goods\RoboatsWaterNomenclatureJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Logistic\CarManufacturerJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DeliveryScheduleJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\FastDeliveryAvailabilityHistoryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\TariffZoneJournalViewModel.cs" />
@@ -250,8 +241,6 @@
     <Compile Include="Journals\JournalViewModels\Logistic\CarEventTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\CarEventJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryTransferAbsenceReasonJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Roboats\RoboatsCallsRegistryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Roboats\RoboatsStreetJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
@@ -261,8 +250,6 @@
     <Compile Include="Journals\JournalViewModels\Orders\PaymentsFromJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryTransferAbsenceReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Payments\UnallocatedBalancesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Sale\GeoGroupJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseJournalViewModel.cs" />
     <Compile Include="Journals\JournalFactories\WarehouseSelectorFactory.cs" />
@@ -367,6 +354,7 @@
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
+    <Compile Include="ViewModels\PermissionNode\IPermissionNodeViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\PermissionTypeAllNodeViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\SelectAllNodePermissionViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\WarehouseAllNodeViewModel.cs" />
@@ -536,7 +524,6 @@
     <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
     <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
       <Project>{7A75C848-2A65-4FFF-AB70-9408E697D9BA}</Project>

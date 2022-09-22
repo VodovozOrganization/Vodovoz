@@ -6,19 +6,22 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 {
-    public class WarehousePermissionNodeViewModel : PropertyChangedBase
+    public class WarehousePermissionNodeViewModel : PropertyChangedBase, IPermissionNodeViewModel
     {
         private WarehousePermissionModelBase WarehousePermissionModelBase { get; set; }
 
-        public WarehousePermissionNodeViewModel(Warehouse warehouse, WarehousePermissionsType warehousePermissionsType, WarehousePermissionModelBase warehousePermissionModelBase)
+        public WarehousePermissionNodeViewModel(
+			Warehouse warehouse,
+			WarehousePermissionsType warehousePermissionsType,
+			WarehousePermissionModelBase warehousePermissionModelBase)
         {
-            this._warehouse = warehouse;
-            this._warehousePermissionsType = warehousePermissionsType;
-            this.WarehousePermissionModelBase = warehousePermissionModelBase;
+            _warehouse = warehouse;
+            _warehousePermissionsType = warehousePermissionsType;
+            WarehousePermissionModelBase = warehousePermissionModelBase;
             var permissions = warehousePermissionModelBase.AllPermission;
             if (permissions.Any())
             {
-                this._permissionValue = permissions
+                _permissionValue = permissions
                     .Where(x => x.Warehouse == Warehouse && x.WarehousePermissionType == WarehousePermissionsType)
                     .Select(x=>x.PermissionValue).SingleOrDefault();
             }
@@ -40,7 +43,9 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
         }
 
         private bool? _permissionValue;
-        public bool? PermissionValue
+		public string Title { get; set; }
+
+		public bool? PermissionValue
         {
             get => _permissionValue;
             set

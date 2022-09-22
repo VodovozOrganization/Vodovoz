@@ -132,7 +132,7 @@ namespace Vodovoz.Views.Employees
 			ConfigureSubdivision();
 
 			var usersJournalFactory = new UserJournalFactory();
-			entityviewmodelUser.SetEntityAutocompleteSelectorFactory(usersJournalFactory.CreateUserAutocompleteSelectorFactory());
+			entityviewmodelUser.SetEntityAutocompleteSelectorFactory(usersJournalFactory.CreateSelectUserAutocompleteSelectorFactory());
 			entityviewmodelUser.Binding.AddBinding(ViewModel.Entity, e => e.User, w => w.Subject).InitializeFromSource();
 			entityviewmodelUser.Sensitive = ViewModel.CanManageUsers && ViewModel.CanEditEmployee;
 

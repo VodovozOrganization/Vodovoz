@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Orders;
+﻿using QS.Project.Journal.EntitySelector;
 
 namespace Vodovoz.ViewModels.TempAdapters
 {
 	public interface IUserJournalFactory
 	{
-		IEntityAutocompleteSelectorFactory CreateUserAutocompleteSelectorFactory();
+		IEntityAutocompleteSelectorFactory CreateSelectUserAutocompleteSelectorFactory();
 	}
 }

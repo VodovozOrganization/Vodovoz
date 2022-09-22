@@ -367,7 +367,6 @@
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
-    <Compile Include="Factories\OsrmClientFactory.cs" />
     <Compile Include="Factories\RoboatsCallFactory.cs" />
     <Compile Include="Factories\RoboatsFileStorageFactory.cs" />
     <Compile Include="Factories\IPaymentFromAvangardFactory.cs" />

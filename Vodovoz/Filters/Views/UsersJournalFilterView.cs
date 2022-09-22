@@ -1,10 +1,12 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+
 namespace Vodovoz.Filters.Views
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UsersJournalFilterView : Gtk.Bin
+	public partial class UsersJournalFilterView : FilterViewBase<UsersJournalFilterViewModel>
 	{
-		public UsersJournalFilterView()
+		public UsersJournalFilterView(UsersJournalFilterViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Configure();
@@ -12,7 +14,10 @@ namespace Vodovoz.Filters.Views
 
 		private void Configure()
 		{
-			throw new NotImplementedException();
+			chkShowDeactivatedUsers.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowDeactivatedUsers, w => w.Active)
+				.InitializeFromSource();
 		}
 	}
 }
