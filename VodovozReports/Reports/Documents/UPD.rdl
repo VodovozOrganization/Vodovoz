@@ -2997,8 +2997,8 @@ WHERE o.id = @order_id
       <List Name="List4">
         <Height>254.59pt</Height>
         <Width>803.94pt</Width>
-        <Left>2.3pt</Left>
-        <Top>284.8pt</Top>
+        <Left>2.30pt</Left>
+        <Top>284.80pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
@@ -3033,8 +3033,8 @@ WHERE o.id = @order_id
             <Width>523.29pt</Width>
             <Value>(договор; доверенность и др.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>254.1pt</Left>
-            <Top>56.7pt</Top>
+            <Left>254.10pt</Left>
+            <Top>56.70pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -4197,80 +4197,6 @@ WHERE o.id = @order_id
               <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
-          <Image Name="Image4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>20.46pt</Height>
-            <Width>30.78pt</Width>
-            <Left>149.3pt</Left>
-            <Top>171.5pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <Source>Database</Source>
-            <Value>=First({chief}, "Signatures" )</Value>
-            <Sizing>Fit</Sizing>
-            <MIMEType>image/jpeg</MIMEType>
-            <Visibility>
-              <Hidden>={?hide_signature}</Hidden>
-            </Visibility>
-          </Image>
-          <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>20.46pt</Height>
-            <Width>30.78pt</Width>
-            <Left>141.3pt</Left>
-            <Top>103.3pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <Source>Database</Source>
-            <Value>=First({chief}, "Signatures" )</Value>
-            <Sizing>Fit</Sizing>
-            <MIMEType>image/jpeg</MIMEType>
-            <Visibility>
-              <Hidden>={?hide_signature}</Hidden>
-            </Visibility>
-          </Image>
-          <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>20.21pt</Height>
-            <Width>30.53pt</Width>
-            <Left>599.5pt</Left>
-            <Top>0.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <Source>Database</Source>
-            <Value>=First({bookkeeper}, "Signatures" )</Value>
-            <Sizing>Fit</Sizing>
-            <MIMEType>image/png</MIMEType>
-            <Visibility>
-              <Hidden>={?hide_signature}</Hidden>
-            </Visibility>
-            <ZIndex>0</ZIndex>
-          </Image>
-          <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>20.21pt</Height>
-            <Width>30.53pt</Width>
-            <Left>275.80pt</Left>
-            <Top>0.00pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <Source>Database</Source>
-            <Value>=First({chief}, "Signatures" )</Value>
-            <Sizing>Fit</Sizing>
-            <MIMEType>image/jpeg</MIMEType>
-            <Visibility>
-              <Hidden>={?hide_signature}</Hidden>
-            </Visibility>
-            <ZIndex>0</ZIndex>
-          </Image>
           <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>102.39pt</Height>
             <Width>112.93pt</Width>
@@ -4390,6 +4316,82 @@ WHERE o.id = @order_id
         <Left>81.0pt</Left>
         <Top>7.1pt</Top>
       </Line>
+      <Image Name="Image2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>54.97pt</Height>
+        <Width>65.87pt</Width>
+        <Left>594.4pt</Left>
+        <Top>270.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=First({bookkeeper}, "Signatures" )</Value>
+        <Sizing>FitProportional</Sizing>
+        <MIMEType>image/png</MIMEType>
+        <Visibility>
+          <Hidden>={?hide_signature}</Hidden>
+        </Visibility>
+        <ZIndex>0</ZIndex>
+      </Image>
+      <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>54.10pt</Height>
+        <Width>55.34pt</Width>
+        <Left>285.4pt</Left>
+        <Top>271.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=First({chief}, "Signatures" )</Value>
+        <Sizing>FitProportional</Sizing>
+        <MIMEType>image/png</MIMEType>
+        <Visibility>
+          <Hidden>={?hide_signature}</Hidden>
+        </Visibility>
+        <ZIndex>0</ZIndex>
+      </Image>
+      <Image Name="Image4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>54.10pt</Height>
+        <Width>55.34pt</Width>
+        <Left>141.8pt</Left>
+        <Top>449.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=First({chief}, "Signatures" )</Value>
+        <Sizing>FitProportional</Sizing>
+        <MIMEType>image/png</MIMEType>
+        <Visibility>
+          <Hidden>={?hide_signature}</Hidden>
+        </Visibility>
+        <ZIndex>0</ZIndex>
+      </Image>
+      <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>54.10pt</Height>
+        <Width>55.34pt</Width>
+        <Left>136.7pt</Left>
+        <Top>377.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=First({chief}, "Signatures" )</Value>
+        <Sizing>FitProportional</Sizing>
+        <MIMEType>image/png</MIMEType>
+        <Visibility>
+          <Hidden>={?hide_signature}</Hidden>
+        </Visibility>
+        <ZIndex>0</ZIndex>
+      </Image>
     </ReportItems>
   </Body>
   <PageFooter>
