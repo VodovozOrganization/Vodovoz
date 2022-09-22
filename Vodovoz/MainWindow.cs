@@ -2698,7 +2698,7 @@ public partial class MainWindow : Gtk.Window
 		NavigationManager.OpenViewModel<ProfitabilityConstantsViewModel, IValidator>(
 			null, ServicesConfig.ValidationService, OpenPageOptions.IgnoreHash);
 	}
-	
+
 	private void ActionGroupPricingActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
@@ -2707,5 +2707,9 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionSalesDepartmentAcivated(System.Object sender, System.EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
+	}
+
+	protected void OnActionResponsibleActivated(object sender, EventArgs e)
+	{
 	}
 }
