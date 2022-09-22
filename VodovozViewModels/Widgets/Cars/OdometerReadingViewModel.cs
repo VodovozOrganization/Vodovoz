@@ -22,9 +22,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			_odometerReadingController = odometerReadingController ?? throw new ArgumentNullException(nameof(odometerReadingController));
 
 			CanRead = PermissionResult.CanRead;
-			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_odometer_reading");
-			CanCreate = PermissionResult.CanCreate && Entity.Id == 0 || CanEdit;
-			CanChangeDate = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_odometer_reading_date");
+			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
+				|| commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_odometer_reading");
+			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_odometer_reading");
 
 			if(IsNewCar)
 			{
@@ -59,7 +59,6 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 		public bool CanRead { get; }
 		public bool CanCreate { get; }
-		public bool CanChangeDate { get; }
 		public bool CanEdit { get; }
 
 		public bool IsNewCar => Entity.Id == 0;
@@ -73,7 +72,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		public bool CanChangeOdometerReadingDate =>
 			SelectedDate.HasValue
 			&& SelectedOdometerReading != null
-			&& (CanChangeDate || SelectedOdometerReading.Id == 0)
+			&& (CanEdit || SelectedOdometerReading.Id == 0)
 			&& _odometerReadingController.IsValidDateForOdometerReadingStartDateChange(SelectedOdometerReading, SelectedDate.Value);
 
 
