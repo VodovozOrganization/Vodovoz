@@ -397,7 +397,7 @@ WHERE o.id = @order_id
       </Fields>
     </DataSet>
     <DataSet Name="Signatures">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	(SELECT binary_file FROM stored_resource WHERE id = 
@@ -444,7 +444,7 @@ WHERE o.id = @order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="chief">
           <DataField>chief</DataField>
           <TypeName>System.String</TypeName>
@@ -3759,15 +3759,15 @@ WHERE o.id = @order_id
           <Image Name="Image4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>20.46pt</Height>
             <Width>30.78pt</Width>
-            <Left>149.3pt</Left>
-            <Top>171.5pt</Top>
+            <Left>150.80pt</Left>
+            <Top>169.30pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>Database =First({chief}, "Signatures" )</Value>
+            <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
             <MIMEType>image/jpeg</MIMEType>
             <Visibility>
@@ -3785,7 +3785,7 @@ WHERE o.id = @order_id
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>Database =First({chief}, "Signatures" )</Value>
+            <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
             <MIMEType>image/jpeg</MIMEType>
             <Visibility>
@@ -3822,7 +3822,7 @@ WHERE o.id = @order_id
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>Database =First({chief}, "Signatures" )</Value>
+            <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
             <MIMEType>image/jpeg</MIMEType>
             <Visibility>

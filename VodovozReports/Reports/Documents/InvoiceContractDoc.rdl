@@ -671,7 +671,7 @@ WHERE stored_resource.id = @id21</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Signature">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT	(SELECT binary_file FROM stored_resource WHERE id = 
 		(SELECT 
@@ -698,7 +698,7 @@ WHERE stored_resource.id = @id21</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="chief">
           <DataField>chief</DataField>
           <TypeName>System.String</TypeName>
@@ -1255,10 +1255,10 @@ WHERE stored_resource.id = @id21</CommandText>
         </Footer>
       </Table>
       <List Name="List2">
-        <Height>192.49pt</Height>
-        <Width>530.08pt</Width>
+        <Height>184.96pt</Height>
+        <Width>529.33pt</Width>
         <Left>37.40pt</Left>
-        <Top>271.70pt</Top>
+        <Top>279.23pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
@@ -1266,8 +1266,8 @@ WHERE stored_resource.id = @id21</CommandText>
             <Value>="Отпуск разрешил:__________________/"+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "./"
 </Value>
             <ZIndex>0</ZIndex>
-            <Left>86.00pt</Left>
-            <Top>0.00pt</Top>
+            <Left>86.0pt</Left>
+            <Top>6.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1295,7 +1295,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>17.7pt</Top>
+            <Top>20.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1543,6 +1543,21 @@ WHERE stored_resource.id = @id21</CommandText>
               <FontWeight>Bold</FontWeight>
             </Style>
           </Textbox>
+          <Image Name="Image5" >
+            <Height>29.32pt</Height>
+            <Width>46.64pt</Width>
+            <Left>209.0pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <MIMEType>image/png</MIMEType>
+            <Source>Database</Source>
+            <Value>=First( {chief} , "Signature" )</Value>
+            <Sizing>FitProportional</Sizing>
+          </Image>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -2432,21 +2447,6 @@ WHERE stored_resource.id = @id21</CommandText>
         <Left>274.6pt</Left>
         <Top>67.7pt</Top>
       </fyi:Grid>
-      <Image Name="Image6">
-        <Height>69.97pt</Height>
-        <Width>83.58pt</Width>
-        <Left>237.7pt</Left>
-        <Top>247.8pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <MIMEType>image/png</MIMEType>
-        <Source>Database</Source>
-        <Value>=First( {chief} , "Signature" )</Value>
-        <Sizing>FitProportional</Sizing>
-      </Image>
     </ReportItems>
   </Body>
   <PageFooter>
