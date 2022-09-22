@@ -181,6 +181,7 @@ using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.Views.Sale;
 using Vodovoz.Models;
 using QS.Validation;
+using Vodovoz.ViewModels.Dialogs.Complaints;
 
 namespace Vodovoz
 {
@@ -312,6 +313,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
+				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				;
 			
 			//Регистрация виджетов
