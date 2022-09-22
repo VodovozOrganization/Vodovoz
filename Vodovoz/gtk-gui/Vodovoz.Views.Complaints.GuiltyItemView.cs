@@ -6,7 +6,7 @@ namespace Vodovoz.Views.Complaints
 	{
 		private global::Gtk.VBox vbxCreateGuilty;
 
-		private global::Gamma.Widgets.yEnumComboBox yEnumGuiltyType;
+		private global::Gamma.Widgets.ySpecComboBox yCmbResponsible;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entVmEmployee;
 
@@ -23,14 +23,15 @@ namespace Vodovoz.Views.Complaints
 			this.vbxCreateGuilty.Name = "vbxCreateGuilty";
 			this.vbxCreateGuilty.Spacing = 6;
 			// Container child vbxCreateGuilty.Gtk.Box+BoxChild
-			this.yEnumGuiltyType = new global::Gamma.Widgets.yEnumComboBox();
-			this.yEnumGuiltyType.Name = "yEnumGuiltyType";
-			this.yEnumGuiltyType.ShowSpecialStateAll = true;
-			this.yEnumGuiltyType.ShowSpecialStateNot = false;
-			this.yEnumGuiltyType.UseShortTitle = false;
-			this.yEnumGuiltyType.DefaultFirst = false;
-			this.vbxCreateGuilty.Add(this.yEnumGuiltyType);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.yEnumGuiltyType]));
+			this.yCmbResponsible = new global::Gamma.Widgets.ySpecComboBox();
+			this.yCmbResponsible.Name = "yCmbResponsible";
+			this.yCmbResponsible.AddIfNotExist = false;
+			this.yCmbResponsible.DefaultFirst = false;
+			this.yCmbResponsible.ShowSpecialStateAll = true;
+			this.yCmbResponsible.ShowSpecialStateNot = true;
+			this.yCmbResponsible.NameForSpecialStateNot = "Нет";
+			this.vbxCreateGuilty.Add(this.yCmbResponsible);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.yCmbResponsible]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
