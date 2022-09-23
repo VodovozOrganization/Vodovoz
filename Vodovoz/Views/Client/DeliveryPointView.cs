@@ -455,14 +455,14 @@ namespace Vodovoz.Views.Client
 			{
 				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
 			}
-
-			if(!ViewModel.IsDisposed)
+			
+			Application.Invoke((o, args) =>
 			{
-				Application.Invoke((o, args) =>
+				if(!ViewModel.IsDisposed)
 				{
 					ViewModel.WriteCoordinates(coordinate.Latitude, coordinate.Longitude, false);
-				});
-			}
+				}
+			});
 		}
 
 
