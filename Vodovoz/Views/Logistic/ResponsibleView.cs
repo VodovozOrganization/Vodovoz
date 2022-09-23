@@ -19,7 +19,10 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 			
-			ycheckIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchived, w => w.Active).InitializeFromSource();
+			ycheckIsArchive.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchived, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonSave.Sensitive = ViewModel.CanEdit;

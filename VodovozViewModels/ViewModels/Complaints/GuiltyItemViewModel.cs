@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityPropertyChanges();
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 			HideClientFromGuilty = !fromComplaintsJournalFilter;
-			ResponsibleList = uow.GetAll<Responsible>().ToList();
+			ResponsibleList = uow.GetAll<Responsible>().Where(r => !r.IsArchived).ToList();
 		}
 
 		public event EventHandler OnGuiltyItemReady;

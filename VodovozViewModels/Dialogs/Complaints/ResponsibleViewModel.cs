@@ -18,7 +18,8 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 			TabName = "Ответственный";
 
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Responsible));
-			_canUpdate = permissionResult.CanUpdate;
+			var isSpecialResponsible = Entity.IsEmployeeResponsible || Entity.IsSubdivisionResponsible;
+			_canUpdate = permissionResult.CanUpdate && !isSpecialResponsible;
 			_canCreate = permissionResult.CanCreate;
 		}
 
