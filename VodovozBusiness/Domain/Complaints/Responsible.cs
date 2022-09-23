@@ -3,6 +3,8 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Client
 {
@@ -13,6 +15,8 @@ namespace Vodovoz.Domain.Client
 	[HistoryTrace]
 	public class Responsible : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private IComplaintParametersProvider _complaintParameterProvider = new ComplaintParametersProvider(new ParametersProvider());
+
 		private string _name;
 		private bool _isArchived;
 
@@ -31,6 +35,9 @@ namespace Vodovoz.Domain.Client
 			get => _isArchived;
 			set => SetField(ref _isArchived, value);
 		}
+
+		public virtual bool IsSubdivisionResponsible => Id == _complaintParameterProvider.SubdivisionResponsibleId;
+		public virtual bool IsEmployeeResponsible => Id == _complaintParameterProvider.EmployeeResponsibleId;
 
 		#region IValidatableObject implementation
 

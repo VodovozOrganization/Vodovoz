@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Complaints
 			yCmbResponsible.SetRenderTextFunc<Responsible>(r => r.Name);
 			yCmbResponsible.Binding
 				.AddBinding(ViewModel, vm => vm.ResponsibleList, w => w.ItemsList)
-				.AddBinding(ViewModel, vm.Responsible, w => w.SelectedItem)
+				.AddBinding(ViewModel.Entity, e => e.Responsible, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			entVmEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);

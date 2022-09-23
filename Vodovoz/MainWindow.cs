@@ -1074,6 +1074,7 @@ public partial class MainWindow : Gtk.Window
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
+		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
 
 		var journal = new ComplaintsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
@@ -1106,7 +1107,8 @@ public partial class MainWindow : Gtk.Window
 			new SalesPlanJournalFactory(),
 			new NomenclatureJournalFactory(),
 			new EmployeeSettings(new ParametersProvider()),
-			new UndeliveredOrdersRepository()
+			new UndeliveredOrdersRepository(),
+			complaintParametersProvider
 		);
 
 		tdiMain.AddTab(journal);
@@ -2202,6 +2204,7 @@ public partial class MainWindow : Gtk.Window
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
+		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
 
 		tdiMain.OpenTab(
 			() =>
@@ -2235,7 +2238,8 @@ public partial class MainWindow : Gtk.Window
 					new SalesPlanJournalFactory(),
 					new NomenclatureJournalFactory(),
 					new EmployeeSettings(new ParametersProvider()),
-					new UndeliveredOrdersRepository()
+					new UndeliveredOrdersRepository(),
+					complaintParametersProvider
 				);
 			}
 		);

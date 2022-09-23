@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Complaints
@@ -25,12 +26,12 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref complaint, value, () => Complaint);
 		}
 
-		private ComplaintGuiltyTypes? guiltyType;
+		private Responsible _responsible;
 		[Display(Name = "Ответственный")]
-		public virtual ComplaintGuiltyTypes? GuiltyType {
-			get => guiltyType;
+		public virtual Responsible Responsible {
+			get => _responsible;
 			set {
-				if(SetField(ref guiltyType, value, () => GuiltyType))
+				if(SetField(ref _responsible, value, () => Responsible))
 					OnGuiltyTypeChange?.Invoke();
 			}
 		}
@@ -49,23 +50,26 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref subdivision, value, () => Subdivision);
 		}
 
-		public virtual string Title {
-			get {
-				if(!GuiltyType.HasValue)
+		public virtual string Title
+		{
+			get 
+			{
+				if(Responsible == null)
+				{
 					return string.Format("Ответственный №{0} в рекламации №{1}", Id, Complaint?.Id);
-				switch(GuiltyType.Value) {
-					case ComplaintGuiltyTypes.None:
-					case ComplaintGuiltyTypes.Client:
-					case ComplaintGuiltyTypes.Depreciation:
-					case ComplaintGuiltyTypes.Supplier:
-						return $"Ответственный \"{GuiltyType.GetEnumTitle()}\"";
-					case ComplaintGuiltyTypes.Subdivision:
-						return $"Ответственный \"{Subdivision?.Name}\"";
-					case ComplaintGuiltyTypes.Employee:
-						return $"Ответственный сотрудник {Employee?.ShortName}";
-					default:
-						return string.Format("Ответственный №{0} в рекламации №{1}", Id, Complaint?.Id);
 				}
+
+				if(Responsible.IsSubdivisionResponsible)
+				{
+					return $"Ответственный \"{Subdivision?.Name}\"";
+				}
+
+				if(Responsible.IsEmployeeResponsible)
+				{
+					return $"Ответственный сотрудник {Employee?.ShortName}";
+				}
+				
+				return string.Format("Ответственный №{0} в рекламации №{1}", Id, Complaint?.Id);				
 			}
 		}
 
@@ -79,17 +83,17 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(GuiltyType == null)
+			if(Responsible == null)
 				yield return new ValidationResult(
 					"Ответственная сторона не выбрана",
-					new[] { this.GetPropertyName(o => o.GuiltyType) }
+					new[] { this.GetPropertyName(o => o.Responsible) }
 				);
-			if(GuiltyType == ComplaintGuiltyTypes.Employee && Employee == null)
+			if(Responsible.IsEmployeeResponsible && Employee == null)
 				yield return new ValidationResult(
 					"Укажите ответственного сотрудника",
 					new[] { this.GetPropertyName(o => o.Employee) }
 				);
-			if(GuiltyType == ComplaintGuiltyTypes.Subdivision && Subdivision == null)
+			if(Responsible.IsSubdivisionResponsible && Subdivision == null)
 				yield return new ValidationResult(
 					"Укажите ответственный отдел ВВ",
 					new[] { this.GetPropertyName(o => o.Subdivision) }
