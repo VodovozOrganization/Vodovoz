@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using RoboAtsService.Monitoring;
 using System;
+using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 
 namespace RoboAtsService.Workers
 {
-	public class CloseStaleCallsWorker : TimerService
+	public class CloseStaleCallsWorker : TimerServiceBase
 	{
 		private readonly ILogger<CloseStaleCallsWorker> _logger;
 		private readonly RoboatsSettings _roboatsSettings;
