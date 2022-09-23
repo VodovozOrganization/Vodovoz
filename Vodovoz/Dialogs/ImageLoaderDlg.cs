@@ -35,6 +35,8 @@ namespace Vodovoz.Dialogs
 		{
 			imageNameYentry.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			photoview.Binding.AddBinding(Entity, e => e.BinaryFile, w => w.ImageFile).InitializeFromSource();
+			comboType.ItemsEnum = typeof(ImageType);
+			comboType.Binding.AddBinding(Entity, e => e.ImageType, w => w.SelectedItemOrNull).InitializeFromSource();
 			ylabelId.Text = Entity.Id.ToString();
 		}
 

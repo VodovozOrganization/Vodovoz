@@ -237,8 +237,8 @@ namespace Vodovoz
 										new SQLFunctionTemplate(NHibernateUtil.Int32,
 											"?1 - ?2"),
 											NHibernateUtil.Int32,
-											Projections.Property(() => orderEquipmentAlias.Count),
-											Projections.Property(() => orderEquipmentAlias.ActualCount)
+											Projections.Cast(NHibernateUtil.Int32, Projections.Property(() => orderEquipmentAlias.Count)),
+											Projections.Cast(NHibernateUtil.Int32, Projections.Property(() => orderEquipmentAlias.ActualCount))
 									),
 									Projections.Property(() => orderEquipmentAlias.Count)
 							)

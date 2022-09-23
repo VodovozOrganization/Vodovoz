@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -45,7 +46,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
 			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository, IEmployeeSettings employeeSettings)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository, IEmployeeSettings employeeSettings,
+			ISubdivisionParametersProvider subdivisionParametersProvider)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
@@ -71,6 +73,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 
+			if(FilterViewModel.IsForSalesDepartment.HasValue && FilterViewModel.IsForSalesDepartment.Value)
+			{
+				var salesSubDivisionId = subdivisionParametersProvider.GetSalesSubdivisionId();
+				FilterViewModel.RestrictInProcessAtDepartment = UoW.GetById<Subdivision>(salesSubDivisionId);
+			}
+
 			FinishJournalConfiguration();
 		}
 
@@ -79,12 +87,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 		private void RegisterUndeliveredOrders()
 		{
+			var isFosSalesDepartment = FilterViewModel.IsForSalesDepartment.HasValue && FilterViewModel.IsForSalesDepartment.Value;
 			var undeliveredrdersConfig = RegisterEntity<UndeliveredOrder>(GetUndeliveredOrdersQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => _gtkDlgOpener.OpenUndeliveredOrderDlg(this),
+					() => _gtkDlgOpener.OpenUndeliveredOrderDlg(this,  isForSalesDepartment: isFosSalesDepartment),
 					//функция диалога открытия документа
-					(UndeliveredOrderJournalNode node) => _gtkDlgOpener.OpenUndeliveredOrderDlg(this, node.Id),
+					(UndeliveredOrderJournalNode node) => _gtkDlgOpener.OpenUndeliveredOrderDlg(this, id: node.Id),
 					//функция идентификации документа 
 					(UndeliveredOrderJournalNode node) => node.EntityType == typeof(UndeliveredOrder),
 					"Недовоз"

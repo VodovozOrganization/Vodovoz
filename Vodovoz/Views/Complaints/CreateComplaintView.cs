@@ -69,7 +69,8 @@ namespace Vodovoz.Views.Complaints
 												ViewModel.NomenclatureSelector,
 												ViewModel.UndeliveredOrdersRepository,
 												ViewModel.SubdivisionRepository,
-												ViewModel.FileDialogService);
+												ViewModel.FileDialogService,
+												ViewModel.SubdivisionParametersProvider);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);

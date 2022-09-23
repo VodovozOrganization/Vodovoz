@@ -19,6 +19,7 @@ using QS.Project.Repositories;
 using QS.Services;
 using RoboAtsService.Middleware;
 using RoboAtsService.Monitoring;
+using RoboAtsService.OrderValidation;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -69,6 +70,7 @@ namespace RoboAtsService
 			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsSettings>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<ValidOrdersProvider>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()
 				.AsImplementedInterfaces();

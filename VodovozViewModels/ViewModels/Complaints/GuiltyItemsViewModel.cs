@@ -7,6 +7,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -15,18 +16,22 @@ namespace Vodovoz.ViewModels.Complaints
 		readonly ISubdivisionRepository subdivisionRepository;
 		readonly ICommonServices commonServices;
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public GuiltyItemsViewModel(
 			Complaint entity,
 			IUnitOfWork uow,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			bool isForSalesDepartment = false
 		) : base(entity, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.commonServices = commonServices;
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 		}
@@ -70,6 +75,7 @@ namespace Vodovoz.ViewModels.Complaints
 				commonServices,
 				subdivisionRepository,
 				employeeSelectorFactory,
+				_subdivisionParametersProvider,
 				UoW
 			);
 			UpdateAcessibility();

@@ -339,7 +339,8 @@ namespace Vodovoz
 				new UndeliveredOrdersJournalOpener(),
 				new OrderSelectorFactory(),
 				new UndeliveredOrdersRepository(),
-				new EmployeeSettings(new ParametersProvider())
+				new EmployeeSettings(new ParametersProvider()),
+				new SubdivisionParametersProvider(new ParametersProvider())
 				);
 
 			TabParent.AddSlaveTab(this, dlg);

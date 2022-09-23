@@ -5,5 +5,6 @@
 		int GetOkkId();
 		int GetSubdivisionIdForRouteListAccept();
 		int GetParentVodovozSubdivisionId();
+		int GetSalesSubdivisionId();
 	}
 }

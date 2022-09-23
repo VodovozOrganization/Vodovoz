@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
@@ -79,7 +80,8 @@ namespace Vodovoz.ViewModels.Complaints
 			INomenclatureJournalFactory nomenclatureSelector,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IEmployeeSettings employeeSettings,
-			IComplaintResultsRepository complaintResultsRepository) : base(uowBuilder, uowFactory, commonServices)
+			IComplaintResultsRepository complaintResultsRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			FileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -102,6 +104,7 @@ namespace Vodovoz.ViewModels.Complaints
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			UndeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
@@ -244,7 +247,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, SubdivisionRepository, _employeeSelectorFactory);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, SubdivisionRepository, _employeeSelectorFactory, SubdivisionParametersProvider);
 				}
 
 				return guiltyItemsViewModel;
@@ -467,6 +470,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
 		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
 		public INomenclatureJournalFactory NomenclatureSelector { get; }
+		public ISubdivisionParametersProvider SubdivisionParametersProvider { get; set; }
 
 		public void CloseComplaint(ComplaintStatuses status)
 		{

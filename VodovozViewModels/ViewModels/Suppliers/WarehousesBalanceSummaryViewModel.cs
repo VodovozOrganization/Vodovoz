@@ -430,7 +430,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			_nomsFilter.CreateParameterSet("Группы товаров", _parameterProducGroups,
 				new RecursiveParametersFactory<ProductGroup>(UoW, (filters) =>
 					{
-						var query = UoW.Session.QueryOver<ProductGroup>();
+						var query = UoW.Session.QueryOver<ProductGroup>()
+							.Where(p => p.Parent == null);
+						
 						if(filters != null && EnumerableExtensions.Any(filters))
 						{
 							foreach(var f in filters)

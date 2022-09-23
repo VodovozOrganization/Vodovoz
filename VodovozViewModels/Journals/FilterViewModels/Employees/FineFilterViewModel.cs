@@ -6,6 +6,13 @@ namespace Vodovoz.FilterViewModels.Employees
 {
 	public class FineFilterViewModel : FilterViewModelBase<FineFilterViewModel>
 	{
+		public FineFilterViewModel(bool canEditFilter = false)
+		{
+			CanEditSubdivision =
+			CanEditFineDate =
+			CanEditRouteListDate = canEditFilter;
+		}
+
 		private bool canEditSubdivision;
 		public virtual bool CanEditSubdivision {
 			get => canEditSubdivision;

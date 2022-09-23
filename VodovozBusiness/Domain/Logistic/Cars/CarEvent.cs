@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using NHibernate.Type;
 using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Logistic
@@ -29,7 +28,9 @@ namespace Vodovoz.Domain.Logistic
 		private string _comment;
 		private string _foundation;
 		private bool _doNotShowInOperation;
+		private bool _compensationFromInsuranceByCourt;
 		private decimal _repairCost;
+		private CarEvent _originalCarEvent;
 
 		#region Свойства
 
@@ -105,11 +106,25 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField( ref _doNotShowInOperation, value );
 		}
 
+		[Display(Name = "Компенсация от страховой, по суду")]
+		public virtual bool CompensationFromInsuranceByCourt
+		{
+			get => _compensationFromInsuranceByCourt;
+			set => SetField(ref _compensationFromInsuranceByCourt, value);
+		}
+
 		[Display( Name = "Стоимость ремонта" )]
 		public virtual decimal RepairCost
 		{
 			get => _repairCost;
-			set => SetField( ref _repairCost, value );
+			set => SetField(ref _repairCost, value);
+		}
+
+		[Display(Name = "Исходное ремонтное событие")]
+		public virtual CarEvent OriginalCarEvent
+		{
+			get => _originalCarEvent;
+			set => SetField(ref _originalCarEvent, value);
 		}
 
 		IList<Fine> fines = new List<Fine>();
