@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Complaints
 			this.yCmbResponsible.AddIfNotExist = false;
 			this.yCmbResponsible.DefaultFirst = false;
 			this.yCmbResponsible.ShowSpecialStateAll = true;
-			this.yCmbResponsible.ShowSpecialStateNot = true;
+			this.yCmbResponsible.ShowSpecialStateNot = false;
 			this.yCmbResponsible.NameForSpecialStateNot = "Нет";
 			this.vbxCreateGuilty.Add(this.yCmbResponsible);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.yCmbResponsible]));
