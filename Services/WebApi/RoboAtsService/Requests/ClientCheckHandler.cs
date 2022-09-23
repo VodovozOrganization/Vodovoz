@@ -42,7 +42,7 @@ namespace RoboAtsService.Requests
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "При обработке запроса информации о клиенте возникло исключение");
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.OnClientHandle,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.Exception, RoboatsCallOperation.OnClientHandle,
 						$"При обработке запроса информации о клиенте возникло исключение: {ex.Message}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
@@ -54,7 +54,7 @@ namespace RoboAtsService.Requests
 			var counterpartyCount = counterpartyIds.Count();
 			if(counterpartyCount > 1)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck, 
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck, 
 					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				return ErrorMessage;
 			}
@@ -80,7 +80,7 @@ namespace RoboAtsService.Requests
 		{
 			if(!_roboatsSettings.RoboatsEnabled)
 			{
-				_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ServiceDisabled, RoboatsCallOperation.ClientCheck,
+				_callRegistrator.RegisterTerminatingFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ServiceDisabled, RoboatsCallOperation.ClientCheck,
 					$"Невозможно проверить контрагента, потому что служба отключена.");
 				return "0";
 			}
@@ -90,7 +90,7 @@ namespace RoboAtsService.Requests
 				var counterpartyExcluded = _roboatsRepository.CounterpartyExcluded(counterpartyId.Value);
 				if(counterpartyExcluded)
 				{
-					_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientExcluded, RoboatsCallOperation.ClientCheck,
+					_callRegistrator.RegisterTerminatingFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientExcluded, RoboatsCallOperation.ClientCheck,
 						$"Контрагент отключен от звонков.");
 					return "0";
 				}
@@ -101,7 +101,7 @@ namespace RoboAtsService.Requests
 			}
 			else
 			{
-				_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
+				_callRegistrator.RegisterTerminatingFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
 					$"Не найден контрагент.");
 				return "0";
 			}
@@ -111,14 +111,14 @@ namespace RoboAtsService.Requests
 		{
 			if(!counterpartyId.HasValue)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientName, 
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientName, 
 					$"Не найден контрагент.");
 				return "NO DATA";
 			}
 			var nameId = _roboatsRepository.GetRoboatsCounterpartyNameId(counterpartyId.Value, ClientPhone);
 			if(nameId == 0)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNameNotFound, RoboatsCallOperation.GetClientName, 
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNameNotFound, RoboatsCallOperation.GetClientName, 
 					$"У контрагента {counterpartyId.Value} не найдено имя.");
 				return "NO DATA";
 			}
@@ -129,14 +129,14 @@ namespace RoboAtsService.Requests
 		{
 			if(!counterpartyId.HasValue)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientPatronymic,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetClientPatronymic,
 					$"Не найден контрагент.");
 				return "NO DATA";
 			}
 			var patronymicId = _roboatsRepository.GetRoboatsCounterpartyPatronymicId(counterpartyId.Value, ClientPhone);
 			if(patronymicId == 0)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientPatronymicNotFound, RoboatsCallOperation.GetClientPatronymic,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientPatronymicNotFound, RoboatsCallOperation.GetClientPatronymic,
 					$"У контрагента {counterpartyId.Value} не найдено отчество.");
 				return "NO DATA";
 			}

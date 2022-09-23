@@ -55,7 +55,7 @@ namespace RoboAtsService.Requests
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "При обработке запроса информации о последнем заказе возникло исключение");
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.Exception, RoboatsCallOperation.GetLastOrderCheck,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.Exception, RoboatsCallOperation.GetLastOrderCheck,
 						$"При обработке запроса информации о последнем заказе возникло исключение: {ex.Message}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
@@ -67,7 +67,7 @@ namespace RoboAtsService.Requests
 			var counterpartyCount = counterpartyIds.Count();
 			if(counterpartyCount > 1)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.GetLastOrderCheck,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.GetLastOrderCheck,
 					$"Для телефона {ClientPhone} найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
 				return ErrorMessage;
 			}
@@ -79,7 +79,7 @@ namespace RoboAtsService.Requests
 			}
 			else
 			{
-				_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetLastOrderCheck,
+				_callRegistrator.RegisterTerminatingFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.GetLastOrderCheck,
 					$"Не найден контрагент.");
 				return ErrorMessage;
 			}
@@ -95,7 +95,7 @@ namespace RoboAtsService.Requests
 				case LastOrderRequestType.BottlesReturn:
 					return GetBottlesReturn(counterpartyId);
 				default:
-					_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.GetLastOrderCheck,
+					_callRegistrator.RegisterTerminatingFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.UnknownRequestType, RoboatsCallOperation.GetLastOrderCheck,
 						$"Неизвестный тип запроса: {RequestType}. Обратитесь в отдел разработки.");
 					return ErrorMessage;
 			}
@@ -103,7 +103,7 @@ namespace RoboAtsService.Requests
 
 		private string GetLastOrderCheck(int counterpartyId)
 		{
-			var deliveryPointIds = _validOrdersProvider.GetLastDeliveryPointIds(ClientPhone, counterpartyId, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderCheck);
+			var deliveryPointIds = _validOrdersProvider.GetLastDeliveryPointIds(ClientPhone, RequestDto.CallGuid, counterpartyId, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderCheck);
 			if(deliveryPointIds.Any())
 			{
 				return "1";
@@ -118,12 +118,12 @@ namespace RoboAtsService.Requests
 		{
 			if(!AddressId.HasValue)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AddressIdNotSpecified, RoboatsCallOperation.GetLastOrderId,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.AddressIdNotSpecified, RoboatsCallOperation.GetLastOrderId,
 					$"В запросе не указан код точки доставки, возможно звонок прерван в момент выбора точки доставки.");
 				return ErrorMessage;
 			}
 
-			var order = _validOrdersProvider.GetLastOrder(ClientPhone, counterpartyId, AddressId.Value, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderId);
+			var order = _validOrdersProvider.GetLastOrder(ClientPhone, RequestDto.CallGuid, counterpartyId, AddressId.Value, RoboatsCallFailType.OrderNotFound, RoboatsCallOperation.GetLastOrderId);
 			if(order == null)
 			{
 				return "NO DATA";
@@ -136,7 +136,7 @@ namespace RoboAtsService.Requests
 		{
 			if(!int.TryParse(RequestDto.OrderId, out int orderId))
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectOrderId, RoboatsCallOperation.GetWaterInfo,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.IncorrectOrderId, RoboatsCallOperation.GetWaterInfo,
 					$"Некорректный номер заказа (Номер заказа: {RequestDto.OrderId}). Контрагент: {counterpartyId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
@@ -144,7 +144,7 @@ namespace RoboAtsService.Requests
 			var availableWaters = _roboatsRepository.GetWaterTypes();
 			if(!availableWaters.Any())
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.AvailableWatersNotFound, RoboatsCallOperation.GetWaterInfo,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.AvailableWatersNotFound, RoboatsCallOperation.GetWaterInfo,
 					$"Не найдены доступные для заказа типы воды в справочнике. Проверьте справочник типов воды для Roboats.");
 				return ErrorMessage;
 			}
@@ -152,7 +152,7 @@ namespace RoboAtsService.Requests
 			var waterQuantity = _roboatsRepository.GetWatersQuantityFromOrder(counterpartyId, orderId);
 			if(!waterQuantity.Any())
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.WaterInOrderNotFound, RoboatsCallOperation.GetWaterInfo,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.WaterInOrderNotFound, RoboatsCallOperation.GetWaterInfo,
 					$"Не найдена вода в заказе {orderId}");
 				return ErrorMessage;
 			}
@@ -163,7 +163,7 @@ namespace RoboAtsService.Requests
 				var roboatsWaterInfo = availableWaters.FirstOrDefault(x => x.Nomenclature.Id == waterItem.NomenclatureId);
 				if(roboatsWaterInfo == null)
 				{
-					_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.WaterNotSupported, RoboatsCallOperation.GetWaterInfo,
+					_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.WaterNotSupported, RoboatsCallOperation.GetWaterInfo,
 						$"Вода Id {waterItem.NomenclatureId} в заказе {orderId} не доступна для заказа (не найдена в справочнике воды для Roboats)");
 					return ErrorMessage;
 				}
@@ -180,7 +180,7 @@ namespace RoboAtsService.Requests
 		{
 			if(!int.TryParse(RequestDto.OrderId, out int orderId))
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.IncorrectOrderId, RoboatsCallOperation.GetBottlesReturn,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.IncorrectOrderId, RoboatsCallOperation.GetBottlesReturn,
 					$"Некорректный номер заказа (Номер заказа: {RequestDto.OrderId}). Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
@@ -188,7 +188,7 @@ namespace RoboAtsService.Requests
 			var bottlesReturn = _roboatsRepository.GetBottlesReturnForOrder(counterpartyId, orderId);
 			if(!bottlesReturn.HasValue)
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.BottlesReturnNotFound, RoboatsCallOperation.GetBottlesReturn,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.BottlesReturnNotFound, RoboatsCallOperation.GetBottlesReturn,
 					$"Не найдено количество возвратной тары для заказа {orderId}");
 				return ErrorMessage;
 			}
