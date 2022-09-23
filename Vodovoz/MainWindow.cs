@@ -2715,5 +2715,6 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionResponsibleActivated(object sender, EventArgs e)
 	{
+		NavigationManager.OpenViewModel<ResponsibleJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }
