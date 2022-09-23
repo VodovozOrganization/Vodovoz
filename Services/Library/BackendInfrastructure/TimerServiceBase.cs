@@ -3,9 +3,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RoboAtsService.Workers
+namespace Vodovoz.Infrastructure
 {
-	public abstract class TimerService : IHostedService, IAsyncDisposable
+	/// <summary>
+	/// База для сервиса, который должен периодически запускать действие
+	/// </summary>
+	public abstract class TimerServiceBase : IHostedService, IAsyncDisposable
 	{
 		private readonly Task _completedTask = Task.CompletedTask;
 		private Timer? _timer;
@@ -22,7 +25,6 @@ namespace RoboAtsService.Workers
 
 		protected virtual void OnStartService()
 		{
-
 		}
 
 		public Task StopAsync(CancellationToken stoppingToken)
@@ -34,7 +36,6 @@ namespace RoboAtsService.Workers
 
 		protected virtual void OnStopService()
 		{
-
 		}
 
 		public virtual async ValueTask DisposeAsync()
