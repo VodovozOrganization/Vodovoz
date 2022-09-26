@@ -2,8 +2,10 @@
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QS.Project.Services;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.HistoryChanges;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -53,6 +55,14 @@ namespace Vodovoz.EntityRepositories
 			var query = $"SELECT COUNT(*) AS c from mysql.user WHERE USER = '{login}'";
 			int count = uow.Session.CreateSQLQuery(query).AddScalar("c", NHibernateUtil.Int32).List<int>().FirstOrDefault();
 			return count > 0;
+		}
+
+		public void GiveSelectPrivelegesToArchiveDataBase(IUnitOfWork uow, string login)
+		{
+			var archivedChangedEntitySchema = OrmConfig.FindMappingByShortClassName(nameof(ArchivedChangedEntity)).Table.Schema;
+			
+			var sql = $"GRANT Select ON `{archivedChangedEntitySchema}`.* TO '{login}', '{login}'@'localhost'";
+			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
 		}
 	}
 }

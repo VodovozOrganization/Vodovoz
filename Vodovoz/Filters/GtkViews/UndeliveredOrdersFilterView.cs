@@ -24,7 +24,6 @@ namespace Vodovoz.Filters.GtkViews
 
 			yEnumStatusOnOldOrderCancels.ItemsEnum = typeof(OrderStatus);
 			yEnumStatusOnOldOrderCancels.Binding.AddBinding(ViewModel, vm => vm.OldOrderStatus, w => w.SelectedItemOrNull).InitializeFromSource();
-			yEnumStatusOnOldOrderCancels.SelectedItem = OrderStatus.OnTheWay;
 
 			ySpecCMBinProcessAt.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Subdivisions, w => w.ItemsList)

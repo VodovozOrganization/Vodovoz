@@ -505,7 +505,7 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>300</Timeout>
+        <Timeout>500</Timeout>
         <CommandText>SELECT
 
 	first_base_order_ordering as find_base_order,
