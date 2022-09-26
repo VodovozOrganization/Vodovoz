@@ -359,6 +359,7 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
+		[Obsolete("Удалить метод вместе с rdl, если не будет запросов на использование после 10.10.2022")]
 		public static ReportInfo GetRDLLoadDocument(int routeListId)
 		{
 			return new ReportInfo
@@ -396,8 +397,6 @@ namespace Vodovoz.Additions.Logistic
 		{
 			switch(type)
 			{
-				case RouteListPrintableDocuments.LoadDocument:
-					return GetRDLLoadDocument(routeList.Id);
 				case RouteListPrintableDocuments.RouteList:
 					return GetRDLRouteList(uow, routeList);
 				case RouteListPrintableDocuments.RouteMap:
