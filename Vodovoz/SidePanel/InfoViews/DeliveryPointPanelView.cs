@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Fias.Service;
+using Fias.Service.Cache;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -44,7 +45,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			_orderPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
 			IParametersProvider parametersProvider = new ParametersProvider();
 			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken);
+			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
+			IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
 			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(fiasApiClient);
 			Configure();
 		}

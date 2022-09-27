@@ -25,6 +25,7 @@ namespace Vodovoz.Dialogs
 		string newInvoiceCreated = String.Empty;
 		string undeliveryStatus = String.Empty;
 		int undeliveryAuthorId = 0;
+		string oldOrderStatus = String.Empty;
 
 		public UndeliveriesWithCommentsPrintDlg(UndeliveredOrdersFilterViewModel filter)
 		{
@@ -58,6 +59,9 @@ namespace Vodovoz.Dialogs
 				undeliveryStatus = filter.RestrictUndeliveryStatus.ToString();
 			if(filter.RestrictUndeliveryAuthor != null)
 				undeliveryAuthorId = filter.RestrictUndeliveryAuthor.Id;
+			if(filter.OldOrderStatus != null)
+				oldOrderStatus = filter.OldOrderStatus.Value.ToString();
+
 			if(filter.RestrictIsProblematicCases) {
 				guiltySides = Enum.GetValues(typeof(GuiltyTypes))
 								  .Cast<GuiltyTypes>()
@@ -100,6 +104,7 @@ namespace Vodovoz.Dialogs
 				{ "new_invoice_created", newInvoiceCreated },
 				{ "undelivery_status", undeliveryStatus },
 				{ "undelivery_author_id", undeliveryAuthorId },
+				{ "old_order_status", oldOrderStatus },
 				{ "are_guilties_filtred", guiltySides.Any(x => x == "0") }
 			};
 

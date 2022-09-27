@@ -410,6 +410,11 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ycheckIsForRetail.Sensitive = CanEdit;
 
+			ycheckIsForSalesDepartment.Binding
+				.AddBinding(Entity, e => e.IsForSalesDepartment, w => w.Active)
+				.InitializeFromSource();
+			ycheckIsForSalesDepartment.Sensitive = CanEdit;
+
 			ycheckNoPhoneCall.Binding
 				.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active)
 				.InitializeFromSource();
@@ -542,6 +547,8 @@ namespace Vodovoz
 				.AddBinding(e => e.SpecialExpireDatePercent, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 			yspinExpirationDatePercent.Sensitive = CanEdit;
+
+			ycheckRoboatsExclude.Binding.AddBinding(Entity, e => e.RoboatsExclude, w => w.Active).InitializeFromSource();
 
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
@@ -1060,7 +1067,8 @@ namespace Vodovoz
 				new NomenclatureJournalFactory(),
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),
-				new FileDialogService()
+				new FileDialogService(),
+				new SubdivisionParametersProvider(new ParametersProvider())
 			);
 
 			TabParent.AddTab(orderJournalViewModel, this, false);
@@ -1071,7 +1079,7 @@ namespace Vodovoz
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory);
+				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory, _subdivisionParametersProvider);
 			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
 
 			var complaintsJournalViewModel = new ComplaintsJournalViewModel(

@@ -87,7 +87,17 @@ namespace RoboAtsService.Requests
 
 			if(counterpartyId != null)
 			{
-				return "1";
+				var counterpartyExcluded = _roboatsRepository.CounterpartyExcluded(counterpartyId.Value);
+				if(counterpartyExcluded)
+				{
+					_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.ClientExcluded, RoboatsCallOperation.ClientCheck,
+						$"Контрагент отключен от звонков.");
+					return "0";
+				}
+				else
+				{
+					return "1";
+				}
 			}
 			else
 			{

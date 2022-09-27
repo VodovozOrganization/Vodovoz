@@ -83,6 +83,22 @@ namespace RoboAtsService.Monitoring
 			}
 		}
 
+		public void AbortCall(string phone)
+		{
+			try
+			{
+				using var uow = _uowFactory.CreateWithoutRoot();
+
+				var call = GetActualCall(phone);
+				call.Status = RoboatsCallStatus.Aborted;
+				Save(uow, call);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
+			}
+		}
+
 		public void RegisterAborted(string phone, RoboatsCallOperation operation, string description = null)
 		{
 			try

@@ -17,6 +17,7 @@ namespace Vodovoz.Factories
 				new PasswordGenerator(),
 				new MySQLUserRepository(
 					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService()),
+				new EntityRepositories.UserRepository(),
 				new EmailParametersProvider(new ParametersProvider()));
 	}
 }

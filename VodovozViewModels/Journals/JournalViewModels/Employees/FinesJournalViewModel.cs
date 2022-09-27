@@ -9,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.Utilities;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
@@ -54,7 +55,19 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			CreateEditAction();
 			CreateDefaultDeleteAction();
 		}
-		
+
+		private string GetTotalSumInfo()
+		{
+			var total = Items.Cast<FineJournalNode>().Sum(node => node.FineSumm);
+			return CurrencyWorks.GetShortCurrencyString(total);
+		}
+
+		public override string FooterInfo
+		{
+			get => $"Сумма отфильтрованных штрафов:{GetTotalSumInfo()}. {base.FooterInfo}";
+			set { }
+		}
+
 		private void CreateEditAction()
 		{
 			var editAction = new JournalAction("Изменить",

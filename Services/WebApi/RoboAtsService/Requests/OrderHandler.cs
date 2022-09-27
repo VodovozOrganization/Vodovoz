@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using RoboAtsService.Monitoring;
+using RoboAtsService.OrderValidation;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -16,6 +17,7 @@ namespace RoboAtsService.Requests
 		private readonly ILogger<LastOrderHandler> _logger;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsOrderModel _roboatsOrderModel;
+		private readonly ValidOrdersProvider _validOrdersProvider;
 		private readonly RoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
@@ -40,11 +42,19 @@ namespace RoboAtsService.Requests
 			}
 		}
 
-		public OrderHandler(ILogger<LastOrderHandler> logger, IRoboatsRepository roboatsRepository, RoboatsOrderModel roboatsOrderModel, RequestDto requestDto, RoboatsSettings roboatsSettings, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public OrderHandler(
+			ILogger<LastOrderHandler> logger,
+			IRoboatsRepository roboatsRepository,
+			RoboatsOrderModel roboatsOrderModel,
+			ValidOrdersProvider validOrdersProvider,
+			RequestDto requestDto,
+			RoboatsSettings roboatsSettings,
+			RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_roboatsOrderModel = roboatsOrderModel ?? throw new ArgumentNullException(nameof(roboatsOrderModel));
+			_validOrdersProvider = validOrdersProvider ?? throw new ArgumentNullException(nameof(validOrdersProvider));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
 
@@ -125,12 +135,10 @@ namespace RoboAtsService.Requests
 				return ErrorMessage;
 			}
 
-			var deliveryPointIds = _roboatsRepository.GetLastDeliveryPointIds(counterpartyId);
+			var deliveryPointIds = _validOrdersProvider.GetLastDeliveryPointIds(ClientPhone, counterpartyId, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.OnOrderHandle);
 			if(deliveryPointIds.All(x => x != AddressId))
 			{
 				//Если точка доставки не найдена у клиента, то значит клиенту предлагались не правильные (не его) точки доставки в запросе ранее.
-				_callRegistrator.RegisterFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.OnOrderHandle,
-					$"Невозможно рассчитать стоимость заказа. Для контрагента {counterpartyId} не найдена точка доставки {AddressId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
@@ -189,12 +197,10 @@ namespace RoboAtsService.Requests
 				return ErrorMessage;
 			}
 
-			var deliveryPointIds = _roboatsRepository.GetLastDeliveryPointIds(counterpartyId);
+			var deliveryPointIds = _validOrdersProvider.GetLastDeliveryPointIds(ClientPhone, counterpartyId, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.OnOrderHandle);
 			if(deliveryPointIds.All(x => x != AddressId))
 			{
 				//Если точка доставки не найдена у клиента, то значит клиенту предлагались не правильные (не его) точки доставки в запросе ранее.
-				_callRegistrator.RegisterTerminatingFail(ClientPhone, RoboatsCallFailType.DeliveryPointsNotFound, RoboatsCallOperation.OnOrderHandle,
-					$"Невозможно создать заказ. Для контрагента {counterpartyId} не найдена точка доставки {AddressId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 

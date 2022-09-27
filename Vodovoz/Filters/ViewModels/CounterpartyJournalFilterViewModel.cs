@@ -16,6 +16,7 @@ namespace Vodovoz.Filters.ViewModels
 		private string _deliveryPointPhone;
 		private string _counterpartyPhone;
 		private GenericObservableList<SalesChannelSelectableNode> _salesChannels;
+		private bool? _isForSalesDepartment;
 
 		public CounterpartyJournalFilterViewModel()
 		{
@@ -55,10 +56,17 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		private bool? isForRetail;
+
 		public bool? IsForRetail
 		{
 			get => isForRetail;
 			set => SetField(ref isForRetail, value);
+		}
+
+		public bool? IsForSalesDepartment
+		{
+			get => _isForSalesDepartment;
+			set => SetField(ref _isForSalesDepartment, value);
 		}
 
 		public GenericObservableList<SalesChannelSelectableNode> SalesChannels

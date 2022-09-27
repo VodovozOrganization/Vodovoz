@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>286.405mm</Width>
@@ -93,7 +95,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	orders.id AS order_id,
@@ -179,7 +181,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -398,9 +400,49 @@ WHERE o.id = @order_id
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	(SELECT binary_file FROM stored_resource WHERE id = 16) as chief,
-	(SELECT binary_file FROM stored_resource WHERE id = 24) as bookkeeper
-;</CommandText>
+	(SELECT binary_file FROM stored_resource WHERE id = 
+		(SELECT 
+			 ov.signature_leader_id
+		FROM
+		    orders
+		        LEFT JOIN
+		    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+		        LEFT JOIN
+		    organizations ON organizations.id = counterparty_contract.organization_id
+		        LEFT JOIN    
+		    organization_versions ov
+		        ON
+		            organizations.id = ov.organization_id 
+		        AND
+		            ov.start_date &lt;= orders.bill_date 
+		        AND
+		            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+		    WHERE
+		    	orders.id = @order_id)) as chief,
+	(SELECT binary_file FROM stored_resource WHERE id = 
+		(SELECT 
+			 ov.signature_accountant_id
+		FROM
+		    orders
+		        LEFT JOIN
+		    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+		        LEFT JOIN
+		    organizations ON organizations.id = counterparty_contract.organization_id
+		        LEFT JOIN    
+		    organization_versions ov
+		        ON
+		            organizations.id = ov.organization_id 
+		        AND
+		            ov.start_date &lt;= orders.bill_date 
+		        AND
+		            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+		    WHERE
+		    	orders.id = @order_id)) as bookkeeper;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
       </Query>
       <Fields>
         <Field Name="chief">
@@ -808,7 +850,8 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox22" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>1</ZIndex>
             <Left>148.3pt</Left>
             <Top>106.6pt</Top>
@@ -1094,7 +1137,8 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <BackgroundColor></BackgroundColor>
+              <BackgroundColor>
+              </BackgroundColor>
               <BackgroundGradientType>None</BackgroundGradientType>
               <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
               <TextAlign>Left</TextAlign>
@@ -1475,7 +1519,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox94">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1493,7 +1538,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox95">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1525,14 +1571,16 @@ WHERE o.id = @order_id
                         </BorderWidth>
                         <FontSize>8pt</FontSize>
                       </Style>
-                      <Visibility></Visibility>
+                      <Visibility>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox182">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1587,7 +1635,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox99">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1606,7 +1655,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox100">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1663,7 +1713,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox103">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1682,7 +1733,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox104">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1701,7 +1753,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox105">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2120,7 +2173,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox184">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2369,7 +2423,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2479,7 +2534,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox114">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3703,15 +3759,15 @@ WHERE o.id = @order_id
           <Image Name="Image4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>20.46pt</Height>
             <Width>30.78pt</Width>
-            <Left>149.3pt</Left>
-            <Top>171.5pt</Top>
+            <Left>150.80pt</Left>
+            <Top>169.30pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
+            <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
             <MIMEType>image/jpeg</MIMEType>
             <Visibility>
@@ -3729,7 +3785,7 @@ WHERE o.id = @order_id
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
+            <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
             <MIMEType>image/jpeg</MIMEType>
             <Visibility>
@@ -3766,7 +3822,7 @@ WHERE o.id = @order_id
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
+            <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>Fit</Sizing>
             <MIMEType>image/jpeg</MIMEType>
             <Visibility>
@@ -3798,8 +3854,10 @@ WHERE o.id = @order_id
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundGradientEndColor></BackgroundGradientEndColor>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundGradientEndColor>
+          </BackgroundGradientEndColor>
+          <BackgroundColor>
+          </BackgroundColor>
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
@@ -3919,14 +3977,16 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -3938,7 +3998,8 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

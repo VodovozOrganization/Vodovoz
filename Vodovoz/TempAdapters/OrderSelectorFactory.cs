@@ -90,7 +90,8 @@ namespace Vodovoz.TempAdapters
 						new NomenclatureJournalFactory(),
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
-						new FileDialogService());
+						new FileDialogService(),
+						new SubdivisionParametersProvider(new ParametersProvider()));
 				});
 		}
 
@@ -130,7 +131,8 @@ namespace Vodovoz.TempAdapters
 						new NomenclatureJournalFactory(),
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
-						new FileDialogService());
+						new FileDialogService(),
+						new SubdivisionParametersProvider(new ParametersProvider()));
 				});
 		}
 
@@ -159,7 +161,8 @@ namespace Vodovoz.TempAdapters
 				new NomenclatureJournalFactory(),
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),
-				new FileDialogService()
+				new FileDialogService(),
+				new SubdivisionParametersProvider(new ParametersProvider())
 			);
 		}
 	}
