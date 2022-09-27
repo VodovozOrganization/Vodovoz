@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using VodovozInfrastructure.Configuration;
 using System.Collections.Generic;
 using Mailjet.Api.Abstractions;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Additions
 {
@@ -24,6 +25,7 @@ namespace Vodovoz.Additions
 	{
 		private readonly IPasswordGenerator _passwordGenerator;
 		private readonly MySQLUserRepository _mySQLUserRepository;
+		private readonly IUserRepository _userRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
@@ -31,11 +33,13 @@ namespace Vodovoz.Additions
 
 		public AuthorizationService(IPasswordGenerator passwordGenerator,
 			MySQLUserRepository mySQLUserRepository,
+			IUserRepository userRepository,
 			IEmailParametersProvider emailParametersProvider)
 		{
 			_passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
 			_mySQLUserRepository =
 				mySQLUserRepository ?? throw new ArgumentNullException(nameof(mySQLUserRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
 		}
 
@@ -87,9 +91,11 @@ namespace Vodovoz.Additions
 
 			//Сразу пишет в базу
 			var result = _mySQLUserRepository.CreateLogin(user.Login, password);
-			if(result) {
+			if(result)
+			{
 				try {
 					_mySQLUserRepository.UpdatePrivileges(user.Login, false);
+					_userRepository.GiveSelectPrivelegesToArchiveDataBase(uow, user.Login);
 				} catch {
 					_mySQLUserRepository.DropUser(user.Login);
 					throw;

@@ -3,7 +3,9 @@ using QS.Commands;
 using QS.Dialog;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
@@ -18,7 +20,6 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
@@ -84,6 +85,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void GenerateDistributionRows()
 		{
 			var driverRouteListsAtDay = _routeListRepository.GetDriverRouteLists(UoW, Entity.Driver, Entity.Date);
+
+			foreach(var routeList in driverRouteListsAtDay)
+			{
+				try
+				{
+					routeList.RecountMileage();
+				}
+				catch(Exception ex)
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+						$"Не удалось пересчитать километраж для МЛ { routeList.Id }:\n{ ex.Message }", "Ошибка при подготовке к разносу километража");
+
+					return;
+				}
+			}
 
 			Rows = new GenericObservableList<RouteListMileageDistributionNode>(driverRouteListsAtDay.Select(x =>
 				new RouteListMileageDistributionNode

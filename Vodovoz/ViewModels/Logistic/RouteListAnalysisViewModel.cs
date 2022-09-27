@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly ICommonServices _commonServices;
 
 		#region Constructor
@@ -67,7 +68,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeSettings employeeSettings,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			IRouteListItemRepository routeListItemRepository) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			IRouteListItemRepository routeListItemRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -81,6 +83,8 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_subdivisionParametersProvider =
+				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -187,7 +191,8 @@ namespace Vodovoz.ViewModels.Logistic
 						_undeliveredOrdersJournalOpener,
 						_orderSelectorFactory,
 						UndeliveredOrdersRepository,
-						_employeeSettings
+						_employeeSettings,
+						_subdivisionParametersProvider
 					);
 
 					dlg.TabClosed += (s,e) => UpdateTreeAddresses?.Invoke();

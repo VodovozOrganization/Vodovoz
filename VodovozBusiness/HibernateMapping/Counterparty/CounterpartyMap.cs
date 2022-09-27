@@ -57,7 +57,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CounterpartyType).Column("counterparty_type").CustomType<CounterpartyTypeStringType>();
 			Map(x => x.IsChainStore).Column("is_chain_store");
             Map(x => x.IsForRetail).Column("is_for_retail");
-            Map(x => x.NoPhoneCall).Column("no_phone_call");
+            Map(x => x.IsForSalesDepartment).Column("is_for_sales_department");
+			Map(x => x.NoPhoneCall).Column("no_phone_call");
             Map(x => x.CargoReceiverSource).Column("cargo_receiver_source").CustomType<CargoReceiverTypeStringType>();
 			Map(x => x.DelayDaysForProviders).Column("delay_days");
 			Map(x => x.DelayDaysForBuyers).Column("delay_days_for_buyers");
@@ -65,6 +66,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.TaxType).Column("tax_type").CustomType<TaxTypeStringType>();
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.AlwaysSendReceipts).Column("always_send_receipts");
+			Map(x => x.RoboatsExclude).Column("roboats_exclude");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");

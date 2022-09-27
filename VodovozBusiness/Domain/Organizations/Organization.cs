@@ -156,7 +156,7 @@ namespace Vodovoz.Domain.Organizations
 			?? (_observableOrganizationVersions = new GenericObservableList<OrganizationVersion>(OrganizationVersions));
 
 		public virtual OrganizationVersion OrganizationVersionOnDate(DateTime dateTime) =>
-			ObservableOrganizationVersions.SingleOrDefault(x =>
+			ObservableOrganizationVersions.LastOrDefault(x =>
 				x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));
 
 		[Display(Name = "Активная версия")]

@@ -563,6 +563,11 @@ namespace Vodovoz
 
 		protected void OnReferenceClientChanged(object sender, EventArgs e)
 		{
+			if(referenceClient.Subject == null)
+			{
+				return;
+			}
+			
 			PaymentType? previousPaymentType = yenumcomboOrderPayment.SelectedItem as PaymentType?;
 			Enum[] hideEnums = {PaymentType.cashless};
 			PersonType personType = (referenceClient.Subject as Counterparty).PersonType;

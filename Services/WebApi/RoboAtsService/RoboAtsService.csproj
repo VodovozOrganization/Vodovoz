@@ -13,19 +13,19 @@
 		<PackageReference Include="NHibernate" Version="5.3.11" />
 		<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
 		<PackageReference Include="FluentNHibernate" Version="3.1.0" />
-		<PackageReference Include="NLog.Web.AspNetCore" Version="4.12.0" />
+		<PackageReference Include="NLog.Web.AspNetCore" Version="5.1.0" />
 		<PackageReference Include="Autofac" Version="6.3.0" />
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj" />
-		<ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
-		<ProjectReference Include="..\..\QSProjects\QS.Attachments\QS.Attachments.csproj" />
-		<ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
-		<ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj" />
-		<ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
-		<ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj" />
+		<ProjectReference Include="..\..\..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj" />
+		<ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
+		<ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+		<ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
+		<ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj" />
+		<ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
+		<ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
 	</ItemGroup>
 
 </Project>

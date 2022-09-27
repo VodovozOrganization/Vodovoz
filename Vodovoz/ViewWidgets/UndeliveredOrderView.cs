@@ -159,7 +159,7 @@ namespace Vodovoz.ViewWidgets
 				);
 			};
 
-			if(undelivery.Id <= 0)
+			if(undelivery.Id <= 0 && undelivery.InProcessAtDepartment == null)
 			{
 				yentInProcessAtDepartment.Subject = _subdivisionRepository.GetQCDepartment(UoW);
 			}

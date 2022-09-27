@@ -353,6 +353,8 @@
     <Compile Include="EntityRepositories\ServiceClaims\ServiceClaimRepository.cs" />
     <Compile Include="EntityRepositories\Stock\IStockRepository.cs" />
     <Compile Include="EntityRepositories\Stock\StockRepository.cs" />
+    <Compile Include="EntityRepositories\StoredResource\IStoredResourceRepository.cs" />
+    <Compile Include="EntityRepositories\StoredResource\StoredResourceRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsNode.cs" />
@@ -1328,7 +1330,7 @@
     <PackageReference Include="NHibernate" Version="5.3.11" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog" Version="4.7.15" />
+    <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />

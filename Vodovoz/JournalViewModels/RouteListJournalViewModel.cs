@@ -51,6 +51,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using Vodovoz.Controllers;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -64,7 +65,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly ITrackRepository _trackRepository;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository;
-		private readonly IRouteListParametersProvider _routeListParametersProvider;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly ICarJournalFactory _carJournalFactory;
@@ -82,6 +82,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
 
@@ -95,7 +96,6 @@ namespace Vodovoz.JournalViewModels
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IRouteListParametersProvider routeListParametersProvider,
 			ICallTaskWorker callTaskWorker,
 			IWarehouseRepository warehouseRepository,
 			ICarJournalFactory carJournalFactory,
@@ -113,7 +113,8 @@ namespace Vodovoz.JournalViewModels
 			IEmployeeSettings employeeSettings,
 			ICommonServices commonServices,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			IRouteListItemRepository routeListItemRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IRouteListItemRepository routeListItemRepository,
+			ISubdivisionParametersProvider subdivisionParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -123,8 +124,6 @@ namespace Vodovoz.JournalViewModels
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_deliveryShiftRepository = deliveryShiftRepository ?? throw new ArgumentNullException(nameof(deliveryShiftRepository));
-			_routeListParametersProvider =
-				routeListParametersProvider ?? throw new ArgumentNullException(nameof(routeListParametersProvider));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
@@ -146,7 +145,9 @@ namespace Vodovoz.JournalViewModels
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			
+			_subdivisionParametersProvider =
+				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+
 			TabName = "Журнал МЛ";
 
 			NotifyConfiguration.Enable();
@@ -601,7 +602,8 @@ namespace Vodovoz.JournalViewModels
 								_employeeSettings,
 								_undeliveredOrdersRepository,
 								_routeListProfitabilityController,
-								_routeListItemRepository),
+								_routeListItemRepository,
+								_subdivisionParametersProvider),
 							this,
 							false
 						);

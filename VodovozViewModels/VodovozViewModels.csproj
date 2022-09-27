@@ -57,6 +57,7 @@
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageDistributionNode.cs" />
@@ -192,6 +193,7 @@
     <Compile Include="Journals\JournalNodes\PremiumJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\PremiumTemplateJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\RegisteredRMJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Roboats\RoboatsCallNodeType.cs" />
     <Compile Include="Journals\JournalNodes\Roboats\RoboatsWaterTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Roboats\RoboatsStreetJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Roboats\RoboatsCallJournalNode.cs" />
@@ -249,10 +251,10 @@
     <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryTransferAbsenceReasonJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Roboats\RoboatsCallsRegistryJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Roboats\RoboatsStreetJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\UnallocatedBalancesJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Roboats\RoboatsCallsRegistryJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Orders\DriverMessageJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\DriverTareMessagesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\PaymentsFromJournalViewModel.cs" />
@@ -471,7 +473,7 @@
     <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FinesJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Organization\SubdivisionsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Organizations\SubdivisionsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictLevelRatesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictsJournalViewModel.cs" />
@@ -632,8 +634,8 @@
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
     <PackageReference Include="NHibernate" Version="5.3.11" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
-    <PackageReference Include="NLog" Version="4.7.14" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4" />
+    <PackageReference Include="NLog" Version="5.0.1" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.0.1" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
