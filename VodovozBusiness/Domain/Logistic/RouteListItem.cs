@@ -573,16 +573,21 @@ namespace Vodovoz.Domain.Logistic
 			uow.Save(Order);
 		}
 
-		protected internal virtual void TransferTo(RouteListItem targetAddress)
+		public virtual void SetTransferTo(RouteListItem targetAddress)
 		{
 			TransferedTo = targetAddress;
+		}
+
+		protected internal virtual void TransferTo(RouteListItem targetAddress)
+		{
+			SetTransferTo(targetAddress);
 			SetStatusWithoutOrderChange(RouteListItemStatus.Transfered);
 		}
 		
 		protected internal virtual void RevertTransferAddress(WageParameterService wageParameterService, RouteListItem revertedAddress)
 		{
 			SetStatusWithoutOrderChange(revertedAddress.Status);
-			TransferedTo = null;
+			SetTransferTo(null);
 			DriverBottlesReturned = revertedAddress.DriverBottlesReturned;
 			
 			if(RouteList.ClosingFilled)
@@ -695,7 +700,7 @@ namespace Vodovoz.Domain.Logistic
 								   .Sum(i => i.ActualCount ?? 0);
 		}
 
-		public virtual void RemovedFromRoute() => Order.OrderStatus = OrderStatus.Accepted;
+		public virtual void ChangeOrderStatus(OrderStatus orderStatus) => Order.OrderStatus = orderStatus;
 
 		protected internal virtual void SetStatusWithoutOrderChange(RouteListItemStatus status) => Status = status;
 

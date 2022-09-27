@@ -769,8 +769,26 @@ namespace Vodovoz.Domain.Logistic
 				);
 				return false;
 			}
-			address.RemovedFromRoute();
-			UoW.Delete(address);
+
+			if(_routeListRepository.GetCarLoadDocuments(UoW, Id).Any())
+			{
+				msg = "Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.";
+				return false;
+			}
+			if(address.Status == RouteListItemStatus.Transfered && address.TransferedTo != null)
+			{
+				var toAddress = routeListItemRepository.GetRouteListItemById(UoW, address.TransferedTo.Id);
+				toAddress.SetTransferTo(null);
+				toAddress.WasTransfered = false;
+				toAddress.NeedToReload = false;
+
+				UoW.Save(toAddress);
+			}
+			else
+			{
+				address.ChangeOrderStatus(OrderStatus.Accepted);
+			}
+			
 			ObservableAddresses.Remove(address);
 			return true;
 		}
