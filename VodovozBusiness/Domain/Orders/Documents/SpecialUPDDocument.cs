@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
 					{ "special", true },
-					{ "hide_signature", false }
+					{ "hide_signature", true }
 				},
 				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
 			};
