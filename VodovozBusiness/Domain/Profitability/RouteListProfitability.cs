@@ -104,21 +104,21 @@ namespace Vodovoz.Domain.Profitability
 		}
 
 		[Display(Name = "Сумма затрат, руб")]
-		public decimal ExpensesSum
+		public virtual decimal ExpensesSum
 		{
 			get => _expensesSum;
 			set => SetField(ref _expensesSum, value);
 		}
 
 		[Display(Name = "Валовая маржа, руб")]
-		public decimal GrossMarginSum
+		public virtual decimal GrossMarginSum
 		{
 			get => _grossMarginSum;
 			set => SetField(ref _grossMarginSum, value);
 		}
 
 		[Display(Name = "Валовая маржа, %")]
-		public decimal GrossMarginPercents
+		public virtual decimal GrossMarginPercents
 		{
 			get => _grossMarginPercents;
 			set => SetField(ref _grossMarginPercents, value);
