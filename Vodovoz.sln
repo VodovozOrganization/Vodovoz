@@ -230,7 +230,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonitoringArchivingWorker",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoboAtsService", "Services\WebApi\RoboAtsService\RoboAtsService.csproj", "{2FD62C87-1461-4293-809E-D859BEE2AE00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeliveryRulesService", "Services\WebApi\DeliveryRulesService\DeliveryRulesService.csproj", "{F96053D4-B8CC-45A3-A6C3-83DE4061EC41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryRulesService", "Services\WebApi\DeliveryRulesService\DeliveryRulesService.csproj", "{F96053D4-B8CC-45A3-A6C3-83DE4061EC41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
