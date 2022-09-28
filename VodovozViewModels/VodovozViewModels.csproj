@@ -493,7 +493,6 @@
     <Compile Include="Journals\JournalNodes\HistoryTraceObjectNode.cs" />
     <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTracePropertyJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTraceObjectJournalViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Employees\UserJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\SelectUserJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
     <Compile Include="Dialogs\Counterparty\CounterpartyFilesViewModel.cs" />

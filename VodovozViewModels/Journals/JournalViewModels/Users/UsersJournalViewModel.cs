@@ -5,10 +5,11 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using Autofac;
 using NHibernate.SqlCommand;
+using QS.Navigation;
 using QS.Project.DB;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 
@@ -17,19 +18,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 	public class UsersJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<User, UserViewModel, UserJournalNode, UsersJournalFilterViewModel>
 	{
-		private readonly IPermissionRepository _permissionRepository;
+		private readonly INavigationManager _navigationManager;
+		private readonly ILifetimeScope _scope;
 
 		public UsersJournalViewModel(
 			UsersJournalFilterViewModel usersJournalFilterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IPermissionRepository permissionRepository,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			ILifetimeScope scope,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false) 
 			: base(usersJournalFilterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			TabName = "Журнал пользователей";
-			_permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 		}
 
 		protected override void CreateNodeActions()
@@ -86,16 +90,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 		};
 
 		protected override Func<UserViewModel> CreateDialogFunction => () => new UserViewModel(
-			   EntityUoWBuilder.ForCreate(),
-			   UnitOfWorkFactory,
-			   _permissionRepository,
-			   commonServices
-		   );
+			EntityUoWBuilder.ForCreate(),
+			UnitOfWorkFactory,
+			commonServices,
+			_navigationManager,
+			_scope.BeginLifetimeScope());
 
 		protected override Func<UserJournalNode, UserViewModel> OpenDialogFunction => (node) => new UserViewModel(
-			   EntityUoWBuilder.ForOpen(node.Id),
-			   UnitOfWorkFactory,
-			   _permissionRepository,
-			   commonServices);
+			EntityUoWBuilder.ForOpen(node.Id),
+			UnitOfWorkFactory,
+			commonServices,
+			_navigationManager,
+			_scope.BeginLifetimeScope());
 	}
 }

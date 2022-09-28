@@ -1,17 +1,22 @@
-﻿using QS.Views.GtkUI;
+﻿using System.Collections.Generic;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels;
 using QS.Widgets.GtkUI;
 using Vodovoz.Core.Permissions;
-using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.Core;
 using Gtk;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Views.Users
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UserView : TabViewBase<UserViewModel>
 	{
-		ViewModelWidgetResolver _widgetResolver = ViewModelWidgetResolver.Instance;
+		private ViewModelWidgetResolver _widgetResolver = ViewModelWidgetResolver.Instance;
+		private UserEntityPermissionWidget _documentPermissionWidget;
+		private SubdivisionForUserEntityPermissionWidget _specialDocumentPermissionWidget;
+		private Widget _warehousePermissionsView;
 
 		public UserView(UserViewModel viewModel) : base(viewModel)
 		{
@@ -21,9 +26,11 @@ namespace Vodovoz.Views.Users
 
 		private void ConfigureDialog()
 		{
-			var presetPermissionWidget = new PresetPermissionsView(ViewModel.PresetPermissionsViewModel);
-			var documentPermissionWidget = new UserEntityPermissionWidget();
-			var specialDocumentPermissionWidget = new SubdivisionForUserEntityPermissionWidget();
+			btnAddPermissionsToUser.Clicked += (sender, args) => ViewModel.AddPermissionsToUserCommand.Execute();
+			btnChangePermissionsFromUser.Clicked += (sender, args) => ViewModel.ChangePermissionsFromUserCommand.Execute();
+			
+			_documentPermissionWidget = new UserEntityPermissionWidget();
+			_specialDocumentPermissionWidget = new SubdivisionForUserEntityPermissionWidget();
 
 			//Отключены, так как это простейший вариант диалога, вводимый из-за срочности ввода новых прав на склады
 			tableRoles.Visible = false;
@@ -62,35 +69,69 @@ namespace Vodovoz.Views.Users
 				.InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => {
-				documentPermissionWidget.Save();
-				specialDocumentPermissionWidget.Save();
+				_documentPermissionWidget.Save();
+				_specialDocumentPermissionWidget.Save();
 				ViewModel.SaveCommand.Execute();
 			};
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
-
+			
+			var presetPermissionWidget = _widgetResolver.Resolve(ViewModel.PresetPermissionsViewModel);
 			vboxPresetPrivileges.Add(presetPermissionWidget);
 			presetPermissionWidget.Show();
 
-			var warehousePermissionsView = _widgetResolver.Resolve(ViewModel.WarehousePermissionsViewModel);
-			vboxWarehousePrivileges.Add(warehousePermissionsView);
-			warehousePermissionsView.ShowAll();
+			CreateWarehousePermissionsView();
 
 			ybuttonDocumentPrivileges.Sensitive = false;
 			ybuttonSpecialDocumentPrivileges.Sensitive = false;
 
 			if(ViewModel.Entity.Id != 0)
 			{
-				documentPermissionWidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);
-				vboxDocumentPrivileges.Add(documentPermissionWidget);
-				documentPermissionWidget.Show();
+				_documentPermissionWidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);
+				vboxDocumentPrivileges.Add(_documentPermissionWidget);
+				_documentPermissionWidget.Show();
 				ybuttonDocumentPrivileges.Sensitive = true;
 
-				specialDocumentPermissionWidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);
-				vboxSpecialDocumentPrivileges.Add(specialDocumentPermissionWidget);
-				specialDocumentPermissionWidget.Show();
+				_specialDocumentPermissionWidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);
+				vboxSpecialDocumentPrivileges.Add(_specialDocumentPermissionWidget);
+				_specialDocumentPermissionWidget.Show();
 				ybuttonSpecialDocumentPrivileges.Sensitive = true;
 			}
+			
+			ViewModel.UpdateEntityUserPermissionsAction += OnUpdateEntityUserPermissionsAction;
+			ViewModel.UpdateEntitySubdivisionForUserPermissionsAction += OnUpdateEntitySubdivisionForUserPermissionsAction;
+			ViewModel.UpdateWarehousePermissionsAction += OnUpdateWarehousePermissionsViewAction;
+		}
+
+		private void OnUpdateEntitySubdivisionForUserPermissionsAction(IList<EntitySubdivisionForUserPermission> newUserPermissions)
+		{
+			_specialDocumentPermissionWidget.UpdateData(newUserPermissions);
+		}
+
+		private void OnUpdateEntityUserPermissionsAction(IList<UserPermissionNode> newUserPermissions)
+		{
+			_documentPermissionWidget.UpdateData(newUserPermissions);
+		}
+
+		private void OnUpdateWarehousePermissionsViewAction()
+		{
+			vboxWarehousePrivileges.Remove(_warehousePermissionsView);
+			_warehousePermissionsView.Destroy();
+			CreateWarehousePermissionsView();
+		}
+
+		private void CreateWarehousePermissionsView()
+		{
+			_warehousePermissionsView = _widgetResolver.Resolve(ViewModel.WarehousePermissionsViewModel);
+			vboxWarehousePrivileges.Add(_warehousePermissionsView);
+			_warehousePermissionsView.ShowAll();
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.UpdateEntityUserPermissionsAction -= OnUpdateEntityUserPermissionsAction;
+			ViewModel.UpdateEntitySubdivisionForUserPermissionsAction -= OnUpdateEntitySubdivisionForUserPermissionsAction;
+			ViewModel.UpdateWarehousePermissionsAction -= OnUpdateWarehousePermissionsViewAction;
 		}
 	}
 }

@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		{
 			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
-			var _warehousePermissionModel = new SubdivisionWarehousePermissionModelBase(UoW, Entity);
+			var _warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
 			WarehousePermissionsVM = new WarehousePermissionsViewModel(UoW, _warehousePermissionModel);
 			WarehousePermissionsVM.CanEdit = PermissionResult.CanUpdate;
 			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));

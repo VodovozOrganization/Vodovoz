@@ -18,7 +18,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
     {
 		private readonly IPermissionRepository _permissionRepository;
 
-		public RegisteredRMJournalViewModel(RegisteredRMJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository, ICommonServices commonServices)
+		public RegisteredRMJournalViewModel(
+			RegisteredRMJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IPermissionRepository permissionRepository,
+			ICommonServices commonServices)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал зарегистрированных RM";

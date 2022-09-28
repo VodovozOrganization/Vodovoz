@@ -60,6 +60,7 @@
     <Compile Include="Controllers\FuelPriceVersionsController.cs" />
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
+    <Compile Include="Controllers\IUserPermissionsController.cs" />
     <Compile Include="Controllers\OdometerReadingsController.cs" />
     <Compile Include="Controllers\IOdometerReadingsController.cs" />
     <Compile Include="Controllers\OrganizationVersionsController.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Controllers\IRouteListsWageController.cs" />
     <Compile Include="Controllers\ProfitabilityConstantsViewModelHandler.cs" />
     <Compile Include="Controllers\RouteListsWageController.cs" />
+    <Compile Include="Controllers\UserPermissionsController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequestFile.cs" />

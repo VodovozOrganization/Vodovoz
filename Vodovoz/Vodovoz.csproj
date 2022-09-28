@@ -1514,8 +1514,6 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.NodeViewModelEntry.cs" />
     <Compile Include="Dialogs\HistoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.HistoryView.cs" />
-    <Compile Include="JournalViewers\UserJournalFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.UserJournalFilterView.cs" />
     <Compile Include="Dialogs\Cash\CashRequestView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashRequestView.cs" />
     <Compile Include="Filters\GtkViews\PayoutRequestJournalFilterView.cs" />

@@ -190,7 +190,7 @@ namespace Vodovoz
 	        {
 		        if (vboxSubdivision.Children.Length < 1)
 		        {
-					var _warehousePermissionModel = new SubdivisionWarehousePermissionModelBase(UoW, Entity);
+					var _warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
 			        warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, _warehousePermissionModel);
 			        warehousePermissionsViewModel.CanEdit = permissionResult.CanUpdate;
 					vboxSubdivision.Add(new WarehousePermissionView(warehousePermissionsViewModel));

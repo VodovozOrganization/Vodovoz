@@ -11,14 +11,18 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Security;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Journals;
-using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 
 namespace Vodovoz.ViewModels.ViewModels.Security
 {
 	public class RegisteredRMViewModel : EntityTabViewModelBase<RegisteredRM>
 	{
-		public RegisteredRMViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			IPermissionRepository permissionRepository, INavigationManager navigation = null)
+		public RegisteredRMViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IPermissionRepository permissionRepository,
+			INavigationManager navigation = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_permissionRepository = permissionRepository ?? throw new System.ArgumentNullException(nameof(permissionRepository));
@@ -29,11 +33,10 @@ namespace Vodovoz.ViewModels.ViewModels.Security
 		public DelegateCommand AddUserCommand => _addUserCommand ?? (_addUserCommand = new DelegateCommand(
 			() =>
 			{
-				var userFilterViewModel = new UserJournalFilterViewModel();
+				var userFilterViewModel = new UsersJournalFilterViewModel();
 				var userJournalViewModel = new SelectUserJournalViewModel(
 					userFilterViewModel,
 					UnitOfWorkFactory,
-					_permissionRepository,
 					ServicesConfig.CommonServices)
 				{
 					SelectionMode = JournalSelectionMode.Single,

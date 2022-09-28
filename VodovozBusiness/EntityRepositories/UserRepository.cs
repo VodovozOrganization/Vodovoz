@@ -18,6 +18,11 @@ namespace Vodovoz.EntityRepositories
 				.SingleOrDefault();
 		}
 
+		public User GetUserById(IUnitOfWork uow, int id)
+		{
+			return uow.GetById<User>(id);
+		}
+
 		public string GetTempDirForCurrentUser(IUnitOfWork uow)
 		{
 			var userId = GetCurrentUser(uow)?.Id;

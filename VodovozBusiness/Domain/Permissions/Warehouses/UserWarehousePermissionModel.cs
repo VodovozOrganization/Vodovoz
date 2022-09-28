@@ -1,23 +1,28 @@
-﻿using QS.DomainModel.UoW;
+﻿using System;
+using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {
-    public class UserWarehousePermissionModelBase : WarehousePermissionModelBase
+    public class UserWarehousePermissionModel : WarehousePermissionModelBase
     {
-		private IUnitOfWork _uow;
-		private User _user;
+		private readonly IUnitOfWork _uow;
+		private readonly User _user;
 
-		public UserWarehousePermissionModelBase(IUnitOfWork uow, User user)
+		public UserWarehousePermissionModel(IUnitOfWork uow, User user, IPermissionRepository permissionRepository)
 		{
-			_uow = uow;
-			_user = user;
-			AllPermission = _uow.Session
-				.QueryOver<UserWarehousePermission>().Where(x => x.User.Id == _user.Id)
-				.List().ToList<WarehousePermissionBase>();
+			if(permissionRepository == null)
+			{
+				throw new ArgumentNullException(nameof(permissionRepository));
+			}
+
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_user = user ?? throw new ArgumentNullException(nameof(user));
+			AllPermission = permissionRepository.GetAllUserWarehousesPermissions(_uow, _user.Id).ToList();
 		}
 
 		public override void AddOnUpdatePermission(WarehousePermissionsType warehousePermissionType, Warehouse warehouse, bool? permissionValue)
@@ -54,6 +59,6 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 			}
 		}
 
-		public override List<WarehousePermissionBase> AllPermission { get; set; }
+		public override IList<WarehousePermissionBase> AllPermission { get; set; }
 	}
 }

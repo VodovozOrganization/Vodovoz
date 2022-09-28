@@ -48,10 +48,9 @@ namespace Vodovoz.Core.Permissions
 			}
 
 			UoW = uow;
-			employeeSubdivision = employee.Subdivision;
 			this.user = user;
 
-			model = new EntitySubdivisionForUserPermissionModel(UoW, employeeSubdivision, user);
+			model = new EntitySubdivisionForUserPermissionModel(UoW, user);
 
 			var subdivisionsVM = new SubdivisionsVM(UoW);
 			treeviewSubdivisions.RepresentationModel = subdivisionsVM;
@@ -150,34 +149,39 @@ namespace Vodovoz.Core.Permissions
 			}
 			model.Save();
 		}
+
+		public void UpdateData(IList<EntitySubdivisionForUserPermission> newEntitySubdivisionForUserPermissions)
+		{
+			model.UpdateData(newEntitySubdivisionForUserPermissions);
+			ytreeviewPermissions.ItemsDataSource = model.ObservablePermissionsList;
+			ytreeviewEntities.ItemsDataSource = model.ObservableTypeOfEntitiesList;
+		}
 	}
 
 	public class EntitySubdivisionForUserPermissionModel
 	{
 		private readonly IPermissionRepository _permissionRepository = new PermissionRepository();
 
-		private IUnitOfWork uow;
-		private Subdivision subdivision;
-		private UserBase user;
+		private readonly IUnitOfWork _uow;
+		private readonly UserBase _user;
 
-		private IList<EntitySubdivisionForUserPermission> originalPermissionList;
-		private IList<EntitySubdivisionForUserPermission> deletionPermissionList = new List<EntitySubdivisionForUserPermission>();
-		private IList<TypeOfEntity> originalTypeOfEntityList;
+		private readonly IList<EntitySubdivisionForUserPermission> _deletionPermissionList = new List<EntitySubdivisionForUserPermission>();
+		private IList<EntitySubdivisionForUserPermission> _originalPermissionList;
+		private IList<TypeOfEntity> _originalTypeOfEntityList;
 
 		public GenericObservableList<EntitySubdivisionForUserPermission> ObservablePermissionsList { get; private set; }
 		public GenericObservableList<TypeOfEntity> ObservableTypeOfEntitiesList { get; private set; }
 
-		public EntitySubdivisionForUserPermissionModel(IUnitOfWork uow, Subdivision subdivision, UserBase user)
+		public EntitySubdivisionForUserPermissionModel(IUnitOfWork uow, UserBase user)
 		{
-			this.subdivision = subdivision;
-			this.uow = uow;
-			this.user = user;
+			_uow = uow;
+			_user = user;
 
-			originalPermissionList = _permissionRepository.GetAllSubdivisionForUserEntityPermissions(uow, user.Id);
-			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionForUserPermission>(originalPermissionList.ToList());
+			_originalPermissionList = _permissionRepository.GetAllSubdivisionForUserEntityPermissions(uow, user.Id);
+			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionForUserPermission>(_originalPermissionList.ToList());
 
-			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
-			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(originalTypeOfEntityList);
+			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
+			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(_originalTypeOfEntityList);
 		}
 
 		public void AddPermission(TypeOfEntity typeOfEntity, Subdivision subdivision)
@@ -187,17 +191,17 @@ namespace Vodovoz.Core.Permissions
 			}
 
 			EntitySubdivisionForUserPermission savedPermission;
-			var foundOriginalPermission = originalPermissionList.FirstOrDefault(x => x.TypeOfEntity == typeOfEntity && x.Subdivision == subdivision);
+			var foundOriginalPermission = _originalPermissionList.FirstOrDefault(x => x.TypeOfEntity == typeOfEntity && x.Subdivision == subdivision);
 			if(foundOriginalPermission == null) {
 				savedPermission = new EntitySubdivisionForUserPermission() {
 					Subdivision = subdivision,
 					TypeOfEntity = typeOfEntity,
-					User = user
+					User = _user
 				};
 				ObservablePermissionsList.Add(savedPermission);
 			} else {
-				if(deletionPermissionList.Contains(foundOriginalPermission)) {
-					deletionPermissionList.Remove(foundOriginalPermission);
+				if(_deletionPermissionList.Contains(foundOriginalPermission)) {
+					_deletionPermissionList.Remove(foundOriginalPermission);
 				}
 				savedPermission = foundOriginalPermission;
 				ObservablePermissionsList.Add(savedPermission);
@@ -211,7 +215,7 @@ namespace Vodovoz.Core.Permissions
 			}
 			ObservablePermissionsList.Remove(deletedPermission);
 			if(deletedPermission.Id != 0) {
-				deletionPermissionList.Add(deletedPermission);
+				_deletionPermissionList.Add(deletedPermission);
 			}
 		}
 
@@ -223,12 +227,19 @@ namespace Vodovoz.Core.Permissions
 		public void Save()
 		{
 			foreach(EntitySubdivisionForUserPermission item in ObservablePermissionsList) {
-				uow.Save(item);
+				_uow.Save(item);
 			}
 
-			foreach(EntitySubdivisionForUserPermission item in deletionPermissionList) {
-				uow.Delete(item);
+			foreach(EntitySubdivisionForUserPermission item in _deletionPermissionList) {
+				_uow.Delete(item);
 			}
+		}
+
+		public void UpdateData(IList<EntitySubdivisionForUserPermission> newEntitySubdivisionForUserPermissions)
+		{
+			_originalPermissionList = newEntitySubdivisionForUserPermissions;
+			ObservablePermissionsList = new GenericObservableList<EntitySubdivisionForUserPermission>(_originalPermissionList.ToList());
+			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(_originalTypeOfEntityList);
 		}
 
 		#region Search
@@ -237,8 +248,7 @@ namespace Vodovoz.Core.Permissions
 		{
 			if(!searchString.IsEmpty())
 			{
-				var items = treeToSearch.RepresentationModel.ItemsList as IList<SubdivisionVMNode>;
-				if(items != null)
+				if(treeToSearch.RepresentationModel.ItemsList is IList<SubdivisionVMNode> items)
 				{
 					for(int i = 0; i < items.Count; i++)
 					{
@@ -301,8 +311,8 @@ namespace Vodovoz.Core.Permissions
 		public void SearchPermissions(string searchString)
 		{
 			//Каждый раз перезаписываем список
-			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
-			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(originalTypeOfEntityList);
+			_originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(_uow);
+			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(_originalTypeOfEntityList);
 			
 			if(searchString != "")
 			{

@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {
-    public class SubdivisionWarehousePermissionModelBase : WarehousePermissionModelBase
+    public class SubdivisionWarehousePermissionModel : WarehousePermissionModelBase
     {
         private IUnitOfWork _uow;
         private Subdivision _subdivision;
-        public SubdivisionWarehousePermissionModelBase(IUnitOfWork unitOfWork, Subdivision subdivision)
+        public SubdivisionWarehousePermissionModel(IUnitOfWork unitOfWork, Subdivision subdivision)
         {
             _uow = unitOfWork;
             _subdivision = subdivision;
@@ -50,6 +49,6 @@ namespace Vodovoz.Domain.Permissions.Warehouses
                 _uow.TryDelete(permissionForDelete);
         }
 
-        public override List<WarehousePermissionBase> AllPermission { get; set; }
+        public override IList<WarehousePermissionBase> AllPermission { get; set; }
     }
 }

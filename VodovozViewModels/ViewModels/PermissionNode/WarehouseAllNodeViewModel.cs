@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 				var warehouseNode = new WarehousePermissionNodeViewModel(Warehouse, permission, warehousePermissionModelBase);
 				warehouseNode.ItemValueChanged += InstallAllWarehouses;
 				SubNodeViewModel.Add(warehouseNode);
+				InstallAllWarehouses(warehouseNode, EventArgs.Empty);
 			}
 		}
 
