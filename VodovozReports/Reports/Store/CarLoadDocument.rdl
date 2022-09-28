@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -39,10 +39,7 @@ LEFT JOIN
     nomenclature ON scldi.nomenclature_id = nomenclature.id
 LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
-LEFT JOIN
-    route_list_addresses ON route_list_addresses.route_list_id = scld.route_list_id
 WHERE scld.id = @id
-  AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false OR route_list_addresses.id IS NULL)
   AND nomenclature.online_store_id IS NULL
 GROUP BY nomenclature
 ORDER BY clmn_for_sorting;</CommandText>
