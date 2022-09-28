@@ -118,9 +118,9 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			SaveGuiltyCommand = new DelegateCommand(
 				() => {
-					if(CurrentGuiltyVM.Entity.GuiltyType != ComplaintGuiltyTypes.Employee)
+					if(!CurrentGuiltyVM.Entity.Responsible.IsEmployeeResponsible)
 						CurrentGuiltyVM.Entity.Employee = null;
-					if(CurrentGuiltyVM.Entity.GuiltyType != ComplaintGuiltyTypes.Subdivision)
+					if(!CurrentGuiltyVM.Entity.Responsible.IsSubdivisionResponsible)
 						CurrentGuiltyVM.Entity.Subdivision = null;
 					CurrentGuiltyVM.Entity.Complaint = Entity;
 					Entity.ObservableGuilties.Add(CurrentGuiltyVM.Entity);
