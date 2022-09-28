@@ -18,7 +18,7 @@ namespace RoboAtsService.OrderValidation
 
 		public override IEnumerable<string> GetProblemMessages(IEnumerable<Order> orders)
 		{
-			var result = orders.Where(x => !IsValid(x)).Select(x => $"В заказе №{x.Id} добавлены товары не относящиеся к воде (кроме платной доставки)");
+			var result = orders.Where(x => !IsValid(x)).Select(x => $"В заказе №{x.Id} добавлены товары не относящиеся к воде (кроме платной и экспресс доставки)");
 			return result;
 		}
 
@@ -28,6 +28,7 @@ namespace RoboAtsService.OrderValidation
 			{
 				var hasOnlyWater = !order.OrderItems
 					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
+					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.ExpressDeliveryNomenclatureId)
 					.Any(x => x.Nomenclature.Category != NomenclatureCategory.water);
 
 				if(hasOnlyWater)

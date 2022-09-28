@@ -24,27 +24,27 @@ namespace RoboAtsService.OrderValidation
 			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
 		}
 
-		public IEnumerable<int> GetLastDeliveryPointIds(string clientPhone, int counterpartyId, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
+		public IEnumerable<int> GetLastDeliveryPointIds(string clientPhone, Guid callGuid, int counterpartyId, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
 		{
 			var lastOrders = _roboatsRepository.GetLastOrders(counterpartyId).OrderByDescending(x => x.Id);
-			var validOrders = GetValidLastOrders(clientPhone, counterpartyId, lastOrders, roboatsCallFailType, roboatsCallOperation);
+			var validOrders = GetValidLastOrders(clientPhone, callGuid, counterpartyId, lastOrders, roboatsCallFailType, roboatsCallOperation);
 			var deliveryPointIds = validOrders.Where(x => x.DeliveryPoint != null).Select(o => o.DeliveryPoint.Id);
 			return deliveryPointIds;
 		}
 
-		public Order GetLastOrder(string clientPhone, int counterpartyId, int deliveryPointId, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
+		public Order GetLastOrder(string clientPhone, Guid callGuid, int counterpartyId, int deliveryPointId, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
 		{
 			var lastOrder = _roboatsRepository.GetLastOrder(counterpartyId, deliveryPointId);
 
-			var validOrders = GetValidLastOrders(clientPhone, counterpartyId, new[] { lastOrder }, roboatsCallFailType, roboatsCallOperation);
+			var validOrders = GetValidLastOrders(clientPhone, callGuid, counterpartyId, new[] { lastOrder }, roboatsCallFailType, roboatsCallOperation);
 			return validOrders.FirstOrDefault();
 		}
 
-		private IEnumerable<Order> GetValidLastOrders(string clientPhone, int counterpartyId, IEnumerable<Order> orders, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
+		private IEnumerable<Order> GetValidLastOrders(string clientPhone, Guid callGuid, int counterpartyId, IEnumerable<Order> orders, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
 		{
 			try
 			{
-				return InvokeGetValidLastOrders(clientPhone, counterpartyId, orders, roboatsCallFailType, roboatsCallOperation);
+				return InvokeGetValidLastOrders(clientPhone, callGuid, counterpartyId, orders, roboatsCallFailType, roboatsCallOperation);
 			}
 			catch (Exception ex)
 			{
@@ -56,11 +56,11 @@ namespace RoboAtsService.OrderValidation
 			}
 		}
 
-		private IEnumerable<Order> InvokeGetValidLastOrders(string clientPhone, int counterpartyId, IEnumerable<Order> orders, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
+		private IEnumerable<Order> InvokeGetValidLastOrders(string clientPhone, Guid callGuid, int counterpartyId, IEnumerable<Order> orders, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
 		{
 			if(!orders.Any())
 			{
-				_roboatsCallRegistrator.RegisterFail(clientPhone, roboatsCallFailType, roboatsCallOperation,
+				_roboatsCallRegistrator.RegisterFail(clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation,
 					$"У контрагента {counterpartyId} нет заказов");
 			}
 			else
@@ -86,12 +86,12 @@ namespace RoboAtsService.OrderValidation
 				{
 					foreach(var problemMessage in result.ProblemMessages)
 					{
-						_roboatsCallRegistrator.RegisterFail(clientPhone, roboatsCallFailType, roboatsCallOperation, problemMessage);
+						_roboatsCallRegistrator.RegisterFail(clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation, problemMessage);
 					}
 				}
 			}
 
-			_roboatsCallRegistrator.AbortCall(clientPhone);
+			_roboatsCallRegistrator.AbortCall(clientPhone, callGuid);
 			return Enumerable.Empty<Order>();
 		}
 	}

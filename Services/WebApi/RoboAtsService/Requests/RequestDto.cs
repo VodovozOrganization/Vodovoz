@@ -1,4 +1,6 @@
-﻿namespace RoboAtsService.Requests
+﻿using System;
+
+namespace RoboAtsService.Requests
 {
 	public class RequestDto
 	{
@@ -6,6 +8,11 @@
 		/// CID
 		/// </summary>
 		public string ClientPhone { get; set; }
+
+		/// <summary>
+		/// CID
+		/// </summary>
+		public Guid CallGuid { get; set; }
 
 		/// <summary>
 		/// request

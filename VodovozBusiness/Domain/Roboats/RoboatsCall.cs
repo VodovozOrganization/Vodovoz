@@ -12,6 +12,7 @@ namespace Vodovoz.Domain.Roboats
 	public class RoboatsCall : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
+		private Guid _callGuid;
 		private DateTime _callTime;
 		private string _phone;
 		private RoboatsCallStatus _status;
@@ -24,6 +25,13 @@ namespace Vodovoz.Domain.Roboats
 		{
 			get => _id;
 			set => SetField(ref _id, value);
+		}
+
+		[Display(Name = "Уникальный идентифкатор звонка")]
+		public virtual Guid CallGuid
+		{
+			get => _callGuid;
+			set => SetField(ref _callGuid, value);
 		}
 
 		[Display(Name = "Время звонка")]

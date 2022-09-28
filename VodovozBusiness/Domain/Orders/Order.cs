@@ -1536,6 +1536,23 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		public virtual void AddDeliveryPointCommentToOrder()
+		{
+			if(DeliveryPoint == null)
+			{
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(Comment))
+			{
+				Comment = DeliveryPoint.Comment;
+			}
+			else
+			{
+				Comment += $"\n{DeliveryPoint.Comment}";
+			}
+		}
+
 		public virtual void UpdateAddressType()
 		{
 			if(Client != null && Client.IsChainStore && !OrderItems.Any(x => x.IsMasterNomenclature))

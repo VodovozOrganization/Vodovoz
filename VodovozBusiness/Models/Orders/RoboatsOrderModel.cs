@@ -160,6 +160,7 @@ namespace Vodovoz.Models.Orders
 			order.BottlesReturn = roboatsOrderArgs.BottlesReturn;
 			order.RecalculateItemsPrice();
 			order.CalculateDeliveryPrice();
+			order.AddDeliveryPointCommentToOrder();
 			return order;
 		}
 	}
