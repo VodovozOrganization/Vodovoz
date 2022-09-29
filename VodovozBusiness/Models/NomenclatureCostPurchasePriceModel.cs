@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QS.Services;
+using System;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 
@@ -6,6 +7,13 @@ namespace Vodovoz.Models
 {
 	public class NomenclatureCostPurchasePriceModel
 	{
+		private readonly ICurrentPermissionService _permissionService;
+
+		public NomenclatureCostPurchasePriceModel(ICurrentPermissionService permissionService)
+		{
+			_permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
+		}
+
 		public NomenclatureCostPurchasePrice CreatePrice(Nomenclature nomenclature, DateTime startDate)
 		{
 			if(!CanCreatePrice(nomenclature, startDate))
@@ -71,7 +79,7 @@ namespace Vodovoz.Models
 				throw new InvalidOperationException($"Невозможно изменить дату цены, так как дата {startDate} меньше даты начала предыдущей цены или больше даты окончания текущей цены");
 			}
 
-			var previousPrice = nomenclature.PurchasePrices.Where(x => x.EndDate < startDate).OrderByDescending(x => x.EndDate).FirstOrDefault();
+			var previousPrice = nomenclature.PurchasePrices.Where(x => x.EndDate < price.StartDate).OrderByDescending(x => x.EndDate).FirstOrDefault();
 			if(previousPrice != null)
 			{
 				previousPrice.EndDate = GetCloseTime(startDate);
@@ -99,6 +107,16 @@ namespace Vodovoz.Models
 
 			var previousPrice = nomenclature.PurchasePrices.Where(x => x.EndDate < price.StartDate).OrderByDescending(x => x.EndDate).FirstOrDefault();
 			if(previousPrice == null)
+			{
+				return true;
+			}
+
+			if(previousPrice.StartDate >= startDate)
+			{
+				return false;
+			}
+
+			if(_permissionService.ValidatePresetPermission("can_change_nomenclature_price_date") && previousPrice.StartDate < startDate)
 			{
 				return true;
 			}
