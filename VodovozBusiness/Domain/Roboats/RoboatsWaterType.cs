@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _fileId, value);
 		}
 
-		[Display(Name = "Сортировка")]
+		[Display(Name = "Порядок")]
 		public virtual int Order
 		{
 			get => _order;
