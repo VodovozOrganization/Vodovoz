@@ -361,8 +361,7 @@ namespace Vodovoz
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
-				AddCommentFromDeliveryPoint();
-				AddCommentLogistFromDeliveryPoint();
+				AddCommentsFromDeliveryPoint();
 			}
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -414,8 +413,7 @@ namespace Vodovoz
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
-			AddCommentFromDeliveryPoint();
-			AddCommentLogistFromDeliveryPoint();
+			AddCommentsFromDeliveryPoint();
 		}
 
 		public void ConfigureDlg()
@@ -2554,43 +2552,49 @@ namespace Vodovoz
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 
-			AddCommentFromDeliveryPoint();
-			AddCommentLogistFromDeliveryPoint();
+			AddCommentsFromDeliveryPoint();
 		}
 
-		private void AddCommentFromDeliveryPoint()
-		{
-			if(DeliveryPoint != null)
-			{
-				if(string.IsNullOrWhiteSpace(Entity.Comment))
-				{
-					Entity.Comment = DeliveryPoint.Comment;
-				}
-				else
-				{
-					if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
-					{
-						Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
-					}
-				}
-
-				_previousDeliveryPointId = DeliveryPoint.Id;
-			}
-		}
-
-		private void AddCommentLogistFromDeliveryPoint()
+		private void AddCommentsFromDeliveryPoint()
 		{
 			if(DeliveryPoint == null)
 			{
 				return;
 			}
+
+			AddCommentFromDeliveryPoint();
+			AddCommentLogistFromDeliveryPoint();
+
+			_previousDeliveryPointId = DeliveryPoint.Id;
+		}
+
+		private void AddCommentFromDeliveryPoint()
+		{
+			if(string.IsNullOrWhiteSpace(Entity.Comment))
+			{
+				Entity.Comment = DeliveryPoint.Comment;
+			}
+			else
+			{
+				if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
+				{
+					Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
+				}
+			}
+		}
+
+		private void AddCommentLogistFromDeliveryPoint()
+		{
 			if(string.IsNullOrWhiteSpace(Entity.CommentLogist))
 			{
 				Entity.CommentLogist = DeliveryPoint.CommentLogist;
 			}
 			else
 			{
-				Entity.CommentLogist = string.Join("\n", DeliveryPoint.CommentLogist, $"Предыдущий комментарий: {Entity.CommentLogist}");
+				if(!string.IsNullOrWhiteSpace(DeliveryPoint.CommentLogist) && DeliveryPoint.Id != _previousDeliveryPointId)
+				{
+					Entity.CommentLogist = string.Join("\n", DeliveryPoint.CommentLogist, $"Предыдущий комментарий: {Entity.CommentLogist}");
+				}
 			}
 		}
 
@@ -2724,8 +2728,7 @@ namespace Vodovoz
 
 			if(DeliveryPoint != null)
 			{
-				AddCommentFromDeliveryPoint();
-				AddCommentLogistFromDeliveryPoint();
+				AddCommentsFromDeliveryPoint();
 			}
 
 			//Проверяем возможность добавления Акции "Бутыль"
