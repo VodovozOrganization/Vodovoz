@@ -24,11 +24,25 @@ namespace Vodovoz.Views.Permissions
 
 		private global::Gamma.GtkWidgets.yEntry yentry1;
 
-		private global::Gamma.GtkWidgets.yLabel lblAvailableDataBases;
+		private global::Gamma.GtkWidgets.yTable ytable1;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewAvailableDataBases;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
+
+		private global::Gamma.GtkWidgets.yTreeView treeViewAllAvailableDataBases;
+
+		private global::Gamma.GtkWidgets.yLabel lblAllAvailableDataBases;
+
+		private global::Gamma.GtkWidgets.yLabel lblAvailableDataBases;
+
+		private global::Gamma.GtkWidgets.yVBox vboxAvailableDbBtns;
+
+		private global::Gamma.GtkWidgets.yButton btnAddToRoleAvailableDataBase;
+
+		private global::Gamma.GtkWidgets.yButton btnRemoveFromRoleAvailableDatabase;
 
 		private global::Gamma.GtkWidgets.yLabel lblPrivileges;
 
@@ -139,16 +153,13 @@ namespace Vodovoz.Views.Permissions
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child vboxData.Gtk.Box+BoxChild
-			this.lblAvailableDataBases = new global::Gamma.GtkWidgets.yLabel();
-			this.lblAvailableDataBases.Name = "lblAvailableDataBases";
-			this.lblAvailableDataBases.Xalign = 0F;
-			this.lblAvailableDataBases.LabelProp = global::Mono.Unix.Catalog.GetString("Доступные базы данных:");
-			this.vboxData.Add(this.lblAvailableDataBases);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.lblAvailableDataBases]));
-			w9.Position = 1;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child vboxData.Gtk.Box+BoxChild
+			this.ytable1 = new global::Gamma.GtkWidgets.yTable();
+			this.ytable1.Name = "ytable1";
+			this.ytable1.NRows = ((uint)(2));
+			this.ytable1.NColumns = ((uint)(3));
+			this.ytable1.RowSpacing = ((uint)(6));
+			this.ytable1.ColumnSpacing = ((uint)(6));
+			// Container child ytable1.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -157,19 +168,91 @@ namespace Vodovoz.Views.Permissions
 			this.treeViewAvailableDataBases.CanFocus = true;
 			this.treeViewAvailableDataBases.Name = "treeViewAvailableDataBases";
 			this.GtkScrolledWindow.Add(this.treeViewAvailableDataBases);
-			this.vboxData.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.GtkScrolledWindow]));
-			w11.Position = 2;
+			this.ytable1.Add(this.GtkScrolledWindow);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytable1[this.GtkScrolledWindow]));
+			w10.TopAttach = ((uint)(1));
+			w10.BottomAttach = ((uint)(2));
+			w10.LeftAttach = ((uint)(2));
+			w10.RightAttach = ((uint)(3));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
+			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
+			this.treeViewAllAvailableDataBases = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeViewAllAvailableDataBases.CanFocus = true;
+			this.treeViewAllAvailableDataBases.Name = "treeViewAllAvailableDataBases";
+			this.GtkScrolledWindow3.Add(this.treeViewAllAvailableDataBases);
+			this.ytable1.Add(this.GtkScrolledWindow3);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytable1[this.GtkScrolledWindow3]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.lblAllAvailableDataBases = new global::Gamma.GtkWidgets.yLabel();
+			this.lblAllAvailableDataBases.Name = "lblAllAvailableDataBases";
+			this.lblAllAvailableDataBases.Xalign = 0F;
+			this.lblAllAvailableDataBases.LabelProp = global::Mono.Unix.Catalog.GetString("Все доступные базы данных:");
+			this.ytable1.Add(this.lblAllAvailableDataBases);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblAllAvailableDataBases]));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.lblAvailableDataBases = new global::Gamma.GtkWidgets.yLabel();
+			this.lblAvailableDataBases.Name = "lblAvailableDataBases";
+			this.lblAvailableDataBases.Xalign = 0F;
+			this.lblAvailableDataBases.LabelProp = global::Mono.Unix.Catalog.GetString("Выбранные базы данных:");
+			this.ytable1.Add(this.lblAvailableDataBases);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblAvailableDataBases]));
+			w14.LeftAttach = ((uint)(2));
+			w14.RightAttach = ((uint)(3));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.vboxAvailableDbBtns = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxAvailableDbBtns.Name = "vboxAvailableDbBtns";
+			this.vboxAvailableDbBtns.Spacing = 6;
+			// Container child vboxAvailableDbBtns.Gtk.Box+BoxChild
+			this.btnAddToRoleAvailableDataBase = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddToRoleAvailableDataBase.CanFocus = true;
+			this.btnAddToRoleAvailableDataBase.Name = "btnAddToRoleAvailableDataBase";
+			this.btnAddToRoleAvailableDataBase.UseUnderline = true;
+			this.btnAddToRoleAvailableDataBase.Label = global::Mono.Unix.Catalog.GetString(">");
+			this.vboxAvailableDbBtns.Add(this.btnAddToRoleAvailableDataBase);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxAvailableDbBtns[this.btnAddToRoleAvailableDataBase]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
+			// Container child vboxAvailableDbBtns.Gtk.Box+BoxChild
+			this.btnRemoveFromRoleAvailableDatabase = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemoveFromRoleAvailableDatabase.CanFocus = true;
+			this.btnRemoveFromRoleAvailableDatabase.Name = "btnRemoveFromRoleAvailableDatabase";
+			this.btnRemoveFromRoleAvailableDatabase.UseUnderline = true;
+			this.btnRemoveFromRoleAvailableDatabase.Label = global::Mono.Unix.Catalog.GetString("<");
+			this.vboxAvailableDbBtns.Add(this.btnRemoveFromRoleAvailableDatabase);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxAvailableDbBtns[this.btnRemoveFromRoleAvailableDatabase]));
+			w16.Position = 1;
+			w16.Expand = false;
+			w16.Fill = false;
+			this.ytable1.Add(this.vboxAvailableDbBtns);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytable1[this.vboxAvailableDbBtns]));
+			w17.BottomAttach = ((uint)(2));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(0));
+			this.vboxData.Add(this.ytable1);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.ytable1]));
+			w18.Position = 1;
 			// Container child vboxData.Gtk.Box+BoxChild
 			this.lblPrivileges = new global::Gamma.GtkWidgets.yLabel();
 			this.lblPrivileges.Name = "lblPrivileges";
 			this.lblPrivileges.Xalign = 0F;
 			this.lblPrivileges.LabelProp = global::Mono.Unix.Catalog.GetString("Привилегии:");
 			this.vboxData.Add(this.lblPrivileges);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.lblPrivileges]));
-			w12.Position = 3;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.lblPrivileges]));
+			w19.Position = 2;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vboxData.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -180,8 +263,8 @@ namespace Vodovoz.Views.Permissions
 			this.treeViewPrivileges.Name = "treeViewPrivileges";
 			this.GtkScrolledWindow1.Add(this.treeViewPrivileges);
 			this.vboxData.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.GtkScrolledWindow1]));
-			w14.Position = 4;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.GtkScrolledWindow1]));
+			w21.Position = 3;
 			// Container child vboxData.Gtk.Box+BoxChild
 			this.hboxPrivilegesBtns = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxPrivilegesBtns.Name = "hboxPrivilegesBtns";
@@ -193,10 +276,10 @@ namespace Vodovoz.Views.Permissions
 			this.btnAddPrivileges.UseUnderline = true;
 			this.btnAddPrivileges.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			this.hboxPrivilegesBtns.Add(this.btnAddPrivileges);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxPrivilegesBtns[this.btnAddPrivileges]));
-			w15.Position = 0;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hboxPrivilegesBtns[this.btnAddPrivileges]));
+			w22.Position = 0;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child hboxPrivilegesBtns.Gtk.Box+BoxChild
 			this.btnRemove = new global::Gamma.GtkWidgets.yButton();
 			this.btnRemove.CanFocus = true;
@@ -204,25 +287,25 @@ namespace Vodovoz.Views.Permissions
 			this.btnRemove.UseUnderline = true;
 			this.btnRemove.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hboxPrivilegesBtns.Add(this.btnRemove);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxPrivilegesBtns[this.btnRemove]));
-			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hboxPrivilegesBtns[this.btnRemove]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.vboxData.Add(this.hboxPrivilegesBtns);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.hboxPrivilegesBtns]));
-			w17.Position = 5;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.hboxPrivilegesBtns]));
+			w24.Position = 4;
+			w24.Expand = false;
+			w24.Fill = false;
 			// Container child vboxData.Gtk.Box+BoxChild
 			this.lblDescription = new global::Gamma.GtkWidgets.yLabel();
 			this.lblDescription.Name = "lblDescription";
 			this.lblDescription.Xalign = 0F;
 			this.lblDescription.LabelProp = global::Mono.Unix.Catalog.GetString("Описание:");
 			this.vboxData.Add(this.lblDescription);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.lblDescription]));
-			w18.Position = 6;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.lblDescription]));
+			w25.Position = 5;
+			w25.Expand = false;
+			w25.Fill = false;
 			// Container child vboxData.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
@@ -233,13 +316,13 @@ namespace Vodovoz.Views.Permissions
 			this.txtViewDescription.Name = "txtViewDescription";
 			this.GtkScrolledWindow2.Add(this.txtViewDescription);
 			this.vboxData.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.GtkScrolledWindow2]));
-			w20.Position = 7;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxData[this.GtkScrolledWindow2]));
+			w27.Position = 6;
 			w5.Add(this.vboxData);
 			this.scrolledwindow1.Add(w5);
 			this.vboxMain.Add(this.scrolledwindow1);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.scrolledwindow1]));
-			w23.Position = 2;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.scrolledwindow1]));
+			w30.Position = 2;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
