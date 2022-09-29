@@ -240,10 +240,6 @@ namespace Vodovoz
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.OrderOfAddresses, false);
-			bool IsLoadDocumentPrintable = ServicesConfig.CommonServices.CurrentPermissionService
-											.ValidatePresetPermission("can_print_car_load_document");
-			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadDocument, IsLoadDocumentPrintable
-																			  && !(Entity.Status == RouteListStatus.Confirmed));
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
 
 			//Телефон
