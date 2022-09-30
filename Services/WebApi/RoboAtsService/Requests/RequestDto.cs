@@ -10,7 +10,7 @@ namespace RoboAtsService.Requests
 		public string ClientPhone { get; set; }
 
 		/// <summary>
-		/// CID
+		/// CALL_UUID
 		/// </summary>
 		public Guid CallGuid { get; set; }
 
