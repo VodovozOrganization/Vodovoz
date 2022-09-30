@@ -126,7 +126,11 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				_roboatsWatersCache = uow.GetAll<RoboatsWaterType>().ToList();
+				RoboatsWaterType roboatsWaterTypeAlias = null;
+				var waters = uow.Session.QueryOver(() => roboatsWaterTypeAlias)
+					.OrderBy(x => x.Order).Asc()
+					.List();
+				_roboatsWatersCache = waters;
 				return _roboatsWatersCache;
 			}
 		}

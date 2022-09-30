@@ -1104,7 +1104,8 @@ namespace Vodovoz
 				new SalesPlanJournalFactory(),
 				new NomenclatureJournalFactory(),
 				new EmployeeSettings(new ParametersProvider()),
-				new UndeliveredOrdersRepository()
+				new UndeliveredOrdersRepository(),
+				new ComplaintParametersProvider(new ParametersProvider())
 			);
 
 			TabParent.AddTab(complaintsJournalViewModel, this, false);

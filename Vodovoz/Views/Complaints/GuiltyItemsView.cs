@@ -55,7 +55,7 @@ namespace Vodovoz.Views.Complaints
 			treeViewGuilty.ColumnsConfig = FluentColumnsConfig<ComplaintGuiltyItem>.Create()
 				.AddColumn("Сторона")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.GuiltyType.GetEnumShortTitle())
+					.AddTextRenderer(n => n.Responsible.Name)
 				.AddColumn("Отдел ВВ")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.GetGuiltySubdivisionOrEmployee)
