@@ -98,7 +98,7 @@ namespace Vodovoz.Controllers
 
 			CalculateGeneralDataRouteListProfitability(routeList, routeListProfitability);
 			
-			if(routeList.FixedShippingPrice > 0)
+			if(routeList.HasFixedShippingPrice)
 			{
 				CalculateRouteListProfitabilityWithFixedShippingPrice(routeList, routeListProfitability);
 			}

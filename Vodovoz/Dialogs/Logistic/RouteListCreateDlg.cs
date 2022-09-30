@@ -330,7 +330,7 @@ namespace Vodovoz
 					.AddNumericRenderer(x => Entity.Id)
 				.AddColumn("Фактический пробег, км")
 					.AddNumericRenderer(x => x.Mileage)
-				.AddColumn("Аммортизация, руб")
+				.AddColumn("Амортизация, руб")
 					.AddNumericRenderer(x => x.Amortisation)
 					.Digits(2)
 				.AddColumn("Ремонт, руб")
