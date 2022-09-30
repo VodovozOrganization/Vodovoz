@@ -52,9 +52,9 @@ namespace Vodovoz.Views.Permissions
 
 		private global::Gamma.GtkWidgets.yHBox hboxPrivilegesBtns;
 
-		private global::Gamma.GtkWidgets.yButton btnAddPrivileges;
+		private global::QS.Widgets.EnumMenuButton enumMenuBtnAddPrivilege;
 
-		private global::Gamma.GtkWidgets.yButton btnRemove;
+		private global::Gamma.GtkWidgets.yButton btnRemovePrivilege;
 
 		private global::Gamma.GtkWidgets.yLabel lblDescription;
 
@@ -270,24 +270,26 @@ namespace Vodovoz.Views.Permissions
 			this.hboxPrivilegesBtns.Name = "hboxPrivilegesBtns";
 			this.hboxPrivilegesBtns.Spacing = 6;
 			// Container child hboxPrivilegesBtns.Gtk.Box+BoxChild
-			this.btnAddPrivileges = new global::Gamma.GtkWidgets.yButton();
-			this.btnAddPrivileges.CanFocus = true;
-			this.btnAddPrivileges.Name = "btnAddPrivileges";
-			this.btnAddPrivileges.UseUnderline = true;
-			this.btnAddPrivileges.Label = global::Mono.Unix.Catalog.GetString("Добавить");
-			this.hboxPrivilegesBtns.Add(this.btnAddPrivileges);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hboxPrivilegesBtns[this.btnAddPrivileges]));
+			this.enumMenuBtnAddPrivilege = new global::QS.Widgets.EnumMenuButton();
+			this.enumMenuBtnAddPrivilege.CanFocus = true;
+			this.enumMenuBtnAddPrivilege.Name = "enumMenuBtnAddPrivilege";
+			this.enumMenuBtnAddPrivilege.UseUnderline = true;
+			this.enumMenuBtnAddPrivilege.UseMarkup = false;
+			this.enumMenuBtnAddPrivilege.LabelXAlign = 0F;
+			this.enumMenuBtnAddPrivilege.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			this.hboxPrivilegesBtns.Add(this.enumMenuBtnAddPrivilege);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hboxPrivilegesBtns[this.enumMenuBtnAddPrivilege]));
 			w22.Position = 0;
 			w22.Expand = false;
 			w22.Fill = false;
 			// Container child hboxPrivilegesBtns.Gtk.Box+BoxChild
-			this.btnRemove = new global::Gamma.GtkWidgets.yButton();
-			this.btnRemove.CanFocus = true;
-			this.btnRemove.Name = "btnRemove";
-			this.btnRemove.UseUnderline = true;
-			this.btnRemove.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			this.hboxPrivilegesBtns.Add(this.btnRemove);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hboxPrivilegesBtns[this.btnRemove]));
+			this.btnRemovePrivilege = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemovePrivilege.CanFocus = true;
+			this.btnRemovePrivilege.Name = "btnRemovePrivilege";
+			this.btnRemovePrivilege.UseUnderline = true;
+			this.btnRemovePrivilege.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			this.hboxPrivilegesBtns.Add(this.btnRemovePrivilege);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hboxPrivilegesBtns[this.btnRemovePrivilege]));
 			w23.Position = 1;
 			w23.Expand = false;
 			w23.Fill = false;
