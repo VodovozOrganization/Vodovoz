@@ -187,7 +187,11 @@ namespace Vodovoz.Controllers
 			routeListProfitability.RepairCosts = default(decimal);
 			routeListProfitability.FuelCosts = default(decimal);
 			routeListProfitability.DriverAndForwarderWages = routeList.GetDriversTotalWage() + routeList.GetForwardersTotalWage();
-			routeListProfitability.RouteListExpenses = routeList.FixedShippingPrice - routeListProfitability.PaidDelivery;
+			routeListProfitability.RouteListExpenses =
+				routeListProfitability.Amortisation +
+				routeListProfitability.RepairCosts +
+				routeListProfitability.FuelCosts +
+				routeListProfitability.DriverAndForwarderWages - routeListProfitability.PaidDelivery;
 		}
 
 		private decimal GetMileageFromRouteList(RouteList routeList)
