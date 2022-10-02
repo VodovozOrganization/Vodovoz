@@ -22,7 +22,7 @@ namespace Vodovoz.Views.Permissions
 
 		private global::Gamma.GtkWidgets.yLabel lblName;
 
-		private global::Gamma.GtkWidgets.yEntry yentry1;
+		private global::Gamma.GtkWidgets.yEntry entryName;
 
 		private global::Gamma.GtkWidgets.yTable ytable1;
 
@@ -137,13 +137,13 @@ namespace Vodovoz.Views.Permissions
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hboxName.Gtk.Box+BoxChild
-			this.yentry1 = new global::Gamma.GtkWidgets.yEntry();
-			this.yentry1.CanFocus = true;
-			this.yentry1.Name = "yentry1";
-			this.yentry1.IsEditable = true;
-			this.yentry1.InvisibleChar = '•';
-			this.hboxName.Add(this.yentry1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxName[this.yentry1]));
+			this.entryName = new global::Gamma.GtkWidgets.yEntry();
+			this.entryName.CanFocus = true;
+			this.entryName.Name = "entryName";
+			this.entryName.IsEditable = true;
+			this.entryName.InvisibleChar = '•';
+			this.hboxName.Add(this.entryName);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxName[this.entryName]));
 			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
