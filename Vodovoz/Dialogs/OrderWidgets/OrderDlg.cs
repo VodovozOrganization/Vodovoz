@@ -361,7 +361,7 @@ namespace Vodovoz
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
-				AddCommentFromDeliveryPoint();
+				AddCommentsFromDeliveryPoint();
 			}
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -413,7 +413,7 @@ namespace Vodovoz
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
-			AddCommentFromDeliveryPoint();
+			AddCommentsFromDeliveryPoint();
 		}
 
 		public void ConfigureDlg()
@@ -2552,26 +2552,49 @@ namespace Vodovoz
 			if(Entity.DeliveryDate.HasValue && Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 				OnFormOrderActions();
 
+			AddCommentsFromDeliveryPoint();
+		}
+
+		private void AddCommentsFromDeliveryPoint()
+		{
+			if(DeliveryPoint == null)
+			{
+				return;
+			}
+
 			AddCommentFromDeliveryPoint();
+			AddCommentLogistFromDeliveryPoint();
+
+			_previousDeliveryPointId = DeliveryPoint.Id;
 		}
 
 		private void AddCommentFromDeliveryPoint()
 		{
-			if(DeliveryPoint != null)
+			if(string.IsNullOrWhiteSpace(Entity.Comment))
 			{
-				if(string.IsNullOrWhiteSpace(Entity.Comment))
+				Entity.Comment = DeliveryPoint.Comment;
+			}
+			else
+			{
+				if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
 				{
-					Entity.Comment = DeliveryPoint.Comment;
+					Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
 				}
-				else
-				{
-					if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
-					{
-						Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
-					}
-				}
+			}
+		}
 
-				_previousDeliveryPointId = DeliveryPoint.Id;
+		private void AddCommentLogistFromDeliveryPoint()
+		{
+			if(string.IsNullOrWhiteSpace(Entity.CommentLogist))
+			{
+				Entity.CommentLogist = DeliveryPoint.CommentLogist;
+			}
+			else
+			{
+				if(!string.IsNullOrWhiteSpace(DeliveryPoint.CommentLogist) && DeliveryPoint.Id != _previousDeliveryPointId)
+				{
+					Entity.CommentLogist = string.Join("\n", DeliveryPoint.CommentLogist, $"Предыдущий комментарий: {Entity.CommentLogist}");
+				}
 			}
 		}
 
@@ -2705,7 +2728,7 @@ namespace Vodovoz
 
 			if(DeliveryPoint != null)
 			{
-				AddCommentFromDeliveryPoint();
+				AddCommentsFromDeliveryPoint();
 			}
 
 			//Проверяем возможность добавления Акции "Бутыль"
