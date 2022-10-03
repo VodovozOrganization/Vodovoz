@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
+using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 
@@ -16,23 +17,30 @@ namespace RoboAtsService.Monitoring
 		private readonly ILogger<RoboatsCallRegistrator> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IRoboatsCallFactory _roboatsCallFactory;
+		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsSettings _roboatsSettings;
 
-		public RoboatsCallRegistrator(ILogger<RoboatsCallRegistrator> logger, IUnitOfWorkFactory uowFactory, IRoboatsCallFactory roboatsCallFactory, RoboatsSettings roboatsSettings)
+		public RoboatsCallRegistrator(
+			ILogger<RoboatsCallRegistrator> logger,
+			IUnitOfWorkFactory uowFactory,
+			IRoboatsCallFactory roboatsCallFactory,
+			IRoboatsRepository roboatsRepository,
+			RoboatsSettings roboatsSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_roboatsCallFactory = roboatsCallFactory ?? throw new ArgumentNullException(nameof(roboatsCallFactory));
+			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 		}
 
-		public void RegisterCall(string phone)
+		public void RegisterCall(string phone, Guid callGuid)
 		{
 			try
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = GetActualCall(phone);
+				var call = GetActualCall(phone, callGuid);
 				Save(uow, call);
 			}
 			catch(Exception ex)
@@ -41,13 +49,13 @@ namespace RoboAtsService.Monitoring
 			}
 		}
 
-		public void RegisterFail(string phone, RoboatsCallFailType failType, RoboatsCallOperation operation, string description)
+		public void RegisterFail(string phone, Guid callGuid, RoboatsCallFailType failType, RoboatsCallOperation operation, string description)
 		{
 			try
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = GetActualCall(phone);
+				var call = GetActualCall(phone, callGuid);
 				call.Status = RoboatsCallStatus.Fail;
 				call.Result = RoboatsCallResult.Nothing;
 
@@ -62,13 +70,13 @@ namespace RoboAtsService.Monitoring
 			}
 		}
 
-		public void RegisterTerminatingFail(string phone, RoboatsCallFailType failType, RoboatsCallOperation operation, string description)
+		public void RegisterTerminatingFail(string phone, Guid callGuid, RoboatsCallFailType failType, RoboatsCallOperation operation, string description)
 		{
 			try
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = GetActualCall(phone);
+				var call = GetActualCall(phone, callGuid);
 				call.Status = RoboatsCallStatus.Aborted;
 				call.Result = RoboatsCallResult.Nothing;
 
@@ -83,13 +91,13 @@ namespace RoboAtsService.Monitoring
 			}
 		}
 
-		public void AbortCall(string phone)
+		public void AbortCall(string phone, Guid callGuid)
 		{
 			try
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = GetActualCall(phone);
+				var call = GetActualCall(phone, callGuid);
 				call.Status = RoboatsCallStatus.Aborted;
 				Save(uow, call);
 			}
@@ -99,13 +107,13 @@ namespace RoboAtsService.Monitoring
 			}
 		}
 
-		public void RegisterAborted(string phone, RoboatsCallOperation operation, string description = null)
+		public void RegisterAborted(string phone, Guid callGuid, RoboatsCallOperation operation, string description = null)
 		{
 			try
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = GetActualCall(phone);
+				var call = GetActualCall(phone, callGuid);
 				call.Status = RoboatsCallStatus.Aborted;
 				call.Result = RoboatsCallResult.OrderCreated;
 
@@ -120,13 +128,13 @@ namespace RoboAtsService.Monitoring
 			}
 		}
 
-		public void RegisterSuccess(string phone, string description = null)
+		public void RegisterSuccess(string phone, Guid callGuid, string description = null)
 		{
 			try
 			{
 				using var uow = _uowFactory.CreateWithoutRoot();
 
-				var call = GetActualCall(phone);
+				var call = GetActualCall(phone, callGuid);
 				call.Status = RoboatsCallStatus.Success;
 				call.Result = RoboatsCallResult.OrderAccepted;
 
@@ -141,10 +149,10 @@ namespace RoboAtsService.Monitoring
 			}
 		}
 
-		private RoboatsCall GetActualCall(string phone)
+		private RoboatsCall GetActualCall(string phone, Guid callGuid)
 		{
 			phone = NormalizePhone(phone);
-			var currentCall = GetCurrentCall(phone);
+			var currentCall = GetCurrentCall(phone, callGuid);
 			return currentCall;
 		}
 
@@ -154,48 +162,45 @@ namespace RoboAtsService.Monitoring
 			return phoneFormatter.FormatString(phone);
 		}
 
-		private RoboatsCall GetCurrentCall(string phone)
+		private RoboatsCall GetCurrentCall(string phone, Guid callGuid)
 		{
-			var activeCalls = LoadActiveCalls(phone).ToList();
-			var currentCall = activeCalls.OrderByDescending(x => x.CallTime).FirstOrDefault();
-			if(currentCall == null)
+			var call = GetCallByUUID(callGuid);
+			if(call == null)
 			{
-				return _roboatsCallFactory.GetNewRoboatsCall(phone);
+				call = _roboatsCallFactory.GetNewRoboatsCall(phone, callGuid); ;
 			}
-			else if(currentCall.CallTime > DateTime.Now.AddMinutes(-_roboatsSettings.NewCallTimeout))
-			{
-				activeCalls.Remove(currentCall);
-			}
-			else
-			{
-				currentCall = _roboatsCallFactory.GetNewRoboatsCall(phone);
-			}
-
-			CloseStaleCalls(activeCalls);
-			return currentCall;
+			return call;
 		}
 
-		private IEnumerable<RoboatsCall> LoadActiveCalls(string phone)
+		private RoboatsCall GetCallByUUID(Guid callGuid)
 		{
 			using var uow = _uowFactory.CreateWithoutRoot();
 
-			RoboatsCallStatus[] activeStatuses = { RoboatsCallStatus.InProgress, RoboatsCallStatus.Fail };
-
-			RoboatsCall roboatsCallAlias = null;
-			var calls = uow.Session.QueryOver(() => roboatsCallAlias)
-				.Where(() => roboatsCallAlias.Phone == phone)
-				.Where(Restrictions.In(Projections.Property(() => roboatsCallAlias.Status), activeStatuses))
-				.List();
-			return calls;
+			var call = _roboatsRepository.GetCall(uow, callGuid);
+			return call;
 		}
 
-		private void CloseStaleCalls(IEnumerable<RoboatsCall> staleCalls)
+		public void CloseStaleCalls()
 		{
 			using var uow = _uowFactory.CreateWithoutRoot();
+
+			var staleCalls = _roboatsRepository.GetStaleCalls(uow);
 
 			foreach(var call in staleCalls)
 			{
+				var closeDetail = new RoboatsCallDetail
+				{
+					Call = call,
+					Description = $"Закрыт по превышению таймаута ({_roboatsSettings.CallTimeout} мин)",
+					FailType = RoboatsCallFailType.TimeOut,
+					OperationTime = DateTime.Now,
+					Operation = RoboatsCallOperation.ClosingStaleCalls
+				};
+
+				call.CallDetails.Add(closeDetail);
 				call.Status = RoboatsCallStatus.Aborted;
+				call.Result = RoboatsCallResult.Nothing;
+
 				uow.Save(call);
 			}
 			uow.Commit();

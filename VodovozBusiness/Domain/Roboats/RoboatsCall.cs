@@ -12,18 +12,26 @@ namespace Vodovoz.Domain.Roboats
 	public class RoboatsCall : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
+		private Guid _callGuid;
 		private DateTime _callTime;
 		private string _phone;
 		private RoboatsCallStatus _status;
 		private RoboatsCallResult _result;
 		IList<RoboatsCallDetail> _callDetails = new List<RoboatsCallDetail>();
-		GenericObservableList<RoboatsCallDetail> observableCallDetails;
+		GenericObservableList<RoboatsCallDetail> _observableCallDetails;
 
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
 			get => _id;
 			set => SetField(ref _id, value);
+		}
+
+		[Display(Name = "Уникальный идентификатор звонка")]
+		public virtual Guid CallGuid
+		{
+			get => _callGuid;
+			set => SetField(ref _callGuid, value);
 		}
 
 		[Display(Name = "Время звонка")]
@@ -66,9 +74,9 @@ namespace Vodovoz.Domain.Roboats
 		{
 			get
 			{
-				if(observableCallDetails == null)
-					observableCallDetails = new GenericObservableList<RoboatsCallDetail>(CallDetails);
-				return observableCallDetails;
+				if(_observableCallDetails == null)
+					_observableCallDetails = new GenericObservableList<RoboatsCallDetail>(CallDetails);
+				return _observableCallDetails;
 			}
 		}
 	}

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Roboats;
@@ -24,5 +25,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 		int? GetRoboAtsStreetId(int counterPartyId, int deliveryPointId);
 		IEnumerable<NomenclatureQuantity> GetWatersQuantityFromOrder(int counterpartyId, int orderId);
 		IEnumerable<RoboatsWaterType> GetWaterTypes();
+		IEnumerable<RoboatsCall> GetStaleCalls(IUnitOfWork uow);
+		RoboatsCall GetCall(IUnitOfWork uow, Guid callGuid);
 	}
 }
