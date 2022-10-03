@@ -94,7 +94,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_driverApiRegistrationEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
-			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository, CanReFilter);
+			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository, CheckAndSaveBeforeСontinue);
 
 			Build();
 
@@ -116,7 +116,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			ytreeviewGeographicGroup.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>
 				.Create()
-				.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing()
+				.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing().ToggledEvent(OnGeographicGroupSelected)
 				.AddColumn("Район города").AddTextRenderer(x => x.GeographicGroup.Name)
 				.Finish();
 
@@ -228,14 +228,29 @@ namespace Vodovoz.Dialogs.Logistic
 			_filterViewModel.Update();
 		}
 
-		private bool CanReFilter()
+		private void OnGeographicGroupSelected(object o, ToggledArgs args)
+		{
+			Application.Invoke((s, e) =>
+			{
+				var selectedNode = ytreeviewGeographicGroup.GetSelectedObject<GeographicGroupNode>();
+
+				if(selectedNode == null)
+				{
+					return;
+				}
+
+				_filterViewModel.UpdateOrRollBackGeographicGroup(selectedNode);
+			});
+		}
+
+		private bool CheckAndSaveBeforeСontinue(string question)
 		{
 			if(!_needSaveDrivers)
 			{
 				return true;
 			}
 
-			if(ServicesConfig.InteractiveService.Question("Перед изменением фильтра необходимо сохранить изменения.\nСохранить и применить фильтр?")
+			if(ServicesConfig.InteractiveService.Question(question)
 				&& Save())
 			{
 				return true;
@@ -253,6 +268,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void YbuttonCreateRouteListsClicked(object sender, EventArgs e)
 		{
+			if(!CheckAndSaveBeforeСontinue("Перед созданием МЛ необходимо сохранить изменения.\nВы хотите сохранить изменения и продолжить?"))
+			{
+				return;
+			}
+
 			var workedDrivers = DriversAtDay.Where(d => d.Status == AtWorkDriver.DriverStatus.IsWorking);
 			var routeListGenerator = new EmptyRouteListGenerator(_routeListRepository, workedDrivers);
 			var valid = ServicesConfig.ValidationService.Validate(routeListGenerator, new ValidationContext(routeListGenerator));
@@ -261,7 +281,11 @@ namespace Vodovoz.Dialogs.Logistic
 				return;
 			}
 			_routelists = routeListGenerator.Generate();
-			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, $"При сохранении будут созданы {_routelists.Count} маршрутных листов.");
+
+			if(ServicesConfig.InteractiveService.Question($"Будут созданы {_routelists.Count} маршрутных листов.\nПродолжить?"))
+			{
+				SaveAndClose();
+			}
 		}
 
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

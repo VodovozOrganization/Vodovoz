@@ -1,6 +1,7 @@
-﻿using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
+using QS.Project.Filter;
 using QS.Utilities.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -9,8 +10,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.ViewModels.Logistic;
-using QS.Project.Filter;
-using System;
 
 namespace Vodovoz.ViewModels.Dialogs.Logistic
 {
@@ -21,13 +20,10 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 		private IEnumerable<AtWorkDriver.DriverStatus> _selectedDriverStatuses;
 		private SortAtWorkDriversType _sortType;
 		private DateTime _atDate;
-		private GenericObservableList<GeographicGroupNode> _geographicGroupNodes;
-		private readonly Func<bool> _checkFunc;
+		private readonly Func<string, bool> _checkFunc;
 
-		public AtWorkFilterViewModel(IUnitOfWork uow, IGeographicGroupRepository geographicGroupRepository, Func<bool> checkFunc = null)
+		public AtWorkFilterViewModel(IUnitOfWork uow, IGeographicGroupRepository geographicGroupRepository, Func<string, bool> checkFunc = null)
 		{
-			_checkFunc = checkFunc;
-
 			_selectedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_selectedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			_selectedDriverStatuses = EnumHelper.GetValuesList<AtWorkDriver.DriverStatus>();
@@ -41,17 +37,7 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 				geographicGroupNode.Selected = true;
 			}
 
-			GeographicGroupNodes.ElementChanged += (s, a) =>
-			{
-				if(!CanUpdateFilterField)
-				{
-					_geographicGroupNodes[a[0]].Selected = !_geographicGroupNodes[a[0]].Selected;
-				}
-				else
-				{
-					Update();
-				}
-			};
+			_checkFunc = checkFunc ?? throw new ArgumentNullException(nameof(checkFunc));
 
 			AtDate = DateTime.Today;
 		}
@@ -101,6 +87,11 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 			get => _sortType;
 			set
 			{
+				if(_sortType == value)
+				{
+					return;
+				}
+
 				var newValue = CanUpdateFilterField ? value : _sortType;
 				if(!UpdateFilterField(ref _sortType, newValue))
 				{
@@ -114,6 +105,11 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 			get => _atDate;
 			set
 			{
+				if(_atDate == value)
+				{
+					return;
+				}
+
 				var newValue = CanUpdateFilterField ? value : _atDate;
 				if(!UpdateFilterField(ref _atDate, newValue))
 				{
@@ -122,21 +118,20 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 			}
 		}
 
-		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes 
-		{ 
-			get => _geographicGroupNodes;
-			set
+		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
+
+		public void UpdateOrRollBackGeographicGroup(GeographicGroupNode selectedNode)
+		{
+			if(!CanUpdateFilterField)
 			{
-				_geographicGroupNodes = value;
-				//var newValue = CanUpdateFilterField ? value : _geographicGroupNodes;
-				//if(!UpdateFilterField(ref _geographicGroupNodes, newValue))
-				//{
-				//	//OnPropertyChanged(nameof(GeographicGroupNodes));
-				//}
+				selectedNode.Selected = !selectedNode.Selected;
+				return;
 			}
+
+			Update();
 		}
 
-		private bool CanUpdateFilterField => _checkFunc != null && _checkFunc.Invoke();
+		private bool CanUpdateFilterField => _checkFunc != null && _checkFunc.Invoke("Перед изменением фильтра необходимо сохранить изменения.\nСохранить и применить фильтр?");
 	}
 
 	public enum SortAtWorkDriversType
