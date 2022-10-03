@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Roboats
 		private RoboatsCallStatus _status;
 		private RoboatsCallResult _result;
 		IList<RoboatsCallDetail> _callDetails = new List<RoboatsCallDetail>();
-		GenericObservableList<RoboatsCallDetail> observableCallDetails;
+		GenericObservableList<RoboatsCallDetail> _observableCallDetails;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -27,7 +27,7 @@ namespace Vodovoz.Domain.Roboats
 			set => SetField(ref _id, value);
 		}
 
-		[Display(Name = "Уникальный идентифкатор звонка")]
+		[Display(Name = "Уникальный идентификатор звонка")]
 		public virtual Guid CallGuid
 		{
 			get => _callGuid;
@@ -74,9 +74,9 @@ namespace Vodovoz.Domain.Roboats
 		{
 			get
 			{
-				if(observableCallDetails == null)
-					observableCallDetails = new GenericObservableList<RoboatsCallDetail>(CallDetails);
-				return observableCallDetails;
+				if(_observableCallDetails == null)
+					_observableCallDetails = new GenericObservableList<RoboatsCallDetail>(CallDetails);
+				return _observableCallDetails;
 			}
 		}
 	}

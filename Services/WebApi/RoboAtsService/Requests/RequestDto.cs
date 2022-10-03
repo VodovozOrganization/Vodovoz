@@ -39,8 +39,6 @@ namespace RoboAtsService.Requests
 		/// </summary>
 		public string IsAddOrder { get; set; }
 
-
-
 		/// <summary>
 		/// return
 		/// </summary>
