@@ -50,6 +50,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			
 			levelDataLoader.SetLevelingModel(GetQuery)
 				.AddNextLevelSource(GetDetails);
+			levelDataLoader.SetCountFunction(GetCount);
 
 			RecuresiveConfig = levelDataLoader.TreeConfig;
 
@@ -92,9 +93,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			Refresh();
 		}
 
-		public override string FooterInfo { 
-			get => $"{GetAutoRefreshInfo()} | {base.FooterInfo}"; 
-			set => base.FooterInfo = value; 
+		public override string FooterInfo
+		{
+			get
+			{
+				var loadedCount = DataLoader.TotalCount.HasValue ? $" | Загружено: { DataLoader.TotalCount.Value }" : "";
+				return $"{GetAutoRefreshInfo()}{loadedCount}";
+			}
+
+			set => base.FooterInfo = value;
 		}
 
 		public override JournalSelectionMode SelectionMode => JournalSelectionMode.Single;
@@ -182,6 +189,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		}
 
 		#endregion Queries
+
+		private int GetCount(IUnitOfWork uow)
+		{
+			var query = GetQuery(uow);
+			var count = query.List<RoboatsCallJournalNode>().Count();
+			return count;
+		}
 
 		#region Autorefresh
 

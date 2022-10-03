@@ -29,6 +29,7 @@ namespace RoboAtsService.Controllers
 		[HttpGet]
 		public string Get(
 			[FromQuery(Name = "CID")] string clientPhone,
+			[FromQuery(Name = "CALL_UUID")] string callUUID,
 			[FromQuery(Name = "request")] string requestType,
 			[FromQuery(Name = "address_id")] string addressId,
 			[FromQuery(Name = "order_id")] string orderId,
@@ -43,11 +44,18 @@ namespace RoboAtsService.Controllers
 			[FromQuery(Name = "terminal")] string isTerminal
 			)
 		{
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
+			var stopWatch = new Stopwatch();
+			stopWatch.Start();
+
+			if(!Guid.TryParse(callUUID, out Guid callGuid))
+			{
+				return "ERROR. UUID has incorrect format";
+			}
+
 			var request = new RequestDto
 			{
 				ClientPhone = clientPhone,
+				CallGuid = callGuid,
 				RequestType = requestType,
 				AddressId = addressId,
 				Date = date,
@@ -62,20 +70,20 @@ namespace RoboAtsService.Controllers
 				OrderId = orderId
 			};
 
-			_roboatsCallRegistrator.RegisterCall(request.ClientPhone);
+			_roboatsCallRegistrator.RegisterCall(request.ClientPhone, request.CallGuid);
 
 			var handler = _handlerFactory.GetHandler(request);
 			if(handler == null)
 			{
-				_roboatsCallRegistrator.RegisterTerminatingFail(request.ClientPhone, RoboatsCallFailType.UnknownRequest, RoboatsCallOperation.OnCreateHandler,
+				_roboatsCallRegistrator.RegisterTerminatingFail(request.ClientPhone, request.CallGuid, RoboatsCallFailType.UnknownRequest, RoboatsCallOperation.OnCreateHandler,
 					"Неизвестный тип запроса. Обратитесь в отдел разработки.");
-				return "null request";
+				return "ERROR. Null request";
 			}
 
 			var result = handler.Execute();
-			sw.Stop();
+			stopWatch.Stop();
 			var query = HttpContext.Request.GetEncodedPathAndQuery();
-			_logger.LogInformation($"Request: {query} | Response: {result} | Request time: {sw.Elapsed.Seconds}.{sw.Elapsed.Milliseconds} sec.");
+			_logger.LogInformation($"Request: {query} | Response: {result} | Request time: {stopWatch.Elapsed.Seconds}.{stopWatch.Elapsed.Milliseconds} sec.");
 			return result;
 		}
 	}
