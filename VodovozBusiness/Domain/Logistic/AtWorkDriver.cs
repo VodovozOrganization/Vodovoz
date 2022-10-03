@@ -151,9 +151,11 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual CarVersion CarVersion => _carVersion ?? (_carVersion = Car.GetActiveCarVersionOnDate(Date));
+		public virtual CarVersion CarVersion => _carVersion ?? (_carVersion = Car?.GetActiveCarVersionOnDate(Date));
 
-		public virtual string CarOwnTypeDisplayName => CarVersion.CarOwnType.GetEnumTitle();
+		public virtual string CarOwnTypeDisplayName => CarVersion?.CarOwnType.GetEnumTitle() ?? "Не установлена принадлежность авто!";
+
+		public virtual string CarTypeOfUseDisplayName => Car?.CarModel?.CarTypeOfUse.GetEnumTitle() ?? "Не установлен тип авто!";
 
 		protected AtWorkDriver()
 		{ }

@@ -188,7 +188,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Принадлежность\nавто")
 					.AddTextRenderer(x => x.CarOwnTypeDisplayName)
 				.AddColumn("Тип\nавто")
-					.AddTextRenderer(x => x.Car.CarModel.CarTypeOfUse.GetEnumTitle())
+					.AddTextRenderer(x => x.CarTypeOfUseDisplayName)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Status == AtWorkDriver.DriverStatus.NotWorking? "gray": "black")
 				.Finish();
 
