@@ -6,7 +6,6 @@ namespace Vodovoz.Services
     public interface INomenclatureParametersProvider
     {
 	    int PaidDeliveryNomenclatureId { get; }
-	    int ExpressDeliveryNomenclatureId { get; }
 		int Folder1cForOnlineStoreNomenclatures { get; }
         int MeasurementUnitForOnlineStoreNomenclatures { get; }
         int RootProductGroupForOnlineStoreNomenclatures { get; }

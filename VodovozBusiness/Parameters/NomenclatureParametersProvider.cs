@@ -20,8 +20,6 @@ namespace Vodovoz.Parameters
 
 		public int PaidDeliveryNomenclatureId => _parametersProvider.GetIntValue("paid_delivery_nomenclature_id");
 
-		public int ExpressDeliveryNomenclatureId => _parametersProvider.GetIntValue("express_delivery_nomenclature_id");
-
 		public int MeasurementUnitForOnlineStoreNomenclatures => _parametersProvider.GetIntValue("measurement_unit_for_online_store_nomenclatures");
 
         public int RootProductGroupForOnlineStoreNomenclatures => _parametersProvider.GetIntValue("root_product_group_for_online_store_nomenclatures");

@@ -28,7 +28,7 @@ namespace RoboAtsService.OrderValidation
 			{
 				var hasOnlyWater = !order.OrderItems
 					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
-					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.ExpressDeliveryNomenclatureId)
+					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.FastDeliveryNomenclatureId)
 					.Any(x => x.Nomenclature.Category != NomenclatureCategory.water);
 
 				if(hasOnlyWater)
