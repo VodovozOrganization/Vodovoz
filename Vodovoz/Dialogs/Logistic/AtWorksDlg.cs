@@ -233,7 +233,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void YbuttonCreateRouteListsClicked(object sender, EventArgs e)
 		{
-			var routeListGenerator = new EmptyRouteListGenerator(_routeListRepository, DriversAtDay);
+			var workedDrivers = DriversAtDay.Where(d => d.Status == AtWorkDriver.DriverStatus.IsWorking);
+			var routeListGenerator = new EmptyRouteListGenerator(_routeListRepository, workedDrivers);
 			var valid = ServicesConfig.ValidationService.Validate(routeListGenerator, new ValidationContext(routeListGenerator));
 			if(!valid)
 			{
