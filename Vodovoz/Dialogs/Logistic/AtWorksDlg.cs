@@ -94,7 +94,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_driverApiRegistrationEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
-			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository);
+			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository, CanReFilter);
 
 			Build();
 
@@ -130,9 +130,13 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddBinding(_filterViewModel, vm => vm.SortType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
-			_filterViewModel.PropertyChanged += (s, a) =>
+			ydateAtWorks.Binding.AddBinding(_filterViewModel, vm => vm.AtDate, w => w.Date).InitializeFromSource();
+
+			_filterViewModel.OnFiltered += (s, a) =>
 			{
 				FillDialogAtDay();
+				SetButtonClearDriverScreenSensitive();
+				SetButtonCreateEmptyRouteListsSensitive();
 			};
 
 			var geographicGroups =
@@ -202,8 +206,6 @@ namespace Vodovoz.Dialogs.Logistic
 			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
 			
-			ydateAtWorks.Date = DateTime.Today;
-			
 			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
 			canReturnDriver = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
 
@@ -222,6 +224,24 @@ namespace Vodovoz.Dialogs.Logistic
 
 			hideForwaders.Label = "Экспедиторы на работе";
 			hideForwaders.Toggled += OnHideForwadersToggled;
+
+			_filterViewModel.Update();
+		}
+
+		private bool CanReFilter()
+		{
+			if(!_needSaveDrivers)
+			{
+				return true;
+			}
+
+			if(ServicesConfig.InteractiveService.Question("Перед изменением фильтра необходимо сохранить изменения.\nСохранить и применить фильтр?")
+				&& Save())
+			{
+				return true;
+			}
+
+			return false;
 		}
 
 		private List<DeliveryDaySchedule> GetDeliveryDaySchedules()
@@ -253,14 +273,13 @@ namespace Vodovoz.Dialogs.Logistic
 		private HashSet<AtWorkDriver> driversWithCommentChanged = new HashSet<AtWorkDriver>();
 		private GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		private GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
+		private bool _needSaveDrivers;
 		private readonly bool canReturnDriver;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
 
 		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
 		public bool HasChanges => UoW.HasChanges;
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
-		
-		private DateTime DialogAtDate => ydateAtWorks.Date;
 
 		#region Properties
 
@@ -288,7 +307,7 @@ namespace Vodovoz.Dialogs.Logistic
 		}
 
 		public override string TabName {
-			get => $"Работают {ydateAtWorks.Date:d}";
+			get => $"Работают {_filterViewModel.AtDate:d}";
 			protected set => throw new InvalidOperationException("Установка протеворечит логике работы.");
 		}
 
@@ -299,7 +318,7 @@ namespace Vodovoz.Dialogs.Logistic
 		#region Buttons
 		protected void OnButtonSaveChangesClicked(object sender, EventArgs e)
 		{
-			this.SaveAndClose();
+			this.Save();
 		}
 		protected void OnButtonCancelChangesClicked(object sender, EventArgs e)
 		{
@@ -308,7 +327,7 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		protected void OnButtonAddWorkingDriversClicked(object sender, EventArgs e)
 		{
-			var workDriversAtDay = _employeeRepository.GetWorkingDriversAtDay(UoW, DialogAtDate);
+			var workDriversAtDay = _employeeRepository.GetWorkingDriversAtDay(UoW, _filterViewModel.AtDate);
 
 			if(workDriversAtDay.Count > 0) {
 				foreach(var driver in workDriversAtDay) {
@@ -320,7 +339,7 @@ namespace Vodovoz.Dialogs.Logistic
 					var car = _carRepository.GetCarByDriver(UoW, driver);
 					var daySchedule = GetDriverWorkDaySchedule(driver);
 
-					var atwork = new AtWorkDriver(driver, DialogAtDate, car, daySchedule);
+					var atwork = new AtWorkDriver(driver, _filterViewModel.AtDate, car, daySchedule);
 					GetDefaultForwarder(driver, atwork);
 
 					observableDriversAtDay.Add(atwork);
@@ -370,7 +389,7 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonClearDriverScreenClicked(object sender, EventArgs e)
 		{
 			if (MessageDialogHelper.RunQuestionWithTitleDialog("ВНИМАНИЕ!!!",
-				$"Список работающих и снятых водителей на дату: { ydateAtWorks.Date.ToShortDateString()} будет очищен\n\n" +
+				$"Список работающих и снятых водителей на дату: { _filterViewModel.AtDate.ToShortDateString()} будет очищен\n\n" +
 				"Вы действительно хотите продолжить?"))
 			{
 				DriversAtDay.ToList().ForEach(x => UoW.Delete(x));
@@ -422,7 +441,7 @@ namespace Vodovoz.Dialogs.Logistic
 			if(toAdd.Count == 0)
 				return;
 
-			var orders = _scheduleRestrictionRepository.OrdersCountByDistrict(UoW, DialogAtDate, 12);
+			var orders = _scheduleRestrictionRepository.OrdersCountByDistrict(UoW, _filterViewModel.AtDate, 12);
 			var districtsBottles = orders.GroupBy(x => x.DistrictId).ToDictionary(x => x.Key, x => x.Sum(o => o.WaterCount));
 
 			foreach(var forwarder in toAdd) {
@@ -598,10 +617,7 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		protected void OnYdateAtWorksDateChanged(object sender, EventArgs e)
 		{
-			FillDialogAtDay();
 			OnTabNameChanged();
-			SetButtonClearDriverScreenSensitive();
-			SetButtonCreateEmptyRouteListsSensitive();
 		}
 
 		void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
@@ -609,6 +625,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var addDrivers = e.SelectedNodes;
 			logger.Info("Получаем авто для водителей...");
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
+			_needSaveDrivers = onlyNew.Any();
 			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 			foreach(var driver in addDrivers) {
@@ -620,7 +637,7 @@ namespace Vodovoz.Dialogs.Logistic
 				}
 
 				var daySchedule = GetDriverWorkDaySchedule(drv);
-				var atwork = new AtWorkDriver(drv, DialogAtDate, allCars.FirstOrDefault(x => x.Driver.Id == driver.Id), daySchedule);
+				var atwork = new AtWorkDriver(drv, _filterViewModel.AtDate, allCars.FirstOrDefault(x => x.Driver.Id == driver.Id), daySchedule);
 
 				GetDefaultForwarder(drv, atwork);
 
@@ -647,7 +664,7 @@ namespace Vodovoz.Dialogs.Logistic
 					logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
 					continue;
 				}
-				forwardersAtDay.Add(new AtWorkForwarder(forwarder, DialogAtDate));
+				forwardersAtDay.Add(new AtWorkForwarder(forwarder, _filterViewModel.AtDate));
 			}
 			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 		}
@@ -657,7 +674,7 @@ namespace Vodovoz.Dialogs.Logistic
 		#region Fuctions
 		private void SetButtonClearDriverScreenSensitive()
 		{
-			if (ydateAtWorks.Date < DateTime.Now.Date || !driversAtDay.Any())
+			if (_filterViewModel.AtDate < DateTime.Now.Date || !driversAtDay.Any())
 			{
 				buttonClearDriverScreen.Sensitive = false;
 			}
@@ -703,7 +720,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var driverWorkSchedule = driver
 				.ObservableDriverWorkScheduleSets.SingleOrDefault(x => x.IsActive)
-				?.ObservableDriverWorkSchedules.SingleOrDefault(x => (int)x.WeekDay == (int)DialogAtDate.DayOfWeek);
+				?.ObservableDriverWorkSchedules.SingleOrDefault(x => (int)x.WeekDay == (int)_filterViewModel.AtDate.DayOfWeek);
 
 			return driverWorkSchedule == null 
 				? defaultDeliveryDaySchedule
@@ -717,7 +734,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 				if(forwarder == null) {
 					if(MessageDialogHelper.RunQuestionDialog($"Водитель {driver.ShortName} обычно ездит с экспедитором {driver.DefaultForwarder.ShortName}. Он отсутствует в списке экспедиторов. Добавить его в список?")) {
-						forwarder = new AtWorkForwarder(driver.DefaultForwarder, DialogAtDate);
+						forwarder = new AtWorkForwarder(driver.DefaultForwarder, _filterViewModel.AtDate);
 						observableForwardersAtDay.Add(forwarder);
 					}
 				}
@@ -760,6 +777,9 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			UoW.Commit();
+
+			_needSaveDrivers = false;
+
 			return true;
 		}
 		
@@ -770,16 +790,16 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void FillDialogAtDay()
 		{
-			logger.Info("Загружаем экспедиторов на {0:d}...", DialogAtDate);
-			ForwardersAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetForwardersAtDay(UoW, DialogAtDate);
+			logger.Info("Загружаем экспедиторов на {0:d}...", _filterViewModel.AtDate);
+			ForwardersAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetForwardersAtDay(UoW, _filterViewModel.AtDate);
 
-			logger.Info("Загружаем водителей на {0:d}...", DialogAtDate);
+			logger.Info("Загружаем водителей на {0:d}...", _filterViewModel.AtDate);
 			var selectedGeographicGroupIds = _filterViewModel
 				.GeographicGroupNodes
 				.Where(ggn => ggn.Selected)
 				.Select(ggn => ggn.GeographicGroup.Id)
 				.ToArray();
-			DriversAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetDriversAtDay(UoW, DialogAtDate,
+			DriversAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetDriversAtDay(UoW, _filterViewModel.AtDate,
 				driverStatuses: _filterViewModel.SelectedDriverStatuses, carTypesOfUse: _filterViewModel.SelectedCarTypesOfUse,
 				carOwnTypes: _filterViewModel.SelectedCarOwnTypes, geoGroupIds: selectedGeographicGroupIds);
 
@@ -813,7 +833,7 @@ namespace Vodovoz.Dialogs.Logistic
 			if(activeDistrictsSet.DateActivated == null) {
 				throw new ArgumentNullException(nameof(activeDistrictsSet), @"У активной версии районов не проставлена дата активации");
 			}
-			if(DialogAtDate.Date >= activeDistrictsSet.DateActivated.Value.Date) {
+			if(_filterViewModel.AtDate.Date >= activeDistrictsSet.DateActivated.Value.Date) {
 				var outDatedpriorities = DriversAtDay.SelectMany(x => x.DistrictsPriorities.Where(d => d.District.DistrictsSet.Id != activeDistrictsSet.Id)).ToList();
 				if(!outDatedpriorities.Any()) 
 					return;
