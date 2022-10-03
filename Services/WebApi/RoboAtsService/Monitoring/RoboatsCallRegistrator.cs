@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
+using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 
@@ -16,13 +17,20 @@ namespace RoboAtsService.Monitoring
 		private readonly ILogger<RoboatsCallRegistrator> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IRoboatsCallFactory _roboatsCallFactory;
+		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsSettings _roboatsSettings;
 
-		public RoboatsCallRegistrator(ILogger<RoboatsCallRegistrator> logger, IUnitOfWorkFactory uowFactory, IRoboatsCallFactory roboatsCallFactory, RoboatsSettings roboatsSettings)
+		public RoboatsCallRegistrator(
+			ILogger<RoboatsCallRegistrator> logger,
+			IUnitOfWorkFactory uowFactory,
+			IRoboatsCallFactory roboatsCallFactory,
+			IRoboatsRepository roboatsRepository,
+			RoboatsSettings roboatsSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_roboatsCallFactory = roboatsCallFactory ?? throw new ArgumentNullException(nameof(roboatsCallFactory));
+			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 		}
 
@@ -168,11 +176,7 @@ namespace RoboAtsService.Monitoring
 		{
 			using var uow = _uowFactory.CreateWithoutRoot();
 
-			RoboatsCall roboatsCallAlias = null;
-			var call = uow.Session.QueryOver(() => roboatsCallAlias)
-				.Where(() => roboatsCallAlias.CallGuid == callGuid)
-				.SingleOrDefault();
-
+			var call = _roboatsRepository.GetCall(uow, callGuid);
 			return call;
 		}
 
@@ -180,11 +184,7 @@ namespace RoboAtsService.Monitoring
 		{
 			using var uow = _uowFactory.CreateWithoutRoot();
 
-			RoboatsCall roboatsCallAlias = null;
-			var staleCalls = uow.Session.QueryOver(() => roboatsCallAlias)
-				.Where(() => roboatsCallAlias.CallTime < DateTime.Now.AddMinutes(-_roboatsSettings.CallTimeout))
-				.Where(() => roboatsCallAlias.Status == RoboatsCallStatus.InProgress)
-				.List();
+			var staleCalls = _roboatsRepository.GetStaleCalls(uow);
 
 			foreach(var call in staleCalls)
 			{
