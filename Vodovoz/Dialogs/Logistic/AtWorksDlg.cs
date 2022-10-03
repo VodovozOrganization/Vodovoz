@@ -245,7 +245,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private bool CheckAndSaveBeforeСontinue(string question)
 		{
-			if(!_needSaveDrivers)
+			if(!_hasNewDrivers && !HasChanges)
 			{
 				return true;
 			}
@@ -297,7 +297,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private HashSet<AtWorkDriver> driversWithCommentChanged = new HashSet<AtWorkDriver>();
 		private GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		private GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
-		private bool _needSaveDrivers;
+		private bool _hasNewDrivers;
 		private readonly bool canReturnDriver;
 		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
 
@@ -649,7 +649,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var addDrivers = e.SelectedNodes;
 			logger.Info("Получаем авто для водителей...");
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			_needSaveDrivers = onlyNew.Any();
+			_hasNewDrivers = onlyNew.Any();
 			var allCars = _carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 
 			foreach(var driver in addDrivers) {
@@ -802,7 +802,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			UoW.Commit();
 
-			_needSaveDrivers = false;
+			_hasNewDrivers = false;
 
 			return true;
 		}
