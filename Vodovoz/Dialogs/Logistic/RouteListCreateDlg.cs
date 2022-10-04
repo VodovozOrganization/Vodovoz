@@ -369,7 +369,7 @@ namespace Vodovoz
 			{
 				subdivisionMessage = Entity.ClosingSubdivision.Name;
 			}
-			label7.LabelProp = $"Сдается в кассу: {subdivisionMessage}";
+			label8.LabelProp = $"Сдается в кассу: {subdivisionMessage}";
 		}
 
 		private void OnRouteListPropertyChanged(object sender, PropertyChangedEventArgs e)
