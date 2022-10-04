@@ -1699,6 +1699,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("В архиве").AddToggleRenderer(node => node.IsArchived).Editing(false)
+					.AddColumn("")
 					.Finish()
 			);
 		}
