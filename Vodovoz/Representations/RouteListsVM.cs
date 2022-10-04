@@ -584,24 +584,10 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && AnalysisViewModelStatuses.Contains(selectedNode.StatusEnum))
-							MainClass.MainWin.TdiMain.AddTab(
-								new RouteListAnalysisViewModel(
-									EntityUoWBuilder.ForOpen(selectedNode.Id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									ServicesConfig.CommonServices,
-									new OrderSelectorFactory(),
-									new EmployeeJournalFactory(),
-									new CounterpartyJournalFactory(),
-									new DeliveryPointJournalFactory(), 
-									new SubdivisionJournalFactory(),
-									new GtkTabsOpener(),
-									new UndeliveredOrdersJournalOpener(),
-									new DeliveryShiftRepository(),
-									new EmployeeSettings(new ParametersProvider()),
-									new UndeliveredOrdersRepository(),
-									new SubdivisionParametersProvider(new ParametersProvider())
-								)
-							);
+						{
+							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListAnalysisViewModel, IEntityUoWBuilder>(
+								null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.IgnoreHash);
+						}
 					},
 					(selectedItems) => selectedItems.Any(x => AnalysisViewModelStatuses.Contains((x as RouteListsVMNode).StatusEnum))
 				));
@@ -614,7 +600,8 @@ namespace Vodovoz.ViewModel
 							&& MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum)
 							&& selectedNode.CarTypeOfUse != CarTypeOfUse.Truck)
 						{
-							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
+								null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						}
 					},
 					(selectedItems) => selectedItems.Any(

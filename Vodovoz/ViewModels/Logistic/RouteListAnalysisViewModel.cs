@@ -13,13 +13,13 @@ using Vodovoz.Domain.Orders;
 using QS.Commands;
 using QS.Project.Journal;
 using QS.ViewModels.Extension;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.Parameters;
@@ -35,8 +35,8 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
-		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
-		private readonly IEmployeeService employeeService;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private readonly IEmployeeService _employeeService;
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -47,6 +47,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGtkTabsOpener _gtkDialogsOpener;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeSettings _employeeSettings;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly ICommonServices _commonServices;
 
@@ -66,17 +67,24 @@ namespace Vodovoz.ViewModels.Logistic
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IEmployeeSettings employeeSettings,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IRouteListProfitabilityController routeListProfitabilityController,
+			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+			_deliveryPointJournalFactory = 
+				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			_undeliveredOrdersJournalOpener =
+				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_routeListProfitabilityController =
+				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_subdivisionParametersProvider =
+				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -86,12 +94,17 @@ namespace Vodovoz.ViewModels.Logistic
 				throw new ArgumentNullException(nameof(deliveryShiftRepository));
 			}
 
+			if(routeListItemRepository == null)
+			{
+				throw new ArgumentNullException(nameof(routeListItemRepository));
+			}
+
 			DeliveryShifts = deliveryShiftRepository.ActiveShifts(UoW);
 			Entity.ObservableAddresses.PropertyOfElementChanged += ObservableAddressesOnPropertyOfElementChanged;
 			
-			undeliveryViewOpener = new UndeliveredOrdersJournalOpener();
-			employeeService = VodovozGtkServicesConfig.EmployeeService;
-			CurrentEmployee = employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
+			_undeliveryViewOpener = new UndeliveredOrdersJournalOpener();
+			_employeeService = VodovozGtkServicesConfig.EmployeeService;
+			CurrentEmployee = _employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
 			
 			if(CurrentEmployee == null) {
 				AbortOpening("Ваш пользователь не привязан к действующему сотруднику, вы не можете открыть " +
@@ -103,6 +116,8 @@ namespace Vodovoz.ViewModels.Logistic
 			ForwarderSelectorFactory = _employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 
 			TabName = $"Диалог разбора {Entity.Title}";
+			
+			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
 		}
 		
 		#endregion
@@ -172,7 +187,7 @@ namespace Vodovoz.ViewModels.Logistic
 						_commonServices,
 						_gtkDialogsOpener,
 						_employeeJournalFactory,
-						employeeService,
+						_employeeService,
 						_undeliveredOrdersJournalOpener,
 						_orderSelectorFactory,
 						UndeliveredOrdersRepository,
@@ -195,8 +210,8 @@ namespace Vodovoz.ViewModels.Logistic
 				var fineViewModel = new FineViewModel(
 					EntityUoWBuilder.ForCreate(),
 					QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-					undeliveryViewOpener,
-					employeeService,
+					_undeliveryViewOpener,
+					_employeeService,
 					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					_employeeSettings,
 					CommonServices
@@ -232,8 +247,8 @@ namespace Vodovoz.ViewModels.Logistic
 				fineFilter.ExcludedIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
 				var fineJournalViewModel = new FinesJournalViewModel(
 					fineFilter,
-					undeliveryViewOpener,
-					employeeService,
+					_undeliveryViewOpener,
+					_employeeService,
 					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					UnitOfWorkFactory, 
 					_employeeSettings,
@@ -285,8 +300,8 @@ namespace Vodovoz.ViewModels.Logistic
 				fineFilter.FindFinesWithIds = SelectedItem.Fines.Select(x => x.Id).ToArray();
 				var fineJournalViewModel = new FinesJournalViewModel(
 					fineFilter,
-					undeliveryViewOpener,
-					employeeService,
+					_undeliveryViewOpener,
+					_employeeService,
 					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					UnitOfWorkFactory, 
 					_employeeSettings,
@@ -335,14 +350,22 @@ namespace Vodovoz.ViewModels.Logistic
 		private UndeliveredOrder GetUndeliveredOrder() =>
 			UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, SelectedItem.Order.Id).SingleOrDefault();
 
-		public void SetLogisticianCommentAuthor()
+		public bool AskSaveOnClose => CanEditRouteList;
+
+		protected override bool BeforeSave()
+		{
+			SetLogisticianCommentAuthor();
+			Entity.CalculateWages(_wageParameterService);
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			return true;
+		}
+		
+		private void SetLogisticianCommentAuthor()
 		{
 			if(!string.IsNullOrEmpty(Entity.LogisticiansComment))
+			{
 				Entity.LogisticiansCommentAuthor = CurrentEmployee;
+			}
 		}
-
-		public void CalculateWages() => Entity.CalculateWages(_wageParameterService);
-
-		public bool AskSaveOnClose => CanEditRouteList;
 	}
 }

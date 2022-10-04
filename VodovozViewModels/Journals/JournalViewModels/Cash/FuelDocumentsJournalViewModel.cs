@@ -7,12 +7,12 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    private readonly ICarJournalFactory _carJournalFactory;
 	    private readonly IReportViewOpener _reportViewOpener;
 	    private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
+	    private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
 	    public FuelDocumentsJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
@@ -48,22 +49,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ISubdivisionJournalFactory subdivisionJournalFactory,
             ICarJournalFactory carJournalFactory,
             IReportViewOpener reportViewOpener,
-            IExpenseCategorySelectorFactory expenseCategorySelectorFactory
-            ) :
-            base(unitOfWorkFactory, commonServices)
+            IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
+            IRouteListProfitabilityController routeListProfitabilityController) : base(unitOfWorkFactory, commonServices)
         {
-	        this._commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-	        this._employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-	        this._subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-	        this._fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-	        this._counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-	        this._nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-	        this._employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+	        _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+	        _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+	        _subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+	        _fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+	        _counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+	        _nomenclatureSelectorFactory =
+		        nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+	        _employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 	        _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-	        this._carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-	        this._reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+	        _carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
+	        _reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 	        _expenseCategorySelectorFactory =
 		        expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
+	        _routeListProfitabilityController =
+		        routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 
 	        TabName = "Журнал учета топлива";
 
@@ -325,8 +328,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _employeeJournalFactory,
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
-					    _expenseCategorySelectorFactory
-				    ),
+					    _expenseCategorySelectorFactory,
+					    _routeListProfitabilityController),
 				    //функция диалога открытия документа
 				    (FuelDocumentJournalNode node) => new FuelWriteoffDocumentViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
@@ -338,8 +341,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _employeeJournalFactory,
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
-					    _expenseCategorySelectorFactory
-				    ),
+					    _expenseCategorySelectorFactory,
+					    _routeListProfitabilityController),
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {
 					    return node.EntityType == typeof(FuelWriteoffDocument);

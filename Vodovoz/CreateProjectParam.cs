@@ -181,6 +181,7 @@ using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.Views.Sale;
 using Vodovoz.Models;
 using QS.Validation;
+using Vodovoz.ViewWidgets;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 
 namespace Vodovoz
@@ -540,6 +541,9 @@ namespace Vodovoz
 			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
+			builder.RegisterType<GtkReportViewOpener>()
+				.AsImplementedInterfaces()
+				.SingleInstance();
 
 			builder.RegisterType<NomenclatureJournalFactory>().As<INomenclatureJournalFactory>();
 			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
@@ -577,9 +581,10 @@ namespace Vodovoz
 
 			#region Controllers
 
-			builder.RegisterType<OrderDiscountsController>().As<IOrderDiscountsController>();
-			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>();
-			builder.RegisterType<MovementDocumentsNotificationsController>().AsImplementedInterfaces();
+			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))
+				.Where(t => t.Name.EndsWith("Controller"))
+				.AsImplementedInterfaces();
+			
 			builder.RegisterType<ProfitabilityConstantsViewModelHandler>().AsSelf();
 
 			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf().AsImplementedInterfaces();
@@ -598,7 +603,6 @@ namespace Vodovoz
 			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
 
 			#endregion
-
 
 			#region Models
 

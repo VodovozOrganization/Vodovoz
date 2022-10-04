@@ -114,19 +114,19 @@ namespace Vodovoz.Views.Profitability
 			spinBtnTruckAverageMileage.ClimbRate = 0;
 			spinBtnTruckAverageMileage.Adjustment.StepIncrement = 0;
 			spinBtnGazelleAmortisation.Binding
-				.AddBinding(ViewModel.Entity, e => e.GazelleAmortisation, e => e.ValueAsDecimal)
+				.AddBinding(ViewModel.Entity, e => e.GazelleAmortisationPerKm, e => e.ValueAsDecimal)
 				.InitializeFromSource();
 			spinBtnGazelleAmortisation.IsEditable = false;
 			spinBtnGazelleAmortisation.ClimbRate = 0;
 			spinBtnGazelleAmortisation.Adjustment.StepIncrement = 0;
 			spinBtnLargusAmortisation.Binding
-				.AddBinding(ViewModel.Entity, e => e.LargusAmortisation, e => e.ValueAsDecimal)
+				.AddBinding(ViewModel.Entity, e => e.LargusAmortisationPerKm, e => e.ValueAsDecimal)
 				.InitializeFromSource();
 			spinBtnLargusAmortisation.IsEditable = false;
 			spinBtnLargusAmortisation.ClimbRate = 0;
 			spinBtnLargusAmortisation.Adjustment.StepIncrement = 0;
 			spinBtnTruckAmortisation.Binding
-				.AddBinding(ViewModel.Entity, e => e.TruckAmortisation, e => e.ValueAsDecimal)
+				.AddBinding(ViewModel.Entity, e => e.TruckAmortisationPerKm, e => e.ValueAsDecimal)
 				.InitializeFromSource();
 			spinBtnTruckAmortisation.IsEditable = false;
 			spinBtnTruckAmortisation.ClimbRate = 0;
@@ -173,19 +173,19 @@ namespace Vodovoz.Views.Profitability
 			spinBtnAverageMileageAllTrucks.ClimbRate = 0;
 			spinBtnAverageMileageAllTrucks.Adjustment.StepIncrement = 0;
 			spinBtnGazellesRepairCost.Binding
-				.AddBinding(ViewModel.Entity, e => e.GazelleRepairCost, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel.Entity, e => e.GazelleRepairCostPerKm, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 			spinBtnGazellesRepairCost.IsEditable = false;
 			spinBtnGazellesRepairCost.ClimbRate = 0;
 			spinBtnGazellesRepairCost.Adjustment.StepIncrement = 0;
 			spinBtnLargusesRepairCost.Binding
-				.AddBinding(ViewModel.Entity, e => e.LargusRepairCost, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel.Entity, e => e.LargusRepairCostPerKm, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 			spinBtnLargusesRepairCost.IsEditable = false;
 			spinBtnLargusesRepairCost.ClimbRate = 0;
 			spinBtnLargusesRepairCost.Adjustment.StepIncrement = 0;
 			spinBtnTrucksRepairCost.Binding
-				.AddBinding(ViewModel.Entity, e => e.TruckRepairCost, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel.Entity, e => e.TruckRepairCostPerKm, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 			spinBtnTrucksRepairCost.IsEditable = false;
 			spinBtnTrucksRepairCost.ClimbRate = 0;

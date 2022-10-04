@@ -59,8 +59,9 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ClosedBy).Column("closed_by_employee_id");
 			References(x => x.LogisticiansCommentAuthor).Column("logisticians_comment_author_id");
 			References(x => x.AdditionalLoadingDocument).Column("additional_loading_document_id").Cascade.AllDeleteOrphan();
+			References(x => x.RouteListProfitability).Column("route_list_profitability_id").Cascade.AllDeleteOrphan();
 
-			HasMany(x => x.Addresses).Cascade.AllDeleteOrphan ().Inverse ()
+			HasMany(x => x.Addresses).Cascade.AllDeleteOrphan().Inverse()
 				.KeyColumn ("route_list_id").OrderBy("order_in_route");
 			HasMany(x => x.FuelDocuments).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasMany(x => x.PrintsHistory).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
