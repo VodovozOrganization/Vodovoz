@@ -36,7 +36,7 @@ namespace Vodovoz.Controllers
 
 		public void CalculateNewRouteListProfitability(IUnitOfWork uow, RouteList routeList)
 		{
-			routeList.RouteListProfitability = CreateNewRouteListProfitability(routeList);
+			routeList.RouteListProfitability = CreateNewRouteListProfitability();
 			CalculateRouteListProfitability(uow, routeList);
 		}
 
@@ -45,7 +45,7 @@ namespace Vodovoz.Controllers
 			//Для старых МЛ у которых не будет рассчитанных рентабельностей
 			if(routeList.RouteListProfitability is null)
 			{
-				routeList.RouteListProfitability = CreateNewRouteListProfitability(routeList);
+				routeList.RouteListProfitability = CreateNewRouteListProfitability();
 			}
 			
 			CalculateRouteListProfitability(uow, routeList);
@@ -84,9 +84,9 @@ namespace Vodovoz.Controllers
 			}
 		}
 		
-		private RouteListProfitability CreateNewRouteListProfitability(RouteList routeList)
+		private RouteListProfitability CreateNewRouteListProfitability()
 		{
-			return _routeListProfitabilityFactory.CreateRouteListProfitability(routeList);
+			return _routeListProfitabilityFactory.CreateRouteListProfitability();
 		}
 		
 		private void CalculateRouteListProfitability(IUnitOfWork uow, RouteList routeList)

@@ -1,10 +1,9 @@
-﻿using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Profitability;
+﻿using Vodovoz.Domain.Profitability;
 
 namespace Vodovoz.Factories
 {
 	public interface IRouteListProfitabilityFactory
 	{
-		RouteListProfitability CreateRouteListProfitability(RouteList routeList);
+		RouteListProfitability CreateRouteListProfitability();
 	}
 }
