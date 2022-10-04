@@ -352,9 +352,12 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonAddWorkingDriversClicked(object sender, EventArgs e)
 		{
 			var workDriversAtDay = _employeeRepository.GetWorkingDriversAtDay(UoW, _filterViewModel.AtDate);
+			var onlyNewDrivers = new List<AtWorkDriver>();
 
-			if(workDriversAtDay.Count > 0) {
-				foreach(var driver in workDriversAtDay) {
+			if(workDriversAtDay.Count > 0) 
+			{
+				foreach(var driver in workDriversAtDay) 
+				{
 					if(driversAtDay.Any(x => x.Employee.Id == driver.Id)) {
 						logger.Warn($"Водитель {driver.ShortName} уже добавлен. Пропускаем...");
 						continue;
@@ -366,11 +369,19 @@ namespace Vodovoz.Dialogs.Logistic
 					var atwork = new AtWorkDriver(driver, _filterViewModel.AtDate, car, daySchedule);
 					GetDefaultForwarder(driver, atwork);
 
-					observableDriversAtDay.Add(atwork);
+					onlyNewDrivers.Add(atwork);
 				}
 			}
-			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
+
+			_hasNewDrivers = onlyNewDrivers.Any();
+
+			DriversAtDay = DriversAtDay
+				.Union(onlyNewDrivers)
+				.OrderBy(x => x.Employee.ShortName)
+				.ToList();
+
 			SetButtonCreateEmptyRouteListsSensitive();
+			SetButtonClearDriverScreenSensitive();
 		}
 
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
@@ -736,7 +747,7 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			if(Save())
 			{
-				this.OnCloseTab(false, CloseSource.Save);
+				OnCloseTab(false, CloseSource.Save);
 			}
 		}
 
@@ -782,7 +793,22 @@ namespace Vodovoz.Dialogs.Logistic
 					MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
 					return false;
 				}
-			
+
+			foreach(var driver in DriversAtDay)
+			{
+				if(driver.GeographicGroup == null)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не у всех водителей указана база!");
+					return false;
+				}
+
+				if(driver.Car == null)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не у всех водителей указан авто!");
+					return false;
+				}
+			}
+
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			// Сохранение изменившихся за этот раз авторов и дат комментариев
 			foreach (var atWorkDriver in driversWithCommentChanged)
