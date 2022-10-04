@@ -32,7 +32,19 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.VSeparator vseparator1;
 
+		private global::Gtk.VSeparator vseparator3;
+
 		private global::QS.Widgets.GtkUI.DatePicker ydateAtWorks;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxTitle;
+
+		private global::Gtk.Label label2;
+
+		private global::Gtk.VSeparator vseparator2;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelSortBy;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumComboBoxSortBy;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDriverStatus;
 
@@ -45,16 +57,6 @@ namespace Vodovoz.Dialogs.Logistic
 		private global::Gtk.HBox hbox2;
 
 		private global::Gtk.VBox vbox2;
-
-		private global::Gamma.GtkWidgets.yHBox yhboxTitle;
-
-		private global::Gtk.Label label2;
-
-		private global::Gtk.VSeparator vseparator2;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelSortBy;
-
-		private global::Gamma.Widgets.yEnumComboBox yenumComboBoxSortBy;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -111,7 +113,7 @@ namespace Vodovoz.Dialogs.Logistic
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ytableFilters = new global::Gamma.GtkWidgets.yTable();
 			this.ytableFilters.Name = "ytableFilters";
-			this.ytableFilters.NRows = ((uint)(3));
+			this.ytableFilters.NRows = ((uint)(2));
 			this.ytableFilters.NColumns = ((uint)(10));
 			this.ytableFilters.RowSpacing = ((uint)(6));
 			this.ytableFilters.ColumnSpacing = ((uint)(6));
@@ -160,12 +162,13 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.GtkScrolledWindowDriverStatus]));
 			w8.TopAttach = ((uint)(1));
 			w8.BottomAttach = ((uint)(2));
-			w8.LeftAttach = ((uint)(7));
-			w8.RightAttach = ((uint)(8));
+			w8.LeftAttach = ((uint)(8));
+			w8.RightAttach = ((uint)(9));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilters.Gtk.Table+TableChild
 			this.GtkScrolledWindowGeographicGroup = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindowGeographicGroup.WidthRequest = 150;
+			this.GtkScrolledWindowGeographicGroup.WidthRequest = 120;
 			this.GtkScrolledWindowGeographicGroup.Name = "GtkScrolledWindowGeographicGroup";
 			this.GtkScrolledWindowGeographicGroup.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindowGeographicGroup.Gtk.Container+ContainerChild
@@ -177,9 +180,10 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.GtkScrolledWindowGeographicGroup]));
 			w10.TopAttach = ((uint)(1));
 			w10.BottomAttach = ((uint)(2));
-			w10.LeftAttach = ((uint)(8));
-			w10.RightAttach = ((uint)(9));
+			w10.LeftAttach = ((uint)(9));
+			w10.RightAttach = ((uint)(10));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilters.Gtk.Table+TableChild
 			this.GtkScrolledWindowOwnType = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowOwnType.WidthRequest = 200;
@@ -197,9 +201,10 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.GtkScrolledWindowOwnType]));
 			w14.TopAttach = ((uint)(1));
 			w14.BottomAttach = ((uint)(2));
-			w14.LeftAttach = ((uint)(6));
-			w14.RightAttach = ((uint)(7));
+			w14.LeftAttach = ((uint)(7));
+			w14.RightAttach = ((uint)(8));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilters.Gtk.Table+TableChild
 			this.GtkScrolledWindowTypeOfUse = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowTypeOfUse.WidthRequest = 200;
@@ -217,9 +222,10 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.GtkScrolledWindowTypeOfUse]));
 			w18.TopAttach = ((uint)(1));
 			w18.BottomAttach = ((uint)(2));
-			w18.LeftAttach = ((uint)(5));
-			w18.RightAttach = ((uint)(6));
+			w18.LeftAttach = ((uint)(6));
+			w18.RightAttach = ((uint)(7));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilters.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
@@ -241,6 +247,17 @@ namespace Vodovoz.Dialogs.Logistic
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilters.Gtk.Table+TableChild
+			this.vseparator3 = new global::Gtk.VSeparator();
+			this.vseparator3.Name = "vseparator3";
+			this.ytableFilters.Add(this.vseparator3);
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.vseparator3]));
+			w21.TopAttach = ((uint)(1));
+			w21.BottomAttach = ((uint)(2));
+			w21.LeftAttach = ((uint)(5));
+			w21.RightAttach = ((uint)(6));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableFilters.Gtk.Table+TableChild
 			this.ydateAtWorks = new global::QS.Widgets.GtkUI.DatePicker();
 			this.ydateAtWorks.Events = ((global::Gdk.EventMask)(256));
 			this.ydateAtWorks.Name = "ydateAtWorks";
@@ -250,65 +267,12 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ydateAtWorks.IsEditable = true;
 			this.ydateAtWorks.AutoSeparation = true;
 			this.ytableFilters.Add(this.ydateAtWorks);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ydateAtWorks]));
-			w21.LeftAttach = ((uint)(4));
-			w21.RightAttach = ((uint)(5));
-			w21.XOptions = ((global::Gtk.AttachOptions)(0));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytableFilters.Gtk.Table+TableChild
-			this.ylabelDriverStatus = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelDriverStatus.Name = "ylabelDriverStatus";
-			this.ylabelDriverStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус водителя:");
-			this.ytableFilters.Add(this.ylabelDriverStatus);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ylabelDriverStatus]));
-			w22.LeftAttach = ((uint)(7));
-			w22.RightAttach = ((uint)(8));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ydateAtWorks]));
+			w22.LeftAttach = ((uint)(4));
+			w22.RightAttach = ((uint)(5));
+			w22.XOptions = ((global::Gtk.AttachOptions)(0));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilters.Gtk.Table+TableChild
-			this.ylabelGeographicGroup = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelGeographicGroup.Name = "ylabelGeographicGroup";
-			this.ylabelGeographicGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Часть города:");
-			this.ytableFilters.Add(this.ylabelGeographicGroup);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ylabelGeographicGroup]));
-			w23.LeftAttach = ((uint)(8));
-			w23.RightAttach = ((uint)(9));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytableFilters.Gtk.Table+TableChild
-			this.ylabelOwnType = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelOwnType.Name = "ylabelOwnType";
-			this.ylabelOwnType.LabelProp = global::Mono.Unix.Catalog.GetString("Принадлежность авто:");
-			this.ytableFilters.Add(this.ylabelOwnType);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ylabelOwnType]));
-			w24.LeftAttach = ((uint)(6));
-			w24.RightAttach = ((uint)(7));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child ytableFilters.Gtk.Table+TableChild
-			this.ylabelTypeOfUse = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelTypeOfUse.Name = "ylabelTypeOfUse";
-			this.ylabelTypeOfUse.LabelProp = global::Mono.Unix.Catalog.GetString("Тип авто:");
-			this.ytableFilters.Add(this.ylabelTypeOfUse);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ylabelTypeOfUse]));
-			w25.LeftAttach = ((uint)(5));
-			w25.RightAttach = ((uint)(6));
-			w25.XOptions = ((global::Gtk.AttachOptions)(4));
-			w25.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox1.Add(this.ytableFilters);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytableFilters]));
-			w26.Position = 0;
-			w26.Expand = false;
-			w26.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.vbox2 = new global::Gtk.VBox();
-			this.vbox2.Name = "vbox2";
-			this.vbox2.Spacing = 6;
-			// Container child vbox2.Gtk.Box+BoxChild
 			this.yhboxTitle = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxTitle.Name = "yhboxTitle";
 			this.yhboxTitle.Spacing = 6;
@@ -317,27 +281,27 @@ namespace Vodovoz.Dialogs.Logistic
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Водители на работе");
 			this.yhboxTitle.Add(this.label2);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.label2]));
-			w27.Position = 0;
-			w27.Expand = false;
-			w27.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.label2]));
+			w23.Position = 0;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child yhboxTitle.Gtk.Box+BoxChild
 			this.vseparator2 = new global::Gtk.VSeparator();
 			this.vseparator2.Name = "vseparator2";
 			this.yhboxTitle.Add(this.vseparator2);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.vseparator2]));
-			w28.Position = 1;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.vseparator2]));
+			w24.Position = 1;
+			w24.Expand = false;
+			w24.Fill = false;
 			// Container child yhboxTitle.Gtk.Box+BoxChild
 			this.ylabelSortBy = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSortBy.Name = "ylabelSortBy";
 			this.ylabelSortBy.LabelProp = global::Mono.Unix.Catalog.GetString("Сортировать по:");
 			this.yhboxTitle.Add(this.ylabelSortBy);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ylabelSortBy]));
-			w29.Position = 2;
-			w29.Expand = false;
-			w29.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.ylabelSortBy]));
+			w25.Position = 2;
+			w25.Expand = false;
+			w25.Fill = false;
 			// Container child yhboxTitle.Gtk.Box+BoxChild
 			this.yenumComboBoxSortBy = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumComboBoxSortBy.Name = "yenumComboBoxSortBy";
@@ -346,15 +310,70 @@ namespace Vodovoz.Dialogs.Logistic
 			this.yenumComboBoxSortBy.UseShortTitle = false;
 			this.yenumComboBoxSortBy.DefaultFirst = false;
 			this.yhboxTitle.Add(this.yenumComboBoxSortBy);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.yenumComboBoxSortBy]));
-			w30.Position = 3;
-			w30.Expand = false;
-			w30.Fill = false;
-			this.vbox2.Add(this.yhboxTitle);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.yhboxTitle]));
-			w31.Position = 0;
-			w31.Expand = false;
-			w31.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yhboxTitle[this.yenumComboBoxSortBy]));
+			w26.Position = 3;
+			w26.Expand = false;
+			w26.Fill = false;
+			this.ytableFilters.Add(this.yhboxTitle);
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.yhboxTitle]));
+			w27.TopAttach = ((uint)(1));
+			w27.BottomAttach = ((uint)(2));
+			w27.RightAttach = ((uint)(5));
+			w27.XOptions = ((global::Gtk.AttachOptions)(0));
+			w27.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableFilters.Gtk.Table+TableChild
+			this.ylabelDriverStatus = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDriverStatus.Name = "ylabelDriverStatus";
+			this.ylabelDriverStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус водителя:");
+			this.ytableFilters.Add(this.ylabelDriverStatus);
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ylabelDriverStatus]));
+			w28.LeftAttach = ((uint)(8));
+			w28.RightAttach = ((uint)(9));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableFilters.Gtk.Table+TableChild
+			this.ylabelGeographicGroup = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelGeographicGroup.Name = "ylabelGeographicGroup";
+			this.ylabelGeographicGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Часть города:");
+			this.ytableFilters.Add(this.ylabelGeographicGroup);
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ylabelGeographicGroup]));
+			w29.LeftAttach = ((uint)(9));
+			w29.RightAttach = ((uint)(10));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableFilters.Gtk.Table+TableChild
+			this.ylabelOwnType = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOwnType.Name = "ylabelOwnType";
+			this.ylabelOwnType.LabelProp = global::Mono.Unix.Catalog.GetString("Принадлежность авто:");
+			this.ytableFilters.Add(this.ylabelOwnType);
+			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ylabelOwnType]));
+			w30.LeftAttach = ((uint)(7));
+			w30.RightAttach = ((uint)(8));
+			w30.XOptions = ((global::Gtk.AttachOptions)(4));
+			w30.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableFilters.Gtk.Table+TableChild
+			this.ylabelTypeOfUse = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTypeOfUse.Name = "ylabelTypeOfUse";
+			this.ylabelTypeOfUse.LabelProp = global::Mono.Unix.Catalog.GetString("Тип авто:");
+			this.ytableFilters.Add(this.ylabelTypeOfUse);
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.ytableFilters[this.ylabelTypeOfUse]));
+			w31.LeftAttach = ((uint)(6));
+			w31.RightAttach = ((uint)(7));
+			w31.XOptions = ((global::Gtk.AttachOptions)(4));
+			w31.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vbox1.Add(this.ytableFilters);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytableFilters]));
+			w32.Position = 0;
+			w32.Expand = false;
+			w32.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -365,8 +384,8 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ytreeviewAtWorkDrivers.Name = "ytreeviewAtWorkDrivers";
 			this.GtkScrolledWindow.Add(this.ytreeviewAtWorkDrivers);
 			this.vbox2.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
-			w33.Position = 1;
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
+			w34.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox();
 			this.hbox7.Name = "hbox7";
@@ -378,52 +397,52 @@ namespace Vodovoz.Dialogs.Logistic
 			this.btnAddWorkingDrivers.UseUnderline = true;
 			this.btnAddWorkingDrivers.Label = global::Mono.Unix.Catalog.GetString("Добавить всех работающих водителей");
 			this.hbox7.Add(this.btnAddWorkingDrivers);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.btnAddWorkingDrivers]));
-			w34.Position = 0;
-			w34.Expand = false;
-			w34.Fill = false;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.btnAddWorkingDrivers]));
+			w35.Position = 0;
+			w35.Expand = false;
+			w35.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonAddDriver = new global::Gtk.Button();
 			this.buttonAddDriver.CanFocus = true;
 			this.buttonAddDriver.Name = "buttonAddDriver";
 			this.buttonAddDriver.UseUnderline = true;
 			this.buttonAddDriver.Label = global::Mono.Unix.Catalog.GetString("Добавить водителя");
-			global::Gtk.Image w35 = new global::Gtk.Image();
-			w35.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonAddDriver.Image = w35;
+			global::Gtk.Image w36 = new global::Gtk.Image();
+			w36.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAddDriver.Image = w36;
 			this.hbox7.Add(this.buttonAddDriver);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonAddDriver]));
-			w36.Position = 1;
-			w36.Expand = false;
-			w36.Fill = false;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonAddDriver]));
+			w37.Position = 1;
+			w37.Expand = false;
+			w37.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonOpenDriver = new global::Gtk.Button();
 			this.buttonOpenDriver.CanFocus = true;
 			this.buttonOpenDriver.Name = "buttonOpenDriver";
 			this.buttonOpenDriver.UseUnderline = true;
 			this.buttonOpenDriver.Label = global::Mono.Unix.Catalog.GetString("Открыть водителя");
-			global::Gtk.Image w37 = new global::Gtk.Image();
-			w37.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
-			this.buttonOpenDriver.Image = w37;
+			global::Gtk.Image w38 = new global::Gtk.Image();
+			w38.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
+			this.buttonOpenDriver.Image = w38;
 			this.hbox7.Add(this.buttonOpenDriver);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonOpenDriver]));
-			w38.Position = 2;
-			w38.Expand = false;
-			w38.Fill = false;
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonOpenDriver]));
+			w39.Position = 2;
+			w39.Expand = false;
+			w39.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonRemoveDriver = new global::Gtk.Button();
 			this.buttonRemoveDriver.CanFocus = true;
 			this.buttonRemoveDriver.Name = "buttonRemoveDriver";
 			this.buttonRemoveDriver.UseUnderline = true;
 			this.buttonRemoveDriver.Label = global::Mono.Unix.Catalog.GetString("Снять водителя");
-			global::Gtk.Image w39 = new global::Gtk.Image();
-			w39.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
-			this.buttonRemoveDriver.Image = w39;
+			global::Gtk.Image w40 = new global::Gtk.Image();
+			w40.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.buttonRemoveDriver.Image = w40;
 			this.hbox7.Add(this.buttonRemoveDriver);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonRemoveDriver]));
-			w40.Position = 3;
-			w40.Expand = false;
-			w40.Fill = false;
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonRemoveDriver]));
+			w41.Position = 3;
+			w41.Expand = false;
+			w41.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonClearDriverScreen = new global::Gtk.Button();
 			this.buttonClearDriverScreen.CanFocus = true;
@@ -431,38 +450,38 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonClearDriverScreen.UseUnderline = true;
 			this.buttonClearDriverScreen.Label = global::Mono.Unix.Catalog.GetString("Отчистить список водителей");
 			this.hbox7.Add(this.buttonClearDriverScreen);
-			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonClearDriverScreen]));
-			w41.Position = 4;
-			w41.Expand = false;
-			w41.Fill = false;
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonClearDriverScreen]));
+			w42.Position = 4;
+			w42.Expand = false;
+			w42.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonDriverSelectAuto = new global::Gtk.Button();
 			this.buttonDriverSelectAuto.CanFocus = true;
 			this.buttonDriverSelectAuto.Name = "buttonDriverSelectAuto";
 			this.buttonDriverSelectAuto.UseUnderline = true;
 			this.buttonDriverSelectAuto.Label = global::Mono.Unix.Catalog.GetString("Выбрать авто");
-			global::Gtk.Image w42 = new global::Gtk.Image();
-			w42.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.car.png");
-			this.buttonDriverSelectAuto.Image = w42;
+			global::Gtk.Image w43 = new global::Gtk.Image();
+			w43.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.car.png");
+			this.buttonDriverSelectAuto.Image = w43;
 			this.hbox7.Add(this.buttonDriverSelectAuto);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonDriverSelectAuto]));
-			w43.Position = 5;
-			w43.Expand = false;
-			w43.Fill = false;
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonDriverSelectAuto]));
+			w44.Position = 5;
+			w44.Expand = false;
+			w44.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonOpenCar = new global::Gtk.Button();
 			this.buttonOpenCar.CanFocus = true;
 			this.buttonOpenCar.Name = "buttonOpenCar";
 			this.buttonOpenCar.UseUnderline = true;
 			this.buttonOpenCar.Label = global::Mono.Unix.Catalog.GetString("Открыть авто");
-			global::Gtk.Image w44 = new global::Gtk.Image();
-			w44.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
-			this.buttonOpenCar.Image = w44;
+			global::Gtk.Image w45 = new global::Gtk.Image();
+			w45.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
+			this.buttonOpenCar.Image = w45;
 			this.hbox7.Add(this.buttonOpenCar);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonOpenCar]));
-			w45.Position = 6;
-			w45.Expand = false;
-			w45.Fill = false;
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonOpenCar]));
+			w46.Position = 6;
+			w46.Expand = false;
+			w46.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.ybuttonCreateRouteLists = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCreateRouteLists.CanFocus = true;
@@ -470,39 +489,39 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ybuttonCreateRouteLists.UseUnderline = true;
 			this.ybuttonCreateRouteLists.Label = global::Mono.Unix.Catalog.GetString("Создать пустые МЛ");
 			this.hbox7.Add(this.ybuttonCreateRouteLists);
-			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.ybuttonCreateRouteLists]));
-			w46.Position = 7;
-			w46.Expand = false;
-			w46.Fill = false;
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.ybuttonCreateRouteLists]));
+			w47.Position = 7;
+			w47.Expand = false;
+			w47.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonEditDistricts = new global::Gtk.Button();
 			this.buttonEditDistricts.CanFocus = true;
 			this.buttonEditDistricts.Name = "buttonEditDistricts";
 			this.buttonEditDistricts.UseUnderline = true;
 			this.buttonEditDistricts.Label = global::Mono.Unix.Catalog.GetString("Редактировать районы");
-			global::Gtk.Image w47 = new global::Gtk.Image();
-			w47.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
-			this.buttonEditDistricts.Image = w47;
+			global::Gtk.Image w48 = new global::Gtk.Image();
+			w48.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
+			this.buttonEditDistricts.Image = w48;
 			this.hbox7.Add(this.buttonEditDistricts);
-			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonEditDistricts]));
-			w48.PackType = ((global::Gtk.PackType)(1));
-			w48.Position = 8;
-			w48.Expand = false;
-			w48.Fill = false;
-			this.vbox2.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
-			w49.Position = 2;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonEditDistricts]));
+			w49.PackType = ((global::Gtk.PackType)(1));
+			w49.Position = 8;
 			w49.Expand = false;
 			w49.Fill = false;
+			this.vbox2.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
+			w50.Position = 1;
+			w50.Expand = false;
+			w50.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hideForwaders = new global::Gamma.Widgets.SidePanels.HideHorizontalSeparator();
 			this.hideForwaders.Events = ((global::Gdk.EventMask)(256));
 			this.hideForwaders.Name = "hideForwaders";
 			this.vbox2.Add(this.hideForwaders);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hideForwaders]));
-			w50.Position = 3;
-			w50.Expand = false;
-			w50.Fill = false;
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hideForwaders]));
+			w51.Position = 2;
+			w51.Expand = false;
+			w51.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.vboxForwarders = new global::Gtk.VBox();
 			this.vboxForwarders.Name = "vboxForwarders";
@@ -517,8 +536,8 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ytreeviewOnDayForwarders.Name = "ytreeviewOnDayForwarders";
 			this.GtkScrolledWindow3.Add(this.ytreeviewOnDayForwarders);
 			this.vboxForwarders.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.GtkScrolledWindow3]));
-			w52.Position = 0;
+			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.GtkScrolledWindow3]));
+			w53.Position = 0;
 			// Container child vboxForwarders.Gtk.Box+BoxChild
 			this.hbox6 = new global::Gtk.HBox();
 			this.hbox6.Name = "hbox6";
@@ -529,28 +548,28 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonAddForwarder.Name = "buttonAddForwarder";
 			this.buttonAddForwarder.UseUnderline = true;
 			this.buttonAddForwarder.Label = global::Mono.Unix.Catalog.GetString("Добавить экспедитора");
-			global::Gtk.Image w53 = new global::Gtk.Image();
-			w53.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonAddForwarder.Image = w53;
+			global::Gtk.Image w54 = new global::Gtk.Image();
+			w54.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAddForwarder.Image = w54;
 			this.hbox6.Add(this.buttonAddForwarder);
-			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddForwarder]));
-			w54.Position = 0;
-			w54.Expand = false;
-			w54.Fill = false;
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddForwarder]));
+			w55.Position = 0;
+			w55.Expand = false;
+			w55.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonRemoveForwarder = new global::Gtk.Button();
 			this.buttonRemoveForwarder.CanFocus = true;
 			this.buttonRemoveForwarder.Name = "buttonRemoveForwarder";
 			this.buttonRemoveForwarder.UseUnderline = true;
 			this.buttonRemoveForwarder.Label = global::Mono.Unix.Catalog.GetString("Снять экспедитора");
-			global::Gtk.Image w55 = new global::Gtk.Image();
-			w55.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
-			this.buttonRemoveForwarder.Image = w55;
+			global::Gtk.Image w56 = new global::Gtk.Image();
+			w56.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
+			this.buttonRemoveForwarder.Image = w56;
 			this.hbox6.Add(this.buttonRemoveForwarder);
-			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveForwarder]));
-			w56.Position = 1;
-			w56.Expand = false;
-			w56.Fill = false;
+			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveForwarder]));
+			w57.Position = 1;
+			w57.Expand = false;
+			w57.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonAppointForwarders = new global::Gtk.Button();
 			this.buttonAppointForwarders.TooltipMarkup = "Распределить оставшихся экспедиторов по водителям";
@@ -558,38 +577,38 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonAppointForwarders.Name = "buttonAppointForwarders";
 			this.buttonAppointForwarders.UseUnderline = true;
 			this.buttonAppointForwarders.Label = global::Mono.Unix.Catalog.GetString("Распределить оставшихся");
-			global::Gtk.Image w57 = new global::Gtk.Image();
-			w57.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.users.png");
-			this.buttonAppointForwarders.Image = w57;
+			global::Gtk.Image w58 = new global::Gtk.Image();
+			w58.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.users.png");
+			this.buttonAppointForwarders.Image = w58;
 			this.hbox6.Add(this.buttonAppointForwarders);
-			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAppointForwarders]));
-			w58.PackType = ((global::Gtk.PackType)(1));
-			w58.Position = 2;
-			w58.Expand = false;
-			w58.Fill = false;
-			this.vboxForwarders.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.hbox6]));
-			w59.Position = 1;
+			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAppointForwarders]));
+			w59.PackType = ((global::Gtk.PackType)(1));
+			w59.Position = 2;
 			w59.Expand = false;
 			w59.Fill = false;
+			this.vboxForwarders.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.hbox6]));
+			w60.Position = 1;
+			w60.Expand = false;
+			w60.Fill = false;
 			this.vbox2.Add(this.vboxForwarders);
-			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxForwarders]));
-			w60.Position = 4;
+			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxForwarders]));
+			w61.Position = 3;
 			this.hbox2.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
-			w61.Position = 0;
+			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
+			w62.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.districtpriorityview1 = new global::Vodovoz.ViewWidgets.Logistics.DistrictPriorityView();
 			this.districtpriorityview1.Events = ((global::Gdk.EventMask)(256));
 			this.districtpriorityview1.Name = "districtpriorityview1";
 			this.hbox2.Add(this.districtpriorityview1);
-			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.districtpriorityview1]));
-			w62.Position = 1;
-			w62.Expand = false;
-			w62.Fill = false;
+			global::Gtk.Box.BoxChild w63 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.districtpriorityview1]));
+			w63.Position = 1;
+			w63.Expand = false;
+			w63.Fill = false;
 			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w63 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w63.Position = 2;
+			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w64.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
