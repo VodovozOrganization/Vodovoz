@@ -148,8 +148,8 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref filterDateType, value);
 		}
 
-		private ComplaintType complaintType = ComplaintType.Client;
-		public virtual ComplaintType ComplaintType {
+		private ComplaintType? complaintType = Domain.Complaints.ComplaintType.Client;
+		public virtual ComplaintType? ComplaintType {
 			get => complaintType;
 			set => SetField(ref complaintType, value);
 		}
@@ -235,6 +235,7 @@ namespace Vodovoz.FilterViewModels
 
 			Subdivision = null;
 			ComplaintStatus = null;
+			ComplaintType = null;
 			StartDate = DateTime.Now.AddMonths(-3);
 			EndDate = DateTime.Now.AddMonths(3);
 			Employee = EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
