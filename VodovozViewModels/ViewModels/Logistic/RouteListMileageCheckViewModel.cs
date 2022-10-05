@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Tdi;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -58,6 +59,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IEmployeeService _employeeService;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
 		public RouteListMileageCheckViewModel(IEntityUoWBuilder uowBuilder,
 			ICommonServices commonServices,
@@ -79,7 +81,8 @@ namespace Vodovoz.ViewModels.Logistic
 			INavigationManager navigationManager,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeSettings employeeSettings,
-			IEmployeeService employeeService)
+			IEmployeeService employeeService,
+			IRouteListProfitabilityController routeListProfitabilityController)
 			:base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
@@ -97,7 +100,9 @@ namespace Vodovoz.ViewModels.Logistic
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService)); ;
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_routeListProfitabilityController =
+				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 
 			CarSelectorFactory = (carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory();
@@ -226,7 +231,8 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			Entity.CalculateWages(_wageParameterService);
-
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+				
 			return base.BeforeSave();
 		}
 

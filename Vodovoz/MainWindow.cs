@@ -164,6 +164,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Controllers;
 using QS.Utilities;
+using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.ViewModels.Profitability;
 using Fias.Service.Cache;
 using Vodovoz.ViewModels.Dialogs.Goods;
@@ -796,14 +797,19 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
+		var routeListProfitabilityController = new RouteListProfitabilityController(
+			new RouteListProfitabilityFactory(), new NomenclatureParametersProvider(new ParametersProvider()),
+			new ProfitabilityConstantsRepository(), new RouteListProfitabilityRepository());
 		var commonServices = ServicesConfig.CommonServices;
 		var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
 
 		var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
 			x => x.Name,
-			() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices),
-			(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
-			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			() => new FuelTypeViewModel(
+				EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, routeListProfitabilityController),
+			(node) => new FuelTypeViewModel(
+				EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, routeListProfitabilityController),
+			unitOfWorkFactory,
 			commonServices);
 
 		var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
@@ -1074,6 +1080,7 @@ public partial class MainWindow : Gtk.Window
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
+		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
 
 		var journal = new ComplaintsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
@@ -1106,7 +1113,8 @@ public partial class MainWindow : Gtk.Window
 			new SalesPlanJournalFactory(),
 			new NomenclatureJournalFactory(),
 			new EmployeeSettings(new ParametersProvider()),
-			new UndeliveredOrdersRepository()
+			new UndeliveredOrdersRepository(),
+			complaintParametersProvider
 		);
 
 		tdiMain.AddTab(journal);
@@ -2202,6 +2210,7 @@ public partial class MainWindow : Gtk.Window
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFileDialogService fileDialogService = new FileDialogService();
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
+		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
 
 		tdiMain.OpenTab(
 			() =>
@@ -2235,7 +2244,8 @@ public partial class MainWindow : Gtk.Window
 					new SalesPlanJournalFactory(),
 					new NomenclatureJournalFactory(),
 					new EmployeeSettings(new ParametersProvider()),
-					new UndeliveredOrdersRepository()
+					new UndeliveredOrdersRepository(),
+					complaintParametersProvider
 				);
 			}
 		);
@@ -2698,7 +2708,7 @@ public partial class MainWindow : Gtk.Window
 		NavigationManager.OpenViewModel<ProfitabilityConstantsViewModel, IValidator>(
 			null, ServicesConfig.ValidationService, OpenPageOptions.IgnoreHash);
 	}
-	
+
 	private void ActionGroupPricingActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
@@ -2707,5 +2717,10 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionSalesDepartmentAcivated(System.Object sender, System.EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
+	}
+
+	protected void OnActionResponsibleActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ResponsibleJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }

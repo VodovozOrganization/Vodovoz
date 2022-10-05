@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
@@ -13,6 +12,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class CarModelViewModel : EntityTabViewModelBase<CarModel>, IAskSaveOnCloseViewModel
 	{
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private DateTime? _selectedFuelDate;
 		private CarFuelVersion _selectedCarFuelVersion;
 		private ICarFuelVersionsController _fuelVersionsController;
@@ -20,10 +20,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public CarModelViewModel(IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICarManufacturerJournalFactory carManufacturerJournalFactory
-		)
+			ICarManufacturerJournalFactory carManufacturerJournalFactory,
+			IRouteListProfitabilityController routeListProfitabilityController)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			_routeListProfitabilityController =
+				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			CarManufacturerJournalFactory = carManufacturerJournalFactory
 				?? throw new ArgumentNullException(nameof(carManufacturerJournalFactory));
 			_fuelVersionsController = new CarFuelVersionsController(Entity);
@@ -83,6 +85,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 			_fuelVersionsController.CreateAndAddVersion(FuelConsumption, SelectedFuelDate);
+			_routeListProfitabilityController.RecalculateRouteListProfitabilitiesByDate(UoW, SelectedFuelDate.Value);
 
 			OnPropertyChanged(nameof(CanAddNewFuelVersion));
 			OnPropertyChanged(nameof(CanChangeFuelVersionDate));
@@ -90,15 +93,27 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public void ChangeFuelVersionStartDate()
 		{
-
 			if(SelectedFuelDate == null)
 			{
 				return;
 			}
 			_fuelVersionsController.ChangeVersionStartDate(SelectedCarFuelVersion, SelectedFuelDate.Value);
-
+			RecalculateRouteListProfitabilitiesBetweenDates(SelectedCarFuelVersion.StartDate, SelectedFuelDate.Value);
+				
 			OnPropertyChanged(nameof(CanAddNewFuelVersion));
 			OnPropertyChanged(nameof(CanChangeFuelVersionDate));
+		}
+		
+		private void RecalculateRouteListProfitabilitiesBetweenDates(DateTime oldStartDate, DateTime newStartDate)
+		{
+			if(oldStartDate < newStartDate)
+			{
+				_routeListProfitabilityController.RecalculateRouteListProfitabilitiesBetweenDates(UoW, oldStartDate, newStartDate);
+			}
+			else
+			{
+				_routeListProfitabilityController.RecalculateRouteListProfitabilitiesBetweenDates(UoW, newStartDate, oldStartDate);
+			}
 		}
 	}
 }

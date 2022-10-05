@@ -41,7 +41,7 @@ namespace Vodovoz.SidePanel
 						new EmployeeRepository(),
 						ServicesConfig.CommonServices);
 				case PanelViewType.ComplaintPanelView:
-					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository());
+					return new ComplaintPanelView(new ComplaintsRepository(), new ComplaintResultsRepository(), new ComplaintParametersProvider(new ParametersProvider()));
 				case PanelViewType.SmsSendPanelView:
 					return new SmsSendPanelView(
 						ServicesConfig.CommonServices,

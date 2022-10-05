@@ -1,5 +1,4 @@
-﻿using System;
-using QS.Report;
+﻿using QS.Report;
 using QS.Tdi;
 using QSReport;
 using Vodovoz.TempAdapters;

@@ -36,7 +36,7 @@ namespace Vodovoz.Dialogs.Fuel
 				.AddColumn("")
 				.Finish();
 			ytreeFuelPriceVersions.ItemsDataSource = ViewModel.Entity.ObservableFuelPriceVersions;
-			ytreeFuelPriceVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedFuelPriceVersions, w => w.SelectedRow).InitializeFromSource();
+			ytreeFuelPriceVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedFuelPriceVersion, w => w.SelectedRow).InitializeFromSource();
 
 			buttonNewVersion.Binding.AddBinding(ViewModel, vm => vm.CanAddNewFuelVersion, w => w.Sensitive).InitializeFromSource();
 			buttonNewVersion.Clicked += (sender, args) => ViewModel.AddNewCarFuelVersion();
