@@ -2398,6 +2398,11 @@ namespace Vodovoz
 		{
 			try {
 				int index = treeView.Model.IterNChildren() - 1;
+				if(index == -1)
+				{
+					return;
+				}
+
 				TreePath path;
 
 				treeView.Model.IterNthChild(out TreeIter iter, index);
