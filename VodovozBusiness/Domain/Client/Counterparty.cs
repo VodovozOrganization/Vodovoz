@@ -47,6 +47,10 @@ namespace Vodovoz.Domain.Client
 		private const int _cargoReceiverLimitSymbols = 500;
 		private bool _roboatsExclude;
 		private bool _isForSalesDepartment;
+		private ReasonForLeaving _reasonForLeaving;
+		private bool _isPaperlessWorkflow;
+		private bool _isNotSendDocumentsByEdo;
+		private bool _canSendUpdInAdvance;
 
 		#region Свойства
 
@@ -605,6 +609,13 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref cargoReceiverSource, value, () => CargoReceiverSource);
 		}
 
+		[Display(Name = "Причина выбытия")]
+		public virtual ReasonForLeaving ReasonForLeaving
+		{
+			get => _reasonForLeaving;
+			set => SetField(ref _reasonForLeaving, value);
+		}
+
 		IList<SpecialNomenclature> specialNomenclatures = new List<SpecialNomenclature>();
 		[Display(Name = "Особенный номер ТМЦ")]
 		public virtual IList<SpecialNomenclature> SpecialNomenclatures {
@@ -669,7 +680,28 @@ namespace Vodovoz.Domain.Client
 	        set => SetField(ref _isForSalesDepartment, value);
         }
 
-        private bool noPhoneCall;
+		[Display(Name = "Отказ от печатных документов")]
+		public virtual bool IsPaperlessWorkflow
+		{
+			get => _isPaperlessWorkflow;
+			set => SetField(ref _isPaperlessWorkflow, value);
+		}
+
+		[Display(Name = "Не отправлять документы по EDO")]
+		public virtual bool IsNotSendDocumentsByEdo
+		{
+			get => _isNotSendDocumentsByEdo;
+			set => SetField(ref _isNotSendDocumentsByEdo, value);
+		}
+
+		[Display(Name = "Отправлять УПД заранее")]
+		public virtual bool CanSendUpdInAdvance
+		{
+			get => _canSendUpdInAdvance;
+			set => SetField(ref _canSendUpdInAdvance, value);
+		}
+
+		private bool noPhoneCall;
         [Display(Name = "Без прозвона")]
         public virtual bool NoPhoneCall
         {
@@ -1147,6 +1179,16 @@ namespace Vodovoz.Domain.Client
 			{
 				yield return new ValidationResult(phonesValidationMessage);
 			}
+
+			if(ReasonForLeaving == ReasonForLeaving.Resale && string.IsNullOrWhiteSpace(INN))
+			{
+				yield return new ValidationResult("Для перепродажи должен быть заполнен ИНН");
+			}
+
+			if(IsNotSendDocumentsByEdo && IsPaperlessWorkflow)
+			{
+				yield return new ValidationResult("При выборе \"Не отправлять документы по EDO\" должен быть отключен \"Отказ от печатных документов\"");
+			}
 		}
 
 		#endregion
@@ -1223,6 +1265,19 @@ namespace Vodovoz.Domain.Client
 	public class TaxTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public TaxTypeStringType() : base(typeof(TaxType)) { }
+	}
+
+	public enum ReasonForLeaving
+	{
+		[Display(Name = "Для собственных нужд")]
+		ForOwnNeeds,
+		[Display(Name = "Перепродажа")]
+		Resale
+	}
+
+	public class ReasonForLeavingStringType : NHibernate.Type.EnumStringType
+	{
+		public ReasonForLeavingStringType() : base(typeof(ReasonForLeaving)) { }
 	}
 
 	#region Для уровневого отображения цен поставщика
