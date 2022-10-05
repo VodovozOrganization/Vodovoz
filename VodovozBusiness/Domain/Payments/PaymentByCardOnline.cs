@@ -195,33 +195,44 @@ namespace Vodovoz.Domain.Payments
 		private string GetNumberFromDescription(string description, ref PaymentByCardOnlineFrom paymentFrom)
 		{
 			var pattern1 = @"№([0-9]{1,})";
-			var pattern2 = @"[\s|-]([0-9]{1,})";
+			var pattern2 = @"№[\s|-]([0-9]{1,})";
+			var pattern3 = @"[\s|-]([0-9]{1,})";
 
 			MatchCollection matches;
-			
-			if(paymentFrom == PaymentByCardOnlineFrom.FromEShop)
-			{
-				matches = Regex.Matches(description, pattern1);
-			}
-			else if(paymentFrom == PaymentByCardOnlineFrom.FromSMS) //Проверяем отдельно т.к. появилась северная касса
-			{
-				//Туда прилетают оплаты, как по номеру заказа, так и по номеру ИМ, парсим сначала по второму паттерну(№ заказа)
-				matches = Regex.Matches(description, pattern2);
 
-				//Если соответствий нет
-				if(matches.Count == 0)
-				{
-					//Делаем выборку по первому паттерну и меняем тип оплаты для корректного нахождения этой оплаты в отчете
+			switch(paymentFrom)
+			{
+				case PaymentByCardOnlineFrom.FromEShop:
 					matches = Regex.Matches(description, pattern1);
-					paymentFrom = PaymentByCardOnlineFrom.FromEShop;
-				}
-			}
-			else
-			{
-				matches = Regex.Matches(description, pattern2);
-			}
+					return matches[matches.Count - 1].Groups[1].Value;
+				case PaymentByCardOnlineFrom.FromVodovozWebSite:
+					matches = Regex.Matches(description, pattern3);
+					return matches[0].Groups[1].Value;
+				case PaymentByCardOnlineFrom.FromSMS:
+					matches = Regex.Matches(description, pattern2); // Проверяем по паттерну (№ заказа)
 
-			return matches[matches.Count - 1].Groups[1].Value;
+					if(matches.Count != 0)
+					{
+						return matches[matches.Count - 1].Groups[1].Value;
+					}
+
+					// Если нет - проверяем по 1 паттерну(№заказа)
+					matches = Regex.Matches(description, pattern1);
+
+					if(matches.Count != 0)
+					{
+						paymentFrom = PaymentByCardOnlineFrom.FromEShop;
+						return matches[matches.Count - 1].Groups[1].Value;
+					}
+					
+					// Если снова нет - проверяем по 3 паттерну(число_пробел_число, оплата с сайта, берем первое число)
+					matches = Regex.Matches(description, pattern3);
+					paymentFrom = PaymentByCardOnlineFrom.FromVodovozWebSite;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+			return matches[0].Groups[1].Value;
 		}
 
 		private string GetEmailFromDescription(string description)
