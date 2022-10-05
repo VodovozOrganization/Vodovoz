@@ -45,6 +45,7 @@ namespace Vodovoz.Domain.Client
 		private string _localityTypeShort;
 		private string _localityType;
 		private Guid? _buildingFiasGuid;
+		private ReasonForLeaving _reasonForLeaving;
 
 		#region Свойства
 
@@ -479,6 +480,13 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<Phone> Phones {
 			get => phones;
 			set => SetField(ref phones, value, () => Phones);
+		}
+
+		[Display(Name = "Причина выбытия")]
+		public virtual ReasonForLeaving ReasonForLeaving
+		{
+			get => _reasonForLeaving;
+			set => SetField(ref _reasonForLeaving, value);
 		}
 
 		GenericObservableList<Phone> observablePhones;
