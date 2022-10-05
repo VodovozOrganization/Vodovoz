@@ -651,8 +651,7 @@ public partial class MainWindow : Window
 			() => new AtWorksDlg(
 				new BaseParametersProvider(parametersProvider),
 				employeeJournalFactory,
-				driverApiRegisterEndpoint,
-				new GeographicGroupParametersProvider(parametersProvider))
+				driverApiRegisterEndpoint)
 		);
 	}
 
@@ -678,8 +677,7 @@ public partial class MainWindow : Window
 				new EmployeeJournalFactory(),
 				new GeographicGroupRepository(),
 				new ScheduleRestrictionRepository(),
-				new CarModelJournalFactory(),
-				new GeographicGroupParametersProvider(parametersProvider)
+				new CarModelJournalFactory()
 			)
 		);
 	}
