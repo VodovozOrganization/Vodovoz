@@ -142,13 +142,13 @@ namespace Vodovoz.FilterViewModels
 			}
 		}
 
-		private DateFilterType filterDateType = DateFilterType.PlannedCompletionDate;
+		private DateFilterType filterDateType = DateFilterType.CreationDate;
 		public virtual DateFilterType FilterDateType {
 			get => filterDateType;
 			set => SetField(ref filterDateType, value);
 		}
 
-		private ComplaintType? complaintType;
+		private ComplaintType? complaintType = Domain.Complaints.ComplaintType.Client;
 		public virtual ComplaintType? ComplaintType {
 			get => complaintType;
 			set => SetField(ref complaintType, value);
