@@ -142,14 +142,14 @@ namespace Vodovoz.FilterViewModels
 			}
 		}
 
-		private DateFilterType filterDateType = DateFilterType.PlannedCompletionDate;
+		private DateFilterType filterDateType = DateFilterType.CreationDate;
 		public virtual DateFilterType FilterDateType {
 			get => filterDateType;
 			set => SetField(ref filterDateType, value);
 		}
 
-		private ComplaintType? complaintType;
-		public virtual ComplaintType? ComplaintType {
+		private ComplaintType complaintType = ComplaintType.Client;
+		public virtual ComplaintType ComplaintType {
 			get => complaintType;
 			set => SetField(ref complaintType, value);
 		}
@@ -235,7 +235,6 @@ namespace Vodovoz.FilterViewModels
 
 			Subdivision = null;
 			ComplaintStatus = null;
-			ComplaintType = null;
 			StartDate = DateTime.Now.AddMonths(-3);
 			EndDate = DateTime.Now.AddMonths(3);
 			Employee = EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);

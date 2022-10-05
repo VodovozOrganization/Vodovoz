@@ -23,7 +23,6 @@ namespace Vodovoz.Filters.GtkViews
 
 			yenumcomboboxType.ItemsEnum = typeof(ComplaintType);
 			yenumcomboboxType.Binding.AddBinding(ViewModel, x => x.ComplaintType, v => v.SelectedItemOrNull).InitializeFromSource();
-			yenumcomboboxType.SelectedItem = ComplaintType.Client;
 
 			yenumcomboboxStatus.ItemsEnum = typeof(ComplaintStatuses);
 			yenumcomboboxStatus.Binding.AddBinding(ViewModel, x => x.ComplaintStatus, v => v.SelectedItemOrNull).InitializeFromSource();
@@ -54,7 +53,6 @@ namespace Vodovoz.Filters.GtkViews
 
 			yenumcomboboxDateType.ItemsEnum = typeof(DateFilterType);
 			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();
-			yenumcomboboxDateType.SelectedItem = DateFilterType.CreationDate;
 
 			ybuttonMyComplaint.Clicked += (sender, e) => ViewModel.SelectMyComplaint();
 
