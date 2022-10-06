@@ -286,6 +286,10 @@ namespace Vodovoz.Dialogs.Logistic
 			{
 				SaveAndClose();
 			}
+			else
+			{
+				_routelists.Clear();
+			}
 		}
 
 		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
