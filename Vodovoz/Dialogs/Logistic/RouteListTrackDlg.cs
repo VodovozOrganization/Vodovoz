@@ -1,32 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using GMap.NET;
+﻿using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
-using Pango;
+using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Services;
-using QS.Tdi;
 using QS.Utilities;
 using QSOrmProject;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using Vodovoz.Additions.Logistic;
-using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.ServiceDialogs.Chat;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Services;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Gtk;
-using Vodovoz.EntityRepositories.Sale;
 using Layout = Pango.Layout;
 
 namespace Vodovoz
@@ -92,7 +88,6 @@ namespace Vodovoz
 				}
 			};
 
-			buttonChat.Visible = buttonSendMessage.Visible = false;
 			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(uow);
 			
 			if (_currentEmployee == null)
@@ -228,25 +223,6 @@ namespace Vodovoz
 
 					lastSelectedDrivers.Remove(pair.Key);
 				}
-			}
-		}
-
-		protected void OnButtonChatClicked(object sender, EventArgs e)
-		{
-			var drivers = uow.GetById<Employee>(yTreeViewDrivers.GetSelectedIds());
-			foreach (var driver in drivers) {
-
-				var chat = _chatRepository.GetChatForDriver(uow, driver);
-				if (chat == null) {
-					var chatUoW = UnitOfWorkFactory.CreateWithNewRoot<Chat> ();
-					chatUoW.Root.ChatType = ChatType.DriverAndLogists;
-					chatUoW.Root.Driver = driver;
-					chatUoW.Save ();
-					chat = chatUoW.Root;
-				}
-				TabParent.OpenTab (ChatWidget.GenerateHashName(chat.Id),
-					() => new ChatWidget(chat.Id, _employeeRepository)
-				);
 			}
 		}
 
@@ -491,19 +467,6 @@ namespace Vodovoz
 					);
 				}
 			}
-		}
-
-		protected void OnButtonSendMessageClicked (object sender, EventArgs e)
-		{
-			var selected = yTreeViewDrivers.GetSelectedObjects<WorkingDriverVMNode> ();
-			var drivers = selected.Select(x => x.Id).ToArray();
-			var sendDlg = new SendMessageDlg(drivers, _employeeRepository);
-
-			if(sendDlg.Run () == (int)Gtk.ResponseType.Ok)
-			{
-				yTreeViewDrivers.RepresentationModel.UpdateNodes ();
-			}
-			sendDlg.Destroy ();
 		}
 
 		protected void OnButtonTrackPointsClicked(object sender, EventArgs e)

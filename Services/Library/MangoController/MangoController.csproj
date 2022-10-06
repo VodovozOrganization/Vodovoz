@@ -1,24 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Company>Quality Solution</Company>
-        <NeutralLanguage>ru</NeutralLanguage>
-        <RootNamespace>MangoService</RootNamespace>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-      <PackageReference Include="NLog" Version="4.7.9" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="xNet, Version=3.3.3.0, Culture=neutral, PublicKeyToken=null" Condition="'$(TargetFramework)' == 'net461'">
-        <HintPath>..\..\..\lib\xNet.dll</HintPath>
-      </Reference>
-      <Reference Include="xNetStandard, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-        <HintPath>..\..\..\lib\netCore\xNetStandard\xNetStandard.dll</HintPath>
-      </Reference>
+      <PackageReference Include="NLog" Version="4.7.14" />
+      <PackageReference Include="xNetStandard" Version="1.1.0" />
     </ItemGroup>
 
 </Project>

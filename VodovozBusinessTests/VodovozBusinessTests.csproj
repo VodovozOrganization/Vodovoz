@@ -129,14 +129,6 @@
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
-      <Project>{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}</Project>
-      <Name>QSBanks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
-      <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
-      <Name>QSOrmProject</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Testing\QS.Testing.csproj">
       <Project>{BA8E8ACF-ECB0-4617-9E09-D1BE93992D0E}</Project>
       <Name>QS.Testing</Name>

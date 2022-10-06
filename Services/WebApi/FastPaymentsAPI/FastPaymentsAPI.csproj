@@ -20,7 +20,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj" />
       <ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
-      <ProjectReference Include="..\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
+      <ProjectReference Include="..\..\Library\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
     </ItemGroup>
 
     <ItemGroup>

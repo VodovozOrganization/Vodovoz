@@ -17,11 +17,11 @@ function Remove-Tree($Path, $Include = '*') {
     Get-Tree $Path $Include | Remove-Item -force -recurse -Verbose
 }
 
-if ($selection.Contains("5")) {
-    Set-Location ../
+if ($selection.Contains("5")) {    
+	Set-Location (Get-Item .).parent.FullName
     Remove-Tree bin
     Remove-Tree obj
-    Set-Location Vodovoz
+	Set-Location Vodovoz
 }
 
 if ($selection.Contains("3")) {
