@@ -67,6 +67,10 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.AlwaysSendReceipts).Column("always_send_receipts");
 			Map(x => x.RoboatsExclude).Column("roboats_exclude");
+			Map(x => x.ReasonForLeaving).Column("reason_for_leaving").CustomType<ReasonForLeavingStringType>();
+			Map(x => x.IsPaperlessWorkflow).Column("is_paperless_workflow");
+			Map(x => x.IsNotSendDocumentsByEdo).Column("is_not_send_documents_by_edo");
+			Map(x => x.CanSendUpdInAdvance).Column("can_send_upd_in_advance");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");

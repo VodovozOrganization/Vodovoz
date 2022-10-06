@@ -652,8 +652,6 @@
     <Compile Include="Commons\OrderPopupMenu.cs" />
     <Compile Include="Views\Logistic\DriversInfoExportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversInfoExportView.cs" />
-    <Compile Include="JournalViewers\RouteListKeepingView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListKeepingView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingDlg.cs" />
     <Compile Include="JournalViewers\RouteListMileageCheckView.cs" />
@@ -1751,6 +1749,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMileageDistributionView.cs" />
     <Compile Include="Views\Logistic\OdometerReadingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.OdometerReadingView.cs" />
+    <Compile Include="Views\Logistic\ResponsibleView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ResponsibleView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

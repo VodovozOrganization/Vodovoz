@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
@@ -7,21 +6,29 @@ using QS.ViewModels;
 using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic;
+
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelTypeViewModel : EntityTabViewModelBase<FuelType>, IAskSaveOnCloseViewModel
 	{
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private DateTime? _selectedDate;
-		private FuelPriceVersion _selectedFuelPriceVersions;
+		private FuelPriceVersion _selectedFuelPriceVersion;
 		private readonly IFuelPriceVersionsController _fuelVersionsController;
 		private decimal _fuelPrice;
 
-		public FuelTypeViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+		public FuelTypeViewModel(
+			IEntityUoWBuilder uoWBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IRouteListProfitabilityController routeListProfitabilityController) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			_routeListProfitabilityController =
+				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_fuelVersionsController = new FuelPriceVersionsController(Entity);
 
 			CanEdit = PermissionResult.CanUpdate
-					  || (PermissionResult.CanCreate && Entity.Id == 0);
+				|| (PermissionResult.CanCreate && Entity.Id == 0);
 
 			CanReadFuel = true;
 			var permissionFuelPriceVersionResult = commonServices.PermissionService.ValidateUserPermission(typeof(FuelPriceVersion), commonServices.UserService.CurrentUserId);
@@ -46,12 +53,12 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			}
 		}
 
-		public virtual FuelPriceVersion SelectedFuelPriceVersions
+		public virtual FuelPriceVersion SelectedFuelPriceVersion
 		{
-			get => _selectedFuelPriceVersions;
+			get => _selectedFuelPriceVersion;
 			set
 			{
-				if(SetField(ref _selectedFuelPriceVersions, value))
+				if(SetField(ref _selectedFuelPriceVersion, value))
 				{
 					OnPropertyChanged(nameof(CanChangeFuelVersionDate));
 				}
@@ -74,8 +81,8 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		public bool CanChangeFuelVersionDate => CanEditFuel
 			&& SelectedDate.HasValue
-			&& SelectedFuelPriceVersions != null
-			&& _fuelVersionsController.IsValidDateForVersionStartDateChange(SelectedFuelPriceVersions, SelectedDate.Value);
+			&& SelectedFuelPriceVersion != null
+			&& _fuelVersionsController.IsValidDateForVersionStartDateChange(SelectedFuelPriceVersion, SelectedDate.Value);
 
 		public void AddNewCarFuelVersion()
 		{
@@ -84,6 +91,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 				return;
 			}
 			_fuelVersionsController.CreateAndAddVersion(FuelPrice, SelectedDate);
+			_routeListProfitabilityController.RecalculateRouteListProfitabilitiesByDate(UoW, SelectedDate.Value);
 
 			OnPropertyChanged(nameof(CanAddNewFuelVersion));
 			OnPropertyChanged(nameof(CanChangeFuelVersionDate));
@@ -91,15 +99,27 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		public void ChangeFuelVersionStartDate()
 		{
-
 			if(SelectedDate == null)
 			{
 				return;
 			}
-			_fuelVersionsController.ChangeVersionStartDate(SelectedFuelPriceVersions, SelectedDate.Value);
+			_fuelVersionsController.ChangeVersionStartDate(SelectedFuelPriceVersion, SelectedDate.Value);
+			RecalculateRouteListProfitabilitiesBetweenDates(SelectedFuelPriceVersion.StartDate, SelectedDate.Value);
 
 			OnPropertyChanged(nameof(CanAddNewFuelVersion));
 			OnPropertyChanged(nameof(CanChangeFuelVersionDate));
+		}
+
+		private void RecalculateRouteListProfitabilitiesBetweenDates(DateTime oldStartDate, DateTime newStartDate)
+		{
+			if(oldStartDate < newStartDate)
+			{
+				_routeListProfitabilityController.RecalculateRouteListProfitabilitiesBetweenDates(UoW, oldStartDate, newStartDate);
+			}
+			else
+			{
+				_routeListProfitabilityController.RecalculateRouteListProfitabilitiesBetweenDates(UoW, newStartDate, oldStartDate);
+			}
 		}
 	}
 }

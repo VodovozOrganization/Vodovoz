@@ -12,7 +12,7 @@ namespace Vodovoz.HibernateMapping.Complaints
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			References(x => x.Complaint).Column("complaint_id");
-			Map(x => x.GuiltyType).Column("guilty_type").CustomType<ComplaintGuiltyTypesStringType>();
+			References(x => x.Responsible).Column("responsible_id");
 			References(x => x.Employee).Column("employee_id");
 			References(x => x.Subdivision).Column("subdivision_id");
 		}

@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using QSOrmProject;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
@@ -25,6 +27,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
@@ -41,6 +44,12 @@ namespace Vodovoz
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
+			new RouteListProfitabilityController(
+				new RouteListProfitabilityFactory(),
+				new NomenclatureParametersProvider(new ParametersProvider()),
+				new ProfitabilityConstantsRepository(),
+				new RouteListProfitabilityRepository());
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
@@ -415,7 +424,8 @@ namespace Vodovoz
 				SetSensetivity(false);
 
 				Entity.CalculateWages(wageParameterService);
-
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+				
 				UoWGeneric.Save();
 
 				var changedList = items.Where(item => item.ChangedDeliverySchedule || item.HasChanged).ToList();

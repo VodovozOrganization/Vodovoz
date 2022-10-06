@@ -24,18 +24,18 @@ namespace Vodovoz.HibernateMapping.Profitability
 			Map(x => x.GazelleAverageMileage).Column("gazelle_average_mileage");
 			Map(x => x.LargusAverageMileage).Column("largus_average_mileage");
 			Map(x => x.TruckAverageMileage).Column("truck_average_mileage");
-			Map(x => x.GazelleAmortisation).Column("gazelle_amortisation");
-			Map(x => x.LargusAmortisation).Column("largus_amortisation");
-			Map(x => x.TruckAmortisation).Column("truck_amortisation");
+			Map(x => x.GazelleAmortisationPerKm).Column("gazelle_amortisation");
+			Map(x => x.LargusAmortisationPerKm).Column("largus_amortisation");
+			Map(x => x.TruckAmortisationPerKm).Column("truck_amortisation");
 			Map(x => x.OperatingExpensesAllGazelles).Column("operating_expenses_all_gazelles");
 			Map(x => x.OperatingExpensesAllLarguses).Column("operating_expenses_all_larguses");
 			Map(x => x.OperatingExpensesAllTrucks).Column("operating_expenses_all_trucks");
 			Map(x => x.AverageMileageAllGazelles).Column("average_mileage_all_gazelles");
 			Map(x => x.AverageMileageAllLarguses).Column("average_mileage_all_larguses");
 			Map(x => x.AverageMileageAllTrucks).Column("average_mileage_all_trucks");
-			Map(x => x.GazelleRepairCost).Column("gazelle_repair_cost");
-			Map(x => x.LargusRepairCost).Column("largus_repair_cost");
-			Map(x => x.TruckRepairCost).Column("truck_repair_cost");
+			Map(x => x.GazelleRepairCostPerKm).Column("gazelle_repair_cost");
+			Map(x => x.LargusRepairCostPerKm).Column("largus_repair_cost");
+			Map(x => x.TruckRepairCostPerKm).Column("truck_repair_cost");
 			Map(x => x.CalculationSaved).Column("calculation_saved");
 			
 			References(x => x.CalculationAuthor).Column("calculation_author_id");

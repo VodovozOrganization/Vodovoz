@@ -77,6 +77,40 @@ namespace Vodovoz.EntityRepositories.Profitability
 
 			return query;
 		}
+
+		/// <summary>
+		/// Ищем ближайшие рассчитанные константы рентабельности относительно даты
+		/// Если есть на нужный месяц - берем их, нет - ищем ближайшие ранние, их нет - ищем ближайшие поздние
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="date">дата для поиска рассчитанных констант</param>
+		/// <returns></returns>
+		public ProfitabilityConstants GetNearestProfitabilityConstantsByDate(IUnitOfWork uow, DateTime date)
+		{
+			var profitabilityConstants = (GetProfitabilityConstantsByCalculatedMonth(uow, date) ??
+			                          GetEarlyProfitabilityConstantsByCalculatedMonth(uow, date)) ??
+			                         GetLateProfitabilityConstantsByCalculatedMonth(uow, date);
+
+			return profitabilityConstants;
+		}
+
+		private ProfitabilityConstants GetEarlyProfitabilityConstantsByCalculatedMonth(IUnitOfWork uow, DateTime date)
+		{
+			return uow.Session.QueryOver<ProfitabilityConstants>()
+				.Where(pc => pc.CalculatedMonth < date)
+				.OrderBy(pc => pc.CalculatedMonth).Desc
+				.Take(1)
+				.SingleOrDefault();
+		}
+		
+		private ProfitabilityConstants GetLateProfitabilityConstantsByCalculatedMonth(IUnitOfWork uow, DateTime date)
+		{
+			return uow.Session.QueryOver<ProfitabilityConstants>()
+				.Where(pc => pc.CalculatedMonth > date)
+				.OrderBy(pc => pc.CalculatedMonth).Asc
+				.Take(1)
+				.SingleOrDefault();
+		}
 	}
 
 	public class AverageMileageCarsByTypeOfUseNode

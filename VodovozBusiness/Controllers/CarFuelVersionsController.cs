@@ -48,6 +48,29 @@ namespace Vodovoz.Controllers
 
 			AddNewVersion(newVersion, startDate.Value);
 		}
+		
+		public bool IsValidDateForVersionStartDateChange(CarFuelVersion version, DateTime newStartDate)
+		{
+			if(version == null)
+			{
+				throw new ArgumentNullException(nameof(version));
+			}
+			if(version.StartDate == newStartDate)
+			{
+				return false;
+			}
+			if(newStartDate >= version.EndDate)
+			{
+				return false;
+			}
+			var previousVersion = GetPreviousVersionOrNull(version);
+			return previousVersion == null || newStartDate > previousVersion.StartDate;
+		}
+
+		public bool IsValidDateForNewCarVersion(DateTime dateTime)
+		{
+			return _carModel.CarFuelVersions.All(x => x.StartDate < dateTime);
+		}
 
 		private void AddNewVersion(CarFuelVersion newCarFuelVersion, DateTime startDate)
 		{
@@ -82,29 +105,6 @@ namespace Vodovoz.Controllers
 				.Where(x => x.StartDate < currentVersion.StartDate)
 				.OrderByDescending(x => x.StartDate)
 				.FirstOrDefault();
-		}
-
-		public bool IsValidDateForVersionStartDateChange(CarFuelVersion version, DateTime newStartDate)
-		{
-			if(version == null)
-			{
-				throw new ArgumentNullException(nameof(version));
-			}
-			if(version.StartDate == newStartDate)
-			{
-				return false;
-			}
-			if(newStartDate >= version.EndDate)
-			{
-				return false;
-			}
-			var previousVersion = GetPreviousVersionOrNull(version);
-			return previousVersion == null || newStartDate > previousVersion.StartDate;
-		}
-
-		public bool IsValidDateForNewCarVersion(DateTime dateTime)
-		{
-			return _carModel.CarFuelVersions.All(x => x.StartDate < dateTime);
 		}
 	}
 }

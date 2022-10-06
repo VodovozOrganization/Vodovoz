@@ -46,7 +46,9 @@ namespace Vodovoz.Domain.Roboats
 		[Display (Name = "Расчет цены заказа")]
 		CalculateOrderPrice,
 		[Display (Name = "Создание заказа")]
-		CreateOrder
+		CreateOrder,
+		[Display (Name = "Закрытие устаревших звонков")]
+		ClosingStaleCalls
 	}
 
 	public class RoboatsCallOperationStringType : EnumStringType<RoboatsCallOperation> { }

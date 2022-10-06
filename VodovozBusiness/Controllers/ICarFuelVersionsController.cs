@@ -12,7 +12,6 @@ namespace Vodovoz.Controllers
 		void CreateAndAddVersion(double fuelConsumption, DateTime? startDate = null);
 		void ChangeVersionStartDate(CarFuelVersion version, DateTime newStartDate);
 		bool IsValidDateForNewCarVersion(DateTime dateTime);
-
 		bool IsValidDateForVersionStartDateChange(CarFuelVersion version, DateTime newStartDate);
 	}
 }

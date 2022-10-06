@@ -1688,7 +1688,17 @@ namespace Vodovoz.JournalColumnsConfigs
 				() => FluentColumnsConfig<BulkEmailEventReasonJournalNode>.Create()
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
-					.AddColumn("Архивный").AddToggleRenderer(node => node.IsArchive)
+					.AddColumn("Архивный").AddToggleRenderer(node => node.IsArchive).Editing(false)
+					.AddColumn("")
+					.Finish()
+			);
+
+			//ResponsibleJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ResponsibleJournalViewModel>(
+				() => FluentColumnsConfig<ResponsibleJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("В архиве").AddToggleRenderer(node => node.IsArchived).Editing(false)
 					.AddColumn("")
 					.Finish()
 			);

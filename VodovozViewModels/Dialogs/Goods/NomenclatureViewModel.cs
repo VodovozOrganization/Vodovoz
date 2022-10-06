@@ -16,6 +16,7 @@ using Vodovoz.Services;
 using Vodovoz.Models;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Goods;
+using QS.Project.Services;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -52,8 +53,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
 
-			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, new NomenclatureCostPurchasePriceModel());
-			NomenclatureInnerDeliveryPricesViewModel = new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel());
+			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, new NomenclatureCostPurchasePriceModel(commonServices.CurrentPermissionService));
+			NomenclatureInnerDeliveryPricesViewModel = new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel(commonServices.CurrentPermissionService));
 			
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();

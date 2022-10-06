@@ -52,9 +52,9 @@ namespace Vodovoz.Domain
 		private int _gazelleAverageMileage;
 		private int _largusAverageMileage;
 		private int _truckAverageMileage;
-		private decimal _gazelleAmortisation;
-		private decimal _largusAmortisation;
-		private decimal _truckAmortisation;
+		private decimal _gazelleAmortisationPerKm;
+		private decimal _largusAmortisationPerKm;
+		private decimal _truckAmortisationPerKm;
 
 		private int _operatingExpensesAllGazelles;
 		private int _operatingExpensesAllLarguses;
@@ -62,9 +62,9 @@ namespace Vodovoz.Domain
 		private int _averageMileageAllGazelles;
 		private int _averageMileageAllLarguses;
 		private int _averageMileageAllTrucks;
-		private decimal _gazelleRepairCost;
-		private decimal _largusRepairCost;
-		private decimal _truckRepairCost;
+		private decimal _gazelleRepairCostPerKm;
+		private decimal _largusRepairCostPerKm;
+		private decimal _truckRepairCostPerKm;
 		private IList<CarEventType> _repairCostCarEventTypeTypesFilter = new List<CarEventType>();
 		private GenericObservableList<CarEventType> _observableRepairCostCarEventTypesFilter;
 
@@ -223,24 +223,24 @@ namespace Vodovoz.Domain
 		}
 
 		[Display(Name = "Амортизация газели на км")]
-		public virtual decimal GazelleAmortisation
+		public virtual decimal GazelleAmortisationPerKm
 		{
-			get => _gazelleAmortisation;
-			set => SetField(ref _gazelleAmortisation, value);
+			get => _gazelleAmortisationPerKm;
+			set => SetField(ref _gazelleAmortisationPerKm, value);
 		}
 
 		[Display(Name = "Амортизация ларгуса на км")]
-		public virtual decimal LargusAmortisation
+		public virtual decimal LargusAmortisationPerKm
 		{
-			get => _largusAmortisation;
-			set => SetField(ref _largusAmortisation, value);
+			get => _largusAmortisationPerKm;
+			set => SetField(ref _largusAmortisationPerKm, value);
 		}
 
 		[Display(Name = "Амортизация фуры на км")]
-		public virtual decimal TruckAmortisation
+		public virtual decimal TruckAmortisationPerKm
 		{
-			get => _truckAmortisation;
-			set => SetField(ref _truckAmortisation, value);
+			get => _truckAmortisationPerKm;
+			set => SetField(ref _truckAmortisationPerKm, value);
 		}
 
 		#endregion
@@ -290,24 +290,24 @@ namespace Vodovoz.Domain
 		}
 
 		[Display(Name = "Стоимость ремонта газели на км")]
-		public virtual decimal GazelleRepairCost
+		public virtual decimal GazelleRepairCostPerKm
 		{
-			get => _gazelleRepairCost;
-			set => SetField(ref _gazelleRepairCost, value);
+			get => _gazelleRepairCostPerKm;
+			set => SetField(ref _gazelleRepairCostPerKm, value);
 		}
 
 		[Display(Name = "Стоимость ремонта ларгуса на км")]
-		public virtual decimal LargusRepairCost
+		public virtual decimal LargusRepairCostPerKm
 		{
-			get => _largusRepairCost;
-			set => SetField(ref _largusRepairCost, value);
+			get => _largusRepairCostPerKm;
+			set => SetField(ref _largusRepairCostPerKm, value);
 		}
 
 		[Display(Name = "Стоимость ремонта фуры на км")]
-		public virtual decimal TruckRepairCost
+		public virtual decimal TruckRepairCostPerKm
 		{
-			get => _truckRepairCost;
-			set => SetField(ref _truckRepairCost, value);
+			get => _truckRepairCostPerKm;
+			set => SetField(ref _truckRepairCostPerKm, value);
 		}
 
 		[Display(Name = "Список фильтров по событиям ТС для стоимости ремонта")]
@@ -443,13 +443,13 @@ namespace Vodovoz.Domain
 
 		public virtual void CalculateAmortisation()
 		{
-			GazelleAmortisation = GazelleAverageMileage != default(int)
+			GazelleAmortisationPerKm = GazelleAverageMileage != default(int)
 				? (decimal)DecreaseGazelleCostFor3Year / _threeYearsInMonths / GazelleAverageMileage
 				: 0;
-			LargusAmortisation = LargusAverageMileage != default(int)
+			LargusAmortisationPerKm = LargusAverageMileage != default(int)
 				? (decimal)DecreaseLargusCostFor3Year / _threeYearsInMonths / LargusAverageMileage
 				: 0;
-			TruckAmortisation = TruckAverageMileage != default(int)
+			TruckAmortisationPerKm = TruckAverageMileage != default(int)
 				? (decimal)DecreaseTruckCostFor3Year / _threeYearsInMonths / TruckAverageMileage
 				: 0;
 		}
@@ -514,13 +514,13 @@ namespace Vodovoz.Domain
 
 		public virtual void CalculateRepairCost()
 		{
-			GazelleRepairCost = AverageMileageAllGazelles != default(int)
+			GazelleRepairCostPerKm = AverageMileageAllGazelles != default(int)
 				? (decimal)OperatingExpensesAllGazelles / AverageMileageAllGazelles
 				: 0;
-			LargusRepairCost = AverageMileageAllLarguses != default(int)
+			LargusRepairCostPerKm = AverageMileageAllLarguses != default(int)
 				? (decimal)OperatingExpensesAllLarguses / AverageMileageAllLarguses
 				: 0;
-			TruckRepairCost = AverageMileageAllTrucks != default(int)
+			TruckRepairCostPerKm = AverageMileageAllTrucks != default(int)
 				? (decimal)OperatingExpensesAllTrucks / AverageMileageAllTrucks
 				: 0;
 		}
