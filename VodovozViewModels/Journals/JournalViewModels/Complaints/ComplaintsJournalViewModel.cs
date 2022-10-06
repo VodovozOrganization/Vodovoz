@@ -58,6 +58,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly IComplaintParametersProvider _complaintParametersProvider;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -92,7 +93,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelector,
 			IEmployeeSettings employeeSettings,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IUndeliveredOrdersRepository undeliveredOrdersRepository,
+			IComplaintParametersProvider complaintParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this._unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this._commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -116,7 +118,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-
+			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
 			TabName = "Журнал рекламаций";
 
 			RegisterComplaints();
@@ -191,6 +193,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintObject complaintObjectAlias = null;
 			ComplaintResultOfCounterparty resultOfCounterpartyAlias = null;
 			ComplaintResultOfEmployees resultOfEmployeesAlias = null;
+			Responsible responsibleAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -254,21 +257,18 @@ namespace Vodovoz.Journals.JournalViewModels
 			var guiltiesProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT " +
 					"CASE ?1 " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Client)}' THEN 'Клиент' " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Depreciation )}' THEN 'Износ' " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет' " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN CONCAT('(',?5,')', ?2)" +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Subdivision)}' THEN ?3 " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Supplier)}' THEN 'Поставщик' " +
-						"ELSE '' " +
-					"END" +
+					$"WHEN '{_complaintParametersProvider.EmployeeResponsibleId}' THEN CONCAT('(',?5,')', ?2)" +
+					$"WHEN '{_complaintParametersProvider.SubdivisionResponsibleId}' THEN ?3 " +
+					$"ELSE ?6 " +
+					"END " +
 					" SEPARATOR ?4)"),
 				NHibernateUtil.String,
-				Projections.Property(() => complaintGuiltyItemAlias.GuiltyType),
+				Projections.Property(() => responsibleAlias.Id),
 				guiltyEmployeeProjection,
 				Projections.Property(() => guiltySubdivisionAlias.ShortName),
 				Projections.Constant("\n"),
-				Projections.Property(() => superspecialAlias.ShortName));
+				Projections.Property(() => superspecialAlias.ShortName),
+				Projections.Property(() => responsibleAlias.Name));
 
 			var finesProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT CONCAT(ROUND(?1, 2), ' р.')  SEPARATOR ?2)"),
@@ -297,7 +297,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Employee, () => guiltyEmployeeAlias)
 				.Left.JoinAlias(() => guiltyEmployeeAlias.Subdivision, () => superspecialAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Subdivision, () => guiltySubdivisionAlias)
-				.Left.JoinAlias(() => complaintKindAlias.ComplaintObject, () => complaintObjectAlias);
+				.Left.JoinAlias(() => complaintKindAlias.ComplaintObject, () => complaintObjectAlias)
+				.Left.JoinAlias(() => complaintGuiltyItemAlias.Responsible, () => responsibleAlias);
 
 			#region Filter
 
@@ -365,26 +366,20 @@ namespace Vodovoz.Journals.JournalViewModels
 						.And(() => discussionAlias.Status == FilterViewModel.ComplaintDiscussionStatus);
 				}
 
-				if (FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
+				if (FilterViewModel.GuiltyItemVM?.Entity?.Responsible != null) {
 					var subquery = QueryOver.Of<ComplaintGuiltyItem>()
-											.Where(g => g.GuiltyType == FilterViewModel.GuiltyItemVM.Entity.GuiltyType.Value);
-					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType) {
-						case ComplaintGuiltyTypes.None:
-						case ComplaintGuiltyTypes.Client:
-						case ComplaintGuiltyTypes.Depreciation:
-						case ComplaintGuiltyTypes.Supplier:
-							break;
-						case ComplaintGuiltyTypes.Employee:
-							if(FilterViewModel.GuiltyItemVM.Entity.Employee != null)
-								subquery.Where(g => g.Employee.Id == FilterViewModel.GuiltyItemVM.Entity.Employee.Id);
-							break;
-						case ComplaintGuiltyTypes.Subdivision:
-							if(FilterViewModel.GuiltyItemVM.Entity.Subdivision != null)
-								subquery.Where(g => g.Subdivision.Id == FilterViewModel.GuiltyItemVM.Entity.Subdivision.Id);
-							break;
-						default:
-							break;
+											.Where(g => g.Responsible.Id == FilterViewModel.GuiltyItemVM.Entity.Responsible.Id);
+
+					if(FilterViewModel.GuiltyItemVM.Entity.Responsible.IsEmployeeResponsible && FilterViewModel.GuiltyItemVM.Entity.Employee != null)
+					{
+						subquery.Where(g => g.Employee.Id == FilterViewModel.GuiltyItemVM.Entity.Employee.Id);
 					}
+
+					if(FilterViewModel.GuiltyItemVM.Entity.Responsible.IsSubdivisionResponsible && FilterViewModel.GuiltyItemVM.Entity.Subdivision != null)
+					{
+						subquery.Where(g => g.Subdivision.Id == FilterViewModel.GuiltyItemVM.Entity.Subdivision.Id);
+					}
+
 					query.WithSubquery.WhereProperty(x => x.Id).In(subquery.Select(x => x.Complaint));
 				}
 
@@ -526,28 +521,22 @@ namespace Vodovoz.Journals.JournalViewModels
 						.And(() => discussionAlias.Status == FilterViewModel.ComplaintDiscussionStatus);
 				}
 
-				if(FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null)
+				if(FilterViewModel.GuiltyItemVM?.Entity?.Responsible != null)
 				{
 					var subquery = QueryOver.Of<ComplaintGuiltyItem>()
-											.Where(g => g.GuiltyType == FilterViewModel.GuiltyItemVM.Entity.GuiltyType.Value);
-					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType)
+						.Where(g => g.Responsible.Id == FilterViewModel.GuiltyItemVM.Entity.Responsible.Id);
+
+
+					if(FilterViewModel.GuiltyItemVM.Entity.Responsible.IsEmployeeResponsible && FilterViewModel.GuiltyItemVM.Entity.Employee != null)
 					{
-						case ComplaintGuiltyTypes.None:
-						case ComplaintGuiltyTypes.Client:
-						case ComplaintGuiltyTypes.Depreciation:
-						case ComplaintGuiltyTypes.Supplier:
-							break;
-						case ComplaintGuiltyTypes.Employee:
-							if(FilterViewModel.GuiltyItemVM.Entity.Employee != null)
-								subquery.Where(g => g.Employee.Id == FilterViewModel.GuiltyItemVM.Entity.Employee.Id);
-							break;
-						case ComplaintGuiltyTypes.Subdivision:
-							if(FilterViewModel.GuiltyItemVM.Entity.Subdivision != null)
-								subquery.Where(g => g.Subdivision.Id == FilterViewModel.GuiltyItemVM.Entity.Subdivision.Id);
-							break;
-						default:
-							break;
+						subquery.Where(g => g.Employee.Id == FilterViewModel.GuiltyItemVM.Entity.Employee.Id);
 					}
+
+					if(FilterViewModel.GuiltyItemVM.Entity.Responsible.IsSubdivisionResponsible && FilterViewModel.GuiltyItemVM.Entity.Subdivision != null)
+					{
+						subquery.Where(g => g.Subdivision.Id == FilterViewModel.GuiltyItemVM.Entity.Subdivision.Id);
+					}
+
 					query.WithSubquery.WhereProperty(x => x.Id).In(subquery.Select(x => x.Complaint));
 				}
 

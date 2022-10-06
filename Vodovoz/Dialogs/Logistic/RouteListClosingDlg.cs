@@ -19,7 +19,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Fuel;
@@ -28,7 +27,6 @@ using QS.Project.Services;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
-using QS.Project.Journal.EntitySelector;
 using QS.Tools;
 using QS.Utilities.Extensions;
 using QS.ViewModels.Extension;
@@ -45,16 +43,15 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Factories;
 using Vodovoz.Tools;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.Models;
-using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz
 {
@@ -66,8 +63,11 @@ namespace Vodovoz
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 		private static readonly IOrderParametersProvider _orderParametersProvider = new OrderParametersProvider(_parametersProvider);
-		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(_parametersProvider);
-
+		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
+			new DeliveryRulesParametersProvider(_parametersProvider);
+		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider =
+			new NomenclatureParametersProvider(_parametersProvider);
+		
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
@@ -78,9 +78,14 @@ namespace Vodovoz
 		private readonly IFuelRepository _fuelRepository = new FuelRepository();
 		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
+		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(_nomenclatureParametersProvider);
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
+			new RouteListProfitabilityController(
+				new RouteListProfitabilityFactory(),
+				_nomenclatureParametersProvider,
+				new ProfitabilityConstantsRepository(),
+				new RouteListProfitabilityRepository());
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 
@@ -805,6 +810,8 @@ namespace Vodovoz
 				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
 				_paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, address.Order);
 			}
+			
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 			
 			UoW.Save();
 

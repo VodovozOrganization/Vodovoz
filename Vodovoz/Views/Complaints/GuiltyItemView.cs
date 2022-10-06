@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.Complaints;
 
@@ -20,8 +21,12 @@ namespace Vodovoz.Views.Complaints
 
 		protected override void ConfigureWidget()
 		{
-			yEnumGuiltyType.ItemsEnum = typeof(ComplaintGuiltyTypes);			
-			yEnumGuiltyType.Binding.AddBinding(ViewModel.Entity, s => s.GuiltyType, w => w.SelectedItemOrNull).InitializeFromSource();
+			yCmbResponsible.SetRenderTextFunc<Responsible>(r => r.Name);
+			yCmbResponsible.Binding
+				.AddBinding(ViewModel, vm => vm.ResponsibleList, w => w.ItemsList)
+				.AddBinding(ViewModel.Entity, e => e.Responsible, w => w.SelectedItem)
+				.InitializeFromSource();
+
 			entVmEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			entVmEmployee.Binding.AddBinding(ViewModel.Entity, e => e.Employee, w => w.Subject).InitializeFromSource();
 			entVmEmployee.Binding.AddBinding(ViewModel, vm => vm.CanChooseEmployee, w => w.Visible).InitializeFromSource();

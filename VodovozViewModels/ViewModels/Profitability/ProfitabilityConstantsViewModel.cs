@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.Profitability
 		private readonly ICarRepository _carRepository;
 		private readonly IProfitabilityConstantsDataViewModelFactory _profitabilityConstantsDataViewModelFactory;
 		private readonly IValidator _validator;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
 		private DelegateCommand _recalculateAndSaveCommand;
 		private ProfitabilityConstantsDataViewModel _constantsDataViewModel;
@@ -45,7 +46,8 @@ namespace Vodovoz.ViewModels.Profitability
 			ICarRepository carRepository,
 			IMonthPickerViewModelFactory monthPickerViewModelFactory,
 			IProfitabilityConstantsDataViewModelFactory profitabilityConstantsDataViewModelFactory,
-			IValidator validator) : base(navigationManager)
+			IValidator validator,
+			IRouteListProfitabilityController routeListProfitabilityController) : base(navigationManager)
 		{
 			if(monthPickerViewModelFactory == null)
 			{
@@ -64,7 +66,9 @@ namespace Vodovoz.ViewModels.Profitability
 				profitabilityConstantsDataViewModelFactory
 					?? throw new ArgumentNullException(nameof(profitabilityConstantsDataViewModelFactory));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
-			
+			_routeListProfitabilityController =
+				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+
 			Initialize(monthPickerViewModelFactory);
 			Title = $"Константы для рентабельности за {Entity.CalculatedMonth:Y}";
 		}
@@ -89,6 +93,8 @@ namespace Vodovoz.ViewModels.Profitability
 				CalculateAdministrativeAndWarehouseExpensesConstants();
 				CalculateAmortisationConstants();
 				CalculateRepairCostConstants();
+
+				_routeListProfitabilityController.RecalculateRouteListProfitabilitiesByCalculatedMonth(UoW, CalculatedMonth);
 
 				Save();
 				ConstantsDataViewModel.FirePropertyChanged(nameof(ConstantsDataViewModel.IsCalculationDateAndAuthorActive));
