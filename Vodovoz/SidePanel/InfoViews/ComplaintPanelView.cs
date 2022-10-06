@@ -11,11 +11,13 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.FilterViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -25,11 +27,13 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly IComplaintsRepository complaintsRepository;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
+		private readonly ComplaintParametersProvider _complaintParametersProvider;
 
-		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository)
+		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository, ComplaintParametersProvider complaintParametersProvider)
 		{
 			this.complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
+			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
 			Build();
 			ConfigureWidget();
 		}
@@ -184,6 +188,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			ComplaintResultOfEmployees resultOfEmployeesAlias = null;
 			QueryNode queryNodeAlias = null;
 			ComplaintDiscussion discussionAlias = null;
+			Responsible responsibleAlias = null;
 
 			var query = InfoProvider.UoW.Session.QueryOver(() => guiltyItemAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
@@ -191,6 +196,7 @@ namespace Vodovoz.SidePanel.InfoViews
 						   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfEmployees, () => resultOfEmployeesAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
+						   .Left.JoinAlias(() => guiltyItemAlias.Responsible, () => responsibleAlias)
 						   .Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
 
 			filter.EndDate = filter.EndDate.Date.AddHours(23).AddMinutes(59);
@@ -240,26 +246,21 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(filter.Employee != null)
 				query = query.Where(() => complaintAlias.CreatedBy.Id == filter.Employee.Id);
 
-			if(filter.GuiltyItemVM?.Entity?.GuiltyType != null) {
+			if(filter.GuiltyItemVM?.Entity?.Responsible != null) 
+			{
 				var subquery = QueryOver.Of<ComplaintGuiltyItem>()
-										.Where(g => g.GuiltyType == filter.GuiltyItemVM.Entity.GuiltyType.Value);
-				switch(filter.GuiltyItemVM.Entity.GuiltyType) {
-					case ComplaintGuiltyTypes.None:
-					case ComplaintGuiltyTypes.Client:
-					case ComplaintGuiltyTypes.Depreciation:
-					case ComplaintGuiltyTypes.Supplier:
-						break;
-					case ComplaintGuiltyTypes.Employee:
-						if(filter.GuiltyItemVM.Entity.Employee != null)
-							subquery.Where(g => g.Employee.Id == filter.GuiltyItemVM.Entity.Employee.Id);
-						break;
-					case ComplaintGuiltyTypes.Subdivision:
-						if(filter.GuiltyItemVM.Entity.Subdivision != null)
-							subquery.Where(g => g.Subdivision.Id == filter.GuiltyItemVM.Entity.Subdivision.Id);
-						break;
-					default:
-						break;
+					.Where(g => g.Responsible.Id == filter.GuiltyItemVM.Entity.Responsible.Id);
+
+				if(filter.GuiltyItemVM.Entity.Responsible.IsEmployeeResponsible && filter.GuiltyItemVM.Entity.Employee != null)
+				{
+					subquery.Where(g => g.Employee.Id == filter.GuiltyItemVM.Entity.Employee.Id);
 				}
+
+				if(filter.GuiltyItemVM.Entity.Responsible.IsSubdivisionResponsible && filter.GuiltyItemVM.Entity.Subdivision != null)
+				{
+					subquery.Where(g => g.Subdivision.Id == filter.GuiltyItemVM.Entity.Subdivision.Id);
+				}
+
 				query.WithSubquery.WhereProperty(() => complaintAlias.Id).In(subquery.Select(x => x.Complaint));
 			}
 
@@ -274,22 +275,29 @@ namespace Vodovoz.SidePanel.InfoViews
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(
 						NHibernateUtil.String,
-						"GROUP_CONCAT(" +
-						"CASE ?1 " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Subdivision)}' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Client)}' THEN 'Клиент' " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Depreciation)}' THEN 'Износ' " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Supplier)}' THEN 'Поставщик' " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет (не рекламация)' " +
-						"ELSE ?1 " +
-						"END " +
-						"ORDER BY ?1 ASC SEPARATOR '\n')"),
+					"GROUP_CONCAT(" +
+					"CASE ?1 " +
+					$"WHEN '{_complaintParametersProvider.EmployeeResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
+					$"WHEN '{_complaintParametersProvider.SubdivisionResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') " +
+					$"ELSE ?4 " +
+					"END " +
+					"ORDER BY ?5 ASC SEPARATOR '\n')"),
 					NHibernateUtil.String,
-					Projections.Property(() => guiltyItemAlias.GuiltyType),
+					Projections.Property(() => responsibleAlias.Id),
 					Projections.Property(() => subdivisionForEmployeeAlias.Name),
-					Projections.Property(() => subdivisionAlias.Name)))
-				.WithAlias(() => queryNodeAlias.GuiltyName))
+					Projections.Property(() => subdivisionAlias.Name),
+					Projections.Property(() => responsibleAlias.Name),
+					Projections.Conditional(
+						Restrictions.EqProperty(Projections.Constant(_complaintParametersProvider.EmployeeResponsibleId), Projections.Property(() => responsibleAlias.Id)),
+						Projections.Property(() => subdivisionForEmployeeAlias.Name),
+						Projections.Conditional(
+							Restrictions.EqProperty(Projections.Constant(_complaintParametersProvider.SubdivisionResponsibleId), Projections.Property(() => responsibleAlias.Id)),
+							Projections.Property(() => subdivisionAlias.Name),
+							Projections.Property(() => responsibleAlias.Name)
+							)
+						)
+					)
+				).WithAlias(() => queryNodeAlias.GuiltyName))
 			.TransformUsing(Transformers.AliasToBean<QueryNode>())
 			.List<QueryNode>();
 

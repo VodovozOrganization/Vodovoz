@@ -27,7 +27,9 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -39,9 +41,10 @@ namespace Vodovoz
 	public partial class RouteListAddressesTransferringDlg : TdiTabBase, ISingleUoWDialog
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
 		private readonly WageParameterService _wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
 		private readonly IRouteListRepository _routeListRepository;
@@ -49,6 +52,12 @@ namespace Vodovoz
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
 		private readonly ICategoryRepository _categoryRepository;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
+			new RouteListProfitabilityController(
+				new RouteListProfitabilityFactory(),
+				new NomenclatureParametersProvider(_parametersProvider),
+				new ProfitabilityConstantsRepository(),
+				new RouteListProfitabilityRepository());
 
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceFrom { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceTo { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
@@ -440,8 +449,10 @@ namespace Vodovoz
 
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(_wageParameterService);
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeListFrom);
 				routeListTo.CalculateWages(_wageParameterService);
-				
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeListTo);
+					
 				item.RecalculateTotalCash();
 				newItem.RecalculateTotalCash();
 
@@ -546,6 +557,7 @@ namespace Vodovoz
 				}
 
 				address.RouteList.CalculateWages(_wageParameterService);
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, address.RouteList);
 				address.RecalculateTotalCash();
 
 				UoW.Save(address.RouteList);

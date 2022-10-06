@@ -16,8 +16,6 @@ namespace Vodovoz.ViewModels.Infrastructure.Print
 		DailyList,
 		[Display(Name = "Лист времени")]
 		TimeList,
-		[Display(Name = "Документ погрузки")]
-		LoadDocument,
 		[Display(Name = "Отчёт по порядку адресов")]
 		OrderOfAddresses
 	}

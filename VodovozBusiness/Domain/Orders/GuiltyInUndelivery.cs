@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain.Orders
 				PrepositionalPlural = "ответственных в недовозе"
 			   )
 	]
-
+	[HistoryTrace]
 	public class GuiltyInUndelivery : BusinessObjectBase<GuiltyInUndelivery>, IDomainObject
 	{
 		#region Свойства

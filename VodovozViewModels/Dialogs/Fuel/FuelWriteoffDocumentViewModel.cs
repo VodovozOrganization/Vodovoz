@@ -8,15 +8,14 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -26,13 +25,14 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelWriteoffDocumentViewModel : EntityTabViewModelBase<FuelWriteoffDocument>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly IEmployeeService employeeService;
-		private readonly IFuelRepository fuelRepository;
-		private readonly ISubdivisionRepository subdivisionRepository;
-		private readonly ICommonServices commonServices;
-		private readonly IReportViewOpener reportViewOpener;
-		public IExpenseCategorySelectorFactory ExpenseSelectorFactory { get; }
+		private readonly IEmployeeService _employeeService;
+		private readonly IFuelRepository _fuelRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IReportViewOpener _reportViewOpener;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+
+		private Employee _currentEmployee;
+		private FuelBalanceViewModel _fuelBalanceViewModel;
 
 		public FuelWriteoffDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -44,17 +44,16 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IEmployeeJournalFactory employeeJournalFactory,
 			IReportViewOpener reportViewOpener,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IExpenseCategorySelectorFactory expenseCategorySelectorFactory
-		)
-		: base(uoWBuilder, unitOfWorkFactory, commonServices)
+			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
+			IRouteListProfitabilityController routeListProfitabilityController) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+			_routeListProfitabilityController =
+				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			ExpenseSelectorFactory =
 				expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
@@ -75,24 +74,24 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ValidationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
 			ConfigureEntries();
 		}
+		
+		public IExpenseCategorySelectorFactory ExpenseSelectorFactory { get; }
 
-		private Employee currentEmployee;
 		public Employee CurrentEmployee {
 			get {
-				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+				if(_currentEmployee == null) {
+					_currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
-				return currentEmployee;
+				return _currentEmployee;
 			}
 		}
 
-		private FuelBalanceViewModel fuelBalanceViewModel;
 		public FuelBalanceViewModel FuelBalanceViewModel {
 			get {
-				if(fuelBalanceViewModel == null) {
-					fuelBalanceViewModel = new FuelBalanceViewModel(subdivisionRepository, fuelRepository);
+				if(_fuelBalanceViewModel == null) {
+					_fuelBalanceViewModel = new FuelBalanceViewModel(_subdivisionRepository, _fuelRepository);
 				}
-				return fuelBalanceViewModel;
+				return _fuelBalanceViewModel;
 			}
 		}
 
@@ -117,7 +116,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
         }
 
 		public bool CanEdit => true;
-		public bool CanEditDate => CanEdit && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_fuelwriteoff_document_date");
+		public bool CanEditDate => CanEdit && CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_fuelwriteoff_document_date");
 
 		public decimal GetAvailableLiters(FuelType fuelType)
 		{
@@ -134,7 +133,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 					}
 				}
 			}
-			return fuelRepository.GetFuelBalanceForSubdivision(UoW, Entity.CashSubdivision, fuelType) + existedLiters;
+			return _fuelRepository.GetFuelBalanceForSubdivision(UoW, Entity.CashSubdivision, fuelType) + existedLiters;
 		}
 
 		#region Настройка списков доступных подразделений кассы
@@ -143,7 +142,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		private void UpdateCashSubdivisions()
 		{
-			AvailableSubdivisions = subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser);
+			AvailableSubdivisions = _subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser);
 			if(AvailableSubdivisions.Contains(CurrentEmployee.Subdivision)) {
 				Entity.CashSubdivision = CurrentEmployee.Subdivision;
 			}
@@ -169,11 +168,14 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			AddWriteoffItemCommand = new DelegateCommand(
 				() => {
 					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
-						() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices),
-						(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
+						() =>
+							new FuelTypeViewModel(
+								EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices, _routeListProfitabilityController),
+						(node) =>
+							new FuelTypeViewModel(
+								EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices, _routeListProfitabilityController),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						commonServices
-					);
+						CommonServices);
 					fuelTypeJournalViewModel.SetRestriction(() => {
 						return Restrictions.Not(Restrictions.In(Projections.Id(), Entity.ObservableFuelWriteoffDocumentItems.Select(x => x.FuelType.Id).ToArray()));
 					});
@@ -186,7 +188,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 						Entity.AddNewWriteoffItem(UoW.GetById<FuelType>(node.Id));
 					};
 
-					var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
+					var fuelTypePermissionSet = CommonServices.PermissionService.ValidateUserPermission(typeof(FuelType), UserService.CurrentUserId);
 					if(fuelTypePermissionSet.CanRead && !fuelTypePermissionSet.CanUpdate)
 					{
 						var viewAction = new JournalAction("Просмотр",
@@ -228,7 +230,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 						Parameters = new Dictionary<string, object> { { "document_id", Entity.Id } }
 					};
 
-					reportViewOpener.OpenReport(this, reportInfo);
+					_reportViewOpener.OpenReport(this, reportInfo);
 				},
 				() => Entity.Id != 0
 			);

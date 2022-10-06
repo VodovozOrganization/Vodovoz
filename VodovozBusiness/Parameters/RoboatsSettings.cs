@@ -33,6 +33,16 @@ namespace Vodovoz.Parameters
 			}
 		}
 
-		public int NewCallTimeout => _parametersProvider.GetIntValue("roboats_new_call_timeout");
+		/// <summary>
+		/// Время в течении которого звонок является активным, 
+		/// по истечении которого звонок будет считаться устаревшим 
+		/// и будет закрыть при следующей проверке устаревших звонков
+		/// </summary>
+		public int CallTimeout => _parametersProvider.GetIntValue("roboats_call_timeout");
+		
+		/// <summary>
+		/// Интервал проверки устаревших звонков (в минутах)
+		/// </summary>
+		public int StaleCallCheckInterval => _parametersProvider.GetIntValue("roboats_stale_calls_check_interval");
 	}
 }

@@ -14,20 +14,22 @@ namespace RoboAtsService.Requests
 
 		public GetRequestHandlerBase GetHandler(RequestDto request)
 		{
+			var requestParameter = new TypedParameter(request.GetType(), request);
+
 			switch(request.RequestType)
 			{
 				case RoboatsRequestType.Address:
-					return _scope.Resolve<AddressHandler>(new TypedParameter(request.GetType(), request));
+					return _scope.Resolve<AddressHandler>(requestParameter);
 				case RoboatsRequestType.LastOrder:
-					return _scope.Resolve<LastOrderHandler>(new TypedParameter(request.GetType(), request));
+					return _scope.Resolve<LastOrderHandler>(requestParameter);
 				case RoboatsRequestType.Order:
-					return _scope.Resolve<OrderHandler>(new TypedParameter(request.GetType(), request));
+					return _scope.Resolve<OrderHandler>(requestParameter);
 				case RoboatsRequestType.ClientCheck:
-					return _scope.Resolve<ClientCheckHandler>(new TypedParameter(request.GetType(), request));
+					return _scope.Resolve<ClientCheckHandler>(requestParameter);
 				case RoboatsRequestType.DateTime:
-					return _scope.Resolve<DeliveryIntervalsHandler>(new TypedParameter(request.GetType(), request));
+					return _scope.Resolve<DeliveryIntervalsHandler>(requestParameter);
 				case RoboatsRequestType.WaterType:
-					return _scope.Resolve<WaterTypeHandler>(new TypedParameter(request.GetType(), request));
+					return _scope.Resolve<WaterTypeHandler>(requestParameter);
 				default:
 					return null;
 			}

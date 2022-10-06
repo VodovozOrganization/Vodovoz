@@ -3345,8 +3345,8 @@ WHERE o.id = @order_id
             <Width>185.19pt</Width>
             <Value>Количество сданной пустой тары</Value>
             <ZIndex>1</ZIndex>
-            <Left>7.2pt</Left>
-            <Top>80.3pt</Top>
+            <Left>7.20pt</Left>
+            <Top>80.30pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -4197,7 +4197,7 @@ WHERE o.id = @order_id
               <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
-          <Image Name="Image6" >
+          <Image Name="Image6">
             <Height>53.45pt</Height>
             <Width>72.30pt</Width>
             <Left>131.2pt</Left>
@@ -4211,12 +4211,15 @@ WHERE o.id = @order_id
             <Source>Database</Source>
             <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>FitProportional</Sizing>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
           </Image>
-          <Image Name="Image4" >
+          <Image Name="Image4">
             <Height>54.95pt</Height>
             <Width>66.25pt</Width>
-            <Left>136.5pt</Left>
-            <Top>84.4pt</Top>
+            <Left>136.50pt</Left>
+            <Top>84.40pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -4226,12 +4229,15 @@ WHERE o.id = @order_id
             <Source>Database</Source>
             <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>FitProportional</Sizing>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
           </Image>
-          <Image Name="Image1" >
+          <Image Name="Image1">
             <Height>45.94pt</Height>
             <Width>45.20pt</Width>
-            <Left>288.1pt</Left>
-            <Top>0.0pt</Top>
+            <Left>288.10pt</Left>
+            <Top>0.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -4241,12 +4247,15 @@ WHERE o.id = @order_id
             <Source>Database</Source>
             <Value>=First({chief}, "Signatures" )</Value>
             <Sizing>FitProportional</Sizing>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
           </Image>
-          <Image Name="Image2" >
+          <Image Name="Image2">
             <Height>33.15pt</Height>
             <Width>45.97pt</Width>
-            <Left>603.8pt</Left>
-            <Top>0.0pt</Top>
+            <Left>603.80pt</Left>
+            <Top>0.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -4256,6 +4265,28 @@ WHERE o.id = @order_id
             <Source>Database</Source>
             <Value>=First({bookkeeper}, "Signatures" )</Value>
             <Sizing>FitProportional</Sizing>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+          </Image>
+          <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>102.39pt</Height>
+            <Width>112.93pt</Width>
+            <Left>251.8pt</Left>
+            <Top>90.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {image} , "Stamp" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/png</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <ZIndex>20</ZIndex>
           </Image>
         </ReportItems>
         <Style>

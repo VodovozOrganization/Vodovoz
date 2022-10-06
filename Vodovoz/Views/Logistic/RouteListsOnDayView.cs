@@ -28,6 +28,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Gamma.Binding.Core.LevelTreeConfig;
+using Vodovoz.ViewModels.Dialogs.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -104,6 +105,7 @@ namespace Vodovoz.Views.Logistic
 					.AddColumn("Маркер").AddPixbufRenderer(x => GetRowMarker(x))
 					.AddColumn("МЛ/Адрес").AddTextRenderer(x => ViewModel.GetRowTitle(x))
 					.AddColumn("Адр./Время").AddTextRenderer(x => ViewModel.GetRowTime(x), useMarkup: true)
+					.AddColumn("Смена").AddTextRenderer(x => ViewModel.GetRowDeliveryShift(x), useMarkup: true)
 					.AddColumn("План").AddTextRenderer(x => ViewModel.GetRowPlanTime(x), useMarkup: true)
 					.AddColumn("Бутылей").AddTextRenderer(x => ViewModel.GetRowBottles(x), useMarkup: true)
 					.AddColumn("Бут. 6л").AddTextRenderer(x => ViewModel.GetRowBottlesSix(x))
@@ -150,6 +152,12 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Тип адресов").AddTextRenderer(x => x.Title)
 				.Finish();
 			ytreeviewAddressesTypes.ItemsDataSource = ViewModel.OrderAddressTypes;
+
+			ytreeviewShift.ColumnsConfig = FluentColumnsConfig<DeliveryShiftNode>.Create()
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.AddColumn("Смены").AddTextRenderer(x => x.Title)
+				.Finish();
+			ytreeviewShift.ItemsDataSource = ViewModel.DeliveryShiftNodes;
 
 
 			buttonAddDriver.Clicked += (sender, e) => ViewModel.AddDriverCommand.Execute();

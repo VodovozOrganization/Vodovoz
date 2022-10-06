@@ -47,7 +47,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarVersionsViewModelFactory carVersionsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
-			IGeographicGroupParametersProvider geographicGroupParametersProvider,
 			GeoGroupJournalFactory geoGroupJournalFactory,
 			INavigationManager navigationManager)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
@@ -73,9 +72,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				_canChangeBottlesFromAddressPermissionName,
 				commonServices.UserService.CurrentUserId
 			);
-			EastGeographicGroupId =
-				(geographicGroupParametersProvider ?? throw new ArgumentNullException(nameof(geographicGroupParametersProvider)))
-				.EastGeographicGroupId;
 
 			CanEditCarModel = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanUpdate;
 			CanChangeCarModel = Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_model");
@@ -109,7 +105,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => SetField(ref _attachmentsViewModel, value);
 		}
 
-		public int EastGeographicGroupId { get; }
 		public bool CanEditCarModel { get; }
 		public bool CanChangeCarModel { get; }
 		public bool CanEditFuelCardNumber { get; }

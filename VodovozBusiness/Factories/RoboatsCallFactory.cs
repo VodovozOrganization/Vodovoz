@@ -5,12 +5,13 @@ namespace Vodovoz.Factories
 {
 	public class RoboatsCallFactory : IRoboatsCallFactory
 	{
-		public RoboatsCall GetNewRoboatsCall(string phone)
+		public RoboatsCall GetNewRoboatsCall(string phone, Guid callGuid)
 		{
 			return new RoboatsCall
 			{
 				Phone = phone,
-				CallTime = DateTime.Now
+				CallTime = DateTime.Now,
+				CallGuid = callGuid
 			};
 		}
 
