@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{1D1C364D-67D3-4117-AAE8-87E514103CB5}</ProjectGuid>
+    <ProjectGuid>{38197479-A948-4B1B-B429-0196028EB516}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>VodovozSmsInformerService</RootNamespace>
     <AssemblyName>VodovozSmsInformerService</AssemblyName>
@@ -89,15 +89,15 @@
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Library\SmsRuSendService\SmsRuSendService.csproj">
+    <ProjectReference Include="..\..\..\..\..\Services\Library\SmsRuSendService\SmsRuSendService.csproj">
       <Project>{9083162f-81a6-49b3-a2d6-f355d62ec5c2}</Project>
       <Name>SmsRuSendService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Library\SmsSendInterface\SmsSendInterface.csproj">
+    <ProjectReference Include="..\..\..\..\..\Services\Library\SmsSendInterface\SmsSendInterface.csproj">
       <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
       <Name>SmsSendInterface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
+    <ProjectReference Include="..\..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>

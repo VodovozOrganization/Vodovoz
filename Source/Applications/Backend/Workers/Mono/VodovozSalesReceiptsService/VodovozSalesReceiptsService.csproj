@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{F376C449-38BB-4B8B-AF44-752C6F6FA70A}</ProjectGuid>
+    <ProjectGuid>{3984F490-FC04-4EF7-893A-2A7743BF56E7}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>VodovozSalesReceiptsService</RootNamespace>
     <AssemblyName>VodovozSalesReceiptsService</AssemblyName>
@@ -83,10 +83,7 @@
     <None Include="Docs\API автоматической фискализации чеков интернет-магазинов %28ver.1.4%29.pdf" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DTO\" />
-    <Folder Include="Docs\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
@@ -112,7 +109,7 @@
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
+    <ProjectReference Include="..\..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
