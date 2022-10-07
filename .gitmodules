@@ -1,0 +1,3 @@
+[submodule "Source/Libraries/External/GMap.NET"]
+	path = Source/Libraries/External/GMap.NET
+	url = https://github.com/QualitySolution/GMap.NET.git
