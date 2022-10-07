@@ -1,27 +1,20 @@
 ﻿#!/bin/bash
 
 echo "Какие службы необходимо обновить?"
-echo "1) Driver"
-echo "2) Email"
-echo "3) Mobile"
-echo "4) OSM"
-echo "5) SmsInformer"
-echo "6) ModulKassa (SalesReceipts)"
-echo "7) InstantSms"
-echo "8) DeliveryRules"
-echo "9) SmsPayment"
-echo "10) Mango"
+echo "1) SmsInformer"
+echo "2) ModulKassa (SalesReceipts)"
+echo "3) InstantSms"
+echo "4) DeliveryRules"
+echo "5) SmsPayment"
+echo "6) Mango"
 
-echo "Можно вызывать вместе, перечислив номера через запятую, например Driver+Email=1,2"
+echo "Можно вызывать вместе, перечислив номера через запятую, например SmsInformer+ModulKassa=1,2"
 read service;
 
 echo "Какую сборку использовать?"
 echo "1) Release"
 echo "2) Debug"
 read build;
-
-emailServiceFolder="VodovozEmailService"
-emailServiceName="vodovoz-email.service"
 
 smsServiceFolder="VodovozSmsInformerService"
 smsServiceName="vodovoz-smsinformer.service"
@@ -55,7 +48,7 @@ case $build in
 esac
 
 function DeleteHttpDll {
-	deletedFilePath="./Application/$1/bin/$buildFolderName/System.Net.Http.dll"
+	deletedFilePath="./$1/$2/bin/$buildFolderName/System.Net.Http.dll"
 
 	echo "-- Delete incorrect generated files: $deletedFilePath"
 
@@ -65,30 +58,16 @@ function DeleteHttpDll {
 }
 
 function CopyFiles {
-	rsync -vizaP --delete -e "ssh -p $serverPort" ./Application/$1/bin/$buildFolderName/ $serverAddress:/opt/$1
+	rsync -vizaP --delete -e "ssh -p $serverPort" ./$1/$2/bin/$buildFolderName/ $serverAddress:/opt/$2
 }
 
 function CopyFilesPublished {
-	rsync -vizaP --delete -e "ssh -p $serverPort" WebApi/$1/bin/$buildFolderName/$2/publish/ $serverAddress:/opt/$1
+	rsync -vizaP --delete -e "ssh -p $serverPort" $1/$2/bin/$buildFolderName/$3/publish/ $serverAddress:/opt/$2
 }
 
 function PublishProject {
-    dotnet build "WebApi/$1" --configuration $buildFolderName
-    dotnet publish "WebApi/$1" --configuration $buildFolderName
-}
-
-function UpdateEmailService {
-	printf "\nОбновление службы отправки электронной почты\n"
-
-	echo "-- Stoping $emailServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $emailServiceName	
-
-	echo "-- Copying $emailServiceName files"
-	DeleteHttpDll $emailServiceFolder
-	CopyFiles $emailServiceFolder
-
-	echo "-- Starting $emailServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $emailServiceName
+    dotnet build "$1/$2" --configuration $buildFolderName
+    dotnet publish "$1/$2" --configuration $buildFolderName
 }
 
 function UpdateSMSInformerService {
@@ -98,8 +77,8 @@ function UpdateSMSInformerService {
 	ssh $serverAddress -p$serverPort sudo systemctl stop $smsServiceName
 
 	echo "-- Copying $smsServiceName files"
-	DeleteHttpDll $smsServiceFolder
-	CopyFiles $smsServiceFolder
+	DeleteHttpDll "Workers\Mono" $smsServiceFolder
+	CopyFiles "Workers\Mono" $smsServiceFolder
 
 	echo "-- Starting $smsServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $smsServiceName
@@ -112,8 +91,8 @@ function UpdateSalesReceiptsService {
 	ssh $serverAddress -p$serverPort sudo systemctl stop $kassaServiceName
 
 	echo "-- Copying $kassaServiceName files"
-	DeleteHttpDll $kassaServiceFolder
-	CopyFiles $kassaServiceFolder
+	DeleteHttpDll "Workers\Mono" $kassaServiceFolder
+	CopyFiles "Workers\Mono" $kassaServiceFolder
 
 	echo "-- Starting $kassaServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $kassaServiceName
@@ -126,8 +105,8 @@ function UpdateInstantSmsService {
 	ssh $serverAddress -p$serverPort sudo systemctl stop $instantSmsServiceName
 
 	echo "-- Copying $instantSmsServiceName files"
-	DeleteHttpDll $instantSmsServiceFolder
-	CopyFiles $instantSmsServiceFolder
+	DeleteHttpDll "WCF" $instantSmsServiceFolder
+	CopyFiles "WCF" $instantSmsServiceFolder
 
 	echo "-- Starting $instantSmsServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $instantSmsServiceName
@@ -140,8 +119,8 @@ function UpdateDeliveryRulesService {
 	ssh $serverAddress -p$serverPort sudo systemctl stop $deliveryRulesServiceName
 
 	echo "-- Copying $deliveryRulesServiceName files"
-	DeleteHttpDll $deliveryRulesServiceFolder
-	CopyFiles $deliveryRulesServiceFolder
+	DeleteHttpDll "WCF" $deliveryRulesServiceFolder
+	CopyFiles "WCF" $deliveryRulesServiceFolder
 
 	echo "-- Starting $deliveryRulesServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $deliveryRulesServiceName
@@ -154,8 +133,8 @@ function UpdateSmsPaymentService {
 	ssh $serverAddress -p$serverPort sudo systemctl stop $smsPaymentServiceName
 
 	echo "-- Copying $smsPaymentServiceName files"
-	DeleteHttpDll $smsPaymentServiceFolder
-	CopyFiles $smsPaymentServiceFolder
+	DeleteHttpDll "WCF" $smsPaymentServiceFolder
+	CopyFiles "WCF" $smsPaymentServiceFolder
 
 	echo "-- Starting $smsPaymentServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $smsPaymentServiceName
@@ -164,14 +143,14 @@ function UpdateSmsPaymentService {
 function UpdateMangoService {
 	printf "\nОбновление службы работы с Mango\n"
 
-  	PublishProject $mangoServiceFolder
+  	PublishProject "WebAPI" $mangoServiceFolder
 
 	ssh $serverAddress -p$serverPort sudo systemctl stop $mangoServiceName
 	echo "-- Stoping $mangoServiceName"
 
 	echo "-- Copying $mangoServiceName files"
 	
-	CopyFilesPublished $mangoServiceFolder "netcoreapp3.1"
+	CopyFilesPublished "WebAPI" $mangoServiceFolder "netcoreapp3.1"
 
 	echo "-- Starting $mangoServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $mangoServiceName
@@ -179,25 +158,22 @@ function UpdateMangoService {
 
 service2=",$service,"
 case $service2 in
-	*,2,*)
-		UpdateEmailService
-	;;&
-	*,5,*)
+	*,1,*)
 		UpdateSMSInformerService
 	;;&
-	*,6,*)
+	*,2,*)
 		UpdateSalesReceiptsService
 	;;&
-	*,7,*)
+	*,3,*)
 		UpdateInstantSmsService
 	;;&
-	*,8,*)
+	*,4,*)
 		UpdateDeliveryRulesService
 	;;&
-	*,9,*)
+	*,5,*)
 		UpdateSmsPaymentService
 	;;&
-	*,10,*)
+	*,6,*)
 		UpdateMangoService
 	;;
 esac
