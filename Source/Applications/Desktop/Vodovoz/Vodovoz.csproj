@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{FBD0A975-C275-4C43-9840-9D96C4E4EB21}</ProjectGuid>
+    <ProjectGuid>{1F969619-5B74-497A-8C8F-F1C01BB57BBA}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Vodovoz</RootNamespace>
     <AssemblyName>Vodovoz</AssemblyName>
@@ -1846,39 +1846,39 @@
       <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
       <Name>QSDocTemplates</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
       <Project>{3577DB0C-38BF-4CC8-80EB-06C767905B4D}</Project>
       <Name>Mailjet.Api.Abstractions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\MangoController\MangoController.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\MangoController\MangoController.csproj">
       <Project>{aa37ab03-e6be-49a2-9b86-e42ef346b245}</Project>
       <Name>MangoController</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
       <Project>{57A169A7-24A1-4FF3-9FD6-F7882F85463E}</Project>
       <Name>RabbitMQ.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj">
       <Project>{40259BF2-A07C-403F-8513-080F868BE30B}</Project>
       <Name>RabbitMQ.EmailSending</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\ApiClientProvider\ApiClientProvider.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\ApiClientProvider\ApiClientProvider.csproj">
       <Project>{9a2014ab-cc9a-4f28-a678-f2eff3ab927a}</Project>
       <Name>ApiClientProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\FiasService\Fias.Service.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\FiasService\Fias.Service.csproj">
       <Project>{c90274e4-4bdd-41a1-9a9f-576e16a0a236}</Project>
       <Name>Fias.Service</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\ClientMangoService\ClientMangoService.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\ClientMangoService\ClientMangoService.csproj">
       <Project>{892519ba-d891-43b6-971c-6415ea4d14e5}</Project>
       <Name>ClientMangoService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
+    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
@@ -1926,11 +1926,11 @@
       <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
       <Name>QS.HistoryLog</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
+    <ProjectReference Include="..\..\..\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
       <Project>{f07f6926-f868-44f4-a9b9-3a366d41281c}</Project>
       <Name>VodovozFiasWidgets</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VodovozReports\VodovozReports.csproj">
+    <ProjectReference Include="..\..\..\VodovozReports\VodovozReports.csproj">
       <Project>{6321194c-7a91-4c91-abae-46941feced3c}</Project>
       <Name>VodovozReports</Name>
     </ProjectReference>
@@ -1946,11 +1946,11 @@
       <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
       <Name>QS.BusinessCommon</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\InstantSmsService\InstantSmsService.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\InstantSmsService\InstantSmsService.csproj">
       <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
       <Name>InstantSmsService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
+    <ProjectReference Include="..\..\..\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
@@ -2038,7 +2038,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="toolbars\car_service.xml" />
-	<EmbeddedResource Include="toolbars\sales_department.xml" />
+    <EmbeddedResource Include="toolbars\sales_department.xml" />
     <EmbeddedResource Include="icons\map\points\overduecircle\black.png" />
     <EmbeddedResource Include="icons\map\points\overduecircle\black_and_red.png" />
     <EmbeddedResource Include="icons\map\points\overduecircle\blue.png" />

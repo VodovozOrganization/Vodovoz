@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EF73674E-B8D5-461B-A072-AC73231C82B2}</ProjectGuid>
+    <ProjectGuid>{6E56E39A-F886-4645-98E1-8619F75F7AEA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Vodovoz.ViewModels</RootNamespace>
     <AssemblyName>VodovozViewModels</AssemblyName>
@@ -574,23 +574,23 @@
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\FiasService\Fias.Service.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\FiasService\Fias.Service.csproj">
       <Project>{C90274E4-4BDD-41A1-9A9F-576E16A0A236}</Project>
       <Name>Fias.Service</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
       <Project>{3577DB0C-38BF-4CC8-80EB-06C767905B4D}</Project>
       <Name>Mailjet.Api.Abstractions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
       <Project>{57A169A7-24A1-4FF3-9FD6-F7882F85463E}</Project>
       <Name>RabbitMQ.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj">
+    <ProjectReference Include="..\..\..\Services\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj">
       <Project>{40259BF2-A07C-403F-8513-080F868BE30B}</Project>
       <Name>RabbitMQ.EmailSending</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
+    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
@@ -614,7 +614,7 @@
       <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
       <Name>QS.BusinessCommon</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
+    <ProjectReference Include="..\..\..\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
