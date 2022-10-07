@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{022DD59D-0EEE-420F-9750-EB275772F56A}</ProjectGuid>
+    <ProjectGuid>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Vodovoz</RootNamespace>
     <AssemblyName>VodovozBusiness</AssemblyName>
@@ -1299,7 +1299,7 @@
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
+    <ProjectReference Include="..\..\..\..\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{dd740ae7-7854-40c6-b9f6-2f70a5e1caac}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>

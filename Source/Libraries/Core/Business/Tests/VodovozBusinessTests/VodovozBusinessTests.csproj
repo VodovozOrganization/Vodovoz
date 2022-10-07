@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A4C461CA-032D-4AE8-ABEB-0D7EBA95FCBB}</ProjectGuid>
+    <ProjectGuid>{16E8EBF7-5F39-4FC9-A5A3-2E93E4BAB9B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>VodovozBusinessTests</RootNamespace>
     <AssemblyName>VodovozBusinessTests</AssemblyName>
@@ -43,25 +43,7 @@
     <Reference Include="mscorlib" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Employees\" />
-    <Folder Include="Counterparties\" />
-    <Folder Include="Goods\" />
-    <Folder Include="Deletion\" />
-    <Folder Include="Domain\" />
-    <Folder Include="Domain\Fuel\" />
-    <Folder Include="Domain\Orders\" />
-    <Folder Include="Domain\Logistic\" />
-    <Folder Include="Domain\Client\" />
-    <Folder Include="Domain\Payments\" />
-    <Folder Include="Domain\Goods\" />
-    <Folder Include="Domain\Documents\" />
-    <Folder Include="Domain\WageCalculation\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
-    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\" />
-    <Folder Include="ErrorReporting\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
     <Compile Include="Domain\NomenclatureFixedPriceControllerTests.cs" />
@@ -121,7 +103,7 @@
       <Project>{EFE73102-83BC-4036-8642-D3A4121E8351}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
+    <ProjectReference Include="..\..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>

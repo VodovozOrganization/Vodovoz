@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ProjectGuid>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</ProjectGuid>
+    <ProjectGuid>{42EFC426-2C88-4608-8191-DBCA4172A695}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>VodovozInfrastructure</RootNamespace>
     <AssemblyName>VodovozInfrastructure</AssemblyName>

@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F07F6926-F868-44F4-A9B9-3A366D41281C}</ProjectGuid>
+    <ProjectGuid>{49241DDD-3E0B-4944-9B3F-89F0C42E9E6D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VodovozFiasWidgets</RootNamespace>
