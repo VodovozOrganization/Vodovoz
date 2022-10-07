@@ -181,7 +181,7 @@ def PrepareSources(jenkinsHome) {
 		branches: scm.branches,
 		extensions: scm.extensions 
 		+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
+		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]]
 		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
 		userRemoteConfigs: scm.userRemoteConfigs
 	])
