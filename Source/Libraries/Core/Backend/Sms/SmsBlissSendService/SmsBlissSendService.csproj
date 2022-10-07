@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6A2E255D-4702-4955-9C8C-80AD435EF217}</ProjectGuid>
+    <ProjectGuid>{B921A477-3886-4EF9-B0A8-431C8FEF5CDF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>SmsBlissSendService</RootNamespace>
     <AssemblyName>SmsBlissSendService</AssemblyName>

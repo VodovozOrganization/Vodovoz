@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EFE73102-83BC-4036-8642-D3A4121E8351}</ProjectGuid>
+    <ProjectGuid>{CA429421-2CCE-4F9F-8DCE-379583AB297C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SmsPaymentService</RootNamespace>
@@ -82,7 +82,7 @@
       <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
       <Name>InstantSmsService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
+    <ProjectReference Include="..\..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
