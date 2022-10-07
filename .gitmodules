@@ -4,3 +4,6 @@
 [submodule "Source/Libraries/External/Gtk.DataBindings"]
 	path = Source/Libraries/External/Gtk.DataBindings
 	url = https://github.com/QualitySolution/Gtk.DataBindings.git
+[submodule "Source/Libraries/External/My-FyiReporting"]
+	path = Source/Libraries/External/My-FyiReporting
+	url = https://github.com/QualitySolution/My-FyiReporting.git
