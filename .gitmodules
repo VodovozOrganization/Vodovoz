@@ -7,3 +7,6 @@
 [submodule "Source/Libraries/External/My-FyiReporting"]
 	path = Source/Libraries/External/My-FyiReporting
 	url = https://github.com/QualitySolution/My-FyiReporting.git
+[submodule "Source/Libraries/External/QSProjects"]
+	path = Source/Libraries/External/QSProjects
+	url = https://github.com/QualitySolution/QSProjects.git
