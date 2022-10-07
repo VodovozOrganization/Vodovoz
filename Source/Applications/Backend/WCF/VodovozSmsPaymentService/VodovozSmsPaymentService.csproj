@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3E59815C-13C7-4BD2-83EE-F15750BA572C}</ProjectGuid>
+    <ProjectGuid>{CCFDEEEA-1D01-430E-A127-A0AAA09BC884}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VodovozSmsPaymentService</RootNamespace>
@@ -86,11 +86,11 @@
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
+    <ProjectReference Include="..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Library\SmsPaymentService\SmsPaymentService.csproj">
+    <ProjectReference Include="..\..\..\..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{EFE73102-83BC-4036-8642-D3A4121E8351}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>

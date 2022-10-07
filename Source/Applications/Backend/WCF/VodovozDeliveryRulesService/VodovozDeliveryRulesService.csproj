@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DEB1F847-253D-4FB1-BB7C-2D7F5F110322}</ProjectGuid>
+    <ProjectGuid>{10D2275E-8866-4072-8204-533C42652809}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>VodovozDeliveryRulesService</RootNamespace>
     <AssemblyName>VodovozDeliveryRulesService</AssemblyName>
@@ -90,11 +90,11 @@
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
+    <ProjectReference Include="..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Library\FiasService\Fias.Service.csproj">
+    <ProjectReference Include="..\..\..\..\Services\Library\FiasService\Fias.Service.csproj">
       <Project>{C90274E4-4BDD-41A1-9A9F-576E16A0A236}</Project>
       <Name>Fias.Service</Name>
     </ProjectReference>

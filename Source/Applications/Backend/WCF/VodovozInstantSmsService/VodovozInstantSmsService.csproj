@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{D123B6CA-4ABC-469D-B61D-EC4C7358FDAE}</ProjectGuid>
+    <ProjectGuid>{285A4FC2-3E39-46ED-B76D-F9B6A68A39B5}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>VodovozInstantSmsService</RootNamespace>
     <AssemblyName>VodovozInstantSmsService</AssemblyName>
@@ -62,15 +62,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\InstantSmsService\InstantSmsService.csproj">
+    <ProjectReference Include="..\..\..\..\Services\Library\InstantSmsService\InstantSmsService.csproj">
       <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
       <Name>InstantSmsService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Library\SmsRuSendService\SmsRuSendService.csproj">
+    <ProjectReference Include="..\..\..\..\Services\Library\SmsRuSendService\SmsRuSendService.csproj">
       <Project>{9083162f-81a6-49b3-a2d6-f355d62ec5c2}</Project>
       <Name>SmsRuSendService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Library\SmsSendInterface\SmsSendInterface.csproj">
+    <ProjectReference Include="..\..\..\..\Services\Library\SmsSendInterface\SmsSendInterface.csproj">
       <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
       <Name>SmsSendInterface</Name>
     </ProjectReference>
