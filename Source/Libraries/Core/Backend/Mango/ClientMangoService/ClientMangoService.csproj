@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{892519BA-D891-43B6-971C-6415EA4D14E5}</ProjectGuid>
+    <ProjectGuid>{50993438-F358-4DCD-8E0A-CE1446C76487}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>ClientMangoService</RootNamespace>
     <AssemblyName>ClientMangoService</AssemblyName>
@@ -46,9 +46,7 @@
     <Compile Include="NotificationConnectionWatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ProtoBuf\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Protobuf Include="..\..\WebApi\VodovozMangoService\Protobuf\NotificationService.proto">
       <Link>ProtoBuf\NotificationService.proto</Link>
