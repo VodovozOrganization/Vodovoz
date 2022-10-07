@@ -6,7 +6,7 @@ services:
     restart: on-failure
     build:
       context: .
-      dockerfile: ../Workers/EmailSendWorker/Dockerfile
+      dockerfile: ../EmailSendWorker/Dockerfile
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -15,7 +15,7 @@ services:
     restart: on-failure
     build:
       context: .
-      dockerfile: ../Workers/EmailStatusUpdateWorker/Dockerfile
+      dockerfile: ../EmailStatusUpdateWorker/Dockerfile
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -25,6 +25,6 @@ services:
     restart: on-failure
     build:
       context: .
-      dockerfile: ../Workers/EmailPrepareWorker/Dockerfile
+      dockerfile: ../EmailPrepareWorker/Dockerfile
     extra_hosts:
       - "host.docker.internal:host-gateway"
