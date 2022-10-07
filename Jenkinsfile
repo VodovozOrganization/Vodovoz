@@ -179,11 +179,10 @@ def PrepareSources(jenkinsHome) {
 	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
 		branches: scm.branches,
-		doGenerateSubmoduleConfigurations: false,
 		extensions: scm.extensions 
 		+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
 		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
-		+ [[$class: 'SubmoduleOption', recursiveSubmodules: true, parentCredentials: true]],
+		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
 		userRemoteConfigs: scm.userRemoteConfigs
 	])
 }
