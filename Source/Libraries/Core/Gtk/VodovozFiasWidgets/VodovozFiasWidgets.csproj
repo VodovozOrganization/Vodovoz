@@ -96,5 +96,15 @@
       <Version>1.0.5</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\External\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
+      <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
+      <Name>Gamma.Binding</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Backend\FiasService\Fias.Service.csproj">
+      <Project>{CC518C77-1610-4017-8C77-E56C509C5BF9}</Project>
+      <Name>Fias.Service</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

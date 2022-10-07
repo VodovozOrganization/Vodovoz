@@ -18,9 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
-    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.Utilities\QS.Utilities.csproj" />
+    <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>
 
 </Project>

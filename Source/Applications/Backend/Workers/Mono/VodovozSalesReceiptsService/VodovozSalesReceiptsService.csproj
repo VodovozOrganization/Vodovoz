@@ -83,7 +83,36 @@
     <None Include="Docs\API автоматической фискализации чеков интернет-магазинов %28ver.1.4%29.pdf" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
+      <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>
+      <Name>VodovozBusiness</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
+      <Project>{301f793c-130b-44eb-a45d-60d5f040b0ad}</Project>
+      <Name>QS.Banks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj">
+      <Project>{76a58e95-9ae5-498a-a9bf-0e1bc6b3b7c7}</Project>
+      <Name>QS.Attachments</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
+      <Project>{3d3d6700-c625-46c5-9702-5f010a8dd035}</Project>
+      <Name>QS.HistoryLog</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
+      <Name>QS.Project.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj">
+      <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>
+      <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj">
+      <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
+      <Name>QS.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="BouncyCastle" Version="1.8.9" />

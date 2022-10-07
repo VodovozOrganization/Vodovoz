@@ -46,15 +46,6 @@
     <Compile Include="NotificationConnectionWatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <Protobuf Include="..\..\WebApi\VodovozMangoService\Protobuf\NotificationService.proto">
-      <Link>ProtoBuf\NotificationService.proto</Link>
-    </Protobuf>
-    <Protobuf Include="..\..\WebApi\VodovozMangoService\Protobuf\PhonebookService.proto">
-      <Link>ProtoBuf\PhonebookService.proto</Link>
-    </Protobuf>
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.19.4" />
     <PackageReference Include="Grpc" Version="2.44.0" />
@@ -71,5 +62,10 @@
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
+  <ItemGroup>
+		<Protobuf Include="..\Mango.Grpc\PhonebookService.proto" GrpcServices="Client" />
+		<Protobuf Include="..\Mango.Grpc\NotificationService.proto" GrpcServices="Client" />
+	</ItemGroup>
+  <Import Project="..\Mango.Grpc\Mango.Grpc.projitems" Label="Shared" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

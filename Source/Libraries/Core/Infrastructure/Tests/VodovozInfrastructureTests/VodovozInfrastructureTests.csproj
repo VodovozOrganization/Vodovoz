@@ -35,7 +35,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PhoneUtils\PhoneUtilsTest.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\VodovozInfrastructure\VodovozInfrastructure.csproj">
+      <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
+      <Name>VodovozInfrastructure</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />

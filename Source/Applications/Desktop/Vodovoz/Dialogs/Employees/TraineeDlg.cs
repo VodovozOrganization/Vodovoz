@@ -32,6 +32,7 @@ using VodovozInfrastructure.Endpoints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using QS.Attachments.ViewModels.Widgets;
+using ApiClientProvider;
 
 namespace Vodovoz.Dialogs.Employees
 {

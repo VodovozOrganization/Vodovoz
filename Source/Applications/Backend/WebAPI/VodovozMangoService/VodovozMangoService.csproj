@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -28,27 +28,19 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Protobuf Include="Protobuf\NotificationService.proto">
-        <GrpcServices>Both</GrpcServices>
-        <Access>Public</Access>
-        <ProtoCompile>True</ProtoCompile>
-        <ProtoRoot></ProtoRoot>
-        <CompileOutputs>True</CompileOutputs>
-        <OutputDir>obj\Debug\netcoreapp3.1\</OutputDir>
-      </Protobuf>
-      <None Remove="Protobuf\PhonebookService.proto" />
-      <Protobuf Include="Protobuf\PhonebookService.proto">
-        <OutputDir>obj/Debug/netcoreapp3.1/</OutputDir>
-      </Protobuf>
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Mango\MangoController\MangoController.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
-      <ProjectReference Include="..\..\Library\MangoController\MangoController.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+		<Protobuf Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc\PhonebookService.proto" GrpcServices="Server" />
+		<Protobuf Include="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc\NotificationService.proto" GrpcServices="Server" />
+	</ItemGroup>
 
     <ItemGroup>
       <Folder Include="Properties" />
     </ItemGroup>
+
+    <Import Project="..\..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems" Label="Shared" />
 
 </Project>

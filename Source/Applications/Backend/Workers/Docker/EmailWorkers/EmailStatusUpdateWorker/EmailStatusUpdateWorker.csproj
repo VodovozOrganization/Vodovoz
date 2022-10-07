@@ -16,16 +16,16 @@
     <PackageReference Include="RabbitMQ.Client" Version="6.2.4" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
-    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
-    <ProjectReference Include="..\..\Library\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
-    <ProjectReference Include="..\..\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="NLog.config">

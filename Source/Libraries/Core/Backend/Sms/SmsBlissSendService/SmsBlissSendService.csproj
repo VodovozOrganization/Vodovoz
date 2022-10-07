@@ -51,5 +51,11 @@
     <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="SmsBliss.API" Version="1.0.1" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SmsSendInterface\SmsSendInterface.csproj">
+      <Project>{2F7F7E4F-5A79-44B5-A877-C22E315ADF43}</Project>
+      <Name>SmsSendInterface</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

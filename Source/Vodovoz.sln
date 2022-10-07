@@ -245,7 +245,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSScan", "Libraries\Externa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSWidgetLib", "Libraries\External\QSProjects\QSWidgetLib\QSWidgetLib.csproj", "{5A2BB01E-E124-432E-8099-D1343D3897B9}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Mango.Grpc", "Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.shproj", "{BFB977B8-6C0B-4736-B7DB-DD6B272F980A}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{8ff7c332-e6d1-456f-8067-11ce62aaef5a}*SharedItemsImports = 5
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -6146,6 +6153,7 @@ Global
 		{4B502FE5-D419-4B5C-9276-0A25EF2F508A} = {37EEE929-A322-4756-80DB-DBD4398BC75E}
 		{DB2EEB00-FF15-4AF8-887D-E3261C31B173} = {0BB9117C-03B5-4A5E-B605-115ED2D32D7A}
 		{5A2BB01E-E124-432E-8099-D1343D3897B9} = {ED3C8740-DDE4-4055-9E16-5F0B7A8237CB}
+		{BFB977B8-6C0B-4736-B7DB-DD6B272F980A} = {0025BB16-E692-4DBB-8EC5-DE9869186311}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

@@ -15,19 +15,19 @@
     <PackageReference Include="NLog.Extensions.Logging" Version="5.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Report\QS.Report.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QSOrmProject\QSOrmProject.csproj" />
-    <ProjectReference Include="..\..\..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
-    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
-    <ProjectReference Include="..\..\..\VodovozReports\VodovozReports.csproj" />
-    <ProjectReference Include="..\..\Library\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Library\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozReports\VodovozReports.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\My-FyiReporting\RdlEngine\RdlEngine.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Report\QS.Report.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QSOrmProject\QSOrmProject.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="NLog.config">
