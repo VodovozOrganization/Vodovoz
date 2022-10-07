@@ -16,14 +16,14 @@ stage('Restore'){
 	parallel (
 		"Desktop" : {
 			node('Vod6'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
 			}
 		},
 		"WCF" : {
 			node('WCF_BUILD'){
-				sh 'nuget restore Source/Vodovoz.sln'
-				sh 'nuget restore Source/Libraries/External/QSProjects/QSProjectsLib.sln'
-				sh 'nuget restore Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
+				sh 'nuget restore Vodovoz/Source/Vodovoz.sln'
+				sh 'nuget restore Vodovoz/Source/Libraries/External/QSProjects/QSProjectsLib.sln'
+				sh 'nuget restore Vodovoz/Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
 			}						
 		}
 	)				
@@ -32,10 +32,10 @@ parallel (
 	"Desktop" : {
 		node('Vod6'){
 			stage('Build Desktop, WEB'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Source\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
 
 				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
-				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Source/Applications/Desktop/Vodovoz/bin/DebugWin'
+				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin'
 				archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true			
 			}
 		}
@@ -43,13 +43,13 @@ parallel (
 	"WCF" : {
 		node('WCF_BUILD'){
 			stage('Build WCF'){
-				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Source/Vodovoz.sln -maxcpucount:4'
+				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:4'
 
-				ZipArtifact('Source/Applications/Backend/WCF/VodovozDeliveryRulesService', 'DeliveryRulesService')
-				ZipArtifact('Source/Applications/Backend/WCF/VodovozInstantSmsService', 'InstantSmsService')
-				ZipArtifact('Source/Applications/Backend/Workers/Mono/VodovozSalesReceiptsService', 'SalesReceiptsService')
-				ZipArtifact('Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService', 'SmsInformerService')
-				ZipArtifact('Source/Applications/Backend/WCF/VodovozSmsPaymentService', 'SmsPaymentService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozDeliveryRulesService', 'DeliveryRulesService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozInstantSmsService', 'InstantSmsService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSalesReceiptsService', 'SalesReceiptsService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService', 'SmsInformerService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService', 'SmsPaymentService')
 
 				archiveArtifacts artifacts: '*Service.zip', onlyIfSuccessful: true
 			}
@@ -113,10 +113,10 @@ parallel (
 					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					echo 'Publish DriverAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 					
 					echo 'Move files to CD folder'
-					bat 'xcopy "Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
 				else
 				{
@@ -128,10 +128,10 @@ parallel (
 					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					echo 'Publish FastPaymentsAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 					
 					echo 'Move files to CD folder'
-					bat 'xcopy "Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
 				else
 				{
@@ -143,10 +143,10 @@ parallel (
 					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					echo 'Publish PayPageAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 					
 					echo 'Move files to CD folder'
-					bat 'xcopy "Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					bat 'xcopy "Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
 				else
 				{
@@ -158,10 +158,10 @@ parallel (
 					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					echo 'Publish MailjetEventsDistributorAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 					
 					echo 'Move files to CD folder'
-					bat 'xcopy "Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
 				else
 				{
