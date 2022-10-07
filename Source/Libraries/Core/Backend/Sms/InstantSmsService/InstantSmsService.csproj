@@ -45,16 +45,6 @@
     <Reference Include="System.ServiceModel.Web" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SmsRuSendService\SmsRuSendService.csproj">
-      <Project>{9083162f-81a6-49b3-a2d6-f355d62ec5c2}</Project>
-      <Name>SmsRuSendService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SmsSendInterface\SmsSendInterface.csproj">
-      <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
-      <Name>SmsSendInterface</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="NLog" Version="5.0.1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

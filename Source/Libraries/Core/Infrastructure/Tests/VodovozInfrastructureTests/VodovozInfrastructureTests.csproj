@@ -37,12 +37,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\..\VodovozInfrastructure\VodovozInfrastructure.csproj">
-      <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
-      <Name>VodovozInfrastructure</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
   </ItemGroup>

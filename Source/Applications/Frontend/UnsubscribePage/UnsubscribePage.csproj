@@ -21,8 +21,6 @@
     <ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj" />
-    <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj" />
-    <ProjectReference Include="..\..\..\VodovozInfrastructure\VodovozInfrastructure.csproj" />
   </ItemGroup>
 
 </Project>

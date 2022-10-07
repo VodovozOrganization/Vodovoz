@@ -44,16 +44,6 @@
     <Compile Include="StreetEntry.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
-      <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
-      <Name>Gamma.Binding</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Services\Library\FiasService\Fias.Service.csproj">
-      <Project>{C90274E4-4BDD-41A1-9A9F-576E16A0A236}</Project>
-      <Name>Fias.Service</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Antlr3.Runtime">
       <Version>3.5.1</Version>
     </PackageReference>

@@ -85,40 +85,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
-      <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
-      <Name>QS.Banks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
-      <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
-      <Name>QS.BusinessCommon</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
-      <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
-      <Name>QS.Attachments</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
-      <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
-      <Name>QS.HistoryLog</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
-      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
-      <Name>QS.Project.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj">
-      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
-      <Name>QS.Project</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
-      <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
-      <Name>VodovozBusiness</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
-      <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
-      <Name>QS.Utilities</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="BouncyCastle" Version="1.8.9" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />

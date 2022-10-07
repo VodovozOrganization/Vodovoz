@@ -73,40 +73,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
-      <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
-      <Name>QS.Banks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
-      <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
-      <Name>QS.Attachments</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
-      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
-      <Name>QS.Project.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj">
-      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
-      <Name>QS.Project</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\Services\Library\SmsRuSendService\SmsRuSendService.csproj">
-      <Project>{9083162f-81a6-49b3-a2d6-f355d62ec5c2}</Project>
-      <Name>SmsRuSendService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\Services\Library\SmsSendInterface\SmsSendInterface.csproj">
-      <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
-      <Name>SmsSendInterface</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
-      <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
-      <Name>VodovozBusiness</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
-      <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
-      <Name>QS.HistoryLog</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="BouncyCastle">
       <Version>1.8.9</Version>
     </PackageReference>

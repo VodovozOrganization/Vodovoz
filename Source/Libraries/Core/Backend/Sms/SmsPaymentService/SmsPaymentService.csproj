@@ -74,28 +74,6 @@
     <Compile Include="Workers\OverduePaymentsWorker.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
-      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
-      <Name>QS.Project.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InstantSmsService\InstantSmsService.csproj">
-      <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
-      <Name>InstantSmsService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
-      <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
-      <Name>VodovozBusiness</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj">
-      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
-      <Name>QS.Project</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
-      <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
-      <Name>QS.Banks</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />

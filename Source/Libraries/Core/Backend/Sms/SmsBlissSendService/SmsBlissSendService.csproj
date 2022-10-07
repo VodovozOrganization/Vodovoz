@@ -47,12 +47,6 @@
     <Compile Include="SmsBlissSentResult.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SmsSendInterface\SmsSendInterface.csproj">
-      <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
-      <Name>SmsSendInterface</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="SmsBliss.API" Version="1.0.1" />

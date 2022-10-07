@@ -70,36 +70,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
-      <Project>{54f958f5-7e58-4c89-9a04-8835e63b97c3}</Project>
-      <Name>System.Data.Bindings</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Attachments\QS.Attachments.csproj">
-      <Project>{0bf087b7-b2c5-46be-9941-bb0ad8aae7d3}</Project>
-      <Name>QS.Attachments</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
-      <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
-      <Name>QS.Banks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
-      <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
-      <Name>QS.Project.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj">
-      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
-      <Name>QS.Project</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\VodovozBusiness\VodovozBusiness.csproj">
-      <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
-      <Name>VodovozBusiness</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Services\Library\FiasService\Fias.Service.csproj">
-      <Project>{C90274E4-4BDD-41A1-9A9F-576E16A0A236}</Project>
-      <Name>Fias.Service</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="BouncyCastle" Version="1.8.9" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
