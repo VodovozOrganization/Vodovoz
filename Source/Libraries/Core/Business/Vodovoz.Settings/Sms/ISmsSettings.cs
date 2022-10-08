@@ -4,5 +4,6 @@
     {
 		string InternalSmsServiceUrl { get; }
 		string InternalSmsServiceApiKey { get; }
+		bool SmsSendingAllowed { get; }
 	}
 }

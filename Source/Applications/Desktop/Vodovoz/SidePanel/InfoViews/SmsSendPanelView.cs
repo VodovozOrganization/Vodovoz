@@ -2,10 +2,12 @@
 using System.Linq;
 using System.Text;
 using Gamma.GtkWidgets;
-using InstantSmsService;
 using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Services;
 using QS.Utilities.Numeric;
+using Sms.Internal;
+using Sms.Internal.Client;
 using SmsPaymentService;
 using Vodovoz.Additions;
 using Vodovoz.Domain;
@@ -15,6 +17,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Sms;
+using Vodovoz.Settings.Sms;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -27,6 +32,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
 		private readonly IPermissionResult _orderPermissionResult;
 		private readonly IInteractiveService _interactiveService;
+		private readonly ISmsSettings _smsSettings;
+		private readonly SmsClientChannelFactory _smsClientChannelFactory;
 		private readonly PhoneFormatter _phoneFormatter;
 		private static readonly SmsPaymentStatus[] _excludeSmsPaymentStatuses =
 			{ SmsPaymentStatus.ReadyToSend, SmsPaymentStatus.Cancelled };
@@ -64,6 +71,10 @@ namespace Vodovoz.SidePanel.InfoViews
 				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 			_canSendSmsForPayFromYookassa = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_yookassa");
 			_canSendSmsForPayFromSbpByCard = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_sbp_by_card");
+			var settingsController = new SettingsController(UnitOfWorkFactory.GetDefaultFactory);
+			_smsSettings = new SmsSettings(settingsController, MainClass.DataBaseInfo);
+			_smsClientChannelFactory = new SmsClientChannelFactory(_smsSettings);
+
 			Configure();
 		}
 
@@ -214,7 +225,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			if(!InstantSmsServiceSetting.SendingAllowed)
+			if(!_smsSettings.SmsSendingAllowed)
 			{
 				return;
 			}
@@ -245,23 +256,23 @@ namespace Vodovoz.SidePanel.InfoViews
 			});
 
 			var isQr = (btn as yButton)?.Name == nameof(btnSendFastPaymentPayByQrUrlBySms);
-			var smsSender = new SmsSender(_fastPaymentParametersProvider, InstantSmsServiceSetting.GetInstantSmsService());
-			var resultTask = smsSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text, isQr);
+			var fastPaymentSender = new FastPaymentSender(_fastPaymentParametersProvider, _smsClientChannelFactory, _smsSettings);
+			var resultTask = fastPaymentSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text, isQr);
 			resultTask.Wait();
 			var result = resultTask.Result;
 
-			switch(result.MessageStatus)
+			switch(result.Status)
 			{
-				case SmsMessageStatus.Ok:
+				case ResultStatus.Ok:
 					_interactiveService.ShowMessage(ImportanceLevel.Info, "SMS отправлена успешно");
 					break;
-				case SmsMessageStatus.Error:
-					if(result.IsPaidStatus)
+				case ResultStatus.Error:
+					if(result.OrderAlreadyPaied)
 					{
 						_isPaidOrder = true;
 						ySendSmsButton.Sensitive = false;
 					}
-					_interactiveService.ShowMessage(ImportanceLevel.Error, result.ErrorDescription, "Не удалось отправить SMS");
+					_interactiveService.ShowMessage(ImportanceLevel.Error, result.ErrorMessage, "Не удалось отправить SMS");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();

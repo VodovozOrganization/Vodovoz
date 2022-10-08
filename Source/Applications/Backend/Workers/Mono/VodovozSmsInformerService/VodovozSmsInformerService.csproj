@@ -117,14 +117,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Sms\SmsRuSendService\SmsRuSendService.csproj">
-      <Project>{26f787d2-818a-4009-843a-76bc535699e1}</Project>
-      <Name>SmsRuSendService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Sms\SmsSendInterface\SmsSendInterface.csproj">
-      <Project>{2f7f7e4f-5a79-44b5-a877-c22e315adf43}</Project>
-      <Name>SmsSendInterface</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>
       <Name>VodovozBusiness</Name>
