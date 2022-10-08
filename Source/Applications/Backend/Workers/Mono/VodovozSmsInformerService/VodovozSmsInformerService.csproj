@@ -117,6 +117,14 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.Interface\Sms.External.Interface.csproj">
+      <Project>{8955A646-0DBD-4B1A-B0C4-E929BC1B092E}</Project>
+      <Name>Sms.External.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.SmsRu\Sms.External.SmsRu.csproj">
+      <Project>{023DBDAF-5FB8-466C-B9E3-AB96CBB4E4F1}</Project>
+      <Name>Sms.External.SmsRu</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>
       <Name>VodovozBusiness</Name>

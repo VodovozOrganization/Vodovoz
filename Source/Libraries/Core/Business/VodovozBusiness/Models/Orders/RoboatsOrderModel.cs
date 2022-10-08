@@ -1,5 +1,8 @@
 ﻿using QS.DomainModel.UoW;
+using Sms.Internal;
 using System;
+using System.Threading.Tasks;
+using Vodovoz.Additions;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -22,6 +25,7 @@ namespace Vodovoz.Models.Orders
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
 		private readonly CounterpartyContractFactory _counterpartyContractFactory;
+		private readonly FastPaymentSender _fastPaymentSender;
 		private readonly ICallTaskWorker _callTaskWorker;
 
 		public RoboatsOrderModel(
@@ -31,6 +35,7 @@ namespace Vodovoz.Models.Orders
 			IPaymentFromBankClientController paymentFromBankClientController,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
+			FastPaymentSender fastPaymentSender,
 			ICallTaskWorker callTaskWorker
 			)
 		{
@@ -40,6 +45,7 @@ namespace Vodovoz.Models.Orders
 			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_counterpartyContractRepository = counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
 			_counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
+			_fastPaymentSender = fastPaymentSender ?? throw new ArgumentNullException(nameof(fastPaymentSender));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 		}
 
@@ -85,7 +91,7 @@ namespace Vodovoz.Models.Orders
 				throw new ArgumentNullException(nameof(roboatsOrderArgs));
 			}
 
-			using(var uow = _unitOfWorkFactory.CreateWithNewRoot<Order>())
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
 				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 				if(roboatsEmployee == null)
@@ -111,7 +117,40 @@ namespace Vodovoz.Models.Orders
 				throw new ArgumentNullException(nameof(roboatsOrderArgs));
 			}
 
-			using(var uow = _unitOfWorkFactory.CreateWithNewRoot<Order>())
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var order = CreateIncompleteOrder(uow, roboatsOrderArgs);
+				return order.Id;
+			}
+		}
+
+		private Order CreateIncompleteOrder(IUnitOfWork uow, RoboatsOrderArgs roboatsOrderArgs)
+		{
+			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			if(roboatsEmployee == null)
+			{
+				throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
+			}
+
+			var order = CreateOrder(uow, roboatsEmployee, roboatsOrderArgs);
+			order.SaveEntity(uow, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+			return order;
+		}
+
+		/// <summary>
+		/// Создает заказ с имеющимися данными в статусе Новый.
+		/// Запускает процесс формирования оплаты и отправки QR кода по смс.
+		/// Если после 3-х попыток не получилось сформировать оплату, то заказ остается в статусе новый.
+		/// Если оплата сформирована то заказ переходит в статус Принят
+		/// </summary>
+		public async Task<Order> CreateOrderWithPaymentByQrCode(string phone, RoboatsOrderArgs roboatsOrderArgs)
+		{
+			if(roboatsOrderArgs is null)
+			{
+				throw new ArgumentNullException(nameof(roboatsOrderArgs));
+			}
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
 				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 				if(roboatsEmployee == null)
@@ -119,19 +158,50 @@ namespace Vodovoz.Models.Orders
 					throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
 				}
 
-				var order = CreateOrder(uow, roboatsEmployee, roboatsOrderArgs);
+				var order = CreateIncompleteOrder(uow, roboatsOrderArgs);
+				order.PaymentByQr = true;
+				var paymentSended = await TryingSendPayment(phone, order);
+				if(paymentSended)
+				{
+					order.AcceptOrder(roboatsEmployee, _callTaskWorker);
+				}
 				order.SaveEntity(uow, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
-				return order.Id;
+				return order;
 			}
 		}
 
-		private Order CreateOrder(IUnitOfWorkGeneric<Order> uow, Employee author, RoboatsOrderArgs roboatsOrderArgs)
+		private async Task<bool> TryingSendPayment(string phone, Order order)
+		{
+			FastPaymentResult result;
+			int attemptsCount = 0;
+
+			do
+			{
+				if(attemptsCount > 0)
+				{
+					await Task.Delay(60000);
+				}
+				result = await _fastPaymentSender.SendFastPaymentUrlAsync(order, phone, true);
+
+				if(result.Status == ResultStatus.Error && result.OrderAlreadyPaied)
+				{
+					return true;
+				}
+
+				attemptsCount++;
+
+			} while(result.Status == ResultStatus.Error && attemptsCount < 3);
+
+			return result.Status == ResultStatus.Ok;
+		}
+
+		private Order CreateOrder(IUnitOfWork uow, Employee author, RoboatsOrderArgs roboatsOrderArgs)
 		{
 			var counterparty = uow.GetById<Counterparty>(roboatsOrderArgs.CounterpartyId);
 			var deliveryPoint = uow.GetById<DeliveryPoint>(roboatsOrderArgs.DeliveryPointId);
 			var deliverySchedule = uow.GetById<DeliverySchedule>(roboatsOrderArgs.DeliveryScheduleId);
 
-			Order order = uow.Root;
+			Order order = new Order();
 			order.Author = author;
 			order.Client = counterparty;
 			order.DeliveryPoint = deliveryPoint;

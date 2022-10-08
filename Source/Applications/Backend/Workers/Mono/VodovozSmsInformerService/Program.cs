@@ -8,7 +8,7 @@ using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using NLog;
 using QS.Project.DB;
-using SmsRuSendService;
+using Sms.External.SmsRu;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Parameters;
