@@ -57,7 +57,7 @@ namespace Vodovoz.ViewModel
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
 				.JoinAlias (c => c.DeliveryPoints, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (c => c.Post, () => postAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias (c => c.Phones, () => phoneAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Left.JoinAlias (c => c.Phones, () => phoneAlias, () => !phoneAlias.IsArchive)
 				.Where (() => counterpartyAlias.Id == Counterparty.Id)
 				.SelectList (list => list
 					.SelectGroup (() => contactAlias.Id).WithAlias (() => resultAlias.Id)

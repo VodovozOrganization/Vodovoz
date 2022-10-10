@@ -49,6 +49,8 @@ namespace Vodovoz.Dialogs.Phones
 
 		private void DrawNewRow(Phone newPhone)
 		{
+			PhoneViewModel phoneViewModel = ViewModel.GetPhoneViewModel(newPhone);
+
 			if(hBoxList?.FirstOrDefault() == null) 
 				hBoxList = new List<HBox>();
 
@@ -58,7 +60,7 @@ namespace Vodovoz.Dialogs.Phones
 			phoneDataCombo.WidthRequest = 100;
 			phoneDataCombo.SetRenderTextFunc((PhoneType x) => x.Name);
 			phoneDataCombo.ItemsList = viewModel.PhoneTypes;
-			phoneDataCombo.Binding.AddBinding(newPhone, e => e.PhoneType, w => w.SelectedItem).InitializeFromSource();
+			phoneDataCombo.Binding.AddBinding(phoneViewModel, pvm => pvm.SelectedPhoneType, w => w.SelectedItem).InitializeFromSource();
 			phoneDataCombo.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 			hBox.Add(phoneDataCombo);
 			hBox.SetChildPacking(phoneDataCombo, true, true, 0, PackType.Start);
@@ -78,6 +80,7 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.SetChildPacking(phoneDataEntry, false, false, 0, PackType.Start);
 
 			HandsetView handset = new HandsetView(newPhone.DigitsNumber);
+			handset.Binding.AddFuncBinding(newPhone, e => !e.IsArchive, w => w.Sensitive).InitializeFromSource();
 			hBox.Add(handset);
 			hBox.SetChildPacking(handset, false, false, 0, PackType.Start);
 
