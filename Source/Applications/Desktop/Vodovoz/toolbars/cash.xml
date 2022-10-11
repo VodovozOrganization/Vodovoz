@@ -1,0 +1,14 @@
+﻿<ui>
+  <toolbar name='toolbarSub'>
+    <toolitem name='ActionCashDocuments' action='ActionCashDocuments'/>
+    <toolitem name='ActionAccountableDebt' action='ActionAccountableDebt'/>
+    <toolitem name='ActionUnclosedAdvances' action='ActionUnclosedAdvances'/>
+    <toolitem name='ActionCashFlow' action='ActionCashFlow'/>
+    <toolitem name='ActionRouteListClosingTable' action='ActionRouteListClosingTable'/>
+    <toolitem name='ActionSelfdeliveryOrders' action='ActionSelfdeliveryOrders'/>
+    <toolitem name='ActionCashTransferDocuments' action='ActionCashTransferDocuments'/>
+    <toolitem name='ActionFuelTransferDocuments' action='ActionFuelTransferDocuments'/>
+    <toolitem name='ActionOrganizationCashTransferDocuments' action='ActionOrganizationCashTransferDocuments'/>
+    <toolitem name='ActionSalariesJournal' action='ActionSalariesJournal'/>
+  </toolbar>
+</ui>

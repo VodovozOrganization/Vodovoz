@@ -1,0 +1,1039 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="MainData">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT nomenclature.id as nomenclature_id,
+       nomenclature.name as nomenclature_name,
+       IFNULL(subquery1.name_for_group, 'Неизвестно') as warehouse_for_grouping,
+       IFNULL(subquery1.sum, -1) as current_month_sum,
+       IFNULL(subquery2.sum, 0) as month_minus_1_sum,
+       IFNULL(subquery3.sum, 0) as month_minus_2_sum,
+       IFNULL(subquery1.sum - subquery2.sum, 0) as diff_curr_minus_1_month,
+       IFNULL(subquery2.sum - subquery3.sum, 0) as diff_minus_1_minus_2_month,
+       IFNULL((subquery1.sum - subquery2.sum)*100/subquery1.sum, 0) as diff_curr_minus_1_month_percent,
+       IFNULL((subquery2.sum - subquery3.sum)*100/subquery2.sum, 0) as diff_minus_1_minus_2_month_percent
+
+FROM nomenclature
+         LEFT JOIN warehouses w on nomenclature.warehouse_id = w.id
+         LEFT JOIN
+     (SELECT
+          warehouse_movement_operations.nomenclature_id as id,
+          SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                     AND store_incoming_water.id IS NOT NULL, cast(warehouse_movement_operations.amount as signed), 0)) as sum,
+          (SELECT warehouses.name FROM warehouses WHERE id = @warehouse_id) as name_for_group
+
+      FROM
+          warehouse_movement_operations
+              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = warehouse_movement_operations.id
+
+      WHERE
+              store_incoming_water.time_stamp &gt;= @month_start
+        AND store_incoming_water.time_stamp &lt;= DATE_ADD(@month_end, INTERVAL 1 DAY)
+      GROUP BY warehouse_movement_operations.nomenclature_id) as subquery1 on subquery1.id  = nomenclature.id
+
+
+         LEFT JOIN
+     (SELECT
+          warehouse_movement_operations.nomenclature_id as id,
+          SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                     AND store_incoming_water.id IS NOT NULL, cast(warehouse_movement_operations.amount as signed), 0)) as sum,
+          (SELECT warehouses.name FROM warehouses WHERE id = @warehouse_id) as name_for_group
+
+      FROM
+          warehouse_movement_operations
+              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = warehouse_movement_operations.id
+
+      WHERE
+              store_incoming_water.time_stamp &gt;= @month_minus_1_start
+        AND store_incoming_water.time_stamp &lt;= DATE_ADD(@month_minus_1_end, INTERVAL 1 DAY)
+      GROUP BY warehouse_movement_operations.nomenclature_id) as subquery2 on subquery2.id  = nomenclature.id
+
+
+         LEFT JOIN
+     (SELECT
+          warehouse_movement_operations.nomenclature_id as id,
+          SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                     AND store_incoming_water.id IS NOT NULL, cast(warehouse_movement_operations.amount as signed), 0)) as sum,
+          (SELECT warehouses.name FROM warehouses WHERE id = @warehouse_id) as name_for_group
+
+      FROM
+          warehouse_movement_operations
+              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = warehouse_movement_operations.id
+
+      WHERE
+              store_incoming_water.time_stamp &gt;= @month_minus_2_start
+        AND store_incoming_water.time_stamp &lt;= DATE_ADD(@month_minus_2_end, INTERVAL 1 DAY)
+      GROUP BY warehouse_movement_operations.nomenclature_id) as subquery3 on subquery3.id  = nomenclature.id
+
+WHERE nomenclature.category = 'water' AND
+    (nomenclature.id = @nomenclature_id OR @nomenclature_id = -1)
+
+GROUP BY nomenclature.id;
+     </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="month_start">
+            <Value>={?month_start}</Value>
+          </QueryParameter>
+          <QueryParameter Name="month_end">
+            <Value>={?month_end}</Value>
+          </QueryParameter>
+          <QueryParameter Name="month_minus_1_start">
+            <Value>={?month_minus_1_start}</Value>
+          </QueryParameter>
+          <QueryParameter Name="month_minus_1_end">
+            <Value>={?month_minus_1_end}</Value>
+          </QueryParameter>
+          <QueryParameter Name="month_minus_2_start">
+            <Value>={?month_minus_2_start}</Value>
+          </QueryParameter>
+          <QueryParameter Name="month_minus_2_end">
+            <Value>={?month_minus_2_end}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_id">
+            <Value>={?nomenclature_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse_id">
+            <Value>={?warehouse_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="nomenclature_id">
+          <DataField>nomenclature_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomenclature_name">
+          <DataField>nomenclature_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="current_month_sum">
+          <DataField>current_month_sum</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="month_minus_1_sum">
+          <DataField>month_minus_1_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="month_minus_2_sum">
+          <DataField>month_minus_2_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="diff_curr_minus_1_month">
+          <DataField>diff_curr_minus_1_month</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="diff_minus_1_minus_2_month">
+          <DataField>diff_minus_1_minus_2_month</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="diff_curr_minus_1_month_percent">
+          <DataField>diff_curr_minus_1_month_percent</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="diff_minus_1_minus_2_month_percent">
+          <DataField>diff_minus_1_minus_2_month_percent</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="warehouse_for_grouping">
+          <DataField>warehouse_for_grouping</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>MainData</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>171.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>123.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>117.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>71.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>97.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>120.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>34.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Номенклатура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Color>Black</Color>
+                        <BackgroundColor>Khaki</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>={?month_name_minus_2} + ', шт'</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Color>Black</Color>
+                        <BackgroundColor>Khaki</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>={?month_name_minus_1} + ', шт'</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Color>Black</Color>
+                        <BackgroundColor>Khaki</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Отклонения от предыдущего месяца, шт</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Color>Black</Color>
+                        <BackgroundColor>Khaki</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>Отклонения от предыдущего месяца, %</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Color>Black</Color>
+                        <BackgroundColor>Khaki</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>= {?month_name} + ', шт'</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Color>Black</Color>
+                        <BackgroundColor>Khaki</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Отклонения от предыдущего месяца, шт</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Color>Black</Color>
+                        <BackgroundColor>Khaki</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Отклонения от предыдущего месяца, %</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Color>Black</Color>
+                        <BackgroundColor>Khaki</BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>20.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="nomenclature">
+                      <Value>={nomenclature_name}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                      </Style>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={month_minus_2_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>={month_minus_1_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>={diff_minus_1_minus_2_month}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>={diff_minus_1_minus_2_month_percent}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                        <Format >#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>={current_month_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                        <BackgroundColor>Khaki</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>={diff_curr_minus_1_month}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>={diff_curr_minus_1_month_percent}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                        <Format >#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>68.8pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="warehouseGroup">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>={warehouse_for_grouping}</GroupExpression>
+              </GroupExpressions>
+              <Label>={warehouse_for_grouping}</Label>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox16">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>12pt</FontSize>
+                          </Style>
+                          <Value>={warehouse_for_grouping}</Value>
+                          <CanGrow>true</CanGrow>
+                          <CanShrink>true</CanShrink>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox18">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox19">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox20">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox21">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox22">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <BackgroundColor>Khaki</BackgroundColor>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox24">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox26">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>2.5pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox8">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth>
+                              <Bottom>2pt</Bottom>
+                            </BorderWidth>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox9">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth>
+                              <Bottom>2pt</Bottom>
+                            </BorderWidth>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox10">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth>
+                              <Bottom>2pt</Bottom>
+                            </BorderWidth>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox11">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth>
+                              <Bottom>2pt</Bottom>
+                            </BorderWidth>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox12">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth>
+                              <Bottom>2pt</Bottom>
+                            </BorderWidth>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox13">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth>
+                              <Bottom>2pt</Bottom>
+                            </BorderWidth>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox14">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth>
+                              <Bottom>2pt</Bottom>
+                            </BorderWidth>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox15">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                              <Top>None</Top>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth>
+                              <Bottom>2pt</Bottom>
+                            </BorderWidth>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
+        <Filters>
+          <Filter>
+            <FilterExpression>={current_month_sum}</FilterExpression>
+            <Operator>GreaterThan</Operator>
+            <FilterValues>
+              <FilterValue>-1</FilterValue>
+            </FilterValues>
+          </Filter>
+        </Filters>
+      </Table>
+      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Top>15.90pt</Top>
+        <Left>5.70pt</Left>
+        <Width>791.22pt</Width>
+        <Height>18.04pt</Height>
+        <Value>= "Отчет по произведенной продукции " + {?nomenclature_footer_name} + " " + {?warehouse_footer_name} + " с " + Format(CDate({?month_start}), "d") + " по " + Format(CDate({?month_end}), "d")
+</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox4">
+        <Height>12.75pt</Height>
+        <Width>266.97pt</Width>
+        <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>540.80pt</Left>
+        <Top>2.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Height>163.1pt</Height>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>26.1pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox17">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="month_start">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="month_end">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="month_minus_1_start">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="month_minus_1_end">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="month_minus_2_start">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="month_minus_2_end">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="month_name">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="month_name_minus_1">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="month_name_minus_2">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creation_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_id">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="warehouse_id">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_footer_name">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="warehouse_footer_name">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+  </ReportParameters>
+</Report>

@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>8.5in</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="Nomenclatures">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT DISTINCT
+    Max(IF(nomenclature.category = 'rent', 'rent', null)) as rent,
+    Max(IF(nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare, 'water', null)) as water,
+    Max(IF(nomenclature.category = 'water' AND nomenclature.is_disposable_tare, 'disposableBottleWater', null)) as disposableBottleWater,
+    Max(IF(nomenclature.category = 'deposit', 'deposit', null)) as deposit,
+    Max(IF(nomenclature.category = 'spare_parts', 'spare_parts', null)) as spare_parts,
+    Max(IF(nomenclature.category = 'equipment', 'equipment', null)) as equipment,
+    Max(IF(nomenclature.category = 'additional', 'additional', null)) as additional,
+    Max(IF(nomenclature.category = 'service', 'service', null)) as service,
+    Max(IF(nomenclature.category = 'bottle', 'bottle', null)) as bottle,
+    Max(IF(nomenclature.category = 'material', 'material', null)) as material,
+    Max(IF(nomenclature.category = 'master', 'master', null)) as master
+FROM nomenclature 
+WHERE '0' NOT IN (@categories) AND nomenclature.category in (@categories)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="categories">
+            <Value>={?categories}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="rent">
+          <DataField>rent</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="water">
+          <DataField>water</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="deposit">
+          <DataField>deposit</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="spare_parts">
+          <DataField>spare_parts</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="equipment">
+          <DataField>equipment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="additional">
+          <DataField>additional</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="service">
+          <DataField>service</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bottle">
+          <DataField>bottle</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="material">
+          <DataField>material</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="disposableBottleWater">
+          <DataField>disposableBottleWater</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="master">
+          <DataField>master</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>30.4pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>7.23pt</Top>
+        <Left>7.23pt</Left>
+        <Width>566.12pt</Width>
+        <Height>18.82pt</Height>
+        <Value>='Отчет по ТМЦ на остатках на '
++Format({@ExecutionTime},'dd.MM.yyyy HH:mm:ss')</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Subreport Name="Subreport2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>11.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>rent</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({rent}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>27.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>water</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({water}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>44.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>deposit</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({deposit}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>61.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>spare_parts</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({spare_parts}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>77.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>equipment</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({equipment}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>94.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>additional</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({additional}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>110.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>service</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({service}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>127.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>bottle</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({bottle}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>144.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>material</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({material}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>160.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>disposableBottleWater</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({disposableBottleWater}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+      <Subreport Name="Subreport11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.28pt</Height>
+        <Width>574.29pt</Width>
+        <Left>0.0pt</Left>
+        <Top>177.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>EquipmentBalanceRow</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="category">
+            <Value>master</Value>
+          </Parameter>
+          <Parameter Name="equipments">
+            <Value>=Parameters!equipments</Value>
+          </Parameter>
+          <Parameter Name="additional">
+            <Value>=Parameters!additional</Value>
+          </Parameter>
+        </Parameters>
+        <Visibility>
+          <Hidden>=String.IsNullOrEmpty(First({master}, "Nomenclatures"))</Hidden>
+        </Visibility>
+      </Subreport>
+    </ReportItems>
+    <Height>330.1pt</Height>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox21">
+        <Top>0.0pt</Top>
+        <Left>6.9pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="categories">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="equipments">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="additional">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

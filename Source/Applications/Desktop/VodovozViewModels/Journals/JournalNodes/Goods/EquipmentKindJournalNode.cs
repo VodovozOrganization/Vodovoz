@@ -1,0 +1,13 @@
+﻿using QS.Project.Journal;
+using System;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Logistic;
+
+namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
+{
+	public class EquipmentKindJournalNode : JournalEntityNodeBase<EquipmentKind>
+	{
+		public string Name { get; set; }
+		public WarrantyCardType WarrantyCardType { get; set; }
+	}
+}

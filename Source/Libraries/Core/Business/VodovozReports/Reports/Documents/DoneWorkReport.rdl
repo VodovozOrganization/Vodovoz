@@ -1,0 +1,2217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11.69in</PageHeight>
+  <PageWidth>8.27in</PageWidth>
+  <Width>.1pt</Width>
+  <TopMargin>10mm</TopMargin>
+  <LeftMargin>20mm</LeftMargin>
+  <RightMargin>10mm</RightMargin>
+  <BottomMargin>10mm</BottomMargin>
+  <DataSets>
+    <DataSet Name="Order">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	orders.id AS order_id, 
+	orders.delivery_date AS order_date, 
+                case when (orders.order_address_type = 'Service') then 1 else 0 end AS is_service, 
+    	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract,
+	counterparty.full_name AS client_name, 
+	counterparty.jur_address AS client_address, 
+	counterparty.inn, counterparty.kpp,
+	GROUP_CONCAT(CONCAT('+7 ', phones.digits_number), ', ') AS phone,
+	delivery_points.compiled_address as delivery_address
+FROM orders 
+	LEFT JOIN counterparty ON orders.client_id = counterparty.id
+    LEFT JOIN counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
+	LEFT JOIN delivery_points on delivery_points.id = orders.delivery_point_id
+	LEFT JOIN phones ON delivery_points.id = phones.delivery_point_id
+WHERE orders.id = @order_id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="is_service">
+          <DataField>is_service</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="contract">
+          <DataField>contract</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_name">
+          <DataField>client_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_address">
+          <DataField>client_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="inn">
+          <DataField>inn</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="kpp">
+          <DataField>kpp</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="phone">
+          <DataField>phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_address">
+          <DataField>delivery_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="equipments">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	nomenclature.official_name as nomenclature
+FROM orders
+	LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
+	LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id    
+WHERE 
+	orders.id = @order_id
+    AND nomenclature.category = 'equipment'
+    AND order_equipment.order_item_id IS NULL
+    AND order_equipment.direction = 'Deliver'
+    AND order_equipment.own_type = 'Client'</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="nomenclature">
+          <DataField>nomenclature</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="MasterOrderItem">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT order_items.id,
+       order_items.count,
+       mu.digits as digits,
+       order_items.price,
+       nomenclature.name,
+       order_items.order_id
+FROM order_items
+    LEFT JOIN nomenclature on order_items.nomenclature_id=nomenclature.id
+    LEFT JOIN measurement_units mu on nomenclature.unit_id = mu.id
+WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="price">
+          <DataField>price</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="images">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>
+/*SET @id1 = 3; #VodovozLogo
+SET @id12 = 12; #Smile*/
+
+SELECT
+	stored_resource.id AS ID1,
+	stored_resource.binary_file AS IM1 ,
+	R12.id as ID12 ,
+	R12.binary_file as IM12
+FROM stored_resource
+LEFT JOIN (
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id12
+) as R12 ON R12.id = @id12
+WHERE stored_resource.id = @id1
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id1">
+            <Value>3</Value>
+          </QueryParameter>
+          <QueryParameter Name="id12">
+            <Value>12</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="ID1">
+          <DataField>ID1</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="IM1">
+          <DataField>IM1</DataField>
+          <TypeName>System.Byte[]</TypeName>
+        </Field>
+        <Field Name="ID12">
+          <DataField>ID12</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="IM12">
+          <DataField>IM12</DataField>
+          <TypeName>System.Byte[]</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>1.5pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>875.5pt</Height>
+    <Columns>1</Columns>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Height>49.11pt</Height>
+        <Width>288.76pt</Width>
+        <Value>="АКТ
+выполненных работ №"+{?order_id}+" 
+по договору №" + Max({contract}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>98.0pt</Left>
+        <Top>40.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox34">
+        <Height>12.00pt</Height>
+        <Width>126.27pt</Width>
+        <Value>/                                     /</Value>
+        <ZIndex>1</ZIndex>
+        <Left>383.1pt</Left>
+        <Top>537.4pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox35">
+        <Height>12.00pt</Height>
+        <Width>113.52pt</Width>
+        <Value>Подпись клиента</Value>
+        <ZIndex>1</ZIndex>
+        <Left>387.9pt</Left>
+        <Top>549.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox36">
+        <Height>12.00pt</Height>
+        <Width>126.27pt</Width>
+        <Value>/                                     /</Value>
+        <ZIndex>1</ZIndex>
+        <Left>380.0pt</Left>
+        <Top>569.3pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox37">
+        <Height>12.00pt</Height>
+        <Width>115.02pt</Width>
+        <Value>= Iif(First({is_service}, "Order"), "Подпись исполнителя", "Подпись водителя")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>384.8pt</Left>
+        <Top>581.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox38">
+        <Height>13.50pt</Height>
+        <Width>40.02pt</Width>
+        <Value>Итого:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>13.0pt</Left>
+        <Top>530.2pt</Top>
+        <Style>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox39">
+        <Height>12.00pt</Height>
+        <Width>72.27pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>52.3pt</Left>
+        <Top>528.9pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>187.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>165.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>157.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>16.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>Произведенные работы</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>3</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>13.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>Работа</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>Детали</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>Стоимость</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>414.2pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox65">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox67">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox64">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>13.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </fyi:Grid>
+      <Table Name="Table1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>equipments</DataSetName>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <PaddingTop>0pt</PaddingTop>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>187.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>322.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>22.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>={nomenclature}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.8pt</Left>
+        <Top>388.2pt</Top>
+      </Table>
+      <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>28.50pt</Height>
+        <Width>153.38pt</Width>
+        <Value>="г.Санкт-Петербург
+"+Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>357.2pt</Left>
+        <Top>103.4pt</Top>
+        <Style>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>12pt</FontSize>
+          <TextAlign>Right</TextAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Type>QR Code</Type>
+        <Height>90pt</Height>
+        <Width>90pt</Width>
+        <CustomProperties>
+          <CustomProperty>
+            <Name>QrCode</Name>
+            <Value>="DoneWork;"+Max({order_id}, "Order")+";"+Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
+          </CustomProperty>
+        </CustomProperties>
+        <Left>414.2pt</Left>
+        <Top>8.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <BackgroundColor>
+          </BackgroundColor>
+          <BackgroundGradientType>None</BackgroundGradientType>
+          <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+          <TextAlign>Left</TextAlign>
+          <PaddingTop>0pt</PaddingTop>
+        </Style>
+      </CustomReportItem>
+      <Table Name="Table2">
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>115.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>364.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>16.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Клиент</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>={client_name}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>30.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Адрес</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={delivery_address}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>11.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Контактный телефон</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={phone}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>13.9pt</Left>
+        <Top>140.8pt</Top>
+      </Table>
+      <Textbox Name="Textbox4">
+        <Height>15.76pt</Height>
+        <Width>504.37pt</Width>
+        <Value>Оцените работу мастера по пятибальной системе</Value>
+        <ZIndex>1</ZIndex>
+        <Left>1.6pt</Left>
+        <Top>635.4pt</Top>
+        <Style>
+          <FontSize>14pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontFamily>Times New Roman</FontFamily>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>126.27pt</Width>
+        <Value>/                                     /</Value>
+        <ZIndex>1</ZIndex>
+        <Left>372.2pt</Left>
+        <Top>663.4pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>113.52pt</Width>
+        <Value>Подпись клиента</Value>
+        <ZIndex>1</ZIndex>
+        <Left>377.0pt</Left>
+        <Top>675.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox8">
+        <Height>12.80pt</Height>
+        <Width>472.74pt</Width>
+        <Value>Вы можете оставить свои отзывы, пожелания, рекомендации в книге отзывов и предложений.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>1.6pt</Left>
+        <Top>702.2pt</Top>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontFamily>Times New Roman</FontFamily>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox9">
+        <Height>39.14pt</Height>
+        <Width>143.78pt</Width>
+        <Value>Результат диагностики</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>250.4pt</Top>
+        <Style>
+          <PaddingBottom>5pt</PaddingBottom>
+          <PaddingLeft>5pt</PaddingLeft>
+          <PaddingRight>5pt</PaddingRight>
+          <PaddingTop>10pt</PaddingTop>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>11pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox17">
+        <Height>39.14pt</Height>
+        <Width>360.62pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>148.5pt</Left>
+        <Top>250.5pt</Top>
+        <Style>
+          <PaddingBottom>10pt</PaddingBottom>
+          <PaddingLeft>10pt</PaddingLeft>
+          <PaddingRight>10pt</PaddingRight>
+          <PaddingTop>10pt</PaddingTop>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid2">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>40.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>47.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>45.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>45.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>49.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>29.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Image Name="Image3">
+                      <Style>
+                        <BorderStyle />
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Source>Database</Source>
+                      <Value>=First({IM12}, "images")</Value>
+                      <Sizing>FitProportional</Sizing>
+                      <MIMEType>image/jpeg</MIMEType>
+                    </Image>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>1</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>24pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Default>3pt</Default>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                          <Bottom>3pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>2</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>24pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Default>3pt</Default>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                          <Bottom>3pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>3</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>24pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Default>3pt</Default>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                          <Bottom>3pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>4</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>24pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Default>3pt</Default>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                          <Bottom>3pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>5</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>24pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Default>3pt</Default>
+                          <Left>3pt</Left>
+                          <Right>3pt</Right>
+                          <Top>3pt</Top>
+                          <Bottom>3pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>1.6pt</Left>
+        <Top>664.5pt</Top>
+      </fyi:Grid>
+      <Table Name="Table3">
+        <DataSetName>MasterOrderItem</DataSetName>
+        <NoRows>Нет данных</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>24.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>323.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>57.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>104.1pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>17.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Наименование работ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>Кол-во</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Цена</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>13.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>=Fields!name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>=Fields!count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <Format >="N" + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>=Fields!price.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>214.3pt</Top>
+      </Table>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid3">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>371.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>Вышеперечисленные услуги выполнены польностью и в срок.</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox70">
+                      <Value>Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>2.4pt</Left>
+        <Top>547.4pt</Top>
+      </fyi:Grid>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid4">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>486.5pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox82">
+                      <Value>Гарантия на выполнение работы -1 месяц при условии правильной эксплуатации оборудования.</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>Гарантия на запчасть - 1 месяц при условии правильной эксплуатации оборудования.</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>1.6pt</Left>
+        <Top>603.5pt</Top>
+      </fyi:Grid>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid5">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>187.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>322.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Модель</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Серийный номер</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>295.2pt</Top>
+      </fyi:Grid>
+      <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>57.44pt</Height>
+        <Width>80.87pt</Width>
+        <Left>10.8pt</Left>
+        <Top>36.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=First({IM1}, "images")</Value>
+        <Sizing>FitProportional</Sizing>
+        <MIMEType>image/jpeg</MIMEType>
+      </Image>
+      <Textbox Name="Textbox24">
+        <Height>11.99pt</Height>
+        <Width>115.85pt</Width>
+        <Value>Заполняется клиентом:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2pt</Left>
+        <Top>580.8pt</Top>
+        <Style>
+          <TextAlign>Left</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox45">
+        <Height>12.00pt</Height>
+        <Width>87.27pt</Width>
+        <Value>Время прибытия:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>121.6pt</Left>
+        <Top>572.9pt</Top>
+      </Textbox>
+      <Textbox Name="Textbox71">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>206.0pt</Left>
+        <Top>572.6pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox72">
+        <Height>12.00pt</Height>
+        <Width>87.27pt</Width>
+        <Value>Время убытия:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>121.6pt</Left>
+        <Top>586.7pt</Top>
+      </Textbox>
+      <Textbox Name="Textbox73">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>206.0pt</Left>
+        <Top>586.4pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <Code>Public Function SummaString_Val(ByVal Summa As String) As String
+        Dim T1Str As String
+        Dim T2Str As String
+        Dim T3Str As String
+        Dim T4Str As String
+        Dim KStr As String
+        Dim Cel As String
+        Dim KNameStr As String
+ 
+        Summa = Trim$(Summa) 'Удалить пробелы
+        Summa = Replace(Summa, ",", ".", , , vbBinaryCompare) 'Заменить запятые на точки
+        If InStr(1, Summa, ".", vbBinaryCompare) = 0 Then Summa = Summa &amp; ".00" 'Дописать копейки
+        If Mid$(Summa, Len(Summa) - 1, 1) = "." Then Summa = Summa &amp; "0" '
+        'Проверка длины числа
+        If Len(Summa) &gt; 15 Then
+            MsgBox("Слишком длинное число.", vbInformation, "Мультивалютная сумма прописью")
+            Return "Invalid value!"
+            Exit Function
+        End If
+ 
+        If Len(Summa) &lt; 15 Then Summa = New String("0", 15 - Len(Summa)) &amp; Summa
+ 
+        'Анализ первой триады
+        T1Str = TrStr(Left(Summa, 3), 0)
+        If T1Str &lt;&gt; "" Then
+            Select Case Right$(Left(Summa, 3), 1)
+                Case Is = "0"
+                    T1Str = T1Str &amp; "миллиардов "
+                Case Is = "1"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиард "
+                    End If
+                Case Is = "2"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Is = "3"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Is = "4"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Else
+                    T1Str = T1Str &amp; "миллиардов "
+            End Select
+        End If
+ 
+        'Анализ второй триады
+        T2Str = TrStr(Mid$(Summa, 4, 3), 0)
+        If T2Str &lt;&gt; "" Then
+            Select Case Right$(Mid$(Summa, 4, 3), 1)
+                Case Is = "0"
+                    T2Str = T2Str &amp; "миллионов "
+                Case Is = "1"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллион "
+                    End If
+                Case Is = "2"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Is = "3"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Is = "4"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Else
+                    T2Str = T2Str &amp; "миллионов "
+            End Select
+        End If
+ 
+        'Анализ третьей триады
+        T3Str = TrStr(Mid$(Summa, 7, 3), 1)
+        If T3Str &lt;&gt; "" Then
+            Select Case Right$(Mid$(Summa, 7, 3), 1)
+                Case Is = "0"
+                    T3Str = T3Str &amp; "тысяч "
+                Case Is = "1"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысяча "
+                    End If
+                Case Is = "2"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Is = "3"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Is = "4"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Else
+                    T3Str = T3Str &amp; "тысяч "
+            End Select
+        End If
+ 
+        'Анализ четвертой триады
+        T4Str = TrStr(Mid$(Summa, 10, 3), 0)
+  
+        If Len(T1Str &amp; T2Str &amp; T3Str &amp; T4Str) = 0 Then
+            Cel = "ноль "
+        Else
+            Cel = T1Str &amp; T2Str &amp; T3Str &amp; T4Str
+        End If
+ 
+        '========= Приписать валюту =========
+        'Рубли
+        If Val(Mid$(Summa, 11, 1)) &lt;&gt; 1 Then
+            Select Case Mid$(Summa, 12, 1)
+                Case Is = "0"
+                    Cel = Cel &amp; "рублей "
+                Case Is = "1"
+                    Cel = Cel &amp; "рубль "
+                Case Is = "2"
+                    Cel = Cel &amp; "рубля "
+                Case Is = "3"
+                    Cel = Cel &amp; "рубля "
+                Case Is = "4"
+                    Cel = Cel &amp; "рубля "
+                Case Else
+                    Cel = Cel &amp; "рублей "
+            End Select
+        End If
+ 
+        Select Case Mid$(Summa, 11, 2)
+            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
+                Cel = Cel &amp; "рублей "
+        End Select
+ 
+        'Копейки
+        If Val(Mid$(Summa, 14, 1)) &lt;&gt; 1 Then
+            Select Case Right$(Summa, 1)
+                Case Is = "0"
+	    KNameStr = " копеек"
+                Case Is = "1"
+	    KNameStr = " копейка"
+                Case Is = "2"
+                    KNameStr = " копейки"
+                Case Is = "3"
+	    KNameStr = " копейки"
+                Case Is = "4"
+	    KNameStr = " копейки"
+                Case Else
+	    KNameStr = " копеек"
+            End Select
+        End If
+ 
+        Select Case Right$(Summa, 2)
+            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
+	KNameStr = " копеек"
+        End Select
+ 
+        Return Strings.Left(Cel &amp; KStr, 1).ToUpper &amp; Strings.Right(Cel &amp; Right$(Summa, 2) &amp; KNameStr, Len(Cel &amp; Right$(Summa, 2) &amp; KNameStr) - 1)
+
+    End Function
+    Private Function TrStr(ByVal Triada As String, ByVal Rod As Integer) As String
+        TrStr = ""
+        If Rod = 0 Then
+            Select Case Left$(Triada, 1)
+                Case Is = "1"
+                    TrStr = TrStr &amp; "сто "
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двести "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "триста "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "четыреста "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьсот "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьсот "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьсот "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьсот "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девятьсот "
+            End Select
+ 
+            Select Case Mid$(Triada, 2, 1)
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двадцать "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "тридцать "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "сорок "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьдесят "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьдесят "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьдесят "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьдесят "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девяносто "
+            End Select
+ 
+            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
+                Select Case Right$(Triada, 1)
+                    Case Is = "1"
+                        TrStr = TrStr &amp; "один "
+                    Case Is = "2"
+                        TrStr = TrStr &amp; "два "
+                    Case Is = "3"
+                        TrStr = TrStr &amp; "три "
+                    Case Is = "4"
+                        TrStr = TrStr &amp; "четыре "
+                    Case Is = "5"
+                        TrStr = TrStr &amp; "пять "
+                    Case Is = "6"
+                        TrStr = TrStr &amp; "шесть "
+                    Case Is = "7"
+                        TrStr = TrStr &amp; "семь "
+                    Case Is = "8"
+                        TrStr = TrStr &amp; "восемь "
+                    Case Is = "9"
+                        TrStr = TrStr &amp; "девять "
+                End Select
+            End If
+ 
+            Select Case Right$(Triada, 2)
+                Case Is = "01"
+                    TrStr = TrStr &amp; "один "
+                Case Is = "02"
+                    TrStr = TrStr &amp; "два "
+                Case Is = "03"
+                    TrStr = TrStr &amp; "три "
+                Case Is = "04"
+                    TrStr = TrStr &amp; "четыре "
+                Case Is = "05"
+                    TrStr = TrStr &amp; "пять "
+                Case Is = "06"
+                    TrStr = TrStr &amp; "шесть "
+                Case Is = "07"
+                    TrStr = TrStr &amp; "семь "
+                Case Is = "08"
+                    TrStr = TrStr &amp; "восемь "
+                Case Is = "09"
+                    TrStr = TrStr &amp; "девять "
+                Case Is = "10"
+                    TrStr = TrStr &amp; "десять "
+                Case Is = "11"
+                    TrStr = TrStr &amp; "одиннадцать "
+                Case Is = "12"
+                    TrStr = TrStr &amp; "двенадцать "
+                Case Is = "13"
+                    TrStr = TrStr &amp; "тринадцать "
+                Case Is = "14"
+                    TrStr = TrStr &amp; "четырнадцать "
+                Case Is = "15"
+                    TrStr = TrStr &amp; "пятнадцать "
+                Case Is = "16"
+                    TrStr = TrStr &amp; "шестнадцать "
+                Case Is = "17"
+                    TrStr = TrStr &amp; "семьнадцать "
+                Case Is = "18"
+                    TrStr = TrStr &amp; "восемнадцать "
+                Case Is = "19"
+                    TrStr = TrStr &amp; "девятнадцать "
+            End Select
+        Else
+            Select Case Left$(Triada, 1)
+                Case Is = "1"
+                    TrStr = TrStr &amp; "сто "
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двести "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "триста "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "четыреста "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьсот "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьсот "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьсот "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьсот "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девятьсот "
+            End Select
+ 
+            Select Case Mid$(Triada, 2, 1)
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двадцать "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "тридцать "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "сорок "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьдесят "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьдесят "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьдесят "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьдесят "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девяносто "
+            End Select
+ 
+            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
+                Select Case Right$(Triada, 1)
+                    Case Is = "1"
+                        TrStr = TrStr &amp; "одна "
+                    Case Is = "2"
+                        TrStr = TrStr &amp; "две "
+                    Case Is = "3"
+                        TrStr = TrStr &amp; "три "
+                    Case Is = "4"
+                        TrStr = TrStr &amp; "четыре "
+                    Case Is = "5"
+                        TrStr = TrStr &amp; "пять "
+                    Case Is = "6"
+                        TrStr = TrStr &amp; "шесть "
+                    Case Is = "7"
+                        TrStr = TrStr &amp; "семь "
+                    Case Is = "8"
+                        TrStr = TrStr &amp; "восемь "
+                    Case Is = "9"
+                        TrStr = TrStr &amp; "девять "
+                End Select
+            End If
+ 
+            Select Case Right$(Triada, 2)
+                Case Is = "01"
+                    TrStr = TrStr &amp; "одна "
+                Case Is = "02"
+                    TrStr = TrStr &amp; "две "
+                Case Is = "03"
+                    TrStr = TrStr &amp; "три "
+                Case Is = "04"
+                    TrStr = TrStr &amp; "четыре "
+                Case Is = "05"
+                    TrStr = TrStr &amp; "пять "
+                Case Is = "06"
+                    TrStr = TrStr &amp; "шесть "
+                Case Is = "07"
+                    TrStr = TrStr &amp; "семь "
+                Case Is = "08"
+                    TrStr = TrStr &amp; "восемь "
+                Case Is = "09"
+                    TrStr = TrStr &amp; "девять "
+                Case Is = "10"
+                    TrStr = TrStr &amp; "десять "
+                Case Is = "11"
+                    TrStr = TrStr &amp; "одиннадцать "
+                Case Is = "12"
+                    TrStr = TrStr &amp; "двенадцать "
+                Case Is = "13"
+                    TrStr = TrStr &amp; "тринадцать "
+                Case Is = "14"
+                    TrStr = TrStr &amp; "четырнадцать "
+                Case Is = "15"
+                    TrStr = TrStr &amp; "пятнадцать "
+                Case Is = "16"
+                    TrStr = TrStr &amp; "шестнадцать "
+                Case Is = "17"
+                    TrStr = TrStr &amp; "семьнадцать "
+                Case Is = "18"
+                    TrStr = TrStr &amp; "восемнадцать "
+                Case Is = "19"
+                    TrStr = TrStr &amp; "девятнадцать "
+            End Select
+        End If
+    End Function</Code>
+  <EmbeddedImages>
+    <EmbeddedImage Name="smile">
+      <MIMEType>image/png</MIMEType>
+      <ImageData>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</ImageData>
+    </EmbeddedImage>
+  </EmbeddedImages>
+  <ReportParameters>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>557224</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+</Report>

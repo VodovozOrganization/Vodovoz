@@ -1,0 +1,1278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <DataSets>
+    <DataSet Name="Data">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
+        <CommandText>SELECT
+    master.emplID as empl_id,
+    master.frlDate as first_rl,
+    master.emplName as empl_name,
+    master.emplCategory as category,
+    master.emplDriverOf as driver_of,
+    master.works_withName as works_with_name,
+    -- Рабочие дни и адреса
+    servant.countWD as days_worked,
+    servant.addrCount as addresses_total,
+    ROUND(servant.addrCount / servant.countWD, 0) as addresses_avg,
+    -- Полные бутыли
+    IFNULL(servant.delCount, 0) as filled_bottles,
+    ROUND(IFNULL(servant.delCount, 0) / servant.countWD, 0) as filled_avg,
+    -- Пустые бутыли
+    IFNULL(servant.retCount, 0) as empty_bottles,
+    ROUND(IFNULL(servant.retCount, 0) / servant.countWD, 0) as empty_avg,
+    -- Расчет зп
+    ROUND(master.moneySum, 0) as salary_fact,
+    ROUND(master.moneySum / servant.countWD, 0) as salary_fact_avg,
+    ROUND(master.moneySum / servant.countWD, 0) * 22 as estimated_salary
+
+FROM
+    (
+        SELECT
+            empl.id as emplID,
+            frl.date as frlDate,
+            CONCAT_WS('', CONCAT(empl.last_name, ' '), if(empl.name = '', '', CONCAT(LEFT(empl.name, 1),'.')), if(empl.patronymic = '', '', CONCAT(LEFT(empl.patronymic, 1),'.'))
+                ) as emplName,
+            (CASE empl.category
+                 WHEN 'driver' THEN 'Вод.'
+                 WHEN 'forwarder' THEN 'Эксп.'
+             END) as emplCategory,
+            IF(cm.id IS NOT NULL AND cv.id IS NOT NULL,
+               CONCAT(
+                   CASE cm.car_type_of_use
+                       WHEN 'Largus' THEN 'Л'
+                       WHEN 'Truck' THEN 'Ф'
+                       WHEN 'GAZelle' THEN 'Г'
+                       ELSE 'Неизв.'
+                   END,
+                   CASE cv.car_own_type
+                       WHEN 'Company' THEN 'К'
+                       WHEN 'Raskat' THEN 'Р'
+                       WHEN 'Driver' THEN 'В'
+                       ELSE 'Неизв.'
+                   END
+                   ),
+               CONCAT(
+                   CASE empl.driver_of_car_type_of_use
+                       WHEN 'Largus' THEN 'Л'
+                       WHEN 'Truck' THEN 'Ф'
+                       WHEN 'GAZelle' THEN 'Г'
+                       WHEN NULL THEN '-'
+                       ELSE 'Неизв.'
+                   END,
+                   CASE empl.driver_of_car_own_type
+                       WHEN 'Company' THEN 'К'
+                       WHEN 'Raskat' THEN 'Р'
+                       WHEN 'Driver' THEN 'В'
+                       WHEN NULL THEN '-'
+                       ELSE 'Неизв.'
+                   END
+                   )
+                ) AS emplDriverOf,
+            CONCAT_WS('', CONCAT(works_with.last_name, ' '), IF(works_with.name = '', '', CONCAT(LEFT(works_with.name, 1),'.')), IF(works_with.patronymic = '', '', CONCAT(LEFT(works_with.patronymic, 1),'.'))
+                ) as works_withName,
+            SUM(IF(rl.`status` = 'Closed', wmo.money, IF(empl.category='driver', plan.planDriverSum, plan.planForwarderSum))) AS moneySum
+        FROM employees empl
+        LEFT JOIN employees works_with ON (works_with.id = empl.default_forwarder_id AND empl.category ='driver')
+                OR (works_with.default_forwarder_id = empl.id AND empl.category ='forwarder')
+        INNER JOIN route_lists rl ON rl.status &lt;&gt; 'New'  AND rl.date &gt;= @start_date AND rl.date &lt;= @end_date
+                AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
+                    OR (empl.category='driver' AND rl.driver_id = empl.id))
+        LEFT JOIN
+            (
+                SELECT rla.route_list_id,
+                       SUM(rla.driver_wage + rla.driver_wage_surcharge) AS planDriverSum,
+                       SUM(rla.forwarder_wage) AS planForwarderSum
+                FROM route_list_addresses rla
+                WHERE rla.status IN ('Completed', 'EnRoute')
+                GROUP BY rla.route_list_id
+            ) plan ON plan.route_list_id = rl.id
+        LEFT JOIN route_lists frl ON frl.id = (SELECT rl1.id FROM route_lists AS rl1 WHERE empl.id = rl1.driver_id ORDER BY rl1.date limit 1)
+        LEFT JOIN wages_movement_operations wmo ON wmo.id = IF(empl.category='driver', rl.driver_wages_movement_operations_id, rl.forwarder_wages_movement_operations_id)
+        LEFT JOIN cars c ON c.driver_id = empl.id
+        LEFT JOIN car_models cm ON c.model_id = cm.id
+        LEFT JOIN car_versions cv ON
+                c.id = cv.car_id
+                    AND cv.start_date &lt;= CURRENT_TIMESTAMP()
+                    AND (cv.end_date IS NULL OR cv.end_date &gt;= CURRENT_TIMESTAMP())
+        WHERE
+            (@employee_id != '' AND empl.id = @employee_id OR @employee_id = '')
+          AND (@employee_category = '' AND (empl.category='driver' OR empl.category='forwarder') OR empl.category=@employee_category)
+          AND (@driver_of_car_own_type = '' OR empl.driver_of_car_own_type = @driver_of_car_own_type)
+          AND (@driver_of_car_type_of_use = '' AND empl.driver_of_car_type_of_use != 'Truck'
+            OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
+        GROUP BY empl.id
+        ORDER BY empl.last_name
+    ) as master
+    INNER JOIN
+        (
+            SELECT
+                empl.id as emplID,
+                COUNT(rla.id) as addrCount,
+                SUM(IF(rl.status = 'Closed', bmo.delivered, orderBottles.count)) AS delCount,
+                SUM(IF(rl.status = 'Closed', bmo.returned, o.bottles_return)) AS retCount,
+                COUNT(DISTINCT(DAY(rl.date))) as countWD
+            FROM employees empl
+            INNER JOIN route_lists rl ON rl.status &lt;&gt; 'New'  AND rl.date  &gt;= @start_date AND rl.date  &lt;= @end_date
+                    AND ((empl.category='forwarder' AND rl.forwarder_id = empl.id)
+                        OR (empl.category='driver' AND rl.driver_id = empl.id))
+            INNER JOIN route_list_addresses rla ON rla.route_list_id = rl.id AND rla.status IN ('Completed', 'EnRoute')
+            LEFT JOIN bottles_movement_operations bmo ON bmo.order_id = rla.order_id
+            LEFT JOIN orders o ON o.id = rla.order_id
+            LEFT JOIN (SELECT oi.order_id, SUM(oi.count) AS count
+                FROM order_items oi INNER JOIN nomenclature n ON n.id = oi.nomenclature_id
+                WHERE n.category = 'water' AND n.is_disposable_tare = FALSE
+                GROUP BY oi.order_id
+                ) AS orderBottles ON orderBottles.order_id = o.id
+            WHERE
+                (@employee_id != '' AND empl.id = @employee_id OR @employee_id = '')
+              AND (@employee_category = '' AND (empl.category='driver' OR empl.category='forwarder') OR empl.category=@employee_category)
+              AND (@driver_of_car_own_type = '' OR empl.driver_of_car_own_type = @driver_of_car_own_type)
+              AND (@driver_of_car_type_of_use = '' AND empl.driver_of_car_type_of_use != 'Truck'
+                OR empl.driver_of_car_type_of_use = @driver_of_car_type_of_use)
+            GROUP BY empl.id
+            ORDER BY empl.last_name
+        ) as servant on servant.emplID = master.emplID
+</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@driver_of_car_own_type">
+            <Value>={?driver_of_car_own_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@employee_category">
+            <Value>={?employee_category}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@creation_date">
+            <Value>={?creation_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@employee_id">
+            <Value>={?employee_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@driver_of_car_type_of_use">
+            <Value>={?driver_of_car_type_of_use}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="empl_id">
+          <DataField>empl_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="empl_name">
+          <DataField>empl_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="category">
+          <DataField>category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="driver_of">
+          <DataField>driver_of</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="works_with_name">
+          <DataField>works_with_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="days_worked">
+          <DataField>days_worked</DataField>
+          <TypeName>System.UInt16</TypeName>
+        </Field>
+        <Field Name="addresses_total">
+          <DataField>addresses_total</DataField>
+          <TypeName>System.UInt16</TypeName>
+        </Field>
+        <Field Name="addresses_avg">
+          <DataField>addresses_avg</DataField>
+          <TypeName>System.UInt16</TypeName>
+        </Field>
+        <Field Name="filled_bottles">
+          <DataField>filled_bottles</DataField>
+          <TypeName>System.UInt16</TypeName>
+        </Field>
+        <Field Name="filled_avg">
+          <DataField>filled_avg</DataField>
+          <TypeName>System.UInt16</TypeName>
+        </Field>
+        <Field Name="empty_bottles">
+          <DataField>empty_bottles</DataField>
+          <TypeName>System.UInt16</TypeName>
+        </Field>
+        <Field Name="empty_avg">
+          <DataField>empty_avg</DataField>
+          <TypeName>System.UInt16</TypeName>
+        </Field>
+        <Field Name="salary_fact">
+          <DataField>salary_fact</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="salary_fact_avg">
+          <DataField>salary_fact_avg</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="estimated_salary">
+          <DataField>estimated_salary</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="first_rl">
+          <DataField>first_rl</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>605.3pt</Height>
+    <Columns>1</Columns>
+    <ReportItems>
+      <Textbox Name="Textbox2">
+        <Height>35.00pt</Height>
+        <Width>816.42pt</Width>
+        <Value>='Основная информация по ЗП за ' + MonthName(Month(CDate({?start_date}))) + ' ' +
+          Year(CDate({?start_date})) + 'г.\n с ' +Format(CDate({?start_date}), 'dd.MM.yy') +' по '+
+          Format(CDate({?end_date}),'dd.MM.yy')
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>20pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox3">
+        <Height>13.57pt</Height>
+        <Width>419.31pt</Width>
+        <Value>="Сформирован " + Format( {?creation_date}, "dd-MM-yyyy в HH:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>395.12pt</Left>
+        <Top>40.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Right</TextAlign>
+        </Style>
+        <CanGrow >false</CanGrow>
+      </Textbox>
+      <Table Name="Table1">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>31.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>33.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>41.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>81.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>27.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>27.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>47.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>41.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>49.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>46.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>57.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.9pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>27.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Bottom</VerticalAlign>
+                        <FontSize>11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Информация о сотруднике</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>Рабочий день</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>Адреса</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>11pt</FontSize>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>Полные бутыли</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>Пустые бутыли</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value></Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>ЗП</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value></Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>Solid</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>43.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>№</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Код</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>Дата первого МЛ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>ФИО</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>КС</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>КТС</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Работает с сотрудником</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Кол-во рабочих дней</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>Кол-во адресов</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Адресов в среднем за день</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Кол-во полных бутылей</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>Полных бутылей в среднем за день</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>Кол-во пустых бутылей</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Пустых бутылей в среднем за день</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>ЗП за месяц</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>ЗП за месяц средняя за день</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>Расчетная ЗП за 22 р.д.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>21.5pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>=RowNumber()</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>=Fields!empl_id.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>=Fields!first_rl.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>dd.MM.yy</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>=Fields!empl_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>=Fields!category.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>=Fields!driver_of.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>=Fields!works_with_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>=Fields!days_worked.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>=Fields!addresses_total.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>=Fields!addresses_avg.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>=Fields!filled_bottles.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>=Fields!filled_avg.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>=Fields!empty_bottles.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>=Fields!empty_avg.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>=Fields!salary_fact.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>=Fields!salary_fact_avg.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>=Fields!estimated_salary.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>63.2pt</Top>
+      </Table>
+      <Textbox Name="Textbox52">
+        <Height>14.30pt</Height>
+        <Width>453.14pt</Width>
+        <Value>=(Parameters!filters)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>40.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Left</TextAlign>
+        </Style>
+        <CanGrow >true</CanGrow>
+      </Textbox>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString></ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creation_date">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="employee_id">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="driver_of_car_own_type">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="driver_of_car_type_of_use">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="employee_category">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="filters">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

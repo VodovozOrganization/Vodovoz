@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <PageHeader>
+    <Height>88.8pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems>
+      <Textbox Name="Textbox2">
+        <Height>19.57pt</Height>
+        <Width>560.84pt</Width>
+        <Value>Отчет по нулевому долгу клиента</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>13.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <PaddingTop>0mm</PaddingTop>
+          <PaddingLeft>0mm</PaddingLeft>
+          <PaddingBottom>0mm</PaddingBottom>
+          <PaddingRight>0mm</PaddingRight>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox15">
+        <Height>45.83pt</Height>
+        <Width>566.54pt</Width>
+        <Value>В отчете идет выборка клиентов у которых:
+1. 0 долг по контрагенту и по каждому адресу;
+2. По каждому адресу есть или не требуется ввод остатков;
+3. В последнем заказе у которых:
+ТОЛЬКО забор бутылей И (больше ничего ИЛИ в продаже только Неустойка ИЛИ только Возврат залогов)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.75pt</Left>
+        <Top>35.20pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </PageHeader>
+  <Body>
+    <Height>88.5pt</Height>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>data</DataSetName>
+        <NoRows>Нет расхождений</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>19.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>49.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>65.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>104.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>90.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>139.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>34.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>№</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>Тип контрагента</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Контрагент</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Телефон</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>Адрес клиента</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>Адрес точки доставки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Сумма</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>33.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>=RowNumber()</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=Format(Convert.ToDateTime({del_date}), "dd/MM/yyyy")</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>=Fields!person.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>=Fields!counterparty.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=Fields!contact.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>=Fields!client_address.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>=Fields!address.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>=Fields!lastsum.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>13.0pt</Top>
+      </Table>
+    </ReportItems>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSets>
+    <DataSet Name="data">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    counterparty.id,
+    counterparty.name AS counterparty,
+    orderDates.del_date,
+    #Тип клиента
+    (
+		SELECT
+		CASE person_type
+			WHEN 'legal' THEN 'Юридическое лицо'
+            WHEN 'natural' THEN 'Физическое лицо'
+            ELSE ''
+		END persontype
+    ) AS person,
+    #Адрес клиента
+    (
+		SELECT
+			IFNULL(counterparty.address, counterparty.jur_address)
+    ) AS client_address,
+    #Адрес последнего заказа
+    (
+		SELECT
+			lastorder_dp.compiled_address
+		FROM
+			orders
+		JOIN delivery_points AS lastorder_dp ON lastorder_dp.id = orders.delivery_point_id
+		WHERE 
+			orders.client_id = counterparty.id
+            AND orders.order_status = 'Closed'
+		GROUP BY
+			orders.id
+		ORDER BY
+            orders.delivery_date DESC
+        LIMIT 1
+    ) AS address,
+    #Телефон
+	(
+		IFNULL(
+			GROUP_CONCAT(
+				IF(IS_NULL_OR_WHITESPACE(counterparty_phones.number), NULL, counterparty_phones.number) 
+				SEPARATOR ', '
+            ), 
+            GROUP_CONCAT(delivery_points_phones.number SEPARATOR ', ')
+        )
+    ) as contact,
+	#Сумма последнего заказа с водой
+	(
+        SELECT
+            SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count) - order_items.discount_money)
+        FROM
+            orders
+            LEFT JOIN order_items ON order_items.order_id = orders.id
+        WHERE
+            orders.client_id = counterparty.id
+            AND orders.order_status = 'Closed'
+            AND EXISTS
+            (
+                SELECT
+                    *
+                FROM
+                    order_items
+                    JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+                WHERE
+                    nomenclature.category = 'water'
+                    AND orders.id = order_items.order_id
+                    AND order_items.actual_count &gt; 0
+            )
+		GROUP BY
+			orders.id
+		ORDER BY
+            orders.delivery_date DESC
+        LIMIT 1
+    ) as lastsum
+            
+FROM
+	counterparty
+    LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
+    LEFT JOIN phones AS counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id 
+    LEFT JOIN phones AS delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
+    #Долг по контрагенту
+    LEFT JOIN
+    (
+		SELECT 
+			counterparty_id,
+			SUM(delivered) - SUM(returned) AS bottle_debt
+		FROM
+			bottles_movement_operations
+		WHERE
+			bottles_movement_operations.delivery_point_id IS NULL
+            
+		GROUP BY counterparty_id
+    ) AS debts ON counterparty.id = debts.counterparty_id
+    #Долг по точке доставки
+	INNER JOIN
+    (
+		SELECT
+			counterparty_id,
+            bottle_debt_point
+        FROM
+			(SELECT
+				bmo.counterparty_id,
+				bmo.delivery_point_id,
+				IFNULL(SUM(delivered) - SUM(returned), 0) AS bottle_debt_point
+			FROM
+				bottles_movement_operations AS bmo
+			LEFT JOIN
+				delivery_points ON bmo.delivery_point_id = delivery_points.id
+			WHERE
+				bmo.delivery_point_id IS NOT NULL
+			GROUP BY delivery_point_id) as dp
+		GROUP BY counterparty_id
+		HAVING MAX(bottle_debt_point) = 0 AND MIN(bottle_debt_point) = 0
+    ) AS debts_point ON counterparty.id = debts_point.counterparty_id
+    #Возврат бутылей и (ничего или возврат залога или неустойка)    
+    INNER JOIN
+    (
+    	SELECT
+            orders.delivery_date as del_date,
+            orders.client_id
+        FROM
+			orders
+        LEFT JOIN order_items ON order_items.order_id = orders.id
+        LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+        LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
+		WHERE
+			orders.bottles_return &lt;&gt; 0
+        AND
+        (
+			(order_deposit_items.id IS NOT NULL AND order_items.id IS NULL)
+            OR
+            (
+				nomenclature.id = GET_PARAMETER('forfeit_nomenclature_id')
+				AND NOT EXISTS
+				(
+					SELECT *
+					FROM 
+						order_items
+					WHERE 
+						order_items.order_id = orders.id
+						AND order_items.nomenclature_id &lt;&gt; GET_PARAMETER('forfeit_nomenclature_id')
+				)
+            )
+            OR order_items.id IS NULL
+		)
+		AND orders.order_status = 'Closed'
+    ) AS orderDates ON orderDates.client_id = counterparty.id
+WHERE
+	(bottle_debt IS NULL OR bottle_debt = 0)
+    AND	(@startDate IS NULL OR @startDate &lt;= orderDates.del_date)
+	AND	(@endDate IS NULL OR @endDate &gt;= orderDates.del_date)
+    AND NOT EXISTS
+    (
+    	SELECT *
+    	FROM orders
+    	WHERE orders.client_id = counterparty.id
+    	AND delivery_date &gt; DATE(orderDates.del_date)
+    )
+    # Ввод остатков
+    AND NOT EXISTS
+    (
+		SELECT
+			have_residue
+		FROM
+			delivery_points
+		WHERE
+			delivery_points.counterparty_id = counterparty.id
+			AND delivery_points.have_residue = FALSE
+    )
+GROUP BY counterparty.id
+ORDER BY orderDates.del_date</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!startDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!endDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="del_date">
+          <DataField>del_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="counterparty">
+          <DataField>counterparty</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contact">
+          <DataField>contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="lastsum">
+          <DataField>lastsum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="address">
+          <DataField>address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="person">
+          <DataField>person</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_address">
+          <DataField>client_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
+    <ReportParameter Name="startDate">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="endDate">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+  </ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=sql.vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+</Report>

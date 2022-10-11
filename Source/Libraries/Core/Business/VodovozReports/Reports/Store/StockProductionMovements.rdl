@@ -1,0 +1,1385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="Data">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    nomenclature.name AS nomenclature,
+    nomenclature.category,
+    measurement_units.digits,
+    ng1.name as group1_name,
+    ng2.name as group2_name,
+    ng3.name as group3_name,
+    ng4.name as group4_name,
+    ng5.name as group5_name,
+    ng6.name as group6_name,
+    movements.*,
+    IFNULL((SELECT
+                SUM(amount)
+            FROM
+                warehouse_movement_operations
+            WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+              AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+              AND warehouse_movement_operations.operation_time &lt; @startDate),
+           0) AS before_added,
+    IFNULL((SELECT
+                SUM(amount)
+            FROM
+                warehouse_movement_operations
+            WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+              AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+              AND warehouse_movement_operations.operation_time &lt; @startDate),
+           0) AS before_removed
+FROM
+    nomenclature
+        LEFT JOIN
+    (SELECT
+         warehouse_movement_operations.nomenclature_id,
+         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id, warehouse_movement_operations.amount, 0)) AS all_added,
+         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id, warehouse_movement_operations.amount, 0)) AS all_removed,
+         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                    AND store_incoming_water.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS prodution_added,
+         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                    AND store_incoming_water_material.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS prodution_removed,
+         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                    AND smd_income.transportation_wagon_id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS wagons_added,
+         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                    AND smd_writeoff.transportation_wagon_id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS wagons_removed,
+         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                    AND store_incoming_invoice_items.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS warehouse_added,
+         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                    AND store_incoming_invoice_items.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS warehouse_removed,
+         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                    AND srgi_income.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS regrading_added,
+         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                    AND srgi_writeoff.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS regrading_removed,
+         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                    AND store_inventory_item.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS inventory_added,
+         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                    AND store_inventory_item.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS inventory_removed
+     FROM
+         warehouse_movement_operations
+             LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = warehouse_movement_operations.id
+             LEFT JOIN store_incoming_water_material ON store_incoming_water_material.consumption_material_id = warehouse_movement_operations.id
+             LEFT JOIN store_movement_document_items smdi_writeoff ON smdi_writeoff.writeoff_movement_operation_id = warehouse_movement_operations.id
+             LEFT JOIN store_movement_document_items smdi_income ON smdi_income.income_movement_operation_id = warehouse_movement_operations.id
+             LEFT JOIN store_movement_document smd_income ON smd_income.id = smdi_income.movement_document_id
+             LEFT JOIN store_movement_document smd_writeoff ON smd_writeoff.id = smdi_writeoff.movement_document_id
+             LEFT JOIN store_incoming_invoice_items ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
+             LEFT JOIN store_regrading_of_goods_items srgi_income ON srgi_income.warehouse_income_operation_id = warehouse_movement_operations.id
+             LEFT JOIN store_regrading_of_goods_items srgi_writeoff ON srgi_writeoff.warehouse_writeoff_operation_id = warehouse_movement_operations.id
+             LEFT JOIN store_inventory_item ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
+     WHERE
+             warehouse_movement_operations.operation_time &gt;= @startDate
+       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+     GROUP BY warehouse_movement_operations.nomenclature_id) movements ON movements.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON measurement_units.id = nomenclature.unit_id
+        LEFT JOIN
+    nomenclature_groups as ng1 ON nomenclature.group_id = ng1.id
+        LEFT JOIN
+    nomenclature_groups as ng2 ON ng1.parent_id = ng2.id
+        LEFT JOIN
+    nomenclature_groups as ng3 ON ng2.parent_id = ng3.id
+        LEFT JOIN
+    nomenclature_groups as ng4 ON ng3.parent_id = ng4.id
+        LEFT JOIN
+    nomenclature_groups as ng5 ON ng4.parent_id = ng5.id
+        LEFT JOIN
+    nomenclature_groups as ng6 ON ng5.parent_id = ng6.id
+WHERE 	(
+        ((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+            OR
+         (nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+        OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+    )
+  AND (
+        ((nomenclature.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+            OR
+         (nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+        OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+    )
+  AND (
+        ((IFNULL(ng1.id , 0) IN (@product_group_include) AND 0 IN (@product_group_exclude))
+            OR
+         (IFNULL(ng1.id , 0) NOT IN (@product_group_exclude) AND 0 IN (@product_group_include)))
+        OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
+    )
+HAVING before_added - before_removed &lt;&gt; 0
+    OR IFNULL(all_added, 0) &lt;&gt; 0 OR IFNULL(all_removed, 0) &lt;&gt; 0
+ORDER BY 
+	CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods'     THEN nomenclature.category END, 
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN nomenclature.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng6.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng5.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng4.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng3.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng2.name END,
+		CASE WHEN @sortType = 'Type, Alphabet, GroupOfGoods' THEN ng1.name END,
+	CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet'     THEN nomenclature.category END, 
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng6.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng5.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng4.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng3.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng2.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN ng1.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods, Alphabet' THEN nomenclature.name END,
+	CASE WHEN @sortType = 'Type, Alphabet'                   THEN nomenclature.category END,
+		CASE WHEN @sortType = 'Type, Alphabet'               THEN nomenclature.name END,
+	CASE WHEN @sortType = 'Type, GroupOfGoods'               THEN nomenclature.category END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng6.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng5.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng4.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng3.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng2.name END,
+		CASE WHEN @sortType = 'Type, GroupOfGoods'           THEN ng1.name END,
+	CASE WHEN @sortType = 'Type'                             THEN nomenclature.category END,
+	CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet'     THEN ng6.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng5.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng4.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng2.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN ng1.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN nomenclature.category END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type, Alphabet' THEN nomenclature.name END,
+	CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type'     THEN ng6.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng5.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng4.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng2.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN ng1.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN nomenclature.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet, Type' THEN nomenclature.category END,
+	CASE WHEN @sortType = 'GroupOfGoods, Type'               THEN ng6.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng5.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng4.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng2.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN ng1.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Type'           THEN nomenclature.category END,
+	CASE WHEN @sortType = 'GroupOfGoods, Alphabet'           THEN ng6.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng5.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng4.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng2.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN ng1.name END,
+		CASE WHEN @sortType = 'GroupOfGoods, Alphabet'       THEN nomenclature.name END,
+	CASE WHEN @sortType = 'GroupOfGoods'                     THEN ng6.name END, 
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng5.name END,
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng4.name END,
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng3.name END,
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng2.name END,
+		CASE WHEN @sortType = 'GroupOfGoods'                 THEN ng1.name END,
+	CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods'     THEN nomenclature.name END, 
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN nomenclature.category END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng6.name END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng5.name END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng4.name END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng3.name END,
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng2.name END, 
+		CASE WHEN @sortType = 'Alphabet, Type, GroupOfGoods' THEN ng1.name END,
+	CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type'     THEN nomenclature.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng6.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng5.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng4.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng3.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng2.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN ng1.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods, Type' THEN nomenclature.category END,
+	CASE WHEN @sortType = 'Alphabet, Type'                   THEN nomenclature.name END,
+		CASE WHEN @sortType = 'Alphabet, Type'               THEN nomenclature.category END,
+	CASE WHEN @sortType = 'Alphabet, GroupOfGoods'           THEN nomenclature.name END, 
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng6.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng5.name END, 
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng4.name END, 
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng3.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng2.name END,
+		CASE WHEN @sortType = 'Alphabet, GroupOfGoods'       THEN ng1.name END,
+	CASE WHEN @sortType = 'Alphabet' OR @sortType = ''       THEN nomenclature.name END, nomenclature.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!startDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!endDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse_id">
+            <Value>=Parameters!warehouse_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_include">
+            <Value>=Parameters!nomenclature_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_exclude">
+            <Value>=Parameters!nomenclature_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_include">
+            <Value>=Parameters!nomenclature_type_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_exclude">
+            <Value>=Parameters!nomenclature_type_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_include">
+            <Value>=Parameters!product_group_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_exclude">
+            <Value>=Parameters!product_group_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="sortType">
+            <Value>=Parameters!sortType</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="nomenclature">
+          <DataField>nomenclature</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="category">
+          <DataField>category</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="before_added">
+          <DataField>before_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="before_removed">
+          <DataField>before_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="all_added">
+          <DataField>all_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="all_removed">
+          <DataField>all_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="prodution_added">
+          <DataField>prodution_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="prodution_removed">
+          <DataField>prodution_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagons_added">
+          <DataField>wagons_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagons_removed">
+          <DataField>wagons_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="warehouse_added">
+          <DataField>warehouse_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="warehouse_removed">
+          <DataField>warehouse_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="regrading_added">
+          <DataField>regrading_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="regrading_removed">
+          <DataField>regrading_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="inventory_added">
+          <DataField>inventory_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="inventory_removed">
+          <DataField>inventory_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="warehouse_name">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT name FROM warehouses WHERE id = @id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id">
+            <Value>={?warehouse_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>203.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Остатки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Производство</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Фуры</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>Вход/Списание</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Пересорт</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>Инвента</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Остальное</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>Остатки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Номенклатура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>начало</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>+</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>-</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>-</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>конец</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="nomenclature">
+                      <Value>=Fields!nomenclature.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>2pt</Left>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="before_added">
+                      <Value>=Iif(Fields!before_added.IsMissing, 0,Fields!before_added.Value) - Iif(Fields!before_removed.IsMissing, 0,Fields!before_removed.Value)</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <FontSize>9pt</FontSize>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>=Fields!prodution_added.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <FontSize>9pt</FontSize>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=Fields!prodution_removed.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <FontSize>9pt</FontSize>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="drivers_removed">
+                      <Value>=Fields!wagons_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <FontSize>9pt</FontSize>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon1_added">
+                      <Value>=Fields!wagons_removed.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <FontSize>9pt</FontSize>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon1_removed">
+                      <Value>=Fields!warehouse_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon2_added">
+                      <Value>=Fields!warehouse_removed.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon2_removed">
+                      <Value>=Fields!regrading_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <Format>='N' + {digits}</Format>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon3_added">
+                      <Value>=Fields!regrading_removed.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon3_removed">
+                      <Value>=Fields!inventory_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon4_added">
+                      <Value>=Fields!inventory_removed.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon4_removed">
+                      <Value>={all_added}-{prodution_added}-{wagons_added}-{warehouse_added}-{regrading_added}-{inventory_added}</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>={all_removed}-{prodution_removed}-{wagons_removed}-{warehouse_removed}-{regrading_removed}-{inventory_removed}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>={before_added}-{before_removed}+{all_added}-{all_removed}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Right>2pt</Right>
+                          <Top>=Iif(Previous({category}) != {category}, '2pt', '1pt')</Top>
+                          <Bottom>=Iif(Next({category}) != {category}, '2pt', '1pt')</Bottom>
+                        </BorderWidth>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>41.6pt</Top>
+      </Table>
+      <Textbox Name="Textbox21">
+        <Height>15.80pt</Height>
+        <Width>599.91pt</Width>
+        <Value>Фуры</Value>
+        <ZIndex>1</ZIndex>
+        <Left>8.8pt</Left>
+        <Top>86.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>14pt</FontSize>
+        </Style>
+      </Textbox>
+      <Subreport Name="Subreport1">
+        <Height>22.57pt</Height>
+        <Width>755.77pt</Width>
+        <Left>0.0pt</Left>
+        <Top>105.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>StockWagonMovements</ReportName>
+        <NoRows>По фурам за период, нет данных.</NoRows>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="warehouse_id">
+            <Value>={?warehouse_id}</Value>
+          </Parameter>
+          <Parameter Name="startDate">
+            <Value>={?startDate}</Value>
+          </Parameter>
+          <Parameter Name="endDate">
+            <Value>={?endDate}</Value>
+          </Parameter>
+          <Parameter Name="nomenclature_type_include">
+            <Value>={?nomenclature_type_include}</Value>
+          </Parameter>
+          <Parameter Name="nomenclature_type_exclude">
+            <Value>={?nomenclature_type_exclude}</Value>
+          </Parameter>
+          <Parameter Name="nomenclature_include">
+            <Value>={?nomenclature_include}</Value>
+          </Parameter>
+          <Parameter Name="nomenclature_exclude">
+            <Value>={?nomenclature_exclude}</Value>
+          </Parameter>
+        </Parameters>
+      </Subreport>
+      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Top>15.9pt</Top>
+        <Left>5.7pt</Left>
+        <Width>791.22pt</Width>
+        <Height>18.04pt</Height>
+        <Value>= "Складские движения производства: '" + First({name}, 'warehouse_name') + "' с " + Format(CDate({?startDate}), "d") + " по " + Format(CDate({?endDate}), "d")</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox4">
+        <Height>14.25pt</Height>
+        <Width>205.43pt</Width>
+        <Value>="Сформировано: " + Format( {?creationDate}, "dd-MM-yyyy HH:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>600.74pt</Left>
+        <Top>2.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Height>136.4pt</Height>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox17">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
+    <ReportParameter Name="startDate">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-09-01</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="endDate">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-10-30</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="warehouse_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>6</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creationDate">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_type_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_type_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="product_group_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="product_group_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="sortType">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

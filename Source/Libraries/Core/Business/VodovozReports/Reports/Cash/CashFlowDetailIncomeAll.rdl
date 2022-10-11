@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+  </DataSets>
+  <PageHeader>
+    <Height>71.3pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems>
+      <Textbox Name="Textbox17">
+        <Height>18.03pt</Height>
+        <Width>560.17pt</Width>
+        <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>2.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.52pt</Height>
+        <Width>558.58pt</Width>
+        <Value>="Выбранные фильтры:"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>3.3pt</Left>
+        <Top>24.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <VerticalAlign>Middle</VerticalAlign>
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.29pt</Height>
+        <Width>548.87pt</Width>
+        <Value>= {?cash_subdivisions_name}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>4.0pt</Left>
+        <Top>41.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.99pt</Height>
+        <Width>555.56pt</Width>
+        <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
+        <ZIndex>1</ZIndex>
+        <Left>4.4pt</Left>
+        <Top>57.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Height>21.11pt</Height>
+        <Width>560.18pt</Width>
+        <Value>Приход (наличка)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>6.60pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>21.11pt</Height>
+        <Width>560.18pt</Width>
+        <Value>Сдача (наличка)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>88.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Subreport Name="Subreport2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>47.48pt</Height>
+        <Width>561.04pt</Width>
+        <Left>0.0pt</Left>
+        <Top>26.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>CashFlowDetailIncome</ReportName>
+        <NoRows>За период нет прихода.</NoRows>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="StartDate" >
+            <Value>=Parameters!StartDate</Value>
+          </Parameter>
+          <Parameter Name="EndDate" >
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="IncomeCategory" >
+            <Value>=Parameters!IncomeCategory</Value>
+          </Parameter>
+          <Parameter Name="Casher" >
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
+          <Parameter Name="Employee" >
+            <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="CasherName" >
+            <Value>=Parameters!CasherName</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName" >
+            <Value>=Parameters!EmployeeName</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions" >
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions_name" >
+            <Value>=Parameters!cash_subdivisions_name</Value>
+          </Parameter>
+        </Parameters>
+      </Subreport>
+      <Subreport Name="Subreport1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>47.48pt</Height>
+        <Width>561.04pt</Width>
+        <Left>0.0pt</Left>
+        <Top>111.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>CashFlowDetailIncomeReturn</ReportName>
+        <NoRows>За период нет возвратов денег.</NoRows>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters >
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
+          <Parameter Name="StartDate">
+            <Value>=Parameters!StartDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategory">
+            <Value>=Parameters!ExpenseCategory</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions_name">
+            <Value>=Parameters!cash_subdivisions_name</Value>
+          </Parameter>
+          <Parameter Name="CasherName">
+            <Value>=Parameters!CasherName</Value>
+          </Parameter>
+          <Parameter Name="Employee">
+            <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName">
+            <Value>=Parameters!EmployeeName</Value>
+          </Parameter>
+        </Parameters>
+      </Subreport>
+    </ReportItems>
+    <Height>170.8pt</Height>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>15.3pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox4">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters >
+    <ReportParameter Name="StartDate">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EndDate">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="IncomeCategory">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpenseCategory">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpenseCategoryUsed">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Casher">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Employee">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CasherName">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EmployeeName">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="cash_subdivisions">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="cash_subdivisions_name">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

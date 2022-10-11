@@ -1,0 +1,877 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>8.5in</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="Data">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    `nomenclature`.`name` AS nomenclature,
+    nomenclature.id AS nomenclature_id,
+    nom_discrepancies.id as discrepancy_nom_id,
+    ROUND(amount_in_db) amount_in_db,
+    ROUND(amount_in_fact) amount_in_fact,
+    ROUND(amount_in_fact - amount_in_db) difference,
+    store_inventory_item.comment
+FROM
+    store_inventory_item
+        LEFT JOIN
+    nomenclature ON nomenclature.id = store_inventory_item.nomenclature_id
+        LEFT JOIN
+    store_inventory ON store_inventory.id = store_inventory_item.store_inventory_id
+        LEFT JOIN
+    (
+        SELECT
+            nomenclature.id
+        FROM
+            store_movement_document_items 
+        left outer join
+            store_movement_document 
+                on store_movement_document_items.movement_document_id=store_movement_document.id 
+        left outer join
+            nomenclature 
+                on store_movement_document_items.nomenclature_id=nomenclature.id 
+        WHERE
+            store_movement_document.status = 'Discrepancy'
+            and store_movement_document.warehouse_from_id = (SELECT store_inventory.warehouse_id FROM store_inventory WHERE id = @inventory_id)
+            and not (store_movement_document_items.sended_amount = store_movement_document_items.received_amount)
+    ) as nom_discrepancies ON nomenclature.id = nom_discrepancies.id
+WHERE
+    store_inventory_item.store_inventory_id = @inventory_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="inventory_id">
+            <Value>=Parameters!inventory_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="nomenclature">
+          <DataField>nomenclature</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="discrepancy_nom_id">
+          <DataField>discrepancy_nom_id</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="amount_in_db">
+          <DataField>amount_in_db</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="amount_in_fact">
+          <DataField>amount_in_fact</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="difference">
+          <DataField>difference</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="nomenclature_id">
+          <DataField>nomenclature_id</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Doc">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    store_inventory.id, time_stamp, warehouses.name as warehouse, comment
+FROM
+    store_inventory
+        LEFT JOIN
+    warehouses ON warehouses.id = store_inventory.warehouse_id
+WHERE
+    store_inventory.id = @inventory_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="inventory_id">
+            <Value>={?inventory_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="time_stamp">
+          <DataField>time_stamp</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="warehouse">
+          <DataField>warehouse</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Image" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>/*
+SET @id1 = 3; #VodovozLogo
+SET @id2 = 4; #VISA 
+SET @id3 = 5; #MasterCard
+SET @id4 = 6; #Пожалуйся директору
+SET @id5 = 7; #рекламный баннер
+SET @id6 = 8; #телефон
+SET @id7 = 9; #VIP
+SET @id8 = 10; #Договор оферты
+*/
+
+SELECT
+
+stored_resource.id AS ID1,
+stored_resource.binary_file AS IM1 ,
+
+R2.id as ID2 ,
+R2.binary_file as IM2 ,
+
+R3.id as ID3 ,
+R3.binary_file as IM3 ,
+
+R4.id as ID4 ,
+R4.binary_file as IM4 ,
+
+R5.id as ID5 ,
+R5.binary_file as IM5 ,
+
+R6.id as ID6 ,
+R6.binary_file as IM6 ,
+
+R7.id as ID7 ,
+R7.binary_file as IM7 ,
+
+R8.id as ID8 ,
+R8.binary_file as IM8 
+
+FROM stored_resource
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id2
+) as R2 ON R2.id = @id2
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id3
+) as R3 ON R3.id = @id3
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id4
+) as R4 ON R4.id = @id4
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id5
+) as R5 ON R5.id = @id5
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id6
+) as R6 ON R6.id = @id6
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id7
+) as R7 ON R7.id = @id7
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id8
+) as R8 ON R8.id = @id8
+
+WHERE stored_resource.id = @id1</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id1">
+            <Value>3</Value>
+          </QueryParameter>
+          <QueryParameter Name="id2">
+            <Value>4</Value>
+          </QueryParameter>
+          <QueryParameter Name="id3">
+            <Value>5</Value>
+          </QueryParameter>
+          <QueryParameter Name="id4">
+            <Value>6</Value>
+          </QueryParameter>
+          <QueryParameter Name="id5">
+            <Value>7</Value>
+          </QueryParameter>
+          <QueryParameter Name="id6">
+            <Value>8</Value>
+          </QueryParameter>
+          <QueryParameter Name="id7">
+            <Value>9</Value>
+          </QueryParameter>
+          <QueryParameter Name="id8">
+            <Value>10</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="IM1">
+          <DataField>IM1</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM2">
+          <DataField>IM2</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM3">
+          <DataField>IM3</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM4">
+          <DataField>IM4</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM5">
+          <DataField>IM5</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM6">
+          <DataField>IM6</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM7">
+          <DataField>IM7</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM8">
+          <DataField>IM8</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>26.7pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>41.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>164.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>56.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>185.3pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>22.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>ID</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Номенклатура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>В учете шт.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>По факту шт.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Разница шт.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Что случилось</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>={nomenclature_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="nomenclature">
+                      <Value>=Fields!nomenclature.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontWeight>=Iif(Fields!discrepancy_nom_id.IsMissing, 'Normal','Bold')</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="culling_category">
+                      <Value>=Fields!amount_in_db.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="amount">
+                      <Value>=Fields!amount_in_fact.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>=Fields!difference.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="comment">
+                      <Value>=Fields!comment.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>=Sum(Fields!amount_in_db.Value)</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="tf_amount">
+                      <Value>=Sum(Fields!amount_in_fact.Value)</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>=Sum(Fields!difference.Value)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+        <Left>0.0pt</Left>
+        <Top>171.4pt</Top>
+      </Table>
+      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Top>143.40pt</Top>
+        <Left>0.00pt</Left>
+        <Width>575.75pt</Width>
+        <Height>19.60pt</Height>
+        <Value>='Акт инвентаризации ' + First({warehouse}, 'Doc')</Value>
+        <Style>
+          <FontSize>14pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Times New Roman</FontFamily>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Image Name="Image1">
+        <Height>148.24pt</Height>
+        <Width>142.97pt</Width>
+        <Left>15.30pt</Left>
+        <Top>8.30pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=First( {IM1} , "Image" )</Value>
+        <Sizing>FitProportional</Sizing>
+        <MIMEType >image/jpeg</MIMEType>
+      </Image>
+      <Textbox Name="Textbox12">
+        <Height>30.82pt</Height>
+        <Width>399.59pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>168.76pt</Left>
+        <Top>69.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontStyle>Italic</FontStyle>
+          <FontSize>22pt</FontSize>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Line Name="Line1">
+        <Height>0.01pt</Height>
+        <Width>401.99pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <Left>167.10pt</Left>
+        <Top>109.40pt</Top>
+      </Line>
+      <Textbox Name="Textbox13">
+        <Height>13.52pt</Height>
+        <Width>196.48pt</Width>
+        <Value>=First({time_stamp}, 'Doc')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>372.50pt</Left>
+        <Top>127.20pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <Format>f</Format>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox23">
+        <Height>15.76pt</Height>
+        <Width>259.02pt</Width>
+        <Value>Комментарий ответственного за склад:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>12.2pt</Left>
+        <Top>225.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextDecoration>Underline</TextDecoration>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox27">
+        <Height>13.56pt</Height>
+        <Width>548.11pt</Width>
+        <Value>=First({comment}, 'Doc')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>12.5pt</Left>
+        <Top>241.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <Textbox Name="Textbox28">
+        <Height>64.66pt</Height>
+        <Width>286.08pt</Width>
+        <Value> Подписи членов комиссии:
+1. ___________________________________________
+2. ___________________________________________
+3. ___________________________________________
+4. ___________________________________________ </Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.00pt</Left>
+        <Top>262.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox29">
+        <Height>60.90pt</Height>
+        <Width>277.03pt</Width>
+        <Value>Присутствующих:
+
+1. ___________________________________________
+
+2. ___________________________________________ </Value>
+        <ZIndex>1</ZIndex>
+        <Left>298.9pt</Left>
+        <Top>262.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Height>334.4pt</Height>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox11">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
+    <ReportParameter Name="inventory_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>4</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+</Report>

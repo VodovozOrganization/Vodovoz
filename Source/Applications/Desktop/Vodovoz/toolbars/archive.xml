@@ -1,0 +1,8 @@
+﻿<ui>
+	<toolbar name='toolbarSub'>
+		<toolitem name='ActionResidue' action='ActionResidue'/>
+		<toolitem name='RevisionBottlesAndDeposits' action='RevisionBottlesAndDeposits'/>
+		<toolitem name='ReportDebtorsBottles' action='ReportDebtorsBottles'/>
+		<toolitem name='ActionTransferOperationJournal' action='ActionTransferOperationJournal'/>
+	</toolbar>
+</ui>
