@@ -10,9 +10,10 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 
 		public string Title => DeliveryShift.Name;
 
-		public DeliveryShiftNode(DeliveryShift deliveryShift)
+		public DeliveryShiftNode(DeliveryShift deliveryShift, bool isSelected = false)
 		{
 			DeliveryShift = deliveryShift;
+			Selected = isSelected;
 		}
 	}
 }

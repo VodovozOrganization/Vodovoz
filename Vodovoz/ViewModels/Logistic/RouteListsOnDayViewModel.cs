@@ -139,7 +139,7 @@ namespace Vodovoz.ViewModels.Logistic
 			NHibernateUtil.Initialize(defaultDeliveryDaySchedule.Shifts);
 
 			var deliveryShifts = UoW.GetAll<DeliveryShift>();
-			DeliveryShiftNodes = deliveryShifts.Select(ds => new DeliveryShiftNode(ds)).ToList();
+			DeliveryShiftNodes = deliveryShifts.Select(ds => new DeliveryShiftNode(ds, true)).ToList();
 
 			CreateCommands();
 			LoadAddressesTypesDefaults();
@@ -1189,111 +1189,102 @@ namespace Vodovoz.ViewModels.Logistic
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 			var selectedDeliveryShifts = DeliveryShiftNodes.Where(x => x.Selected).Select(x => x.DeliveryShift).ToArray();
 
-			if(OrderAddressTypes.Any(x => x.Selected))
+			var query = QueryOver.Of(() => orderBaseAlias)
+				.Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
+				.Where(o => o.DeliverySchedule != null)
+				.Where(x => x.DeliveryPoint != null)
+				.And(x => x.DeliverySchedule.Id != closingDocumentDeliveryScheduleId);
+
+			if(!ShowCompleted)
+				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
+			else
+				query.Where(order =>
+					order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder &&
+					order.OrderStatus != OrderStatus.WaitForPayment);
+
+			var baseOrderQuery = query.GetExecutableQueryOver(UoW.Session);
+
+			AddAddressTypeFilter(baseOrderQuery);
+
+			baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
+				.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
+					selectedGeographicGroup.Select(x => x.Id).ToArray()));
+
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			baseOrderQuery
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderBaseAlias.Id)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.WhereRestrictionOn(() => routeListAlias.Shift).IsIn(selectedDeliveryShifts);
+
+			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
+				.Where(x => x.IsContractCloser == false)
+				.Where(x => !OrderRepository.IsOrderCloseWithoutDelivery(UoW, x));
+
+			baseOrderQuery.Fetch(SelectMode.Fetch, x => x.OrderItems).Future();
+
+			switch(DeliveryScheduleType)
 			{
-				var query = QueryOver.Of(() => orderBaseAlias)
-					.Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
-					.Where(o => o.DeliverySchedule != null)
-					.Where(x => x.DeliveryPoint != null)
-					.And(x => x.DeliverySchedule.Id != closingDocumentDeliveryScheduleId);
-
-				if(!ShowCompleted)
-					query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
-				else
-					query.Where(order =>
-						order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder &&
-						order.OrderStatus != OrderStatus.WaitForPayment);
-
-				var baseOrderQuery = query.GetExecutableQueryOver(UoW.Session);
-
-				AddAddressTypeFilter(baseOrderQuery);
-
-				if(selectedGeographicGroup.Any())
-				{
-					baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-						.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
-						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
-							selectedGeographicGroup.Select(x => x.Id).ToArray()));
-				}
-
-				if(selectedDeliveryShifts.Any())
-				{
-					RouteList routeListAlias = null;
-					RouteListItem routeListItemAlias = null;
-					baseOrderQuery
-						.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderBaseAlias.Id)
-						.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-						.WhereRestrictionOn(() => routeListAlias.Shift).IsIn(selectedDeliveryShifts);
-				}
-
-				var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
-					.Where(x => x.IsContractCloser == false)
-					.Where(x => !OrderRepository.IsOrderCloseWithoutDelivery(UoW, x));
-
-				baseOrderQuery.Fetch(SelectMode.Fetch, x => x.OrderItems).Future();
-
-				switch(DeliveryScheduleType)
-				{
-					case DeliveryScheduleFilterType.DeliveryStart:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-								.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
-								.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
-								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-								.Distinct().ToList()
-							;
-						break;
-					case DeliveryScheduleFilterType.DeliveryEnd:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-								.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
-								.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
-								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-								.Distinct().ToList()
-							;
-						break;
-					case DeliveryScheduleFilterType.DeliveryStartAndEnd:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-								.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
-								.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
-								.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
-								.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
-								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-								.Distinct().ToList()
-							;
-						break;
-					case DeliveryScheduleFilterType.OrderCreateDate:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-								.Where(x => x.CreateDate.Value.TimeOfDay >= DeliveryFromTime)
-								.Where(x => x.CreateDate.Value.TimeOfDay <= DeliveryToTime)
-								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-								.Distinct().ToList()
-							;
-						break;
-				}
-
-
-				UndeliveredOrder undeliveredOrderAlias = null;
-				Order orderAlias = null;
-				Order orderAlias2 = null;
-			
-				UndeliveryOrderNode resultAlias = null;
-				UndeliveredOrdersOnDay = QueryOver.Of<GuiltyInUndelivery>()
-					.Left.JoinAlias(x => x.UndeliveredOrder, () => undeliveredOrderAlias)
-					.Left.JoinAlias(() => undeliveredOrderAlias.OldOrder, () => orderAlias)
-					.Left.JoinAlias(() => undeliveredOrderAlias.NewOrder, () => orderAlias2)
-					.Where(() => orderAlias2.DeliveryDate == DateForRouting.Date && !orderAlias2.SelfDelivery)
-					.Where(() => orderAlias2.DeliverySchedule != null)
-					.Where(() => orderAlias2.DeliveryPoint != null)
-					.And(() => orderAlias2.DeliverySchedule.Id != closingDocumentDeliveryScheduleId)
-					.GetExecutableQueryOver(UoW.Session)
-					.SelectList(list => list
-						.Select(x=>x.GuiltySide).WithAlias(() => resultAlias.GuiltySide)
-						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OldOrderId)
-						.Select(() => orderAlias2.Id).WithAlias(() => resultAlias.NewOrderId)
-						.Select(() => orderAlias2.DeliveryPoint).WithAlias(() => resultAlias.DeliveryPoint)
-						.Select(() => orderAlias2.BottlesReturn).WithAlias(() => resultAlias.Bottles))
-					.TransformUsing(Transformers.AliasToBean<UndeliveryOrderNode>()).List<UndeliveryOrderNode>();
+				case DeliveryScheduleFilterType.DeliveryStart:
+					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+							.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
+							.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
+							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+							.Distinct().ToList()
+						;
+					break;
+				case DeliveryScheduleFilterType.DeliveryEnd:
+					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+							.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
+							.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
+							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+							.Distinct().ToList()
+						;
+					break;
+				case DeliveryScheduleFilterType.DeliveryStartAndEnd:
+					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+							.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
+							.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
+							.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
+							.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
+							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+							.Distinct().ToList()
+						;
+					break;
+				case DeliveryScheduleFilterType.OrderCreateDate:
+					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+							.Where(x => x.CreateDate.Value.TimeOfDay >= DeliveryFromTime)
+							.Where(x => x.CreateDate.Value.TimeOfDay <= DeliveryToTime)
+							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+							.Distinct().ToList()
+						;
+					break;
 			}
+
+
+			UndeliveredOrder undeliveredOrderAlias = null;
+			Order orderAlias = null;
+			Order orderAlias2 = null;
+
+			UndeliveryOrderNode resultAlias = null;
+			UndeliveredOrdersOnDay = QueryOver.Of<GuiltyInUndelivery>()
+				.Left.JoinAlias(x => x.UndeliveredOrder, () => undeliveredOrderAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.OldOrder, () => orderAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.NewOrder, () => orderAlias2)
+				.Where(() => orderAlias2.DeliveryDate == DateForRouting.Date && !orderAlias2.SelfDelivery)
+				.Where(() => orderAlias2.DeliverySchedule != null)
+				.Where(() => orderAlias2.DeliveryPoint != null)
+				.And(() => orderAlias2.DeliverySchedule.Id != closingDocumentDeliveryScheduleId)
+				.GetExecutableQueryOver(UoW.Session)
+				.SelectList(list => list
+					.Select(x => x.GuiltySide).WithAlias(() => resultAlias.GuiltySide)
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OldOrderId)
+					.Select(() => orderAlias2.Id).WithAlias(() => resultAlias.NewOrderId)
+					.Select(() => orderAlias2.DeliveryPoint).WithAlias(() => resultAlias.DeliveryPoint)
+					.Select(() => orderAlias2.BottlesReturn).WithAlias(() => resultAlias.Bottles))
+				.TransformUsing(Transformers.AliasToBean<UndeliveryOrderNode>()).List<UndeliveryOrderNode>();
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
 
@@ -1301,19 +1292,14 @@ namespace Vodovoz.ViewModels.Logistic
 				.GetExecutableQueryOver(UoW.Session);
 			if(!ShowCompleted)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
-			GeoGroup routeGeographicGroupAlias = null;
-			if(selectedGeographicGroup.Any())
-			{
-				routesQuery1
-					.Left.JoinAlias(x => x.GeographicGroups, () => routeGeographicGroupAlias)
-					.Where(Restrictions.In(Projections.Property(() => routeGeographicGroupAlias.Id),
-						selectedGeographicGroup.Select(x => x.Id).ToArray()));
-			}
 
-			if(selectedDeliveryShifts.Any())
-			{
-				routesQuery1.WhereRestrictionOn(rl => rl.Shift).IsIn(selectedDeliveryShifts);
-			}
+			GeoGroup routeGeographicGroupAlias = null;
+			routesQuery1
+				.Left.JoinAlias(x => x.GeographicGroups, () => routeGeographicGroupAlias)
+				.Where(Restrictions.In(Projections.Property(() => routeGeographicGroupAlias.Id),
+					selectedGeographicGroup.Select(x => x.Id).ToArray()));
+
+			routesQuery1.WhereRestrictionOn(rl => rl.Shift).IsIn(selectedDeliveryShifts);
 
 			var routesQuery = routesQuery1
 				.Fetch(SelectMode.Undefined, x => x.Addresses)
@@ -1457,33 +1443,26 @@ namespace Vodovoz.ViewModels.Logistic
 				.GetExecutableQueryOver(UoW.Session)
 				.Where(o => !o.IsContractCloser)
 				.And(o => o.OrderAddressType != OrderAddressType.Service);
-			if(OrderAddressTypes.Any(x => x.Selected))
-			{
-				AddAddressTypeFilter(baseQuery);
 
-				var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
-				
-				if(selectedGeographicGroup.Any())
-				{
-					baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-						.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
-						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
-							selectedGeographicGroup.Select(x => x.Id).ToArray()));
-				}
+			AddAddressTypeFilter(baseQuery);
 
-				var selectedDeliveryShifts = DeliveryShiftNodes.Where(x => x.Selected).Select(x => x.DeliveryShift).ToArray();
-				if(selectedDeliveryShifts.Any())
-				{
-					RouteList routeListAlias = null;
-					RouteListItem routeListItemAlias = null;
+			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 
-					baseQuery
-						.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderBaseAlias.Id)
-						.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-						.WhereRestrictionOn(() => routeListAlias.Shift).IsIn(selectedDeliveryShifts);
-				}
-			}
+			baseQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
+				.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
+					selectedGeographicGroup.Select(x => x.Id).ToArray()));
+
+			var selectedDeliveryShifts = DeliveryShiftNodes.Where(x => x.Selected).Select(x => x.DeliveryShift).ToArray();
+
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+
+			baseQuery
+				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderBaseAlias.Id)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.WhereRestrictionOn(() => routeListAlias.Shift).IsIn(selectedDeliveryShifts);
 
 			var ordersCount = baseQuery.Clone()
 				.SelectList(list => list
