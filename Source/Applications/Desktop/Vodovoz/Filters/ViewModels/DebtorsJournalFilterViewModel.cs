@@ -15,6 +15,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -36,6 +37,7 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _hideWithoutEmail;
 		private bool _showSuspendedCounterparty;
 		private bool _showCancellationCounterparty;
+		private DebtorsTaskStatus? _debtorsTaskStatus;
 		private DiscountReason _discountReason;
 		private Nomenclature _lastOrderNomenclature;
 		private DeliveryPointCategory _selectedDeliveryPointCategory;
@@ -169,6 +171,12 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _selectedDeliveryPointCategory, value);
 		}
 
+		public DebtorsTaskStatus? DebtorsTaskStatus
+		{
+			get => _debtorsTaskStatus;
+			set => UpdateFilterField(ref _debtorsTaskStatus, value);
+		}
+
 		public IEnumerable<DeliveryPointCategory> DeliveryPointCategories =>
 		 _deliveryPointCategories ?? (_deliveryPointCategories = UoW.GetAll<DeliveryPointCategory>());
 
@@ -190,5 +198,13 @@ namespace Vodovoz.Filters.ViewModels
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
 					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(),
 					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
+	}
+
+	public enum DebtorsTaskStatus
+	{
+		[Display(Name = "Да")]
+		HasTask,
+		[Display(Name = "Нет")]
+		WithoutTask
 	}
 }
