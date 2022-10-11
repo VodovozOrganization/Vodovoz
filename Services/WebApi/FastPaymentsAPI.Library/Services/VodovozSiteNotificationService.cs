@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace FastPaymentsAPI.Library.Services
@@ -19,9 +20,10 @@ namespace FastPaymentsAPI.Library.Services
 
 		public async Task NotifyOfFastPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto)
 		{
+			var json = JsonSerializer.Serialize(paymentNotificationDto);
 			var response = await _httpClient.PostAsJsonAsync(
 				_configuration.GetSection("VodovozSiteNotificationService")
-					.GetValue<string>("NotifyOfFastPaymentStatusChangedURI"), paymentNotificationDto);
+					.GetValue<string>("NotifyOfFastPaymentStatusChangedURI"), json);
 
 			if(response.IsSuccessStatusCode)
 			{
