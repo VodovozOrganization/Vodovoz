@@ -1,8 +1,10 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using System.Net;
 
 namespace Sms.Internal.Service
 {
@@ -20,7 +22,13 @@ namespace Sms.Internal.Service
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureWebHostDefaults(webBuilder =>
 				{
-                    webBuilder.UseStartup<Startup>();
+					webBuilder.ConfigureKestrel(options =>
+					{
+						// Setup a HTTP/2 endpoint without TLS.
+						options.Listen(IPAddress.Any, 7079, o => o.Protocols = HttpProtocols.Http2);
+					});
+
+					webBuilder.UseStartup<Startup>();
                 })
 				.ConfigureLogging(logging =>
 				{

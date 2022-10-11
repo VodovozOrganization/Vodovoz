@@ -1349,6 +1349,10 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
+      <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>
+      <Name>Vodovoz.Settings.Database</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Settings\Vodovoz.Settings.csproj">
       <Project>{445C399F-F7F9-43FF-8278-E0392A792F03}</Project>
       <Name>Vodovoz.Settings</Name>

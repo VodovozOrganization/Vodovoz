@@ -326,7 +326,9 @@ namespace RoboAtsService.Requests
 			{
 				if(payment == RoboAtsOrderPayment.QrCode)
 				{
-					CreateOrderWithPaymentByQrCode(orderArgs);
+					var needAcceptOrder = isFullOrder;
+					var task = CreateOrderWithPaymentByQrCode(orderArgs, needAcceptOrder);
+					task.Wait();
 					return "1";
 				}
 
@@ -343,6 +345,10 @@ namespace RoboAtsService.Requests
 			}
 			catch(Exception ex)
 			{
+				if(ex is AggregateException aggregateException && aggregateException.InnerException != null)
+				{
+					ex = aggregateException.InnerException;
+				}
 				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.Exception, RoboatsCallOperation.CreateOrder,
 					$"Произошла ошибка при создании заказа. Ошибка: {ex.Message}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
@@ -361,9 +367,9 @@ namespace RoboAtsService.Requests
 			_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Звонок не был успешно завершен. Был создан черновой заказ {orderId}");
 		}
 
-		private async Task CreateOrderWithPaymentByQrCode(RoboatsOrderArgs orderArgs)
+		private async Task CreateOrderWithPaymentByQrCode(RoboatsOrderArgs orderArgs, bool needAcceptOrder)
 		{
-			var order = await _roboatsOrderModel.CreateOrderWithPaymentByQrCode(ClientPhone, orderArgs);
+			var order = await _roboatsOrderModel.CreateOrderWithPaymentByQrCode(ClientPhone, orderArgs, needAcceptOrder);
 			if(order.OrderStatus == OrderStatus.NewOrder)
 			{
 				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Был создан черновой заказ {order.Id} с оплатой по QR коду." +

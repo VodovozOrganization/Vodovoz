@@ -1,7 +1,7 @@
 ﻿using QS.Project.DB;
 using System;
 
-namespace Vodovoz.Infrastructure
+namespace Vodovoz.Infrastructure.Database
 {
 	public class DatabaseInfo : IDataBaseInfo
 	{
@@ -10,7 +10,7 @@ namespace Vodovoz.Infrastructure
 
 		public Guid? BaseGuid { get; }
 
-		public DatabaseInfo(string name, bool isDemo)
+		public DatabaseInfo(string name, bool isDemo = false)
 		{
 			Name = name;
 			IsDemo = isDemo;

@@ -4,13 +4,13 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>d6b9a2e9-a3a6-4133-a5cd-d2dd944e825f</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	<DockerfileContext>..\..\..</DockerfileContext>
+	<DockerfileContext>..\..\..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.34.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
-	<PackageReference Include="Autofac" Version="6.3.0" />
+	<PackageReference Include="Autofac" Version="6.4.0" />
 	<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
 	<PackageReference Include="NLog.Web.AspNetCore" Version="5.1.0" />
   </ItemGroup>

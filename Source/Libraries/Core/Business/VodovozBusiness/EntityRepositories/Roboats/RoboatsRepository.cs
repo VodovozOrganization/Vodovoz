@@ -128,7 +128,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 			{
 				RoboatsWaterType roboatsWaterTypeAlias = null;
 				var waters = uow.Session.QueryOver(() => roboatsWaterTypeAlias)
-					.OrderBy(x => x.Order).Asc()
+					.OrderBy(() => roboatsWaterTypeAlias.Order).Asc()
 					.List();
 				_roboatsWatersCache = waters;
 				return _roboatsWatersCache;

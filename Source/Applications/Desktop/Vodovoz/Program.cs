@@ -92,7 +92,7 @@ namespace Vodovoz
 			if (LoginResult == ResponseType.DeleteEvent || LoginResult == ResponseType.Cancel)
 				return;
 
-			DataBaseInfo = new Infrastructure.DatabaseInfo(LoginDialog.BaseName, false);
+			DataBaseInfo = new Vodovoz.Infrastructure.Database.DatabaseInfo(LoginDialog.BaseName, false);
 
 			LoginDialog.Destroy ();
 

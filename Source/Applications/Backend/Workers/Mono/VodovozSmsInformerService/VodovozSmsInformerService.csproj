@@ -125,6 +125,10 @@
       <Project>{023DBDAF-5FB8-466C-B9E3-AB96CBB4E4F1}</Project>
       <Name>Sms.External.SmsRu</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
+      <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>
+      <Name>Vodovoz.Settings.Database</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>
       <Name>VodovozBusiness</Name>

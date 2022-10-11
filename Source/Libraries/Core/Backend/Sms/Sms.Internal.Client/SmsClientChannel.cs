@@ -23,10 +23,14 @@ namespace Sms.Internal.Client
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
+			AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+			AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2Support", true);
+
 			_httpClient = new HttpClient();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", apiKey);
 			var options = new GrpcChannelOptions();
 			options.HttpClient = _httpClient;
+			options.UnsafeUseInsecureChannelCallCredentials = true;
 			var channel = GrpcChannel.ForAddress(url, options);
 			_grpcChannel = channel;
 			_client = new SmsSender.SmsSenderClient(channel);

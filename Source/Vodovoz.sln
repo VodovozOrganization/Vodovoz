@@ -253,7 +253,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sms.Internal.Service", "App
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Libraries\Core\Backend\Sms\Sms.Internal.Grpc\Sms.Internal.Grpc.projitems*{293d7b89-c070-422e-89b5-88650dbb48b0}*SharedItemsImports = 5
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{8ff7c332-e6d1-456f-8067-11ce62aaef5a}*SharedItemsImports = 5
 		Libraries\Core\Backend\Sms\Sms.Internal.Grpc\Sms.Internal.Grpc.projitems*{bd7720d3-8b1a-4568-950e-9b45fffad776}*SharedItemsImports = 13

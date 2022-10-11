@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Settings.Database;
 
 namespace Vodovoz.Domain
 {

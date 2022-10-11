@@ -6,6 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Autofac" Version="6.4.0" />
 		<PackageReference Include="Google.Protobuf" Version="3.21.7" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.49.0" />
 		<PackageReference Include="Grpc.Tools" Version="2.49.1">
@@ -22,6 +23,5 @@
 		<Protobuf Include="..\Sms.Internal.Grpc\sms.proto" GrpcServices="Client" />
 	</ItemGroup>
 
-	<Import Project="..\Sms.Internal.Grpc\Sms.Internal.Grpc.projitems" Label="Shared" />
 
 </Project>

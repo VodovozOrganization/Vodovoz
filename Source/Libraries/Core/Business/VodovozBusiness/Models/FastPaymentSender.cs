@@ -11,7 +11,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Settings.Sms;
 using VodovozInfrastructure.Utils;
 
-namespace Vodovoz.Additions
+namespace Vodovoz.Models
 {
     public class FastPaymentSender
     {
@@ -70,7 +70,7 @@ namespace Vodovoz.Additions
 					MessageText = $"Ссылка на оплату заказа №{orderId}\n" +
 						$"{_fastPaymentParametersProvider.GetVodovozFastPayBaseUrl}/{response.FastPaymentGuid}",
 					MobilePhone = phoneNumber,
-					ExpiredTime = Timestamp.FromDateTime(DateTime.Now.AddMinutes(10))
+					ExpiredTime = Timestamp.FromDateTime(DateTime.UtcNow.AddMinutes(10))
 				};
 
 				var result = await smsChannel.Client.SendAsync(smsMessage);

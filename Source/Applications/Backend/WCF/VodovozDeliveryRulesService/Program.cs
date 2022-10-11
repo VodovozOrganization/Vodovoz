@@ -1,4 +1,4 @@
-using Fias.Service;
+﻿using Fias.Service;
 using Fias.Service.Cache;
 using Mono.Unix;
 using Mono.Unix.Native;
@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using System;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
@@ -18,6 +19,7 @@ using System.Threading;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 
 namespace VodovozDeliveryRulesService
 {
@@ -77,11 +79,12 @@ namespace VodovozDeliveryRulesService
 										 .ConnectionString(connectionString);
 				var assemblies = new[]
 				{
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
+					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Bank)),
+					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+					Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				};
 
 				OrmConfig.ConfigureOrm(dbConfig, assemblies);

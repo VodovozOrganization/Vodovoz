@@ -7,11 +7,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["/Services/Sms/Sms.Internal.Service/Sms.Internal.Service.csproj", "RepositoryRoot/Vodovoz/Services/Sms/Sms.Internal.Service/"]
-RUN dotnet restore "RepositoryRoot/Vodovoz/Services/Sms/Sms.Internal.Service/Sms.Internal.Service.csproj"
-COPY . /RepositoryRoot/Vodovoz/
-COPY ../QSProjects/QS.Project.Core /RepositoryRoot/QSProjects/QS.Project.Core
-WORKDIR "/src/RepositoryRoot/Vodovoz/Services/Sms/Sms.Internal.Service"
+COPY ["Applications/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj", "Applications/Backend/WebAPI/Sms.Internal.Service/"]
+RUN dotnet restore "Applications/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj"
+COPY . .
+WORKDIR "/src/Applications/Backend/WebAPI/Sms.Internal.Service"
 RUN dotnet build "Sms.Internal.Service.csproj" -c Release -o /app/build
 
 FROM build AS publish
@@ -20,5 +19,5 @@ RUN dotnet publish "Sms.Internal.Service.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-EXPOSE 9151
+EXPOSE 7079
 ENTRYPOINT ["dotnet", "Sms.Internal.Service.dll"]

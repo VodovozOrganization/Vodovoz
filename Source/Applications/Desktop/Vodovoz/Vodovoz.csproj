@@ -1321,7 +1321,6 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderForMovDocFilterView.cs" />
     <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
-    <Compile Include="Infrastructure\DatabaseInfo.cs" />
     <Compile Include="Infrastructure\DefaultUnhandledExceptionHandler.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ErrorMessageView.cs" />
     <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
@@ -1828,7 +1827,7 @@
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageReference Include="Autofac" Version="6.3.0" />
+    <PackageReference Include="Autofac" Version="6.4.0" />
     <PackageReference Include="Vodovoz.Fias.Search">
       <Version>1.0.5</Version>
     </PackageReference>

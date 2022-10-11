@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Threading;
@@ -12,6 +13,7 @@ using Sms.External.SmsRu;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 
 namespace VodovozSmsInformerService
 {
@@ -97,14 +99,15 @@ namespace VodovozSmsInformerService
 										 .ConnectionString(conStrBuilder.GetConnectionString(true));
 
 				OrmConfig.ConfigureOrm(db_config,
-					new System.Reflection.Assembly[]
+					new Assembly[]
 					{
-						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
+						Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+						Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+						Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+						Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+						Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
+						Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 					});
 
 				QS.HistoryLog.HistoryMain.Enable();

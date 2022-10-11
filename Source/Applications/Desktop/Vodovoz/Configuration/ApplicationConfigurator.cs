@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Reflection;
 using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
@@ -44,6 +45,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.NhibernateExtensions;
+using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -89,15 +91,16 @@ namespace Vodovoz.Configuration
             OrmConfig.ConfigureOrm(
                 dbConfig,
                 new[] {
-                    System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-                    System.Reflection.Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
-                    System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-                    System.Reflection.Assembly.GetAssembly(typeof(Bank)),
-                    System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
-                    System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
-                    System.Reflection.Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings))
+                    Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+                    Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
+                    Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+                    Assembly.GetAssembly(typeof(Bank)),
+                    Assembly.GetAssembly(typeof(HistoryMain)),
+                    Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
+                    Assembly.GetAssembly(typeof(QS.Report.Domain.UserPrintSettings)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				},
-                cnf => {
+				cnf => {
                     cnf.DataBaseIntegration(
                         dbi => {
                             dbi.BatchSize = 100;
