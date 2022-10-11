@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FastPaymentsAPI.Library.DTO_s.Requests;
 
@@ -16,7 +17,8 @@ namespace FastPaymentsAPI.Library.Services
 
 		public async Task NotifyOfFastPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto, string url)
 		{
-			var response = await _httpClient.PostAsJsonAsync(url, paymentNotificationDto);
+			var json = JsonSerializer.Serialize(paymentNotificationDto);
+			var response = await _httpClient.PostAsJsonAsync(url, json);
 
 			if(response.IsSuccessStatusCode)
 			{
