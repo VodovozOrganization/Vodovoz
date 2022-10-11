@@ -1,12 +1,20 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+
 namespace Vodovoz.Filters.GtkViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PhonesJournalFilterView : Gtk.Bin
+	public partial class PhonesJournalFilterView : FilterViewBase<PhonesJournalFilterViewModel>
 	{
-		public PhonesJournalFilterView()
+		public PhonesJournalFilterView(PhonesJournalFilterViewModel filterViewModel) : base(filterViewModel)
 		{
 			this.Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			HideAll();
 		}
 	}
 }
