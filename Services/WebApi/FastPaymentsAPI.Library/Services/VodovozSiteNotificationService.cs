@@ -11,16 +11,18 @@ namespace FastPaymentsAPI.Library.Services
 	{
 		private readonly HttpClient _httpClient;
 		private readonly IConfiguration _configuration;
+		private JsonSerializerOptions _jsonOptions;
 
 		public VodovozSiteNotificationService(HttpClient client, IConfiguration configuration)
 		{
 			_httpClient = client ?? throw new ArgumentNullException(nameof(client));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+			ConfigureJsonOptions();
 		}
 
 		public async Task NotifyOfFastPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto)
 		{
-			var json = JsonSerializer.Serialize(paymentNotificationDto);
+			var json = JsonSerializer.Serialize(paymentNotificationDto, _jsonOptions);
 			var response = await _httpClient.PostAsJsonAsync(
 				_configuration.GetSection("VodovozSiteNotificationService")
 					.GetValue<string>("NotifyOfFastPaymentStatusChangedURI"), json);
@@ -30,6 +32,14 @@ namespace FastPaymentsAPI.Library.Services
 				return;
 			}
 			throw new Exception(response.ReasonPhrase);
+		}
+		
+		private void ConfigureJsonOptions()
+		{
+			_jsonOptions = new JsonSerializerOptions
+			{
+				WriteIndented = true
+			};
 		}
 	}
 }
