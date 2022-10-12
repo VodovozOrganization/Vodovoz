@@ -42,10 +42,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			.Left.JoinAlias(x => x.PhoneType, () => phoneTypeAlias);
 
 
-			if(FilterViewModel.Counterparty != null && FilterViewModel.DeliveryPoint != null)
+			if(FilterViewModel.Counterparty != null)
 			{
-				itemsQuery.Where(x => x.Counterparty.Id == FilterViewModel.Counterparty.Id
-					|| x.DeliveryPoint.Id == FilterViewModel.DeliveryPoint.Id);
+				if(FilterViewModel.DeliveryPoint == null)
+				{
+					itemsQuery.Where(x => x.Counterparty.Id == FilterViewModel.Counterparty.Id);
+				}
+				else
+				{
+					itemsQuery.Where(x => x.Counterparty.Id == FilterViewModel.Counterparty.Id
+						|| x.DeliveryPoint.Id == FilterViewModel.DeliveryPoint.Id);
+				}
 			}
 
 			itemsQuery.Where(GetSearchCriterion(

@@ -318,12 +318,13 @@ namespace Vodovoz
 			Entity.OrderAddressType = OrderAddressType.Delivery;
 		}
 
-		public OrderDlg(Counterparty client) : this()
+		public OrderDlg(Counterparty client, Phone contactPhone) : this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
 			Entity.PaymentType = Entity.Client.PaymentMethod;
 			IsForRetail = Entity.Client.IsForRetail;
 			IsForSalesDepartment = Entity.Client.IsForSalesDepartment;
+			Entity.ContactPhone = contactPhone;
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -586,10 +587,9 @@ namespace Vodovoz
 			entityVMEntryClient.CanEditReference = true;
 
 			evmeContactPhone.SetObjectDisplayFunc<Phone>((phone) => phone.ToString());
-			SetSelectorFactoryForContactPhone(DeliveryPoint);
 			evmeContactPhone.Binding.AddSource(Entity)
 				.AddBinding(e => e.ContactPhone, w => w.Subject)
-				.AddFuncBinding(e => e.DeliveryPoint != null, w => w.Sensitive)
+				.AddFuncBinding(e => e.Client != null, w => w.Sensitive)
 				.InitializeFromSource();
 
 			var roboatsSettings = new RoboatsSettings(_parametersProvider);
@@ -614,7 +614,10 @@ namespace Vodovoz
 			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.CanEditReference = true;
 
-			evmeDeliveryPoint.ChangedByUser += (s, e) => {
+			evmeDeliveryPoint.ChangedByUser += (s, e) =>
+			{
+				SetSelectorFactoryForContactPhone();
+
 				if(Entity?.DeliveryPoint == null) {
 					return;
 				}
@@ -624,7 +627,6 @@ namespace Vodovoz
 				) {
 					Entity.DeliveryPoint = null;
 				}
-				SetSelectorFactoryForContactPhone(DeliveryPoint);
 			};
 
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer");
@@ -795,14 +797,9 @@ namespace Vodovoz
 			UpdateAvailableEnumSignatureTypes();
 		}
 
-		private void SetSelectorFactoryForContactPhone(DeliveryPoint deliveryPoint)
+		private void SetSelectorFactoryForContactPhone()
 		{
-			if(deliveryPoint == null)
-			{
-				return;
-			}
-
-			var contactPhoneFilter = new PhonesJournalFilterViewModel(deliveryPoint);
+			var contactPhoneFilter = new PhonesJournalFilterViewModel(Counterparty, DeliveryPoint);
 			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
 				() => new PhonesJournalViewModel(contactPhoneFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
 			evmeContactPhone.SetEntityAutocompleteSelectorFactory(phoneSelectoFactory);
@@ -2513,6 +2510,8 @@ namespace Vodovoz
 			UpdateProxyInfo();
 
 			SetSensitivityOfPaymentType();
+
+			SetSelectorFactoryForContactPhone();
 		}
 
 		private bool IsEnumTaxVisible() => Entity.Client != null &&
