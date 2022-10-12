@@ -103,6 +103,8 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
 namespace Vodovoz
 {
@@ -583,6 +585,13 @@ namespace Vodovoz
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
 
+			evmeContactPhone.SetObjectDisplayFunc<Phone>((phone) => phone.ToString());
+			SetSelectorFactoryForContactPhone(DeliveryPoint);
+			evmeContactPhone.Binding.AddSource(Entity)
+				.AddBinding(e => e.ContactPhone, w => w.Subject)
+				.AddFuncBinding(e => e.DeliveryPoint != null, w => w.Sensitive)
+				.InitializeFromSource();
+
 			var roboatsSettings = new RoboatsSettings(_parametersProvider);
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
@@ -615,6 +624,7 @@ namespace Vodovoz
 				) {
 					Entity.DeliveryPoint = null;
 				}
+				SetSelectorFactoryForContactPhone(DeliveryPoint);
 			};
 
 			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer");
@@ -783,6 +793,19 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
 
 			UpdateAvailableEnumSignatureTypes();
+		}
+
+		private void SetSelectorFactoryForContactPhone(DeliveryPoint deliveryPoint)
+		{
+			if(deliveryPoint == null)
+			{
+				return;
+			}
+
+			var contactPhoneFilter = new PhonesJournalFilterViewModel(deliveryPoint);
+			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
+				() => new PhonesJournalViewModel(contactPhoneFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+			evmeContactPhone.SetEntityAutocompleteSelectorFactory(phoneSelectoFactory);
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)

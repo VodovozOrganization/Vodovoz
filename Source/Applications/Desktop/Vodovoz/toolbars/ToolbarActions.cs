@@ -89,6 +89,10 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using Vodovoz.Domain.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
 public partial class MainWindow : Window
 {
@@ -1155,6 +1159,23 @@ public partial class MainWindow : Window
 
 	void ActionCarEventsJournalActivated(object sender, EventArgs e)
 	{
+		var dp = new DeliveryPoint();
+		using(var uoew = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			dp = uoew.GetById<DeliveryPoint>(992);
+		}
+
+		var filter = new PhonesJournalFilterViewModel(dp);
+		filter.HidenByDefault = true;
+
+		tdiMain.OpenTab(() => new PhonesJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices
+		));
+
+		return;
+
 		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
 		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
 		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
