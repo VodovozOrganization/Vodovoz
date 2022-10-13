@@ -183,6 +183,8 @@ using Vodovoz.Models;
 using QS.Validation;
 using Vodovoz.ViewWidgets;
 using Vodovoz.ViewModels.Dialogs.Complaints;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.Reports;
 
 namespace Vodovoz
 {
@@ -316,7 +318,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				;
-			
+
 			//Регистрация виджетов
 			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalFilterViewModel, DistrictsSetJournalFilterView>()
@@ -389,6 +391,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RoboatsCallsFilterViewModel, RoboatsCallsFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryScheduleFilterViewModel, DeliveryScheduleFilterView>()
 				.RegisterWidgetForWidgetViewModel<BulkEmailEventReportViewModel, BulkEmailEventReportView>()
+				.RegisterWidgetForWidgetViewModel<ProfitabilitySalesReportViewModel, ProfitabilitySalesReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
