@@ -189,7 +189,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			string formattedPhone = phoneFormatter.FormatString(PhoneText);
 			var contactPhone = currentCounterparty.Phones.FirstOrDefault(p => p.DigitsNumber == formattedPhone);
 
-			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty, Phone>(null, currentCounterparty, contactPhone);  //Здесь создание заказа!!!
+			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty, Phone>(null, currentCounterparty, contactPhone);
 			page.PageClosed += (sender, e) => { model.RefreshOrders(); };
 		}
 

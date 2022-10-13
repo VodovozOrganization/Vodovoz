@@ -89,10 +89,6 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using Vodovoz.Domain.Client;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
 public partial class MainWindow : Window
 {
