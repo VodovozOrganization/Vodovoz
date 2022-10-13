@@ -29,6 +29,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 
 		protected override void CreateNodeActions()
 		{
+			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
 		}
 

@@ -9,12 +9,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties
 		private Counterparty _counterparty;
 		private DeliveryPoint _deliveryPoint;
 
-		public PhonesJournalFilterViewModel(Counterparty counterparty, DeliveryPoint deliveryPoint = null)
-		{
-			_counterparty = counterparty ?? throw new ArgumentNullException(nameof(counterparty));
-			_deliveryPoint = deliveryPoint;
-		}
-
 		public Counterparty Counterparty
 		{
 			get => _counterparty;

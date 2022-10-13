@@ -5,7 +5,6 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Utilities.Numeric;
 using QSReport;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
@@ -185,11 +184,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			}
 			var model = CounterpartyOrdersViewModels.Find(m => m.Client.Id == currentCounterparty.Id);
 
-			var phoneFormatter = new PhoneFormatter(PhoneFormat.DigitsTen);
-			string formattedPhone = phoneFormatter.FormatString(PhoneText);
-			var contactPhone = currentCounterparty.Phones.FirstOrDefault(p => p.DigitsNumber == formattedPhone);
-
-			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty, Phone>(null, currentCounterparty, contactPhone);
+			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty, Phone>(null, currentCounterparty, ActiveCall.Phone);
 			page.PageClosed += (sender, e) => { model.RefreshOrders(); };
 		}
 

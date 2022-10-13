@@ -181,6 +181,7 @@ namespace Vodovoz
 		private bool _isNeedSendBill;
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
+		private PhonesJournalFilterViewModel _contactPhoneFilter;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -321,6 +322,7 @@ namespace Vodovoz
 		public OrderDlg(Counterparty client, Phone contactPhone) : this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
+			_contactPhoneFilter.Counterparty = Entity.Client;
 			Entity.PaymentType = Entity.Client.PaymentMethod;
 			IsForRetail = Entity.Client.IsForRetail;
 			IsForSalesDepartment = Entity.Client.IsForSalesDepartment;
@@ -614,9 +616,19 @@ namespace Vodovoz
 			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.CanEditReference = true;
 
+			_contactPhoneFilter = new PhonesJournalFilterViewModel
+			{
+				Counterparty = Counterparty,
+				DeliveryPoint = DeliveryPoint
+			};
+			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
+				() => new PhonesJournalViewModel(_contactPhoneFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+			evmeContactPhone.SetEntityAutocompleteSelectorFactory(phoneSelectoFactory);
+
 			evmeDeliveryPoint.ChangedByUser += (s, e) =>
 			{
-				SetSelectorFactoryForContactPhone();
+				_contactPhoneFilter.Counterparty = Counterparty;
+				_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
 
 				if(Entity?.DeliveryPoint == null) {
 					return;
@@ -795,14 +807,6 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
 
 			UpdateAvailableEnumSignatureTypes();
-		}
-
-		private void SetSelectorFactoryForContactPhone()
-		{
-			var contactPhoneFilter = new PhonesJournalFilterViewModel(Counterparty, DeliveryPoint);
-			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
-				() => new PhonesJournalViewModel(contactPhoneFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
-			evmeContactPhone.SetEntityAutocompleteSelectorFactory(phoneSelectoFactory);
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
@@ -2510,8 +2514,6 @@ namespace Vodovoz
 			UpdateProxyInfo();
 
 			SetSensitivityOfPaymentType();
-
-			SetSelectorFactoryForContactPhone();
 		}
 
 		private bool IsEnumTaxVisible() => Entity.Client != null &&
@@ -2761,6 +2763,9 @@ namespace Vodovoz
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
+
+			_contactPhoneFilter.Counterparty = Counterparty;
+			_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
 		}
 
 		protected void CheckForStopDelivery()
