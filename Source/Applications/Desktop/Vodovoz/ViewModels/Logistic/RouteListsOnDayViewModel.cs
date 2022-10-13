@@ -1187,7 +1187,6 @@ namespace Vodovoz.ViewModels.Logistic
 			Order orderBaseAlias = null;
 
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
-			var selectedDeliveryShifts = DeliveryShiftNodes.Where(x => x.Selected).Select(x => x.DeliveryShift).ToArray();
 
 			if(OrderAddressTypes.Any(x => x.Selected))
 			{
@@ -1215,16 +1214,6 @@ namespace Vodovoz.ViewModels.Logistic
 						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
 							selectedGeographicGroup.Select(x => x.Id).ToArray()));
-				}
-
-				if(selectedDeliveryShifts.Any())
-				{
-					RouteList routeListAlias = null;
-					RouteListItem routeListItemAlias = null;
-					baseOrderQuery
-						.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderBaseAlias.Id)
-						.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-						.WhereRestrictionOn(() => routeListAlias.Shift).IsIn(selectedDeliveryShifts);
 				}
 
 				var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
@@ -1309,6 +1298,8 @@ namespace Vodovoz.ViewModels.Logistic
 					.Where(Restrictions.In(Projections.Property(() => routeGeographicGroupAlias.Id),
 						selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
+
+			var selectedDeliveryShifts = DeliveryShiftNodes.Where(x => x.Selected).Select(x => x.DeliveryShift).ToArray();
 
 			if(selectedDeliveryShifts.Any())
 			{
