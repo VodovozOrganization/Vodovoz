@@ -627,9 +627,7 @@ namespace Vodovoz
 
 			evmeDeliveryPoint.ChangedByUser += (s, e) =>
 			{
-				_contactPhoneFilter.Counterparty = Counterparty;
-				_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
-
+				UpdateContactPhoneFilter();
 				if(Entity?.DeliveryPoint == null) {
 					return;
 				}
@@ -2764,6 +2762,11 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
 
+			UpdateContactPhoneFilter();
+		}
+
+		private void UpdateContactPhoneFilter()
+		{
 			_contactPhoneFilter.Counterparty = Counterparty;
 			_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
 		}

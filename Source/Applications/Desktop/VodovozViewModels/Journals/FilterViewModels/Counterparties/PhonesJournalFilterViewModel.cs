@@ -12,13 +12,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties
 		public Counterparty Counterparty
 		{
 			get => _counterparty;
-			set => UpdateFilterField(ref _counterparty, value);
+			set => SetField(ref _counterparty, value);
 		}
 
 		public DeliveryPoint DeliveryPoint
 		{
 			get => _deliveryPoint;
-			set => UpdateFilterField(ref _deliveryPoint, value);
+			set => SetField(ref _deliveryPoint, value);
 		}
 	}
 }
