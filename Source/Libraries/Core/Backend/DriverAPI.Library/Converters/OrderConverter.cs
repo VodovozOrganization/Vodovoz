@@ -160,7 +160,7 @@ namespace DriverAPI.Library.Converters
 				IsBottleStock = saleItem.DiscountByStock > 0,
 				IsDiscountInMoney = saleItem.IsDiscountInMoney,
 				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
-				DiscountReason = saleItem.DiscountReason.Name
+				DiscountReason = saleItem.DiscountReason?.Name
 			};
 
 			return result;
