@@ -4,25 +4,25 @@ namespace DeliveryRulesService.DTO
 {
 	public class DeliveryRuleDTO
 	{
-		[JsonInclude]
+		[JsonPropertyOrder(1)]
 		public string Bottles19l { get; set; }
 		
-		[JsonInclude]
+		[JsonPropertyOrder(4)]
 		public string Bottles6l { get; set; }
 		
-		[JsonInclude]
+		[JsonPropertyOrder(0)]
 		public string Bottles1500ml { get; set; }
 		
-		[JsonInclude]
+		[JsonPropertyOrder(3)]
 		public string Bottles600ml { get; set; }
 		
-		[JsonInclude]
+		[JsonPropertyOrder(2)]
 		public string Bottles500ml { get; set; }
 		
-		[JsonInclude]
+		[JsonPropertyOrder(5)]
 		public string MinOrder { get; set; }
 		
-		[JsonInclude]
+		[JsonPropertyOrder(6)]
 		public string Price { get; set; }
 	}
 }

@@ -15,16 +15,16 @@ namespace DeliveryRulesService.DTO
             }
         }
 
-		[JsonInclude]
-        public string Status { get; set; }
+		[JsonPropertyOrder(2)]
+		public string Status { get; set; }
 
-		[JsonInclude]
-        public string Message { get; set; }
+		[JsonPropertyOrder(1)]
+		public string Message { get; set; }
         
-		[JsonInclude]
-        public string GeoGroup { get; set; }
+		[JsonPropertyOrder(0)]
+		public string GeoGroup { get; set; }
 
-		[JsonInclude]
-        public IList<WeekDayDeliveryInfoDTO> WeekDayDeliveryInfos { get; set; }
+		[JsonPropertyOrder(3)]
+		public IList<WeekDayDeliveryInfoDTO> WeekDayDeliveryInfos { get; set; }
     }
 }

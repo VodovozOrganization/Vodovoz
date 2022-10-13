@@ -4,13 +4,13 @@ namespace DeliveryRulesService.DTO
 {
 	public class SiteNomenclatureNode
 	{
-		[JsonInclude]
+		[JsonPropertyOrder(0)]
 		public int SiteId { get; set; }
 
-		[JsonInclude]
+		[JsonPropertyOrder(1)]
 		public int? ERPId { get; set; }
 
-		[JsonInclude]
+		[JsonPropertyOrder(2)]
 		public int Amount { get; set; }
 	}
 }

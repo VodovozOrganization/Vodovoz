@@ -17,13 +17,13 @@ namespace DeliveryRulesService.DTO
 			}
 		}
 
-		[JsonInclude]
+		[JsonPropertyOrder(2)]
 		public string WeekDay { get; set; }
 		
-		[JsonInclude]
+		[JsonPropertyOrder(0)]
 		public IList<DeliveryRuleDTO> DeliveryRules { get; set; }
 		
-		[JsonInclude]
+		[JsonPropertyOrder(1)]
 		public IList<string> ScheduleRestrictions { get; set; }
 	}
 }

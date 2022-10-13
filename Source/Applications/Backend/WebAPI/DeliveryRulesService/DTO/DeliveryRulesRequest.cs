@@ -4,13 +4,13 @@ namespace DeliveryRulesService.DTO
 {
 	public class DeliveryRulesRequest
 	{
-		[JsonInclude]
+		[JsonPropertyOrder(0)]
 		public decimal Latitude { get; set; }
 
-		[JsonInclude]
+		[JsonPropertyOrder(1)]
 		public decimal Longitude { get; set; }
 
-		[JsonInclude]
+		[JsonPropertyOrder(2)]
 		public SiteNomenclatureNode[] SiteNomenclatures { get; set; }
 	}
 }
