@@ -1299,6 +1299,14 @@ namespace Vodovoz
 			}
 		}
 
+		protected void OnRadioEdoToggled(object sender, EventArgs e)
+		{
+			if(rbnEdo.Active)
+			{
+				notebook1.CurrentPage = 12;
+			}
+		}
+
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
@@ -1614,6 +1622,22 @@ namespace Vodovoz
 			}
 
 			RefreshBulkEmailEventStatus();
+		}
+
+		protected void OnYbuttonCheckClientInTaxcomClicked(object sender, EventArgs e)
+		{
+		}
+
+		protected void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
+		{
+		}
+
+		protected void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
+		{
+		}
+
+		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
+		{
 		}
 	}
 
