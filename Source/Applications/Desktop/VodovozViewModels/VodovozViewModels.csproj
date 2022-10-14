@@ -60,9 +60,14 @@
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Journals\JournalFactories\EdoOperatorsJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IEdoOperatorsJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
+    <Compile Include="Journals\JournalNodes\Client\EdoOperatorJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageDistributionNode.cs" />

@@ -54,6 +54,7 @@ namespace Vodovoz.Domain.Client
 		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
 		private ConsentForEdoStatus _consentForEdoStatus;
 		private string _personalAccountIdInEdo;
+		private EdoOperator _edoOperator;
 
 		#region Свойства
 
@@ -688,6 +689,13 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _personalAccountIdInEdo;
 			set => SetField(ref _personalAccountIdInEdo, value);
+		}
+
+		[Display(Name = "Оператор ЭДО")]
+		public virtual EdoOperator EdoOperator
+		{
+			get => _edoOperator;
+			set => SetField(ref _edoOperator, value);
 		}
 
 		#endregion

@@ -407,6 +407,10 @@
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
     <Compile Include="Dialogs\CastomMessageDlg.cs" />
+    <Compile Include="Dialogs\Client\EdoLightsMatrix\EdoLightsMatrix.cs" />
+    <Compile Include="Dialogs\Client\EdoLightsMatrix\EdoLightsMatrixColumn.cs" />
+    <Compile Include="Dialogs\Client\EdoLightsMatrix\EdoLightsMatrixRow.cs" />
+    <Compile Include="Dialogs\Client\EdoLightsMatrix\EdoPaymentType.cs" />
     <Compile Include="Factories\AttachmentsViewModelFactory.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
