@@ -60,7 +60,8 @@ namespace Vodovoz.Views.Organization
 			ytreeviewDocuments.Binding.AddBinding(ViewModel.Entity, e => e.ObservableDocumentTypes, w => w.ItemsDataSource).InitializeFromSource();
 
 			lblWarehouses.LineWrapMode = Pango.WrapMode.Word;
-			
+			lblWarehouses.LineWrap = true;
+
 			if(ViewModel.Entity.Id > 0)
 			{
 				lblWarehouses.Text = ViewModel.Entity.GetWarehousesNames(ViewModel.UoW, ViewModel.SubdivisionRepository);
