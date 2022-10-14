@@ -24,10 +24,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		decimal INomenclatureGroupPricingItemViewModel.CostPrice { get; set; }
 
-		bool INomenclatureGroupPricingItemViewModel.InvalidPurchasePrice => false;
-
-		decimal INomenclatureGroupPricingItemViewModel.PurchasePrice { get; set; }
-
 		bool INomenclatureGroupPricingItemViewModel.InvalidInnerDeliveryPrice => false;
 
 		decimal INomenclatureGroupPricingItemViewModel.InnerDeliveryPrice { get; set; }

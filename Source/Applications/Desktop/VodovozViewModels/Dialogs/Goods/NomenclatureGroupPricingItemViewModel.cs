@@ -23,17 +23,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				case nameof(_groupNomenclaturePriceModel.IsValidCostPrice):
 					OnPropertyChanged(nameof(InvalidCostPrice));
 					break;
-				case nameof(_groupNomenclaturePriceModel.IsValidPurchasePrice):
-					OnPropertyChanged(nameof(InvalidPurchasePrice));
-					break;
 				case nameof(_groupNomenclaturePriceModel.IsValidInnerDeliveryPrice):
 					OnPropertyChanged(nameof(InvalidInnerDeliveryPrice));
 					break;
 				case nameof(_groupNomenclaturePriceModel.CostPrice):
 					OnPropertyChanged(nameof(CostPrice));
-					break;
-				case nameof(_groupNomenclaturePriceModel.PurchasePrice):
-					OnPropertyChanged(nameof(PurchasePrice));
 					break;
 				case nameof(_groupNomenclaturePriceModel.InnerDeliveryPrice):
 					OnPropertyChanged(nameof(InnerDeliveryPrice));
@@ -73,32 +67,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				else
 				{
 					_groupNomenclaturePriceModel.CostPrice = value;
-				}
-			}
-		}
-
-		public bool InvalidPurchasePrice => !_groupNomenclaturePriceModel.IsValidPurchasePrice;
-
-		public decimal PurchasePrice
-		{
-			get
-			{
-				if(_groupNomenclaturePriceModel.PurchasePrice == null)
-				{
-					return 0;
-				}
-				return _groupNomenclaturePriceModel.PurchasePrice.Value;
-			}
-
-			set
-			{
-				if(value == 0)
-				{
-					_groupNomenclaturePriceModel.PurchasePrice = null;
-				}
-				else
-				{
-					_groupNomenclaturePriceModel.PurchasePrice = value;
 				}
 			}
 		}
