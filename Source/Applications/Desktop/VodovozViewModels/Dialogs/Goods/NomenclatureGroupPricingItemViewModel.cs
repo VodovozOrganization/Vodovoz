@@ -20,14 +20,20 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			switch(e.PropertyName)
 			{
-				case nameof(_groupNomenclaturePriceModel.IsValidCostPurchasePrice):
-					OnPropertyChanged(nameof(InvalidCostPurchasePrice));
+				case nameof(_groupNomenclaturePriceModel.IsValidCostPrice):
+					OnPropertyChanged(nameof(InvalidCostPrice));
+					break;
+				case nameof(_groupNomenclaturePriceModel.IsValidPurchasePrice):
+					OnPropertyChanged(nameof(InvalidPurchasePrice));
 					break;
 				case nameof(_groupNomenclaturePriceModel.IsValidInnerDeliveryPrice):
 					OnPropertyChanged(nameof(InvalidInnerDeliveryPrice));
 					break;
-				case nameof(_groupNomenclaturePriceModel.CostPurchasePrice):
-					OnPropertyChanged(nameof(CostPurchasePrice));
+				case nameof(_groupNomenclaturePriceModel.CostPrice):
+					OnPropertyChanged(nameof(CostPrice));
+					break;
+				case nameof(_groupNomenclaturePriceModel.PurchasePrice):
+					OnPropertyChanged(nameof(PurchasePrice));
 					break;
 				case nameof(_groupNomenclaturePriceModel.InnerDeliveryPrice):
 					OnPropertyChanged(nameof(InnerDeliveryPrice));
@@ -45,28 +51,54 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public Nomenclature Nomenclature => _groupNomenclaturePriceModel.Nomenclature;
 
-		public bool InvalidCostPurchasePrice => !_groupNomenclaturePriceModel.IsValidCostPurchasePrice;
+		public bool InvalidCostPrice => !_groupNomenclaturePriceModel.IsValidCostPrice;
 
-		public decimal CostPurchasePrice
+		public decimal CostPrice
 		{
 			get
 			{
-				if(_groupNomenclaturePriceModel.CostPurchasePrice == null)
+				if(_groupNomenclaturePriceModel.CostPrice == null)
 				{
 					return 0;
 				}
-				return _groupNomenclaturePriceModel.CostPurchasePrice.Value;
+				return _groupNomenclaturePriceModel.CostPrice.Value;
 			}
 
 			set
 			{
 				if(value == 0)
 				{
-					_groupNomenclaturePriceModel.CostPurchasePrice = null;
+					_groupNomenclaturePriceModel.CostPrice = null;
 				}
 				else
 				{
-					_groupNomenclaturePriceModel.CostPurchasePrice = value;
+					_groupNomenclaturePriceModel.CostPrice = value;
+				}
+			}
+		}
+
+		public bool InvalidPurchasePrice => !_groupNomenclaturePriceModel.IsValidPurchasePrice;
+
+		public decimal PurchasePrice
+		{
+			get
+			{
+				if(_groupNomenclaturePriceModel.PurchasePrice == null)
+				{
+					return 0;
+				}
+				return _groupNomenclaturePriceModel.PurchasePrice.Value;
+			}
+
+			set
+			{
+				if(value == 0)
+				{
+					_groupNomenclaturePriceModel.PurchasePrice = null;
+				}
+				else
+				{
+					_groupNomenclaturePriceModel.PurchasePrice = value;
 				}
 			}
 		}

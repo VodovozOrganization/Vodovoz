@@ -6,20 +6,23 @@ namespace Vodovoz.Factories
 {
 	public class NomenclatureGroupPricingPriceModelFactory
 	{
-		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
+		private readonly NomenclatureCostPriceModel _nomenclatureCostPriceModel;
+		private readonly NomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
 		private readonly NomenclatureInnerDeliveryPriceModel _nomenclatureInnerDeliveryPriceModel;
 
 		public NomenclatureGroupPricingPriceModelFactory(
-			NomenclatureCostPurchasePriceModel nomenclatureCostPurchasePriceModel,
+			NomenclatureCostPriceModel nomenclatureCostPriceModel,
+			NomenclaturePurchasePriceModel nomenclaturePurchasePriceModel,
 			NomenclatureInnerDeliveryPriceModel nomenclatureInnerDeliveryPriceModel)
 		{
-			_nomenclatureCostPurchasePriceModel = nomenclatureCostPurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPurchasePriceModel));
+			_nomenclatureCostPriceModel = nomenclatureCostPriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPriceModel));
+			_nomenclaturePurchasePriceModel = nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 			_nomenclatureInnerDeliveryPriceModel = nomenclatureInnerDeliveryPriceModel ?? throw new ArgumentNullException(nameof(nomenclatureInnerDeliveryPriceModel));
 		}
 
 		public NomenclatureGroupPricingPriceModel CreateModel(DateTime date, Nomenclature nomenclature)
 		{
-			return new NomenclatureGroupPricingPriceModel(date, nomenclature, _nomenclatureCostPurchasePriceModel, _nomenclatureInnerDeliveryPriceModel);
+			return new NomenclatureGroupPricingPriceModel(date, nomenclature, _nomenclatureCostPriceModel, _nomenclaturePurchasePriceModel, _nomenclatureInnerDeliveryPriceModel);
 		}
 	}
 }

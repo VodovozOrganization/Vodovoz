@@ -168,7 +168,7 @@ namespace Vodovoz
 			yentryStorageCell.Binding.AddBinding(Entity, s => s.StorageCell, w => w.Text).InitializeFromSource();
 			UpdateVisibilityForEshopParam();
 
-			nomenclaturePurchasePricesView.ViewModel = new NomenclaturePurchasePricesViewModel(Entity, new Models.NomenclatureCostPurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService));
+			nomenclaturePurchasePricesView.ViewModel = new NomenclaturePurchasePricesViewModel(Entity, new Models.NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService));
 
 			#region Вкладка характиристики
 

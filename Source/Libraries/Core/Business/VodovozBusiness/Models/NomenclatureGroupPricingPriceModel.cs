@@ -10,40 +10,60 @@ namespace Vodovoz.Models
 	public class NomenclatureGroupPricingPriceModel : PropertyChangedBase, IValidatableObject
 	{
 		private readonly DateTime _date;
-		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
+		private readonly NomenclatureCostPriceModel _nomenclatureCostPriceModel;
+		private readonly NomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
 		private readonly NomenclatureInnerDeliveryPriceModel _nomenclatureInnerDeliveryPriceModel;
-		private readonly bool _canCreateCostPurchasePrice;
+		private readonly bool _canCreateCostPrice;
+		private readonly bool _canCreatePurchasePrice;
 		private readonly bool _canCreateInnerDeliveryPrice;
-		private decimal? _costPurchasePrice;
+		private decimal? _costPrice;
+		private decimal? _purchasePrice;
 		private decimal? _innerDeliveryPrice;
 
 		public NomenclatureGroupPricingPriceModel(
 			DateTime date,
 			Nomenclature nomenclature,
-			NomenclatureCostPurchasePriceModel nomenclatureCostPurchasePriceModel,
+			NomenclatureCostPriceModel nomenclatureCostPriceModel,
+			NomenclaturePurchasePriceModel nomenclaturePurchasePriceModel,
 			NomenclatureInnerDeliveryPriceModel nomenclatureInnerDeliveryPriceModel)
 		{
 			_date = date;
 			Nomenclature = nomenclature ?? throw new ArgumentNullException(nameof(nomenclature));
-			_nomenclatureCostPurchasePriceModel = nomenclatureCostPurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPurchasePriceModel));
+			_nomenclatureCostPriceModel = nomenclatureCostPriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPriceModel));
+			_nomenclaturePurchasePriceModel = nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 			_nomenclatureInnerDeliveryPriceModel = nomenclatureInnerDeliveryPriceModel ?? throw new ArgumentNullException(nameof(nomenclatureInnerDeliveryPriceModel));
 
-			_canCreateCostPurchasePrice = nomenclatureCostPurchasePriceModel.CanCreatePrice(Nomenclature, _date);
 			_canCreateInnerDeliveryPrice = nomenclatureInnerDeliveryPriceModel.CanCreatePrice(Nomenclature, _date);
+			_canCreateCostPrice = nomenclatureCostPriceModel.CanCreatePrice(Nomenclature, _date);
+			_canCreatePurchasePrice = nomenclaturePurchasePriceModel.CanCreatePrice(Nomenclature, _date);
 		}
 
 		public Nomenclature Nomenclature { get; }
 
-		public bool IsValidCostPurchasePrice => !CostPurchasePrice.HasValue || (CostPurchasePrice.HasValue && _canCreateCostPurchasePrice);
+		public bool IsValidCostPrice => !CostPrice.HasValue || (CostPrice.HasValue && _canCreateCostPrice);
 
-		public decimal? CostPurchasePrice
+		public decimal? CostPrice
 		{
-			get => _costPurchasePrice;
+			get => _costPrice;
 			set
 			{
-				if(SetField(ref _costPurchasePrice, value))
+				if(SetField(ref _costPrice, value))
 				{
-					OnPropertyChanged(nameof(IsValidCostPurchasePrice));
+					OnPropertyChanged(nameof(IsValidCostPrice));
+				}
+			}
+		}
+
+		public bool IsValidPurchasePrice => !PurchasePrice.HasValue || (PurchasePrice.HasValue && _canCreatePurchasePrice);
+
+		public decimal? PurchasePrice
+		{
+			get => _purchasePrice;
+			set
+			{
+				if(SetField(ref _purchasePrice, value))
+				{
+					OnPropertyChanged(nameof(IsValidPurchasePrice));
 				}
 			}
 		}
@@ -71,17 +91,28 @@ namespace Vodovoz.Models
 			}
 
 			CreateCostPrice();
+			CreatePurchasePrice();
 			CreateInnerDeliveryPrice();
 		}
 
 		private void CreateCostPrice()
 		{
-			if(CostPurchasePrice == null)
+			if(CostPrice == null)
 			{
 				return;
 			}
 
-			var newPrice = _nomenclatureCostPurchasePriceModel.CreatePrice(Nomenclature, _date, CostPurchasePrice.Value);
+			_nomenclatureCostPriceModel.CreatePrice(Nomenclature, _date, CostPrice.Value);
+		}
+
+		private void CreatePurchasePrice()
+		{
+			if(PurchasePrice == null)
+			{
+				return;
+			}
+
+			_nomenclaturePurchasePriceModel.CreatePrice(Nomenclature, _date, PurchasePrice.Value);
 		}
 
 		private void CreateInnerDeliveryPrice()
@@ -97,9 +128,14 @@ namespace Vodovoz.Models
 
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!IsValidCostPurchasePrice)
+			if(!IsValidCostPrice)
 			{
-				yield return new ValidationResult($"Невозможно создать цены для {Nomenclature.Name}, так как на эту дату ({_date}) уже имеется цена закупки или себестоимости");
+				yield return new ValidationResult($"Невозможно создать цены для {Nomenclature.Name}, так как на эту дату ({_date}) уже имеется цена себестоимости");
+			}
+
+			if(!IsValidPurchasePrice)
+			{
+				yield return new ValidationResult($"Невозможно создать цены для {Nomenclature.Name}, так как на эту дату ({_date}) уже имеется цена закупки");
 			}
 
 			if(!IsValidInnerDeliveryPrice)

@@ -20,9 +20,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public string Name => _productGroup.Name;
 
-		bool INomenclatureGroupPricingItemViewModel.InvalidCostPurchasePrice => false;
+		bool INomenclatureGroupPricingItemViewModel.InvalidCostPrice => false;
 
-		decimal INomenclatureGroupPricingItemViewModel.CostPurchasePrice { get; set; }
+		decimal INomenclatureGroupPricingItemViewModel.CostPrice { get; set; }
+
+		bool INomenclatureGroupPricingItemViewModel.InvalidPurchasePrice => false;
+
+		decimal INomenclatureGroupPricingItemViewModel.PurchasePrice { get; set; }
 
 		bool INomenclatureGroupPricingItemViewModel.InvalidInnerDeliveryPrice => false;
 
