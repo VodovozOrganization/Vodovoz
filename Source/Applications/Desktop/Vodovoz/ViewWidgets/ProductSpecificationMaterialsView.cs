@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Tdi;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -81,15 +85,33 @@ namespace Vodovoz
 				return;
 			}
 
-			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature),
-				SpecificationUoW,
-				_nomenclatureRepository.NomenclatureForProductMaterialsQuery()
-				.GetExecutableQueryOver(SpecificationUoW.Session).RootCriteria
-			);
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ObjectSelected += NomenclatureSelected;
+			var filter = new NomenclatureFilterViewModel();
+			filter.AvailableCategories = Nomenclature.GetCategoriesForProductMaterial();
+			filter.RestrictArchive = false;
 
-			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+
+			mytab.TabParent.AddSlaveTab(mytab, journal);
+		}
+
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
+				return;
+			}
+
+			var selectedNomenclature = SpecificationUoW.GetById<Nomenclature>(selectedNode.Id);
+			items.Add(new ProductSpecificationMaterial
+			{
+				Material = selectedNomenclature,
+				Amount = 1,
+				ProductSpec = specificationUoW.Root
+			});
 		}
 
 		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)

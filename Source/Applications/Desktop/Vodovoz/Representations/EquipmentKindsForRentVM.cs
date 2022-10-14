@@ -4,6 +4,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -121,6 +122,31 @@ namespace Vodovoz.ViewModel
 		public string AvailableText{get{ return Available.ToString("N0");} }
 
 	
+	}
+
+	public class NomenclatureForSaleVMNode
+	{
+		[UseForSearch]
+		public int Id { get; set; }
+
+		[UseForSearch]
+		public string Name { get; set; }
+		public NomenclatureCategory Category { get; set; }
+		public decimal InStock => Added - Removed;
+		public decimal? Reserved { get; set; }
+		public decimal Available => InStock - Reserved.GetValueOrDefault();
+		public decimal Added { get; set; }
+		public decimal Removed { get; set; }
+		public string UnitName { get; set; }
+		public short UnitDigits { get; set; }
+		public bool IsEquipmentWithSerial { get; set; }
+		private string Format(decimal value) => string.Format("{0:F" + UnitDigits + "} {1}", value, UnitName);
+
+		private bool UsedStock => Nomenclature.GetCategoriesForGoods().Contains(Category);
+
+		public string InStockText => UsedStock ? Format(InStock) : string.Empty;
+		public string ReservedText => UsedStock && Reserved.HasValue ? Format(Reserved.Value) : string.Empty;
+		public string AvailableText => UsedStock ? Format(Available) : string.Empty;
 	}
 }
 

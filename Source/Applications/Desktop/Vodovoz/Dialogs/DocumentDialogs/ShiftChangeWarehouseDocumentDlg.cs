@@ -24,6 +24,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -348,19 +350,29 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(_nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
-			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
-			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
-			TabParent.AddSlaveTab(this, nomenclatureSelectDlg);
+			var filter = new NomenclatureFilterViewModel();
+			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			TabParent.AddSlaveTab(this, journal);
 		}
 
-		void NomenclatureSelectDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
-			var nomenclature = e.Subject as Nomenclature;
-			if(Entity.Items.Any(x => x.Nomenclature.Id == nomenclature.Id))
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
+				return;
+			}
+
+			var selectedNomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
+			if(Entity.Items.Any(x => x.Nomenclature.Id == selectedNomenclature.Id))
 				return;
 
-			Entity.AddItem(nomenclature, 0, 0);
+			Entity.AddItem(selectedNomenclature, 0, 0);
 		}
 
 		private void UpdateButtonState()

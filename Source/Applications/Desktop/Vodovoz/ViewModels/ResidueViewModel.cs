@@ -21,8 +21,10 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewModels
 {
@@ -178,21 +180,14 @@ namespace Vodovoz.ViewModels
 		{
 			AddDepositEquipmentItemCommand = new DelegateCommand(
 				() => {
-					NomenclatureRepFilter nomenclatureFilter = new NomenclatureRepFilter(UoW);
-					nomenclatureFilter.SetAndRefilterAtOnce(
-						x => x.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.equipment }
-					);
-					IRepresentationModel nomenclatureVM = new NomenclatureForSaleVM(nomenclatureFilter);
+					var filter = new NomenclatureFilterViewModel();
+					filter.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.equipment };
 
-					RepresentationJournalDialog selector = new RepresentationJournalDialog(nomenclatureVM);
-					selector.Mode = QS.Project.Dialogs.JournalSelectMode.Single;
-					selector.ObjectSelected += (sender, e) => {
-						if(!(e.Selected.FirstOrDefault() is NomenclatureForSaleVMNode selectedNode)) {
-							return;
-						}
-						Entity.AddEquipmentDepositItem(UoW.GetById<Nomenclature>(selectedNode.Id));
-					};
-					TabParent.AddSlaveTab(this, selector);
+					var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+					var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+					journal.FilterViewModel = filter;
+					journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult; ;
+					TabParent.AddSlaveTab(this, journal);
 				},
 				() => CanEdit
 			);
@@ -201,6 +196,17 @@ namespace Vodovoz.ViewModels
 				Entity.RemoveEquipmentDepositItem,
 				(selected) => CanEdit && selected != null && Entity.ObservableEquipmentDepositItems.Contains(selected)
 			);
+		}
+
+		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		{
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
+				return;
+			}
+			var nomenclature = UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id);
+			Entity.AddEquipmentDepositItem(nomenclature);
 		}
 
 		#endregion Commands

@@ -11,6 +11,8 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -92,30 +94,32 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonNewEquipmentDepositClicked(object sender, EventArgs e)
 		{
-			OrmReference SelectDialog =
-				new OrmReference(
-					typeof(Nomenclature),
-					UoW,
-					_nomenclatureRepository.NomenclatureEquipmentsQuery()
-										  .GetExecutableQueryOver(UoW.Session)
-										  .RootCriteria
-					) {
-					Mode = OrmReferenceMode.Select,
-					TabName = "Оборудование",
-					FilterClass = typeof(NomenclatureEquipTypeFilter)
-				};
-			SelectDialog.ObjectSelected += SelectDialog_ObjectSelected;
-			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
+			var filter = new NomenclatureFilterViewModel();
+			filter.AvailableCategories = new[] { NomenclatureCategory.equipment };
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			journal.Title = "Оборудование";
+			MyTab.TabParent.AddSlaveTab(MyTab, journal);
 		}
 
-		void SelectDialog_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
-			var selectedNode = (Nomenclature)e.Subject;
-			OrderDepositItem newDepositItem = new OrderDepositItem {
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
+				return;
+			}
+
+			var selectedNomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
+			OrderDepositItem newDepositItem = new OrderDepositItem
+			{
 				Count = 0,
 				ActualCount = null,
 				Order = Order,
-				EquipmentNomenclature = selectedNode,
+				EquipmentNomenclature = selectedNomenclature,
 				DepositType = DepositType.Equipment
 			};
 			Order.ObservableOrderDepositItems.Add(newDepositItem);
