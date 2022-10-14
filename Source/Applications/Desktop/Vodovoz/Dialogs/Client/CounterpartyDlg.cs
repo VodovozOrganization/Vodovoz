@@ -313,6 +313,7 @@ namespace Vodovoz
 			ConfigureTabSpecialFields();
 			ConfigureTabPrices();
 			ConfigureTabFixedPrices();
+			CongigureTabEdo();
 			ConfigureValidationContext();
 
 			//make actions menu
@@ -414,21 +415,6 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.IsForSalesDepartment, w => w.Active)
 				.InitializeFromSource();
 			ycheckIsForSalesDepartment.Sensitive = CanEdit;
-
-			yChkBtnIsPaperlessWorkflow.Binding
-				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
-				.InitializeFromSource();
-			yChkBtnIsPaperlessWorkflow.Sensitive = CanEdit;
-
-			yChkBtnIsNotSendDocumentsByEdo.Binding
-				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
-				.InitializeFromSource();
-			yChkBtnIsNotSendDocumentsByEdo.Sensitive = CanEdit;
-
-			yChkBtnCanSendUpdInAdvance.Binding
-				.AddBinding(Entity, e => e.CanSendUpdInAdvance, w => w.Active)
-				.InitializeFromSource();
-			yChkBtnCanSendUpdInAdvance.Sensitive = CanEdit;
 
 			ycheckNoPhoneCall.Binding
 				.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active)
@@ -768,12 +754,6 @@ namespace Vodovoz
 				.InitializeFromSource();
 			enumcomboCargoReceiverSource.Sensitive = CanEdit;
 
-			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
-			yEnumCmbReasonForLeaving.Binding
-				.AddBinding(Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
-				.InitializeFromSource();
-			yEnumCmbReasonForLeaving.Sensitive = CanEdit;
-
 			yentryCargoReceiver.Binding
 				.AddBinding(Entity, e => e.CargoReceiver, w => w.Text)
 				.InitializeFromSource();
@@ -971,6 +951,48 @@ namespace Vodovoz
 			EmailDataLoader.LoadData(false);
 
 			RefreshBulkEmailEventStatus();
+		}
+
+		private void CongigureTabEdo()
+		{
+			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
+			yEnumCmbReasonForLeaving.Binding
+				.AddBinding(Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yEnumCmbConsentForEdo.ItemsEnum = typeof(ConsentForEdoStatus);
+			yEnumCmbConsentForEdo.Binding
+				.AddBinding(Entity, e => e.ConsentForEdoStatus, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yEnumCmbRegistrationInChestnyZnak.ItemsEnum = typeof(RegistrationInChestnyZnakStatus);
+			yEnumCmbRegistrationInChestnyZnak.Binding
+				.AddBinding(Entity, e => e.RegistrationInChestnyZnakStatus, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
+			yEnumCmbSendUpdInOrderStatus.Binding
+				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yChkBtnIsPaperlessWorkflow.Binding
+				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
+				.InitializeFromSource();
+			yChkBtnIsPaperlessWorkflow.Sensitive = CanEdit;
+
+			yChkBtnIsNotSendDocumentsByEdo.Binding
+				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
+				.InitializeFromSource();
+			yChkBtnIsNotSendDocumentsByEdo.Sensitive = CanEdit;
+
+			yChkBtnCanSendUpdInAdvance.Binding
+				.AddBinding(Entity, e => e.CanSendUpdInAdvance, w => w.Active)
+				.InitializeFromSource();
+			yChkBtnCanSendUpdInAdvance.Sensitive = CanEdit;
+
+			yentryPersonalAccountCodeInEdo.Binding
+				.AddBinding(Entity, e => e.PersonalAccountInEdo, w => w.Text)
+				.InitializeFromSource();
 		}
 
 		private void RefreshBulkEmailEventStatus()
