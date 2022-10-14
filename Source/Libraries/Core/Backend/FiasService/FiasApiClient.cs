@@ -190,7 +190,7 @@ namespace Fias.Service
 			return response;
 		}
 
-		private GeocoderAddressCache GetCachedAddress(decimal latitude, decimal longitude)
+		private GeocoderCoordinatesCache GetCachedAddress(decimal latitude, decimal longitude)
 		{
 			try
 			{
@@ -205,7 +205,7 @@ namespace Fias.Service
 			return null;
 		}
 
-		private GeocoderCoordinatesCache GetCachedCoordinates(string address)
+		private GeocoderAddressCache GetCachedCoordinates(string address)
 		{
 			try
 			{

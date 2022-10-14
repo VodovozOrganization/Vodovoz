@@ -83,29 +83,25 @@ namespace Fias.Service.Cache
 			}
 		}
 
-		public GeocoderAddressCache GetAddress(decimal latitude, decimal longitude)
+		public GeocoderCoordinatesCache GetAddress(decimal latitude, decimal longitude)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var cacheId = new GeocoderCoordinatesCache { Latitude = latitude, Longitude = longitude };
+				var coordinatesCache = uow.Session.Get<GeocoderCoordinatesCache>(cacheId);
+				return coordinatesCache;
+			}
+		}
+
+		public GeocoderAddressCache GetCoordinates(string address)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				GeocoderAddressCache geocoderAddressCacheAlias = null;
 				var query = uow.Session.QueryOver(() => geocoderAddressCacheAlias)
-					.Where(() => geocoderAddressCacheAlias.Latitude == latitude)
-					.Where(() => geocoderAddressCacheAlias.Longitude == longitude);
+					.Where(() => geocoderAddressCacheAlias.Address == address);
 
 				var result = query.SingleOrDefault<GeocoderAddressCache>();
-				return result;
-			}
-		}
-
-		public GeocoderCoordinatesCache GetCoordinates(string address)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				GeocoderCoordinatesCache geocoderCoordinatesCacheAlias = null;
-				var query = uow.Session.QueryOver(() => geocoderCoordinatesCacheAlias)
-					.Where(() => geocoderCoordinatesCacheAlias.Address == address);
-
-				var result = query.SingleOrDefault<GeocoderCoordinatesCache>();
 				return result;
 			}
 		}
