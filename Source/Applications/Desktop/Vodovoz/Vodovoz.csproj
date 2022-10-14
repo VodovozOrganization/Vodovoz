@@ -1751,6 +1751,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.OdometerReadingView.cs" />
     <Compile Include="Views\Logistic\ResponsibleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ResponsibleView.cs" />
+    <Compile Include="Views\Client\EdoOperatorView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoOperatorView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -990,9 +990,9 @@ namespace Vodovoz
 				.InitializeFromSource();
 			yChkBtnCanSendUpdInAdvance.Sensitive = CanEdit;
 
-			yentryPersonalAccountCodeInEdo.Binding
+			/*yentryPersonalAccountCodeInEdo.Binding
 				.AddBinding(Entity, e => e.PersonalAccountInEdo, w => w.Text)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 		}
 
 		private void RefreshBulkEmailEventStatus()
