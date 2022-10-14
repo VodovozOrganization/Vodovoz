@@ -103,6 +103,8 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
 namespace Vodovoz
 {
@@ -179,6 +181,7 @@ namespace Vodovoz
 		private bool _isNeedSendBill;
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
+		private PhonesJournalFilterViewModel _contactPhoneFilter;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -316,12 +319,14 @@ namespace Vodovoz
 			Entity.OrderAddressType = OrderAddressType.Delivery;
 		}
 
-		public OrderDlg(Counterparty client) : this()
+		public OrderDlg(Counterparty client, Phone contactPhone) : this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
+			_contactPhoneFilter.Counterparty = Entity.Client;
 			Entity.PaymentType = Entity.Client.PaymentMethod;
 			IsForRetail = Entity.Client.IsForRetail;
 			IsForSalesDepartment = Entity.Client.IsForSalesDepartment;
+			Entity.ContactPhone = contactPhone;
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -583,6 +588,12 @@ namespace Vodovoz
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
 
+			evmeContactPhone.SetObjectDisplayFunc<Phone>((phone) => phone.ToString());
+			evmeContactPhone.Binding.AddSource(Entity)
+				.AddBinding(e => e.ContactPhone, w => w.Subject)
+				.AddFuncBinding(e => e.Client != null, w => w.Sensitive)
+				.InitializeFromSource();
+
 			var roboatsSettings = new RoboatsSettings(_parametersProvider);
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
@@ -605,7 +616,18 @@ namespace Vodovoz
 			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.CanEditReference = true;
 
-			evmeDeliveryPoint.ChangedByUser += (s, e) => {
+			_contactPhoneFilter = new PhonesJournalFilterViewModel
+			{
+				Counterparty = Counterparty,
+				DeliveryPoint = DeliveryPoint
+			};
+			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
+				() => new PhonesJournalViewModel(_contactPhoneFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+			evmeContactPhone.SetEntityAutocompleteSelectorFactory(phoneSelectoFactory);
+
+			evmeDeliveryPoint.ChangedByUser += (s, e) =>
+			{
+				UpdateContactPhoneFilter();
 				if(Entity?.DeliveryPoint == null) {
 					return;
 				}
@@ -2739,6 +2761,14 @@ namespace Vodovoz
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
+
+			UpdateContactPhoneFilter();
+		}
+
+		private void UpdateContactPhoneFilter()
+		{
+			_contactPhoneFilter.Counterparty = Counterparty;
+			_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
 		}
 
 		protected void CheckForStopDelivery()

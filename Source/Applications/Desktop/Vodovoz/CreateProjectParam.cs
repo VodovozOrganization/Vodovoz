@@ -185,6 +185,7 @@ using Vodovoz.ViewWidgets;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.Reports;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 
 namespace Vodovoz
 {
@@ -392,6 +393,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DeliveryScheduleFilterViewModel, DeliveryScheduleFilterView>()
 				.RegisterWidgetForWidgetViewModel<BulkEmailEventReportViewModel, BulkEmailEventReportView>()
 				.RegisterWidgetForWidgetViewModel<ProfitabilitySalesReportViewModel, ProfitabilitySalesReportView>()
+				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
