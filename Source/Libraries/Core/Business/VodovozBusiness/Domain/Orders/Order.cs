@@ -92,6 +92,8 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
+		private Phone _contactPhone;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -430,6 +432,12 @@ namespace Vodovoz.Domain.Orders
 		public virtual CounterpartyContract Contract {
 			get => contract;
 			set => SetField(ref contract, value, () => Contract);
+		}
+
+		public virtual Phone ContactPhone
+		{
+			get => _contactPhone;
+			set => SetField(ref _contactPhone, value);
 		}
 
 		MoneyMovementOperation moneyMovementOperation;

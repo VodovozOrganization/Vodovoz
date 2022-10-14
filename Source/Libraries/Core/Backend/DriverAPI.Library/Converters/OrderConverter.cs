@@ -1,5 +1,6 @@
 ﻿using DriverAPI.Library.DTOs;
 using Microsoft.Extensions.Logging;
+using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,16 +42,6 @@ namespace DriverAPI.Library.Converters
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
-			var deliveryPointPhones = vodovozOrder.DeliveryPoint.Phones
-				.GroupBy(p => p.DigitsNumber)
-				.Select(x => new PhoneDto {Number = "+7" + x.First().DigitsNumber, PhoneType = PhoneDtoType.DeliveryPoint})
-				.ToList();
-
-			var counterpartyPhones = vodovozOrder.Client.Phones
-				.GroupBy(p => p.DigitsNumber)
-				.Select(x => new PhoneDto { Number = "+7" + x.First().DigitsNumber, PhoneType = PhoneDtoType.Counterparty })
-				.ToList();
-
 			var apiOrder = new OrderDto
 			{
 				OrderId = vodovozOrder.Id,
@@ -60,7 +51,7 @@ namespace DriverAPI.Library.Converters
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
 				EmptyBottlesToReturn = (vodovozOrder.BottlesReturn ?? 0) + vodovozOrder.BottlesByStockCount,
 				Counterparty = vodovozOrder.Client.FullName,
-				PhoneNumbers = deliveryPointPhones.Concat(counterpartyPhones),
+				PhoneNumbers = CreatePhoneList(vodovozOrder),
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderComment = vodovozOrder.Comment,
@@ -75,6 +66,54 @@ namespace DriverAPI.Library.Converters
 			};
 
 			return apiOrder;
+		}
+
+		private IEnumerable<PhoneDto> CreatePhoneList(Order vodovozOrder)
+		{
+			var phoneFormatter = new PhoneFormatter(PhoneFormat.RussiaOnlyShort);
+
+			var deliveryPointPhones = vodovozOrder.DeliveryPoint.Phones
+				.GroupBy(p => p.DigitsNumber)
+				.Select(x => new PhoneDto 
+				{ 
+					Number = phoneFormatter.FormatString(x.First().DigitsNumber),
+					PhoneType = PhoneDtoType.DeliveryPoint 
+				})
+				.ToList();
+
+			var counterpartyPhones = vodovozOrder.Client.Phones
+				.GroupBy(p => p.DigitsNumber)
+				.Select(x => new PhoneDto 
+				{ 
+					Number = phoneFormatter.FormatString(x.First().DigitsNumber),
+					PhoneType = PhoneDtoType.Counterparty 
+				})
+				.ToList();
+
+			var allPhones = deliveryPointPhones.Concat(counterpartyPhones);
+			var orderContactPhone = vodovozOrder.ContactPhone;
+
+			if(orderContactPhone == null)
+			{
+				return allPhones;
+			}
+
+			var foundContactPhone = allPhones.FirstOrDefault(p => p.Number == phoneFormatter.FormatString(orderContactPhone.DigitsNumber));
+
+			var resultPhoneList = new List<PhoneDto>
+			{
+				foundContactPhone
+			};
+
+			foreach(var phone in allPhones)
+			{
+				if(!resultPhoneList.Contains(phone))
+				{
+					resultPhoneList.Add(phone);
+				}
+			}
+
+			return resultPhoneList;
 		}
 
 		private (IEnumerable<OrderDeliveryItemDto> orderDeliveryItems, IEnumerable<OrderReceptionItemDto> orderReceptionItems)
@@ -121,7 +160,7 @@ namespace DriverAPI.Library.Converters
 				IsBottleStock = saleItem.DiscountByStock > 0,
 				IsDiscountInMoney = saleItem.IsDiscountInMoney,
 				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
-				DiscountReason = saleItem.DiscountReason.Name
+				DiscountReason = saleItem.DiscountReason?.Name
 			};
 
 			return result;
