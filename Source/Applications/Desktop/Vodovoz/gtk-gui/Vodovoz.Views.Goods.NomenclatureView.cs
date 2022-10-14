@@ -272,6 +272,12 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gtk.HBox hbox11;
 
+		private global::Gtk.VBox vbox8;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCostPrice;
+
+		private global::Vodovoz.Views.Goods.NomenclatureCostPricesView nomenclaturecostpricesview;
+
 		private global::Gtk.VBox vbox6;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelPurchasePrice;
@@ -429,7 +435,7 @@ namespace Vodovoz.Views.Goods
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 5;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -1792,28 +1798,51 @@ namespace Vodovoz.Views.Goods
 			this.hbox11.Homogeneous = true;
 			this.hbox11.Spacing = 6;
 			// Container child hbox11.Gtk.Box+BoxChild
+			this.vbox8 = new global::Gtk.VBox();
+			this.vbox8.Name = "vbox8";
+			this.vbox8.Spacing = 6;
+			// Container child vbox8.Gtk.Box+BoxChild
+			this.ylabelCostPrice = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCostPrice.Name = "ylabelCostPrice";
+			this.ylabelCostPrice.LabelProp = global::Mono.Unix.Catalog.GetString("Себестоимость производства");
+			this.vbox8.Add(this.ylabelCostPrice);
+			global::Gtk.Box.BoxChild w133 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.ylabelCostPrice]));
+			w133.Position = 0;
+			w133.Expand = false;
+			w133.Fill = false;
+			// Container child vbox8.Gtk.Box+BoxChild
+			this.nomenclaturecostpricesview = new global::Vodovoz.Views.Goods.NomenclatureCostPricesView();
+			this.nomenclaturecostpricesview.Events = ((global::Gdk.EventMask)(256));
+			this.nomenclaturecostpricesview.Name = "nomenclaturecostpricesview";
+			this.vbox8.Add(this.nomenclaturecostpricesview);
+			global::Gtk.Box.BoxChild w134 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.nomenclaturecostpricesview]));
+			w134.Position = 1;
+			this.hbox11.Add(this.vbox8);
+			global::Gtk.Box.BoxChild w135 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox8]));
+			w135.Position = 0;
+			// Container child hbox11.Gtk.Box+BoxChild
 			this.vbox6 = new global::Gtk.VBox();
 			this.vbox6.Name = "vbox6";
 			this.vbox6.Spacing = 6;
 			// Container child vbox6.Gtk.Box+BoxChild
 			this.ylabelPurchasePrice = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPurchasePrice.Name = "ylabelPurchasePrice";
-			this.ylabelPurchasePrice.LabelProp = global::Mono.Unix.Catalog.GetString("Цена закупки или себестоимость производства");
+			this.ylabelPurchasePrice.LabelProp = global::Mono.Unix.Catalog.GetString("Цена закупки");
 			this.vbox6.Add(this.ylabelPurchasePrice);
-			global::Gtk.Box.BoxChild w133 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.ylabelPurchasePrice]));
-			w133.Position = 0;
-			w133.Expand = false;
-			w133.Fill = false;
+			global::Gtk.Box.BoxChild w136 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.ylabelPurchasePrice]));
+			w136.Position = 0;
+			w136.Expand = false;
+			w136.Fill = false;
 			// Container child vbox6.Gtk.Box+BoxChild
 			this.nomenclaturePurchasePricesView = new global::Vodovoz.Views.Goods.NomenclaturePurchasePricesView();
 			this.nomenclaturePurchasePricesView.Events = ((global::Gdk.EventMask)(256));
 			this.nomenclaturePurchasePricesView.Name = "nomenclaturePurchasePricesView";
 			this.vbox6.Add(this.nomenclaturePurchasePricesView);
-			global::Gtk.Box.BoxChild w134 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.nomenclaturePurchasePricesView]));
-			w134.Position = 1;
+			global::Gtk.Box.BoxChild w137 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.nomenclaturePurchasePricesView]));
+			w137.Position = 1;
 			this.hbox11.Add(this.vbox6);
-			global::Gtk.Box.BoxChild w135 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox6]));
-			w135.Position = 0;
+			global::Gtk.Box.BoxChild w138 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox6]));
+			w138.Position = 1;
 			// Container child hbox11.Gtk.Box+BoxChild
 			this.vbox7 = new global::Gtk.VBox();
 			this.vbox7.Name = "vbox7";
@@ -1823,23 +1852,23 @@ namespace Vodovoz.Views.Goods
 			this.ylabelInnerDelivery.Name = "ylabelInnerDelivery";
 			this.ylabelInnerDelivery.LabelProp = global::Mono.Unix.Catalog.GetString("Стоимость доставки единицы товара на склад");
 			this.vbox7.Add(this.ylabelInnerDelivery);
-			global::Gtk.Box.BoxChild w136 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.ylabelInnerDelivery]));
-			w136.Position = 0;
-			w136.Expand = false;
-			w136.Fill = false;
+			global::Gtk.Box.BoxChild w139 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.ylabelInnerDelivery]));
+			w139.Position = 0;
+			w139.Expand = false;
+			w139.Fill = false;
 			// Container child vbox7.Gtk.Box+BoxChild
 			this.nomenclatureinnerdeliverypricesview1 = new global::Vodovoz.Views.Goods.NomenclatureInnerDeliveryPricesView();
 			this.nomenclatureinnerdeliverypricesview1.Events = ((global::Gdk.EventMask)(256));
 			this.nomenclatureinnerdeliverypricesview1.Name = "nomenclatureinnerdeliverypricesview1";
 			this.vbox7.Add(this.nomenclatureinnerdeliverypricesview1);
-			global::Gtk.Box.BoxChild w137 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.nomenclatureinnerdeliverypricesview1]));
-			w137.Position = 1;
+			global::Gtk.Box.BoxChild w140 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.nomenclatureinnerdeliverypricesview1]));
+			w140.Position = 1;
 			this.hbox11.Add(this.vbox7);
-			global::Gtk.Box.BoxChild w138 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox7]));
-			w138.Position = 1;
+			global::Gtk.Box.BoxChild w141 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox7]));
+			w141.Position = 2;
 			this.notebook1.Add(this.hbox11);
-			global::Gtk.Notebook.NotebookChild w139 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.hbox11]));
-			w139.Position = 5;
+			global::Gtk.Notebook.NotebookChild w142 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.hbox11]));
+			w142.Position = 5;
 			// Notebook tab
 			this.lblPurchasePrice = new global::Gtk.Label();
 			this.lblPurchasePrice.Name = "lblPurchasePrice";
@@ -1847,8 +1876,8 @@ namespace Vodovoz.Views.Goods
 			this.notebook1.SetTabLabel(this.hbox11, this.lblPurchasePrice);
 			this.lblPurchasePrice.ShowAll();
 			this.vbox1.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w140 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
-			w140.Position = 1;
+			global::Gtk.Box.BoxChild w143 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
+			w143.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

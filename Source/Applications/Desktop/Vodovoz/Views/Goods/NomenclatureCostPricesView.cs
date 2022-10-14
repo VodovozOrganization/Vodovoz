@@ -14,7 +14,7 @@ namespace Vodovoz.Views.Goods
 
 		protected override void ConfigureWidget()
 		{
-			treeViewPurchasePrices.ColumnsConfig = FluentColumnsConfig<NomenclatureCostPriceViewModel>.Create()
+			treeViewCostPrices.ColumnsConfig = FluentColumnsConfig<NomenclatureCostPriceViewModel>.Create()
 				.AddColumn("Цена\nзакупки").AddNumericRenderer(x => x.CostPrice)
 					.WidthChars(10)
 					.Digits(2)
@@ -23,15 +23,15 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDateTitle)
 				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDateTitle)
 				.Finish();
-			treeViewPurchasePrices.Binding.AddSource(ViewModel)
+			treeViewCostPrices.Binding.AddSource(ViewModel)
 				.AddBinding( vm => vm.PriceViewModels, w => w.ItemsDataSource)
 				.AddBinding( vm => vm.SelectedPrice, w => w.SelectedRow)
 				.InitializeFromSource();
 
 			ydatepickerStart.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.Date).InitializeFromSource();
 
-			buttonChangePurchasePrice.Clicked += (sender, e) => ViewModel.CreatePriceCommand.Execute();
-			ViewModel.CreatePriceCommand.CanExecuteChanged += (sender, e) => buttonChangePurchasePrice.Sensitive = ViewModel.CreatePriceCommand.CanExecute();
+			buttonChangeCostPrice.Clicked += (sender, e) => ViewModel.CreatePriceCommand.Execute();
+			ViewModel.CreatePriceCommand.CanExecuteChanged += (sender, e) => buttonChangeCostPrice.Sensitive = ViewModel.CreatePriceCommand.CanExecute();
 			ViewModel.CreatePriceCommand.RaiseCanExecuteChanged();
 
 			buttonChangeDate.Clicked += (sender, e) => ViewModel.ChangeDateCommand.Execute();
