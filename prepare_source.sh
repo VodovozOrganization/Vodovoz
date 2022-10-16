@@ -19,17 +19,17 @@ rm -v -f -R ./Source/Libraries/External/My-FyiReporting/packages/*
 ;;&
     *1*)
 git pull --autostash
-cd ../GammaBinding
+cd /Source/Libraries/External/GammaBinding
 git pull --autostash
-cd ../GMap.NET
+cd /Source/Libraries/External/GMap.NET
 git pull --autostash
-cd ../Gtk.DataBindings
+cd /Source/Libraries/External/Gtk.DataBindings
 git pull --autostash
-cd ../My-FyiReporting
+cd /Source/Libraries/External/My-FyiReporting
 git pull --autostash
-cd ../QSProjects
+cd /Source/Libraries/External/QSProjects
 git pull --autostash
-cd ../Vodovoz
+cd /Source/Vodovoz
 ;;&
     *2*)
 nuget restore ./Source/Vodovoz.sln;
@@ -37,7 +37,7 @@ nuget restore ./Source/Libraries/External/QSProjects/QSProjectsLib.sln;
 nuget restore ./Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln
 ;;&
     *4*)
-msbuild /p:Configuration=LinuxDesktop /p:Platform=x86 Source/Vodovoz.sln -maxcpucount:4
+msbuild /p:Configuration=LinuxDesktop /p:Platform=x86 ./Source/Vodovoz.sln -maxcpucount:4
 ;;&
 esac
 

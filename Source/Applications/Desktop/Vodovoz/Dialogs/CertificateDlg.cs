@@ -73,7 +73,7 @@ namespace Vodovoz.Dialogs
 			return true;
 		}
 
-		protected void OnBtnDeleteActivated(object sender, System.EventArgs e)
+		protected void OnBtnDeleteClicked(object sender, System.EventArgs e)
 		{
 			if(selectedNomenclature != null)
 				ObservableList.Remove(selectedNomenclature);
