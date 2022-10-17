@@ -466,6 +466,7 @@ namespace Vodovoz.Representations
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
 			Email emailAlias = null;
+			CallTask taskAlias = null;
 
 			int hideSuspendedCounterpartyId = _debtorsParameters.GetSuspendedCounterpartyId;
 			int hideCancellationCounterpartyId = _debtorsParameters.GetCancellationCounterpartyId;
@@ -579,6 +580,12 @@ namespace Vodovoz.Representations
 				.WithSubquery.WhereProperty(x => x.Id).Eq(LastOrderIdQuery)
 				.Where(x => x.ReturnTareReasonCategory.Id == hideCancellationCounterpartyId).Take(1);
 
+			var TaskExistQuery = QueryOver.Of(() => taskAlias)
+				.Where(x => x.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.And(() => taskAlias.IsTaskComplete == false)
+				.Select(Projections.Property(() => taskAlias.Id))
+				.Take(1);
+
 			#endregion LastOrder
 
 			if(FilterViewModel != null && FilterViewModel.EndDate != null)
@@ -588,6 +595,18 @@ namespace Vodovoz.Representations
 			else
 			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
+			}
+
+			if(FilterViewModel != null && FilterViewModel.DebtorsTaskStatus != null)
+			{
+				if(FilterViewModel.DebtorsTaskStatus.Value == DebtorsTaskStatus.HasTask)
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(TaskExistQuery);
+				}
+				else
+				{
+					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(TaskExistQuery);
+				}
 			}
 
 			#region Filter

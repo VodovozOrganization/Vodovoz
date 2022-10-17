@@ -63,7 +63,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.DiscountReason,
 				x => x.HideActiveCounterparty,
 				x => x.ShowSuspendedCounterparty,
-				x => x.ShowCancellationCounterparty
+				x => x.ShowCancellationCounterparty,
+				x => x.DebtorsTaskStatus
 			);
 		}
 
