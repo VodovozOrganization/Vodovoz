@@ -1005,8 +1005,8 @@ namespace Vodovoz
 			//----2---
 
 			ybuttonCheckClientInTaxcom.Binding
-				.AddFuncBinding(Entity, e => Entity.PersonType == PersonType.legal 
-				                             && (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || Entity.ReasonForLeaving == ReasonForLeaving.Resale), w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal 
+				                             && (e.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || e.ReasonForLeaving == ReasonForLeaving.Resale), w => w.Sensitive)
 				.InitializeFromSource();
 
 			var edoOperatorsAutocompleteSelectorFactory = _edoOperatorsJournalFactory.CreateEdoOperatorsAutocompleteSelectorFactory();
@@ -1017,6 +1017,11 @@ namespace Vodovoz
 					|| (e.PersonType == PersonType.natural && e.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds && e.ReasonForLeaving != ReasonForLeaving.Unknown)), w => w.Sensitive)
 				.AddBinding(Entity, e => e.EdoOperator, w => w.Subject)
 				.InitializeFromSource();
+
+			evmeOperatoEdo.ChangedByUser += (s, e) =>
+			{
+				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+			};
 
 			yentryPersonalAccountCodeInEdo.Binding
 				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo), w => w.Sensitive)
@@ -1036,7 +1041,7 @@ namespace Vodovoz
 			yEnumCmbConsentForEdo.Sensitive = false;
 
 			ybuttonCheckConsentForEdo.Binding
-				.AddFuncBinding(Entity, e => e.IsSendedInviteByTaxcom, w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.ConsentForEdoStatus == ConsentForEdoStatus.Sent, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybuttonRegistrationInChestnyZnak.Binding
@@ -1730,21 +1735,25 @@ namespace Vodovoz
 
 			Entity.PersonalAccountIdInEdo = "2BA-EBD32UYGR823QGDBW";
 			Entity.EdoOperator = UoW.GetById<EdoOperator>(1);
+			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 		}
 
 		protected void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
 		{
 			Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
+			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 		}
 
 		protected void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
 		{
 			Entity.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
+			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 		}
 
 		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
 		{
-			Entity.IsSendedInviteByTaxcom = true;
+			Entity.ConsentForEdoStatus = ConsentForEdoStatus.Sent;
+			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 		}
 	}
 

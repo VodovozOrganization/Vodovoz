@@ -698,14 +698,7 @@ namespace Vodovoz.Domain.Client
 			get => _edoOperator;
 			set => SetField(ref _edoOperator, value);
 		}
-
-		[Display(Name = "Отправлено приглашение через Taxcom")]
-		public virtual bool IsSendedInviteByTaxcom
-		{
-			get => _isSendedInviteByTaxcom;
-			set => _isSendedInviteByTaxcom = value;
-		}
-
+		
 		#endregion
 
 		#endregion

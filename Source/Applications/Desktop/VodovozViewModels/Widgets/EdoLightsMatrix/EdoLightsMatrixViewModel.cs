@@ -143,6 +143,42 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			{
 				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
 			}
+
+			if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess 
+			    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+			   && counterparty.PersonType == PersonType.natural)
+			{
+				SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
+			}
+
+			if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
+			    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+			   && counterparty.PersonType == PersonType.legal)
+			{
+				SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, true);
+				SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
+				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
+				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, true);
+			}
+
+			if(counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Blocked
+				&& counterparty.PersonType == PersonType.natural)
+			{
+				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, true);
+			}
+
+			if(counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Blocked
+			   && counterparty.PersonType == PersonType.legal)
+			{
+				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
+			}
+
+			if(counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+			   && counterparty.PersonType == PersonType.legal)
+			{
+				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
+				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, true);
+			}
 		}
 	}
 }

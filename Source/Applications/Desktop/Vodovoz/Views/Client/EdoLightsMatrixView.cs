@@ -23,14 +23,12 @@ namespace Vodovoz.Views.Client
 			.AddColumn("").AddTextRenderer(x => x.Title)
 			.AddColumn("Безнал.").AddTextRenderer(x => x.IsAllowed(EdoLightsMatrixPaymentType.Cashless) ? "V" : "X")
 				.XAlign(0.5f)
-				//.WidthChars(7)
 				.AddSetter((c, n) =>
 				{
 					c.BackgroundGdk = n.IsAllowed(EdoLightsMatrixPaymentType.Cashless) ? _greenColor : _redColor;
 				})
 			.AddColumn("Наличная,\nТерминал,\nQR-код,\nСайт").AddTextRenderer(x => x.IsAllowed(EdoLightsMatrixPaymentType.Receipt) ? "V" : "X")
 				.XAlign(0.5f)
-				//.WidthChars(7)
 				.AddSetter((c, n) =>
 				{
 					c.BackgroundGdk = n.IsAllowed(EdoLightsMatrixPaymentType.Receipt) ? _greenColor : _redColor;
