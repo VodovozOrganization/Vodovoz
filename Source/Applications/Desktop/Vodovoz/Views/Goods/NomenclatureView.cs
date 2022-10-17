@@ -308,6 +308,12 @@ namespace Vodovoz.Views.Goods
 			checkGroupPricing.Binding
 				.AddBinding(ViewModel.Entity, e => e.UsingInGroupPriceSet, w => w.Active)
 				.InitializeFromSource();
+			ycheckIsAccountableInChestniyZnak.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsAccountableInChestniyZnak, w => w.Active)
+				.InitializeFromSource();
+			entryGtin.Binding
+				.AddBinding(ViewModel.Entity, e => e.Gtin, w => w.Text)
+				.InitializeFromSource();
 
 			#region Вкладка Оборудование
 
