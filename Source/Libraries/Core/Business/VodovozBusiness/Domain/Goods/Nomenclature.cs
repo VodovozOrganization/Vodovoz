@@ -35,6 +35,9 @@ namespace Vodovoz.Domain.Goods
 		private decimal _width;
 		private decimal _height;
 
+		private bool _isAccountableInChestniyZnak;
+		private string _gtin;
+
 		public Nomenclature()
 		{
 			Category = NomenclatureCategory.water;
@@ -558,6 +561,21 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
+
+		[Display(Name = "Подлежит учету в Честном Знаке")]
+		public virtual bool IsAccountableInChestniyZnak
+		{
+			get => _isAccountableInChestniyZnak;
+			set => SetField(ref _isAccountableInChestniyZnak, value);
+		}
+
+		[Display(Name = "Номер товарной продукции GTIN")]
+		public virtual string Gtin
+		{
+			get => _gtin;
+			set => SetField(ref _gtin, value);
+		}
+
 		#endregion
 
 		#region Свойства товаров для магазина

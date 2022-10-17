@@ -55,6 +55,7 @@ namespace Vodovoz.Domain.Client
 		private ConsentForEdoStatus _consentForEdoStatus;
 		private string _personalAccountIdInEdo;
 		private EdoOperator _edoOperator;
+		private int _currentEdoProgressStep;
 
 		#region Свойства
 
@@ -696,6 +697,13 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _edoOperator;
 			set => SetField(ref _edoOperator, value);
+		}
+
+		[Display(Name = "Текущий этап заполнения")]
+		public virtual int CurrentEdoProgressStep
+		{
+			get => _currentEdoProgressStep;
+			set => SetField(ref _currentEdoProgressStep, value);
 		}
 
 		#endregion

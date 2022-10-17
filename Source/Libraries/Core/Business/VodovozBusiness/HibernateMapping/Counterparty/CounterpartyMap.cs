@@ -75,6 +75,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.IsNotSendDocumentsByEdo).Column("is_not_send_documents_by_edo");
 			Map(x => x.CanSendUpdInAdvance).Column("can_send_upd_in_advance");
 			Map(x => x.PersonalAccountIdInEdo).Column("personal_account_id_in_edo");
+			Map(x => x.CurrentEdoProgressStep).Column("current_edo_progress_step");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");
