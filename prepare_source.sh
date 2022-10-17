@@ -10,36 +10,34 @@ read case;
 
 case $case in
     *5*)
-cd ../
 find . -type d -regex '.*\(bin\|obj\)' -exec rm -rv {} + 
-cd Vodovoz
 ;;&
     *3*)
-rm -v -f -R ./packages/*
-rm -v -f -R ../QSProjects/packages/*
-rm -v -f -R ../My-FyiReporting/packages/*
+rm -v -f -R ./Source/packages/*
+rm -v -f -R ./Source/Libraries/External/QSProjects/packages/*
+rm -v -f -R ./Source/Libraries/External/My-FyiReporting/packages/*
 ;;&
     *1*)
 git pull --autostash
-cd ../GammaBinding
+cd /Source/Libraries/External/GammaBinding
 git pull --autostash
-cd ../GMap.NET
+cd /Source/Libraries/External/GMap.NET
 git pull --autostash
-cd ../Gtk.DataBindings
+cd /Source/Libraries/External/Gtk.DataBindings
 git pull --autostash
-cd ../My-FyiReporting
+cd /Source/Libraries/External/My-FyiReporting
 git pull --autostash
-cd ../QSProjects
+cd /Source/Libraries/External/QSProjects
 git pull --autostash
-cd ../Vodovoz
+cd /Source/Vodovoz
 ;;&
     *2*)
-nuget restore Vodovoz.sln;
-nuget restore ../QSProjects/QSProjectsLib.sln;
-nuget restore ../My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln
+nuget restore ./Source/Vodovoz.sln;
+nuget restore ./Source/Libraries/External/QSProjects/QSProjectsLib.sln;
+nuget restore ./Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln
 ;;&
     *4*)
-msbuild /p:Configuration=Debug /p:Platform=x86 Vodovoz.sln
+msbuild /p:Configuration=LinuxDesktop /p:Platform=x86 ./Source/Vodovoz.sln -maxcpucount:4
 ;;&
 esac
 
