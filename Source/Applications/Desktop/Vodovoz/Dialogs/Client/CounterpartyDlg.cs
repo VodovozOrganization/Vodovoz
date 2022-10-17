@@ -1095,14 +1095,9 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
 
-			yChkBtnCanSendUpdInAdvance.Binding
-				.AddBinding(Entity, e => e.CanSendUpdInAdvance, w => w.Active)
-				.InitializeFromSource();
-			yChkBtnCanSendUpdInAdvance.Sensitive = CanEdit;
-
 			var redColor = new Color(255, 0, 0);
 			var greenColor = new Color(0, 255, 0);
-			ytreeviewLightsMatrix.ColumnsConfig = FluentColumnsConfig<LightsMatrixRow>.Create()
+			/*ytreeviewLightsMatrix.ColumnsConfig = FluentColumnsConfig<LightsMatrixRow>.Create()
 				.AddColumn("").AddTextRenderer(x => x.Title)
 				.AddColumn("Безналичная").AddTextRenderer(x => x.IsAllowed(EdoPaymentType.Cashless) ? "V" : "X")
 					.XAlign(0.5f)
@@ -1123,7 +1118,7 @@ namespace Vodovoz
 
 			//CreateEdoLightsMatrixConditions();
 
-			ytreeviewLightsMatrix.ItemsDataSource = _edoLightsMatrix.LightsMatrixRows;
+			ytreeviewLightsMatrix.ItemsDataSource = _edoLightsMatrix.LightsMatrixRows;*/
 		}
 
 		private void RefreshLightsMatrix()
