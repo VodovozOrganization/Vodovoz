@@ -961,9 +961,7 @@ namespace Vodovoz
 
 		private void CongigureTabEdo()
 		{
-
-			edoLightsMatrixView.ViewModel = _edoLightsMatrixViewModel = new EdoLightsMatrixViewModel(Entity, _commonServices);
-
+			edoLightsMatrixView.ViewModel = _edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
 
 			//----------- 1
 
@@ -989,7 +987,7 @@ namespace Vodovoz
 					Entity.EdoOperator = null;
 				}
 
-				_edoLightsMatrixViewModel.RefreshLightsMatrix();
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 			};
 
 			yChkBtnIsNotSendDocumentsByEdo.Binding
@@ -1052,7 +1050,7 @@ namespace Vodovoz
 
 			yEnumCmbRegistrationInChestnyZnak.ChangedByUser += (s, e) =>
 			{
-				_edoLightsMatrixViewModel.RefreshLightsMatrix();
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 			};
 
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
@@ -1063,6 +1061,8 @@ namespace Vodovoz
 			yChkBtnIsPaperlessWorkflow.Binding
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
+
+			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 		}
 	
 
@@ -1146,6 +1146,14 @@ namespace Vodovoz
 			if(radioContacts.Sensitive)
 			{
 				radioContacts.Active = true;
+			}
+		}
+
+		public void ActivateEdoTab()
+		{
+			if(rbnEdo.Sensitive)
+			{
+				rbnEdo.Active = true;
 			}
 		}
 

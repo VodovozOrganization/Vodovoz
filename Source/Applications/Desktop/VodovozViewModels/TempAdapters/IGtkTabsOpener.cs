@@ -1,6 +1,7 @@
 ﻿using QS.Tdi;
 using System;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
@@ -17,5 +18,6 @@ namespace Vodovoz.TempAdapters
 		void OpenTrackOnMapWnd(int routeListId);
 		void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType);
 		void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description);
+		ITdiTab OpenCounterpartyEdoTab(ITdiTab master, int counterpartyId);
 	}
 }

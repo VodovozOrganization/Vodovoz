@@ -116,7 +116,8 @@ namespace Vodovoz
 		ITDICloseControlTab,
 		ISmsSendProvider,
 		IFixedPricesHolderProvider,
-		IAskSaveOnCloseViewModel
+		IAskSaveOnCloseViewModel,
+		IEdoLightsMatrixInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
@@ -239,7 +240,8 @@ namespace Vodovoz
 					PanelViewType.DeliveryPointView,
 					PanelViewType.EmailsPanelView,
 					PanelViewType.CallTaskPanelView,
-					PanelViewType.SmsSendPanelView
+					PanelViewType.SmsSendPanelView,
+					PanelViewType.EdoLightsMatrixPanelView
 				};
 			}
 		}

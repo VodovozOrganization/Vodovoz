@@ -19,19 +19,18 @@ namespace Vodovoz.Views.Client
 
 		protected override void ConfigureWidget()
 		{
-
 			ytreeviewLightsMatrix.ColumnsConfig = FluentColumnsConfig<LightsMatrixRow>.Create()
 			.AddColumn("").AddTextRenderer(x => x.Title)
-			.AddColumn("Безналичная").AddTextRenderer(x => x.IsAllowed(EdoLightsMatrixPaymentType.Cashless) ? "V" : "X")
+			.AddColumn("Безнал.").AddTextRenderer(x => x.IsAllowed(EdoLightsMatrixPaymentType.Cashless) ? "V" : "X")
 				.XAlign(0.5f)
-				.WidthChars(30)
+				.WidthChars(7)
 				.AddSetter((c, n) =>
 				{
 					c.BackgroundGdk = n.IsAllowed(EdoLightsMatrixPaymentType.Cashless) ? _greenColor : _redColor;
 				})
-			.AddColumn("Наличная, Терминал, QR-код, Сайт").AddTextRenderer(x => x.IsAllowed(EdoLightsMatrixPaymentType.Receipt) ? "V" : "X")
+			.AddColumn("Наличная,\nТерминал,\nQR-код,\nСайт").AddTextRenderer(x => x.IsAllowed(EdoLightsMatrixPaymentType.Receipt) ? "V" : "X")
 				.XAlign(0.5f)
-				.WidthChars(30)
+				.WidthChars(7)
 				.AddSetter((c, n) =>
 				{
 					c.BackgroundGdk = n.IsAllowed(EdoLightsMatrixPaymentType.Receipt) ? _greenColor : _redColor;

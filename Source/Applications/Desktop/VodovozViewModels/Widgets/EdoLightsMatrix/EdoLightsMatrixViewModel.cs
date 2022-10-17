@@ -1,5 +1,4 @@
-﻿using QS.Services;
-using QS.ViewModels;
+﻿using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -7,11 +6,9 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 {
-	public class EdoLightsMatrixViewModel : EntityWidgetViewModelBase<Counterparty>
+	public class EdoLightsMatrixViewModel : WidgetViewModelBase
 	{
-		public EdoLightsMatrixViewModel(Counterparty entity,
-			ICommonServices commonServices /*IEdoLightsMatrixController edoLightsMatrixController*/)
-			: base(entity, commonServices)
+		public EdoLightsMatrixViewModel()
 		{
 			CreateRows(ReasonForLeaving.ForOwnNeeds, ReasonForLeaving.Resale);
 		}
@@ -75,7 +72,6 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 
 			};
 		}
-
 		private class Light
 		{
 			public Func<bool> LightCondition { get; set; }
@@ -99,21 +95,20 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			}
 		}
 
-		public void RefreshLightsMatrix()
+		public void RefreshLightsMatrix(Counterparty counterparty)
 		{
 			UnLightAll();
 
-			if(Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			if(counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 			{
 				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, true);
 			}
 
-
-			if(Entity.ReasonForLeaving == ReasonForLeaving.Other)
+			if(counterparty.ReasonForLeaving == ReasonForLeaving.Other)
 			{
-				if(Entity.PersonType == PersonType.legal)
+				if(counterparty.PersonType == PersonType.legal)
 				{
-					Entity.IsNotSendDocumentsByEdo = true;
+					counterparty.IsNotSendDocumentsByEdo = true;
 					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, true);
 					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
 					SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
@@ -125,15 +120,15 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				}
 			}
 
-			if(Entity.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess ||
-			   Entity.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+			if(counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess ||
+			   counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 			{
-				if(Entity.PersonType == PersonType.legal)
+				if(counterparty.PersonType == PersonType.legal)
 				{
 					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, true);
 				}
 
-				if(Entity.PersonType == PersonType.natural)
+				if(counterparty.PersonType == PersonType.natural)
 				{
 					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
 				}
@@ -144,7 +139,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, false);
 			}
 
-			if(Entity.ConsentForEdoStatus == ConsentForEdoStatus.Agree && Entity.PersonType == PersonType.legal)
+			if(counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree && counterparty.PersonType == PersonType.legal)
 			{
 				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
 			}
