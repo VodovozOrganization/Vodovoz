@@ -964,12 +964,13 @@ namespace Vodovoz
 
 			edoLightsMatrixView.ViewModel = _edoLightsMatrixViewModel = new EdoLightsMatrixViewModel(Entity, _commonServices);
 
+
+			//----------- 1
+
 			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
 			yEnumCmbReasonForLeaving.Binding
 				.AddBinding(Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
 				.InitializeFromSource();
-
-			//----------- 1
 
 			yEnumCmbReasonForLeaving.ChangedByUser += (s, e) =>
 			{
@@ -996,8 +997,15 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
 				.InitializeFromSource();
 
+			edoValidatedINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
+
+			edoValidatedINN.Binding
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.natural && string.IsNullOrWhiteSpace(Entity.INN), w => w.Sensitive)
+				.AddBinding(Entity, e => e.INN, w => w.Text)
+				.InitializeFromSource();
+
 			//----2---
-			
+
 			ybuttonCheckClientInTaxcom.Binding
 				.AddFuncBinding(Entity, e => Entity.PersonType == PersonType.legal 
 				                             && (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || Entity.ReasonForLeaving == ReasonForLeaving.Resale), w => w.Sensitive)

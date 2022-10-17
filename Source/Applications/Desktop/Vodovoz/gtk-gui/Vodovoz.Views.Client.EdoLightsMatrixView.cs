@@ -6,8 +6,6 @@ namespace Vodovoz.Views.Client
 	{
 		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindowLightsMatrix;
-
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewLightsMatrix;
 
 		protected virtual void Build()
@@ -21,17 +19,13 @@ namespace Vodovoz.Views.Client
 			this.yvboxMain.Name = "yvboxMain";
 			this.yvboxMain.Spacing = 6;
 			// Container child yvboxMain.Gtk.Box+BoxChild
-			this.GtkScrolledWindowLightsMatrix = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindowLightsMatrix.Name = "GtkScrolledWindowLightsMatrix";
-			this.GtkScrolledWindowLightsMatrix.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindowLightsMatrix.Gtk.Container+ContainerChild
 			this.ytreeviewLightsMatrix = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewLightsMatrix.CanFocus = true;
 			this.ytreeviewLightsMatrix.Name = "ytreeviewLightsMatrix";
-			this.GtkScrolledWindowLightsMatrix.Add(this.ytreeviewLightsMatrix);
-			this.yvboxMain.Add(this.GtkScrolledWindowLightsMatrix);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindowLightsMatrix]));
-			w2.Position = 0;
+			this.ytreeviewLightsMatrix.EnableSearch = false;
+			this.ytreeviewLightsMatrix.HoverSelection = true;
+			this.yvboxMain.Add(this.ytreeviewLightsMatrix);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytreeviewLightsMatrix]));
+			w1.Position = 0;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

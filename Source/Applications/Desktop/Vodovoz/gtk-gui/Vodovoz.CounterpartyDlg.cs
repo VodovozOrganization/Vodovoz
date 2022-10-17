@@ -422,7 +422,11 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yTable ytableEdo;
 
+		private global::Gtk.Label edoINN;
+
 		private global::Vodovoz.Views.Client.EdoLightsMatrixView edoLightsMatrixView;
+
+		private global::Gamma.Widgets.yValidatedEntry edoValidatedINN;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeOperatoEdo;
 
@@ -453,6 +457,8 @@ namespace Vodovoz
 		private global::Gamma.GtkWidgets.yLabel ylabelIsNotSendDocumentsByEdo;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelIsPaperlessWorkflow;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelLightsMatrix;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelOperatorEdo;
 
@@ -671,7 +677,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 12;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -2673,16 +2679,41 @@ namespace Vodovoz
 			this.ytableEdo.RowSpacing = ((uint)(6));
 			this.ytableEdo.ColumnSpacing = ((uint)(6));
 			// Container child ytableEdo.Gtk.Table+TableChild
+			this.edoINN = new global::Gtk.Label();
+			this.edoINN.Name = "edoINN";
+			this.edoINN.Xalign = 1F;
+			this.edoINN.LabelProp = global::Mono.Unix.Catalog.GetString("ИНН:");
+			this.ytableEdo.Add(this.edoINN);
+			global::Gtk.Table.TableChild w204 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.edoINN]));
+			w204.LeftAttach = ((uint)(2));
+			w204.RightAttach = ((uint)(3));
+			w204.XOptions = ((global::Gtk.AttachOptions)(4));
+			w204.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableEdo.Gtk.Table+TableChild
 			this.edoLightsMatrixView = new global::Vodovoz.Views.Client.EdoLightsMatrixView();
 			this.edoLightsMatrixView.Events = ((global::Gdk.EventMask)(256));
 			this.edoLightsMatrixView.Name = "edoLightsMatrixView";
 			this.ytableEdo.Add(this.edoLightsMatrixView);
-			global::Gtk.Table.TableChild w204 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.edoLightsMatrixView]));
-			w204.TopAttach = ((uint)(8));
-			w204.BottomAttach = ((uint)(9));
-			w204.RightAttach = ((uint)(4));
-			w204.XOptions = ((global::Gtk.AttachOptions)(4));
-			w204.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w205 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.edoLightsMatrixView]));
+			w205.TopAttach = ((uint)(8));
+			w205.BottomAttach = ((uint)(9));
+			w205.LeftAttach = ((uint)(1));
+			w205.RightAttach = ((uint)(3));
+			w205.XOptions = ((global::Gtk.AttachOptions)(4));
+			w205.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableEdo.Gtk.Table+TableChild
+			this.edoValidatedINN = new global::Gamma.Widgets.yValidatedEntry();
+			this.edoValidatedINN.CanFocus = true;
+			this.edoValidatedINN.Name = "edoValidatedINN";
+			this.edoValidatedINN.IsEditable = true;
+			this.edoValidatedINN.MaxLength = 12;
+			this.edoValidatedINN.InvisibleChar = '●';
+			this.ytableEdo.Add(this.edoValidatedINN);
+			global::Gtk.Table.TableChild w206 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.edoValidatedINN]));
+			w206.LeftAttach = ((uint)(3));
+			w206.RightAttach = ((uint)(4));
+			w206.XOptions = ((global::Gtk.AttachOptions)(4));
+			w206.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.evmeOperatoEdo = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeOperatoEdo.Events = ((global::Gdk.EventMask)(256));
@@ -2690,13 +2721,13 @@ namespace Vodovoz
 			this.evmeOperatoEdo.CanEditReference = true;
 			this.evmeOperatoEdo.CanOpenWithoutTabParent = false;
 			this.ytableEdo.Add(this.evmeOperatoEdo);
-			global::Gtk.Table.TableChild w205 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.evmeOperatoEdo]));
-			w205.TopAttach = ((uint)(2));
-			w205.BottomAttach = ((uint)(3));
-			w205.LeftAttach = ((uint)(1));
-			w205.RightAttach = ((uint)(2));
-			w205.XOptions = ((global::Gtk.AttachOptions)(4));
-			w205.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w207 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.evmeOperatoEdo]));
+			w207.TopAttach = ((uint)(2));
+			w207.BottomAttach = ((uint)(3));
+			w207.LeftAttach = ((uint)(1));
+			w207.RightAttach = ((uint)(2));
+			w207.XOptions = ((global::Gtk.AttachOptions)(4));
+			w207.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ybuttonCheckClientInTaxcom = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCheckClientInTaxcom.CanFocus = true;
@@ -2704,13 +2735,13 @@ namespace Vodovoz
 			this.ybuttonCheckClientInTaxcom.UseUnderline = true;
 			this.ybuttonCheckClientInTaxcom.Label = global::Mono.Unix.Catalog.GetString("Проверить клиента в Такском");
 			this.ytableEdo.Add(this.ybuttonCheckClientInTaxcom);
-			global::Gtk.Table.TableChild w206 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ybuttonCheckClientInTaxcom]));
-			w206.TopAttach = ((uint)(2));
-			w206.BottomAttach = ((uint)(3));
-			w206.LeftAttach = ((uint)(2));
-			w206.RightAttach = ((uint)(3));
-			w206.XOptions = ((global::Gtk.AttachOptions)(4));
-			w206.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w208 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ybuttonCheckClientInTaxcom]));
+			w208.TopAttach = ((uint)(2));
+			w208.BottomAttach = ((uint)(3));
+			w208.LeftAttach = ((uint)(2));
+			w208.RightAttach = ((uint)(3));
+			w208.XOptions = ((global::Gtk.AttachOptions)(4));
+			w208.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ybuttonCheckConsentForEdo = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCheckConsentForEdo.CanFocus = true;
@@ -2718,13 +2749,13 @@ namespace Vodovoz
 			this.ybuttonCheckConsentForEdo.UseUnderline = true;
 			this.ybuttonCheckConsentForEdo.Label = global::Mono.Unix.Catalog.GetString("Проверить согласие клиента");
 			this.ytableEdo.Add(this.ybuttonCheckConsentForEdo);
-			global::Gtk.Table.TableChild w207 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ybuttonCheckConsentForEdo]));
-			w207.TopAttach = ((uint)(4));
-			w207.BottomAttach = ((uint)(5));
-			w207.LeftAttach = ((uint)(2));
-			w207.RightAttach = ((uint)(3));
-			w207.XOptions = ((global::Gtk.AttachOptions)(4));
-			w207.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w209 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ybuttonCheckConsentForEdo]));
+			w209.TopAttach = ((uint)(4));
+			w209.BottomAttach = ((uint)(5));
+			w209.LeftAttach = ((uint)(2));
+			w209.RightAttach = ((uint)(3));
+			w209.XOptions = ((global::Gtk.AttachOptions)(4));
+			w209.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ybuttonRegistrationInChestnyZnak = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonRegistrationInChestnyZnak.CanFocus = true;
@@ -2732,13 +2763,13 @@ namespace Vodovoz
 			this.ybuttonRegistrationInChestnyZnak.UseUnderline = true;
 			this.ybuttonRegistrationInChestnyZnak.Label = global::Mono.Unix.Catalog.GetString("Проверить клиента в Честном Знаке");
 			this.ytableEdo.Add(this.ybuttonRegistrationInChestnyZnak);
-			global::Gtk.Table.TableChild w208 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ybuttonRegistrationInChestnyZnak]));
-			w208.TopAttach = ((uint)(5));
-			w208.BottomAttach = ((uint)(6));
-			w208.LeftAttach = ((uint)(2));
-			w208.RightAttach = ((uint)(3));
-			w208.XOptions = ((global::Gtk.AttachOptions)(4));
-			w208.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w210 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ybuttonRegistrationInChestnyZnak]));
+			w210.TopAttach = ((uint)(5));
+			w210.BottomAttach = ((uint)(6));
+			w210.LeftAttach = ((uint)(2));
+			w210.RightAttach = ((uint)(3));
+			w210.XOptions = ((global::Gtk.AttachOptions)(4));
+			w210.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ybuttonSendInviteByTaxcom = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonSendInviteByTaxcom.CanFocus = true;
@@ -2746,13 +2777,13 @@ namespace Vodovoz
 			this.ybuttonSendInviteByTaxcom.UseUnderline = true;
 			this.ybuttonSendInviteByTaxcom.Label = global::Mono.Unix.Catalog.GetString("Отправить приглашение через Такском");
 			this.ytableEdo.Add(this.ybuttonSendInviteByTaxcom);
-			global::Gtk.Table.TableChild w209 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ybuttonSendInviteByTaxcom]));
-			w209.TopAttach = ((uint)(2));
-			w209.BottomAttach = ((uint)(3));
-			w209.LeftAttach = ((uint)(3));
-			w209.RightAttach = ((uint)(4));
-			w209.XOptions = ((global::Gtk.AttachOptions)(4));
-			w209.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w211 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ybuttonSendInviteByTaxcom]));
+			w211.TopAttach = ((uint)(2));
+			w211.BottomAttach = ((uint)(3));
+			w211.LeftAttach = ((uint)(3));
+			w211.RightAttach = ((uint)(4));
+			w211.XOptions = ((global::Gtk.AttachOptions)(4));
+			w211.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.yChkBtnIsNotSendDocumentsByEdo = new global::Gamma.GtkWidgets.yCheckButton();
 			this.yChkBtnIsNotSendDocumentsByEdo.CanFocus = true;
@@ -2761,13 +2792,13 @@ namespace Vodovoz
 			this.yChkBtnIsNotSendDocumentsByEdo.DrawIndicator = true;
 			this.yChkBtnIsNotSendDocumentsByEdo.UseUnderline = true;
 			this.ytableEdo.Add(this.yChkBtnIsNotSendDocumentsByEdo);
-			global::Gtk.Table.TableChild w210 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yChkBtnIsNotSendDocumentsByEdo]));
-			w210.TopAttach = ((uint)(1));
-			w210.BottomAttach = ((uint)(2));
-			w210.LeftAttach = ((uint)(1));
-			w210.RightAttach = ((uint)(2));
-			w210.XOptions = ((global::Gtk.AttachOptions)(4));
-			w210.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w212 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yChkBtnIsNotSendDocumentsByEdo]));
+			w212.TopAttach = ((uint)(1));
+			w212.BottomAttach = ((uint)(2));
+			w212.LeftAttach = ((uint)(1));
+			w212.RightAttach = ((uint)(2));
+			w212.XOptions = ((global::Gtk.AttachOptions)(4));
+			w212.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.yChkBtnIsPaperlessWorkflow = new global::Gamma.GtkWidgets.yCheckButton();
 			this.yChkBtnIsPaperlessWorkflow.CanFocus = true;
@@ -2776,13 +2807,13 @@ namespace Vodovoz
 			this.yChkBtnIsPaperlessWorkflow.DrawIndicator = true;
 			this.yChkBtnIsPaperlessWorkflow.UseUnderline = true;
 			this.ytableEdo.Add(this.yChkBtnIsPaperlessWorkflow);
-			global::Gtk.Table.TableChild w211 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yChkBtnIsPaperlessWorkflow]));
-			w211.TopAttach = ((uint)(6));
-			w211.BottomAttach = ((uint)(7));
-			w211.LeftAttach = ((uint)(1));
-			w211.RightAttach = ((uint)(2));
-			w211.XOptions = ((global::Gtk.AttachOptions)(4));
-			w211.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w213 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yChkBtnIsPaperlessWorkflow]));
+			w213.TopAttach = ((uint)(6));
+			w213.BottomAttach = ((uint)(7));
+			w213.LeftAttach = ((uint)(1));
+			w213.RightAttach = ((uint)(2));
+			w213.XOptions = ((global::Gtk.AttachOptions)(4));
+			w213.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.yentryPersonalAccountCodeInEdo = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryPersonalAccountCodeInEdo.CanFocus = true;
@@ -2790,13 +2821,13 @@ namespace Vodovoz
 			this.yentryPersonalAccountCodeInEdo.IsEditable = true;
 			this.yentryPersonalAccountCodeInEdo.InvisibleChar = '•';
 			this.ytableEdo.Add(this.yentryPersonalAccountCodeInEdo);
-			global::Gtk.Table.TableChild w212 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yentryPersonalAccountCodeInEdo]));
-			w212.TopAttach = ((uint)(3));
-			w212.BottomAttach = ((uint)(4));
-			w212.LeftAttach = ((uint)(1));
-			w212.RightAttach = ((uint)(2));
-			w212.XOptions = ((global::Gtk.AttachOptions)(4));
-			w212.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w214 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yentryPersonalAccountCodeInEdo]));
+			w214.TopAttach = ((uint)(3));
+			w214.BottomAttach = ((uint)(4));
+			w214.LeftAttach = ((uint)(1));
+			w214.RightAttach = ((uint)(2));
+			w214.XOptions = ((global::Gtk.AttachOptions)(4));
+			w214.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.yEnumCmbConsentForEdo = new global::Gamma.Widgets.yEnumComboBox();
 			this.yEnumCmbConsentForEdo.Name = "yEnumCmbConsentForEdo";
@@ -2805,13 +2836,13 @@ namespace Vodovoz
 			this.yEnumCmbConsentForEdo.UseShortTitle = false;
 			this.yEnumCmbConsentForEdo.DefaultFirst = false;
 			this.ytableEdo.Add(this.yEnumCmbConsentForEdo);
-			global::Gtk.Table.TableChild w213 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yEnumCmbConsentForEdo]));
-			w213.TopAttach = ((uint)(4));
-			w213.BottomAttach = ((uint)(5));
-			w213.LeftAttach = ((uint)(1));
-			w213.RightAttach = ((uint)(2));
-			w213.XOptions = ((global::Gtk.AttachOptions)(4));
-			w213.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w215 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yEnumCmbConsentForEdo]));
+			w215.TopAttach = ((uint)(4));
+			w215.BottomAttach = ((uint)(5));
+			w215.LeftAttach = ((uint)(1));
+			w215.RightAttach = ((uint)(2));
+			w215.XOptions = ((global::Gtk.AttachOptions)(4));
+			w215.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.yEnumCmbReasonForLeaving = new global::Gamma.Widgets.yEnumComboBox();
 			this.yEnumCmbReasonForLeaving.Name = "yEnumCmbReasonForLeaving";
@@ -2820,11 +2851,11 @@ namespace Vodovoz
 			this.yEnumCmbReasonForLeaving.UseShortTitle = false;
 			this.yEnumCmbReasonForLeaving.DefaultFirst = false;
 			this.ytableEdo.Add(this.yEnumCmbReasonForLeaving);
-			global::Gtk.Table.TableChild w214 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yEnumCmbReasonForLeaving]));
-			w214.LeftAttach = ((uint)(1));
-			w214.RightAttach = ((uint)(2));
-			w214.XOptions = ((global::Gtk.AttachOptions)(4));
-			w214.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w216 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yEnumCmbReasonForLeaving]));
+			w216.LeftAttach = ((uint)(1));
+			w216.RightAttach = ((uint)(2));
+			w216.XOptions = ((global::Gtk.AttachOptions)(4));
+			w216.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.yEnumCmbRegistrationInChestnyZnak = new global::Gamma.Widgets.yEnumComboBox();
 			this.yEnumCmbRegistrationInChestnyZnak.Name = "yEnumCmbRegistrationInChestnyZnak";
@@ -2833,13 +2864,13 @@ namespace Vodovoz
 			this.yEnumCmbRegistrationInChestnyZnak.UseShortTitle = false;
 			this.yEnumCmbRegistrationInChestnyZnak.DefaultFirst = false;
 			this.ytableEdo.Add(this.yEnumCmbRegistrationInChestnyZnak);
-			global::Gtk.Table.TableChild w215 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yEnumCmbRegistrationInChestnyZnak]));
-			w215.TopAttach = ((uint)(5));
-			w215.BottomAttach = ((uint)(6));
-			w215.LeftAttach = ((uint)(1));
-			w215.RightAttach = ((uint)(2));
-			w215.XOptions = ((global::Gtk.AttachOptions)(4));
-			w215.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w217 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yEnumCmbRegistrationInChestnyZnak]));
+			w217.TopAttach = ((uint)(5));
+			w217.BottomAttach = ((uint)(6));
+			w217.LeftAttach = ((uint)(1));
+			w217.RightAttach = ((uint)(2));
+			w217.XOptions = ((global::Gtk.AttachOptions)(4));
+			w217.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.yEnumCmbSendUpdInOrderStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.yEnumCmbSendUpdInOrderStatus.Name = "yEnumCmbSendUpdInOrderStatus";
@@ -2848,104 +2879,115 @@ namespace Vodovoz
 			this.yEnumCmbSendUpdInOrderStatus.UseShortTitle = false;
 			this.yEnumCmbSendUpdInOrderStatus.DefaultFirst = false;
 			this.ytableEdo.Add(this.yEnumCmbSendUpdInOrderStatus);
-			global::Gtk.Table.TableChild w216 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yEnumCmbSendUpdInOrderStatus]));
-			w216.TopAttach = ((uint)(7));
-			w216.BottomAttach = ((uint)(8));
-			w216.LeftAttach = ((uint)(1));
-			w216.RightAttach = ((uint)(2));
-			w216.XOptions = ((global::Gtk.AttachOptions)(4));
-			w216.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w218 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.yEnumCmbSendUpdInOrderStatus]));
+			w218.TopAttach = ((uint)(7));
+			w218.BottomAttach = ((uint)(8));
+			w218.LeftAttach = ((uint)(1));
+			w218.RightAttach = ((uint)(2));
+			w218.XOptions = ((global::Gtk.AttachOptions)(4));
+			w218.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ylabelConsentForEdo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelConsentForEdo.Name = "ylabelConsentForEdo";
 			this.ylabelConsentForEdo.Xalign = 1F;
 			this.ylabelConsentForEdo.LabelProp = global::Mono.Unix.Catalog.GetString("Согласие клиента на ЭДО:");
 			this.ytableEdo.Add(this.ylabelConsentForEdo);
-			global::Gtk.Table.TableChild w217 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelConsentForEdo]));
-			w217.TopAttach = ((uint)(4));
-			w217.BottomAttach = ((uint)(5));
-			w217.XOptions = ((global::Gtk.AttachOptions)(4));
-			w217.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w219 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelConsentForEdo]));
+			w219.TopAttach = ((uint)(4));
+			w219.BottomAttach = ((uint)(5));
+			w219.XOptions = ((global::Gtk.AttachOptions)(4));
+			w219.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ylabelIsNotSendDocumentsByEdo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelIsNotSendDocumentsByEdo.Name = "ylabelIsNotSendDocumentsByEdo";
 			this.ylabelIsNotSendDocumentsByEdo.Xalign = 1F;
 			this.ylabelIsNotSendDocumentsByEdo.LabelProp = global::Mono.Unix.Catalog.GetString("Не отправлять документы по ЭДО:");
 			this.ytableEdo.Add(this.ylabelIsNotSendDocumentsByEdo);
-			global::Gtk.Table.TableChild w218 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelIsNotSendDocumentsByEdo]));
-			w218.TopAttach = ((uint)(1));
-			w218.BottomAttach = ((uint)(2));
-			w218.XOptions = ((global::Gtk.AttachOptions)(4));
-			w218.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w220 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelIsNotSendDocumentsByEdo]));
+			w220.TopAttach = ((uint)(1));
+			w220.BottomAttach = ((uint)(2));
+			w220.XOptions = ((global::Gtk.AttachOptions)(4));
+			w220.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ylabelIsPaperlessWorkflow = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelIsPaperlessWorkflow.Name = "ylabelIsPaperlessWorkflow";
 			this.ylabelIsPaperlessWorkflow.Xalign = 1F;
 			this.ylabelIsPaperlessWorkflow.LabelProp = global::Mono.Unix.Catalog.GetString("Отказ от печатных документов:");
 			this.ytableEdo.Add(this.ylabelIsPaperlessWorkflow);
-			global::Gtk.Table.TableChild w219 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelIsPaperlessWorkflow]));
-			w219.TopAttach = ((uint)(6));
-			w219.BottomAttach = ((uint)(7));
-			w219.XOptions = ((global::Gtk.AttachOptions)(4));
-			w219.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w221 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelIsPaperlessWorkflow]));
+			w221.TopAttach = ((uint)(6));
+			w221.BottomAttach = ((uint)(7));
+			w221.XOptions = ((global::Gtk.AttachOptions)(4));
+			w221.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableEdo.Gtk.Table+TableChild
+			this.ylabelLightsMatrix = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelLightsMatrix.Name = "ylabelLightsMatrix";
+			this.ylabelLightsMatrix.Xalign = 1F;
+			this.ylabelLightsMatrix.LabelProp = global::Mono.Unix.Catalog.GetString("Доступные виды оплат:");
+			this.ytableEdo.Add(this.ylabelLightsMatrix);
+			global::Gtk.Table.TableChild w222 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelLightsMatrix]));
+			w222.TopAttach = ((uint)(8));
+			w222.BottomAttach = ((uint)(9));
+			w222.XOptions = ((global::Gtk.AttachOptions)(4));
+			w222.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ylabelOperatorEdo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOperatorEdo.Name = "ylabelOperatorEdo";
 			this.ylabelOperatorEdo.Xalign = 1F;
 			this.ylabelOperatorEdo.LabelProp = global::Mono.Unix.Catalog.GetString("Укажите оператора ЭДО у клиента:");
 			this.ytableEdo.Add(this.ylabelOperatorEdo);
-			global::Gtk.Table.TableChild w220 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelOperatorEdo]));
-			w220.TopAttach = ((uint)(2));
-			w220.BottomAttach = ((uint)(3));
-			w220.XOptions = ((global::Gtk.AttachOptions)(4));
-			w220.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w223 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelOperatorEdo]));
+			w223.TopAttach = ((uint)(2));
+			w223.BottomAttach = ((uint)(3));
+			w223.XOptions = ((global::Gtk.AttachOptions)(4));
+			w223.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ylabelPersonalAccountCodeInEdo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelPersonalAccountCodeInEdo.Name = "ylabelPersonalAccountCodeInEdo";
 			this.ylabelPersonalAccountCodeInEdo.Xalign = 1F;
 			this.ylabelPersonalAccountCodeInEdo.LabelProp = global::Mono.Unix.Catalog.GetString("Код личного кабинета клиента в ЭДО:");
 			this.ytableEdo.Add(this.ylabelPersonalAccountCodeInEdo);
-			global::Gtk.Table.TableChild w221 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelPersonalAccountCodeInEdo]));
-			w221.TopAttach = ((uint)(3));
-			w221.BottomAttach = ((uint)(4));
-			w221.XOptions = ((global::Gtk.AttachOptions)(4));
-			w221.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w224 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelPersonalAccountCodeInEdo]));
+			w224.TopAttach = ((uint)(3));
+			w224.BottomAttach = ((uint)(4));
+			w224.XOptions = ((global::Gtk.AttachOptions)(4));
+			w224.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ylabelReasonForLeaving = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelReasonForLeaving.Name = "ylabelReasonForLeaving";
 			this.ylabelReasonForLeaving.Xalign = 1F;
 			this.ylabelReasonForLeaving.LabelProp = global::Mono.Unix.Catalog.GetString("Цель покупки воды:");
 			this.ytableEdo.Add(this.ylabelReasonForLeaving);
-			global::Gtk.Table.TableChild w222 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelReasonForLeaving]));
-			w222.XOptions = ((global::Gtk.AttachOptions)(4));
-			w222.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w225 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelReasonForLeaving]));
+			w225.XOptions = ((global::Gtk.AttachOptions)(4));
+			w225.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ylabelRegistrationInChestnyZnak = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelRegistrationInChestnyZnak.Name = "ylabelRegistrationInChestnyZnak";
 			this.ylabelRegistrationInChestnyZnak.Xalign = 1F;
 			this.ylabelRegistrationInChestnyZnak.LabelProp = global::Mono.Unix.Catalog.GetString("Регистрация клиента в Честном Знаке:");
 			this.ytableEdo.Add(this.ylabelRegistrationInChestnyZnak);
-			global::Gtk.Table.TableChild w223 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelRegistrationInChestnyZnak]));
-			w223.TopAttach = ((uint)(5));
-			w223.BottomAttach = ((uint)(6));
-			w223.XOptions = ((global::Gtk.AttachOptions)(4));
-			w223.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w226 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelRegistrationInChestnyZnak]));
+			w226.TopAttach = ((uint)(5));
+			w226.BottomAttach = ((uint)(6));
+			w226.XOptions = ((global::Gtk.AttachOptions)(4));
+			w226.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
 			this.ylabelSendUpdInOrderStatus = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSendUpdInOrderStatus.Name = "ylabelSendUpdInOrderStatus";
 			this.ylabelSendUpdInOrderStatus.Xalign = 1F;
 			this.ylabelSendUpdInOrderStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Отправлять УПД в статусе заказа:");
 			this.ytableEdo.Add(this.ylabelSendUpdInOrderStatus);
-			global::Gtk.Table.TableChild w224 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelSendUpdInOrderStatus]));
-			w224.TopAttach = ((uint)(7));
-			w224.BottomAttach = ((uint)(8));
-			w224.XOptions = ((global::Gtk.AttachOptions)(4));
-			w224.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w227 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ylabelSendUpdInOrderStatus]));
+			w227.TopAttach = ((uint)(7));
+			w227.BottomAttach = ((uint)(8));
+			w227.XOptions = ((global::Gtk.AttachOptions)(4));
+			w227.YOptions = ((global::Gtk.AttachOptions)(4));
 			w203.Add(this.ytableEdo);
 			this.scrolledWindowEdo.Add(w203);
 			this.notebook1.Add(this.scrolledWindowEdo);
-			global::Gtk.Notebook.NotebookChild w227 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.scrolledWindowEdo]));
-			w227.Position = 12;
+			global::Gtk.Notebook.NotebookChild w230 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.scrolledWindowEdo]));
+			w230.Position = 12;
 			// Notebook tab
 			this.labelEdo = new global::Gtk.Label();
 			this.labelEdo.Name = "labelEdo";
@@ -2953,8 +2995,8 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.scrolledWindowEdo, this.labelEdo);
 			this.labelEdo.ShowAll();
 			this.vbox2.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w228 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
-			w228.Position = 3;
+			global::Gtk.Box.BoxChild w231 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
+			w231.Position = 3;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

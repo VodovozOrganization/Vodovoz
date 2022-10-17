@@ -6,9 +6,9 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
-		private global::Gamma.GtkWidgets.yLabel ylabel1;
+		private global::Gamma.GtkWidgets.yLabel ylabelTitle;
 
-		private global::Vodovoz.Views.Client.EdoLightsMatrixView edolightsmatrixview1;
+		private global::Vodovoz.Views.Client.EdoLightsMatrixView edoLightsMatrixvVew;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonOpenCounterparty;
 
@@ -23,21 +23,21 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yvboxMain.Name = "yvboxMain";
 			this.yvboxMain.Spacing = 6;
 			// Container child yvboxMain.Gtk.Box+BoxChild
-			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Доступные типы оплат:</b>");
-			this.ylabel1.UseMarkup = true;
-			this.yvboxMain.Add(this.ylabel1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ylabel1]));
+			this.ylabelTitle = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTitle.Name = "ylabelTitle";
+			this.ylabelTitle.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Доступные типы оплат:</b>");
+			this.ylabelTitle.UseMarkup = true;
+			this.yvboxMain.Add(this.ylabelTitle);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ylabelTitle]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
-			this.edolightsmatrixview1 = new global::Vodovoz.Views.Client.EdoLightsMatrixView();
-			this.edolightsmatrixview1.Events = ((global::Gdk.EventMask)(256));
-			this.edolightsmatrixview1.Name = "edolightsmatrixview1";
-			this.yvboxMain.Add(this.edolightsmatrixview1);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.edolightsmatrixview1]));
+			this.edoLightsMatrixvVew = new global::Vodovoz.Views.Client.EdoLightsMatrixView();
+			this.edoLightsMatrixvVew.Events = ((global::Gdk.EventMask)(256));
+			this.edoLightsMatrixvVew.Name = "edoLightsMatrixvVew";
+			this.yvboxMain.Add(this.edoLightsMatrixvVew);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.edoLightsMatrixvVew]));
 			w2.Position = 1;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ybuttonOpenCounterparty = new global::Gamma.GtkWidgets.yButton();
