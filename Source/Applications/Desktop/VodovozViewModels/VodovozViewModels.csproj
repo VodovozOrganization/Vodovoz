@@ -535,6 +535,10 @@
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
     <Compile Include="ViewModels\Reports\IncomingCallsAnalysisReportViewModel.cs" />
+    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixViewModel.cs" />
+    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixColumn.cs" />
+    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixRow.cs" />
+    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixPaymentType.cs" />
     <Compile Include="Widgets\OrganizationVersionsViewModel.cs" />
     <Compile Include="Widgets\FastDeliveryVerificationViewModel.cs" />
     <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
@@ -661,5 +665,6 @@
       <Version>1.7.4</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

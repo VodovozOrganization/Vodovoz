@@ -30,7 +30,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Dialog;
-using Vodovoz.Dialogs.Client.EdoLightsMatrix;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -74,6 +73,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using Vodovoz.Views.Logistic;
 
 namespace Vodovoz
 {
@@ -113,7 +114,7 @@ namespace Vodovoz
 		private Employee _currentEmployee;
 		private PhonesViewModel _phonesViewModel;
 		private double _emailLastScrollPosition;
-		private EdoLightsMatrix _edoLightsMatrix;
+		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -961,36 +962,12 @@ namespace Vodovoz
 		private void CongigureTabEdo()
 		{
 
-			_edoLightsMatrix = new EdoLightsMatrix(_commonServices.InteractiveService);
-			_edoLightsMatrix.CreateRows(ReasonForLeaving.ForOwnNeeds, ReasonForLeaving.Resale);
+			edoLightsMatrixView.ViewModel = _edoLightsMatrixViewModel = new EdoLightsMatrixViewModel(Entity, _commonServices);
 
 			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
 			yEnumCmbReasonForLeaving.Binding
 				.AddBinding(Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
 				.InitializeFromSource();
-
-			if(Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
-			{
-				_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Receipt, true);
-			}
-
-			if(Entity.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess ||
-			   Entity.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
-			{
-				if(Entity.PersonType == PersonType.legal)
-				{
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Cashless, true);
-				}
-				if(Entity.PersonType == PersonType.natural)
-				{
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Receipt, true);
-				}
-			}
-
-			if(Entity.PersonType == PersonType.legal && Entity.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-			{
-				_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Cashless, true);
-			}
 
 			//----------- 1
 
@@ -1011,7 +988,7 @@ namespace Vodovoz
 					Entity.EdoOperator = null;
 				}
 
-				RefreshLightsMatrix();
+				_edoLightsMatrixViewModel.RefreshLightsMatrix();
 			};
 
 			yChkBtnIsNotSendDocumentsByEdo.Binding
@@ -1067,23 +1044,7 @@ namespace Vodovoz
 
 			yEnumCmbRegistrationInChestnyZnak.ChangedByUser += (s, e) =>
 			{
-				if(Entity.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess ||
-				   Entity.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
-				{
-					if(Entity.PersonType == PersonType.legal)
-					{
-						_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Cashless, true);
-					}
-					if(Entity.PersonType == PersonType.natural)
-					{
-						_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Receipt, true);
-					}
-				}
-				else
-				{
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Cashless, false);
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Receipt, false);
-				}
+				_edoLightsMatrixViewModel.RefreshLightsMatrix();
 			};
 
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
@@ -1094,59 +1055,8 @@ namespace Vodovoz
 			yChkBtnIsPaperlessWorkflow.Binding
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
-
-			var redColor = new Color(255, 0, 0);
-			var greenColor = new Color(0, 255, 0);
-			/*ytreeviewLightsMatrix.ColumnsConfig = FluentColumnsConfig<LightsMatrixRow>.Create()
-				.AddColumn("").AddTextRenderer(x => x.Title)
-				.AddColumn("Безналичная").AddTextRenderer(x => x.IsAllowed(EdoPaymentType.Cashless) ? "V" : "X")
-					.XAlign(0.5f)
-					.WidthChars(50)
-					.AddSetter((c, n) =>
-					{
-						c.BackgroundGdk = n.IsAllowed(EdoPaymentType.Cashless) ? greenColor : redColor;
-					})
-				.AddColumn("Наличная, Терминал, QR-код, Сайт").AddTextRenderer(x => x.IsAllowed(EdoPaymentType.Receipt) ? "V" : "X")
-					.XAlign(0.5f)
-					.WidthChars(50)
-					.AddSetter((c, n) =>
-					{
-						c.BackgroundGdk = n.IsAllowed(EdoPaymentType.Receipt) ? greenColor : redColor;
-					})
-				.AddColumn("")
-				.Finish();
-
-			//CreateEdoLightsMatrixConditions();
-
-			ytreeviewLightsMatrix.ItemsDataSource = _edoLightsMatrix.LightsMatrixRows;*/
 		}
-
-		private void RefreshLightsMatrix()
-		{
-			_edoLightsMatrix.UnLightAll();
-
-			if(Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
-			{
-				_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Receipt, true);
-			}
-
-
-			if(Entity.ReasonForLeaving == ReasonForLeaving.Other)
-			{
-				if(Entity.PersonType == PersonType.legal)
-				{
-					Entity.IsNotSendDocumentsByEdo = true;
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Cashless, true);
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Receipt, true);
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Cashless, true);
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Receipt, true);
-				}
-				else
-				{
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Receipt, true);
-				}
-			}
-		}
+	
 
 		private void RefreshBulkEmailEventStatus()
 		{
@@ -1814,10 +1724,6 @@ namespace Vodovoz
 		protected void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
 		{
 			Entity.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
-			if(Entity.PersonType == PersonType.legal)
-			{
-				_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Cashless, true);
-			}
 		}
 
 		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)

@@ -1,10 +1,10 @@
-﻿using Gamma.Utilities;
-using QS.DomainModel.Entity;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.Dialogs.Client.EdoLightsMatrix
+namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 {
 	public class LightsMatrixRow : PropertyChangedBase
 	{
@@ -20,7 +20,7 @@ namespace Vodovoz.Dialogs.Client.EdoLightsMatrix
 			OnPropertyChanged(nameof(IsAllowed));
 		}
 
-		public bool IsAllowed(EdoPaymentType paymentKind)
+		public bool IsAllowed(EdoLightsMatrixPaymentType paymentKind)
 		{
 			var column = Columns?.FirstOrDefault(r => r.PaymentKind == paymentKind);
 
