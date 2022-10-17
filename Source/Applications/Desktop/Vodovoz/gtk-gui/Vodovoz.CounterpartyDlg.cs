@@ -2698,7 +2698,7 @@ namespace Vodovoz
 			w205.TopAttach = ((uint)(8));
 			w205.BottomAttach = ((uint)(9));
 			w205.LeftAttach = ((uint)(1));
-			w205.RightAttach = ((uint)(3));
+			w205.RightAttach = ((uint)(2));
 			w205.XOptions = ((global::Gtk.AttachOptions)(4));
 			w205.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
