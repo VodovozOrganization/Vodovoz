@@ -55,7 +55,7 @@ namespace Vodovoz.Domain.Client
 		private ConsentForEdoStatus _consentForEdoStatus;
 		private string _personalAccountIdInEdo;
 		private EdoOperator _edoOperator;
-		private int _currentEdoProgressStep;
+		private bool _isSendedInviteByTaxcom;
 
 		#region Свойства
 
@@ -699,11 +699,11 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _edoOperator, value);
 		}
 
-		[Display(Name = "Текущий этап заполнения")]
-		public virtual int CurrentEdoProgressStep
+		[Display(Name = "Отправлено приглашение через Taxcom")]
+		public virtual bool IsSendedInviteByTaxcom
 		{
-			get => _currentEdoProgressStep;
-			set => SetField(ref _currentEdoProgressStep, value);
+			get => _isSendedInviteByTaxcom;
+			set => _isSendedInviteByTaxcom = value;
 		}
 
 		#endregion

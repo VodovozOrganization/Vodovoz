@@ -29,6 +29,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Dialog;
 using Vodovoz.Dialogs.Client.EdoLightsMatrix;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
@@ -965,7 +966,6 @@ namespace Vodovoz
 
 			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
 			yEnumCmbReasonForLeaving.Binding
-				.AddFuncBinding(Entity, e => e.CurrentEdoProgressStep == 0 || e.CurrentEdoProgressStep == 1, w => w.Sensitive)
 				.AddBinding(Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
 				.InitializeFromSource();
 
@@ -992,14 +992,12 @@ namespace Vodovoz
 				_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Cashless, true);
 			}
 
+			//----------- 1
+
 			yEnumCmbReasonForLeaving.ChangedByUser += (s, e) =>
 			{
-				if(Entity.ReasonForLeaving == ReasonForLeaving.Other)
-				{
-					Entity.IsNotSendDocumentsByEdo = true;
-				}
-
-				if(Entity.ReasonForLeaving == ReasonForLeaving.Resale || Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+				if(Entity.ReasonForLeaving == ReasonForLeaving.Resale
+				   || (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds && Entity.PersonType == PersonType.legal))
 				{
 					if(string.IsNullOrWhiteSpace(Entity.INN))
 					{
@@ -1007,55 +1005,46 @@ namespace Vodovoz
 					}
 				}
 
-				if(Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+				if(Entity.ReasonForLeaving == ReasonForLeaving.Other)
 				{
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Receipt, true);
-				}
-				else
-				{
-					_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Receipt, false);
+					Entity.PersonalAccountIdInEdo = null;
+					Entity.EdoOperator = null;
 				}
 
-				if(Entity.ReasonForLeaving != ReasonForLeaving.Unknown)
-				{
-					Entity.CurrentEdoProgressStep = 1;
-				}
-				else
-				{
-					Entity.CurrentEdoProgressStep = 0;
-				}
+				RefreshLightsMatrix();
 			};
 
 			yChkBtnIsNotSendDocumentsByEdo.Binding
-				.AddFuncBinding(Entity, e => e.CurrentEdoProgressStep == 0, w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
 				.InitializeFromSource();
 
+			//----2---
+			
 			ybuttonCheckClientInTaxcom.Binding
-				.AddFuncBinding(Entity, e=> ( e.CurrentEdoProgressStep == 1 && e.EdoOperator != null) || Entity.ConsentForEdoStatus == ConsentForEdoStatus.Sent, w => w.Sensitive)
+				.AddFuncBinding(Entity, e => Entity.PersonType == PersonType.legal 
+				                             && (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || Entity.ReasonForLeaving == ReasonForLeaving.Resale), w => w.Sensitive)
 				.InitializeFromSource();
 
 			var edoOperatorsAutocompleteSelectorFactory = _edoOperatorsJournalFactory.CreateEdoOperatorsAutocompleteSelectorFactory();
 			evmeOperatoEdo.SetEntityAutocompleteSelectorFactory(edoOperatorsAutocompleteSelectorFactory);
 			evmeOperatoEdo.Binding
-				.AddFuncBinding(Entity, e => e.CurrentEdoProgressStep == 1 || e.CurrentEdoProgressStep == 2, w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.EdoOperator != null 
+					&& ((e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other) 
+					|| (e.PersonType == PersonType.natural && e.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds && e.ReasonForLeaving != ReasonForLeaving.Unknown)), w => w.Sensitive)
 				.AddBinding(Entity, e => e.EdoOperator, w => w.Subject)
 				.InitializeFromSource();
 
-			evmeOperatoEdo.ChangedByUser += (s, e) =>
-			{
-				Entity.CurrentEdoProgressStep = 1;
-			};
-
-			ybuttonSendInviteByTaxcom.Binding
-				.AddFuncBinding(Entity, e => e.CurrentEdoProgressStep == 2, w => w.Sensitive)
-				.InitializeFromSource();
-
 			yentryPersonalAccountCodeInEdo.Binding
-				.AddFuncBinding(Entity, e => e.CurrentEdoProgressStep == 2, w => w.Sensitive)
+				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo), w => w.Sensitive)
 				.AddBinding(Entity, e => e.PersonalAccountIdInEdo, w => w.Text)
 				.InitializeFromSource();
 
+			ybuttonSendInviteByTaxcom.Binding
+				.AddFuncBinding(Entity, e => e.EdoOperator != null && !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo), w => w.Sensitive)
+				.InitializeFromSource();
+
+			//---3---
 			yEnumCmbConsentForEdo.ItemsEnum = typeof(ConsentForEdoStatus);
 			yEnumCmbConsentForEdo.Binding
 				.AddBinding(Entity, e => e.ConsentForEdoStatus, w => w.SelectedItem)
@@ -1064,17 +1053,15 @@ namespace Vodovoz
 			yEnumCmbConsentForEdo.Sensitive = false;
 
 			ybuttonCheckConsentForEdo.Binding
-				.AddFuncBinding(Entity, e => e.CurrentEdoProgressStep == 2, w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.IsSendedInviteByTaxcom, w => w.Sensitive)
 				.InitializeFromSource();
 
-			yEnumCmbConsentForEdo.ChangedByUser += (s, a) =>
-			{
-				Entity.CurrentEdoProgressStep = 2;
-			};
+			ybuttonRegistrationInChestnyZnak.Binding
+				.AddFuncBinding(Entity, e => e.ReasonForLeaving == ReasonForLeaving.Resale && !string.IsNullOrWhiteSpace(e.INN), w => w.Sensitive)
+				.InitializeFromSource();
 
 			yEnumCmbRegistrationInChestnyZnak.ItemsEnum = typeof(RegistrationInChestnyZnakStatus);
 			yEnumCmbRegistrationInChestnyZnak.Binding
-				.AddFuncBinding(Entity, e => e.CurrentEdoProgressStep == 3, w => w.Sensitive)
 				.AddBinding(Entity, e => e.RegistrationInChestnyZnakStatus, w => w.SelectedItem)
 				.InitializeFromSource();
 
@@ -1101,12 +1088,10 @@ namespace Vodovoz
 
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
 			yEnumCmbSendUpdInOrderStatus.Binding
-				.AddFuncBinding(Entity, e => e.CurrentEdoProgressStep == 3, w => w.Sensitive)
 				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			yChkBtnIsPaperlessWorkflow.Binding
-				.AddFuncBinding(Entity, e => e.CurrentEdoProgressStep == 3, w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
 
@@ -1126,7 +1111,7 @@ namespace Vodovoz
 					{
 						c.BackgroundGdk = n.IsAllowed(EdoPaymentType.Cashless) ? greenColor : redColor;
 					})
-				.AddColumn("Наличная, Терминал, R-код, Сайт").AddTextRenderer(x => x.IsAllowed(EdoPaymentType.Receipt) ? "V" : "X")
+				.AddColumn("Наличная, Терминал, QR-код, Сайт").AddTextRenderer(x => x.IsAllowed(EdoPaymentType.Receipt) ? "V" : "X")
 					.XAlign(0.5f)
 					.WidthChars(50)
 					.AddSetter((c, n) =>
@@ -1139,6 +1124,33 @@ namespace Vodovoz
 			//CreateEdoLightsMatrixConditions();
 
 			ytreeviewLightsMatrix.ItemsDataSource = _edoLightsMatrix.LightsMatrixRows;
+		}
+
+		private void RefreshLightsMatrix()
+		{
+			_edoLightsMatrix.UnLightAll();
+
+			if(Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			{
+				_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Receipt, true);
+			}
+
+
+			if(Entity.ReasonForLeaving == ReasonForLeaving.Other)
+			{
+				if(Entity.PersonType == PersonType.legal)
+				{
+					Entity.IsNotSendDocumentsByEdo = true;
+					_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Cashless, true);
+					_edoLightsMatrix.SetAllow(ReasonForLeaving.Resale, EdoPaymentType.Receipt, true);
+					_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Cashless, true);
+					_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Receipt, true);
+				}
+				else
+				{
+					_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Receipt, true);
+				}
+			}
 		}
 
 		private void RefreshBulkEmailEventStatus()
@@ -1794,12 +1806,9 @@ namespace Vodovoz
 
 		protected void OnYbuttonCheckClientInTaxcomClicked(object sender, EventArgs e)
 		{
-			if(Entity.EdoOperator != null)
-			{
-				Entity.CurrentEdoProgressStep = 2;
 
-			}
-
+			Entity.PersonalAccountIdInEdo = "2BA-EBD32UYGR823QGDBW";
+			Entity.EdoOperator = UoW.GetById<EdoOperator>(1);
 		}
 
 		protected void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
@@ -1810,7 +1819,6 @@ namespace Vodovoz
 		protected void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
 		{
 			Entity.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
-			Entity.CurrentEdoProgressStep = 3;
 			if(Entity.PersonType == PersonType.legal)
 			{
 				_edoLightsMatrix.SetAllow(ReasonForLeaving.ForOwnNeeds, EdoPaymentType.Cashless, true);
@@ -1819,7 +1827,7 @@ namespace Vodovoz
 
 		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
 		{
-			Entity.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
+			Entity.IsSendedInviteByTaxcom = true;
 		}
 	}
 

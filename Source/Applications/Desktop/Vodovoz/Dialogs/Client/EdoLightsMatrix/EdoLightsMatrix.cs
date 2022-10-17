@@ -83,5 +83,16 @@ namespace Vodovoz.Dialogs.Client.EdoLightsMatrix
 			public Func<bool> ValidationCondition { get; set; }
 			public string ValidationMessage { get; set; }
 		}
+
+		public void UnLightAll()
+		{
+			foreach(var row in LightsMatrixRows)
+			{
+				foreach(var column in row.Columns)
+				{
+					SetAllow(row.ReasonForLeaving, column.PaymentKind, false);
+				}
+			}
+		}
 	}
 }

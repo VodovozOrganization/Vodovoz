@@ -3,6 +3,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace Vodovoz.Domain.Client
 {
@@ -74,6 +75,12 @@ namespace Vodovoz.Domain.Client
 			if(Code?.Length > 3 || Code?.Length < 3)
 			{
 				yield return new ValidationResult($"Трёхзначный код должен содержать 3 символа ({Code.Length}/3).",
+					new[] { nameof(Code) });
+			}
+
+			if(!Regex.IsMatch(Code, @"^[a-zA-Z0-9]+$"))
+			{
+				yield return new ValidationResult($"Трёхзначный код должен содержать только латинские буквы и цифры.",
 					new[] { nameof(Code) });
 			}
 		}
