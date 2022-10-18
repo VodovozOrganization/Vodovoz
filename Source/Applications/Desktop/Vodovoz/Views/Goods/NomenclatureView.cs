@@ -311,9 +311,9 @@ namespace Vodovoz.Views.Goods
 			ycheckIsAccountableInChestniyZnak.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsAccountableInChestniyZnak, w => w.Active)
 				.InitializeFromSource();
-			entryGtin.Binding
+			/*entryGtin.Binding
 				.AddBinding(ViewModel.Entity, e => e.Gtin, w => w.Text)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 
 			#region Вкладка Оборудование
 

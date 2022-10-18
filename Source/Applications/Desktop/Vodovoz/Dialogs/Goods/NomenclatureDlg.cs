@@ -173,9 +173,9 @@ namespace Vodovoz
 			ycheckIsAccountableInChestniyZnak.Binding
 				.AddBinding(Entity, e => e.IsAccountableInChestniyZnak, w => w.Active)
 				.InitializeFromSource();
-			entryGtin.Binding
+			/*entryGtin.Binding
 				.AddBinding(Entity, e => e.Gtin, w => w.Text)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 
 			#region Вкладка характиристики
 

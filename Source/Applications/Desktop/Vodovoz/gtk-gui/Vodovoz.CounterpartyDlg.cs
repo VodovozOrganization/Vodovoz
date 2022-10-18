@@ -2778,10 +2778,10 @@ namespace Vodovoz
 			this.ybuttonSendInviteByTaxcom.Label = global::Mono.Unix.Catalog.GetString("Отправить приглашение через Такском");
 			this.ytableEdo.Add(this.ybuttonSendInviteByTaxcom);
 			global::Gtk.Table.TableChild w211 = ((global::Gtk.Table.TableChild)(this.ytableEdo[this.ybuttonSendInviteByTaxcom]));
-			w211.TopAttach = ((uint)(2));
-			w211.BottomAttach = ((uint)(3));
-			w211.LeftAttach = ((uint)(3));
-			w211.RightAttach = ((uint)(4));
+			w211.TopAttach = ((uint)(3));
+			w211.BottomAttach = ((uint)(4));
+			w211.LeftAttach = ((uint)(2));
+			w211.RightAttach = ((uint)(3));
 			w211.XOptions = ((global::Gtk.AttachOptions)(4));
 			w211.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableEdo.Gtk.Table+TableChild
