@@ -8,30 +8,44 @@ using Vodovoz.Domain;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.RentPackages;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {
     public class FreeRentPackageViewModel : EntityTabViewModelBase<FreeRentPackage>
     {
-	    private readonly IRentPackageRepository _rentPackageRepository;
+		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
+		private readonly IRentPackageRepository _rentPackageRepository;
+		private IEntityAutocompleteSelectorFactory _depositServiceSelectorFactory;
 
-	    public FreeRentPackageViewModel(
+
+		public FreeRentPackageViewModel(
             IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
+			INomenclatureJournalFactory nomenclatureJournalFactory,
             IRentPackageRepository rentPackageRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 	    {
-		    _rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
+			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
+			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
 		    
-		    DepositNomenclatureCriteria = UoW.Session.CreateCriteria<Nomenclature>()
-		        .Add(Restrictions.Eq("Category", NomenclatureCategory.deposit));
-
 		    ConfigureValidateContext();
 	    }
         
-        public ICriteria DepositNomenclatureCriteria { get; }
-        
-        private void ConfigureValidateContext()
+		public IEntityAutocompleteSelectorFactory DepositServiceSelectorFactory
+		{
+			get
+			{
+				if(_depositServiceSelectorFactory == null)
+				{
+					_depositServiceSelectorFactory = _nomenclatureJournalFactory.GetDepositSelectorFactory();
+				}
+				return _depositServiceSelectorFactory;
+			}
+		}
+
+		private void ConfigureValidateContext()
         {
 	        ValidationContext.ServiceContainer.AddService(typeof(IRentPackageRepository), _rentPackageRepository);
         }

@@ -15,6 +15,8 @@ namespace Vodovoz.TempAdapters
 		IEntityAutocompleteSelectorFactory GetWaterJournalFactory();
 		IEntityAutocompleteSelectorFactory GetRoboatsWaterJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultWaterSelectorFactory();
+		IEntityAutocompleteSelectorFactory GetDepositSelectorFactory();
+		IEntityAutocompleteSelectorFactory GetServiceSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(NomenclatureFilterViewModel filter = null);
 		NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel(bool multiselect = false);

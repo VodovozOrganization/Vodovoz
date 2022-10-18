@@ -3,6 +3,7 @@ using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -32,8 +33,11 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
-			//referenceProduct.SubjectType = typeof (Nomenclature);
-			//referenceProduct.Binding.AddBinding (Entity, e => e.Product, w => w.Subject).InitializeFromSource ();
+
+			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+			entryProduct.SetEntityAutocompleteSelectorFactory(nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory());
+			entryProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
+
 			productspecificationmaterialsview1.SpecificationUoW = UoWGeneric;
 		}
 
