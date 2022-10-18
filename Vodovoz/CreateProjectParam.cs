@@ -174,6 +174,8 @@ using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.Views.Sale;
 using Vodovoz.Models;
 using QS.Validation;
+using Vodovoz.ViewWidgets;
+using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
@@ -311,6 +313,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
+				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				;
 			
 			//Регистрация виджетов
@@ -539,6 +542,9 @@ namespace Vodovoz
 			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
+			builder.RegisterType<GtkReportViewOpener>()
+				.AsImplementedInterfaces()
+				.SingleInstance();
 
 			builder.RegisterAssemblyTypes(
 					Assembly.GetExecutingAssembly(),
@@ -574,7 +580,7 @@ namespace Vodovoz
 			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
 
 			#endregion
-			
+
 			#region Models
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))

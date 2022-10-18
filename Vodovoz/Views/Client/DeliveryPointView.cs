@@ -159,6 +159,10 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+			textCommentLogist.Binding
+				.AddBinding(ViewModel.Entity, e => e.CommentLogist, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			labelCompiledAddress.Binding
 				.AddBinding(ViewModel.Entity, e => e.CompiledAddress, w => w.LabelProp)
 				.InitializeFromSource();
@@ -255,6 +259,12 @@ namespace Vodovoz.Views.Client
 				.InitializeFromSource();
 			entryLunchTimeTo.Binding
 				.AddBinding(ViewModel.Entity, e => e.LunchTimeTo, w => w.Time)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
+			yEnumCmbReasonForLeaving.Binding
+				.AddBinding(ViewModel.Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -455,14 +465,14 @@ namespace Vodovoz.Views.Client
 			{
 				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
 			}
-
-			if(!ViewModel.IsDisposed)
+			
+			Application.Invoke((o, args) =>
 			{
-				Application.Invoke((o, args) =>
+				if(!ViewModel.IsDisposed)
 				{
 					ViewModel.WriteCoordinates(coordinate.Latitude, coordinate.Longitude, false);
-				});
-			}
+				}
+			});
 		}
 
 

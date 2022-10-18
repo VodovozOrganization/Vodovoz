@@ -36,6 +36,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Letter)					.Column("letter");
 			Map(x => x.Placement)		 		.Column("placement");
 			Map(x => x.Comment)		  			.Column("comment");
+			Map(x => x.CommentLogist)		  	.Column("comment_logist");
 			Map(x => x.FoundOnOsm)		  		.Column("found_on_osm");
 			Map(x => x.ManualCoordinates)		.Column("manual_coordinates");
 			Map(x => x.IsFixedInOsm)	 	 	.Column("is_fixed_in_osm");
@@ -63,6 +64,8 @@ namespace Vodovoz.HibernateMapping
 
 			Map(x => x.LunchTimeFrom)           .Column("lunch_time_from").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.LunchTimeTo)             .Column("lunch_time_to").CustomType<TimeAsTimeSpanType>();
+
+			Map(x => x.ReasonForLeaving).Column("reason_for_leaving").CustomType<ReasonForLeavingStringType>();
 
 			References(x => x.Counterparty)				.Column("counterparty_id");
 			References(x => x.DeliverySchedule)			.Column("delivery_schedule_id");

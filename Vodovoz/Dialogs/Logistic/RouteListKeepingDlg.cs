@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.ServiceModel;
-using Chats;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
-using NHibernate;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Tdi;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using QSOrmProject;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
@@ -30,17 +27,15 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz
@@ -49,6 +44,12 @@ namespace Vodovoz
 	{
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
+			new RouteListProfitabilityController(
+				new RouteListProfitabilityFactory(),
+				new NomenclatureParametersProvider(new ParametersProvider()),
+				new ProfitabilityConstantsRepository(),
+				new RouteListProfitabilityRepository());
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
@@ -423,7 +424,8 @@ namespace Vodovoz
 				SetSensetivity(false);
 
 				Entity.CalculateWages(wageParameterService);
-
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+				
 				UoWGeneric.Save();
 
 				var changedList = items.Where(item => item.ChangedDeliverySchedule || item.HasChanged).ToList();

@@ -126,7 +126,11 @@ namespace Vodovoz.EntityRepositories.Roboats
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				_roboatsWatersCache = uow.GetAll<RoboatsWaterType>().ToList();
+				RoboatsWaterType roboatsWaterTypeAlias = null;
+				var waters = uow.Session.QueryOver(() => roboatsWaterTypeAlias)
+					.OrderBy(x => x.Order).Asc()
+					.List();
+				_roboatsWatersCache = waters;
 				return _roboatsWatersCache;
 			}
 		}
@@ -467,6 +471,25 @@ namespace Vodovoz.EntityRepositories.Roboats
 				var result = query.SingleOrDefault<bool>();
 				return result;
 			}
+		}
+
+		public IEnumerable<RoboatsCall> GetStaleCalls(IUnitOfWork uow)
+		{
+			RoboatsCall roboatsCallAlias = null;
+			var staleCalls = uow.Session.QueryOver(() => roboatsCallAlias)
+				.Where(() => roboatsCallAlias.CallTime < DateTime.Now.AddMinutes(-_roboatsSettings.CallTimeout))
+				.Where(() => roboatsCallAlias.Status == RoboatsCallStatus.InProgress)
+				.List();
+			return staleCalls;
+		}
+
+		public RoboatsCall GetCall(IUnitOfWork uow, Guid callGuid)
+		{
+			RoboatsCall roboatsCallAlias = null;
+			var call = uow.Session.QueryOver(() => roboatsCallAlias)
+				.Where(() => roboatsCallAlias.CallGuid == callGuid)
+				.SingleOrDefault();
+			return call;
 		}
 	}
 }

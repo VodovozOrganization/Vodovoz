@@ -44,7 +44,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\QSProjects\QS.Utilities\QS.Utilities.csproj" />
-      <ProjectReference Include="..\MangoController\MangoController.csproj" />
+      <ProjectReference Include="..\..\Library\MangoController\MangoController.csproj" />
     </ItemGroup>
 
     <ItemGroup>

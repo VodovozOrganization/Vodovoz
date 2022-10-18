@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
@@ -34,6 +37,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityPropertyChanges();
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 			HideClientFromGuilty = !fromComplaintsJournalFilter;
+			ResponsibleList = uow.GetAll<Responsible>().Where(r => !r.IsArchived).ToList();
 		}
 
 		public event EventHandler OnGuiltyItemReady;
@@ -44,10 +48,11 @@ namespace Vodovoz.ViewModels.Complaints
 			private set => SetField(ref allDepartments, value);
 		}
 
-		public bool CanChooseEmployee => Entity.GuiltyType == ComplaintGuiltyTypes.Employee;
+		public bool CanChooseEmployee => Entity.Responsible != null && Entity.Responsible.IsEmployeeResponsible;
 
-		public bool CanChooseSubdivision => Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision;
+		public bool CanChooseSubdivision => Entity.Responsible != null && Entity.Responsible.IsSubdivisionResponsible;
 		public bool HideClientFromGuilty { get; }
+		public IList<Responsible> ResponsibleList { get; }
 
 		public bool IsForSalesDepartment
 		{
@@ -58,7 +63,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 				if(value)
 				{
-					Entity.GuiltyType = ComplaintGuiltyTypes.Subdivision;
+					Entity.Responsible = ResponsibleList.FirstOrDefault(r => r.IsSubdivisionResponsible);
 					var salesSubDivisionId = _subdivisionParametersProvider.GetSalesSubdivisionId();
 					Entity.Subdivision = UoW.GetById<Subdivision>(salesSubDivisionId);
 				}
@@ -70,14 +75,14 @@ namespace Vodovoz.ViewModels.Complaints
 		void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(
-				e => e.GuiltyType,
+				e => e.Responsible,
 				() => CanChooseEmployee,
 				() => CanChooseSubdivision
 			);
 
 			OnEntityPropertyChanged(
 				() => OnGuiltyItemReady?.Invoke(this, EventArgs.Empty),
-				e => e.GuiltyType,
+				e => e.Responsible,
 				e => e.Employee,
 				e => e.Subdivision
 			);

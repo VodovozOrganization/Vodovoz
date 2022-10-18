@@ -31,7 +31,6 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
@@ -42,6 +41,8 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels;
+using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.FilterViewModels.Suppliers;
@@ -50,6 +51,7 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters.Cash;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
@@ -84,17 +86,9 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
-using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.FilterViewModels;
-using Vodovoz.ViewModels.Employees;
-using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.FilterViewModels.Employees;
 
 public partial class MainWindow : Window
 {
@@ -123,7 +117,6 @@ public partial class MainWindow : Window
 	Action ActionRouteListsAtDay;
 	Action ActionRouteListsPrint;
 	Action ActionRouteListClosingTable;
-	Action ActionRouteListKeeping;
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
 	Action ActionFastDeliveryAvailabilityJournal;
@@ -217,7 +210,6 @@ public partial class MainWindow : Window
 		ActionRouteListsPrint = new Action("ActionRouteListsPrint", "Печать МЛ", null, "print");
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Работа кассы с МЛ", null, "table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин", null, "table");
-		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов", null, "table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
 		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "Доставка за час", null, "table");
@@ -306,7 +298,6 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListsAtDay, null);
 		w1.Add(ActionRouteListsPrint, null);
 		w1.Add(ActionRouteListClosingTable, null);
-		w1.Add(ActionRouteListKeeping, null);
 		w1.Add(ActionRouteListTracking, null);
 		w1.Add(ActionRouteListMileageCheck, null);
 
@@ -400,7 +391,6 @@ public partial class MainWindow : Window
 		ActionRouteListsAtDay.Activated += ActionRouteListsAtDay_Activated;
 		ActionRouteListsPrint.Activated += ActionRouteListsPrint_Activated;
 		ActionRouteListClosingTable.Activated += ActionRouteListClosingTable_Activated;
-		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
 		ActionFastDeliveryAvailabilityJournal.Activated += ActionFastDeliveryAvailabilityJournal_Activated;
@@ -661,8 +651,7 @@ public partial class MainWindow : Window
 			() => new AtWorksDlg(
 				new BaseParametersProvider(parametersProvider),
 				employeeJournalFactory,
-				driverApiRegisterEndpoint,
-				new GeographicGroupParametersProvider(parametersProvider))
+				driverApiRegisterEndpoint)
 		);
 	}
 
@@ -688,8 +677,7 @@ public partial class MainWindow : Window
 				new EmployeeJournalFactory(),
 				new GeographicGroupRepository(),
 				new ScheduleRestrictionRepository(),
-				new CarModelJournalFactory(),
-				new GeographicGroupParametersProvider(parametersProvider)
+				new CarModelJournalFactory()
 			)
 		);
 	}
@@ -819,36 +807,12 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionFuelTransferDocuments_Activated(object sender, System.EventArgs e)
+	void ActionFuelTransferDocuments_Activated(object sender, EventArgs e)
 	{
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		IFuelRepository fuelRepository = new FuelRepository();
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
-		INomenclatureJournalFactory nomenclatureSelectorFactory = new NomenclatureJournalFactory();
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
-
-		var expenseCategoryFactory = new ExpenseCategorySelectorFactory();
-
-		var fuelDocumentsJournalViewModel = new FuelDocumentsJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
-			subdivisionRepository,
-			fuelRepository,
-			counterpartyJournalFactory,
-			nomenclatureSelectorFactory,
-			employeeJournalFactory,
-			subdivisionJournalFactory,
-			carJournalFactory,
-			new GtkReportViewOpener(),
-			expenseCategoryFactory
-		);
-		tdiMain.AddTab(fuelDocumentsJournalViewModel);
+		NavigationManager.OpenViewModel<FuelDocumentsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
-	void ActionOrganizationCashTransferDocuments_Activated(object sender, System.EventArgs e)
+	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
 		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
 			PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
@@ -1009,14 +973,6 @@ public partial class MainWindow : Window
 			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
 			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, routeListRepository, scheduleRestrictionRepository,
 				deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
-		);
-	}
-
-	void ActionRouteListKeeping_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListKeepingView>(),
-			() => new RouteListKeepingView()
 		);
 	}
 
@@ -1202,6 +1158,7 @@ public partial class MainWindow : Window
 		ICarJournalFactory carJournalFactory = new CarJournalFactory(NavigationManager);
 		IEmployeeJournalFactory employeeFactory = new EmployeeJournalFactory();
 		ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
+		ICarEventJournalFactory carEventJournalFactory = new CarEventJournalFactory(NavigationManager);
 
 		var carEventFilter = new CarEventFilterViewModel(
 			carJournalFactory,
@@ -1215,10 +1172,12 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			carJournalFactory,
 			carEventTypeJournalFactory,
+			carEventJournalFactory,
 			VodovozGtkServicesConfig.EmployeeService,
 			employeeFactory,
 			new UndeliveredOrdersJournalOpener(),
-			new EmployeeSettings(new ParametersProvider()))
+			new EmployeeSettings(new ParametersProvider()),
+			new CarEventSettings(new ParametersProvider()))
 		);
 	}
 

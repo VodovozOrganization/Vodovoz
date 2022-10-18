@@ -78,11 +78,16 @@ namespace Vodovoz.FilterViewModels
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 			CanChangeSubdivision = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_subdivision_on_complaint");
 
-			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => {
-				if (GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Employee)
+			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => 
+			{
+				if(GuiltyItemVM.Entity.Responsible == null || !GuiltyItemVM.Entity.Responsible.IsEmployeeResponsible)
+				{
 					GuiltyItemVM.Entity.Employee = null;
-				if (GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Subdivision)
+				}
+				if(GuiltyItemVM.Entity.Responsible == null || !GuiltyItemVM.Entity.Responsible.IsSubdivisionResponsible)
+				{
 					GuiltyItemVM.Entity.Subdivision = null;
+				}
 			};
 			GuiltyItemVM.OnGuiltyItemReady += (sender, e) => Update();
 
@@ -137,13 +142,13 @@ namespace Vodovoz.FilterViewModels
 			}
 		}
 
-		private DateFilterType filterDateType = DateFilterType.PlannedCompletionDate;
+		private DateFilterType filterDateType = DateFilterType.CreationDate;
 		public virtual DateFilterType FilterDateType {
 			get => filterDateType;
 			set => SetField(ref filterDateType, value);
 		}
 
-		private ComplaintType? complaintType;
+		private ComplaintType? complaintType = Domain.Complaints.ComplaintType.Client;
 		public virtual ComplaintType? ComplaintType {
 			get => complaintType;
 			set => SetField(ref complaintType, value);

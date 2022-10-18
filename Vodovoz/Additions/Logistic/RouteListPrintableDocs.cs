@@ -63,7 +63,6 @@ namespace Vodovoz.Additions.Logistic
 					case RouteListPrintableDocuments.RouteMap:
 					case RouteListPrintableDocuments.DailyList:
 					case RouteListPrintableDocuments.TimeList:
-					case RouteListPrintableDocuments.LoadDocument:
 					case RouteListPrintableDocuments.OrderOfAddresses:
 						return 1;
 					default:

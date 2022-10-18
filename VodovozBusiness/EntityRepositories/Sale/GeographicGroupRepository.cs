@@ -6,6 +6,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
+using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.EntityRepositories.Sale
 {
@@ -25,7 +26,7 @@ namespace Vodovoz.EntityRepositories.Sale
 			return gg;
 		}
 
-		public IList<GeoGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow)
+		public IList<GeoGroup> GeographicGroupsWithCoordinates(IUnitOfWork uow, bool isActiveOnly = false)
 		{
 			GeoGroup geoGroupAlias = null;
 			GeoGroupVersion geoGroupVersionAlias = null;
@@ -37,6 +38,12 @@ namespace Vodovoz.EntityRepositories.Sale
 						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLatitude)))
 						.Add(Restrictions.IsNotNull(Projections.Property(() => geoGroupVersionAlias.BaseLongitude)))
 				);
+
+			if(isActiveOnly)
+			{
+				query.Where(() => geoGroupVersionAlias.Status == VersionStatus.Active);
+			}
+
 			return query.List();
 		}
 

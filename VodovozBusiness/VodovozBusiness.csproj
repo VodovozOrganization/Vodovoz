@@ -60,6 +60,7 @@
     <Compile Include="Controllers\FuelPriceVersionsController.cs" />
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
+    <Compile Include="Controllers\IRouteListProfitabilityController.cs" />
     <Compile Include="Controllers\IUserPermissionsController.cs" />
     <Compile Include="Controllers\OdometerReadingsController.cs" />
     <Compile Include="Controllers\IOdometerReadingsController.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Controllers\PaymentFromBankClientController.cs" />
     <Compile Include="Controllers\IRouteListsWageController.cs" />
     <Compile Include="Controllers\ProfitabilityConstantsViewModelHandler.cs" />
+    <Compile Include="Controllers\RouteListProfitabilityController.cs" />
     <Compile Include="Controllers\RouteListsWageController.cs" />
     <Compile Include="Controllers\UserPermissionsController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="Domain\Complaints\ComplaintResultType.cs" />
     <Compile Include="Domain\Client\RoboAtsCounterpartyName.cs" />
     <Compile Include="Domain\Client\RoboAtsCounterpartyPatronymic.cs" />
+    <Compile Include="Domain\Complaints\Responsible.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentBase.cs" />
@@ -181,6 +184,7 @@
     <Compile Include="Domain\Permissions\UserRole.cs" />
     <Compile Include="Domain\Permissions\Warehouses\CurrentWarehousePermissions.cs" />
     <Compile Include="Domain\ProfitabilityConstants.cs" />
+    <Compile Include="Domain\Profitability\RouteListProfitability.cs" />
     <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryNomenclatureDistributionHistory.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\FastDeliveryOrderItemHistory.cs" />
@@ -344,7 +348,9 @@
     <Compile Include="EntityRepositories\Permissions\PrivilegesRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\UserRoleRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\IProfitabilityConstantsRepository.cs" />
+    <Compile Include="EntityRepositories\Profitability\IRouteListProfitabilityRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\ProfitabilityConstantsRepository.cs" />
+    <Compile Include="EntityRepositories\Profitability\RouteListProfitabilityRepository.cs" />
     <Compile Include="EntityRepositories\Roboats\IRoboatsRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\OrganizationRepository.cs" />
     <Compile Include="EntityRepositories\Roboats\NomenclatureQuantity.cs" />
@@ -371,6 +377,8 @@
     <Compile Include="EntityRepositories\ServiceClaims\ServiceClaimRepository.cs" />
     <Compile Include="EntityRepositories\Stock\IStockRepository.cs" />
     <Compile Include="EntityRepositories\Stock\StockRepository.cs" />
+    <Compile Include="EntityRepositories\StoredResource\IStoredResourceRepository.cs" />
+    <Compile Include="EntityRepositories\StoredResource\StoredResourceRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsNode.cs" />
@@ -379,6 +387,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
+    <Compile Include="Factories\IRouteListProfitabilityFactory.cs" />
     <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
     <Compile Include="Factories\RoboatsCallFactory.cs" />
@@ -386,6 +395,7 @@
     <Compile Include="Factories\IPaymentFromAvangardFactory.cs" />
     <Compile Include="Factories\OsrmClientFactory.cs" />
     <Compile Include="Factories\PaymentFromAvangardFactory.cs" />
+    <Compile Include="Factories\RouteListProfitabilityFactory.cs" />
     <Compile Include="HibernateMapping\Cash\CashlessRequestFileMap.cs" />
     <Compile Include="HibernateMapping\Cash\CashOrganisationDistributionDocumentMap.cs" />
     <Compile Include="Domain\WaterFixedPricesGenerator.cs" />
@@ -402,6 +412,7 @@
     <Compile Include="HibernateMapping\Complaints\ComplaintResultOfEmployeesMap.cs" />
     <Compile Include="HibernateMapping\Complaints\DriverComplaintReasonMap.cs" />
     <Compile Include="HibernateMapping\Cash\OrganizationCashTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ResponsibleMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\BulkEmailEventMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\BulkEmailEventReasonMap.cs" />
@@ -470,6 +481,7 @@
     <Compile Include="HibernateMapping\Organizations\RoboatsWaterTypeMap.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromAvangardMap.cs" />
     <Compile Include="HibernateMapping\Profitability\ProfitabilityConstantsMap.cs" />
+    <Compile Include="HibernateMapping\Profitability\RouteListProfitabilityMap.cs" />
     <Compile Include="HibernateMapping\Proposal\ApplicationDevelopmentProposalMap.cs" />
     <Compile Include="HibernateMapping\Retail\SalesChannelMap.cs" />
     <Compile Include="HibernateMapping\Roboats\RoboatsCallDetailMap.cs" />
@@ -544,7 +556,9 @@
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
+    <Compile Include="Parameters\ComplaintParameterProvider.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
@@ -1019,7 +1033,6 @@
     <Compile Include="Domain\Complaints\ComplaintDiscussionComment.cs" />
     <Compile Include="Domain\Complaints\ComplaintFile.cs" />
     <Compile Include="Domain\Complaints\ComplaintGuiltyItem.cs" />
-    <Compile Include="Domain\Complaints\ComplaintGuiltyTypes.cs" />
     <Compile Include="Domain\Complaints\ComplaintStatuses.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintDiscussionMap.cs" />

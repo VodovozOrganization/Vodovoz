@@ -415,6 +415,21 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ycheckIsForSalesDepartment.Sensitive = CanEdit;
 
+			yChkBtnIsPaperlessWorkflow.Binding
+				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
+				.InitializeFromSource();
+			yChkBtnIsPaperlessWorkflow.Sensitive = CanEdit;
+
+			yChkBtnIsNotSendDocumentsByEdo.Binding
+				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
+				.InitializeFromSource();
+			yChkBtnIsNotSendDocumentsByEdo.Sensitive = CanEdit;
+
+			yChkBtnCanSendUpdInAdvance.Binding
+				.AddBinding(Entity, e => e.CanSendUpdInAdvance, w => w.Active)
+				.InitializeFromSource();
+			yChkBtnCanSendUpdInAdvance.Sensitive = CanEdit;
+
 			ycheckNoPhoneCall.Binding
 				.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active)
 				.InitializeFromSource();
@@ -752,6 +767,12 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem)
 				.InitializeFromSource();
 			enumcomboCargoReceiverSource.Sensitive = CanEdit;
+
+			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
+			yEnumCmbReasonForLeaving.Binding
+				.AddBinding(Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
+				.InitializeFromSource();
+			yEnumCmbReasonForLeaving.Sensitive = CanEdit;
 
 			yentryCargoReceiver.Binding
 				.AddBinding(Entity, e => e.CargoReceiver, w => w.Text)
@@ -1104,7 +1125,8 @@ namespace Vodovoz
 				new SalesPlanJournalFactory(),
 				new NomenclatureJournalFactory(),
 				new EmployeeSettings(new ParametersProvider()),
-				new UndeliveredOrdersRepository()
+				new UndeliveredOrdersRepository(),
+				new ComplaintParametersProvider(new ParametersProvider())
 			);
 
 			TabParent.AddTab(complaintsJournalViewModel, this, false);

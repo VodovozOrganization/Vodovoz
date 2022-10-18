@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>286.405mm</Width>
@@ -93,7 +95,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -184,7 +186,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -407,9 +409,49 @@ WHERE o.id = @order_id
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	(SELECT binary_file FROM stored_resource WHERE id = 16) as chief,
-	(SELECT binary_file FROM stored_resource WHERE id = 24) as bookkeeper
-;</CommandText>
+	(SELECT binary_file FROM stored_resource WHERE id = 
+		(SELECT 
+			 ov.signature_leader_id
+		FROM
+		    orders
+		        LEFT JOIN
+		    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+		        LEFT JOIN
+		    organizations ON organizations.id = counterparty_contract.organization_id
+		        LEFT JOIN    
+		   organization_versions ov
+		        ON
+		            organizations.id = ov.organization_id 
+		        AND
+		            ov.start_date &lt;= orders.bill_date 
+		        AND
+		           (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+		    WHERE
+		    	orders.id = @order_id)) as chief,
+	(SELECT binary_file FROM stored_resource WHERE id = 
+		(SELECT 
+			 ov.signature_accountant_id
+		FROM
+		    orders
+		        LEFT JOIN
+		    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+		        LEFT JOIN
+		    organizations ON organizations.id = counterparty_contract.organization_id
+		        LEFT JOIN    
+		    organization_versions ov
+		        ON
+		            organizations.id = ov.organization_id 
+		        AND
+		            ov.start_date &lt;= orders.bill_date 
+		        AND
+		            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+		    WHERE
+		    	orders.id = @order_id)) as bookkeeper;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
       </Query>
       <Fields>
         <Field Name="chief">
@@ -738,8 +780,8 @@ WHERE o.id = @order_id
             <Width>419.75pt</Width>
             <Value>=Fields!org_name.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>152.5pt</Left>
-            <Top>25.2pt</Top>
+            <Left>152.50pt</Left>
+            <Top>25.20pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -1114,7 +1156,8 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <BackgroundColor></BackgroundColor>
+              <BackgroundColor>
+              </BackgroundColor>
               <BackgroundGradientType>None</BackgroundGradientType>
               <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
               <TextAlign>Left</TextAlign>
@@ -1138,7 +1181,8 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox195">
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
-            <Value></Value>
+            <Value>
+            </Value>
             <ZIndex>1</ZIndex>
             <Left>152.5pt</Left>
             <Top>95.3pt</Top>
@@ -1675,7 +1719,8 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <Visibility></Visibility>
+                      <Visibility>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2483,7 +2528,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox184">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2807,7 +2853,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2926,7 +2973,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox114">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2949,8 +2997,8 @@ WHERE o.id = @order_id
       <List Name="List4">
         <Height>254.59pt</Height>
         <Width>803.94pt</Width>
-        <Left>2.3pt</Left>
-        <Top>284.8pt</Top>
+        <Left>2.30pt</Left>
+        <Top>284.80pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
@@ -2985,8 +3033,8 @@ WHERE o.id = @order_id
             <Width>523.29pt</Width>
             <Value>(договор; доверенность и др.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>254.1pt</Left>
-            <Top>56.7pt</Top>
+            <Left>254.10pt</Left>
+            <Top>56.70pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3235,8 +3283,8 @@ WHERE o.id = @order_id
             <Width>367.44pt</Width>
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
             <ZIndex>1</ZIndex>
-            <Left>7.30pt</Left>
-            <Top>168.30pt</Top>
+            <Left>7.3pt</Left>
+            <Top>151.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3297,8 +3345,8 @@ WHERE o.id = @order_id
             <Width>185.19pt</Width>
             <Value>Количество сданной пустой тары</Value>
             <ZIndex>1</ZIndex>
-            <Left>7.2pt</Left>
-            <Top>80.3pt</Top>
+            <Left>7.20pt</Left>
+            <Top>80.30pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3714,8 +3762,8 @@ WHERE o.id = @order_id
             <Value>Индивидуальный предприниматель
 или иное уполномоченное лицо</Value>
             <ZIndex>1</ZIndex>
-            <Left>123.9pt</Left>
-            <Top>20.0pt</Top>
+            <Left>123.90pt</Left>
+            <Top>20.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3808,8 +3856,8 @@ WHERE o.id = @order_id
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
-            <Left>284.7pt</Left>
-            <Top>32.9pt</Top>
+            <Left>284.70pt</Left>
+            <Top>32.90pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3825,8 +3873,8 @@ WHERE o.id = @order_id
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
-            <Left>590.6pt</Left>
-            <Top>15.2pt</Top>
+            <Left>590.60pt</Left>
+            <Top>15.20pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -4149,85 +4197,83 @@ WHERE o.id = @order_id
               <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
-          <Image Name="Image4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>20.46pt</Height>
-            <Width>30.78pt</Width>
-            <Left>149.3pt</Left>
-            <Top>171.5pt</Top>
+          <Image Name="Image6">
+            <Height>53.45pt</Height>
+            <Width>72.30pt</Width>
+            <Left>131.2pt</Left>
+            <Top>156.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
+            <MIMEType>image/png</MIMEType>
             <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
-            <Sizing>Fit</Sizing>
-            <MIMEType>image/jpeg</MIMEType>
+            <Value>=First({chief}, "Signatures" )</Value>
+            <Sizing>FitProportional</Sizing>
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
           </Image>
-          <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>20.46pt</Height>
-            <Width>30.78pt</Width>
-            <Left>141.3pt</Left>
-            <Top>103.3pt</Top>
+          <Image Name="Image4">
+            <Height>54.95pt</Height>
+            <Width>66.25pt</Width>
+            <Left>136.50pt</Left>
+            <Top>84.40pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
+            <MIMEType>image/png</MIMEType>
             <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
-            <Sizing>Fit</Sizing>
-            <MIMEType>image/jpeg</MIMEType>
+            <Value>=First({chief}, "Signatures" )</Value>
+            <Sizing>FitProportional</Sizing>
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
           </Image>
-          <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>20.21pt</Height>
-            <Width>30.53pt</Width>
-            <Left>599.5pt</Left>
-            <Top>0.0pt</Top>
+          <Image Name="Image1">
+            <Height>45.94pt</Height>
+            <Width>45.20pt</Width>
+            <Left>288.10pt</Left>
+            <Top>0.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
+            <MIMEType>image/png</MIMEType>
+            <Source>Database</Source>
+            <Value>=First({chief}, "Signatures" )</Value>
+            <Sizing>FitProportional</Sizing>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+          </Image>
+          <Image Name="Image2">
+            <Height>33.15pt</Height>
+            <Width>45.97pt</Width>
+            <Left>603.80pt</Left>
+            <Top>0.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <MIMEType>image/png</MIMEType>
             <Source>Database</Source>
             <Value>=First({bookkeeper}, "Signatures" )</Value>
-            <Sizing>Fit</Sizing>
-            <MIMEType>image/png</MIMEType>
+            <Sizing>FitProportional</Sizing>
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
-            <ZIndex>0</ZIndex>
           </Image>
           <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>20.21pt</Height>
-            <Width>30.53pt</Width>
-            <Left>275.8pt</Left>
-            <Top>0.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <Source>Database</Source>
-            <Value>=First( {IM12} , "Image" )</Value>
-            <Sizing>Fit</Sizing>
-            <MIMEType>image/jpeg</MIMEType>
-            <Visibility>
-              <Hidden>={?hide_signature}</Hidden>
-            </Visibility>
-            <ZIndex>0</ZIndex>
-          </Image>
-          <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>102.39pt</Height>
             <Width>112.93pt</Width>
-            <Left>242.6pt</Left>
-            <Top>114.5pt</Top>
+            <Left>251.8pt</Left>
+            <Top>90.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -4247,8 +4293,10 @@ WHERE o.id = @order_id
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundGradientEndColor></BackgroundGradientEndColor>
-          <BackgroundColor></BackgroundColor>
+          <BackgroundGradientEndColor>
+          </BackgroundGradientEndColor>
+          <BackgroundColor>
+          </BackgroundColor>
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
@@ -4369,14 +4417,16 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -4388,7 +4438,8 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

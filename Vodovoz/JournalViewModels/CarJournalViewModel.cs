@@ -149,7 +149,6 @@ namespace Vodovoz.JournalViewModels
 						new CarVersionsViewModelFactory(commonServices),
 						new OdometerReadingsViewModelFactory(commonServices),
 						new RouteListsWageController(wageParameterService),
-						new GeographicGroupParametersProvider(new ParametersProvider()),
 						geoGroupJournalFactory,
 						NavigationManager
 					);
@@ -182,7 +181,6 @@ namespace Vodovoz.JournalViewModels
 						new CarVersionsViewModelFactory(commonServices),
 						new OdometerReadingsViewModelFactory(commonServices),
 						new RouteListsWageController(wageParameterService),
-						new GeographicGroupParametersProvider(new ParametersProvider()),
 						geoGroupJournalFactory,
 						NavigationManager
 					);

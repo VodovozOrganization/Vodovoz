@@ -1536,6 +1536,23 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		public virtual void AddDeliveryPointCommentToOrder()
+		{
+			if(DeliveryPoint == null)
+			{
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(Comment))
+			{
+				Comment = DeliveryPoint.Comment;
+			}
+			else
+			{
+				Comment += $"\n{DeliveryPoint.Comment}";
+			}
+		}
+
 		public virtual void UpdateAddressType()
 		{
 			if(Client != null && Client.IsChainStore && !OrderItems.Any(x => x.IsMasterNomenclature))
@@ -2277,7 +2294,7 @@ namespace Vodovoz.Domain.Orders
 				switch(item.Type) {
 					case OrderDocumentType.Contract:
 						OrderContract oc = (item as OrderContract);
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<OrderContract>()
 						   .FirstOrDefault(x => x.Contract == oc.Contract
 										   && x.Order == oc.Order)
@@ -2291,7 +2308,7 @@ namespace Vodovoz.Domain.Orders
 						break;
 					case OrderDocumentType.M2Proxy:
 						OrderM2Proxy m2 = item as OrderM2Proxy;
-						var hasDocument = observableOrderDocuments
+						var hasDocument = ObservableOrderDocuments
 						   .OfType<OrderM2Proxy>()
 						   .Any(x => x.M2Proxy == m2.M2Proxy && x.Order == m2.Order);
 
@@ -2306,7 +2323,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.Bill:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<BillDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
@@ -2317,7 +2334,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.DoneWorkReport:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<DoneWorkDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
@@ -2328,7 +2345,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.EquipmentTransfer:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<EquipmentTransferDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
@@ -2339,7 +2356,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.Invoice:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<InvoiceDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
@@ -2350,7 +2367,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.InvoiceBarter:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<InvoiceBarterDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
@@ -2361,7 +2378,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.InvoiceContractDoc:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<InvoiceContractDoc>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
@@ -2372,7 +2389,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.UPD:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<UPDDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
@@ -2383,7 +2400,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.DriverTicket:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<DriverTicketDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
@@ -2394,7 +2411,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.Torg12:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<Torg12Document>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {
@@ -2405,7 +2422,7 @@ namespace Vodovoz.Domain.Orders
 						}
 						break;
 					case OrderDocumentType.ShetFactura:
-						if(observableOrderDocuments
+						if(ObservableOrderDocuments
 						   .OfType<ShetFacturaDocument>()
 						   .FirstOrDefault(x => x.Order == item.Order)
 						   == null) {

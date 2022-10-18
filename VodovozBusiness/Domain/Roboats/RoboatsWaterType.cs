@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Roboats
 		private string _audioFilename;
 		private Nomenclature _nomenclature;
 		private Guid? _fileId;
+		private int _order;
 
 		public virtual int Id { get; set; }
 
@@ -40,6 +41,13 @@ namespace Vodovoz.Domain.Roboats
 		{
 			get => _fileId;
 			set => SetField(ref _fileId, value);
+		}
+
+		[Display(Name = "Порядок")]
+		public virtual int Order
+		{
+			get => _order;
+			set => SetField(ref _order, value);
 		}
 
 		public virtual int? RoboatsId => Id;
