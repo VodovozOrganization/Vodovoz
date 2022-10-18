@@ -113,22 +113,14 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			if(counterparty.ReasonForLeaving == ReasonForLeaving.Other
 			   && counterparty.PersonType == PersonType.legal)
 			{
-
-				//if(counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-				//{
-				//	SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
-				//}
-
 				if(!string.IsNullOrWhiteSpace(counterparty.INN))
 				{
 					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
+					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, true);
 				}
 
-				//if(counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-				//   && !string.IsNullOrWhiteSpace(counterparty.INN))
-				//{
-				//	SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, true);
-				//}
+				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, true);
+				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
 			}
 
 			if(counterparty.ReasonForLeaving == ReasonForLeaving.Resale)
@@ -136,11 +128,22 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
 				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				   && !string.IsNullOrWhiteSpace(counterparty.INN)
+				   && counterparty.PersonType == PersonType.legal)
+				{
+					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
+				}
+
+				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
+				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+				   && !string.IsNullOrWhiteSpace(counterparty.INN)
 				   && counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 				   && counterparty.PersonType == PersonType.legal)
 				{
 					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, true);
+					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
 				}
+
+
 
 				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
 				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)

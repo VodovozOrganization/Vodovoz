@@ -972,10 +972,6 @@ namespace Vodovoz
 
 			yEnumCmbReasonForLeaving.ChangedByUser += (s, e) =>
 			{
-				Entity.EdoOperator = null;
-				Entity.PersonalAccountIdInEdo = "";
-				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
-
 				if(Entity.ReasonForLeaving == ReasonForLeaving.Resale
 				   || (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds && Entity.PersonType == PersonType.legal))
 				{
