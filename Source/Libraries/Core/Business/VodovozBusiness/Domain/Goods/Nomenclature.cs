@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -985,6 +986,12 @@ namespace Vodovoz.Domain.Goods
 				{
 					yield return validationResult;
 				}
+			}
+
+			if(IsAccountableInChestniyZnak && string.IsNullOrWhiteSpace(Gtin))
+			{
+				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
+					new[] { nameof(Gtin) });
 			}
 		}
 

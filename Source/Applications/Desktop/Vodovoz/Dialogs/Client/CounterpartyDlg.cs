@@ -972,6 +972,10 @@ namespace Vodovoz
 
 			yEnumCmbReasonForLeaving.ChangedByUser += (s, e) =>
 			{
+				Entity.EdoOperator = null;
+				Entity.PersonalAccountIdInEdo = "";
+				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+
 				if(Entity.ReasonForLeaving == ReasonForLeaving.Resale
 				   || (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds && Entity.PersonType == PersonType.legal))
 				{
@@ -983,22 +987,28 @@ namespace Vodovoz
 
 				if(Entity.ReasonForLeaving == ReasonForLeaving.Other)
 				{
-					Entity.PersonalAccountIdInEdo = null;
-					Entity.EdoOperator = null;
+					Entity.IsNotSendDocumentsByEdo = true;
+				}
+				else
+				{
+					Entity.IsNotSendDocumentsByEdo = false;
 				}
 
 				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 			};
 
 			yChkBtnIsNotSendDocumentsByEdo.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Sensitive)
+				//.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
 				.InitializeFromSource();
+
+			yChkBtnIsNotSendDocumentsByEdo.Sensitive = false;
 
 			edoValidatedINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
 
 			edoValidatedINN.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.natural && string.IsNullOrWhiteSpace(Entity.INN), w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.natural
+				                             && e.ReasonForLeaving == ReasonForLeaving.Resale, w => w.Sensitive)
 				.AddBinding(Entity, e => e.INN, w => w.Text)
 				.InitializeFromSource();
 
@@ -1012,9 +1022,9 @@ namespace Vodovoz
 			var edoOperatorsAutocompleteSelectorFactory = _edoOperatorsJournalFactory.CreateEdoOperatorsAutocompleteSelectorFactory();
 			evmeOperatoEdo.SetEntityAutocompleteSelectorFactory(edoOperatorsAutocompleteSelectorFactory);
 			evmeOperatoEdo.Binding
-				.AddFuncBinding(Entity, e => e.EdoOperator != null 
-					&& ((e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other) 
-					|| (e.PersonType == PersonType.natural && e.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds && e.ReasonForLeaving != ReasonForLeaving.Unknown)), w => w.Sensitive)
+				.AddFuncBinding(Entity, e =>/* e.EdoOperator != null 
+					&& */((e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other) 
+					/*|| (e.PersonType == PersonType.natural && e.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds && e.ReasonForLeaving != ReasonForLeaving.Unknown)*/), w => w.Sensitive)
 				.AddBinding(Entity, e => e.EdoOperator, w => w.Subject)
 				.InitializeFromSource();
 
@@ -1023,8 +1033,16 @@ namespace Vodovoz
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
 			};
 
+			yentryPersonalAccountCodeInEdo.Changed += (s, e) =>
+			{
+				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+			};
+
 			yentryPersonalAccountCodeInEdo.Binding
-				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo), w => w.Sensitive)
+						//.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo), w => w.Sensitive)
+				.AddFuncBinding(Entity, e =>/* e.EdoOperator != null 
+				&& */((e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other)
+				      /*|| (e.PersonType == PersonType.natural && e.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds && e.ReasonForLeaving != ReasonForLeaving.Unknown)*/), w => w.Sensitive)
 				.AddBinding(Entity, e => e.PersonalAccountIdInEdo, w => w.Text)
 				.InitializeFromSource();
 
@@ -1053,17 +1071,21 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.RegistrationInChestnyZnakStatus, w => w.SelectedItem)
 				.InitializeFromSource();
 
-			yEnumCmbRegistrationInChestnyZnak.ChangedByUser += (s, e) =>
-			{
-				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
-			};
+			yEnumCmbRegistrationInChestnyZnak.Sensitive = false;
+
+			//yEnumCmbRegistrationInChestnyZnak.ChangedByUser += (s, e) =>
+			//{
+			//	_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+			//};
 
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
 			yEnumCmbSendUpdInOrderStatus.Binding
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree, w => w.Sensitive)
 				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			yChkBtnIsPaperlessWorkflow.Binding
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree, w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
 
