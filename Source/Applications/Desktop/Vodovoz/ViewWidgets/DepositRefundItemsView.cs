@@ -95,7 +95,7 @@ namespace Vodovoz.ViewWidgets
 		protected void OnButtonNewEquipmentDepositClicked(object sender, EventArgs e)
 		{
 			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories = new[] { NomenclatureCategory.equipment };
+			filter.RestrictCategory = NomenclatureCategory.equipment;
 
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();

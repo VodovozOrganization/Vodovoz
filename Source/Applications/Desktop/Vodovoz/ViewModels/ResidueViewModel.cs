@@ -181,7 +181,7 @@ namespace Vodovoz.ViewModels
 			AddDepositEquipmentItemCommand = new DelegateCommand(
 				() => {
 					var filter = new NomenclatureFilterViewModel();
-					filter.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.equipment };
+					filter.RestrictCategory = NomenclatureCategory.equipment;
 
 					var nomenclatureJournalFactory = new NomenclatureJournalFactory();
 					var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
