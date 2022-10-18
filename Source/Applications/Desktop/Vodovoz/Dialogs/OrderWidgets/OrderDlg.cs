@@ -2268,8 +2268,10 @@ namespace Vodovoz
 				return;
 
 			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			filter.SelectCategory = NomenclatureCategory.equipment;
+			filter.SetAndRefilterAtOnce(
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+				x => x.SelectCategory = NomenclatureCategory.equipment
+			);
 
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
@@ -2301,8 +2303,10 @@ namespace Vodovoz
 				return;
 
 			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods();
-			filter.SelectCategory = NomenclatureCategory.equipment;
+			filter.SetAndRefilterAtOnce(
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+				x => x.SelectCategory = NomenclatureCategory.equipment
+			);
 
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();

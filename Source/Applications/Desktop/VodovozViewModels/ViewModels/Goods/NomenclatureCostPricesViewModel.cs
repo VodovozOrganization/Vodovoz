@@ -57,7 +57,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			get => _startDate;
 			set
 			{
-				if(SetField(ref _startDate, value, () => StartDate))
+				if(SetField(ref _startDate, value))
 				{
 					OnPropertyChanged(nameof(CanAddPrice));
 					OnPropertyChanged(nameof(CanChangeDate));

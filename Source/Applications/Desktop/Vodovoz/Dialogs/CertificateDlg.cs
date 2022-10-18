@@ -82,20 +82,21 @@ namespace Vodovoz.Dialogs
 		protected void OnBtnAddNomenclatureClicked(object sender, System.EventArgs e)
 		{
 			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
-			filter.SelectCategory = NomenclatureCategory.water;
-			filter.SelectSaleCategory = SaleCategory.forSale;
-
+			filter.SetAndRefilterAtOnce(
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
+				x => x.SelectCategory = NomenclatureCategory.water,
+				x => x.SelectSaleCategory = SaleCategory.forSale
+			);
 
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(true);
 			journal.FilterViewModel = filter;
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult; ;
+			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
 			journal.Title = "Номенклатура на продажу";
 			TabParent.AddSlaveTab(this, journal);
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void JournalOnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			if(!e.SelectedNodes.Any())
 			{

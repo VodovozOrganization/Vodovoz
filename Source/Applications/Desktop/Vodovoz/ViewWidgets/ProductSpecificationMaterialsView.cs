@@ -87,7 +87,6 @@ namespace Vodovoz
 
 			var filter = new NomenclatureFilterViewModel();
 			filter.AvailableCategories = Nomenclature.GetCategoriesForProductMaterial();
-			filter.RestrictArchive = false;
 
 			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
