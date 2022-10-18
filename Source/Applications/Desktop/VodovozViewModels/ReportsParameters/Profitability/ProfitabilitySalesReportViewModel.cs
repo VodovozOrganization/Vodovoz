@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_interactiveService = commonServices.InteractiveService;
 
 			Title = "Отчет по продажам с рентабельностью";
-			Identifier = "Sales.SalesReport";
+			Identifier = "Sales.ProfitabilitySalesReport";
 
 			_uow = UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(_uow);
@@ -128,15 +128,15 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private IEnumerable<GroupingNode> GetGroupingNodes()
 		{
 			return new[] { 
-				new GroupingNode{ Name = "Заказ", GroupFieldName = "" },
-				new GroupingNode{ Name = "Контрагент", GroupFieldName = "" },
-				new GroupingNode{ Name = "Подразделение", GroupFieldName = "" },
-				new GroupingNode{ Name = "Дата доставки", GroupFieldName = "" },
-				new GroupingNode{ Name = "Маршрутный лист", GroupFieldName = "" },
-				new GroupingNode{ Name = "Номенклатура", GroupFieldName = "" },
-				new GroupingNode{ Name = "Группа уровень 1", GroupFieldName = "" },
-				new GroupingNode{ Name = "Группа уровень 2", GroupFieldName = "" },
-				new GroupingNode{ Name = "Группа уровень 3", GroupFieldName = "" }
+				new GroupingNode{ Name = "Заказ", GroupFieldName = "Order" },
+				new GroupingNode{ Name = "Контрагент", GroupFieldName = "Counterparty" },
+				new GroupingNode{ Name = "Подразделение", GroupFieldName = "Subdivision" },
+				new GroupingNode{ Name = "Дата доставки", GroupFieldName = "DeliveryDate" },
+				new GroupingNode{ Name = "Маршрутный лист", GroupFieldName = "RouteList" },
+				new GroupingNode{ Name = "Номенклатура", GroupFieldName = "Nomen" },
+				new GroupingNode{ Name = "Группа уровень 1", GroupFieldName = "NomenGroup1" },
+				new GroupingNode{ Name = "Группа уровень 2", GroupFieldName = "NomenGroup2" },
+				new GroupingNode{ Name = "Группа уровень 3", GroupFieldName = "NomenGroup3" }
 			};
 		}
 
@@ -438,7 +438,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				{ "start_date", StartDate },
 				{ "end_date", EndDate },
 				{ "creation_date", DateTime.Now },
-				{ "show_phones", ShowPhones },
 			};
 
 			if(_userIsSalesRepresentative)
@@ -454,7 +453,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_parameters.Add(item.Key, item.Value);
 			}
 
-			Identifier = IsDetailed ? "Sales.SalesReportDetail" : "Sales.SalesReport";
+			Identifier = IsDetailed ? "Sales.ProfitabilitySalesReportDetail" : "Sales.ProfitabilitySalesReport";
 
 			LoadReport();
 		}
