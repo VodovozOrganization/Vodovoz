@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Autofac;
 using QS.DomainModel.UoW;
@@ -15,40 +16,100 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Journals;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels
 {
     public class UserViewModel : EntityTabViewModelBase<User>
     {
+		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly IUserRoleRepository _userRoleRepository;
 		private readonly ILifetimeScope _scope;
 		private readonly IUserPermissionsController _userPermissionsController;
+		private readonly UserRole _oldCurrentUserRole;
+		private readonly IEnumerable<string> _userGrants;
+		private readonly IList<UserRole> _rolesToRevoke = new List<UserRole>();
+		private readonly IList<UserRole> _rolesToGrant = new List<UserRole>();
 
+		private UserRole _selectedAvailableUserRole;
+		private UserRole _selectedUserRole;
 		private PresetUserPermissionsViewModel _presetUserPermissionsViewModel;
 		private WarehousePermissionsViewModel _warehousePermissionsViewModel;
 		private DelegateCommand _saveCommand;
 		private DelegateCommand _cancelCommand;
 		private DelegateCommand _addPermissionsToUserCommand;
 		private DelegateCommand _changePermissionsFromUserCommand;
-		
+		private DelegateCommand _addUserRoleToUserCommand;
+		private DelegateCommand _removeUserRoleCommand;
+
 		public UserViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
+			IUserRoleRepository userRoleRepository,
 			ILifetimeScope scope) 
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_userPermissionsController = _scope.Resolve<IUserPermissionsController>();
+
+			var allAvailableUserRoles = _userRoleRepository.GetAllUserRoles(UoW);
+			_userGrants = _userRoleRepository.ShowGrantsForUser(UoW, Entity.Login);
+			UpdateCurrentUserRole(allAvailableUserRoles);
+			GetUserRoles(allAvailableUserRoles);
+			AvailableUserRoles = new GenericObservableList<UserRole>(GetAvailableUserRoles(allAvailableUserRoles));
+			_oldCurrentUserRole = Entity.CurrentUserRole;
+			IsSameUser = CommonServices.UserService.CurrentUserId == Entity.Id;
+			
+			ConfigureEntityChangingRelations();
 		}
 
 		public event Action<IList<UserPermissionNode>> UpdateEntityUserPermissionsAction;
 		public event Action<IList<EntitySubdivisionForUserPermission>> UpdateEntitySubdivisionForUserPermissionsAction;
 		public event Action UpdateWarehousePermissionsAction;
+		public event Action UpdateUserRolesForCurrentRoleAction;
 
 		public bool CanEditLogin => UoW.IsNew;
+		public bool IsSameUser { get; }
 		public override bool HasChanges => true;
+		
+		public GenericObservableList<UserRole> AvailableUserRoles { get; }
+		public bool HasCurrentUserRole => Entity.CurrentUserRole != null;
+
+		public string UserRoleDescription
+		{
+			get => Entity.CurrentUserRole?.Description;
+			set => Entity.CurrentUserRole.Description = value;
+		}
+		
+		public UserRole SelectedAvailableUserRole
+		{
+			get => _selectedAvailableUserRole;
+			set
+			{
+				if(SetField(ref _selectedAvailableUserRole, value))
+				{
+					OnPropertyChanged(nameof(CanAddUserRoleToUser));
+				}
+			}
+		}
+
+		public UserRole SelectedUserRole
+		{
+			get => _selectedUserRole;
+			set
+			{
+				if(SetField(ref _selectedUserRole, value))
+				{
+					OnPropertyChanged(nameof(CanRemoveUserRole));
+				}
+			}
+		}
 		
 		public PresetUserPermissionsViewModel PresetPermissionsViewModel
 		{
@@ -86,9 +147,37 @@ namespace Vodovoz.ViewModels
 
 				_warehousePermissionsViewModel.SaveWarehousePermissions();
 				PresetPermissionsViewModel.SaveCommand.Execute();
+				
 				UoW.Save();
+
+				UpdateUserRoles();
+				UpdateCurrentUserRole();
+
 				Close(false, CloseSource.Save);
 			}));
+
+		private void UpdateUserRoles()
+		{
+			var devSubdivisionId = _scope.Resolve<ISubdivisionParametersProvider>().GetDevelopersSubdivisionId;
+			var isDeveloper = _scope.Resolve<IEmployeeService>().GetEmployeeForUser(UoW, CurrentUser.Id).Subdivision.Id == devSubdivisionId;
+			
+			try
+			{
+				foreach(var role in _rolesToGrant)
+				{
+					_userRoleRepository.GrantRoleToUser(UoW, role.Name, Entity.Login, isDeveloper);
+				}
+				foreach(var role in _rolesToRevoke)
+				{
+					_userRoleRepository.RevokeRoleFromUser(UoW, role.Name, Entity.Login);
+				}
+			}
+			catch(Exception e)
+			{
+				_logger.Error(e, $"Ошибка при обновлении доступных ролей у пользователя {Entity.Name}");
+				ShowErrorMessage("Ошибка при обновлении доступных ролей у пользователя");
+			}
+		}
 
 		public DelegateCommand CancelCommand => _cancelCommand ?? (
 			_cancelCommand = new DelegateCommand(
@@ -144,6 +233,43 @@ namespace Vodovoz.ViewModels
 						UpdateUserPermissionsData();
 					};
 				}));
+		
+		public DelegateCommand AddUserRoleToUserCommand =>
+			_addUserRoleToUserCommand ?? (_addUserRoleToUserCommand = new DelegateCommand(
+				() =>
+				{
+					Entity.ObservableUserRoles.Add(SelectedAvailableUserRole);
+					_rolesToGrant.Add(SelectedAvailableUserRole);
+					_rolesToRevoke.Remove(SelectedAvailableUserRole);
+					AvailableUserRoles.Remove(SelectedAvailableUserRole);
+					UpdateUserRolesForCurrentRoleAction?.Invoke();
+					OnPropertyChanged(nameof(CanAddUserRoleToUser));
+				},
+				() => CanAddUserRoleToUser)
+			);
+		
+		public DelegateCommand RemoveUserRoleCommand =>
+			_removeUserRoleCommand ?? (_removeUserRoleCommand = new DelegateCommand(
+				() =>
+				{
+					AvailableUserRoles.Add(SelectedUserRole);
+					_rolesToRevoke.Add(SelectedUserRole);
+					_rolesToGrant.Remove(SelectedUserRole);
+					Entity.ObservableUserRoles.Remove(SelectedUserRole);
+					UpdateUserRolesForCurrentRoleAction?.Invoke();
+					OnPropertyChanged(nameof(CanRemoveUserRole));
+				},
+				() => CanRemoveUserRole)
+			);
+
+		private bool CanAddUserRoleToUser => SelectedAvailableUserRole != null;
+		private bool CanRemoveUserRole => SelectedUserRole != null && SelectedUserRole.Id != Entity.CurrentUserRole?.Id;
+
+		private void ConfigureEntityChangingRelations()
+		{
+			SetPropertyChangeRelation(u => u.CurrentUserRole, () => HasCurrentUserRole);
+			SetPropertyChangeRelation(u => u.CurrentUserRole, () => UserRoleDescription);
+		}
 
 		private SelectUserJournalViewModel CreateSelectUserJournalAndOpenAsSlave()
 		{
@@ -178,6 +304,63 @@ namespace Vodovoz.ViewModels
 			_presetUserPermissionsViewModel = _scope.Resolve<PresetUserPermissionsViewModel>(
 				new TypedParameter(typeof(IUnitOfWork), UoW),
 				new TypedParameter(typeof(User), Entity));
+		}
+
+		private void UpdateCurrentUserRole(IList<UserRole> allAvailableUserRoles)
+		{
+			var defaultRole = _userGrants.SingleOrDefault(x => x.Contains("SET DEFAULT ROLE"));
+
+			if(string.IsNullOrWhiteSpace(defaultRole))
+			{
+				return;
+			}
+			
+			var roleName = defaultRole.Split(' ')[3];
+			Entity.CurrentUserRole = allAvailableUserRoles.SingleOrDefault(x => x.Name == roleName);
+		}
+
+		private void GetUserRoles(IList<UserRole> allAvailableUserRoles)
+		{
+			foreach(var availableUserRole in allAvailableUserRoles)
+			{
+				var pattern = availableUserRole.SearchingPatternFromUserGrants(Entity.Login);
+
+				if(_userGrants.SingleOrDefault(x => x.Contains(pattern)) != null)
+				{
+					Entity.UserRoles.Add(availableUserRole);
+				}
+			}
+		}
+
+		private IList<UserRole> GetAvailableUserRoles(IList<UserRole> allAvailableUserRoles)
+		{
+			if(!Entity.UserRoles.Any())
+			{
+				return allAvailableUserRoles;
+			}
+			
+			foreach(var userRole in Entity.UserRoles)
+			{
+				allAvailableUserRoles.Remove(userRole);
+			}
+
+			return allAvailableUserRoles;
+		}
+		
+		private void UpdateCurrentUserRole()
+		{
+			try
+			{
+				if(_oldCurrentUserRole != Entity.CurrentUserRole)
+				{
+					_userRoleRepository.SetDefaultRoleToUser(UoW, Entity.CurrentUserRole, Entity.Login);
+				}
+			}
+			catch(Exception e)
+			{
+				ShowErrorMessage("При установке роли пользователя по умолчанию произошла ошибка. Возможно не хватает прав.");
+				_logger.Error(e, "Ошибка при установке роли по умолчанию");
+			}
 		}
 	}
 }

@@ -10,6 +10,7 @@ using NHibernate.SqlCommand;
 using QS.Navigation;
 using QS.Project.DB;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 
@@ -19,6 +20,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 		<User, UserViewModel, UserJournalNode, UsersJournalFilterViewModel>
 	{
 		private readonly INavigationManager _navigationManager;
+		private readonly IUserRoleRepository _userRoleRepository;
 		private readonly ILifetimeScope _scope;
 
 		public UsersJournalViewModel(
@@ -26,6 +28,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			IUserRoleRepository userRoleRepository,
 			ILifetimeScope scope,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false) 
@@ -33,6 +36,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 		{
 			TabName = "Журнал пользователей";
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 		}
 
@@ -94,6 +98,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 			UnitOfWorkFactory,
 			commonServices,
 			_navigationManager,
+			_userRoleRepository,
 			_scope.BeginLifetimeScope());
 
 		protected override Func<UserJournalNode, UserViewModel> OpenDialogFunction => (node) => new UserViewModel(
@@ -101,6 +106,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 			UnitOfWorkFactory,
 			commonServices,
 			_navigationManager,
+			_userRoleRepository,
 			_scope.BeginLifetimeScope());
 	}
 }

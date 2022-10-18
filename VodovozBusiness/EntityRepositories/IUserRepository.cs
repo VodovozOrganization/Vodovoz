@@ -12,6 +12,10 @@ namespace Vodovoz.EntityRepositories
 		UserSettings GetUserSettings(IUnitOfWork uow, int userId);
 		User GetUserByLogin(IUnitOfWork uow, string login);
 		bool MySQLUserWithLoginExists(IUnitOfWork uow, string login);
-		void GiveSelectPrivelegesToArchiveDataBase(IUnitOfWork uow, string login);
+		void GiveSelectPrivilegesToArchiveDataBase(IUnitOfWork uow, string login);
+		void ChangePasswordForUser(IUnitOfWork uow, string login, string password);
+		void CreateUser(IUnitOfWork uow, string login, string password);
+		void DropUser(IUnitOfWork uow, string login);
+		void GrantPrivilegesToUser(IUnitOfWork uow, string privileges, string tableName, string login);
 	}
 }

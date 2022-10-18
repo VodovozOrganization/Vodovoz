@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels;
 using QS.Widgets.GtkUI;
@@ -33,12 +35,11 @@ namespace Vodovoz.Views.Users
 			_specialDocumentPermissionWidget = new SubdivisionForUserEntityPermissionWidget();
 
 			//Отключены, так как это простейший вариант диалога, вводимый из-за срочности ввода новых прав на склады
-			tableRoles.Visible = false;
 			ybuttonSetNewPassword.Visible = false;
 			ybuttonResetPassword.Visible = false;
 			PasswordWarning.Visible = false;
 			ycheckRequirePasswordChange.Visible = false;
-
+			
 			buttonUserInfo.Active = true;
 			buttonUserInfo.Toggled += (s, e) => notebook.CurrentPage = 0;
 
@@ -101,6 +102,57 @@ namespace Vodovoz.Views.Users
 			ViewModel.UpdateEntityUserPermissionsAction += OnUpdateEntityUserPermissionsAction;
 			ViewModel.UpdateEntitySubdivisionForUserPermissionsAction += OnUpdateEntitySubdivisionForUserPermissionsAction;
 			ViewModel.UpdateWarehousePermissionsAction += OnUpdateWarehousePermissionsViewAction;
+
+			#region Роли пользователя
+
+			ConfigureTreeViews();
+			
+			ytextviewRoleDescription.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.UserRoleDescription, w => w.Buffer.Text)
+				.AddBinding(vm => vm.HasCurrentUserRole, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			ycomboboxDefaultRole.SetRenderTextFunc<UserRole>(ur => ur.Name);
+			ycomboboxDefaultRole.ShowSpecialStateNot = true;
+			ycomboboxDefaultRole.ItemsList = ViewModel.Entity.UserRoles;
+			ycomboboxDefaultRole.Binding
+				.AddBinding(ViewModel.Entity, e => e.CurrentUserRole, w => w.SelectedItem)
+				.InitializeFromSource();
+			ViewModel.UpdateUserRolesForCurrentRoleAction += ViewModelOnUpdateUserRolesForCurrentRoleAction;
+			
+			buttonAddRole.Clicked += (sender, args) => ViewModel.AddUserRoleToUserCommand.Execute();
+			ViewModel.AddUserRoleToUserCommand.CanExecuteChanged += AddUserRoleToUserCommandOnCanExecuteChanged;
+			buttonRemoveRole.Clicked += (sender, args) => ViewModel.RemoveUserRoleCommand.Execute();
+			ViewModel.RemoveUserRoleCommand.CanExecuteChanged += RemoveUserRoleCommandOnCanExecuteChanged;
+
+			#endregion
+		}
+
+		private void ConfigureTreeViews()
+		{
+			ytreeviewAvailableRoles.ColumnsConfig = FluentColumnsConfig<UserRole>.Create()
+				.AddColumn("Роль пользователя")
+					.AddTextRenderer(x => x.Name)
+				.Finish();
+
+			ytreeviewAvailableRoles.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedAvailableUserRole, w => w.SelectedRow)
+				.InitializeFromSource();
+			ytreeviewAvailableRoles.RowActivated += (o, args) => ViewModel.AddUserRoleToUserCommand.Execute();
+			ytreeviewAvailableRoles.ItemsDataSource = ViewModel.AvailableUserRoles;
+			
+			ytreeviewAddedRoles.ColumnsConfig = FluentColumnsConfig<UserRole>.Create()
+				.AddColumn("Роль пользователя")
+					.AddTextRenderer(x => x.Name)
+				.Finish();
+
+			ytreeviewAddedRoles.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedUserRole, w => w.SelectedRow)
+				.InitializeFromSource();
+			ytreeviewAddedRoles.RowActivated += (o, args) => ViewModel.RemoveUserRoleCommand.Execute();
+			ytreeviewAddedRoles.ItemsDataSource = ViewModel.Entity.ObservableUserRoles;
+			ytreeviewAvailableRoles.Sensitive = ytreeviewAddedRoles.Sensitive = !ViewModel.IsSameUser;
 		}
 
 		private void OnUpdateEntitySubdivisionForUserPermissionsAction(IList<EntitySubdivisionForUserPermission> newUserPermissions)
@@ -126,12 +178,36 @@ namespace Vodovoz.Views.Users
 			vboxWarehousePrivileges.Add(_warehousePermissionsView);
 			_warehousePermissionsView.ShowAll();
 		}
+		
+		private void ViewModelOnUpdateUserRolesForCurrentRoleAction()
+		{
+			var currentUserRole = ViewModel.Entity.CurrentUserRole;
+			ycomboboxDefaultRole.SelectedItem = null;
+			ycomboboxDefaultRole.SetRenderTextFunc<UserRole>(ur => ur.Name);
+			if(!(currentUserRole is null))
+			{
+				ycomboboxDefaultRole.SelectedItem = currentUserRole;
+			}
+		}
+		
+		private void AddUserRoleToUserCommandOnCanExecuteChanged(object sender, EventArgs e)
+		{
+			buttonAddRole.Sensitive = ViewModel.AddUserRoleToUserCommand.CanExecute();
+		}
+		
+		private void RemoveUserRoleCommandOnCanExecuteChanged(object sender, EventArgs e)
+		{
+			buttonRemoveRole.Sensitive = ViewModel.RemoveUserRoleCommand.CanExecute();
+		}
 
 		public override void Destroy()
 		{
 			ViewModel.UpdateEntityUserPermissionsAction -= OnUpdateEntityUserPermissionsAction;
 			ViewModel.UpdateEntitySubdivisionForUserPermissionsAction -= OnUpdateEntitySubdivisionForUserPermissionsAction;
 			ViewModel.UpdateWarehousePermissionsAction -= OnUpdateWarehousePermissionsViewAction;
+			ViewModel.UpdateUserRolesForCurrentRoleAction -= ViewModelOnUpdateUserRolesForCurrentRoleAction;
+			ViewModel.AddUserRoleToUserCommand.CanExecuteChanged -= AddUserRoleToUserCommandOnCanExecuteChanged;
+			ViewModel.RemoveUserRoleCommand.CanExecuteChanged -= RemoveUserRoleCommandOnCanExecuteChanged;
 		}
 	}
 }

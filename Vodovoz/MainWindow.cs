@@ -2710,4 +2710,9 @@ public partial class MainWindow : Gtk.Window
 	{
 		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
 	}
+
+	protected void OnUsersRolesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<UserRolesJournalViewModel>(null);
+	}
 }

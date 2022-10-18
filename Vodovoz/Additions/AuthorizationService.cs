@@ -6,7 +6,6 @@ using NLog;
 using NLog.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using RabbitMQ.MailSending;
 using RabbitMQ.Infrastructure;
 using Vodovoz.Domain.Employees;
@@ -18,13 +17,16 @@ using VodovozInfrastructure.Configuration;
 using System.Collections.Generic;
 using Mailjet.Api.Abstractions;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.Services;
 
 namespace Vodovoz.Additions
 {
 	public class AuthorizationService : IAuthorizationService
 	{
 		private readonly IPasswordGenerator _passwordGenerator;
-		private readonly MySQLUserRepository _mySQLUserRepository;
+		private readonly IUserRoleSettings _userRoleSettings;
+		private readonly IUserRoleRepository _userRoleRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
@@ -32,25 +34,25 @@ namespace Vodovoz.Additions
 		private const int _passwordLength = 8;
 
 		public AuthorizationService(IPasswordGenerator passwordGenerator,
-			MySQLUserRepository mySQLUserRepository,
+			IUserRoleSettings userRoleSettings,
+			IUserRoleRepository userRoleRepository,
 			IUserRepository userRepository,
 			IEmailParametersProvider emailParametersProvider)
 		{
 			_passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
-			_mySQLUserRepository =
-				mySQLUserRepository ?? throw new ArgumentNullException(nameof(mySQLUserRepository));
+			_userRoleSettings = userRoleSettings ?? throw new ArgumentNullException(nameof(userRoleSettings));
+			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
 		}
 
 		public bool ResetPassword(string userLogin, string password, string email, string fullName)
 		{
-			_mySQLUserRepository.ChangePassword(userLogin, password);
-
 			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				var user = uow.Session.QueryOver<User>().Where(u => u.Login == userLogin).SingleOrDefault();
-				if (user != null)
+				_userRepository.ChangePasswordForUser(uow, userLogin, password);
+				var user = _userRepository.GetUserByLogin(uow, userLogin);
+				if(user != null)
 				{
 					user.NeedPasswordChange = true;
 					uow.Save(user);
@@ -90,44 +92,73 @@ namespace Vodovoz.Additions
 			var password = _passwordGenerator.GeneratePassword(_passwordLength);
 
 			//Сразу пишет в базу
-			var result = _mySQLUserRepository.CreateLogin(user.Login, password);
-			if(result)
+			try
 			{
-				try {
-					_mySQLUserRepository.UpdatePrivileges(user.Login, false);
-					_userRepository.GiveSelectPrivelegesToArchiveDataBase(uow, user.Login);
-				} catch {
-					_mySQLUserRepository.DropUser(user.Login);
-					throw;
-				}
-				uow.Save(user);
+				_userRepository.CreateUser(uow, user.Login, password);
+			}
+			catch
+			{
+				_logger.Error("Не удалось создать пользователя");
+				throw;
+			}
 
-				_logger.Info("Идёт отправка почты");
-				bool sendResult = false;
-				try {
-					sendResult = SendCredentialsToEmail(user.Login, password, employee.Email, employee.FullName, uow);
-				} catch(TimeoutException) {
-					RemoveUserData(uow, user);
-					_logger.Info(emailSendErrorMessage);
-					MessageDialogHelper.RunErrorDialog("Сервис отправки E-Mail временно недоступен\n");
-					return false;
-				} catch {
-					RemoveUserData(uow, user);
-					_logger.Info(emailSendErrorMessage);
-					throw;
-				}
-				if(!sendResult) {
-					//Если не получилось отправить e-mail с паролем - удаляем пользователя
-					RemoveUserData(uow, user);
-					_logger.Info(emailSendErrorMessage);
-					return false;
-				}
-				_logger.Info("Письмо успешно отправлено");
-				employee.User = user;
-			} else {
-				MessageDialogHelper.RunErrorDialog("Не получилось создать нового пользователя");
+			try
+			{
+				_logger.Info("Выдаем права пользователю");
+				var userRole = _userRoleRepository.GetUserRoleById(uow, _userRoleSettings.GetDefaultUserRoleId);
+				var database = _userRoleRepository.GetAvailableDatabaseById(uow, _userRoleSettings.GetDefaultAvailableDatabaseId);
+				var privileges = string.Join(
+						", ",
+						userRole.Privileges
+							.Where(x => x.DatabaseName == database.Name)
+							.Select(x => x.PrivilegeName.Name))
+					.TrimEnd(',', ' ');
+				_userRepository.GrantPrivilegesToUser(uow, privileges, database.Name, user.Login);
+				_userRepository.GiveSelectPrivilegesToArchiveDataBase(uow, user.Login);
+				
+				_logger.Info("Выдаем роль пользователю");
+				_userRoleRepository.GrantRoleToUser(uow, userRole.Name, user.Login);
+				_logger.Info("Назначаем ее по умолчанию для него");
+				_userRoleRepository.SetDefaultRoleToUser(uow, userRole, user.Login);
+				_logger.Info("Сохраняем пользователя");
+				uow.Save(user);
+			}
+			catch
+			{
+				RemoveUserData(uow, user);
+				_logger.Info("Ошибка при выдаче прав пользователю или его сохранении");
+				throw;
+			}
+			
+			_logger.Info("Идёт отправка почты");
+			bool sendResult = false;
+			try
+			{
+				sendResult = SendCredentialsToEmail(user.Login, password, employee.Email, employee.FullName, uow);
+			}
+			catch(TimeoutException)
+			{
+				RemoveUserData(uow, user);
+				_logger.Info(emailSendErrorMessage);
+				MessageDialogHelper.RunErrorDialog("Сервис отправки E-Mail временно недоступен\n");
 				return false;
 			}
+			catch
+			{
+				RemoveUserData(uow, user);
+				_logger.Info(emailSendErrorMessage);
+				throw;
+			}
+			if(!sendResult)
+			{
+				//Если не получилось отправить e-mail с паролем - удаляем пользователя
+				RemoveUserData(uow, user);
+				_logger.Info(emailSendErrorMessage);
+				return false;
+			}
+			_logger.Info("Письмо успешно отправлено");
+			employee.User = user;
+			
 			return true;
 		}
 
@@ -200,9 +231,9 @@ namespace Vodovoz.Additions
 		
 		private void RemoveUserData(IUnitOfWork uow, User user)
 		{
+			_userRepository.DropUser(uow, user.Login);
 			uow.Delete(user);
 			uow.Session.Flush();
-			_mySQLUserRepository.DropUser(user.Login);
 		}
 	}
 }

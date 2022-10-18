@@ -1724,6 +1724,19 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+			
+			//UserRolesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<UserRolesJournalViewModel>(
+				() => FluentColumnsConfig<UserRolesJournalNode>.Create()
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id)
+					.AddColumn("Название")
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("Описание роли")
+						.AddTextRenderer(node => node.Description)
+					.AddColumn("")
+					.Finish()
+			);
 		}
 	}
 }

@@ -171,6 +171,14 @@
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
+    <Compile Include="Domain\Permissions\AvailableDatabase.cs" />
+    <Compile Include="Domain\Permissions\DatabasePrivilege.cs" />
+    <Compile Include="Domain\Permissions\GlobalPrivilege.cs" />
+    <Compile Include="Domain\Permissions\PrivilegeBase.cs" />
+    <Compile Include="Domain\Permissions\PrivilegeName.cs" />
+    <Compile Include="Domain\Permissions\SpecialPrivilege.cs" />
+    <Compile Include="Domain\Permissions\TablePrivilege.cs" />
+    <Compile Include="Domain\Permissions\UserRole.cs" />
     <Compile Include="Domain\Permissions\Warehouses\CurrentWarehousePermissions.cs" />
     <Compile Include="Domain\ProfitabilityConstants.cs" />
     <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
@@ -331,6 +339,10 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\IPrivilegesRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\IUserRoleRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\PrivilegesRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserRoleRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\IProfitabilityConstantsRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\ProfitabilityConstantsRepository.cs" />
     <Compile Include="EntityRepositories\Roboats\IRoboatsRepository.cs" />
@@ -471,6 +483,14 @@
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
+    <Compile Include="HibernateMapping\Users\AvailableDatabaseMap.cs" />
+    <Compile Include="HibernateMapping\Users\DatabasePrivilegeMap.cs" />
+    <Compile Include="HibernateMapping\Users\GlobalPrivilegeMap.cs" />
+    <Compile Include="HibernateMapping\Users\PrivilegeBaseMap.cs" />
+    <Compile Include="HibernateMapping\Users\PrivilegeNameMap.cs" />
+    <Compile Include="HibernateMapping\Users\SpecialPrivilegeMap.cs" />
+    <Compile Include="HibernateMapping\Users\TablePrivilegeMap.cs" />
+    <Compile Include="HibernateMapping\Users\UserRoleMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\SalesPlanItemMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPriorityMap.cs" />
@@ -785,6 +805,8 @@
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
+    <Compile Include="Services\IUserRoleSettings.cs" />
+    <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
@@ -1232,7 +1254,6 @@
     <Compile Include="HibernateMapping\HistoryChanges\ArchivedChangedEntityMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>

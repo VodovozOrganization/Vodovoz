@@ -62,12 +62,36 @@ namespace Vodovoz.EntityRepositories
 			return count > 0;
 		}
 
-		public void GiveSelectPrivelegesToArchiveDataBase(IUnitOfWork uow, string login)
+		public void GiveSelectPrivilegesToArchiveDataBase(IUnitOfWork uow, string login)
 		{
 			var archivedChangedEntitySchema = OrmConfig.FindMappingByShortClassName(nameof(ArchivedChangedEntity)).Table.Schema;
 			
-			var sql = $"GRANT Select ON `{archivedChangedEntitySchema}`.* TO '{login}', '{login}'@'localhost'";
+			var sql = $"GRANT Select ON `{archivedChangedEntitySchema}`.* TO '{login}'";
 			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
+		}
+
+		public void ChangePasswordForUser(IUnitOfWork uow, string login, string password)
+		{
+			var sql = $"SET PASSWORD FOR '{login}' = PASSWORD('{password}')";
+			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
+		}
+		
+		public void CreateUser(IUnitOfWork uow, string login, string password)
+		{
+			var query = $"CREATE USER '{login}' IDENTIFIED BY '{password}'";
+			uow.Session.CreateSQLQuery(query).ExecuteUpdate();
+		}
+		
+		public void DropUser(IUnitOfWork uow, string login)
+		{
+			var query = $"DROP USER '{login}'";
+			uow.Session.CreateSQLQuery(query).ExecuteUpdate();
+		}
+		
+		public void GrantPrivilegesToUser(IUnitOfWork uow, string privileges, string tableName, string login)
+		{
+			var query = $"GRANT {privileges} ON `{tableName}`.* TO '{login}'";
+			uow.Session.CreateSQLQuery(query).ExecuteUpdate();
 		}
 	}
 }
