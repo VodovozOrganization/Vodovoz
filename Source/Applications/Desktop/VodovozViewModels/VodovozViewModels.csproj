@@ -60,9 +60,13 @@
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
+    <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\PhoneViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />

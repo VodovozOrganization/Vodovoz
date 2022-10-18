@@ -305,13 +305,13 @@ namespace Vodovoz.Views.Employees
 
 			#region Вкладка Документы
 
-			var haveAccessToDocuments = ViewModel.CanReadEmployeeDocuments && ViewModel.CanReadEmployee;
-			radioTabEmployeeDocument.Sensitive = haveAccessToDocuments;
-			if(haveAccessToDocuments)
-			{
-				ConfigureDocumentsTabButtons();
-				ConfigureTreeEmployeeDocuments();
-			}
+			btnAddDocument.Clicked += OnButtonAddDocumentClicked;
+			btnEditDocument.Clicked += OnButtonEditDocumentClicked;
+			btnRemoveDocument.Clicked += (s, e) => ViewModel.RemoveEmployeeDocumentsCommand.Execute();
+
+			ConfigureTreeEmployeeDocuments();
+
+			UpdateDocumentsTab();
 
 			#endregion
 
@@ -334,6 +334,20 @@ namespace Vodovoz.Views.Employees
 				ViewModel.EmployeeWageParametersFactory.CreateEmployeeWageParametersViewModel(ViewModel.Entity, ViewModel, ViewModel.UoW);
 
 			#endregion
+
+			ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+		}
+
+		private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			switch(e.PropertyName)
+			{
+				case nameof(ViewModel.CanReadEmployeeDocuments):
+					UpdateDocumentsTab();
+					break;
+				default:
+					break;
+			}
 		}
 
 		private void ConfigureRadioButtons()
@@ -349,12 +363,18 @@ namespace Vodovoz.Views.Employees
 
 		#region Вкладка Документы
 
+		private void UpdateDocumentsTab()
+		{
+			var haveAccessToDocuments = ViewModel.CanReadEmployeeDocuments && ViewModel.CanReadEmployee;
+			radioTabEmployeeDocument.Sensitive = haveAccessToDocuments;
+			if(haveAccessToDocuments)
+			{
+				ConfigureDocumentsTabButtons();
+			}
+		}
+
 		private void ConfigureDocumentsTabButtons()
 		{
-			btnAddDocument.Clicked += OnButtonAddDocumentClicked;
-			btnEditDocument.Clicked += OnButtonEditDocumentClicked;
-			btnRemoveDocument.Clicked += (s, e) => ViewModel.RemoveEmployeeDocumentsCommand.Execute();
-
 			btnAddDocument.Sensitive = ViewModel.CanAddEmployeeDocument && ViewModel.CanEditEmployee;
 			btnEditDocument.Binding
 				.AddBinding(ViewModel, vm => vm.CanReadEmployeeDocument, w => w.Sensitive).InitializeFromSource();

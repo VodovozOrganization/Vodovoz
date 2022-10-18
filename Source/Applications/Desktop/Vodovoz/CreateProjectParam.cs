@@ -176,6 +176,7 @@ using Vodovoz.Models;
 using QS.Validation;
 using Vodovoz.ViewWidgets;
 using Vodovoz.ViewModels.Dialogs.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
@@ -389,6 +390,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RoboatsCallsFilterViewModel, RoboatsCallsFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryScheduleFilterViewModel, DeliveryScheduleFilterView>()
 				.RegisterWidgetForWidgetViewModel<BulkEmailEventReportViewModel, BulkEmailEventReportView>()
+				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
 				;
 

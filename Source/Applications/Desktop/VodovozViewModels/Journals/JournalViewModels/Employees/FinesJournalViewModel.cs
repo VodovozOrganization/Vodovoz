@@ -45,6 +45,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Журнал штрафов";
+			UpdateOnChanges(typeof(Fine));
 		}
 		
 		protected override void CreateNodeActions()

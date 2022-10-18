@@ -88,6 +88,7 @@ namespace Vodovoz
 			ytreeviewDocuments.ItemsDataSource = Entity.ObservableDocumentTypes;
 			
 			lblWarehouses.LineWrapMode = Pango.WrapMode.Word;
+			lblWarehouses.LineWrap = true;
 			if(Entity.Id > 0)
 				lblWarehouses.Text = Entity.GetWarehousesNames(UoW, _subdivisionRepository);
 			else

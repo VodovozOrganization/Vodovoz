@@ -100,6 +100,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ReturnTareReason)           .Column("return_tare_reason_id");
 			References(x => x.ReturnTareReasonCategory)   .Column("return_tare_reason_category_id");
 			References(x => x.OurOrganization)            .Column("our_organization_id");
+			References(x => x.ContactPhone)               .Column("contact_phone_id");
 
 			HasMany(x => x.OrderDocuments)                .KeyColumn("attached_to_order_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();

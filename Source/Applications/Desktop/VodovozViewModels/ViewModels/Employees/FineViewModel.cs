@@ -188,14 +188,12 @@ namespace Vodovoz.ViewModels.Employees
 
 		private void ClearItems(Employee driver = null)
 		{
-			FineItem item = null;
 			if(driver != null)
 			{
+				FineItem item = null;
 				item = Entity.ObservableItems.Where(x => x.Employee == driver).FirstOrDefault();
-			}
-			Entity.ObservableItems.Clear();
-			if(driver != null)
-			{
+				Entity.ObservableItems.Clear();
+
 				if(item != null)
 				{
 					Entity.ObservableItems.Add(item);
