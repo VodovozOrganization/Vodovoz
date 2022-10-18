@@ -993,6 +993,12 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
 					new[] { nameof(Gtin) });
 			}
+
+			if(Gtin.Length < 8 || Gtin.Length > 14)
+			{
+				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
+					new[] { nameof(Gtin) });
+			}
 		}
 
 		#endregion

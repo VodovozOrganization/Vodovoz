@@ -10,7 +10,24 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 	public class LightsMatrixRow : PropertyChangedBase
 	{
 		public ReasonForLeaving ReasonForLeaving { get; set; }
-		public string Title => Regex.Replace(ReasonForLeaving.GetEnumTitle(), ".{15}", "$0\n"); 
+
+		public string Title
+		{
+			get
+			{
+				if(ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+				{
+					return "Для собственных\nнужд";
+				}
+
+				if(ReasonForLeaving == ReasonForLeaving.Resale)
+				{
+					return "Перепродажа";
+				}
+
+				return ReasonForLeaving.GetEnumTitle();
+			}
+		}
 
 		public List<EdoLightsMatrixColumn> Columns { get; set; } = new List<EdoLightsMatrixColumn>();
 

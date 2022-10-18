@@ -2,7 +2,6 @@
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using FluentNHibernate.Data;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
@@ -56,35 +55,6 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			}
 		}
 
-		private void BindWithSource(Counterparty counterparty, ReasonForLeaving reasonForLeaving, EdoLightsMatrixPaymentType edoPaymentType,
-			PersonType personType, Light light)
-		{
-			counterparty.PropertyChanged += (sender, args) =>
-			{
-				foreach(var propertyName in light.PropertyNamesForLightWhenChanged)
-				{
-					if(args.PropertyName == propertyName && counterparty.PersonType == personType)
-					{
-						var isAllowed = light.LightCondition.Invoke();
-
-						SetAllow(reasonForLeaving, edoPaymentType, isAllowed);
-					}
-				}
-
-			};
-		}
-		private class Light
-		{
-			public Func<bool> LightCondition { get; set; }
-			public string[] PropertyNamesForLightWhenChanged { get; set; }
-		}
-
-		private class Validation
-		{
-			public Func<bool> ValidationCondition { get; set; }
-			public string ValidationMessage { get; set; }
-		}
-
 		private void UnLightAll()
 		{
 			foreach(var row in ObservableLightsMatrixRows)
@@ -136,14 +106,12 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
 				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				   && !string.IsNullOrWhiteSpace(counterparty.INN)
-				   && counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-				   && counterparty.PersonType == PersonType.legal)
+				   && counterparty.PersonType == PersonType.legal
+				   && counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 				{
 					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, true);
 					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
 				}
-
-
 
 				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
 				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)

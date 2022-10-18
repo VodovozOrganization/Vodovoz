@@ -173,9 +173,8 @@ namespace Vodovoz
 			ycheckIsAccountableInChestniyZnak.Binding
 				.AddBinding(Entity, e => e.IsAccountableInChestniyZnak, w => w.Active)
 				.InitializeFromSource();
-			/*entryGtin.Binding
-				.AddBinding(Entity, e => e.Gtin, w => w.Text)
-				.InitializeFromSource();*/
+			validatedGtin.ValidationMode = ValidationType.numeric;
+			validatedGtin.Binding.AddBinding(Entity, e => e.Gtin, w => w.Text).InitializeFromSource();
 
 			#region Вкладка характиристики
 

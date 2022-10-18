@@ -963,7 +963,10 @@ namespace Vodovoz
 		{
 			edoLightsMatrixView.ViewModel = _edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
 
-			//----------- 1
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choise_other_reason_leaving"))
+			{
+				yEnumCmbReasonForLeaving.AddEnumToHideList(ReasonForLeaving.Other);
+			}
 
 			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
 			yEnumCmbReasonForLeaving.Binding
@@ -981,46 +984,36 @@ namespace Vodovoz
 					}
 				}
 
-				if(Entity.ReasonForLeaving == ReasonForLeaving.Other)
-				{
-					Entity.IsNotSendDocumentsByEdo = true;
-				}
-				else
-				{
-					Entity.IsNotSendDocumentsByEdo = false;
-				}
+				Entity.IsNotSendDocumentsByEdo = Entity.ReasonForLeaving == ReasonForLeaving.Other;
 
 				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 			};
 
+			yChkBtnIsNotSendDocumentsByEdo.Sensitive = false;
 			yChkBtnIsNotSendDocumentsByEdo.Binding
-				//.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal, w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
 				.InitializeFromSource();
 
-			yChkBtnIsNotSendDocumentsByEdo.Sensitive = false;
-
 			edoValidatedINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
-
 			edoValidatedINN.Binding
 				.AddFuncBinding(Entity, e => e.PersonType == PersonType.natural
-				                             && e.ReasonForLeaving == ReasonForLeaving.Resale, w => w.Sensitive)
+											 && e.ReasonForLeaving == ReasonForLeaving.Resale, w => w.Sensitive)
 				.AddBinding(Entity, e => e.INN, w => w.Text)
 				.InitializeFromSource();
 
-			//----2---
-
 			ybuttonCheckClientInTaxcom.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal 
-				                             && (e.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || e.ReasonForLeaving == ReasonForLeaving.Resale), w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal
+											 && (e.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || e.ReasonForLeaving == ReasonForLeaving.Resale),
+								w => w.Sensitive)
 				.InitializeFromSource();
 
 			var edoOperatorsAutocompleteSelectorFactory = _edoOperatorsJournalFactory.CreateEdoOperatorsAutocompleteSelectorFactory();
 			evmeOperatoEdo.SetEntityAutocompleteSelectorFactory(edoOperatorsAutocompleteSelectorFactory);
 			evmeOperatoEdo.Binding
-				.AddFuncBinding(Entity, e =>/* e.EdoOperator != null 
-					&& */((e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other) 
-					/*|| (e.PersonType == PersonType.natural && e.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds && e.ReasonForLeaving != ReasonForLeaving.Unknown)*/), w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal
+											 && e.ReasonForLeaving != ReasonForLeaving.Unknown
+											 && e.ReasonForLeaving != ReasonForLeaving.Other,
+								w => w.Sensitive)
 				.AddBinding(Entity, e => e.EdoOperator, w => w.Subject)
 				.InitializeFromSource();
 
@@ -1035,18 +1028,18 @@ namespace Vodovoz
 			};
 
 			yentryPersonalAccountCodeInEdo.Binding
-						//.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo), w => w.Sensitive)
-				.AddFuncBinding(Entity, e =>/* e.EdoOperator != null 
-				&& */((e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other)
-				      /*|| (e.PersonType == PersonType.natural && e.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds && e.ReasonForLeaving != ReasonForLeaving.Unknown)*/), w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal
+											&& e.ReasonForLeaving != ReasonForLeaving.Unknown
+											&& e.ReasonForLeaving != ReasonForLeaving.Other,
+								w => w.Sensitive)
 				.AddBinding(Entity, e => e.PersonalAccountIdInEdo, w => w.Text)
 				.InitializeFromSource();
 
 			ybuttonSendInviteByTaxcom.Binding
-				.AddFuncBinding(Entity, e => e.EdoOperator != null && !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo), w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.EdoOperator != null && !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo),
+								w => w.Sensitive)
 				.InitializeFromSource();
 
-			//---3---
 			yEnumCmbConsentForEdo.ItemsEnum = typeof(ConsentForEdoStatus);
 			yEnumCmbConsentForEdo.Binding
 				.AddBinding(Entity, e => e.ConsentForEdoStatus, w => w.SelectedItem)
@@ -1059,7 +1052,8 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			ybuttonRegistrationInChestnyZnak.Binding
-				.AddFuncBinding(Entity, e => e.ReasonForLeaving == ReasonForLeaving.Resale && !string.IsNullOrWhiteSpace(e.INN), w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.ReasonForLeaving == ReasonForLeaving.Resale && !string.IsNullOrWhiteSpace(e.INN),
+								w => w.Sensitive)
 				.InitializeFromSource();
 
 			yEnumCmbRegistrationInChestnyZnak.ItemsEnum = typeof(RegistrationInChestnyZnakStatus);
@@ -1069,19 +1063,16 @@ namespace Vodovoz
 
 			yEnumCmbRegistrationInChestnyZnak.Sensitive = false;
 
-			//yEnumCmbRegistrationInChestnyZnak.ChangedByUser += (s, e) =>
-			//{
-			//	_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
-			//};
-
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
 			yEnumCmbSendUpdInOrderStatus.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree, w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
+								w => w.Sensitive)
 				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			yChkBtnIsPaperlessWorkflow.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree, w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
+								w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
 

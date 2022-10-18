@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gdk;
+using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using LightsMatrixRow = Vodovoz.ViewModels.Widgets.EdoLightsMatrix.LightsMatrixRow;
@@ -36,6 +37,8 @@ namespace Vodovoz.Views.Client
 			.Finish();
 
 			ytreeviewLightsMatrix.ItemsDataSource = ViewModel.ObservableLightsMatrixRows;
+
+			ytreeviewLightsMatrix.Selection.Mode = SelectionMode.None;
 		}
 
 	}
