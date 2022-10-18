@@ -73,11 +73,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			leftRightListViewModel.RightLabel = "Выбранные группировки";
 			leftRightListViewModel.SetLeftItems(groupingNodes, x => x.Name);
 			GroupingSelectViewModel = leftRightListViewModel;
-
-			IEnumerable<GroupingNode> selectedItems = GroupingSelectViewModel.GetRightItems();
 		}
-
-		
 
 		protected override Dictionary<string, object> Parameters => _parameters;
 
@@ -448,6 +444,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_parameters.Add("order_author_exclude", new[] { "0" });
 			}
 
+			var groupParameters = GetGroupingParameters();
+			foreach(var groupParameter in groupParameters)
+			{
+				_parameters.Add(groupParameter.Key, groupParameter.Value);
+			}
+			_parameters.Add("groups_count", groupParameters.Count());
+
 			foreach(var item in _filter.GetParameters())
 			{
 				_parameters.Add(item.Key, item.Value);
@@ -456,6 +459,29 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			Identifier = IsDetailed ? "Sales.ProfitabilitySalesReportDetail" : "Sales.ProfitabilitySalesReport";
 
 			LoadReport();
+		}
+
+		private IEnumerable<KeyValuePair<string, object>> GetGroupingParameters()
+		{
+			var result = new List<KeyValuePair<string, object>>();
+			var groupItems = GroupingSelectViewModel.GetRightItems().ToList();
+			if(!groupItems.Any())
+			{
+				groupItems.Add(new GroupingNode { GroupFieldName = "Nomen" });
+			}
+
+			if(groupItems.Count > 3)
+			{
+				throw new InvalidOperationException("Нельзя использовать более трех группировок");
+			}
+
+			var groupCounter = 1;
+			foreach(var item in groupItems)
+			{
+				result.Add(new KeyValuePair<string, object>($"group{groupCounter}", item.GroupFieldName));
+				groupCounter++;
+			}
+			return result;
 		}
 
 		public DelegateCommand ShowInfoCommand
