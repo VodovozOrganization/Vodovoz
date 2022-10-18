@@ -16,14 +16,14 @@ stage('Restore'){
 	parallel (
 		"Desktop" : {
 			node('Vod6'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
 			}
 		},
 		"WCF" : {
 			node('WCF_BUILD'){
-				sh 'nuget restore Vodovoz/Vodovoz.sln'
-				sh 'nuget restore QSProjects/QSProjectsLib.sln'
-				sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
+				sh 'nuget restore Vodovoz/Source/Vodovoz.sln'
+				sh 'nuget restore Vodovoz/Source/Libraries/External/QSProjects/QSProjectsLib.sln'
+				sh 'nuget restore Vodovoz/Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
 			}						
 		}
 	)				
@@ -32,10 +32,10 @@ parallel (
 	"Desktop" : {
 		node('Vod6'){
 			stage('Build Desktop, WEB'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
 
 				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
-				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
+				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin'
 				archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true			
 			}
 		}
@@ -43,13 +43,13 @@ parallel (
 	"WCF" : {
 		node('WCF_BUILD'){
 			stage('Build WCF'){
-				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Vodovoz.sln -maxcpucount:4'
+				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:4'
 
-				ZipArtifact('DeliveryRulesService')
-				ZipArtifact('InstantSmsService')
-				ZipArtifact('SalesReceiptsService')
-				ZipArtifact('SmsInformerService')
-				ZipArtifact('SmsPaymentService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozDeliveryRulesService/', 'DeliveryRulesService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozInstantSmsService/', 'InstantSmsService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSalesReceiptsService/', 'SalesReceiptsService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/', 'SmsInformerService')
+				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/', 'SmsPaymentService')
 
 				archiveArtifacts artifacts: '*Service.zip', onlyIfSuccessful: true
 			}
@@ -113,10 +113,10 @@ parallel (
 					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					echo 'Publish DriverAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 					
 					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Services\\WebApi\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
 				else
 				{
@@ -128,10 +128,10 @@ parallel (
 					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					echo 'Publish FastPaymentsAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 					
 					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Services\\WebApi\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
 				else
 				{
@@ -143,10 +143,10 @@ parallel (
 					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					echo 'Publish PayPageAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 					
 					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Services\\WebApi\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					bat 'xcopy "Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
 				else
 				{
@@ -158,10 +158,10 @@ parallel (
 					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					echo 'Publish MailjetEventsDistributorAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 					
 					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Services\\WebApi\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
 				else
 				{
@@ -175,65 +175,21 @@ parallel (
 def PrepareSources(jenkinsHome) {
     def REFERENCE_ABSOLUTE_PATH = "$jenkinsHome/workspace/Vodovoz_Vodovoz_master"
 
-	echo "checkout Gtk.DataBindings"	
-	checkout changelog: false, poll: false, scm:([
-		$class: 'GitSCM',
-		branches: [[name: '*/vodovoz']],
-		doGenerateSubmoduleConfigurations: false,
-		extensions: 
-		[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Gtk.DataBindings']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Gtk.DataBindings"]],
-		userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Gtk.DataBindings.git']]
-	])
-
-	echo "checkout GMap.NET"	
-	checkout changelog: false, poll: false, scm:([
-		$class: 'GitSCM',
-		branches: [[name: '*/master']],
-		doGenerateSubmoduleConfigurations: false,
-		extensions:
-		[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'GMap.NET']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/GMap.NET"]],
-		userRemoteConfigs: [[url: 'https://github.com/QualitySolution/GMap.NET.git']]
-	])
-
-	echo "checkout My-FyiReporting"	
-	checkout changelog: false, poll: false, scm:([
-		$class: 'GitSCM',
-		branches: [[name: '*/Vodovoz']],
-		doGenerateSubmoduleConfigurations: false,
-		extensions:
-		[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'My-FyiReporting']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/My-FyiReporting"]],
-		userRemoteConfigs: [[url: 'https://github.com/QualitySolution/My-FyiReporting.git']]
-	])
-
-	echo "checkout QSProjects"	
-	checkout changelog: false, poll: false, scm:([
-		$class: 'GitSCM',
-		branches: [[name: '*/VodovozMonitoring']],
-		doGenerateSubmoduleConfigurations: false,
-		extensions:
-		[[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/QSProjects"]],
-		userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]
-	])
-
 	echo "checkout Vodovoz"	
 	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
 		branches: scm.branches,
-		doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
 		extensions: scm.extensions 
 		+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]],
+		+ [[$class: 'CloneOption', reference: "${REFERENCE_ABSOLUTE_PATH}/Vodovoz"]]
+		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
 		userRemoteConfigs: scm.userRemoteConfigs
 	])
 }
 
-def ZipArtifact(serviceName) {
+def ZipArtifact(path, serviceName) {
 	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
-	zip zipFile: "${serviceName}.zip", archive: false, dir: "Vodovoz/Services/WCF/Vodovoz${serviceName}/bin/Debug"  
+	zip zipFile: "${serviceName}.zip", archive: false, dir: "${path}bin/Debug"  
 }
 
 def UnzipArtifact(serviceName) {
