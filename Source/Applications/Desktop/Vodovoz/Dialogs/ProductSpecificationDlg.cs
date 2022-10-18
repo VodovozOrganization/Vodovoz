@@ -32,8 +32,8 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
-			referenceProduct.SubjectType = typeof (Nomenclature);
-			referenceProduct.Binding.AddBinding (Entity, e => e.Product, w => w.Subject).InitializeFromSource ();
+			//referenceProduct.SubjectType = typeof (Nomenclature);
+			//referenceProduct.Binding.AddBinding (Entity, e => e.Product, w => w.Subject).InitializeFromSource ();
 			productspecificationmaterialsview1.SpecificationUoW = UoWGeneric;
 		}
 

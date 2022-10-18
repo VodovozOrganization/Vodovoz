@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Rent
 			spinPriceDaily.Binding.AddBinding(ViewModel.Entity, e => e.PriceDaily, w => w.ValueAsDecimal).InitializeFromSource();
 			spinPriceMonthly.Binding.AddBinding(ViewModel.Entity, e => e.PriceMonthly, w => w.ValueAsDecimal).InitializeFromSource();
 
-			referenceDepositService.SubjectType = typeof(Nomenclature);
+			/*referenceDepositService.SubjectType = typeof(Nomenclature);
 			referenceDepositService.ItemsCriteria = ViewModel.DepositNomenclatureCriteria;
 			referenceDepositService.Binding.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject).InitializeFromSource();
 
@@ -34,7 +34,7 @@ namespace Vodovoz.Views.Rent
 
 			referenceRentServiceMonthly.SubjectType = typeof(Nomenclature);
 			referenceRentServiceMonthly.ItemsCriteria = ViewModel.NomenclatureCriteria;
-			referenceRentServiceMonthly.Binding.AddBinding(ViewModel.Entity, e => e.RentServiceMonthly, w => w.Subject).InitializeFromSource();
+			referenceRentServiceMonthly.Binding.AddBinding(ViewModel.Entity, e => e.RentServiceMonthly, w => w.Subject).InitializeFromSource();*/
 
 			referenceEquipmentType.SubjectType = typeof(EquipmentKind);
 			referenceEquipmentType.Binding.AddBinding(ViewModel.Entity, e => e.EquipmentKind, w => w.Subject).InitializeFromSource();

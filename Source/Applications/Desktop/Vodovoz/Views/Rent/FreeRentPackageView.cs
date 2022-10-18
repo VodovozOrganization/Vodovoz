@@ -23,9 +23,9 @@ namespace Vodovoz.Views.Rent
             spinDeposit.Binding.AddBinding(ViewModel.Entity, e => e.Deposit, w => w.ValueAsDecimal).InitializeFromSource();
             spinMinWaterAmount.Binding.AddBinding(ViewModel.Entity, e => e.MinWaterAmount, w => w.ValueAsInt).InitializeFromSource();
 
-            referenceDepositService.SubjectType = typeof(Nomenclature);
+            /*referenceDepositService.SubjectType = typeof(Nomenclature);
             referenceDepositService.ItemsCriteria = ViewModel.DepositNomenclatureCriteria;
-            referenceDepositService.Binding.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject).InitializeFromSource();
+            referenceDepositService.Binding.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject).InitializeFromSource();*/
             referenceEquipmentType.SubjectType = typeof(EquipmentKind);
             referenceEquipmentType.Binding.AddBinding(ViewModel.Entity, e => e.EquipmentKind, w => w.Subject).InitializeFromSource();
         }
