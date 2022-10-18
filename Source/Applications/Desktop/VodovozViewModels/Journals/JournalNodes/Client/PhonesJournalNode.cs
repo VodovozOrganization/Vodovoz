@@ -10,6 +10,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Client
 		public int? DeliveryPointId { get; set; }
 		public string PhoneType { get; set; }
 
+		public override string Title => Phone;
+
 		public string Type
 		{
 			get 

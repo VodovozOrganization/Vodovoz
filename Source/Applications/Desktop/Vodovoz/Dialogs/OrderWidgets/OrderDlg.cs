@@ -407,7 +407,8 @@ namespace Vodovoz
 					x => x.Client,
 					x => x.DeliveryPoint,
 					x => x.OrderAddressType,
-					x => x.PaymentType
+					x => x.PaymentType,
+					x => x.ContactPhone
 					)
 				.CopyPromotionalSets()
 				.CopyOrderItems()
@@ -627,7 +628,6 @@ namespace Vodovoz
 
 			evmeDeliveryPoint.ChangedByUser += (s, e) =>
 			{
-				UpdateContactPhoneFilter();
 				if(Entity?.DeliveryPoint == null) {
 					return;
 				}
@@ -2474,6 +2474,8 @@ namespace Vodovoz
 
 		protected void OnEntityVMEntryClientChanged(object sender, EventArgs e)
 		{
+			UpdateContactPhoneFilter();
+
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
 			if(Entity.Client != null)
 			{
@@ -2542,6 +2544,8 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChanged(object sender, EventArgs e)
 		{
+			UpdateContactPhoneFilter();
+
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(evmeDeliveryPoint.Subject));
 
 			if(Entity.DeliveryPoint != null)
@@ -2765,14 +2769,15 @@ namespace Vodovoz
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
-
-			UpdateContactPhoneFilter();
 		}
 
 		private void UpdateContactPhoneFilter()
 		{
-			_contactPhoneFilter.Counterparty = Counterparty;
-			_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
+			if(_contactPhoneFilter != null)
+			{
+				_contactPhoneFilter.Counterparty = Counterparty;
+				_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
+			}
 		}
 
 		protected void CheckForStopDelivery()
