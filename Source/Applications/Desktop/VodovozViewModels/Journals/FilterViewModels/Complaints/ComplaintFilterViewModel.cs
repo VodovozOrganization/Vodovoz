@@ -189,12 +189,7 @@ namespace Vodovoz.FilterViewModels
 		private Subdivision subdivision;
 		public virtual Subdivision Subdivision {
 			get => subdivision;
-			set {
-				if(value?.Id == _subdivisionParametersProvider?.GetOkkId())
-					ComplaintStatus = ComplaintStatuses.Checking;
-
-				SetField(ref subdivision, value);
-			}
+			set => SetField(ref subdivision, value);
 		}
 
 		private DateTime? startDate;
