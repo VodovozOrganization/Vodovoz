@@ -1,0 +1,667 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6E56E39A-F886-4645-98E1-8619F75F7AEA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Vodovoz.ViewModels</RootNamespace>
+    <AssemblyName>VodovozViewModels</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
+    <Reference Include="mscorlib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Dialogs\Goods\AdditionalLoadingSettingsViewModel.cs" />
+    <Compile Include="Dialogs\Goods\INomenclatureGroupPricingItemViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureGroupPricingItemViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureGroupPricingProductGroupViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureGroupPricingViewModel.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureViewModel.cs" />
+    <Compile Include="Dialogs\Logistic\AtWorkFilterViewModel.cs" />
+    <Compile Include="Dialogs\Logistic\DeliveryShiftNode.cs" />
+    <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
+    <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
+    <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
+    <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\PhoneViewModel.cs" />
+    <Compile Include="ViewModels\Contacts\PhoneViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListMileageDistributionNode.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListMileageDistributionViewModel.cs" />
+    <Compile Include="Dialogs\Roboats\RoboatsEntityViewModel.cs" />
+    <Compile Include="Dialogs\Roboats\RoboatsStreetViewModel.cs" />
+    <Compile Include="Factories\IMonthPickerViewModelFactory.cs" />
+    <Compile Include="Factories\IProfitabilityConstantsDataViewModelFactory.cs" />
+    <Compile Include="Factories\ISelectableParametersFilterViewModelFactory.cs" />
+    <Compile Include="Factories\MonthPickerViewModelFactory.cs" />
+    <Compile Include="Factories\OrganizationVersionsViewModelFactory.cs" />
+    <Compile Include="Factories\IOrganizationVersionsViewModelFactory.cs" />
+    <Compile Include="Factories\ProfitabilityConstantsDataViewModelFactory.cs" />
+    <Compile Include="Factories\RoboatsViewModelFactory.cs" />
+    <Compile Include="Dialogs\Roboats\RoboatsWaterTypeViewModel.cs" />
+    <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
+    <Compile Include="Dialogs\Logistic\DeliveryScheduleViewModel.cs" />
+    <Compile Include="Factories\CarVersionsViewModelFactory.cs" />
+    <Compile Include="Factories\IAttachmentsViewModelFactory.cs" />
+    <Compile Include="Factories\ICarVersionsViewModelFactory.cs" />
+    <Compile Include="Factories\IDeliveryPointViewModelFactory.cs" />
+    <Compile Include="Factories\SelectableParametersFilterViewModelFactory.cs" />
+    <Compile Include="Infrastructure\IAdditionalJournalRestriction.cs" />
+    <Compile Include="Infrastructure\InfoProviders\IDeliveryPointInfoProvider.cs" />
+    <Compile Include="Factories\IAuthorizationServiceFactory.cs" />
+    <Compile Include="Factories\IEmployeeWageParametersFactory.cs" />
+    <Compile Include="Factories\IPhonesViewModelFactory.cs" />
+    <Compile Include="Factories\IValidationContextFactory.cs" />
+    <Compile Include="Infrastructure\InfoProviders\IUndeliveredOrdersInfoProvider.cs" />
+    <Compile Include="Infrastructure\Print\RouteListPrintableDocuments.cs" />
+    <Compile Include="Infrastructure\Services\IAuthorizationService.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\PayoutRequestJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\ExpenseCategoryJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\IncomeCategoryJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\OrganizationCashTransferDocumentFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Cash\SalaryByEmployeeJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\DriverComplaintReasonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintKindJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintObjectJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\DeliveryPointJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Employees\EmployeeFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Employees\PremiumJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Enums\ActionsWithInvoice.cs" />
+    <Compile Include="Factories\INonSerialEquipmentsForRentJournalViewModelFactory.cs" />
+    <Compile Include="Factories\IRentPackagesJournalsViewModelsFactory.cs" />
+    <Compile Include="Factories\NonSerialEquipmentsForRentJournalViewModelFactory.cs" />
+    <Compile Include="Factories\RentPackagesJournalsViewModelsFactory.cs" />
+    <Compile Include="Journals\FilterViewModels\Enums\LevelsFilter.cs" />
+    <Compile Include="Infrastructure\Print\IDocumentPrinter.cs" />
+    <Compile Include="Infrastructure\Print\IEntityDocumentsPrinter.cs" />
+    <Compile Include="Infrastructure\Print\IEntityDocumentsPrinterFactory.cs" />
+    <Compile Include="Dialogs\Orders\DocumentsPrinterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Goods\ProductGroupJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DeliveryScheduleFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\FastDeliveryAvailabilityFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\TrackPointJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\CarModelJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DeliveryPointResponsiblePersonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\CarEventFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\RouteListJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveryTransferAbsenceReasonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\NomenclaturePlanFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveredOrdersFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Payments\PaymentsJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Proposal\ApplicationDevelopmentProposalsJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Retail\SalesChannelJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Roboats\RoboatsCallsFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Security\RegisteredRMJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Store\MovementWagonJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\GeoGroupJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\RoboatsJournalsFactory.cs" />
+    <Compile Include="Journals\JournalFactories\BulkEmailEventReasonJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\DistrictJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IBulkEmailEventReasonJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IDistrictJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IProductGroupJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ProductGroupJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\SalesPlanJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\CarEventTypeJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ISalesPlanJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ICarEventTypeJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ISubdivisionJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\WarehouseJournalFactory.cs" />
+    <Compile Include="Journals\JournalNodes\AddressType.cs" />
+    <Compile Include="Journals\JournalNodes\ApplicationDevelopmentProposalsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\BulkEmailEventReasonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\DebtorJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\GeoGroupJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\TariffZoneJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\TrackPointJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\WaterJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\FastDeliveryAvailabilityHistoryJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\TariffZoneJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\TrackPointJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\CarManufacturerJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintResults\ComplaintResultsOfEmployeesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\RoboAtsCounterpartyPatronymicJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\NomenclatureJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\CarEventTypeJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\PaymentFromJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Payments\PaymentJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\PayoutRequestJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\DeliveryPointByClientJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\DeliveryPointJoournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\DriverComplaintReasonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintKindJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintObjectJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\DiscountReasonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Employees\EmployeeJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Employees\EmployeePostJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\ExpenseCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\FinancialDistrictsSetsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\EquipmentKindJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\ProductGroupJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\IncomeCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Flyers\FlyersJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\DeliveryPointResponsiblePersonTypeJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Client\RoboAtsCounterpartyNameJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Logistic\CarEventJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\MovementWagonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\NomenclaturePlanJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\UndeliveryTransferAbsenceReasonJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\OrganizationCashTransferDocumentJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\PremiumJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\PremiumTemplateJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\RegisteredRMJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Roboats\RoboatsCallNodeType.cs" />
+    <Compile Include="Journals\JournalNodes\Roboats\RoboatsWaterTypeJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Roboats\RoboatsStreetJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Roboats\RoboatsCallJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\RouteListJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\RouteListStatusNode.cs" />
+    <Compile Include="Journals\JournalNodes\SalesChannelJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\UndeliveredOrderJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\NomenclatureBalanceByStockJournalNode.cs" />
+    <Compile Include="Journals\JournalSelectors\ExpanceCategoryAutoCompleteSelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\ExpenseCategorySelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\IncomeCategoryAutocompleteSelectorFactory.cs" />
+    <Compile Include="Journals\JournalSelectors\IncomeCategorySelectorFactory.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\PayoutRequestsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\ExpenseCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\FuelDocumentsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\IncomeCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\OrganizationCashTransferDocumentJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Cash\SalaryByEmployeeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\DeliveryPointByClientJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\DeliveryPointJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\BulkEmailEventReasonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintResults\ComplaintResultsOfCounterpartyJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintResults\ComplaintResultsOfEmployeesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\DriverComplaintReasonsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintKindJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintObjectJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\RoboAtsCounterpartyPatronymicJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\RoboAtsCounterpartyNameJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\EmployeesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\PremiumJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\PremiumTemplateJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\FinancialDistrictsSetsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Flyers\FlyersJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\EquipmentKindJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\NomenclaturesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\ProductGroupJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\TariffZoneJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\TrackPointJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\RoboatsWaterTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\RoboatsWaterNomenclatureJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\CarManufacturerJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryScheduleJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\FastDeliveryAvailabilityHistoryJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\TariffZoneJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\TrackPointJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\CarManufacturerJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DeliveryPointResponsiblePersonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\CarEventTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\CarEventJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\MovementWagonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryTransferAbsenceReasonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Roboats\RoboatsCallsRegistryJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Roboats\RoboatsStreetJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\UnallocatedBalancesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\DriverMessageJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\DriverTareMessagesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\PaymentsFromJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryTransferAbsenceReasonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\UnallocatedBalancesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Sale\GeoGroupJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Store\WarehouseJournalViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\WarehouseSelectorFactory.cs" />
+    <Compile Include="ReportsParameters\Cash\DayOfSalaryGiveoutReportViewModel.cs" />
+    <Compile Include="TempAdapters\ICarModelJournalFactory.cs" />
+    <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\DiscountReasonJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\NomenclatureBalanceByStockJournalViewModel.cs" />
+    <Compile Include="TempAdapters\IDeliveryScheduleJournalFactory.cs" />
+    <Compile Include="TempAdapters\IDialogsFactory.cs" />
+    <Compile Include="TempAdapters\IEmployeePostsJournalFactory.cs" />
+    <Compile Include="TempAdapters\IOrganizationJournalFactory.cs" />
+    <Compile Include="TempAdapters\IExpenseCategorySelectorFactory.cs" />
+    <Compile Include="TempAdapters\IIncomeCategorySelectorFactory.cs" />
+    <Compile Include="TempAdapters\ICarManufacturerJournalFactory.cs" />
+    <Compile Include="TempAdapters\IPremiumTemplateJournalFactory.cs" />
+    <Compile Include="ViewModels\Cash\CashlessRequestFilesViewModel.cs" />
+    <Compile Include="ViewModels\Cash\CashlessRequestViewModel.cs" />
+    <Compile Include="ViewModels\Cash\OrganizationCashTransferDocumentViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintObjectViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintResultOfEmployeesViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\BulkEmailEventReasonViewModel.cs" />
+    <Compile Include="Dialogs\Counterparty\RoboAtsCounterpartyNameViewModel.cs" />
+    <Compile Include="Dialogs\Counterparty\RoboAtsCounterpartyPatronymicViewModel.cs" />
+    <Compile Include="ViewModels\Contacts\PhonesViewModel.cs" />
+    <Compile Include="ViewModels\Employees\PremiumRaskatGAZelleViewModel.cs" />
+    <Compile Include="ViewModels\Employees\PremiumTemplateViewModel.cs" />
+    <Compile Include="ViewModels\Employees\PremiumViewModel.cs" />
+    <Compile Include="ViewModels\Flyers\FlyerViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureInnerDeliveryPricesViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureInnerDeliveryPriceViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\FastDeliveryAvailabilityHistoryViewModel.cs" />
+    <Compile Include="ViewModels\ImportPaymentsFromAvangardSbpViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\TariffZoneViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\TrackPointViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarManufacturerViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureCostPriceViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclaturePurchasePricesViewModel.cs" />
+    <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
+    <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
+    <Compile Include="ViewModels\Orders\DiscountReasonViewModel.cs" />
+    <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\NomenclaturesPlanJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Proposal\ApplicationDevelopmentProposalsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Rent\NonSerialEquipmentsForRentJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Rent\FreeRentPackagesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Rent\PaidRentPackagesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Security\RegisteredRMJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Retail\SalesChannelJournalViewModel.cs" />
+    <Compile Include="Journals\Nodes\Rent\FreeRentPackagesJournalNode.cs" />
+    <Compile Include="Journals\Nodes\Rent\PaidRentPackagesJournalNode.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TempAdapters\ICarJournalFactory.cs" />
+    <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
+    <Compile Include="TempAdapters\IEmployeeJournalFactory.cs" />
+    <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
+    <Compile Include="ViewModels\Cash\CashRequestItemViewModel.cs" />
+    <Compile Include="ViewModels\Cash\CashRequestViewModel.cs" />
+    <Compile Include="TempAdapters\IFixedPricesDialogOpener.cs" />
+    <Compile Include="ViewModels\Cash\ExpenseCategoryViewModel.cs" />
+    <Compile Include="ViewModels\Cash\IncomeCategoryViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
+    <Compile Include="ViewModels\Employees\FineViewModel.cs" />
+    <Compile Include="ViewModels\Employees\EmployeeViewModel.cs" />
+    <Compile Include="Infrastructure\Services\EmployeeService.cs" />
+    <Compile Include="TempAdapters\IUndeliveredOrdersJournalOpener.cs" />
+    <Compile Include="ViewModels\Employees\FineTemplateViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\CreateComplaintViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\GuiltyItemsViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintDiscussionViewModel.cs" />
+    <Compile Include="ViewModels\FilesViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintDiscussionsViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\GuiltyItemViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintResultOfCounterpartyViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintSourceViewModel.cs" />
+    <Compile Include="Infrastructure\InfoProviders\IComplaintsInfoProvider.cs" />
+    <Compile Include="Infrastructure\InfoProviders\IInfoProvider.cs" />
+    <Compile Include="Infrastructure\InfoProviders\PanelViewType.cs" />
+    <Compile Include="ViewModels\Goods\FixedPriceItemViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\AcceptBeforeViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonTypeViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DeliveryPointResponsiblePersonViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DriverDistrictPriorityNode.cs" />
+    <Compile Include="ViewModels\Logistic\DriverDistrictPrioritySetViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DriversInfoExportViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DriverWorkScheduleNode.cs" />
+    <Compile Include="ViewModels\Logistic\DriverWorkScheduleSetViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
+    <Compile Include="ViewModels\Orders\PaymentFromViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryTransferAbsenceReasonViewModel.cs" />
+    <Compile Include="Commands\OpenViewModelCommand.cs" />
+    <Compile Include="Dialogs\Roboats\RoboatsCatalogExportViewModel.cs" />
+    <Compile Include="ViewModels\Organizations\SubdivisionViewModel.cs" />
+    <Compile Include="TempAdapters\IReportViewOpener.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
+    <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
+    <Compile Include="ViewModels\Payments\AutoPaymentMatching.cs" />
+    <Compile Include="ViewModels\Payments\ManualPaymentMatchingViewModel.cs" />
+    <Compile Include="ViewModels\Payments\PaymentLoaderViewModel.cs" />
+    <Compile Include="ViewModels\Payments\TransferDocumentsFromBankParser.cs" />
+    <Compile Include="ViewModels\Profitability\ProfitabilityConstantsDataViewModel.cs" />
+    <Compile Include="ViewModels\Profitability\ProfitabilityConstantsViewModel.cs" />
+    <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
+    <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReport.cs" />
+    <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
+    <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintsJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\DebtorsJournalReport\DebtorsJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAvailabilityHistoryReport.cs" />
+    <Compile Include="ViewModels\Reports\CostCarExploitationReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAdditionalLoadingReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\DeliveryAnalyticsReportNode.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\GeographicGroupNode.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\WageDistrictNode.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\WaveNode.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalytics\WeekDayNodes.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\EquipmentKindReportColumn.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\EquipmentTypeReportColumn.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\EmployeeReportColumn.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\EmployeeSalesPlanNode.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\NomenclaturePlanFilterRowSelectNode.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\FilterRowSelectType.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\NomenclaturePlanReportMain.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\NomenclaturePlanReportRow.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\NomenclaturePlanReportColumnType.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\NomenclaturePlanReportColumn.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\NomenclatureReportColumn.cs" />
+    <Compile Include="ViewModels\Reports\OrderAnalyticsReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\ScrollPositionNode.cs" />
+    <Compile Include="ViewModels\Reports\NomenclaturePlanReport\SubdivisionReportColumn.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportDataBaseNode.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNomenclature.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNode.cs" />
+    <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
+    <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
+    <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
+    <Compile Include="ViewModels\BulkEmailViewModel.cs" />
+    <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
+    <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
+    <Compile Include="ViewModels\Store\MovementWagonViewModel.cs" />
+    <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRateViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\EmployeeWageParameterViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\FixedWageParameterItemViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\PercentWageParameterItemViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\SalesPlanWageParameterItemViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\RatesLevelWageParameterItemViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\WageDistrictViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRatesViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\EmployeeWageParametersViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\EmployeeWageParameterNode.cs" />
+    <Compile Include="ViewModels\WageCalculation\OldRatesWageParameterItemViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\SalesPlanViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\BottlesCountAdvancedWageParameterViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\DeliveryTimeAdvancedWageParameterViewModel.cs" />
+    <Compile Include="Infrastructure\AdvancedWageWidgetFactory.cs" />
+    <Compile Include="Infrastructure\IAdvancedWageWidgetFactory.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\IncomingInvoiceViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\MovementDocumentViewModel.cs" />
+    <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
+    <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidator.cs" />
+    <Compile Include="Infrastructure\Permissions\WarehousePermissions.cs" />
+    <Compile Include="Infrastructure\Permissions\WarehousePermissionValidator.cs" />
+    <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidatorFactory.cs" />
+    <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
+    <Compile Include="TempAdapters\INomenclatureJournalFactory.cs" />
+    <Compile Include="VodovozViewModelAssemblyFinder.cs" />
+    <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\IWageParameterViewModel.cs" />
+    <Compile Include="Infrastructure\NavigationManagerProvider.cs" />
+    <Compile Include="ViewModels\Contacts\PhoneTypeViewModel.cs" />
+    <Compile Include="ViewModels\Contacts\EmailTypeViewModel.cs" />
+    <Compile Include="ViewModels\Users\UserSettingsViewModel.cs" />
+    <Compile Include="ViewModels\Permissions\PresetUserPermissionsViewModel.cs" />
+    <Compile Include="ViewModels\Permissions\PresetPermissionsViewModelBase.cs" />
+    <Compile Include="ViewModels\Permissions\PresetSubdivisionPermissionsViewModel.cs" />
+    <Compile Include="ViewModels\UndeliveryProblemSourceViewModel.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParametersReportFilter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableEntityParameter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableFilterType.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\RecursiveParametersFactory.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\IParametersFactory.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersFactory.cs" />
+    <Compile Include="ViewModels\Reports\SelectableParameterReportFilterViewModel.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSet.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableEnumParameter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersEnumFactory.cs" />
+    <Compile Include="ViewModels\ExportImportNomenclatureCatalogViewModel.cs" />
+    <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
+    <Compile Include="TempAdapters\SearchHelper.cs" />
+    <Compile Include="TempAdapters\SearchParameter.cs" />
+    <Compile Include="Widgets\AdditionalLoadingItemsViewModel.cs" />
+    <Compile Include="Widgets\Cars\OdometerReadingViewModel.cs" />
+    <Compile Include="Widgets\Cars\CarVersionsViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\FinesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Organizations\SubdivisionsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictLevelRatesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\DistrictJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\FineJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\NomenclatureStockJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\OrderForMovDocJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\RequestToSupplierJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\SalesPlanJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\SubdivisionJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\WageDistrictJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\WageDistrictLevelRatesJournalNode.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Employees\FineFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Goods\NomenclatureFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
+    <Compile Include="Journals\Nodes\Cash\FuelDocumentJournalNode.cs" />
+    <Compile Include="ViewModels\FinancialDistrictsSetViewModel.cs" />
+    <Compile Include="ViewModels\Goods\FixedPricesViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\HistoryTracePropertyNode.cs" />
+    <Compile Include="Journals\JournalNodes\HistoryTraceObjectNode.cs" />
+    <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTracePropertyJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\HistoryTrace\HistoryTraceObjectJournalViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Employees\UserJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\UserJournalViewModel.cs" />
+    <Compile Include="ViewModels\Users\UserViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\UserJournalNode.cs" />
+    <Compile Include="Dialogs\Counterparty\CounterpartyFilesViewModel.cs" />
+    <Compile Include="Journals\JournalSelectors\EmployeePostsJournalFactory.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\EmployeePostsJournalViewModel.cs" />
+    <Compile Include="ViewModels\Employees\EmployeePostViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\WarehouseJournalNode.cs" />
+    <Compile Include="ViewModels\Warehouses\WarehouseViewModel.cs" />
+    <Compile Include="ViewModels\Rent\FreeRentPackageViewModel.cs" />
+    <Compile Include="ViewModels\Rent\PaidRentPackageViewModel.cs" />
+    <Compile Include="ViewModels\Reports\CarsExploitationReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\DeliveryAnalyticsViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\DriverComplaintReasonViewModel.cs" />
+    <Compile Include="ViewModels\Employees\TerminalManagementViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Goods\NomenclatureBalanceByStockFilterViewModel.cs" />
+    <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
+    <Compile Include="Dialogs\Counterparty\DeliveryPointViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarModelViewModel.cs" />
+    <Compile Include="ViewModels\Payments\CreateManualPaymentFromBankClientViewModel.cs" />
+    <Compile Include="ViewModels\Payments\AutomaticallyAllocationBalanceWindowViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
+    <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
+    <Compile Include="ViewModels\Reports\IncomingCallsAnalysisReportViewModel.cs" />
+    <Compile Include="Widgets\OrganizationVersionsViewModel.cs" />
+    <Compile Include="Widgets\FastDeliveryVerificationViewModel.cs" />
+    <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
+    <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
+    <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
+      <Project>{329bffc8-9feb-45cf-b2ad-91d5b6a7c376}</Project>
+      <Name>Mailjet.Api.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj">
+      <Project>{ffe6853d-cc4a-4510-a3a3-92f55b9c0eda}</Project>
+      <Name>RabbitMQ.EmailSending</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\FiasService\Fias.Service.csproj">
+      <Project>{CC518C77-1610-4017-8C77-E56C509C5BF9}</Project>
+      <Name>Fias.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
+      <Project>{3032f22e-2c78-4fad-9936-552fd7de8d7f}</Project>
+      <Name>RabbitMQ.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
+      <Project>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</Project>
+      <Name>VodovozBusiness</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
+      <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
+      <Name>VodovozInfrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
+      <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
+      <Name>GMap.NET.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
+      <Project>{BD514659-1394-4BBA-94C5-1BEE5C72C7D6}</Project>
+      <Name>System.Data.Bindings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
+      <Project>{B88C5808-8D6C-451E-9D63-E5441C7A1004}</Project>
+      <Name>Gamma.Binding.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
+      <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
+      <Name>Gamma.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
+      <Project>{301f793c-130b-44eb-a45d-60d5f040b0ad}</Project>
+      <Name>QS.Banks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
+      <Project>{f22749b2-e35b-455d-bd8d-081373b16fc7}</Project>
+      <Name>QS.BusinessCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj">
+      <Project>{76a58e95-9ae5-498a-a9bf-0e1bc6b3b7c7}</Project>
+      <Name>QS.Attachments</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
+      <Project>{6A9581B0-7278-4F8D-B5EA-8C60BDDC55D8}</Project>
+      <Name>QS.DocTemplates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
+      <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
+      <Name>QS.HistoryLog</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Osrm\QS.Osrm.csproj">
+      <Project>{84D04158-2201-407F-AAC9-F4A04E84AD1E}</Project>
+      <Name>QS.Osrm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
+      <Project>{C01AE5A4-3CFF-4C7B-884D-45B07ACDE761}</Project>
+      <Name>QS.Project.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project.Desktop\QS.Project.Desktop.csproj">
+      <Project>{5EF2A7DA-3886-4809-95DF-880BD783A211}</Project>
+      <Name>QS.Project.Desktop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj">
+      <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
+      <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Report\QS.Report.csproj">
+      <Project>{D30A23BF-C5DC-4A1B-95FC-9C2038D46E8E}</Project>
+      <Name>QS.Report</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj">
+      <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
+      <Name>QS.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
+    <PackageReference Include="ClosedXML">
+      <Version>0.95.4</Version>
+    </PackageReference>
+    <PackageReference Include="CsvHelper" Version="15.0.10" />
+    <PackageReference Include="FluentNHibernate" Version="3.1.0" />
+    <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
+    <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
+    <PackageReference Include="Iesi.Collections" Version="4.0.4" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="NetTopologySuite" Version="2.4.0" />
+    <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
+    <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
+    <PackageReference Include="NHibernate" Version="5.3.11" />
+    <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
+    <PackageReference Include="NLog" Version="5.0.1" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.0.1" />
+    <PackageReference Include="Remotion.Linq" Version="2.2.0" />
+    <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="Vodovoz.ClosedXML.Report" Version="0.2.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging">
+      <Version>6.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="NLog.Extensions.Logging">
+      <Version>1.7.4</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
