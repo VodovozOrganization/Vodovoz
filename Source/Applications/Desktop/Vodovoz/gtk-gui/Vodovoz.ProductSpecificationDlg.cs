@@ -16,13 +16,13 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryProduct;
+
 		private global::Gtk.Label label32;
 
 		private global::Gtk.Label label35;
 
 		private global::Vodovoz.ProductSpecificationMaterialsView productspecificationmaterialsview1;
-
-		private global::Gamma.Widgets.yEntryReference referenceProduct;
 
 		protected virtual void Build()
 		{
@@ -89,44 +89,47 @@ namespace Vodovoz
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
+			this.entryProduct = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryProduct.Events = ((global::Gdk.EventMask)(256));
+			this.entryProduct.Name = "entryProduct";
+			this.entryProduct.CanEditReference = false;
+			this.entryProduct.CanOpenWithoutTabParent = false;
+			this.datatable5.Add(this.entryProduct);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable5[this.entryProduct]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable5.Gtk.Table+TableChild
 			this.label32 = new global::Gtk.Label();
 			this.label32.Name = "label32";
 			this.label32.Xalign = 1F;
 			this.label32.LabelProp = global::Mono.Unix.Catalog.GetString("Название спецификации:");
 			this.datatable5.Add(this.label32);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable5[this.label32]));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable5[this.label32]));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
 			this.label35 = new global::Gtk.Label();
 			this.label35.Name = "label35";
 			this.label35.Xalign = 1F;
 			this.label35.LabelProp = global::Mono.Unix.Catalog.GetString("Продукция:");
 			this.datatable5.Add(this.label35);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable5[this.label35]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable5[this.label35]));
+			w9.TopAttach = ((uint)(1));
+			w9.BottomAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
 			this.productspecificationmaterialsview1 = new global::Vodovoz.ProductSpecificationMaterialsView();
 			this.productspecificationmaterialsview1.Events = ((global::Gdk.EventMask)(256));
 			this.productspecificationmaterialsview1.Name = "productspecificationmaterialsview1";
 			this.datatable5.Add(this.productspecificationmaterialsview1);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable5[this.productspecificationmaterialsview1]));
-			w9.TopAttach = ((uint)(2));
-			w9.BottomAttach = ((uint)(3));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable5.Gtk.Table+TableChild
-			this.referenceProduct = new global::Gamma.Widgets.yEntryReference();
-			this.referenceProduct.Events = ((global::Gdk.EventMask)(256));
-			this.referenceProduct.Name = "referenceProduct";
-			this.datatable5.Add(this.referenceProduct);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable5[this.referenceProduct]));
-			w10.TopAttach = ((uint)(1));
-			w10.BottomAttach = ((uint)(2));
-			w10.LeftAttach = ((uint)(1));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable5[this.productspecificationmaterialsview1]));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
 			w10.RightAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -134,7 +137,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.datatable5]));
 			w11.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

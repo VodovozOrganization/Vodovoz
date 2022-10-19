@@ -137,5 +137,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 				return false;
 			}
 		}
+
+		public bool IsDefectiveBottle { get; set; }
 	}
 }

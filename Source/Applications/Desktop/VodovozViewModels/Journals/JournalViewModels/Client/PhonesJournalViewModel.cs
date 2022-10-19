@@ -56,6 +56,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 				}
 			}
 
+			if(!FilterViewModel.ShowArchive)
+			{
+				itemsQuery.Where(x => !x.IsArchive);
+			}
+
 			itemsQuery.Where(GetSearchCriterion(
 				() => phoneAlias.Id,
 				() => phoneAlias.DigitsNumber,

@@ -262,12 +262,6 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
-			yEnumCmbReasonForLeaving.Binding
-				.AddBinding(ViewModel.Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
-
 			//make actions menu
 			var menu = new Menu();
 			var openClientItem = new MenuItem("Открыть контрагента");

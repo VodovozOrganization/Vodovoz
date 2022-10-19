@@ -78,6 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 
 			var phoneSubquery = QueryOver.Of(() => phoneAlias)
 				.Where(() => phoneAlias.Counterparty.Id == counterpartyAlias.Id)
+				.And(() => !phoneAlias.IsArchive)
 				.OrderBy(() => phoneAlias.Id).Desc
 				.Select(Projections.Property(() => phoneAlias.Number))
 				.Take(1);
