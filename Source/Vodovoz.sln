@@ -129,8 +129,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozInfrastructureTests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozFiasWidgets", "Libraries\Core\Gtk\VodovozFiasWidgets\VodovozFiasWidgets.csproj", "{49241DDD-3E0B-4944-9B3F-89F0C42E9E6D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VodovozReports", "Libraries\Core\Business\VodovozReports\VodovozReports.csproj", "{C6F30511-E2DF-432A-83FC-F75712203DED}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{88EFB34A-EE20-4FF9-853E-92761AAB61A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozBusinessTests", "Libraries\Core\Business\Tests\VodovozBusinessTests\VodovozBusinessTests.csproj", "{16E8EBF7-5F39-4FC9-A5A3-2E93E4BAB9B5}"
@@ -247,11 +245,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSWidgetLib", "Libraries\Ex
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Mango.Grpc", "Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.shproj", "{BFB977B8-6C0B-4736-B7DB-DD6B272F980A}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Vodovoz.Reports", "Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.shproj", "{EB83F1EE-34B2-488D-BBA5-6E2AF4D3B3FC}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{8ff7c332-e6d1-456f-8067-11ce62aaef5a}*SharedItemsImports = 5
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1456,36 +1458,6 @@ Global
 		{49241DDD-3E0B-4944-9B3F-89F0C42E9E6D}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{49241DDD-3E0B-4944-9B3F-89F0C42E9E6D}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{49241DDD-3E0B-4944-9B3F-89F0C42E9E6D}.WinDesktop|x86.Build.0 = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Debug|x86.Build.0 = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.DebugWin|x86.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.DebugWin|x86.Build.0 = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Docker|x86.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Release|x86.ActiveCfg = Release|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Release|x86.Build.0 = Release|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.ReleaseWin|Any CPU.Build.0 = Release|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.ReleaseWin|x86.Build.0 = Release|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.WCF|x86.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Web|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.Web|x86.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
-		{C6F30511-E2DF-432A-83FC-F75712203DED}.WinDesktop|x86.Build.0 = Debug|Any CPU
 		{16E8EBF7-5F39-4FC9-A5A3-2E93E4BAB9B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{16E8EBF7-5F39-4FC9-A5A3-2E93E4BAB9B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16E8EBF7-5F39-4FC9-A5A3-2E93E4BAB9B5}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -3126,7 +3098,6 @@ Global
 		{0867D2C9-7DC2-4D7F-B3D3-CA5606855B95} = {4EAE4925-4B2F-4EA8-B87F-D2E0CEF6F2F6}
 		{684F4195-9DDA-4364-991A-EAB57C7DC0F2} = {0867D2C9-7DC2-4D7F-B3D3-CA5606855B95}
 		{49241DDD-3E0B-4944-9B3F-89F0C42E9E6D} = {19E82990-DA1A-4B40-B1C1-6BC81E388D4B}
-		{C6F30511-E2DF-432A-83FC-F75712203DED} = {5EC9456D-B8A6-4F42-9E8F-986C72904161}
 		{88EFB34A-EE20-4FF9-853E-92761AAB61A3} = {5EC9456D-B8A6-4F42-9E8F-986C72904161}
 		{16E8EBF7-5F39-4FC9-A5A3-2E93E4BAB9B5} = {88EFB34A-EE20-4FF9-853E-92761AAB61A3}
 		{CFC0D123-ABB8-41C5-9814-89F627F770B6} = {5EC9456D-B8A6-4F42-9E8F-986C72904161}
@@ -3185,6 +3156,7 @@ Global
 		{DB2EEB00-FF15-4AF8-887D-E3261C31B173} = {0BB9117C-03B5-4A5E-B605-115ED2D32D7A}
 		{5A2BB01E-E124-432E-8099-D1343D3897B9} = {ED3C8740-DDE4-4055-9E16-5F0B7A8237CB}
 		{BFB977B8-6C0B-4736-B7DB-DD6B272F980A} = {0025BB16-E692-4DBB-8EC5-DE9869186311}
+		{EB83F1EE-34B2-488D-BBA5-6E2AF4D3B3FC} = {5EC9456D-B8A6-4F42-9E8F-986C72904161}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
