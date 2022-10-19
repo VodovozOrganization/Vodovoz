@@ -9,14 +9,14 @@ namespace Vodovoz.Domain.Goods
 {
 	[Appellative(
 		Gender = GrammaticalGender.Masculine,
-		NominativePlural = "цены закупки/себестоимости ТМЦ",
-		Nominative = "цена закупки/себестоимости ТМЦ",
-		Accusative = "цену закупки/себестоимости ТМЦ",
-		Genitive = "цену закупки/себестоимости ТМЦ"
+		NominativePlural = "цены закупки ТМЦ",
+		Nominative = "цена закупки ТМЦ",
+		Accusative = "цену закупки ТМЦ",
+		Genitive = "цену закупки ТМЦ"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class NomenclatureCostPurchasePrice : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class NomenclaturePurchasePrice : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 
 		private Nomenclature _nomenclature;

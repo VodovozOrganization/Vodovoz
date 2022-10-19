@@ -16,6 +16,12 @@ namespace Vodovoz.Views.Rent
 
 		private global::Gamma.GtkWidgets.yEntry dataentryName;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDepositService;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryRentServiceDaily;
+
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryRentServiceMonthly;
+
 		private global::Gtk.HBox hbox6;
 
 		private global::Gamma.GtkWidgets.ySpinButton spinPriceDaily;
@@ -34,13 +40,7 @@ namespace Vodovoz.Views.Rent
 
 		private global::QSProjectsLib.CurrencyLabel currencylabel3;
 
-		private global::Gamma.Widgets.yEntryReference referenceDepositService;
-
 		private global::Gamma.Widgets.yEntryReference referenceEquipmentType;
-
-		private global::Gamma.Widgets.yEntryReference referenceRentServiceDaily;
-
-		private global::Gamma.Widgets.yEntryReference referenceRentServiceMonthly;
 
 		private global::Gamma.GtkWidgets.yLabel ylblDailyPrice;
 
@@ -123,6 +123,48 @@ namespace Vodovoz.Views.Rent
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable.Gtk.Table+TableChild
+			this.entryDepositService = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryDepositService.Events = ((global::Gdk.EventMask)(256));
+			this.entryDepositService.Name = "entryDepositService";
+			this.entryDepositService.CanEditReference = false;
+			this.entryDepositService.CanOpenWithoutTabParent = false;
+			this.datatable.Add(this.entryDepositService);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable[this.entryDepositService]));
+			w7.TopAttach = ((uint)(7));
+			w7.BottomAttach = ((uint)(8));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable.Gtk.Table+TableChild
+			this.entryRentServiceDaily = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryRentServiceDaily.Events = ((global::Gdk.EventMask)(256));
+			this.entryRentServiceDaily.Name = "entryRentServiceDaily";
+			this.entryRentServiceDaily.CanEditReference = false;
+			this.entryRentServiceDaily.CanOpenWithoutTabParent = false;
+			this.datatable.Add(this.entryRentServiceDaily);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable[this.entryRentServiceDaily]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable.Gtk.Table+TableChild
+			this.entryRentServiceMonthly = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryRentServiceMonthly.Events = ((global::Gdk.EventMask)(256));
+			this.entryRentServiceMonthly.Name = "entryRentServiceMonthly";
+			this.entryRentServiceMonthly.CanEditReference = false;
+			this.entryRentServiceMonthly.CanOpenWithoutTabParent = false;
+			this.datatable.Add(this.entryRentServiceMonthly);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable[this.entryRentServiceMonthly]));
+			w9.TopAttach = ((uint)(4));
+			w9.BottomAttach = ((uint)(5));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable.Gtk.Table+TableChild
 			this.hbox6 = new global::Gtk.HBox();
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
@@ -137,25 +179,25 @@ namespace Vodovoz.Views.Rent
 			this.spinPriceDaily.ValueAsDecimal = 0m;
 			this.spinPriceDaily.ValueAsInt = 0;
 			this.hbox6.Add(this.spinPriceDaily);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.spinPriceDaily]));
-			w7.Position = 0;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.spinPriceDaily]));
+			w10.Position = 0;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.currencylabel1 = new global::QSProjectsLib.CurrencyLabel();
 			this.currencylabel1.Name = "currencylabel1";
 			this.currencylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("currencylabel1");
 			this.hbox6.Add(this.currencylabel1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.currencylabel1]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.currencylabel1]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.datatable.Add(this.hbox6);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable[this.hbox6]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable[this.hbox6]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable.Gtk.Table+TableChild
 			this.hbox7 = new global::Gtk.HBox();
 			this.hbox7.Name = "hbox7";
@@ -171,25 +213,25 @@ namespace Vodovoz.Views.Rent
 			this.spinPriceMonthly.ValueAsDecimal = 0m;
 			this.spinPriceMonthly.ValueAsInt = 0;
 			this.hbox7.Add(this.spinPriceMonthly);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.spinPriceMonthly]));
-			w10.Position = 0;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.spinPriceMonthly]));
+			w13.Position = 0;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.currencylabel2 = new global::QSProjectsLib.CurrencyLabel();
 			this.currencylabel2.Name = "currencylabel2";
 			this.currencylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("currencylabel1");
 			this.hbox7.Add(this.currencylabel2);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.currencylabel2]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.currencylabel2]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.datatable.Add(this.hbox7);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable[this.hbox7]));
-			w12.TopAttach = ((uint)(3));
-			w12.BottomAttach = ((uint)(4));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable[this.hbox7]));
+			w15.TopAttach = ((uint)(3));
+			w15.BottomAttach = ((uint)(4));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable.Gtk.Table+TableChild
 			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";
@@ -205,69 +247,33 @@ namespace Vodovoz.Views.Rent
 			this.spinDeposit.ValueAsDecimal = 0m;
 			this.spinDeposit.ValueAsInt = 0;
 			this.hbox8.Add(this.spinDeposit);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.spinDeposit]));
-			w13.Position = 0;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.spinDeposit]));
+			w16.Position = 0;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.currencylabel3 = new global::QSProjectsLib.CurrencyLabel();
 			this.currencylabel3.Name = "currencylabel3";
 			this.currencylabel3.LabelProp = global::Mono.Unix.Catalog.GetString("currencylabel1");
 			this.hbox8.Add(this.currencylabel3);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.currencylabel3]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.currencylabel3]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
 			this.datatable.Add(this.hbox8);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable[this.hbox8]));
-			w15.TopAttach = ((uint)(6));
-			w15.BottomAttach = ((uint)(7));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable.Gtk.Table+TableChild
-			this.referenceDepositService = new global::Gamma.Widgets.yEntryReference();
-			this.referenceDepositService.Events = ((global::Gdk.EventMask)(256));
-			this.referenceDepositService.Name = "referenceDepositService";
-			this.datatable.Add(this.referenceDepositService);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable[this.referenceDepositService]));
-			w16.TopAttach = ((uint)(7));
-			w16.BottomAttach = ((uint)(8));
-			w16.LeftAttach = ((uint)(1));
-			w16.RightAttach = ((uint)(2));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable.Gtk.Table+TableChild
-			this.referenceEquipmentType = new global::Gamma.Widgets.yEntryReference();
-			this.referenceEquipmentType.Events = ((global::Gdk.EventMask)(256));
-			this.referenceEquipmentType.Name = "referenceEquipmentType";
-			this.datatable.Add(this.referenceEquipmentType);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatable[this.referenceEquipmentType]));
-			w17.TopAttach = ((uint)(5));
-			w17.BottomAttach = ((uint)(6));
-			w17.LeftAttach = ((uint)(1));
-			w17.RightAttach = ((uint)(2));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable.Gtk.Table+TableChild
-			this.referenceRentServiceDaily = new global::Gamma.Widgets.yEntryReference();
-			this.referenceRentServiceDaily.Events = ((global::Gdk.EventMask)(256));
-			this.referenceRentServiceDaily.Name = "referenceRentServiceDaily";
-			this.datatable.Add(this.referenceRentServiceDaily);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable[this.referenceRentServiceDaily]));
-			w18.TopAttach = ((uint)(2));
-			w18.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable[this.hbox8]));
+			w18.TopAttach = ((uint)(6));
+			w18.BottomAttach = ((uint)(7));
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(2));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable.Gtk.Table+TableChild
-			this.referenceRentServiceMonthly = new global::Gamma.Widgets.yEntryReference();
-			this.referenceRentServiceMonthly.Events = ((global::Gdk.EventMask)(256));
-			this.referenceRentServiceMonthly.Name = "referenceRentServiceMonthly";
-			this.datatable.Add(this.referenceRentServiceMonthly);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable[this.referenceRentServiceMonthly]));
-			w19.TopAttach = ((uint)(4));
-			w19.BottomAttach = ((uint)(5));
+			this.referenceEquipmentType = new global::Gamma.Widgets.yEntryReference();
+			this.referenceEquipmentType.Events = ((global::Gdk.EventMask)(256));
+			this.referenceEquipmentType.Name = "referenceEquipmentType";
+			this.datatable.Add(this.referenceEquipmentType);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable[this.referenceEquipmentType]));
+			w19.TopAttach = ((uint)(5));
+			w19.BottomAttach = ((uint)(6));
 			w19.LeftAttach = ((uint)(1));
 			w19.RightAttach = ((uint)(2));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -287,7 +293,7 @@ namespace Vodovoz.Views.Rent
 			this.ylblDailyRentService = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDailyRentService.Name = "ylblDailyRentService";
 			this.ylblDailyRentService.Xalign = 1F;
-			this.ylblDailyRentService.LabelProp = global::Mono.Unix.Catalog.GetString("Услуга посуточной \nаренды:");
+			this.ylblDailyRentService.LabelProp = global::Mono.Unix.Catalog.GetString("Услуга посуточной\nаренды:");
 			this.ylblDailyRentService.Justify = ((global::Gtk.Justification)(1));
 			this.datatable.Add(this.ylblDailyRentService);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable[this.ylblDailyRentService]));

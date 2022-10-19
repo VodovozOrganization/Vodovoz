@@ -70,8 +70,8 @@ namespace Vodovoz.Core
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
+				.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhoneAlias, () => !counterpartyPhoneAlias.IsArchive)
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias, () => !deliveryPointPhoneAlias.IsArchive)
 				.Where(
 					Restrictions.And(
 						Restrictions.Where(() =>

@@ -53,7 +53,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
 
-			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, new NomenclatureCostPurchasePriceModel(commonServices.CurrentPermissionService));
+			NomenclatureCostPricesViewModel = new NomenclatureCostPricesViewModel(Entity, new NomenclatureCostPriceModel(commonServices.CurrentPermissionService));
+			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, new NomenclaturePurchasePriceModel(commonServices.CurrentPermissionService));
 			NomenclatureInnerDeliveryPricesViewModel = new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel(commonServices.CurrentPermissionService));
 			
 			ConfigureEntityPropertyChanges();
@@ -83,6 +84,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
 		public bool CanCreateAndArcNomenclatures { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
+		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; }
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; }
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; }
 

@@ -1,18 +1,14 @@
-﻿using QS.Dialog;
-using QS.DomainModel.UoW;
-using QS.Navigation;
-using QS.Services;
-using QS.ViewModels;
+﻿using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
-	public class NomenclatureCostPurchasePriceViewModel : WidgetViewModelBase
+	public class NomenclatureCostPriceViewModel : WidgetViewModelBase
 	{
-		public NomenclatureCostPurchasePrice Entity { get; }
+		public NomenclatureCostPrice Entity { get; }
 
-		public NomenclatureCostPurchasePriceViewModel(NomenclatureCostPurchasePrice entity)
+		public NomenclatureCostPriceViewModel(NomenclatureCostPrice entity)
 		{
 			Entity = entity ?? throw new ArgumentNullException(nameof(entity));
 			Entity.PropertyChanged += Entity_PropertyChanged;
@@ -22,8 +18,8 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		{
 			switch(e.PropertyName)
 			{
-				case nameof(Entity.PurchasePrice):
-					OnPropertyChanged(nameof(PurchasePrice));
+				case nameof(Entity.CostPrice):
+					OnPropertyChanged(nameof(CostPrice));
 					break;
 				case nameof(Entity.StartDate):
 					OnPropertyChanged(nameof(StartDate));
@@ -57,17 +53,17 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		}
 		public string EndDateTitle => EndDate.HasValue ? EndDate.Value.ToString("dd.MM.yyyy HH:mm") : string.Empty;
 
-		public decimal PurchasePrice
+		public decimal CostPrice
 		{
-			get => Entity.PurchasePrice;
+			get => Entity.CostPrice;
 			set
 			{
 				if(!CanEditPrice)
 				{
-					OnPropertyChanged(nameof(PurchasePrice));
+					OnPropertyChanged(nameof(CostPrice));
 					return;
 				}
-				Entity.PurchasePrice = value;
+				Entity.CostPrice = value;
 			}
 		}
 	}

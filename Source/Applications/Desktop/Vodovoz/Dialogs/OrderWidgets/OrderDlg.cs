@@ -103,6 +103,8 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
 namespace Vodovoz
 {
@@ -179,6 +181,7 @@ namespace Vodovoz
 		private bool _isNeedSendBill;
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
+		private PhonesJournalFilterViewModel _contactPhoneFilter;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -316,12 +319,14 @@ namespace Vodovoz
 			Entity.OrderAddressType = OrderAddressType.Delivery;
 		}
 
-		public OrderDlg(Counterparty client) : this()
+		public OrderDlg(Counterparty client, Phone contactPhone) : this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
+			_contactPhoneFilter.Counterparty = Entity.Client;
 			Entity.PaymentType = Entity.Client.PaymentMethod;
 			IsForRetail = Entity.Client.IsForRetail;
 			IsForSalesDepartment = Entity.Client.IsForSalesDepartment;
+			Entity.ContactPhone = contactPhone;
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -402,7 +407,8 @@ namespace Vodovoz
 					x => x.Client,
 					x => x.DeliveryPoint,
 					x => x.OrderAddressType,
-					x => x.PaymentType
+					x => x.PaymentType,
+					x => x.ContactPhone
 					)
 				.CopyPromotionalSets()
 				.CopyOrderItems()
@@ -583,6 +589,12 @@ namespace Vodovoz
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
 
+			evmeContactPhone.SetObjectDisplayFunc<Phone>((phone) => phone.ToString());
+			evmeContactPhone.Binding.AddSource(Entity)
+				.AddBinding(e => e.ContactPhone, w => w.Subject)
+				.AddFuncBinding(e => e.Client != null, w => w.Sensitive)
+				.InitializeFromSource();
+
 			var roboatsSettings = new RoboatsSettings(_parametersProvider);
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
@@ -605,7 +617,17 @@ namespace Vodovoz
 			evmeDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			evmeDeliveryPoint.CanEditReference = true;
 
-			evmeDeliveryPoint.ChangedByUser += (s, e) => {
+			_contactPhoneFilter = new PhonesJournalFilterViewModel
+			{
+				Counterparty = Counterparty,
+				DeliveryPoint = DeliveryPoint
+			};
+			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
+				() => new PhonesJournalViewModel(_contactPhoneFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+			evmeContactPhone.SetEntitySelectorFactory(phoneSelectoFactory);
+
+			evmeDeliveryPoint.ChangedByUser += (s, e) =>
+			{
 				if(Entity?.DeliveryPoint == null) {
 					return;
 				}
@@ -2245,27 +2267,29 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.SetAndRefilterAtOnce(
+			var filter = new NomenclatureFilterViewModel();
+			filter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
+				x => x.SelectCategory = NomenclatureCategory.equipment
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Single,
-				ShowFilter = true
-			};
-			SelectDialog.CustomTabName("Оборудование к клиенту");
-			SelectDialog.ObjectSelected += NomenclatureToClient;
-			TabParent.AddSlaveTab(this, SelectDialog);
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += OnAddNomenclatureToClient;
+			journal.Title = "Оборудование к клиенту";
+			TabParent.AddSlaveTab(this, journal);
 		}
 
-		void NomenclatureToClient(object sender, JournalObjectSelectedEventArgs e)
+		private void OnAddNomenclatureToClient(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			if(selectedId == 0) {
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
 				return;
 			}
-			AddNomenclatureToClient(UoWGeneric.Session.Get<Nomenclature>(selectedId));
+			var nomenclature = UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id);
+			AddNomenclatureToClient(nomenclature);
 		}
 
 		void AddNomenclatureToClient(Nomenclature nomenclature)
@@ -2278,27 +2302,29 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.SetAndRefilterAtOnce(
+			var filter = new NomenclatureFilterViewModel();
+			filter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
+				x => x.SelectCategory = NomenclatureCategory.equipment
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Single,
-				ShowFilter = true
-			};
-			SelectDialog.CustomTabName("Оборудование от клиента");
-			SelectDialog.ObjectSelected += NomenclatureFromClient;
-			TabParent.AddSlaveTab(this, SelectDialog);
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += OnAddNomenclatureFromClient;
+			journal.Title = "Оборудование от клиента";
+			TabParent.AddSlaveTab(this, journal);
 		}
 
-		void NomenclatureFromClient(object sender, JournalObjectSelectedEventArgs e)
+		private void OnAddNomenclatureFromClient(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			if(selectedId == 0) {
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
 				return;
 			}
-			AddNomenclatureFromClient(UoWGeneric.Session.Get<Nomenclature>(selectedId));
+			var nomenclature = UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id);
+			AddNomenclatureFromClient(nomenclature);
 		}
 
 		void AddNomenclatureFromClient(Nomenclature nomenclature)
@@ -2448,6 +2474,8 @@ namespace Vodovoz
 
 		protected void OnEntityVMEntryClientChanged(object sender, EventArgs e)
 		{
+			UpdateContactPhoneFilter();
+
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
 			if(Entity.Client != null)
 			{
@@ -2516,6 +2544,8 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChanged(object sender, EventArgs e)
 		{
+			UpdateContactPhoneFilter();
+
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(evmeDeliveryPoint.Subject));
 
 			if(Entity.DeliveryPoint != null)
@@ -2739,6 +2769,15 @@ namespace Vodovoz
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
+		}
+
+		private void UpdateContactPhoneFilter()
+		{
+			if(_contactPhoneFilter != null)
+			{
+				_contactPhoneFilter.Counterparty = Counterparty;
+				_contactPhoneFilter.DeliveryPoint = DeliveryPoint;
+			}
 		}
 
 		protected void CheckForStopDelivery()

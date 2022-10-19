@@ -482,13 +482,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref phones, value, () => Phones);
 		}
 
-		[Display(Name = "Причина выбытия")]
-		public virtual ReasonForLeaving ReasonForLeaving
-		{
-			get => _reasonForLeaving;
-			set => SetField(ref _reasonForLeaving, value);
-		}
-
 		GenericObservableList<Phone> observablePhones;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Phone> ObservablePhones {

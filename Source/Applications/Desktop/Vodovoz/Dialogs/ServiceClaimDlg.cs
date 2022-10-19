@@ -334,12 +334,6 @@ namespace Vodovoz
 
 		void OpenDialog (NHibernate.Criterion.QueryOver<Nomenclature> nomenclatureType)
 		{
-			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), UoWGeneric, 
-				                            nomenclatureType.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
-			SelectDialog.ObjectSelected += NomenclatureSelected;
-			TabParent.AddSlaveTab (this, SelectDialog);
 		}
 
 		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)

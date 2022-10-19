@@ -5,16 +5,16 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Models
 {
-	public class NomenclatureCostPurchasePriceModel
+	public class NomenclatureCostPriceModel
 	{
 		private readonly ICurrentPermissionService _permissionService;
 
-		public NomenclatureCostPurchasePriceModel(ICurrentPermissionService permissionService)
+		public NomenclatureCostPriceModel(ICurrentPermissionService permissionService)
 		{
 			_permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
 		}
 
-		public NomenclatureCostPurchasePrice CreatePrice(Nomenclature nomenclature, DateTime startDate)
+		public NomenclatureCostPrice CreatePrice(Nomenclature nomenclature, DateTime startDate)
 		{
 			if(!CanCreatePrice(nomenclature, startDate))
 			{
@@ -22,17 +22,17 @@ namespace Vodovoz.Models
 			}
 
 			CloseActivePrice(nomenclature, startDate);
-			var newPrice = new NomenclatureCostPurchasePrice();
+			var newPrice = new NomenclatureCostPrice();
 			newPrice.Nomenclature = nomenclature;
 			newPrice.StartDate = startDate;
-			nomenclature.ObservablePurchasePrices.Add(newPrice);
+			nomenclature.ObservableCostPrices.Add(newPrice);
 			return newPrice;
 		}
 
-		public NomenclatureCostPurchasePrice CreatePrice(Nomenclature nomenclature, DateTime startDate, decimal price)
+		public NomenclatureCostPrice CreatePrice(Nomenclature nomenclature, DateTime startDate, decimal price)
 		{
 			var newPrice = CreatePrice(nomenclature, startDate);
-			newPrice.PurchasePrice = price;
+			newPrice.CostPrice = price;
 			return newPrice;
 		}
 
@@ -64,7 +64,7 @@ namespace Vodovoz.Models
 				return false;
 			}
 
-			if(newPrice == 0 || (activePrice != null && activePrice.PurchasePrice == newPrice)) 
+			if(newPrice == 0 || (activePrice != null && activePrice.CostPrice == newPrice)) 
 			{
 				return false;
 			}
@@ -72,14 +72,14 @@ namespace Vodovoz.Models
 			return true;
 		}
 
-		public void ChangeDate(Nomenclature nomenclature, NomenclatureCostPurchasePrice price, DateTime startDate)
+		public void ChangeDate(Nomenclature nomenclature, NomenclatureCostPrice price, DateTime startDate)
 		{
 			if(!CanChangeDate(nomenclature, price, startDate))
 			{
 				throw new InvalidOperationException($"Невозможно изменить дату цены, так как дата {startDate} меньше даты начала предыдущей цены или больше даты окончания текущей цены");
 			}
 
-			var previousPrice = nomenclature.PurchasePrices.Where(x => x.EndDate < price.StartDate).OrderByDescending(x => x.EndDate).FirstOrDefault();
+			var previousPrice = nomenclature.CostPrices.Where(x => x.EndDate < price.StartDate).OrderByDescending(x => x.EndDate).FirstOrDefault();
 			if(previousPrice != null)
 			{
 				previousPrice.EndDate = GetCloseTime(startDate);
@@ -88,7 +88,7 @@ namespace Vodovoz.Models
 			price.StartDate = startDate;
 		}
 
-		public bool CanChangeDate(Nomenclature nomenclature, NomenclatureCostPurchasePrice price, DateTime startDate)
+		public bool CanChangeDate(Nomenclature nomenclature, NomenclatureCostPrice price, DateTime startDate)
 		{
 			if(nomenclature is null)
 			{
@@ -105,7 +105,7 @@ namespace Vodovoz.Models
 				return false;
 			}
 
-			var previousPrice = nomenclature.PurchasePrices.Where(x => x.EndDate < price.StartDate).OrderByDescending(x => x.EndDate).FirstOrDefault();
+			var previousPrice = nomenclature.CostPrices.Where(x => x.EndDate < price.StartDate).OrderByDescending(x => x.EndDate).FirstOrDefault();
 			if(previousPrice == null)
 			{
 				return true;
@@ -140,9 +140,9 @@ namespace Vodovoz.Models
 			activePrice.EndDate = GetCloseTime(startDate);
 		}
 
-		public NomenclatureCostPurchasePrice GetActivePrice(Nomenclature nomenclature)
+		public NomenclatureCostPrice GetActivePrice(Nomenclature nomenclature)
 		{
-			var unclosedPrices = nomenclature.PurchasePrices.Where(x => x.EndDate == null);
+			var unclosedPrices = nomenclature.CostPrices.Where(x => x.EndDate == null);
 			var unclosedPriceCount = unclosedPrices.Count();
 			if(unclosedPriceCount > 1)
 			{
@@ -152,14 +152,14 @@ namespace Vodovoz.Models
 			return unclosedPrices.FirstOrDefault();
 		}
 
-		public NomenclatureCostPurchasePrice GetPrice(DateTime date, Nomenclature nomenclature)
+		public NomenclatureCostPrice GetPrice(DateTime date, Nomenclature nomenclature)
 		{
 			if(nomenclature is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclature));
 			}
 
-			var prices = nomenclature.PurchasePrices
+			var prices = nomenclature.CostPrices
 				.Where(x => x.StartDate <= date)
 				.Where(x => x.EndDate == null || x.EndDate.Value >= date);
 			if(prices.Count() > 1)
