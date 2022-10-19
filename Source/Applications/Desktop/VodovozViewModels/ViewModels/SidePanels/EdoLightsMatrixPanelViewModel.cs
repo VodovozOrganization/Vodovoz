@@ -33,7 +33,6 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 			_openEdoTabInCounterparty ?? (_openEdoTabInCounterparty = new DelegateCommand<int>(counterpartyId =>
 				{
 					_gtkTabsOpener.OpenCounterpartyEdoTab(_tdiTab, counterpartyId);
-				}
-			));
+				}));
 	}
 }

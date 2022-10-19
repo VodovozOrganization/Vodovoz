@@ -170,10 +170,9 @@ namespace Vodovoz
 
 			nomenclaturePurchasePricesView.ViewModel = new NomenclaturePurchasePricesViewModel(Entity, new Models.NomenclatureCostPurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService));
 
-			ycheckIsAccountableInChestniyZnak.Binding
-				.AddBinding(Entity, e => e.IsAccountableInChestniyZnak, w => w.Active)
-				.InitializeFromSource();
+			ycheckIsAccountableInChestniyZnak.Binding.AddBinding(Entity, e => e.IsAccountableInChestniyZnak, w => w.Active).InitializeFromSource();
 			validatedGtin.ValidationMode = ValidationType.numeric;
+			validatedGtin.MaxLength = 14;
 			validatedGtin.Binding.AddBinding(Entity, e => e.Gtin, w => w.Text).InitializeFromSource();
 
 			#region Вкладка характиристики

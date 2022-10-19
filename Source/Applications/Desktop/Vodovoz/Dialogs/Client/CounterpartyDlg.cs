@@ -74,7 +74,6 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using Vodovoz.Views.Logistic;
 
 namespace Vodovoz
 {
@@ -975,13 +974,16 @@ namespace Vodovoz
 
 			yEnumCmbReasonForLeaving.ChangedByUser += (s, e) =>
 			{
-				if(Entity.ReasonForLeaving == ReasonForLeaving.Resale
-				   || (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds && Entity.PersonType == PersonType.legal))
+				var isInnRequired = string.IsNullOrWhiteSpace(Entity.INN) && 
+				                    (Entity.ReasonForLeaving == ReasonForLeaving.Resale 
+				                     || (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
+				                         && Entity.PersonType == PersonType.legal)
+				                     );
+
+				if(isInnRequired)
 				{
-					if(string.IsNullOrWhiteSpace(Entity.INN))
-					{
 						_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Заполните ИНН у контрагента!");
-					}
+					
 				}
 
 				Entity.IsNotSendDocumentsByEdo = Entity.ReasonForLeaving == ReasonForLeaving.Other;
@@ -996,24 +998,24 @@ namespace Vodovoz
 
 			edoValidatedINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			edoValidatedINN.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.natural
-											 && e.ReasonForLeaving == ReasonForLeaving.Resale, w => w.Sensitive)
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.natural && e.ReasonForLeaving == ReasonForLeaving.Resale,
+					w => w.Sensitive)
 				.AddBinding(Entity, e => e.INN, w => w.Text)
 				.InitializeFromSource();
 
 			ybuttonCheckClientInTaxcom.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal
-											 && (e.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || e.ReasonForLeaving == ReasonForLeaving.Resale),
-								w => w.Sensitive)
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.legal && (e.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || e.ReasonForLeaving == ReasonForLeaving.Resale),
+					w => w.Sensitive)
 				.InitializeFromSource();
 
 			var edoOperatorsAutocompleteSelectorFactory = _edoOperatorsJournalFactory.CreateEdoOperatorsAutocompleteSelectorFactory();
 			evmeOperatoEdo.SetEntityAutocompleteSelectorFactory(edoOperatorsAutocompleteSelectorFactory);
 			evmeOperatoEdo.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal
-											 && e.ReasonForLeaving != ReasonForLeaving.Unknown
-											 && e.ReasonForLeaving != ReasonForLeaving.Other,
-								w => w.Sensitive)
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
+					w => w.Sensitive)
 				.AddBinding(Entity, e => e.EdoOperator, w => w.Subject)
 				.InitializeFromSource();
 
@@ -1028,10 +1030,8 @@ namespace Vodovoz
 			};
 
 			yentryPersonalAccountCodeInEdo.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal
-											&& e.ReasonForLeaving != ReasonForLeaving.Unknown
-											&& e.ReasonForLeaving != ReasonForLeaving.Other,
-								w => w.Sensitive)
+				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other, 
+					w => w.Sensitive)
 				.AddBinding(Entity, e => e.PersonalAccountIdInEdo, w => w.Text)
 				.InitializeFromSource();
 
@@ -1053,7 +1053,7 @@ namespace Vodovoz
 
 			ybuttonRegistrationInChestnyZnak.Binding
 				.AddFuncBinding(Entity, e => e.ReasonForLeaving == ReasonForLeaving.Resale && !string.IsNullOrWhiteSpace(e.INN),
-								w => w.Sensitive)
+					w => w.Sensitive)
 				.InitializeFromSource();
 
 			yEnumCmbRegistrationInChestnyZnak.ItemsEnum = typeof(RegistrationInChestnyZnakStatus);
@@ -1066,13 +1066,13 @@ namespace Vodovoz
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
 			yEnumCmbSendUpdInOrderStatus.Binding
 				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
-								w => w.Sensitive)
+					w => w.Sensitive)
 				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			yChkBtnIsPaperlessWorkflow.Binding
 				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
-								w => w.Sensitive)
+					w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
 
@@ -1741,7 +1741,7 @@ namespace Vodovoz
 
 		protected void OnYbuttonCheckClientInTaxcomClicked(object sender, EventArgs e)
 		{
-
+			// Пока не реализовано - временно
 			Entity.PersonalAccountIdInEdo = "2BA-EBD32UYGR823QGDBW";
 			Entity.EdoOperator = UoW.GetById<EdoOperator>(1);
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);

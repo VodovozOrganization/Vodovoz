@@ -10,8 +10,8 @@ namespace Vodovoz.Views.Client
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EdoLightsMatrixView : WidgetViewBase<EdoLightsMatrixViewModel>
 	{
-		private static readonly Color _greenColor = new Color(0, 255, 0);
-		private static readonly Color _redColor = new Color(255, 0, 0);
+		private readonly Color _greenColor = new Color(0, 255, 0);
+		private readonly Color _redColor = new Color(255, 0, 0);
 
 		public EdoLightsMatrixView()
 		{
