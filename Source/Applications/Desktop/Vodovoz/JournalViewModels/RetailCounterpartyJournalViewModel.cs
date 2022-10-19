@@ -125,9 +125,9 @@ namespace Vodovoz.JournalViewModels
 					 .Where(() => tagAliasForSubquery.Id == FilterViewModel.Tag.Id);
 
 			query
-				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
+				.Left.JoinAlias(c => c.Phones, () => phoneAlias, () => !phoneAlias.IsArchive)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias, () => !deliveryPointPhoneAlias.IsArchive);
 
 
 
@@ -220,6 +220,7 @@ namespace Vodovoz.JournalViewModels
 				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
 					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
 					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.And(() => !counterpartyPhoneAlias.IsArchive)
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
@@ -264,9 +265,9 @@ namespace Vodovoz.JournalViewModels
 					 .Where(() => tagAliasForSubquery.Id == FilterViewModel.Tag.Id);
 
 			query
-				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
+				.Left.JoinAlias(c => c.Phones, () => phoneAlias, () => !phoneAlias.IsArchive)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias, () => !deliveryPointPhoneAlias.IsArchive);
 
 			var searchHealperNew = new TempAdapters.SearchHelper(Search);
 

@@ -42,11 +42,13 @@ namespace DriverAPI.Library.Converters
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
 			var deliveryPointPhones = vodovozOrder.DeliveryPoint.Phones
+				.Where(p => !p.IsArchive)
 				.GroupBy(p => p.DigitsNumber)
 				.Select(x => new PhoneDto {Number = "+7" + x.First().DigitsNumber, PhoneType = PhoneDtoType.DeliveryPoint})
 				.ToList();
 
 			var counterpartyPhones = vodovozOrder.Client.Phones
+				.Where(p => !p.IsArchive)
 				.GroupBy(p => p.DigitsNumber)
 				.Select(x => new PhoneDto { Number = "+7" + x.First().DigitsNumber, PhoneType = PhoneDtoType.Counterparty })
 				.ToList();

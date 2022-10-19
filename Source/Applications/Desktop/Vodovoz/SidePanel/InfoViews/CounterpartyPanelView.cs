@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -10,6 +12,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.SidePanel.InfoProviders;
@@ -108,16 +111,16 @@ namespace Vodovoz.SidePanel.InfoViews
 				PhonesTable.Remove(child);
 				child.Destroy();
 			}
-
-			uint rowsCount = Convert.ToUInt32(_counterparty.Phones.Count) + 1;
+			List<Phone> phones = _counterparty.Phones.Where(p => !p.IsArchive).ToList();
+			uint rowsCount = Convert.ToUInt32(phones.Count) + 1;
 			PhonesTable.Resize(rowsCount, 2);
 			for(uint row = 0; row < rowsCount - 1; row++)
 			{
 				Label label = new Label();
 				label.Selectable = true;
-				label.Markup = $"{_counterparty.Phones[Convert.ToInt32(row)].LongText}";
+				label.Markup = $"{phones[Convert.ToInt32(row)].LongText}";
 
-				HandsetView handsetView = new HandsetView(_counterparty.Phones[Convert.ToInt32(row)].DigitsNumber);
+				HandsetView handsetView = new HandsetView(phones[Convert.ToInt32(row)].DigitsNumber);
 
 				PhonesTable.Attach(label, 0, 1, row, row + 1);
 				PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
