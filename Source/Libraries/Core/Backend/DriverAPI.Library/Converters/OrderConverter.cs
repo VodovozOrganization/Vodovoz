@@ -73,6 +73,7 @@ namespace DriverAPI.Library.Converters
 			var phoneFormatter = new PhoneFormatter(PhoneFormat.RussiaOnlyShort);
 
 			var deliveryPointPhones = vodovozOrder.DeliveryPoint.Phones
+				.Where(p => !p.IsArchive)
 				.GroupBy(p => p.DigitsNumber)
 				.Select(x => new PhoneDto 
 				{ 
@@ -82,6 +83,7 @@ namespace DriverAPI.Library.Converters
 				.ToList();
 
 			var counterpartyPhones = vodovozOrder.Client.Phones
+				.Where(p => !p.IsArchive)
 				.GroupBy(p => p.DigitsNumber)
 				.Select(x => new PhoneDto 
 				{ 

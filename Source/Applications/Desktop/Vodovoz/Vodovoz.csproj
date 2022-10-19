@@ -2208,6 +2208,12 @@
       <Name>VodovozViewModels</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>   
+    <ContentWithTargetPath Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports\Reports\**">     
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>     
+      <TargetPath>Reports\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>   
+    </ContentWithTargetPath> 
+  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>

@@ -7,12 +7,14 @@ using Gamma.Widgets;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSWidgetLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.Views.Contacts
@@ -139,11 +141,15 @@ namespace Vodovoz.Views.Contacts
 		{
 			datatablePhones.NRows = RowNum + 1;
 
+			var phoneViewModel = new PhoneViewModel(newPhone,
+				ServicesConfig.CommonServices,
+				new PhoneTypeSettings(new ParametersProvider()));
+
 			var phoneDataCombo = new yListComboBox();
 			phoneDataCombo.WidthRequest = 100;
 			phoneDataCombo.SetRenderTextFunc((PhoneType x) => x.Name);
 			phoneDataCombo.ItemsList = phoneTypes;
-			phoneDataCombo.Binding.AddBinding(newPhone, e => e.PhoneType, w => w.SelectedItem).InitializeFromSource();
+			phoneDataCombo.Binding.AddBinding(phoneViewModel, pvm => pvm.SelectedPhoneType, w => w.SelectedItem).InitializeFromSource();
 			datatablePhones.Attach(phoneDataCombo, (uint)0, (uint)1, RowNum, RowNum + 1, AttachOptions.Fill | AttachOptions.Expand, (AttachOptions)0, (uint)0, (uint)0);
 
 			Gtk.Label textPhoneLabel = new Gtk.Label("+7");
@@ -157,6 +163,7 @@ namespace Vodovoz.Views.Contacts
 			datatablePhones.Attach(phoneDataEntry, (uint)2, (uint)3, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
 
 			HandsetView handset = new HandsetView(newPhone.DigitsNumber);
+			handset.Binding.AddFuncBinding(newPhone, e => !e.IsArchive, w  => w.Sensitive).InitializeFromSource();
 			datatablePhones.Attach(handset,(uint)3, (uint)4,RowNum,RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
 			Gtk.Label textAdditionalLabel = new Gtk.Label("доб.");

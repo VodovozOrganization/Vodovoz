@@ -173,6 +173,7 @@ namespace Vodovoz.Representations
 
 			var deliveryPointPhonesSubquery = QueryOver.Of(() => phoneAlias)
 				.Where(() => phoneAlias.DeliveryPoint.Id == orderAlias.DeliveryPoint.Id)
+				.AndNot(() => phoneAlias.IsArchive)
 				.Select(
 					CustomProjections.GroupConcat(
 						CustomProjections.Concat_WS(
@@ -184,6 +185,7 @@ namespace Vodovoz.Representations
 
 			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
 				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id)
+				.AndNot(() => phoneAlias.IsArchive)
 				.Select(
 					CustomProjections.GroupConcat(
 						CustomProjections.Concat_WS(

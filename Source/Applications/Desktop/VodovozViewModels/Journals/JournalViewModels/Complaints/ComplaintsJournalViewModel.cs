@@ -136,23 +136,16 @@ namespace Vodovoz.Journals.JournalViewModels
 
             FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
 
-            if (_subdivisionParametersProvider.GetOkkId() == currentEmployeeSubdivision.Id)
+            if (currentUserSettings.UseEmployeeSubdivision)
             {
-                FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
+                FilterViewModel.Subdivision = currentEmployeeSubdivision;
             }
             else
             {
-                if (currentUserSettings.UseEmployeeSubdivision)
-                {
-                    FilterViewModel.Subdivision = currentEmployeeSubdivision;
-                }
-                else
-                {
-                    FilterViewModel.Subdivision = defaultSubdivision;
-                }
-
-                FilterViewModel.ComplaintStatus = currentUserSettings.DefaultComplaintStatus;
+                FilterViewModel.Subdivision = defaultSubdivision;
             }
+
+            FilterViewModel.ComplaintStatus = currentUserSettings.DefaultComplaintStatus;
 
             UpdateOnChanges(
 				typeof(Complaint),
