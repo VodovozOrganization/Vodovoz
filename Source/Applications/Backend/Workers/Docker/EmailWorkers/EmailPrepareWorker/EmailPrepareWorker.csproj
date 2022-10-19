@@ -33,4 +33,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <Import Project="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 </Project>
