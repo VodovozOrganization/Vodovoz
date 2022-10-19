@@ -461,8 +461,7 @@ namespace Vodovoz
 
 		int GetMaxCount(OrderItemReturnsNode node)
 		{
-			var count = (node.Nomenclature.Category == NomenclatureCategory.service
-			             || node.Nomenclature.Category == NomenclatureCategory.master
+			var count = (node.Nomenclature.Category == NomenclatureCategory.master
 			             || node.Nomenclature.Category == NomenclatureCategory.deposit)
 				? 1
 				: 9999;
