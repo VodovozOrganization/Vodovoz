@@ -8,6 +8,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties
 	{
 		private Counterparty _counterparty;
 		private DeliveryPoint _deliveryPoint;
+		private bool _showArchive;
 
 		public Counterparty Counterparty
 		{
@@ -19,6 +20,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties
 		{
 			get => _deliveryPoint;
 			set => SetField(ref _deliveryPoint, value);
+		}
+
+		public bool ShowArchive
+		{
+			get => _showArchive;
+			set => SetField(ref _showArchive, value);
 		}
 	}
 }

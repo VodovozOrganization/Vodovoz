@@ -93,6 +93,7 @@ namespace DriverAPI.Library.Converters
 				.ToList();
 
 			var allPhones = deliveryPointPhones.Concat(counterpartyPhones);
+
 			var orderContactPhone = vodovozOrder.ContactPhone;
 
 			if(orderContactPhone == null)
@@ -101,6 +102,11 @@ namespace DriverAPI.Library.Converters
 			}
 
 			var foundContactPhone = allPhones.FirstOrDefault(p => p.Number == phoneFormatter.FormatString(orderContactPhone.DigitsNumber));
+
+			if(foundContactPhone == null)
+			{
+				return allPhones;
+			}
 
 			var resultPhoneList = new List<PhoneDto>
 			{
