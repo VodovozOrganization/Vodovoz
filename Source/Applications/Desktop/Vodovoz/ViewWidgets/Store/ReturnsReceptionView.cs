@@ -28,6 +28,8 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -324,11 +326,13 @@ namespace Vodovoz
 		
 		protected void OnButtonAddNomenclatureClicked(object sender, EventArgs e)
 		{
-			var allowCategories = Nomenclature.GetCategoriesForGoods().Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment).ToArray();
-			var SelectNomenclatureDlg = new OrmReference(
-				QueryOver.Of<Nomenclature>().Where(x => x.Category.IsIn(allowCategories))
-			);
-			SelectNomenclatureDlg.Mode = OrmReferenceMode.MultiSelect;
+			var filter = new NomenclatureFilterViewModel();
+			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods().Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment).ToArray();
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(true);
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 
 			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
 			{
@@ -340,16 +344,22 @@ namespace Vodovoz
 
 			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
 			{
-				SelectNomenclatureDlg.ButtonMode = ReferenceButtonMode.None;
+				journal.HideButtons();
 			}
 
-			SelectNomenclatureDlg.ObjectSelected += SelectNomenclatureDlg_ObjectSelected;
-			MyTab.TabParent.AddSlaveTab(MyTab, SelectNomenclatureDlg);
+			MyTab.TabParent.AddSlaveTab(MyTab, journal);
 		}
 
-		void SelectNomenclatureDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
-			foreach(var nomenclature in e.GetEntities<Nomenclature>()) {
+			if(!e.SelectedNodes.Any())
+			{
+				return;
+			}
+
+			var nomenclatures = UoW.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id));
+			foreach(var nomenclature in nomenclatures)
+			{
 				if(Items.Any(x => x.NomenclatureId == nomenclature.Id))
 					continue;
 				ReceptionReturnsList.Add(new ReceptionItemNode(nomenclature, 0));

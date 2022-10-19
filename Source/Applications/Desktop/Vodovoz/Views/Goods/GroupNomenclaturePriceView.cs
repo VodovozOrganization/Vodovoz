@@ -62,14 +62,14 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("Себестоимость\nпроизводства")
 					.MinWidth(180)
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(x => x.CostPurchasePrice)
+					.AddNumericRenderer(x => x.CostPrice)
 					.Editing(x => !x.IsGroup)
 					.Adjustment(new Adjustment(0, 0, 99999999, 1, 10, 10))
 					.AddSetter((c, n) =>
 					{
 						c.Xalign = 0.5f;
 						c.Alignment = Pango.Alignment.Center;
-						if(n.InvalidCostPurchasePrice)
+						if(n.InvalidCostPrice)
 						{
 							c.BackgroundGdk = _red;
 						}
