@@ -9,6 +9,7 @@
     <Import_RootNamespace>Vodovoz.Reports</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)README.md" />
     <None Include="$(MSBuildThisFileDirectory)\Reports\Bookkeeping\CounterpartyDebtDetailsWithoutOrderByDate.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
