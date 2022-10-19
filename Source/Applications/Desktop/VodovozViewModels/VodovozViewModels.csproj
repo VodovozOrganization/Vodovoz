@@ -66,6 +66,8 @@
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\PhoneViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
@@ -307,7 +309,7 @@
     <Compile Include="ViewModels\Logistic\TariffZoneViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TrackPointViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarManufacturerViewModel.cs" />
-    <Compile Include="ViewModels\Goods\NomenclatureCostPurchasePriceViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureCostPriceViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
     <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />

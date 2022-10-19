@@ -20,6 +20,12 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gtk.Button buttonAdd;
 
+		private global::Gtk.HBox hboxOrganisations;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel2;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbOrganisations;
+
 		private global::Gtk.Button buttonDel;
 
 		protected virtual void Build()
@@ -79,21 +85,51 @@ namespace Vodovoz.Views.Goods
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
+			this.hboxOrganisations = new global::Gtk.HBox();
+			this.hboxOrganisations.Name = "hboxOrganisations";
+			this.hboxOrganisations.Spacing = 6;
+			// Container child hboxOrganisations.Gtk.Box+BoxChild
+			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel2.Name = "ylabel2";
+			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Организация:");
+			this.hboxOrganisations.Add(this.ylabel2);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxOrganisations[this.ylabel2]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child hboxOrganisations.Gtk.Box+BoxChild
+			this.specialListCmbOrganisations = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.specialListCmbOrganisations.Name = "specialListCmbOrganisations";
+			this.specialListCmbOrganisations.AddIfNotExist = false;
+			this.specialListCmbOrganisations.DefaultFirst = false;
+			this.specialListCmbOrganisations.ShowSpecialStateAll = true;
+			this.specialListCmbOrganisations.ShowSpecialStateNot = false;
+			this.hboxOrganisations.Add(this.specialListCmbOrganisations);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxOrganisations[this.specialListCmbOrganisations]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
+			this.hboxButtons.Add(this.hboxOrganisations);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.hboxOrganisations]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.buttonDel = new global::Gtk.Button();
 			this.buttonDel.CanFocus = true;
 			this.buttonDel.Name = "buttonDel";
 			this.buttonDel.UseUnderline = true;
 			this.buttonDel.Label = global::Mono.Unix.Catalog.GetString("Удалить фиксу");
 			this.hboxButtons.Add(this.buttonDel);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonDel]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonDel]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.vboxWidget.Add(this.hboxButtons);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxButtons]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxButtons]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{

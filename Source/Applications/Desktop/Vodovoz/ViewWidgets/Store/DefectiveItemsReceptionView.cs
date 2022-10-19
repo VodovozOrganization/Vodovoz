@@ -18,6 +18,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets.Store
 {
@@ -157,10 +159,13 @@ namespace Vodovoz.ViewWidgets.Store
 
 		protected void OnButtonAddNomenclatureClicked(object sender, EventArgs e)
 		{
-			var SelectNomenclatureDlg = new OrmReference(
-				QueryOver.Of<Nomenclature>().Where(x => x.IsDefectiveBottle)
-			);
-			SelectNomenclatureDlg.Mode = OrmReferenceMode.MultiSelect;
+			var filter = new NomenclatureFilterViewModel();
+			filter.IsDefectiveBottle = true;
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(true);
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 			
 			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
 			{
@@ -172,16 +177,22 @@ namespace Vodovoz.ViewWidgets.Store
 
 			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
 			{
-				SelectNomenclatureDlg.ButtonMode = ReferenceButtonMode.None;
+				journal.HideButtons();
 			}
 			
-			SelectNomenclatureDlg.ObjectSelected += SelectNomenclatureDlg_ObjectSelected;
-			MyTab.TabParent.AddSlaveTab(MyTab, SelectNomenclatureDlg);
+			MyTab.TabParent.AddSlaveTab(MyTab, journal);
 		}
 
-		void SelectNomenclatureDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
-			foreach(var nomenclature in e.GetEntities<Nomenclature>()) {
+			if(!e.SelectedNodes.Any())
+			{
+				return;
+			}
+
+			var nomenclatures = UoW.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id));
+			foreach(var nomenclature in nomenclatures)
+			{
 				defectiveList.Add(new DefectiveItemNode(nomenclature, 0));
 			}
 		}

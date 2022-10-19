@@ -16,13 +16,13 @@ namespace Vodovoz.Views.Rent
 
 		private global::Gamma.GtkWidgets.yEntry dataentryName;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDepositService;
+
 		private global::Gtk.HBox hbox5;
 
 		private global::Gamma.GtkWidgets.ySpinButton spinDeposit;
 
 		private global::QSProjectsLib.CurrencyLabel currencylabel2;
-
-		private global::Gamma.Widgets.yEntryReference referenceDepositService;
 
 		private global::Gamma.Widgets.yEntryReference referenceEquipmentType;
 
@@ -103,6 +103,20 @@ namespace Vodovoz.Views.Rent
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
+			this.entryDepositService = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryDepositService.Events = ((global::Gdk.EventMask)(256));
+			this.entryDepositService.Name = "entryDepositService";
+			this.entryDepositService.CanEditReference = false;
+			this.entryDepositService.CanOpenWithoutTabParent = false;
+			this.datatable1.Add(this.entryDepositService);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryDepositService]));
+			w7.TopAttach = ((uint)(4));
+			w7.BottomAttach = ((uint)(5));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
 			this.hbox5 = new global::Gtk.HBox();
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
@@ -116,35 +130,24 @@ namespace Vodovoz.Views.Rent
 			this.spinDeposit.ValueAsDecimal = 0m;
 			this.spinDeposit.ValueAsInt = 0;
 			this.hbox5.Add(this.spinDeposit);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.spinDeposit]));
-			w7.Position = 0;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.spinDeposit]));
+			w8.Position = 0;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.currencylabel2 = new global::QSProjectsLib.CurrencyLabel();
 			this.currencylabel2.Name = "currencylabel2";
 			this.currencylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("currencylabel2");
 			this.hbox5.Add(this.currencylabel2);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.currencylabel2]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.currencylabel2]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.datatable1.Add(this.hbox5);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1[this.hbox5]));
-			w9.TopAttach = ((uint)(3));
-			w9.BottomAttach = ((uint)(4));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceDepositService = new global::Gamma.Widgets.yEntryReference();
-			this.referenceDepositService.Events = ((global::Gdk.EventMask)(256));
-			this.referenceDepositService.Name = "referenceDepositService";
-			this.datatable1.Add(this.referenceDepositService);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceDepositService]));
-			w10.TopAttach = ((uint)(4));
-			w10.BottomAttach = ((uint)(5));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1[this.hbox5]));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
 			w10.LeftAttach = ((uint)(1));
 			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.referenceEquipmentType = new global::Gamma.Widgets.yEntryReference();

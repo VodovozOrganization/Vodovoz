@@ -2267,27 +2267,29 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.SetAndRefilterAtOnce(
+			var filter = new NomenclatureFilterViewModel();
+			filter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
+				x => x.SelectCategory = NomenclatureCategory.equipment
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Single,
-				ShowFilter = true
-			};
-			SelectDialog.CustomTabName("Оборудование к клиенту");
-			SelectDialog.ObjectSelected += NomenclatureToClient;
-			TabParent.AddSlaveTab(this, SelectDialog);
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += OnAddNomenclatureToClient;
+			journal.Title = "Оборудование к клиенту";
+			TabParent.AddSlaveTab(this, journal);
 		}
 
-		void NomenclatureToClient(object sender, JournalObjectSelectedEventArgs e)
+		private void OnAddNomenclatureToClient(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			if(selectedId == 0) {
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
 				return;
 			}
-			AddNomenclatureToClient(UoWGeneric.Session.Get<Nomenclature>(selectedId));
+			var nomenclature = UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id);
+			AddNomenclatureToClient(nomenclature);
 		}
 
 		void AddNomenclatureToClient(Nomenclature nomenclature)
@@ -2300,27 +2302,29 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.SetAndRefilterAtOnce(
+			var filter = new NomenclatureFilterViewModel();
+			filter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
-				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
+				x => x.SelectCategory = NomenclatureCategory.equipment
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Single,
-				ShowFilter = true
-			};
-			SelectDialog.CustomTabName("Оборудование от клиента");
-			SelectDialog.ObjectSelected += NomenclatureFromClient;
-			TabParent.AddSlaveTab(this, SelectDialog);
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += OnAddNomenclatureFromClient;
+			journal.Title = "Оборудование от клиента";
+			TabParent.AddSlaveTab(this, journal);
 		}
 
-		void NomenclatureFromClient(object sender, JournalObjectSelectedEventArgs e)
+		private void OnAddNomenclatureFromClient(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			if(selectedId == 0) {
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
 				return;
 			}
-			AddNomenclatureFromClient(UoWGeneric.Session.Get<Nomenclature>(selectedId));
+			var nomenclature = UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id);
+			AddNomenclatureFromClient(nomenclature);
 		}
 
 		void AddNomenclatureFromClient(Nomenclature nomenclature)

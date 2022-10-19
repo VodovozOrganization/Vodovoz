@@ -358,6 +358,9 @@ namespace Vodovoz.Views.Goods
 
 			#region Вкладка Цена закупки
 
+			nomenclaturecostpricesview.ViewModel = ViewModel.NomenclatureCostPricesViewModel;
+			nomenclaturecostpricesview.Sensitive = ViewModel.CanEdit;
+
 			nomenclaturePurchasePricesView.ViewModel = ViewModel.NomenclaturePurchasePricesViewModel;
 			nomenclaturePurchasePricesView.Sensitive = ViewModel.CanEdit;
 

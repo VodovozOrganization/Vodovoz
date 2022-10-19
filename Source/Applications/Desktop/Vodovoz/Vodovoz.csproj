@@ -425,6 +425,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.OrganizationCashTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumRaskatGAZelleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.PremiumView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclatureCostPricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.NomenclaturePurchasePricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.NomenclaturePlanView.cs" />
     <Compile Include="Infrastructure\Converters\DoubleToStringConverter.cs" />
@@ -450,7 +451,6 @@
     <Compile Include="CreateProjectParam.cs" />
     <Compile Include="Dialogs\OrganizationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.NomenclatureDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="PricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
@@ -460,6 +460,7 @@
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
+    <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractDlg.cs" />
@@ -549,7 +550,6 @@
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
     <Compile Include="Dialogs\ProductSpecificationDlg.cs" />
     <Compile Include="Views\Logistic\DriverWorkScheduleSetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverWorkScheduleSetView.cs" />
@@ -586,7 +586,6 @@
     <Compile Include="JournalViewers\ReadyForShipmentView.cs" />
     <Compile Include="JournalViewers\ServiceClaimsView.cs" />
     <Compile Include="JournalFilters\EquipmentFilter.cs" />
-    <Compile Include="JournalFilters\NomenclatureFilter.cs" />
     <Compile Include="JournalFilters\StockBalanceFilter.cs" />
     <Compile Include="JournalFilters\ClientBalanceFilter.cs" />
     <Compile Include="JournalFilters\StockDocumentsFilter.cs" />
@@ -642,7 +641,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReadyForReceptionFilter.cs" />
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
-    <Compile Include="Representations\NomenclatureForSaleVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentKindDlg.cs" />
     <Compile Include="Representations\RouteListsVM.cs" />
     <Compile Include="JournalFilters\RouteListsFilter.cs" />
@@ -734,15 +732,12 @@
     <Compile Include="Dialogs\Goods\EquipmentDlg.cs" />
     <Compile Include="Dialogs\Goods\EquipmentGenerator.cs" />
     <Compile Include="Dialogs\Goods\EquipmentKindDlg.cs" />
-    <Compile Include="Dialogs\Goods\NomenclatureDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\CarLoadDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarLoadDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\CarLoadDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarLoadDocumentView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\CarUnloadDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarUnloadDocumentDlg.cs" />
-    <Compile Include="ViewWidgets\Store\EquipmentReceptionView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.EquipmentReceptionView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListTrackDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListTrackDlg.cs" />
     <Compile Include="Representations\WorkingDriversVM.cs" />
@@ -825,8 +820,6 @@
     <Compile Include="Representations\TransferOperationsVM.cs" />
     <Compile Include="ReportsParameters\OrdersWithMinPriceLessThan.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan.cs" />
-    <Compile Include="JournalFilters\NomenclatureRepFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureRepFilter.cs" />
     <Compile Include="ReportsParameters\Logistic\RouteListsOnClosingReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackTime.cs" />
@@ -869,8 +862,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CounterpartyDocumentsView.cs" />
     <Compile Include="ServiceDialogs\Database\OrdersWithoutBottlesOperationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.OrdersWithoutBottlesOperationDlg.cs" />
-    <Compile Include="JournalFilters\NomenclatureEquipTypeFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureEquipTypeFilter.cs" />
     <Compile Include="Dialogs\AddExistingDocumentsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.AddExistingDocumentsDlg.cs" />
     <Compile Include="JournalViewers\OrderSelectedView.cs" />
@@ -910,7 +901,6 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.DeliveryPricePanelView.cs" />
     <Compile Include="ViewWidgets\DeliveryPriceView.cs" />
     <Compile Include="Dialogs\DocumentsPrinterDlg.cs" />
-    <Compile Include="Representations\NomenclatureDependsFromVM.cs" />
     <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentItemsView.cs" />

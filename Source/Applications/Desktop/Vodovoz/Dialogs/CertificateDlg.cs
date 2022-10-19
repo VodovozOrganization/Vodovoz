@@ -10,6 +10,8 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.Dialogs
 {
@@ -79,29 +81,36 @@ namespace Vodovoz.Dialogs
 
 		protected void OnBtnAddNomenclatureClicked(object sender, System.EventArgs e)
 		{
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
-			nomenclatureFilter.SetAndRefilterAtOnce(
+			var filter = new NomenclatureFilterViewModel();
+			filter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
-				x => x.DefaultSelectedSaleCategory = SaleCategory.forSale
+				x => x.SelectCategory = NomenclatureCategory.water,
+				x => x.SelectSaleCategory = SaleCategory.forSale
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Multiple,
-				ShowFilter = true
-			};
-			SelectDialog.CustomTabName("Номенклатура на продажу");
-			SelectDialog.ObjectSelected += (s, ea) => {
-				var selectedNodes = ea.GetNodes<NomenclatureForSaleVMNode>();
-				if(!selectedNodes.Any()) {
-					return;
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(true);
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
+			journal.Title = "Номенклатура на продажу";
+			TabParent.AddSlaveTab(this, journal);
+		}
+
+		private void JournalOnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		{
+			if(!e.SelectedNodes.Any())
+			{
+				return;
+			}
+
+			var nomenclatures = UoWGeneric.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id));
+			foreach(var nomenclature in nomenclatures)
+			{
+				if(!Entity.ObservableNomenclatures.Any(x => x == nomenclature))
+				{
+					Entity.ObservableNomenclatures.Add(nomenclature);
 				}
-				foreach(var node in selectedNodes) {
-					Nomenclature n = UoWGeneric.GetById<Nomenclature>(node.Id);
-					if(n != null && !Entity.ObservableNomenclatures.Any(x => x == n))
-						Entity.ObservableNomenclatures.Add(n);
-				}
-			};
-			TabParent.AddSlaveTab(this, SelectDialog);
+			}
 		}
 
 		void SetControlsAcessibility()

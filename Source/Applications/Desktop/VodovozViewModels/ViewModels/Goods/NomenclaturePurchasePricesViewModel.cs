@@ -11,28 +11,28 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 	public class NomenclaturePurchasePricesViewModel : WidgetViewModelBase
 	{
 		private readonly Nomenclature _entity;
-		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
+		private readonly NomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
 		private readonly IReadyObservableListBinding _pricesBinding;
-		private GenericObservableList<NomenclatureCostPurchasePriceViewModel> _priceViewModels = new GenericObservableList<NomenclatureCostPurchasePriceViewModel>();
-		private NomenclatureCostPurchasePriceViewModel _selectedPrice;
+		private GenericObservableList<NomenclaturePurchasePriceViewModel> _priceViewModels = new GenericObservableList<NomenclaturePurchasePriceViewModel>();
+		private NomenclaturePurchasePriceViewModel _selectedPrice;
 
 
 		private DateTime? _startDate;
 		private DelegateCommand _changeDateCommand;
 		private DelegateCommand _createPriceCommand;
 
-		public NomenclaturePurchasePricesViewModel(Nomenclature entity, NomenclatureCostPurchasePriceModel nomenclatureCostPurchasePriceModel)
+		public NomenclaturePurchasePricesViewModel(Nomenclature entity, NomenclaturePurchasePriceModel nomenclaturePurchasePriceModel)
 		{
 			_entity = entity ?? throw new ArgumentNullException(nameof(entity));
-			_nomenclatureCostPurchasePriceModel = nomenclatureCostPurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPurchasePriceModel));
+			_nomenclaturePurchasePriceModel = nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 
 			_pricesBinding = ObservableListBinder.Bind(entity.ObservablePurchasePrices).To(PriceViewModels, CreatePriceViewModel);
 			PriceViewModels.ListContentChanged += PriceViewModels_ListContentChanged;
 		}
 
-		private NomenclatureCostPurchasePriceViewModel CreatePriceViewModel(NomenclatureCostPurchasePrice price)
+		private NomenclaturePurchasePriceViewModel CreatePriceViewModel(NomenclaturePurchasePrice price)
 		{
-			return new NomenclatureCostPurchasePriceViewModel(price);
+			return new NomenclaturePurchasePriceViewModel(price);
 		}
 
 		private void PriceViewModels_ListContentChanged(object sender, EventArgs e)
@@ -41,13 +41,13 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			ChangeDateCommand.RaiseCanExecuteChanged();
 		}
 
-		public virtual GenericObservableList<NomenclatureCostPurchasePriceViewModel> PriceViewModels
+		public virtual GenericObservableList<NomenclaturePurchasePriceViewModel> PriceViewModels
 		{
 			get => _priceViewModels;
 			private set => SetField(ref _priceViewModels, value);
 		}
 
-		public virtual NomenclatureCostPurchasePriceViewModel SelectedPrice
+		public virtual NomenclaturePurchasePriceViewModel SelectedPrice
 		{
 			get => _selectedPrice;
 			set => SetField(ref _selectedPrice, value);
@@ -83,11 +83,11 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		}
 
 		private bool CanAddPrice => StartDate.HasValue
-			&& _nomenclatureCostPurchasePriceModel.CanCreatePrice(_entity, StartDate.Value);
+			&& _nomenclaturePurchasePriceModel.CanCreatePrice(_entity, StartDate.Value);
 
 		private void CreatePrice()
 		{
-			_nomenclatureCostPurchasePriceModel.CreatePrice(_entity, StartDate.Value);
+			_nomenclaturePurchasePriceModel.CreatePrice(_entity, StartDate.Value);
 		}
 
 		#endregion Create price
@@ -110,12 +110,12 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private bool CanChangeDate => StartDate.HasValue 
 			&& SelectedPrice != null
-			&& _nomenclatureCostPurchasePriceModel.CanChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
+			&& _nomenclaturePurchasePriceModel.CanChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
 
 		private void ChangeDate()
 		{
 			
-			_nomenclatureCostPurchasePriceModel.ChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
+			_nomenclaturePurchasePriceModel.ChangeDate(_entity, SelectedPrice.Entity, StartDate.Value);
 		}
 
 		#endregion Change date
