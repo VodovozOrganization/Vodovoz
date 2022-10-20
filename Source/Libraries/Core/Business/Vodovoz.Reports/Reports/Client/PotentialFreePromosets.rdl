@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -766,7 +766,7 @@ FROM (
 
 		additional_promosets_info.delivery_date as additional_promoset_order_delivery_date,
 
-		(SELECT GROUP_CONCAT(DISTINCT sub_p.`number` SEPARATOR ', ') FROM phones sub_p WHERE sub_p.counterparty_id = o.client_id OR sub_p.delivery_point_id = o.delivery_point_id) as additional_promoset_phone
+		(SELECT GROUP_CONCAT(DISTINCT sub_p.`number` SEPARATOR ', ') FROM phones sub_p WHERE sub_p.counterparty_id = o.client_id OR sub_p.delivery_point_id = o.delivery_point_id AND phones.is_archive = 0) as additional_promoset_phone
 
 		
 
@@ -776,9 +776,9 @@ FROM (
 
 		LEFT JOIN order_items oi ON o.id = oi.order_id
 
-		LEFT JOIN phones p ON p.counterparty_id = o.client_id
+		LEFT JOIN phones p ON p.counterparty_id = o.client_id AND p.is_archive = 0
 
-		LEFT JOIN phones p2 ON p2.delivery_point_id = o.delivery_point_id
+		LEFT JOIN phones p2 ON p2.delivery_point_id = o.delivery_point_id AND p2.is_archive = 0
 
 		LEFT JOIN (
 
@@ -832,7 +832,7 @@ FROM (
 
 						LEFT JOIN order_items oi ON oi.order_id = o.id
 
-						LEFT JOIN phones p ON o.client_id = p.counterparty_id
+						LEFT JOIN phones p ON o.client_id = p.counterparty_id AND p.is_archive = 0
 
 					WHERE
 
@@ -869,6 +869,8 @@ FROM (
 										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
 
 										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+										AND pp.is_archive = 0
 
 								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
 
@@ -912,7 +914,7 @@ FROM (
 
 						LEFT JOIN order_items oi ON oi.order_id = o.id
 
-						LEFT JOIN phones p ON o.delivery_point_id = p.delivery_point_id
+						LEFT JOIN phones p ON o.delivery_point_id = p.delivery_point_id AND p.is_archive = 0
 
 					WHERE
 
@@ -949,6 +951,8 @@ FROM (
 										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
 
 										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+										AND pp.is_archive = 0
 
 								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
 
@@ -1028,9 +1032,9 @@ FROM (
 
 		LEFT JOIN counterparty c ON c.id = o.client_id  
 
-		LEFT JOIN phones p ON p.counterparty_id = o.client_id
+		LEFT JOIN phones p ON p.counterparty_id = o.client_id AND p.is_archive = 0
 
-		LEFT JOIN phones p2 ON p2.delivery_point_id = o.delivery_point_id
+		LEFT JOIN phones p2 ON p2.delivery_point_id = o.delivery_point_id AND p2.is_archive = 0
 
 	WHERE 
 
@@ -1080,7 +1084,7 @@ FROM (
 
 						LEFT JOIN order_items api_oi ON api_oi.order_id = api_o.id
 
-						LEFT JOIN phones api_p ON api_o.client_id = api_p.counterparty_id
+						LEFT JOIN phones api_p ON api_o.client_id = api_p.counterparty_id AND api_p.is_archive = 0
 
 					WHERE
 
@@ -1118,7 +1122,7 @@ FROM (
 
 										AND inner_api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
+								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id AND pp.is_archive = 0
 
 							WHERE
 

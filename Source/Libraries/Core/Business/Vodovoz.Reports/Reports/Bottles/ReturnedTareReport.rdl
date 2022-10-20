@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1110,7 +1110,7 @@
                             p.number,
                             IF(p.comment IS NULL, '', CONCAT(' ', p.comment)))
                     SEPARATOR '\n'
-                ) from phones p where p.delivery_point_id = dp.id
+                ) from phones p where p.delivery_point_id = dp.id AND p.is_archive = 0
     ) as delivery_point_contact,
     (SELECT GROUP_CONCAT(
                     CONCAT(
@@ -1118,7 +1118,7 @@
                             p.number,
                             IF(p.comment IS NULL, '', CONCAT(' ', p.comment)))
                     SEPARATOR '\n'
-                ) from phones p where p.counterparty_id = c.id
+                ) from phones p where p.counterparty_id = c.id AND p.is_archive = 0
     ) as client_contact,
     CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.') AS author,
     (

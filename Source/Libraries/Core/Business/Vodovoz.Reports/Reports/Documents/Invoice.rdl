@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -72,7 +72,7 @@
 	WHERE phones.delivery_point_id = orders.delivery_point_id) AS delivery_point_contact,
 	(SELECT GROUP_CONCAT(CONCAT('+7 ',phones.number,' ', IF(phones.comment IS NULL,'',phones.comment)) SEPARATOR '; ')
 	FROM phones
-	WHERE phones.counterparty_id = orders.client_id) AS client_contact,
+	WHERE phones.counterparty_id = orders.client_idAND phones.is_archive = 0) AS client_contact,
 
 	districts.district_name AS logistics_area,
 	delivery_points.compiled_address_short AS del_point_address,
@@ -534,7 +534,7 @@ FROM
     counterparty_contacts ON counterparty_contacts.counterparty_id = orders.client_id
         AND counterparty_contacts.id = counterparty_delivery_point_contacts.contact_person_id
         LEFT JOIN
-    phones ON phones.counterparty_contact_id = counterparty_contacts.id
+    phones ON phones.counterparty_contact_id = counterparty_contacts.id AND phones.is_archive = 0
 WHERE
     orders.id = @order_id
 GROUP BY responsible_person_name</CommandText>
