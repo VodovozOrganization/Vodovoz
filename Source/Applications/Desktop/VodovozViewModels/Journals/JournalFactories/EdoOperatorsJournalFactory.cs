@@ -2,7 +2,6 @@
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;
-
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
