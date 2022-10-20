@@ -39,6 +39,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yvboxMain.Add(this.edoLightsMatrixvVew);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.edoLightsMatrixvVew]));
 			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ybuttonOpenCounterparty = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonOpenCounterparty.CanFocus = true;

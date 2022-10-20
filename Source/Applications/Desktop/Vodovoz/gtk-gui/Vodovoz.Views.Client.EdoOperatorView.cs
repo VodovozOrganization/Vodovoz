@@ -85,7 +85,7 @@ namespace Vodovoz.Views.Client
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -162,6 +162,8 @@ namespace Vodovoz.Views.Client
 			this.vbox1.Add(this.table1);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
 			w13.Position = 2;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
