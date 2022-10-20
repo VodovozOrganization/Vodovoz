@@ -25,9 +25,11 @@ namespace Vodovoz.Domain.Goods
 	[HistoryTrace]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
-		private IList<NomenclatureCostPurchasePrice> _purchasePrices = new List<NomenclatureCostPurchasePrice>();
+		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
+		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
 		private IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureInnerDeliveryPrice>();
-		private GenericObservableList<NomenclatureCostPurchasePrice> _observablePurchasePrices;
+		private GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
+		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private bool _usingInGroupPriceSet;
 
@@ -543,14 +545,25 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		[Display(Name = "Цены закупки ТМЦ")]
-		public virtual IList<NomenclatureCostPurchasePrice> PurchasePrices
+		public virtual IList<NomenclaturePurchasePrice> PurchasePrices
 		{
 			get => _purchasePrices;
 			set => SetField(ref _purchasePrices, value);
 		}
 
-		public virtual GenericObservableList<NomenclatureCostPurchasePrice> ObservablePurchasePrices =>
-			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclatureCostPurchasePrice>(PurchasePrices));
+		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
+			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
+
+		[Display(Name = "Себестоимость ТМЦ")]
+		public virtual IList<NomenclatureCostPrice> CostPrices
+		{
+			get => _costPrices;
+			set => SetField(ref _costPrices, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<NomenclatureCostPrice> ObservableCostPrices =>
+			_observableCostPrices ?? (_observableCostPrices = new GenericObservableList<NomenclatureCostPrice>(CostPrices));
 
 		[Display(Name = "Стоимости доставки ТМЦ на склад")]
 		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices

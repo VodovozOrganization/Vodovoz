@@ -166,8 +166,8 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			var tasks = tasksQuery
-			.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhonesAlias)
-			.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhonesAlias)
+			.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhonesAlias, () => !deliveryPointPhonesAlias.IsArchive)
+			.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhonesAlias, () => !counterpartyPhonesAlias.IsArchive)
 			.Left.JoinAlias(() => callTaskAlias.Counterparty, () => counterpartyAlias)
 			.Left.JoinAlias(() => callTaskAlias.AssignedEmployee, () => employeeAlias)
 			.SelectList(list => list
@@ -256,8 +256,8 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			var tasks = tasksQuery
-			.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhonesAlias)
-			.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhonesAlias)
+			.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhonesAlias, () => !deliveryPointPhonesAlias.IsArchive)
+			.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhonesAlias, () => !counterpartyPhonesAlias.IsArchive)
 			.Left.JoinAlias(() => callTaskAlias.Counterparty, () => counterpartyAlias)
 			.Left.JoinAlias(() => callTaskAlias.AssignedEmployee, () => employeeAlias)
 			.SelectList(list => list

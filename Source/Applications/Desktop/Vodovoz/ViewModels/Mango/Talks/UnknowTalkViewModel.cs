@@ -77,9 +77,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
 			if(_interactive.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) {
-				if(!client.Phones.Any(phone => phone.DigitsNumber == ActiveCall.Phone.DigitsNumber)) {
-					client.Phones.Add(ActiveCall.Phone);
-					_uow.Save<Counterparty>(client);
+				if(!client.Phones.Any(phone => phone.DigitsNumber == ActiveCall.Phone.DigitsNumber)) 
+				{
+					var phone = ActiveCall.Phone;
+					phone.Counterparty = client;
+					_uow.Save(phone);
 					_uow.Commit();
 				}
 			}

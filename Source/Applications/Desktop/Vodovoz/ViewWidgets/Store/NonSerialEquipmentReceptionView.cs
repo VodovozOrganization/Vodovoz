@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
@@ -12,6 +13,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets.Store
 {
@@ -91,9 +94,14 @@ namespace Vodovoz.ViewWidgets.Store
 
 		protected void OnButtonAddEquipmentClicked(object sender, EventArgs e)
 		{
-			OrmReference refWin = new OrmReference(_nomenclatureRepository.NomenclatureByCategory(NomenclatureCategory.equipment));
-			refWin.FilterClass = null;
-			refWin.Mode = OrmReferenceMode.Select;
+			var filter = new NomenclatureFilterViewModel();
+			filter.RestrictCategory = NomenclatureCategory.equipment;
+
+			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.FilterViewModel = filter;
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			journal.Title = "Оборудование";
 			
 			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
 			{
@@ -105,11 +113,28 @@ namespace Vodovoz.ViewWidgets.Store
 
 			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
 			{
-				refWin.ButtonMode = ReferenceButtonMode.None;
+				journal.HideButtons();
 			}
-			
-			refWin.ObjectSelected += RefWin_ObjectSelected;
-			MyTab.TabParent.AddTab(refWin, MyTab);
+
+			MyTab.TabParent.AddSlaveTab(MyTab, journal);
+		}
+
+		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		{
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
+				return;
+			}
+
+			var selectedNomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
+			var node = new ReceptionNonSerialEquipmentItemNode()
+			{
+				NomenclatureCategory = selectedNomenclature.Category,
+				NomenclatureId = selectedNomenclature.Id,
+				Name = selectedNomenclature.Name
+			};
+			ReceptionNonSerialEquipmentList.Add(node);
 		}
 
 		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)

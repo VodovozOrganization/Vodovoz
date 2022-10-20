@@ -106,16 +106,16 @@ namespace Vodovoz.SidePanel.InfoViews
 				PhonesTable.Remove(child);
 				child.Destroy();
 			}
-
-			uint rowsCount = Convert.ToUInt32(DeliveryPoint.Phones.Count) + 1;
+			var phones = DeliveryPoint.Phones.Where(p => !p.IsArchive).ToList();
+			uint rowsCount = Convert.ToUInt32(phones.Count) + 1;
 			PhonesTable.Resize(rowsCount, 2);
 			for(uint row = 0; row < rowsCount - 1; row++)
 			{
 				Label label = new Label();
 				label.Selectable = true;
-				label.Markup = $"{DeliveryPoint.Phones[Convert.ToInt32(row)].LongText}";
+				label.Markup = $"{phones[Convert.ToInt32(row)].LongText}";
 
-				HandsetView handsetView = new HandsetView(DeliveryPoint.Phones[Convert.ToInt32(row)].DigitsNumber);
+				HandsetView handsetView = new HandsetView(phones[Convert.ToInt32(row)].DigitsNumber);
 
 				PhonesTable.Attach(label, 0, 1, row, row + 1);
 				PhonesTable.Attach(handsetView, 1, 2, row, row + 1);

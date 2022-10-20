@@ -77,8 +77,8 @@ function UpdateSMSInformerService {
 	ssh $serverAddress -p$serverPort sudo systemctl stop $smsServiceName
 
 	echo "-- Copying $smsServiceName files"
-	DeleteHttpDll "Workers\Mono" $smsServiceFolder
-	CopyFiles "Workers\Mono" $smsServiceFolder
+	DeleteHttpDll "Workers/Mono" $smsServiceFolder
+	CopyFiles "Workers/Mono" $smsServiceFolder
 
 	echo "-- Starting $smsServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $smsServiceName
@@ -91,8 +91,8 @@ function UpdateSalesReceiptsService {
 	ssh $serverAddress -p$serverPort sudo systemctl stop $kassaServiceName
 
 	echo "-- Copying $kassaServiceName files"
-	DeleteHttpDll "Workers\Mono" $kassaServiceFolder
-	CopyFiles "Workers\Mono" $kassaServiceFolder
+	DeleteHttpDll "Workers/Mono" $kassaServiceFolder
+	CopyFiles "Workers/Mono" $kassaServiceFolder
 
 	echo "-- Starting $kassaServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $kassaServiceName

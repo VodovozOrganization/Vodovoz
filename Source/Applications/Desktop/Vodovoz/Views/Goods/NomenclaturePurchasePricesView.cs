@@ -14,8 +14,8 @@ namespace Vodovoz.Views.Goods
 
 		protected override void ConfigureWidget()
 		{
-			treeViewPurchasePrices.ColumnsConfig = FluentColumnsConfig<NomenclatureCostPurchasePriceViewModel>.Create()
-				.AddColumn("Цена").AddNumericRenderer(x => x.PurchasePrice)
+			treeViewPurchasePrices.ColumnsConfig = FluentColumnsConfig<NomenclaturePurchasePriceViewModel>.Create()
+				.AddColumn("Цена\nзакупки").AddNumericRenderer(x => x.PurchasePrice)
 					.WidthChars(10)
 					.Digits(2)
 					.Editing(x => x.CanEditPrice)

@@ -1703,6 +1703,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			//PhonesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PhonesJournalViewModel>(
+				() => FluentColumnsConfig<PhonesJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Phone)
+					.AddColumn("Тип").AddTextRenderer(node => node.Type)
+					.AddColumn("")
+					.Finish()
+			);
+			
 			//EdoOperatorJournalViewModel
 			TreeViewColumnsConfigFactory.Register<EdoOperatorsJournalViewModel>(
 				() => FluentColumnsConfig<EdoOpeartorJournalNode>.Create()

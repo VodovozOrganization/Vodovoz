@@ -359,6 +359,7 @@ namespace Vodovoz.JournalViewModels
 				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
 					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
 					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.And(() => !counterpartyPhoneAlias.IsArchive)
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
@@ -371,6 +372,7 @@ namespace Vodovoz.JournalViewModels
 				var deliveryPointPhonesSubquery = QueryOver.Of<Phone>(() => deliveryPointPhoneAlias)
 					.Where(() => deliveryPointPhoneAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 					.And(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone)
+					.And(() => !deliveryPointPhoneAlias.IsArchive)
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(deliveryPointPhonesSubquery.DetachedCriteria));
@@ -531,6 +533,7 @@ namespace Vodovoz.JournalViewModels
 				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
 					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
 					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.And(() => !counterpartyPhoneAlias.IsArchive)
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
@@ -692,6 +695,7 @@ namespace Vodovoz.JournalViewModels
 				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
 					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
 					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.And(() => !counterpartyPhoneAlias.IsArchive)
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
@@ -841,6 +845,7 @@ namespace Vodovoz.JournalViewModels
 				var counterpartyPhonesSubquery = QueryOver.Of<Phone>(() => counterpartyPhoneAlias)
 					.Where(() => counterpartyPhoneAlias.Counterparty.Id == counterpartyAlias.Id)
 					.And(() => counterpartyPhoneAlias.DigitsNumber == FilterViewModel.CounterpartyPhone)
+					.And(() => !counterpartyPhoneAlias.IsArchive)
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));

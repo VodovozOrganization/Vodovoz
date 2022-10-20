@@ -1646,10 +1646,34 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(typeof(Nomenclature));
-			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
-			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
-			TabParent.AddSlaveTab(this, nomenclatureSelectDlg);
+			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+
+			TabParent.AddSlaveTab(this, journal);
+		}
+
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
+				return;
+			}
+
+			if(Entity.ObservableSpecialNomenclatures.Any(x => x.Nomenclature.Id == selectedNode.Id))
+			{
+				return;
+			}
+
+			var selectedNomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
+			var specNomenclature = new SpecialNomenclature
+			{
+				Nomenclature = selectedNomenclature,
+				Counterparty = Entity
+			};
+
+			Entity.ObservableSpecialNomenclatures.Add(specNomenclature);
 		}
 
 		private void NomenclatureSelectDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)

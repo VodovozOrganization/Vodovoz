@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-				.Left.JoinAlias(() => driverAlias.Phones, () => phoneAlias)
+				.Left.JoinAlias(() => driverAlias.Phones, () => phoneAlias, () => !phoneAlias.IsArchive)
 				.Where(Restrictions.IsNotNull(Projections.Property(() => orderAlias.DriverMobileAppCommentTime)))
 				.Where(() => routeListItemAlias.Status != RouteListItemStatus.Transfered)
 				.Where(Restrictions.Eq(Projections.SqlFunction("DATE", NHibernateUtil.Date, Projections.Property(() => orderAlias.DriverMobileAppCommentTime)), DateTime.Today));

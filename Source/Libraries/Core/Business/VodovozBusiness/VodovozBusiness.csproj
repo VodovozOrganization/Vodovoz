@@ -143,9 +143,10 @@
     <Compile Include="Domain\Geocoder\GeocoderAddressCache.cs" />
     <Compile Include="Domain\Geocoder\GeocoderCoordinatesCache.cs" />
     <Compile Include="Domain\Goods\AdditionalLoadingNomenclatureDistribution.cs" />
+    <Compile Include="Domain\Goods\NomenclatureCostPrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureInnerDeliveryPrice.cs" />
     <Compile Include="Domain\Goods\OrderItemComparerForCopyingFromUndelivery.cs" />
-    <Compile Include="Domain\Goods\NomenclatureCostPurchasePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclaturePurchasePrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
@@ -414,10 +415,11 @@
     <Compile Include="HibernateMapping\Geocoder\GeocoderCoordinatesCacheMap.cs" />
     <Compile Include="HibernateMapping\Geocoder\GeocoderAddressCacheMap.cs" />
     <Compile Include="HibernateMapping\Goods\AdditionalLoadingNomenclatureDistributionMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureCostPriceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
     <Compile Include="HibernateMapping\FlyerMap.cs" />
-    <Compile Include="HibernateMapping\Goods\NomenclatureCostPurchasePriceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureInnerDeliveryPriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
@@ -483,10 +485,11 @@
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
+    <Compile Include="Models\NomenclatureCostPriceModel.cs" />
     <Compile Include="Models\NomenclatureGroupPricingModel.cs" />
     <Compile Include="Models\NomenclatureGroupPricingPriceModel.cs" />
     <Compile Include="Models\NomenclatureInnerDeliveryPriceModel.cs" />
-    <Compile Include="Models\NomenclatureCostPurchasePriceModel.cs" />
+    <Compile Include="Models\NomenclaturePurchasePriceModel.cs" />
     <Compile Include="Models\Orders\CopyingOrder.cs" />
     <Compile Include="Models\Orders\OrderCopyModel.cs" />
     <Compile Include="Models\Orders\RoboatsOrderArgs.cs" />
@@ -525,6 +528,7 @@
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
+    <Compile Include="Parameters\PhoneTypeSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
@@ -775,6 +779,7 @@
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IFiasApiParametersProvider.cs" />
+    <Compile Include="Services\IPhoneTypeSettings.cs" />
     <Compile Include="Services\IProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />
