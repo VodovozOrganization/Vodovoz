@@ -1030,21 +1030,22 @@ namespace Vodovoz
 			};
 
 			yentryPersonalAccountCodeInEdo.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other, 
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other, 
 					w => w.Sensitive)
 				.AddBinding(Entity, e => e.PersonalAccountIdInEdo, w => w.Text)
 				.InitializeFromSource();
 
 			ybuttonSendInviteByTaxcom.Binding
-				.AddFuncBinding(Entity, e => e.EdoOperator != null && !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo),
-								w => w.Sensitive)
+				.AddFuncBinding(Entity, 
+					e => e.EdoOperator != null && !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo),
+					w => w.Sensitive)
 				.InitializeFromSource();
 
 			yEnumCmbConsentForEdo.ItemsEnum = typeof(ConsentForEdoStatus);
 			yEnumCmbConsentForEdo.Binding
 				.AddBinding(Entity, e => e.ConsentForEdoStatus, w => w.SelectedItem)
 				.InitializeFromSource();
-
 			yEnumCmbConsentForEdo.Sensitive = false;
 
 			ybuttonCheckConsentForEdo.Binding
@@ -1052,7 +1053,8 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			ybuttonRegistrationInChestnyZnak.Binding
-				.AddFuncBinding(Entity, e => e.ReasonForLeaving == ReasonForLeaving.Resale && !string.IsNullOrWhiteSpace(e.INN),
+				.AddFuncBinding(Entity, 
+					e => e.ReasonForLeaving == ReasonForLeaving.Resale && !string.IsNullOrWhiteSpace(e.INN),
 					w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -1060,18 +1062,19 @@ namespace Vodovoz
 			yEnumCmbRegistrationInChestnyZnak.Binding
 				.AddBinding(Entity, e => e.RegistrationInChestnyZnakStatus, w => w.SelectedItem)
 				.InitializeFromSource();
-
 			yEnumCmbRegistrationInChestnyZnak.Sensitive = false;
 
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
 			yEnumCmbSendUpdInOrderStatus.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
 					w => w.Sensitive)
 				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			yChkBtnIsPaperlessWorkflow.Binding
-				.AddFuncBinding(Entity, e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
+				.AddFuncBinding(Entity,
+					e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
 					w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
