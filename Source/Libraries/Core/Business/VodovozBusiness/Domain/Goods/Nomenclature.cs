@@ -1006,7 +1006,7 @@ namespace Vodovoz.Domain.Goods
 					new[] { nameof(Gtin) });
 			}
 
-			if(Gtin.Length < 8 || Gtin.Length > 14)
+			if(Gtin?.Length < 8 || Gtin?.Length > 14)
 			{
 				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
 					new[] { nameof(Gtin) });
