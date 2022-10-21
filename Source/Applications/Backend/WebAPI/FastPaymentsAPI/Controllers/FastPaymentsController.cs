@@ -498,11 +498,14 @@ namespace FastPaymentsAPI.Controllers
 				{
 					var bankSignature = paidOrderInfoDto.Signature;
 					var orderNumber = paidOrderInfoDto.OrderNumber;
-					_logger.LogError($"Ответ по оплате заказа №{orderNumber} пришел с неверной подписью {bankSignature}");
+					var shopId = paidOrderInfoDto.ShopId;
+					
+					_logger.LogError($"Ответ по оплате заказа №{orderNumber} пришел с неверной подписью {bankSignature}" +
+						$" по shopId {shopId}, рассчитанная подпись {paymentSignature}");
 
 					try
 					{
-						_fastPaymentOrderModel.NotifyEmployee(orderNumber, bankSignature, paidOrderInfoDto.ShopId, paymentSignature);
+						_fastPaymentOrderModel.NotifyEmployee(orderNumber, bankSignature, shopId, paymentSignature);
 					}
 					catch(Exception e)
 					{
