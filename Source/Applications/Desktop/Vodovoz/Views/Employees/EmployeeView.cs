@@ -187,12 +187,6 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			registrationTypeCmb.ItemsEnum = typeof(RegistrationType);
-			registrationTypeCmb.Binding
-				.AddBinding(ViewModel.Entity, e => e.Registration, w => w.SelectedItemOrNull)
-				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
-				.InitializeFromSource();
-
 			phonesView.ViewModel = ViewModel.PhonesViewModel;
 			phonesView.ViewModel.PhonesList = new GenericObservableList<Phone>(ViewModel.Entity.Phones);
 			phonesView.Sensitive = ViewModel.CanEditEmployee;
