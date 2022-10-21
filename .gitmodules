@@ -1,0 +1,12 @@
+[submodule "Source/Libraries/External/GMap.NET"]
+	path = Source/Libraries/External/GMap.NET
+	url = https://github.com/QualitySolution/GMap.NET.git
+[submodule "Source/Libraries/External/Gtk.DataBindings"]
+	path = Source/Libraries/External/Gtk.DataBindings
+	url = https://github.com/QualitySolution/Gtk.DataBindings.git
+[submodule "Source/Libraries/External/My-FyiReporting"]
+	path = Source/Libraries/External/My-FyiReporting
+	url = https://github.com/QualitySolution/My-FyiReporting.git
+[submodule "Source/Libraries/External/QSProjects"]
+	path = Source/Libraries/External/QSProjects
+	url = https://github.com/QualitySolution/QSProjects.git
