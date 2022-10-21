@@ -8,5 +8,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Client
 		public string Name { get; set; }
 		public string BrandName { get; set; }
 		public string Code { get; set; }
+		public override string Title => Name;
 	}
 }

@@ -33,7 +33,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		public IInfoProvider InfoProvider { get; set; }
 		public void Refresh()
 		{
-			if(InfoProvider is IEdoLightsMatrixInfoProvider edoLightsMatrixInfoProvider)
+			if(InfoProvider is IEdoLightsMatrixInfoProvider edoLightsMatrixInfoProvider && edoLightsMatrixInfoProvider.Counterparty != null)
 			{
 				ViewModel.Refresh(edoLightsMatrixInfoProvider.Counterparty);
 			}
