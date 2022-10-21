@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Employees
 	{
 		public EmployeeRegistrationMap()
 		{
-			Table("employees_registartions");
+			Table("employees_registrations");
 
 			Id(x => x.Id).GeneratedBy.Native();
 
@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.TaxRate).Column("tax_rate");
 
 			References(x => x.RegistrationType)
-				.Column("employee_registrtion_id")
+				.Column("registration_type_id")
 				.Cascade.AllDeleteOrphan();
 		}
 	}

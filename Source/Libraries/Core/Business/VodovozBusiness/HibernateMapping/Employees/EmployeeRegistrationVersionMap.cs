@@ -16,7 +16,7 @@ namespace Vodovoz.HibernateMapping.Employees
 
 			References(x =>x.Employee).Column("employee_id");
 			References(x =>x.EmployeeRegistration)
-				.Column("employee_registartion_id")
+				.Column("employee_registration_id")
 				.Cascade.AllDeleteOrphan();
 		}
 	}

@@ -5,6 +5,7 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
+using Gtk;
 using QS.Banks.Domain;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
@@ -294,6 +295,21 @@ namespace Vodovoz.Views.Employees
 			accountsView.SetAccountOwner(UoW, ViewModel.Entity);
 			accountsView.SetTitle("Банковские счета сотрудника");
 			accountsView.Sensitive = ViewModel.CanEditEmployee;
+			
+			btnNewRegistartionVersion.Clicked += (sender, args) => ViewModel.CreateNewEmployeeRegistrationVersionCommand.Execute();
+			
+			treeRegistrationVersions.ColumnsConfig = FluentColumnsConfig<EmployeeRegistrationVersion>.Create()
+				.AddColumn("Форма оплаты")
+					.AddEnumRenderer(n => n.EmployeeRegistration.PaymentForm)
+					.Editing()
+				.AddColumn("Ставка налога")
+					.AddNumericRenderer(n => n.EmployeeRegistration.TaxRate)
+					.Adjustment(new Adjustment(0, 0, 100, 1, 10, 10))
+					.Digits(2)
+				.AddColumn("")
+				.Finish();
+
+			treeRegistrationVersions.ItemsDataSource = ViewModel.Entity.ObservableEmployeeRegistrationVersions;
 
 			#endregion
 
@@ -473,11 +489,13 @@ namespace Vodovoz.Views.Employees
 				return;
 			}
 
+			//TODO переделать на новую структуру
+			/*
 			if(ViewModel.Entity.Registration != RegistrationType.Contract)
 			{
 				MessageDialogHelper.RunInfoDialog("Должен быть указан тип регистрации: 'ГПК' ");
 				return;
-			}
+			}*/
 
 			var dlg = new EmployeeContractDlg(doc[0], ViewModel.Entity, ViewModel.UoW);
 			dlg.Save += (s, args) => ViewModel.Entity.ObservableContracts.Add(dlg.Entity);

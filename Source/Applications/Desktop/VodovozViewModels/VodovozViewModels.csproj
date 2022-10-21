@@ -66,6 +66,9 @@
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\RegistrationTypeJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\RegistrationTypesJournalViewModel.cs" />
+    <Compile Include="ViewModels\Employees\RegistrationTypeViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\PhoneViewModel.cs" />
