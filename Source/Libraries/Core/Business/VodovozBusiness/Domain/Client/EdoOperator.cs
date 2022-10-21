@@ -72,7 +72,7 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult("Трёхзначный код должен быть заполнен.", new[] { nameof(Code) });
 			}
 
-			if(Code?.Length > 3 || Code?.Length < 3)
+			if(Code?.Length != 3)
 			{
 				yield return new ValidationResult($"Трёхзначный код должен содержать 3 символа ({Code.Length}/3).",
 					new[] { nameof(Code) });

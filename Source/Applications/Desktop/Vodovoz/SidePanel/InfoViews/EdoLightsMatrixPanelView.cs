@@ -19,8 +19,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			ybuttonOpenCounterparty.Clicked += (s, a) =>
 			{
-				var edoLightsMatrixInfoProvider = InfoProvider as IEdoLightsMatrixInfoProvider;
-				if(edoLightsMatrixInfoProvider != null)
+				if(InfoProvider is IEdoLightsMatrixInfoProvider edoLightsMatrixInfoProvider)
 				{
 					ViewModel.OpenEdoTabInCounterparty.Execute(edoLightsMatrixInfoProvider.Counterparty.Id);
 				}
@@ -34,8 +33,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		public IInfoProvider InfoProvider { get; set; }
 		public void Refresh()
 		{
-			var edoLightsMatrixInfoProvider = InfoProvider as IEdoLightsMatrixInfoProvider;
-			if(edoLightsMatrixInfoProvider != null)
+			if(InfoProvider is IEdoLightsMatrixInfoProvider edoLightsMatrixInfoProvider)
 			{
 				ViewModel.Refresh(edoLightsMatrixInfoProvider.Counterparty);
 			}
