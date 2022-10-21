@@ -114,7 +114,7 @@ namespace FastPaymentsAPI.Library.Managers
 			}
 			else
 			{
-				paymentFromId = _orderParametersProvider.GetPaymentByCardFromSiteByQrCode;
+				paymentFromId = _orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId;
 			}
 
 			fastPayment.PaymentByCardFrom = uow.GetById<PaymentFrom>(paymentFromId);
