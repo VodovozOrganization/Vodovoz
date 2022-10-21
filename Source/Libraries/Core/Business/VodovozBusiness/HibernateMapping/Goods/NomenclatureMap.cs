@@ -76,6 +76,10 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PlanDay).Column("plan_day");
 			Map(x => x.PlanMonth).Column("plan_month");
 
+			//Честный знак
+			Map(x => x.IsAccountableInChestniyZnak).Column("is_accountable_in_chestniy_znak");
+			Map(x => x.Gtin).Column("gtin");
+
 			References(x => x.ShipperCounterparty).Column("shipper_counterparty_id");
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
