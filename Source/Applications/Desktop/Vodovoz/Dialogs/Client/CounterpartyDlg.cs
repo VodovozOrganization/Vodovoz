@@ -982,8 +982,7 @@ namespace Vodovoz
 
 				if(isInnRequired)
 				{
-						_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Заполните ИНН у контрагента!");
-					
+						_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заполните ИНН у контрагента!");
 				}
 
 				Entity.IsNotSendDocumentsByEdo = Entity.ReasonForLeaving == ReasonForLeaving.Other;
@@ -1024,7 +1023,7 @@ namespace Vodovoz
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
 			};
 
-			yentryPersonalAccountCodeInEdo.Changed += (s, e) =>
+			yentryPersonalAccountCodeInEdo.KeyReleaseEvent += (s, e) =>
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
 			};
@@ -1776,6 +1775,12 @@ namespace Vodovoz
 
 		protected void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
 		{
+			if(Entity.CheckForINNDuplicate(_counterpartyRepository, UoW))
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Контрагент с данным ИНН уже существует.\nПроверка в Честном знаке не выполнена.");
+				return;
+			}
+
 			Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 		}

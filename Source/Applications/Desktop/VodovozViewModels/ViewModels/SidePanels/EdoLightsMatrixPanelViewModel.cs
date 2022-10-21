@@ -15,11 +15,11 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 		private readonly ITdiTab _tdiTab;
 		private DelegateCommand<int> _openEdoTabInCounterparty;
 
-		public EdoLightsMatrixPanelViewModel(EdoLightsMatrixViewModel edoLightsMatrixViewModel, IGtkTabsOpener gtkTabsOpener, ITdiTab tdiTab)
+		public EdoLightsMatrixPanelViewModel(EdoLightsMatrixViewModel edoLightsMatrixViewModel, IGtkTabsOpener gtkTabsOpener, ITdiTab tdiTab = null)
 		{
 			_edoLightsMatrixViewModel = edoLightsMatrixViewModel ?? throw new ArgumentNullException(nameof(edoLightsMatrixViewModel));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-			_tdiTab = tdiTab ?? throw new ArgumentNullException(nameof(tdiTab));
+			_tdiTab = tdiTab;
 		}
 
 		public EdoLightsMatrixViewModel EdoLightsMatrixViewModel => _edoLightsMatrixViewModel;
@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 		public DelegateCommand<int> OpenEdoTabInCounterparty =>
 			_openEdoTabInCounterparty ?? (_openEdoTabInCounterparty = new DelegateCommand<int>(counterpartyId =>
 				{
-					_gtkTabsOpener.OpenCounterpartyEdoTab(_tdiTab, counterpartyId);
+					_gtkTabsOpener.OpenCounterpartyEdoTab(counterpartyId, _tdiTab);
 				}));
 	}
 }
