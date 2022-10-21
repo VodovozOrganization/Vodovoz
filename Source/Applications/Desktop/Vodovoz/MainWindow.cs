@@ -2723,4 +2723,9 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<ResponsibleJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
+
+	protected void OnActionEdoOperatorsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoOperatorsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
 }

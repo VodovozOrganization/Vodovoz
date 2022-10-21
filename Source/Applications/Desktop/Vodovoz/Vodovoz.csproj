@@ -459,6 +459,7 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
+    <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
     <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
@@ -1743,6 +1744,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ResponsibleView.cs" />
     <Compile Include="Filters\GtkViews\PhonesJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PhonesJournalFilterView.cs" />
+    <Compile Include="Views\Client\EdoOperatorView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoOperatorView.cs" />
+    <Compile Include="SidePanel\InfoViews\EdoLightsMatrixPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.EdoLightsMatrixPanelView.cs" />
+    <Compile Include="Views\Client\EdoLightsMatrixView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoLightsMatrixView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
