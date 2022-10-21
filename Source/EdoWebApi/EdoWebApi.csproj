@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>87d22413-4321-48ef-9d7c-a8f29b243452</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="TISystems.TTC.CRM.BE">
+      <HintPath>..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
