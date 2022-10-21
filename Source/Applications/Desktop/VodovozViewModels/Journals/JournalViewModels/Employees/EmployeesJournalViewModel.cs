@@ -174,10 +174,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				query.Where(e => e.DriverOfCarOwnType == FilterViewModel.DriverOfCarOwnType);
 			}
 
-			if(FilterViewModel?.RegistrationType != null)
+			//TODO переделать под новую структуру
+			/*if(FilterViewModel?.RegistrationType != null)
 			{
 				query.Where(e => e.Registration == FilterViewModel.RegistrationType);
-			}
+			}*/
 
 			if(FilterViewModel?.HiredDatePeriodStart != null)
 			{

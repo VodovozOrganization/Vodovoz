@@ -78,6 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _removeEmployeeDocumentsCommand;
 		private DelegateCommand _removeEmployeeContractsCommand;
 		private DelegateCommand _registerDriverModuleUserCommand;
+		private DelegateCommand _createNewEmployeeRegistrationVersionCommand;
 
 		public IReadOnlyList<Organization> organizations;
 
@@ -613,6 +614,19 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					}
 				)
 			);
+		
+		public DelegateCommand CreateNewEmployeeRegistrationVersionCommand =>
+			_createNewEmployeeRegistrationVersionCommand ?? (_createNewEmployeeRegistrationVersionCommand = new DelegateCommand(
+				() =>
+				{
+					//TODO переделать на фабрику IEmployeeRegistrationVersionFactory
+					var regVersion = new EmployeeRegistrationVersion
+					{
+						EmployeeRegistration = new EmployeeRegistration()
+					};
+					regVersion.Employee = Entity;
+					Entity.ObservableEmployeeRegistrationVersions.Add(regVersion);
+				}));
 		
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{

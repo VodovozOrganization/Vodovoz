@@ -1,5 +1,4 @@
-﻿using Autofac;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -20,7 +19,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			ICurrentPermissionService currentPermissionService,
-			ILifetimeScope scope,
 			IDeleteEntityService deleteEntityService = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
