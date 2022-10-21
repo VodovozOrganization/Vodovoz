@@ -92,16 +92,21 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			track.Show();
 		}
 
-		public ITdiTab OpenCounterpartyEdoTab(ITdiTab master, int counterpartyId)
+		public ITdiTab OpenCounterpartyEdoTab(int counterpartyId, ITdiTab master = null)
 		{
-			return master.TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Counterparty>(counterpartyId),
-				() =>
-				{
-					var counterpartyDlg = new CounterpartyDlg(counterpartyId);
-					counterpartyDlg.ActivateEdoTab();
-					return counterpartyDlg;
-				});
+			var counterpartyDlg = new CounterpartyDlg(counterpartyId);
+			counterpartyDlg.ActivateEdoTab();
+
+			if(master != null)
+			{
+				return master.TabParent.OpenTab(
+					DialogHelper.GenerateDialogHashName<Counterparty>(counterpartyId),
+					() => counterpartyDlg);
+			}
+
+			TDIMain.MainNotebook.AddTab(counterpartyDlg);
+
+			return counterpartyDlg;
 		}
 	}
 }

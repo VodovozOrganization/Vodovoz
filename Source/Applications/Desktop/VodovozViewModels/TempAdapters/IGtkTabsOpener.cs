@@ -18,6 +18,6 @@ namespace Vodovoz.TempAdapters
 		void OpenTrackOnMapWnd(int routeListId);
 		void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType);
 		void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description);
-		ITdiTab OpenCounterpartyEdoTab(ITdiTab master, int counterpartyId);
+		ITdiTab OpenCounterpartyEdoTab(int counterpartyId, ITdiTab master = null);
 	}
 }
