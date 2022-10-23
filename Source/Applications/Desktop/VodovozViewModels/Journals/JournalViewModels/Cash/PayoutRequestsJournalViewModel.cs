@@ -72,7 +72,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_expenseCategorySelectorFactory = expenseCategorySelectorFactory
-			                                  ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
+											  ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_createSelectAction = createSelectAction;
 
@@ -96,13 +96,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			FinishJournalConfiguration();
 			AccessRequest();
 		}
-		
+
 		public override string FooterInfo
 		{
 			get => _footerInfo;
 			set => SetField(ref _footerInfo, value);
 		}
-		
+
 		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
 		{
 			var totalSum = Items.Count > 0 ? Items.OfType<PayoutRequestJournalNode>().Sum(x => x.Sum) : 0;
@@ -139,14 +139,60 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			}
 			CreateDefaultAddActions();
 			CreateApproveAction();
+			CreateSendForIssue();
 			CreateEditAction();
 			CreateDeleteAction();
 		}
-		
+
+		private void CreateSendForIssue()
+		{
+			var sendAction = new JournalAction("Отправить на выдачу",
+				selected =>
+				{
+					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
+					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Agreed))
+					{
+						return false;
+					}
+
+					return selectedNodes.All(
+						selectedNode => EntityConfigs.ContainsKey(selectedNode.EntityType)
+										&& EntityConfigs[selectedNode.EntityType].PermissionResult.CanUpdate);
+				},
+				selected => _cashRequestFinancier,
+				selected =>
+				{
+					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
+					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Agreed))
+					{
+						return;
+					}
+
+					foreach(var selectedNode in selectedNodes)
+					{
+						if(selectedNode.EntityType == typeof(CashRequest))
+						{
+							var cashRequestVM = CreateCashRequestViewModelForOpen(selectedNode);
+							cashRequestVM.ConveyForResultsCommand.Execute();
+							cashRequestVM.Dispose();
+						}
+						else if(selectedNode.EntityType == typeof(CashlessRequest))
+						{
+							var cashlessRequestVM = CreateCashlessRequestViewModelForOpen(selectedNode);
+							cashlessRequestVM.Approve();
+							cashlessRequestVM.Dispose();
+						}
+					}
+				}
+			);
+			NodeActionsList.Add(sendAction);
+		}
+
 		private void CreateApproveAction()
 		{
 			var approveAction = new JournalAction("Согласовать",
-				selected => {
+				selected =>
+				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
 					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Submited))
 					{
@@ -158,7 +204,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 										&& EntityConfigs[selectedNode.EntityType].PermissionResult.CanUpdate);
 				},
 				selected => _cashRequestCoordinator,
-				selected => {
+				selected =>
+				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>().ToArray();
 					if(!selectedNodes.Any() || selectedNodes.Any(x => x.PayoutRequestState != PayoutRequestState.Submited))
 					{
@@ -188,38 +235,46 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private void CreateEditAction()
 		{
 			var editAction = new JournalAction("Изменить",
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
 						return false;
 					}
 					PayoutRequestJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
 					return config.PermissionResult.CanRead;
 				},
 				(selected) => true,
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<PayoutRequestJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
 						return;
 					}
 					PayoutRequestJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
 						return;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
 					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
 						HideJournal(TabParent);
 					}
 				}
 			);
-			if(SelectionMode == JournalSelectionMode.None || !_createSelectAction) {
+			if(SelectionMode == JournalSelectionMode.None || !_createSelectAction)
+			{
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
