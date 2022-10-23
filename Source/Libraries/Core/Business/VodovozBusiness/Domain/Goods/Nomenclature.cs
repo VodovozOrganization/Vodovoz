@@ -37,6 +37,9 @@ namespace Vodovoz.Domain.Goods
 		private decimal _width;
 		private decimal _height;
 
+		private bool _isAccountableInChestniyZnak;
+		private string _gtin;
+
 		public Nomenclature()
 		{
 			Category = NomenclatureCategory.water;
@@ -571,6 +574,21 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
+
+		[Display(Name = "Подлежит учету в Честном Знаке")]
+		public virtual bool IsAccountableInChestniyZnak
+		{
+			get => _isAccountableInChestniyZnak;
+			set => SetField(ref _isAccountableInChestniyZnak, value);
+		}
+
+		[Display(Name = "Номер товарной продукции GTIN")]
+		public virtual string Gtin
+		{
+			get => _gtin;
+			set => SetField(ref _gtin, value);
+		}
+
 		#endregion
 
 		#region Свойства товаров для магазина
@@ -980,6 +998,18 @@ namespace Vodovoz.Domain.Goods
 				{
 					yield return validationResult;
 				}
+			}
+
+			if(IsAccountableInChestniyZnak && string.IsNullOrWhiteSpace(Gtin))
+			{
+				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
+					new[] { nameof(Gtin) });
+			}
+
+			if(Gtin?.Length < 8 || Gtin?.Length > 14)
+			{
+				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
+					new[] { nameof(Gtin) });
 			}
 		}
 

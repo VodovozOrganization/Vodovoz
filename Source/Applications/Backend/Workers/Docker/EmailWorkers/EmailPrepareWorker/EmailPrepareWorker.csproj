@@ -3,7 +3,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-DocumentForEmailPreparingWorker-4C283AF3-DD08-43DA-B451-0DD6165221E8</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..\..</DockerfileContext>
+    <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
