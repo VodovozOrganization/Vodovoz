@@ -10,8 +10,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\EdoApi.Library\EdoApi.Library.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="TISystems.TTC.CRM.BE">
-      <HintPath>..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
+      <HintPath>..\..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
   </ItemGroup>
 

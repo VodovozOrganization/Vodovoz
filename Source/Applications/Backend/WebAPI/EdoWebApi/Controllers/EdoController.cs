@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EdoApi.Library.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
@@ -14,12 +15,18 @@ namespace EdoWebApi.Controllers
 		private readonly ILogger<EdoController> _logger;
 		private readonly IAuthorizationService _authorizationService;
 		private readonly IContactListService _contactListService;
+		private readonly ITrueApiService _trueApiService;
 
-		public EdoController(ILogger<EdoController> logger, IAuthorizationService authorizationService, IContactListService contactListService)
+		public EdoController(
+			ILogger<EdoController> logger,
+			IAuthorizationService authorizationService,
+			IContactListService contactListService,
+			ITrueApiService trueApiService)
 		{
-			_logger = logger;
+			//_logger = logger;
 			_authorizationService = authorizationService;
 			_contactListService = contactListService;
+			_trueApiService = trueApiService;
 		}
 
 		[HttpGet]
@@ -68,34 +75,6 @@ namespace EdoWebApi.Controllers
 		}
 
 		[HttpGet]
-		[Route("/GetContacts")]
-		public async Task GetContacts(string inn, string kpp)
-		{
-			var key = await Login();
-
-			byte[] requestBytes;
-			var invitationsList = new ContactList
-			{
-				Contacts = new[]
-				{
-					new ContactListItem
-					{
-						Inn = inn,
-						Kpp = kpp
-					}
-				}
-			};
-
-			using(var ms = new MemoryStream())
-			{
-				ContactListSerializer.SerializeContactList(invitationsList, ms);
-				requestBytes = ms.ToArray();
-			}
-
-			await _contactListService.SendContactsAsync(requestBytes, key);
-		}
-
-		[HttpGet]
 		[Route("/CheckContragent")] // Проверить в такском
 		public async Task<ContactList> CheckContragent(string inn, string kpp)
 		{
@@ -125,9 +104,9 @@ namespace EdoWebApi.Controllers
 
 		[HttpGet]
 		[Route("/CheckCounterpartyInTrueApi")] // Проверить в Чесном знаке
-		public async Task<bool> CheckCounterpartyInTrueApi(string inn)
+		public async Task<bool> CheckCounterpartyInTrueApi(string inn, string productGroup)
 		{
-			return await _contactListService.GetHasCounterpartyInTrueApi(inn);
+			return await _trueApiService.GetCounterpartyRegisteredInTrueApi(inn, productGroup);
 		}
 	}
 }

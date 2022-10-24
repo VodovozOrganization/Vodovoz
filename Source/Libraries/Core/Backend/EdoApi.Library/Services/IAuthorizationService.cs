@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace EdoWebApi
+namespace EdoApi.Library.Services
 {
 	public interface IAuthorizationService
 	{

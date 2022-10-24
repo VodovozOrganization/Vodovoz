@@ -1,17 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using EdoApi.Library.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using System.Text;
 
 namespace EdoWebApi
@@ -49,7 +43,10 @@ namespace EdoWebApi
 				c.DefaultRequestHeaders.Add("Integrator-Id", Configuration.GetValue<string>("TaxcomServices:IntegratorId"));
 			});
 
-
+			services.AddHttpClient<ITrueApiService, TrueApiService>(c =>
+			{
+				c.BaseAddress = new Uri(Configuration.GetValue<string>("TrueApiService:BaseAddress"));
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

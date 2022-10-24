@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System;
 
-namespace EdoWebApi
+namespace EdoApi.Library.Services
 {
 
 	public class AuthorizationService : IAuthorizationService
