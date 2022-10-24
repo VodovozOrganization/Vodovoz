@@ -1005,6 +1005,11 @@ namespace Vodovoz
 					continue;
 				}
 
+				if (flyer.IsForFirstOrder && !Entity.IsFirstOrder)
+				{
+					continue;
+				}
+
 				Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
 			}
 			orderEquipmentItemsView.UpdateActiveFlyersNomenclaturesIds();
