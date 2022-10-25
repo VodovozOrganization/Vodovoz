@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace EdoApi.Library
+namespace EdoService
 {
 	public interface IEdoLogger
 	{

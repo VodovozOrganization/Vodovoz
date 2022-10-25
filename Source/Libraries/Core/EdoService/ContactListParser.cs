@@ -1,0 +1,40 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using EdoService.Services;
+using FluentNHibernate.Conventions;
+using TISystems.TTC.CRM.BE.Serialization;
+
+namespace EdoService
+{
+	public class ContactListParser
+	{
+		public async Task<ContactListItem> GetLastChangeOnDateById(IContactListService contactListService, DateTime dateLastRequest, string edxClientId, ContactStateCode? status = null)
+		{
+			List<ContactListItem> items = new List<ContactListItem>();
+			ContactList contactList;
+			var date = dateLastRequest;
+
+			do
+			{
+				contactList = await contactListService.GetContactListUpdatesAsync(date, status);
+
+				if(contactList.Contacts != null && contactList.Contacts.LastOrDefault() is ContactListItem item)
+				{
+					date = item.State.Changed;
+					items.AddRange(contactList.Contacts);
+				}
+
+			} while(contactList.Contacts != null && contactList.Contacts.Length >= 100);
+
+
+			return items
+				.Where(x => x.EdxClientId == edxClientId)
+				.OrderByDescending(x => x.State.Changed)
+				.FirstOrDefault();
+		}
+	}
+}
