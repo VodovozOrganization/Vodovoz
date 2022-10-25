@@ -1795,7 +1795,12 @@ namespace Vodovoz
 		{
 			if(Entity.CheckForINNDuplicate(_counterpartyRepository, UoW))
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Контрагент с данным ИНН уже существует.\nПроверка в Честном знаке не выполнена.");
+				//Проверить
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+						"Контрагент с данным ИНН уже существует.\nПроверка в Честном знаке не выполнена.");
+				});
 				return;
 			}
 
@@ -1809,7 +1814,6 @@ namespace Vodovoz
 			{
 				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
 			}
-
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 		}
@@ -1853,7 +1857,11 @@ namespace Vodovoz
 			}
 			else
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не удалось отправить приглашение. Заполните Email у контрагента");
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+						"Не удалось отправить приглашение. Заполните Email у контрагента");
+				});
 			}
 
 			if(resultMessage.IsSuccess)
@@ -1862,7 +1870,10 @@ namespace Vodovoz
 			}
 			else
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, resultMessage.ErrorMessage);
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, resultMessage.ErrorMessage);
+				});
 			}
 		}
 	}
