@@ -1053,9 +1053,9 @@ namespace Vodovoz.Domain.Client
 
 		#region IValidatableObject implementation
 
-		private bool CheckForINNDuplicate(ICounterpartyRepository counterpartyRepository)
+		public virtual bool CheckForINNDuplicate(ICounterpartyRepository counterpartyRepository, IUnitOfWork uow)
 		{
-			IList<Counterparty> counterarties = counterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+			IList<Counterparty> counterarties = counterpartyRepository.GetCounterpartiesByINN(uow, INN);
 			if(counterarties == null)
 				return false;
 			if(counterarties.Any(x => x.Id != Id))
@@ -1100,7 +1100,7 @@ namespace Vodovoz.Domain.Client
 					$"Длина строки \"Грузополучатель\" не должна превышать {_cargoReceiverLimitSymbols} символов");
 			}
 
-			if(CheckForINNDuplicate(counterpartyRepository))
+			if(CheckForINNDuplicate(counterpartyRepository, UoW))
 			{
 				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
 												  new[] { this.GetPropertyName(o => o.INN) });

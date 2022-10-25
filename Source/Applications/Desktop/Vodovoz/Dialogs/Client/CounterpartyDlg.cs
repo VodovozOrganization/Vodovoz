@@ -989,8 +989,7 @@ namespace Vodovoz
 
 				if(isInnRequired)
 				{
-						_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Заполните ИНН у контрагента!");
-					
+						_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заполните ИНН у контрагента!");
 				}
 
 				Entity.IsNotSendDocumentsByEdo = Entity.ReasonForLeaving == ReasonForLeaving.Other;
@@ -1031,7 +1030,7 @@ namespace Vodovoz
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
 			};
 
-			yentryPersonalAccountCodeInEdo.Changed += (s, e) =>
+			yentryPersonalAccountCodeInEdo.KeyReleaseEvent += (s, e) =>
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
 			};
@@ -1832,7 +1831,7 @@ namespace Vodovoz
 
 		protected async void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
 		{
-			//Сортировку Николай уточнить позже
+			//Сортировку Николай уточнит позже
 			var email = Entity.Emails.OrderByDescending(x=>x.Id).FirstOrDefault(x => x.EmailType.EmailPurpose == EmailPurpose.Work);
 			
 			if(email == null)
