@@ -1793,6 +1793,12 @@ namespace Vodovoz
 
 		protected async void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
 		{
+			if(Entity.CheckForINNDuplicate(_counterpartyRepository, UoW))
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Контрагент с данным ИНН уже существует.\nПроверка в Честном знаке не выполнена.");
+				return;
+			}
+
 			var isRegistered = await _trueApiService.ParticipantsAsync(Entity.INN, "water");
 
 			if(isRegistered)
@@ -1832,14 +1838,14 @@ namespace Vodovoz
 		protected async void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
 		{
 			//Сортировку Николай уточнит позже
-			var email = Entity.Emails.OrderByDescending(x=>x.Id).FirstOrDefault(x => x.EmailType.EmailPurpose == EmailPurpose.Work);
-			
+			var email = Entity.Emails.LastOrDefault();
+
 			if(email == null)
 			{
 				email = Entity.Emails.FirstOrDefault();
 			}
 
-			ResultDto resultMessage = new ResultDto();
+			var resultMessage = new ResultDto();
 
 			if(email != null)
 			{

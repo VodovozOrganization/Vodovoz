@@ -8,7 +8,6 @@ namespace EdoService.Dto
 		public string Uuid { get; set; }
 
 		[JsonPropertyName("data")]
-
 		public string Data { get; set; }
 	}
 }

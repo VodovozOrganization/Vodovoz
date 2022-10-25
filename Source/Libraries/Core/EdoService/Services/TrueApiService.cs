@@ -22,7 +22,8 @@ namespace EdoService.Services
 		{
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-			Logger logger = LogManager.GetCurrentClassLogger();
+
+			var logger = LogManager.GetCurrentClassLogger();
 			_edoLogger = new EdoLogger(logger);
 
 			_httpClient = new HttpClient()
@@ -37,7 +38,7 @@ namespace EdoService.Services
 
 		public async Task<string> Login() => await _authorizationService.Login();
 
-		public async Task<bool> ParticipantsAsync(string inn, string productGroup)//7729076804
+		public async Task<bool> ParticipantsAsync(string inn, string productGroup) //7729076804
 		{
 			//var token = Login(); Жду ЭЦП
 
@@ -54,9 +55,9 @@ namespace EdoService.Services
 				{
 					var registration = registrationResult.FirstOrDefault();
 
-					var isRegisteredForProductGroup = registration != null
-											   && registration.IsRegistered
-											   && registration.ProductGroups.Contains(productGroup);
+					var isRegisteredForProductGroup = registration != null 
+					                                  && registration.IsRegistered 
+					                                  && registration.ProductGroups.Contains(productGroup);
 
 					return isRegisteredForProductGroup;
 				}

@@ -9,7 +9,6 @@ namespace EdoService.Dto
 		public bool IsRegistered { get; set; }
 
 		[JsonPropertyName("productGroups")]
-
 		public IEnumerable<string> ProductGroups { get; set; }
 	}
 }

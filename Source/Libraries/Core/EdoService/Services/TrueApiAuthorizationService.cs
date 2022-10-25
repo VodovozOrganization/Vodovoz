@@ -25,7 +25,6 @@ namespace EdoService.Services
 			};
 		}
 
-
 		// Не сделано, жду ЭЦП
 		public async Task<string> Login()
 		{

@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace EdoService.Services
@@ -26,12 +27,10 @@ namespace EdoService.Services
 
 		public async Task<string> Login()
 		{
-			//var authorizationServiceSection = _configuration.GetSection("TaxcomAuthorizationService");
-			var login = _edoSettings.TaxcomLogin;
-			var password = _edoSettings.TaxcomPassword;
-			var response = await _httpClient.GetAsync($"API/Login?login={login}&password={password}");
-			var result = await response.Content.ReadAsStringAsync();
-			return result;
+			var response = await _httpClient.GetAsync($"API/Login?login={_edoSettings.TaxcomLogin}&password={_edoSettings.TaxcomPassword}");
+			var responseBody = await response.Content.ReadAsStringAsync();
+
+			return responseBody;
 		}
 	}
 }

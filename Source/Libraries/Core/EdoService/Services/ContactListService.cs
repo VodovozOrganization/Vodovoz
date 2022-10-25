@@ -24,7 +24,7 @@ namespace EdoService.Services
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 
-			Logger logger = LogManager.GetCurrentClassLogger();
+			var logger = LogManager.GetCurrentClassLogger();
 			_edoLogger = new EdoLogger(logger);
 
 			_httpClient = new HttpClient()
@@ -34,6 +34,14 @@ namespace EdoService.Services
 			};
 
 			_httpClient.DefaultRequestHeaders.Add("Integrator-Id", _edoSettings.TaxcomIntegratorId);
+		}
+
+		private ByteArrayContent PrepareContactsContent(byte[] contacts, string assistantKey)
+		{
+			var content = new ByteArrayContent(contacts);
+			content.Headers.Add("Assistant-Key", assistantKey);
+			content.Headers.ContentLength = contacts.Length;
+			return content;
 		}
 
 		public async Task<string> Login() => await _authorizationService.Login();
@@ -160,13 +168,6 @@ namespace EdoService.Services
 				_edoLogger.LogError(response);
 
 				return null;
-		}
-		private ByteArrayContent PrepareContactsContent(byte[] contacts, string assistantKey)
-		{
-			var content = new ByteArrayContent(contacts);
-			content.Headers.Add("Assistant-Key", assistantKey);
-			content.Headers.ContentLength = contacts.Length;
-			return content;
 		}
 	}
 }
