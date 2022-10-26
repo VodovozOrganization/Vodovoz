@@ -179,7 +179,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						else if(selectedNode.EntityType == typeof(CashlessRequest))
 						{
 							var cashlessRequestVM = CreateCashlessRequestViewModelForOpen(selectedNode);
-							cashlessRequestVM.Approve();
+							cashlessRequestVM.ConveyForPayout();
 							cashlessRequestVM.Dispose();
 						}
 					}
