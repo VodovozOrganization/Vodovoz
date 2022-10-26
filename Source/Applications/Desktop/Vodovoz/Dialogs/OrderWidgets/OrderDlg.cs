@@ -2599,6 +2599,8 @@ namespace Vodovoz
 				return;
 			}
 
+			UoW.Session.Refresh(DeliveryPoint);
+
 			AddCommentFromDeliveryPoint();
 			AddCommentLogistFromDeliveryPoint();
 
