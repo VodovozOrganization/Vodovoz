@@ -292,12 +292,6 @@ namespace FastPaymentsAPI.Controllers
 		public async Task<ResponseRegisterOnlineOrderDTO> RegisterOnlineOrder(
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
-			//Пока нет обновления сайта возвращаем ошибку
-			return new ResponseRegisterOnlineOrderDTO
-			{
-				ErrorMessage = "Функция не реализована"
-			};
-			
 			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, RequestFromType.FromSiteByQr);
 		}
 		
