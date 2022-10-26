@@ -1556,6 +1556,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Факт бут.").AddNumericRenderer(node => node.ActualBottlesReturn)
 					.AddColumn("Долг бут. по адресу").AddNumericRenderer(node => node.AddressBottlesDebt)
 					.AddColumn("Комментарий водителя").AddTextRenderer(node => node.DriverComment)
+					.AddColumn("Комментарий ОП/ОСК").AddTextRenderer(node => node.CommentManager)
+					.AddColumn("Автор комментария").AddTextRenderer(node => node.LastCommentManagerEditor.FullName)
+					.AddColumn("Время комментария").AddTextRenderer(node => node.LastCommentManagerEditedTime.ToString("HH:mm:ss dd.MM.yy"))
+					.AddColumn("Время реакции").AddTextRenderer(node => node.ResponseTime)
 					.Finish()
 			);
 

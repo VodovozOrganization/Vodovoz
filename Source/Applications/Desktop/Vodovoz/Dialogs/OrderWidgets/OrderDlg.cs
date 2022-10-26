@@ -176,6 +176,7 @@ namespace Vodovoz
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
 		private PhonesJournalFilterViewModel _contactPhoneFilter;
+		private string _commentManager;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -452,7 +453,8 @@ namespace Vodovoz
 			ConfigureButtonActions();
 			ConfigureSendDocumentByEmailWidget();
 
-			spinDiscount.Adjustment.Upper = 100;
+			spinDiscount.Adjustment.Upper = 100; 
+			_commentManager = Entity.CommentManager ?? string.Empty;
 
 			if(Entity.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
@@ -683,6 +685,7 @@ namespace Vodovoz
 
 			buttonCopyManagerComment.Clicked += OnButtonCopyManagerCommentClicked;
 			textManagerComments.Binding.AddBinding(Entity, e => e.CommentManager, w => w.Buffer.Text).InitializeFromSource();
+			lastComment.Binding.AddBinding(Entity, e => e.LastCommentEdit, w => w.Text).InitializeFromSource();
 			textDriverCommentFromMobile.Binding.AddBinding(Entity, e => e.DriverMobileAppComment, w => w.Buffer.Text).InitializeFromSource();
 
 			enumDiverCallType.ItemsEnum = typeof(DriverCallType);
@@ -1467,6 +1470,11 @@ namespace Vodovoz
 
 				if(OrderItemEquipmentCountHasChanges) {
 					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
+				}
+
+				if(!_commentManager.Equals(Entity.CommentManager))
+				{
+					Entity.UpdateCommentManagerInfo(_currentEmployee);
 				}
 
 				logger.Info("Сохраняем заказ...");

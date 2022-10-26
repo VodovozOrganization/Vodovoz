@@ -81,7 +81,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			get
 			{
-				if (paidDeliveryNomenclatureId == default(int))
+				if(paidDeliveryNomenclatureId == default(int))
 				{
 					paidDeliveryNomenclatureId = new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId;
 				}
@@ -175,14 +175,14 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				if (_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+				if(_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
 					OnPropertyChanged(nameof(Client));
 					if(InteractiveService == null)
 						throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
 
-					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
+					InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя изменить клиента для заполненного заказа.");
 					return;
 				}
 				var oldClient = client;
@@ -192,9 +192,9 @@ namespace Vodovoz.Domain.Orders
 						logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
 						DeliveryPoint = null;
 					}
-                    if(oldClient != null) {
+					if(oldClient != null) {
 						UpdateContract();
-                    }
+					}
 				}
 			}
 		}
@@ -212,11 +212,11 @@ namespace Vodovoz.Domain.Orders
 
 					if(Id == 0)
 					{
-						AddCertificates = DeliveryPoint.Category?.Id == EducationalInstitutionDeliveryPointCategoryId 
-						                  && (DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null);
+						AddCertificates = DeliveryPoint.Category?.Id == EducationalInstitutionDeliveryPointCategoryId
+										  && (DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null);
 					}
 
-					if (oldDeliveryPoint != null) {
+					if(oldDeliveryPoint != null) {
 						UpdateContract();
 					}
 				}
@@ -408,7 +408,7 @@ namespace Vodovoz.Domain.Orders
 			get => _paymentType;
 			set {
 				if(value != _paymentType && SetField(ref _paymentType, value, () => PaymentType)) {
-					switch (PaymentType) {
+					switch(PaymentType) {
 						case PaymentType.cash:
 						case PaymentType.barter:
 						case PaymentType.cashless:
@@ -608,6 +608,29 @@ namespace Vodovoz.Domain.Orders
 		public virtual string CommentManager {
 			get => commentManager;
 			set => SetField(ref commentManager, value, () => CommentManager);
+		}
+
+		DateTime lastCommentManagerEditedTime;
+		[Display(Name = "Последнее изменение комментария менеджера")]
+		public virtual DateTime LastCommentManagerEditedTime
+		{
+			get => lastCommentManagerEditedTime;
+			set => SetField(ref lastCommentManagerEditedTime, value);
+		}
+
+		Employee lastCommentManagerEditor;
+		[Display(Name = "Последний редактировал комментарий менеджера")]
+		public virtual Employee LastCommentManagerEditor
+		{
+			get => lastCommentManagerEditor;
+			set => SetField(ref lastCommentManagerEditor, value);
+		}
+
+		public virtual string LastCommentEdit
+		{
+			get => LastCommentManagerEditor != null && LastCommentManagerEditedTime != null
+				? $"Последнее изменение вносил(а) {LastCommentManagerEditor.FullName} в {LastCommentManagerEditedTime:hh:mm dd.MM.yy}"
+				: string.Empty;
 		}
 
 		private string _driverMobileAppComment;
@@ -4079,6 +4102,12 @@ namespace Vodovoz.Domain.Orders
 		{
 			OnPropertyChanged(nameof(OrderSum));
 			UpdateDocuments();
+		}
+
+		public virtual void UpdateCommentManagerInfo(Employee editor)
+		{
+			LastCommentManagerEditedTime = DateTime.Now;
+			LastCommentManagerEditor = editor;
 		}
 
 		#endregion

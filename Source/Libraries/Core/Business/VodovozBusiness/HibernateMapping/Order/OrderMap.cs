@@ -37,6 +37,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.ClientPhone)                       .Column("client_phone");
 			Map(x => x.LastEditedTime)                    .Column("last_edited_time");
 			Map(x => x.CommentManager)                    .Column("comment_manager");
+			Map(x => x.LastCommentManagerEditedTime)      .Column("last_comment_manager_edited_time");
 			Map(x => x.ReturnedTare)                      .Column("returned_tare");
 			Map(x => x.InformationOnTara)                 .Column("information_on_tara");
 			Map(x => x.OnRouteEditReason)                 .Column("on_route_edit_reason");
@@ -101,6 +102,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ReturnTareReasonCategory)   .Column("return_tare_reason_category_id");
 			References(x => x.OurOrganization)            .Column("our_organization_id");
 			References(x => x.ContactPhone)               .Column("contact_phone_id");
+			References(x => x.LastCommentManagerEditor)   .Column("last_comment_manager_editor_id");
 
 			HasMany(x => x.OrderDocuments)                .KeyColumn("attached_to_order_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
