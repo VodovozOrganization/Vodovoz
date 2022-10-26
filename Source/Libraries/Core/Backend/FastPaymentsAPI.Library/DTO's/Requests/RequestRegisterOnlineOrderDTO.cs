@@ -7,5 +7,6 @@
 		public string BackUrl { get; set; }
 		public string BackUrlOk { get; set; }
 		public string BackUrlFail { get; set; }
+		public string CallbackUrl { get; set; }
 	}
 }
