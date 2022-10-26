@@ -24,7 +24,7 @@ namespace FastPaymentsAPI.Library.Services
 			{
 				return;
 			}
-			throw new Exception(response.ReasonPhrase);
+			throw new InvalidOperationException(response.ReasonPhrase);
 		}
 	}
 }
