@@ -56,6 +56,7 @@ namespace Vodovoz.Domain.Client
 		private string _personalAccountIdInEdo;
 		private EdoOperator _edoOperator;
 		private bool _isSendedInviteByTaxcom;
+		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators;
 
 		#region Свойства
 
@@ -345,6 +346,13 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<Email> Emails {
 			get => emails;
 			set => SetField(ref emails, value, () => Emails);
+		}
+
+		[Display(Name = "Все операторы ЭДО контрагента")]
+		public virtual IList<CounterpartyEdoOperator> CounterpartyEdoOperators
+		{
+			get => _counterpartyEdoOperators;
+			set => SetField(ref _counterpartyEdoOperators, value);
 		}
 
 		Employee accountant;
