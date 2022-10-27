@@ -78,6 +78,7 @@ using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using EdoService.Dto;
+using FluentNHibernate.Data;
 
 namespace Vodovoz
 {
@@ -1841,19 +1842,15 @@ namespace Vodovoz
 
 		protected async void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
 		{
-			//Сортировку Николай уточнит позже
-			var email = Entity.Emails.LastOrDefault();
-
-			if(email == null)
-			{
-				email = Entity.Emails.FirstOrDefault();
-			}
+			var email = Entity.Emails.LastOrDefault (em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
+			            ?? Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.Work)
+			            ?? Entity.Emails.LastOrDefault();
 
 			var resultMessage = new ResultDto();
 
 			if(email != null)
 			{
-				resultMessage = await _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address);
+				resultMessage = await _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo);
 			}
 			else
 			{

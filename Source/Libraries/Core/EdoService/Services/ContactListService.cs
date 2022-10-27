@@ -83,11 +83,8 @@ namespace EdoService.Services
 			return null;
 		}
 
-		public async Task<ResultDto> SendContactsAsync(string inn, string kpp, string email)
+		public async Task<ResultDto> SendContactsAsync(string inn, string kpp, string email, string edxClientId)
 		{
-			var key = await Login();
-
-			byte[] requestBytes;
 			var invitationsList = new ContactList
 			{
 				Contacts = new[]
@@ -96,11 +93,21 @@ namespace EdoService.Services
 					{
 						Inn = inn,
 						Kpp = kpp,
-						Email = email/*,
-						Comment = "Это Иванов Иван Иванович, давайте обмениваться документами электронно",*/
-					},
+						Email = email,
+						EdxClientId = edxClientId,
+						Comment = "Компания Весёлый водовоз приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
+					}
 				}
 			};
+
+			return await SendContactsAsync(invitationsList);
+		}
+
+		public async Task<ResultDto> SendContactsAsync(ContactList invitationsList)
+		{
+			var key = await Login();
+
+			byte[] requestBytes;
 
 			using(var ms = new MemoryStream())
 			{
@@ -109,7 +116,7 @@ namespace EdoService.Services
 			}
 
 			var content = PrepareContactsContent(requestBytes, key);
-			
+
 			var response = await _httpClient.PostAsync(_edoSettings.TaxcomSendContactsUri, content);
 
 			if(response.IsSuccessStatusCode)
@@ -127,7 +134,6 @@ namespace EdoService.Services
 				IsSuccess = false,
 				ErrorMessage = $"Приглашение не отправлено!\n{response.StatusCode}, {response.ReasonPhrase}"
 			};
-
 		}
 
 		public ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode)
