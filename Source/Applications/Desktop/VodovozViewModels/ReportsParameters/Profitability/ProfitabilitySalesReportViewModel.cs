@@ -6,12 +6,15 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
 using QS.ViewModels.Widgets;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -21,6 +24,8 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.Reports.Editing;
+using Vodovoz.Reports.Editing.TableGrouping;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
@@ -43,6 +48,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private bool _showPhones;
 		private readonly bool _canSeePhones;
 		private bool _isDetailed;
+		private string _source;
 
 		public ProfitabilitySalesReportViewModel(RdlViewerViewModel rdlViewerViewModel, IEmployeeRepository employeeRepository, ICommonServices commonServices) : base(rdlViewerViewModel)
 		{
@@ -62,7 +68,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 			_canSeePhones = _commonServices.CurrentPermissionService.ValidatePresetPermission("phones_in_detailed_sales_report");
 
-			StartDate = DateTime.Now;
+			StartDate = DateTime.Now.AddDays(-60);
 			EndDate = DateTime.Now;
 
 			SetupFilter();
@@ -76,6 +82,20 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		}
 
 		protected override Dictionary<string, object> Parameters => _parameters;
+
+		public override ReportInfo ReportInfo
+		{
+			get
+			{
+				var reportInfo = new ReportInfo
+				{
+					Source = _source,
+					Parameters = Parameters,
+					Title = Title
+				};
+				return reportInfo;
+			}
+		}
 
 		public virtual DateTime? StartDate
 		{
@@ -444,21 +464,57 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_parameters.Add("order_author_exclude", new[] { "0" });
 			}
 
-			var groupParameters = GetGroupingParameters();
+			/*var groupParameters = GetGroupingParameters();
 			foreach(var groupParameter in groupParameters)
 			{
 				_parameters.Add(groupParameter.Key, groupParameter.Value);
 			}
-			_parameters.Add("groups_count", groupParameters.Count());
+			_parameters.Add("groups_count", groupParameters.Count());*/
+
+			_parameters.Add("groups_count", 1);
+			_parameters.Add("group1", "Counterparty");
 
 			foreach(var item in _filter.GetParameters())
 			{
 				_parameters.Add(item.Key, item.Value);
 			}
 
-			Identifier = IsDetailed ? "Sales.ProfitabilitySalesReportDetail" : "Sales.ProfitabilitySalesReport";
-
+			//Identifier = IsDetailed ? "Sales.ProfitabilitySalesReportDetail" : "Sales.ProfitabilitySalesReport";
+			_source = GetReportSource();
 			LoadReport();
+		}
+
+		private string GetReportSource()
+		{
+			var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			var path = Path.Combine(root, "Reports", "Sales", "ProfitabilitySalesReport.rdl");
+
+			return ModifyReport(path);
+		}
+
+		private string ModifyReport(string path)
+		{
+			var groupModifyAction = new AddNewTableGroupAction("Table1", new[] { "={order_id}" });
+			groupModifyAction.AfterGroup = "group";
+			groupModifyAction.NewGroupName = "group_orders";
+
+			var groupingModifier = new TableGroupingModifier();
+			groupingModifier.AddAction(groupModifyAction);
+
+			using(ReportController reportController = new ReportController(path))
+			using(var reportStream = new MemoryStream())
+			{
+				reportController.AddModifier(groupingModifier);
+				reportController.Modify();
+				reportController.Save(reportStream);
+
+				using(var reader = new StreamReader(reportStream))
+				{
+					reportStream.Position = 0;
+					var outputSource = reader.ReadToEnd();
+					return outputSource;
+				}
+			}
 		}
 
 		private IEnumerable<KeyValuePair<string, object>> GetGroupingParameters()
