@@ -1028,11 +1028,13 @@ namespace Vodovoz
 			evmeOperatoEdo.ChangedByUser += (s, e) =>
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 			};
 
 			yentryPersonalAccountCodeInEdo.KeyReleaseEvent += (s, e) =>
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 			};
 
 			yentryPersonalAccountCodeInEdo.Binding
@@ -1085,11 +1087,11 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
 
-			specialListCmbAllOperators.ItemsList = Entity.CounterpartyEdoOperators.Distinct();
 			specialListCmbAllOperators.Binding
 				.AddFuncBinding(Entity,
 					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
 					w => w.Sensitive)
+				.AddBinding(Entity, e => e.ObservableCounterpartyEdoOperators, w => w.ItemsList)
 				.InitializeFromSource();
 
 			specialListCmbAllOperators.ItemSelected += (s, e) =>
@@ -1798,20 +1800,52 @@ namespace Vodovoz
 		{
 			var contactResult = await _contactListService.CheckContragentAsync(Entity.INN, Entity.KPP);
 
-			if(contactResult?.Contacts?.FirstOrDefault() is ContactListItem contactListItem)
+			if(contactResult == null || !contactResult.Contacts.Any())
 			{
-				Entity.PersonalAccountIdInEdo = contactListItem.EdxClientId;
-				var edoOperator = UoW.GetAll<EdoOperator>().SingleOrDefault(eo => eo.Code == contactListItem.EdxClientId.Substring(0, 3));
-				Entity.EdoOperator = edoOperator;
-				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+				return;
 			}
+
+			if(contactResult.Contacts.Length == 1)
+			{
+				var contactListItem = contactResult.Contacts[0];
+				Entity.PersonalAccountIdInEdo = contactListItem.EdxClientId;
+				Entity.EdoOperator = GetEdoOperatorByEdoAccountId(contactListItem.EdxClientId); ;
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+				
+				return;
+			}
+
+			foreach(var edoOperator in contactResult.Contacts)
+			{
+				var isNotExists = Entity.CounterpartyEdoOperators.FirstOrDefault(x => x.PersonalAccountIdInEdo == edoOperator.EdxClientId) == null;
+				
+				if(isNotExists)
+				{
+					Entity.ObservableCounterpartyEdoOperators.Add(new CounterpartyEdoOperator
+					{
+						PersonalAccountIdInEdo = edoOperator.EdxClientId,
+						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
+						Counterparty = Entity
+					});
+
+					specialListCmbAllOperators.SetRenderTextFunc<CounterpartyEdoOperator>(x => x.Title);
+				}
+			}
+
+			Entity.EdoOperator = null;
+			Entity.PersonalAccountIdInEdo = null;
+
+			Application.Invoke((s, arg) =>
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					"У контрагента несколько операторов, выберите нужный из списка");
+			});
 		}
 
 		protected async void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
 		{
 			if(Entity.CheckForINNDuplicate(_counterpartyRepository, UoW))
 			{
-				//Проверить
 				Application.Invoke((s, arg) =>
 				{
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
@@ -1888,6 +1922,9 @@ namespace Vodovoz
 				});
 			}
 		}
+
+		private EdoOperator GetEdoOperatorByEdoAccountId(string id) => UoW.GetAll<EdoOperator>().SingleOrDefault(eo => eo.Code == id.Substring(0, 3));
+		
 	}
 
 	public class SalesChannelSelectableNode : PropertyChangedBase

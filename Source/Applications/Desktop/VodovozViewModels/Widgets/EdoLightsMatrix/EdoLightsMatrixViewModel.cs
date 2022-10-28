@@ -122,13 +122,12 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				}
 			}
 
-			if(counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			if(counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds && counterparty.PersonType == PersonType.legal)
 			{
-				if(counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-				   && counterparty.PersonType == PersonType.legal)
-				{
-					Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, EdoLightsColorizeType.Unknown);
-				}
+				Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless,
+					counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+						? EdoLightsColorizeType.Allowed
+						: EdoLightsColorizeType.Unknown);
 			}
 		}
 

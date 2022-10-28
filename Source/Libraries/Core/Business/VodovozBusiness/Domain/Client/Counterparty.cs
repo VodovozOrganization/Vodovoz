@@ -57,6 +57,7 @@ namespace Vodovoz.Domain.Client
 		private EdoOperator _edoOperator;
 		private bool _isSendedInviteByTaxcom;
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators;
+		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
 
 		#region Свойства
 
@@ -354,6 +355,11 @@ namespace Vodovoz.Domain.Client
 			get => _counterpartyEdoOperators;
 			set => SetField(ref _counterpartyEdoOperators, value);
 		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<CounterpartyEdoOperator> ObservableCounterpartyEdoOperators =>
+				_observableCounterpartyEdoOperators ?? (_observableCounterpartyEdoOperators = new GenericObservableList<CounterpartyEdoOperator>(CounterpartyEdoOperators));
+		
 
 		Employee accountant;
 

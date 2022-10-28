@@ -1628,14 +1628,14 @@ namespace Vodovoz
 				}
 			}
 
-			var widget = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView));
-
-			if(widget is EdoLightsMatrixPanelView edoLightsMatrixPanelView)
+			if(Entity.PaymentType == PaymentType.cashless)
 			{
-				edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
-				var hasUnknownEdoLightsType = edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel.HasUnknown();
+				var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
+				edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
+				var hasUnknownEdoLightsType = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel.HasUnknown();
 
-				if(hasUnknownEdoLightsType
+				if(hasUnknownEdoLightsType.HasValue
+				   && hasUnknownEdoLightsType.Value
 				   && !ServicesConfig.InteractiveService.Question(
 					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
 				{
