@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NLog" Version="5.0.5" />
+    <PackageReference Include="System.Text.Json" Version="6.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
 	  <ProjectReference Include="..\Business\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>
 

@@ -12,7 +12,6 @@ namespace EdoService
 		public EdoLogger(ILogger logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 		}
 
 		public void LogError(HttpResponseMessage response)
