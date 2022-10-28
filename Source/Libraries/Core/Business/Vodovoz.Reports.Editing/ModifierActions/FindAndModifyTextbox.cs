@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 using Vodovoz.RDL.Elements;
 using Vodovoz.RDL.Utilities;
@@ -32,11 +30,6 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			_action(textBox);
 			var modifiedTextboxElement = textBox.ToXElement<Textbox>();
 			textBoxElement.ReplaceWith(modifiedTextboxElement);
-		}
-
-		public override IEnumerable<ValidationResult> Validate(XDocument report)
-		{
-			yield break;
 		}
 	}
 }

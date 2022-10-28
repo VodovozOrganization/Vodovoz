@@ -4,11 +4,11 @@ using Vodovoz.Reports.Editing.Providers;
 
 namespace Vodovoz.Reports.Editing.ModifierActions
 {
-	public class RemoveDetails : ModifierAction
+	public class RemoveFooter: ModifierAction
 	{
 		private readonly string _tableName;
 
-		public RemoveDetails(string tableName)
+		public RemoveFooter(string tableName)
 		{
 			if(string.IsNullOrWhiteSpace(tableName))
 			{
@@ -21,10 +21,10 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 		public override void Modify(XDocument report)
 		{
 			var @namespace = report.Root.Attribute("xmlns").Value;
-			var details = report.GetTable(_tableName, @namespace)
-				.GetDetails(@namespace);
+			var footer = report.GetTable(_tableName, @namespace)
+				.GetFooter(@namespace);
 
-			details.Remove();
+			footer.Remove();
 		}
 	}
 }

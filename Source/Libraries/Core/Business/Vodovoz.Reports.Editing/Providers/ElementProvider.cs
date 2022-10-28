@@ -12,18 +12,18 @@ namespace Vodovoz.Reports.Editing.Providers
 			var tables = container.Descendants(XName.Get("Table", @namespace));
 			if(!tables.Any())
 			{
-				throw new InvalidOperationException("В отчете отсутствуют таблицы");
+				throw new InvalidOperationException("В контейнере отсутствуют таблицы");
 			}
 
 			var matchedTables = tables.Where(x => x.Attribute(XName.Get("Name")).Value == tableName);
 			if(!matchedTables.Any())
 			{
-				throw new InvalidOperationException($"В отчете отсутствуют таблицы с именем {tableName}");
+				throw new InvalidOperationException($"В контейнере отсутствуют таблицы с именем {tableName}");
 			}
 
 			if(matchedTables.Count() > 1)
 			{
-				throw new InvalidOperationException($"В отчете присутствуют несколько таблиц с именем {tableName}");
+				throw new InvalidOperationException($"В контейнере присутствуют несколько таблиц с именем {tableName}");
 			}
 			var table = matchedTables.First();
 			return table;
@@ -51,7 +51,7 @@ namespace Vodovoz.Reports.Editing.Providers
 
 			if(matchedGroupings.Count() > 1)
 			{
-				throw new InvalidOperationException($"В отчете присутствуют несколько группировок с именем {groupName}");
+				throw new InvalidOperationException($"В контейнере присутствуют несколько группировок с именем {groupName}");
 			}
 
 			return matchedGroupings.First();
@@ -98,18 +98,18 @@ namespace Vodovoz.Reports.Editing.Providers
 			var textBoxes = container.Descendants(XName.Get("Textbox", @namespace));
 			if(!textBoxes.Any())
 			{
-				throw new InvalidOperationException("В отчете отсутствуют Textbox");
+				throw new InvalidOperationException("В контейнере отсутствуют Textbox");
 			}
 
 			var matchedTextBoxes = textBoxes.Where(x => x.Attribute(XName.Get("Name")).Value == textBoxName);
 			if(!matchedTextBoxes.Any())
 			{
-				throw new InvalidOperationException($"В отчете отсутствуют Textbox с именем {textBoxName}");
+				throw new InvalidOperationException($"В контейнере отсутствуют Textbox с именем {textBoxName}");
 			}
 
 			if(matchedTextBoxes.Count() > 1)
 			{
-				throw new InvalidOperationException($"В отчете присутствуют несколько Textbox с именем {textBoxName}");
+				throw new InvalidOperationException($"В контейнере присутствуют несколько Textbox с именем {textBoxName}");
 			}
 			var textBox = matchedTextBoxes.First();
 			return textBox;

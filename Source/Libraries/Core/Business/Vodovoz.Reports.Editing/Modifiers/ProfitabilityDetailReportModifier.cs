@@ -7,21 +7,22 @@ using Vodovoz.Reports.Editing.Providers;
 
 namespace Vodovoz.Reports.Editing.Modifiers
 {
-	public class ProfitabilityReportModifier : ReportModifierBase
+	public class ProfitabilityDetailReportModifier : ReportModifierBase
 	{
 		private const string _tableName = "TableProfitability";
-
-		private const string _itemDataName = "TextboxItemData";
+		private const string _firstItemDataTextboxName = "TextboxFirstItemData";
+		private const int _firstItemDataColumnSpan = 7;
 
 		private const string _groupLevel1Name = "group1";
 		private const string _groupLevel2Name = "group2";
 		private const string _groupLevel3Name = "group3";
+		private const string _groupBaseLevelName = "group_base";
 
 		private readonly ExpressionRowProvider _expressionRowProvider;
 
-		public ProfitabilityReportModifier()
+		public ProfitabilityDetailReportModifier()
 		{
-			_expressionRowProvider = new HeaderExpressionRowProvider(2);
+			_expressionRowProvider = new FooterExpressionRowProvider();
 		}
 
 		public void Setup(IEnumerable<GroupingType> groupings)
@@ -40,29 +41,35 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			var removeDetailsAction = new RemoveDetails(_tableName);
 			AddAction(removeDetailsAction);
+
+			var removeFooterAction = new RemoveFooter(_tableName);
+			AddAction(removeFooterAction);
 		}
 
 		private IEnumerable<ModifierAction> GetGroupingActions(IEnumerable<GroupingType> groupings)
 		{
 			var groupCount = groupings.Count();
-
 			switch(groupCount)
 			{
+				case 0:
+					break;
 				case 1:
-					yield return GetFirstLevelAction(groupings.First(), groupCount);
+					yield return GetFirstLevelAction(groupings.First());
 					break;
 				case 2:
-					yield return GetFirstLevelAction(groupings.First(), groupCount);
-					yield return GetSecondLevelAction(groupings.Skip(1).First(), groupCount);
+					yield return GetFirstLevelAction(groupings.First());
+					yield return GetSecondLevelAction(groupings.Skip(1).First());
 					break;
 				case 3:
-					yield return GetFirstLevelAction(groupings.First(), groupCount);
-					yield return GetSecondLevelAction(groupings.Skip(1).First(), groupCount);
-					yield return GetThirdLevelAction(groupings.Skip(2).First(), groupCount);
+					yield return GetFirstLevelAction(groupings.First());
+					yield return GetSecondLevelAction(groupings.Skip(1).First());
+					yield return GetThirdLevelAction(groupings.Skip(2).First());
 					break;
 				default:
-					throw new InvalidOperationException("Выбрано не поддерживаемое количество группировок");
+					throw new NotSupportedException("Выбрано не поддерживаемое количество группировок");
 			}
+
+			yield return GetBaseLevelAction(groupCount);
 		}
 
 		private IEnumerable<ModifierAction> GetItemDataActions(IEnumerable<GroupingType> groupings)
@@ -71,25 +78,31 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			switch(groupCount)
 			{
 				case 1:
-					yield return GetItemTextboxUpdateAction(groupings.First(), _groupLevel1Name, groupCount);
+					yield return GetItemTextboxUpdateAction(groupings.First(), _groupLevel1Name);
+					yield return GetFirstItemColSpanUpdateAction(_groupLevel1Name);
 					break;
 				case 2:
-					yield return GetItemTextboxUpdateAction(groupings.First(), _groupLevel1Name, groupCount);
-					yield return GetItemTextboxUpdateAction(groupings.Skip(1).First(), _groupLevel2Name, groupCount);
+					yield return GetItemTextboxUpdateAction(groupings.First(), _groupLevel1Name);
+					yield return GetFirstItemColSpanUpdateAction(_groupLevel1Name);
+					yield return GetItemTextboxUpdateAction(groupings.Skip(1).First(), _groupLevel2Name);
+					yield return GetFirstItemColSpanUpdateAction(_groupLevel2Name);
 					break;
 				case 3:
-					yield return GetItemTextboxUpdateAction(groupings.First(), _groupLevel1Name, groupCount);
-					yield return GetItemTextboxUpdateAction(groupings.Skip(1).First(), _groupLevel2Name, groupCount);
-					yield return GetItemTextboxUpdateAction(groupings.Skip(2).First(), _groupLevel3Name, groupCount);
+					yield return GetItemTextboxUpdateAction(groupings.First(), _groupLevel1Name);
+					yield return GetFirstItemColSpanUpdateAction(_groupLevel1Name);
+					yield return GetItemTextboxUpdateAction(groupings.Skip(1).First(), _groupLevel2Name);
+					yield return GetFirstItemColSpanUpdateAction(_groupLevel2Name);
+					yield return GetItemTextboxUpdateAction(groupings.Skip(2).First(), _groupLevel3Name);
+					yield return GetFirstItemColSpanUpdateAction(_groupLevel3Name);
 					break;
 				default:
-					throw new InvalidOperationException("Выбрано не поддерживаемое количество группировок");
+					throw new NotSupportedException("Выбрано не поддерживаемое количество группировок");
 			}
 		}
 
-		private NewTableGroupWithCellsFromDetails GetFirstLevelAction(GroupingType groupingType, int groupsCount)
+		private NewTableGroupWithCellsFromDetails GetFirstLevelAction(GroupingType groupingType)
 		{
-			var style = groupsCount == 1 ? GetLastLevelGroupStyle() : GetFirstLevelGroupStyle();
+			var style = GetFirstLevelGroupStyle();
 			style.Format = "0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
@@ -99,9 +112,9 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return groupModifyAction;
 		}
 
-		private NewTableGroupWithCellsFromDetails GetSecondLevelAction(GroupingType groupingType, int groupsCount)
+		private NewTableGroupWithCellsFromDetails GetSecondLevelAction(GroupingType groupingType)
 		{
-			var style = groupsCount == 2 ? GetLastLevelGroupStyle() : GetSecondLevelGroupStyle();
+			var style = GetSecondLevelGroupStyle();
 			style.Format = "0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
@@ -112,9 +125,9 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return groupModifyAction;
 		}
 
-		private NewTableGroupWithCellsFromDetails GetThirdLevelAction(GroupingType groupingType, int groupsCount)
+		private NewTableGroupWithCellsFromDetails GetThirdLevelAction(GroupingType groupingType)
 		{
-			var style = GetLastLevelGroupStyle();
+			var style = GetThirdLevelGroupStyle();
 			style.Format = "0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
@@ -125,14 +138,44 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return groupModifyAction;
 		}
 
-		private FindAndModifyTextbox GetItemTextboxUpdateAction(GroupingType groupType, string groupName, int groupsCount)
+		private NewTableGroupWithCellsFromDetails GetBaseLevelAction(int groupsCount)
+		{
+			string afterGroup = null;
+			switch(groupsCount)
+			{
+				case 0: 
+					break;
+				case 1:
+					afterGroup = _groupLevel1Name;
+					break;
+				case 2:
+					afterGroup = _groupLevel2Name;
+					break;
+				case 3:
+					afterGroup = _groupLevel3Name;
+					break;
+				default:
+					throw new NotSupportedException("Выбрано не поддерживаемое количество группировок");
+			}
+			
+			var groupExpression = new[] { "={order_item_id}" };
+			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _expressionRowProvider, groupExpression);
+			groupModifyAction.NewGroupName = _groupBaseLevelName;
+			if(afterGroup != null)
+			{
+				groupModifyAction.AfterGroup = afterGroup;
+			}
+			return groupModifyAction;
+		}
+
+		private FindAndModifyTextbox GetItemTextboxUpdateAction(GroupingType groupType, string groupName)
 		{
 			if(string.IsNullOrWhiteSpace(groupName))
 			{
 				throw new ArgumentException($"'{nameof(groupName)}' cannot be null or whitespace.", nameof(groupName));
 			}
 
-			var textBoxName = $"{_itemDataName}_{groupName}";
+			var textBoxName = $"{_firstItemDataTextboxName}_{groupName}";
 			var action = new FindAndModifyTextbox(textBoxName, (textBox) =>
 			{
 				textBox.Value = GetItemDataExpression(groupType);
@@ -141,13 +184,13 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				switch(groupName)
 				{
 					case _groupLevel1Name:
-						style = groupsCount == 1 ? GetLastLevelGroupStyle() : GetFirstLevelGroupStyle();
+						style = GetFirstLevelGroupStyle();
 						break;
 					case _groupLevel2Name:
-						style = groupsCount == 2 ? GetLastLevelGroupStyle() : GetSecondLevelGroupStyle();
+						style = GetSecondLevelGroupStyle();
 						break;
 					case _groupLevel3Name:
-						style = GetLastLevelGroupStyle();
+						style = GetThirdLevelGroupStyle();
 						break;
 					default:
 						style = textBox.Style;
@@ -181,6 +224,18 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}
+		}
+
+		private SetTableCellColumnSpan GetFirstItemColSpanUpdateAction(string groupName)
+		{
+			if(string.IsNullOrWhiteSpace(groupName))
+			{
+				throw new ArgumentException($"'{nameof(groupName)}' cannot be null or whitespace.", nameof(groupName));
+			}
+
+			var textBoxName = $"{_firstItemDataTextboxName}_{groupName}";
+			var action = new SetTableCellColumnSpan(_tableName, textBoxName, _firstItemDataColumnSpan);
+			return action;
 		}
 
 		private string GetGroupField(GroupingType groupType)
@@ -221,11 +276,10 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return style;
 		}
 
-		private Style GetLastLevelGroupStyle()
+		private Style GetThirdLevelGroupStyle()
 		{
 			var style = GetBaseStyleForGrouping();
 			style.TextAlign = "Right";
-			style.FontWeight = "Nornal";
 			return style;
 		}
 
@@ -240,21 +294,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.BorderStyle.Bottom= "Solid";
 			style.FontWeight = "Bold";
 			style.FontSize = "6pt";
-			style.VerticalAlign = "Middle";			
+			style.VerticalAlign = "Middle";
 			return style;
 		}
-	}
-
-	public enum GroupingType
-	{
-		Order,
-		Counterparty,
-		Subdivision,
-		DeliveryDate,
-		RouteList,
-		Nomenclature,
-		NomenclatureGroup1,
-		NomenclatureGroup2,
-		NomenclatureGroup3
 	}
 }
