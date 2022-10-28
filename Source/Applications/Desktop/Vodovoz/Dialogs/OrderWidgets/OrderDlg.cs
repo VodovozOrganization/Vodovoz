@@ -564,7 +564,6 @@ namespace Vodovoz
 				_orderParametersProvider.PaymentByCardFromSmsId,
 				_orderParametersProvider.GetPaymentByCardFromAvangardId,
 				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
-				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode,
 				_orderParametersProvider.PaymentByCardFromOnlineStoreId
 			};
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
@@ -2610,6 +2609,8 @@ namespace Vodovoz
 				return;
 			}
 
+			UoW.Session.Refresh(DeliveryPoint);
+
 			AddCommentFromDeliveryPoint();
 			AddCommentLogistFromDeliveryPoint();
 
@@ -3608,8 +3609,8 @@ namespace Vodovoz
 			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
 
 			ylblPhoneNumber.Text = Entity.DeliveryPoint?.Phones.Count > 0
-				? string.Join(", ", Entity.DeliveryPoint.Phones.Select(p => p.DigitsNumber))
-				: string.Join(", ", Entity.Client.Phones.Select(p => p.DigitsNumber));
+				? string.Join(", ", Entity.DeliveryPoint.Phones.Where(p => !p.IsArchive).Select(p => p.DigitsNumber))
+				: string.Join(", ", Entity.Client.Phones.Where(p => !p.IsArchive).Select(p => p.DigitsNumber));
 
 			ylblDeliveryDate.Text = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
 			ylblDeliveryInterval.Text = Entity.DeliverySchedule?.DeliveryTime;
