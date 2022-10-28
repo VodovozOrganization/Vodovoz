@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 
 		public GenericObservableList<LightsMatrixRow> ObservableLightsMatrixRows = new GenericObservableList<LightsMatrixRow>();
 
-		private void SetAllow(ReasonForLeaving reasonForLeaving, EdoLightsMatrixPaymentType paymentKind, bool isAllowed)
+		private void Colorize(ReasonForLeaving reasonForLeaving, EdoLightsMatrixPaymentType paymentKind, EdoLightsColorizeType edoLightsColorizeType)
 		{
 			var row = ObservableLightsMatrixRows.FirstOrDefault(c => c.ReasonForLeaving == reasonForLeaving);
 			var column = row?.Columns?.FirstOrDefault(r => r.PaymentKind == paymentKind);
@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				return;
 			}
 
-			row.SetAllow(column, isAllowed);
+			row.Colorize(column, edoLightsColorizeType);
 		}
 
 		private void CreateRow(ReasonForLeaving reasonForLeaving)
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			{
 				foreach(var column in row.Columns)
 				{
-					SetAllow(row.ReasonForLeaving, column.PaymentKind, false);
+					Colorize(row.ReasonForLeaving, column.PaymentKind, EdoLightsColorizeType.Forbidden);
 				}
 			}
 		}
@@ -77,7 +77,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 
 			if(counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || counterparty.ReasonForLeaving == ReasonForLeaving.Other)
 			{
-				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, true);
+				Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, EdoLightsColorizeType.Allowed);
 			}
 
 			if(counterparty.ReasonForLeaving == ReasonForLeaving.Other
@@ -85,12 +85,12 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			{
 				if(!string.IsNullOrWhiteSpace(counterparty.INN))
 				{
-					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
-					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, true);
+					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, EdoLightsColorizeType.Allowed);
+					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, EdoLightsColorizeType.Allowed);
 				}
 
-				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, true);
-				SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
+				Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Receipt, EdoLightsColorizeType.Allowed);
+				Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, EdoLightsColorizeType.Allowed);
 			}
 
 			if(counterparty.ReasonForLeaving == ReasonForLeaving.Resale)
@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				   && !string.IsNullOrWhiteSpace(counterparty.INN)
 				   && counterparty.PersonType == PersonType.legal)
 				{
-					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
+					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, EdoLightsColorizeType.Allowed);
 				}
 
 				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
@@ -109,8 +109,8 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				   && counterparty.PersonType == PersonType.legal
 				   && counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 				{
-					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, true);
-					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
+					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, EdoLightsColorizeType.Allowed);
+					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, EdoLightsColorizeType.Allowed);
 				}
 
 				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				   && !string.IsNullOrWhiteSpace(counterparty.INN)
 				   && counterparty.PersonType == PersonType.natural)
 				{
-					SetAllow(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, true);
+					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, EdoLightsColorizeType.Allowed);
 				}
 			}
 
@@ -127,7 +127,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				if(counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 				   && counterparty.PersonType == PersonType.legal)
 				{
-					SetAllow(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, true);
+					Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless, EdoLightsColorizeType.Unknown);
 				}
 			}
 		}

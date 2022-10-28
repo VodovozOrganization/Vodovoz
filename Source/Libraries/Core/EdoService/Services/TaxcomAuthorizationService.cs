@@ -18,8 +18,7 @@ namespace EdoService.Services
 
 			_httpClient = new HttpClient()
 			{
-				BaseAddress = new Uri(edoSettings.TaxcomBaseAddressUri),
-				Timeout = TimeSpan.FromSeconds(5)
+				BaseAddress = new Uri(edoSettings.TaxcomBaseAddressUri)
 			};
 
 			_httpClient.DefaultRequestHeaders.Add("Integrator-Id", _edoSettings.TaxcomIntegratorId);

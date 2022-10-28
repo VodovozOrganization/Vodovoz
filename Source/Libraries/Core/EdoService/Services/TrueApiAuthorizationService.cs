@@ -20,8 +20,7 @@ namespace EdoService.Services
 
 			_httpClient = new HttpClient()
 			{
-				BaseAddress = new Uri(edoSettings.TrueApiBaseAddressUri),
-				Timeout = TimeSpan.FromSeconds(5)
+				BaseAddress = new Uri(edoSettings.TrueApiBaseAddressUri)
 			};
 		}
 

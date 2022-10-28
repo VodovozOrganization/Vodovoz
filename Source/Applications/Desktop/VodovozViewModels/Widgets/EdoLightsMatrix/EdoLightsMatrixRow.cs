@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
@@ -31,22 +30,22 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 
 		public List<EdoLightsMatrixColumn> Columns { get; set; } = new List<EdoLightsMatrixColumn>();
 
-		public void SetAllow(EdoLightsMatrixColumn column, bool isAllowed)
+		public void Colorize(EdoLightsMatrixColumn column, EdoLightsColorizeType edoLightsColorizeType)
 		{
-			column.IsAllowed = isAllowed;
-			OnPropertyChanged(nameof(IsAllowed));
+			column.EdoLightsColorizeType = edoLightsColorizeType;
+			OnPropertyChanged(nameof(GetColorizeType));
 		}
 
-		public bool IsAllowed(EdoLightsMatrixPaymentType paymentKind)
+		public EdoLightsColorizeType GetColorizeType(EdoLightsMatrixPaymentType paymentKind)
 		{
 			var column = Columns?.FirstOrDefault(r => r.PaymentKind == paymentKind);
 
 			if(column == null)
 			{
-				return false;
+				return EdoLightsColorizeType.Forbidden;
 			}
 
-			return column.IsAllowed;
+			return column.EdoLightsColorizeType;
 		}
 	}
 }
