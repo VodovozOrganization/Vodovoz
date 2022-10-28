@@ -12,9 +12,9 @@ namespace Vodovoz.Reports.Editing.Providers
 
 		public HeaderExpressionRowProvider(int serialNumber = 1)
 		{
-			if(_serialNumber < 1)
+			if(serialNumber < 1)
 			{
-				throw new ArgumentException("Порядковый номер строки должен быть больше 1");
+				throw new ArgumentException("Порядковый номер строки должен быть больше 1", nameof(serialNumber));
 			}
 
 			_serialNumber = serialNumber;

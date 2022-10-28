@@ -28,7 +28,13 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			var textBoxElement = report.GetTextbox(_textBoxName, @namespace);
 			var textBox = textBoxElement.FromXElement<Textbox>();
 			_action(textBox);
-			var modifiedTextboxElement = textBox.ToXElement<Textbox>();
+			var modifiedTextboxElement = textBox.ToXElement<Textbox>(@namespace);
+			var attribute = modifiedTextboxElement.Attribute(XName.Get("Name"));
+			modifiedTextboxElement.RemoveAttributes();
+			if(attribute != null)
+			{
+				modifiedTextboxElement.SetAttributeValue(XName.Get("Name"), attribute.Value);
+			}
 			textBoxElement.ReplaceWith(modifiedTextboxElement);
 		}
 	}

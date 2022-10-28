@@ -39,8 +39,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				AddAction(action);
 			}
 
-			var removeDetailsAction = new RemoveDetails(_tableName);
-			AddAction(removeDetailsAction);
+			/*var removeDetailsAction = new RemoveDetails(_tableName);
+			AddAction(removeDetailsAction);*/
 
 			var removeFooterAction = new RemoveFooter(_tableName);
 			AddAction(removeFooterAction);
@@ -69,7 +69,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 					throw new NotSupportedException("Выбрано не поддерживаемое количество группировок");
 			}
 
-			yield return GetBaseLevelAction(groupCount);
+			//yield return GetBaseLevelAction(groupCount);
 		}
 
 		private IEnumerable<ModifierAction> GetItemDataActions(IEnumerable<GroupingType> groupings)
@@ -140,6 +140,9 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 		private NewTableGroupWithCellsFromDetails GetBaseLevelAction(int groupsCount)
 		{
+			var style = GetBaseLevelGroupStyle();
+			style.Format = "0.00";
+
 			string afterGroup = null;
 			switch(groupsCount)
 			{
@@ -161,6 +164,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			var groupExpression = new[] { "={order_item_id}" };
 			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _expressionRowProvider, groupExpression);
 			groupModifyAction.NewGroupName = _groupBaseLevelName;
+			groupModifyAction.GroupCellsStyle = style;
 			if(afterGroup != null)
 			{
 				groupModifyAction.AfterGroup = afterGroup;
@@ -283,6 +287,14 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			return style;
 		}
 
+		private Style GetBaseLevelGroupStyle()
+		{
+			var style = GetBaseStyleForGrouping();
+			style.TextAlign = "Right";
+			style.FontWeight = "Normal";
+			return style;
+		}
+
 		private Style GetBaseStyleForGrouping()
 		{
 			var style = new Style();
@@ -293,7 +305,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.BorderStyle.Top= "Solid";
 			style.BorderStyle.Bottom= "Solid";
 			style.FontWeight = "Bold";
-			style.FontSize = "6pt";
+			style.FontSize = "5pt";
 			style.VerticalAlign = "Middle";
 			return style;
 		}

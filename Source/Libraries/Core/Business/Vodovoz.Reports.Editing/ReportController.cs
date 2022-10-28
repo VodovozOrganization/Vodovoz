@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using Vodovoz.RDL.Elements;
 
 namespace Vodovoz.Reports.Editing
 {
-    public class ReportController : /*IValidatableObject,*/ IDisposable
+	public class ReportController : IDisposable
     {
 		private Stream _inputStream;
 		private XDocument _report;
@@ -65,16 +63,6 @@ namespace Vodovoz.Reports.Editing
 			fileWriter.Write(result);
 			fileWriter.Flush();
 		}
-
-		/*public IEnumerable<ValidationResult> Validate(ValidationContext validationContext = null)
-		{
-			var result = new List<ValidationResult>();
-			foreach(var reportModifier in _reportModifiers)
-			{
-				result.AddRange(reportModifier.Validate(validationContext));
-			}
-			return result;
-		}*/
 
 		public void Dispose()
 		{

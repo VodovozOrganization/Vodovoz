@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Xml.Linq;
 using Vodovoz.RDL.Elements;
 using Vodovoz.RDL.Utilities;
@@ -10,9 +11,9 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 	{
 		private readonly string _table;
 		private readonly string _innerTextBoxName;
-		private readonly int _columnSpan;
+		private readonly uint _columnSpan;
 
-		public SetTableCellColumnSpan(string table, string innerTextBoxName, int columnSpan)
+		public SetTableCellColumnSpan(string table, string innerTextBoxName, uint columnSpan)
 		{
 			if(string.IsNullOrWhiteSpace(table))
 			{
@@ -40,10 +41,25 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			var textBoxElement = report.GetTable(_table, @namespace)
 				.GetTextbox(_innerTextBoxName, @namespace);
 			var tableCellElement = textBoxElement.Parent.Parent;
+			var cellsAfter = tableCellElement.ElementsAfterSelf().ToList();
+
 			var tableCell = tableCellElement.FromXElement<TableCell>();
 			tableCell.ColSpan = _columnSpan;
-			var modifiedTableCellElement = tableCell.ToXElement<TableCell>();
+			var modifiedTableCellElement = tableCell.ToXElement<TableCell>(@namespace);
+			modifiedTableCellElement.RemoveAttributes();
 			tableCellElement.ReplaceWith(modifiedTableCellElement);
+
+			//Удаление закрытых ячеек
+			var cellsForDeleting = cellsAfter.Take((int)_columnSpan - 1);
+			foreach(var deletingCell in cellsForDeleting)
+			{
+				deletingCell.Remove();
+			}
+		}
+
+		private void RemoveTableCell()
+		{
+			
 		}
 	}
 }

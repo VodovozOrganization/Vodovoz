@@ -57,7 +57,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_interactiveService = commonServices.InteractiveService;
 
 			Title = "Отчет по продажам с рентабельностью";
-			Identifier = "Sales.ProfitabilitySalesReport";
 
 			_uow = UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(_uow);
@@ -481,7 +480,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_parameters.Add(item.Key, item.Value);
 			}
 
-			//Identifier = IsDetailed ? "Sales.ProfitabilitySalesReportDetail" : "Sales.ProfitabilitySalesReport";
 			_source = GetReportSource();
 			LoadReport();
 		}
@@ -489,16 +487,15 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private string GetReportSource()
 		{
 			var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-			var path = Path.Combine(root, "Reports", "Sales", "ProfitabilitySalesReport.rdl");
+			var fileName = IsDetailed ? "ProfitabilitySalesReportDetail.rdl" : "ProfitabilitySalesReport.rdl";
+			var path = Path.Combine(root, "Reports", "Sales", fileName);
 
 			return ModifyReport(path);
 		}
 
 		private string ModifyReport(string path)
 		{
-			var groupParameters = GetGroupingParameters();
-			ProfitabilityReportModifier modifier = new ProfitabilityReportModifier();
-			modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
+			var modifier = GetReportModifier();
 
 			using(ReportController reportController = new ReportController(path))
 			using(var reportStream = new MemoryStream())
@@ -516,11 +513,31 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			}
 		}
 
+		private ReportModifierBase GetReportModifier()
+		{
+			ReportModifierBase result;
+			var groupParameters = GetGroupingParameters();
+			if(IsDetailed)
+			{
+				var modifier = new ProfitabilityDetailReportModifier();
+				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
+				result = modifier;
+				
+			}
+			else
+			{
+				var modifier = new ProfitabilityReportModifier();
+				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
+				result = modifier;
+			}
+			return result;
+		}
+
 		private IEnumerable<KeyValuePair<string, object>> GetGroupingParameters()
 		{
 			var result = new List<KeyValuePair<string, object>>();
 			var groupItems = GroupingSelectViewModel.GetRightItems().ToList();
-			if(!groupItems.Any())
+			if(!groupItems.Any() && !IsDetailed)
 			{
 				groupItems.Add(new GroupingNode { GroupType = GroupingType.Nomenclature });
 			}

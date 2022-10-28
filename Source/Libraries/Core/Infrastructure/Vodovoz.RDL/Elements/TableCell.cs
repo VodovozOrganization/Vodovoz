@@ -7,9 +7,9 @@ namespace Vodovoz.RDL.Elements
 	public partial class TableCell : BaseElementWithItems
 	{
 		[XmlIgnore]
-		public int ColSpan
+		public uint ColSpan
 		{
-			get => GetItemsValue<int>();
+			get => GetItemsValue<uint>();
 			set => SetItemsValue(value);
 		}
 
