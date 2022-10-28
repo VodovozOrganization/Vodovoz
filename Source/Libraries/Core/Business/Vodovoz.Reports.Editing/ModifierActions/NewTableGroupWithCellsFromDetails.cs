@@ -2,22 +2,24 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
-using System.Xml.Serialization;
-using Vodovoz.RDL.Providers;
 using Vodovoz.RDL.Elements;
-using Vodovoz.Reports.Editing.Providers;
+using Vodovoz.RDL.Providers;
 using Vodovoz.RDL.Utilities;
+using Vodovoz.Reports.Editing.Providers;
 
-namespace Vodovoz.Reports.Editing.TableGrouping
+namespace Vodovoz.Reports.Editing.ModifierActions
 {
-	public class TableGroupingModifier : ReportModifierBase
-	{
-		
-	}
+	//В идеале действия разбить на разные классы, чтобы можно было гибко
+	//настраивать их и комбинировать с другими действиями 
 
-	public class AddNewTableGroupAction : ModifierAction
+	/// <summary>
+	/// Добавляет новую группировку в таблицу, 
+	/// ячейки копируются из строк детализации,
+	/// формулы копируются из подвала
+	/// стиль ячеек копируется из подвала, если не определен свой
+	/// </summary>
+	public class NewTableGroupWithCellsFromDetails : ModifierAction
 	{
 		private readonly string _tableName;
 		private readonly IEnumerable<string> _groupExpressions;
@@ -25,7 +27,7 @@ namespace Vodovoz.Reports.Editing.TableGrouping
 		private TableGroup _newGroup;
 		private int _groupNameSuffixCounter;
 
-		public AddNewTableGroupAction(string tableName, IEnumerable<string> groupExpressions)
+		public NewTableGroupWithCellsFromDetails(string tableName, IEnumerable<string> groupExpressions)
 		{
 			if(string.IsNullOrWhiteSpace(tableName))
 			{
@@ -54,7 +56,7 @@ namespace Vodovoz.Reports.Editing.TableGrouping
 
 		public override void Modify(XDocument report)
 		{
-			var @namespace = GetNamespace(report);
+			var @namespace = report.Root.Attribute("xmlns").Value;
 
 			//Копирование строки из деталей и установка формул из подвала
 			//Установка новых имен для текстовых боксов ячеек
@@ -109,7 +111,8 @@ namespace Vodovoz.Reports.Editing.TableGrouping
 			var afterGrouping = table.GetGroupingOrNull(AfterGroup, @namespace);
 			if(afterGrouping != null)
 			{
-				var tableGroupElement = tableGroup.ToXElement<TableGroup>();
+				var tableGroupElement = tableGroup.ToXElement<TableGroup>(@namespace);
+				tableGroupElement.RemoveAttributes();
 				afterGrouping.Parent.AddAfterSelf(tableGroupElement);
 			}
 			else
@@ -119,7 +122,8 @@ namespace Vodovoz.Reports.Editing.TableGrouping
 				{
 					var tableGroups = new TableGroups();
 					tableGroups.TableGroup.Add(tableGroup);
-					tableGroupsElement = tableGroups.ToXElement<TableGroups>();
+					tableGroupsElement = tableGroups.ToXElement<TableGroups>(@namespace);
+					tableGroupsElement.RemoveAttributes();
 					table.Add(tableGroupsElement);
 				}
 				else
@@ -154,11 +158,6 @@ namespace Vodovoz.Reports.Editing.TableGrouping
 					_groupNameSuffixCounter++;
 				}
 			} while(!hasGrouping);
-		}
-
-		private string GetNamespace(XDocument report)
-		{
-			return report.Root.Attribute("xmlns").Value;
 		}
 
 		public override IEnumerable<ValidationResult> Validate(XDocument report)

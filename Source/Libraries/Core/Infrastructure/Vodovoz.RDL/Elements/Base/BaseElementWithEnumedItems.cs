@@ -61,21 +61,30 @@ namespace Vodovoz.RDL.Elements.Base
 		/// </summary>
 		public void SetEnamedItemsValue<TElement>(TElement value, [CallerMemberName] string propertyName = null)
 		{
+			var fieldType = _elementTypes[propertyName];
+
+			if(!IsInitialized(propertyName))
+			{
+				var typeIndex = ItemsElementNameList.IndexOf(fieldType);
+				if(typeIndex > -1)
+				{
+					Initialize(propertyName, typeIndex);
+				}
+				else
+				{
+					Initialize(propertyName, null);
+				}
+			}
+
 			if(value == null)
 			{
 				RemoveItemsValue(value, propertyName);
 				return;
 			}
 
-			if(!IsInitialized(propertyName))
-			{
-				Initialize(propertyName, null);
-			}
-
 			var index = InitializedPropertyIndexes[propertyName];
 			if(index == null)
 			{
-				var fieldType = _elementTypes[propertyName];
 				ItemsElementNameList.Add(fieldType);
 				ItemsList.Add(value);
 
@@ -101,6 +110,7 @@ namespace Vodovoz.RDL.Elements.Base
 				{
 					ItemsList.RemoveAt(index.Value);
 					ItemsElementNameList.RemoveAt(index.Value);
+					UpdateIndex(propertyName, null);
 				}
 			}
 		}

@@ -15,7 +15,7 @@ namespace Vodovoz.RDL.Elements
 		private List<XmlAttribute> anyAttrField = new List<XmlAttribute>();
 
 		[XmlIgnore()]
-		public List<object> ItemsList
+		public override List<object> ItemsList
 		{
 			get => itemsField;
 			set => itemsField = value;
@@ -35,7 +35,7 @@ namespace Vodovoz.RDL.Elements
 		}
 
 		[XmlIgnore()]
-		public List<ItemsChoiceType3> ItemsElementNameList
+		public override List<ItemsChoiceType3> ItemsElementNameList
 		{
 			get => itemsElementNameField;
 			set => itemsElementNameField = value;

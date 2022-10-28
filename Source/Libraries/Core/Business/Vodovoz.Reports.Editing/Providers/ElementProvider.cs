@@ -83,6 +83,28 @@ namespace Vodovoz.Reports.Editing.Providers
 			return rows;
 		}
 
+		public static XElement GetTextbox(this XContainer container, string textBoxName, string @namespace)
+		{
+			var textBoxes = container.Descendants(XName.Get("Textbox", @namespace));
+			if(!textBoxes.Any())
+			{
+				throw new InvalidOperationException("В отчете отсутствуют Textbox");
+			}
+
+			var matchedTextBoxes = textBoxes.Where(x => x.Attribute(XName.Get("Name")).Value == textBoxName);
+			if(!matchedTextBoxes.Any())
+			{
+				throw new InvalidOperationException($"В отчете отсутствуют Textbox с именем {textBoxName}");
+			}
+
+			if(matchedTextBoxes.Count() > 1)
+			{
+				throw new InvalidOperationException($"В отчете присутствуют несколько Textbox с именем {textBoxName}");
+			}
+			var textBox = matchedTextBoxes.First();
+			return textBox;
+		}
+
 		private static void ThrowMissingElementException(string element)
 		{
 			throw new InvalidOperationException($"В контейнере отсутствуют элементы {element}");

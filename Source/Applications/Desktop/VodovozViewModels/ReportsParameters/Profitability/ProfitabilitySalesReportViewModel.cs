@@ -25,7 +25,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Reports.Editing;
-using Vodovoz.Reports.Editing.TableGrouping;
+using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
@@ -79,6 +79,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			leftRightListViewModel.RightLabel = "Выбранные группировки";
 			leftRightListViewModel.SetLeftItems(groupingNodes, x => x.Name);
 			GroupingSelectViewModel = leftRightListViewModel;
+
+			var selected = new[] { GroupingType.Counterparty, GroupingType.RouteList, GroupingType.Order };
+			GroupingSelectViewModel.SelectedLeftItems = GroupingSelectViewModel.LeftItems
+				.Cast<LeftRightListItemViewModel<GroupingNode>>()
+				.Where(x => selected.Contains(x.Content.GroupType));
 		}
 
 		protected override Dictionary<string, object> Parameters => _parameters;
@@ -144,22 +149,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private IEnumerable<GroupingNode> GetGroupingNodes()
 		{
 			return new[] { 
-				new GroupingNode{ Name = "Заказ", GroupFieldName = "Order" },
-				new GroupingNode{ Name = "Контрагент", GroupFieldName = "Counterparty" },
-				new GroupingNode{ Name = "Подразделение", GroupFieldName = "Subdivision" },
-				new GroupingNode{ Name = "Дата доставки", GroupFieldName = "DeliveryDate" },
-				new GroupingNode{ Name = "Маршрутный лист", GroupFieldName = "RouteList" },
-				new GroupingNode{ Name = "Номенклатура", GroupFieldName = "Nomen" },
-				new GroupingNode{ Name = "Группа уровень 1", GroupFieldName = "NomenGroup1" },
-				new GroupingNode{ Name = "Группа уровень 2", GroupFieldName = "NomenGroup2" },
-				new GroupingNode{ Name = "Группа уровень 3", GroupFieldName = "NomenGroup3" }
+				new GroupingNode{ Name = "Заказ", GroupType = GroupingType.Order },
+				new GroupingNode{ Name = "Контрагент", GroupType = GroupingType.Counterparty },
+				new GroupingNode{ Name = "Подразделение", GroupType = GroupingType.Subdivision },
+				new GroupingNode{ Name = "Дата доставки", GroupType = GroupingType.DeliveryDate },
+				new GroupingNode{ Name = "Маршрутный лист", GroupType = GroupingType.RouteList },
+				new GroupingNode{ Name = "Номенклатура", GroupType = GroupingType.Nomenclature },
+				new GroupingNode{ Name = "Группа уровень 1", GroupType = GroupingType.NomenclatureGroup1 },
+				new GroupingNode{ Name = "Группа уровень 2", GroupType = GroupingType.NomenclatureGroup2 },
+				new GroupingNode{ Name = "Группа уровень 3", GroupType = GroupingType.NomenclatureGroup3 }
 			};
 		}
 
 		public class GroupingNode
 		{
 			public string Name { get; set; }
-			public string GroupFieldName { get; set; }
+			public GroupingType GroupType { get; set; }
 		}
 
 		private void SetupFilter()
@@ -464,15 +469,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_parameters.Add("order_author_exclude", new[] { "0" });
 			}
 
-			/*var groupParameters = GetGroupingParameters();
+			var groupParameters = GetGroupingParameters();
 			foreach(var groupParameter in groupParameters)
 			{
-				_parameters.Add(groupParameter.Key, groupParameter.Value);
+				_parameters.Add(groupParameter.Key, groupParameter.Value.ToString());
 			}
-			_parameters.Add("groups_count", groupParameters.Count());*/
-
-			_parameters.Add("groups_count", 1);
-			_parameters.Add("group1", "Counterparty");
+			_parameters.Add("groups_count", groupParameters.Count());
 
 			foreach(var item in _filter.GetParameters())
 			{
@@ -494,17 +496,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 		private string ModifyReport(string path)
 		{
-			var groupModifyAction = new AddNewTableGroupAction("Table1", new[] { "={order_id}" });
-			groupModifyAction.AfterGroup = "group";
-			groupModifyAction.NewGroupName = "group_orders";
-
-			var groupingModifier = new TableGroupingModifier();
-			groupingModifier.AddAction(groupModifyAction);
+			var groupParameters = GetGroupingParameters();
+			ProfitabilityReportModifier modifier = new ProfitabilityReportModifier();
+			modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
 
 			using(ReportController reportController = new ReportController(path))
 			using(var reportStream = new MemoryStream())
 			{
-				reportController.AddModifier(groupingModifier);
+				reportController.AddModifier(modifier);
 				reportController.Modify();
 				reportController.Save(reportStream);
 
@@ -523,7 +522,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			var groupItems = GroupingSelectViewModel.GetRightItems().ToList();
 			if(!groupItems.Any())
 			{
-				groupItems.Add(new GroupingNode { GroupFieldName = "Nomen" });
+				groupItems.Add(new GroupingNode { GroupType = GroupingType.Nomenclature });
 			}
 
 			if(groupItems.Count > 3)
@@ -534,7 +533,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			var groupCounter = 1;
 			foreach(var item in groupItems)
 			{
-				result.Add(new KeyValuePair<string, object>($"group{groupCounter}", item.GroupFieldName));
+				result.Add(new KeyValuePair<string, object>($"group{groupCounter}", item.GroupType));
 				groupCounter++;
 			}
 			return result;

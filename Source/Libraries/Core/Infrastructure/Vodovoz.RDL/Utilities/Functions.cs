@@ -16,6 +16,8 @@ namespace Vodovoz.RDL.Utilities
 		public static XElement ToXElement<T>(this object element, string @namespace = null)
 		{
 			var namespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+			namespaces.Add(string.Empty, @namespace);
+
 			var serializer = new XmlSerializer(typeof(T), @namespace);
 
 			using(var memoryStream = new MemoryStream())
