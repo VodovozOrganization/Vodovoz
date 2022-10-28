@@ -1119,9 +1119,9 @@ FROM
              LEFT JOIN
          geo_groups gg ON gg.id = distr.geo_group_id
          	 LEFT JOIN
-         phones p_client ON p_client.counterparty_id = counterparty.id 
+         phones p_client ON p_client.counterparty_id = counterparty.id AND p_client.is_archive = 0
      	 LEFT JOIN 
-         phones p_dp ON p_dp.delivery_point_id = delivery_points.id
+         phones p_dp ON p_dp.delivery_point_id = delivery_points.id AND p_dp.is_archive = 0
      WHERE
          (order_status = 'Accepted'
              OR order_status = 'InTravelList'
