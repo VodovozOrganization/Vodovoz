@@ -5,24 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
 	  <ProjectReference Include="..\Business\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Ionic.Zip">
       <HintPath>..\..\..\External\Taxcom\Ionic.Zip.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\External\Taxcom\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\..\External\Taxcom\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Taxcom.Api.ClientShared">
       <HintPath>..\..\..\External\Taxcom\Taxcom.Api.ClientShared.dll</HintPath>

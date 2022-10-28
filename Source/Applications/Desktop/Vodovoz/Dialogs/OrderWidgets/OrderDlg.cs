@@ -105,6 +105,7 @@ using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
 namespace Vodovoz
 {
@@ -183,6 +184,7 @@ namespace Vodovoz
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
 		private PhonesJournalFilterViewModel _contactPhoneFilter;
+		private readonly EdoLightsMatrixViewModel _edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -1634,6 +1636,15 @@ namespace Vodovoz
 
 					return false;
 				}
+			}
+
+			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
+			var hasUnknownEdoLightsType = _edoLightsMatrixViewModel.HasUnknown();
+			if(hasUnknownEdoLightsType
+			   && !ServicesConfig.InteractiveService.Question(
+				   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
+			{
+				return false;
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {

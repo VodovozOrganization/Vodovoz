@@ -131,5 +131,21 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				}
 			}
 		}
+
+		public bool HasUnknown()
+		{
+			foreach(var row in ObservableLightsMatrixRows)
+			{
+				foreach(var column in row.Columns)
+				{
+					if(column.EdoLightsColorizeType == EdoLightsColorizeType.Unknown)
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
 	}
 }
