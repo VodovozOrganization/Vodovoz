@@ -78,7 +78,6 @@ using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using EdoService.Dto;
-using FluentNHibernate.Data;
 
 namespace Vodovoz
 {
@@ -1085,6 +1084,22 @@ namespace Vodovoz
 					w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
+
+			specialListCmbAllOperators.ItemsList = Entity.CounterpartyEdoOperators;
+			specialListCmbAllOperators.Binding
+				.AddFuncBinding(Entity,
+					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
+					w => w.Sensitive)
+				.InitializeFromSource();
+
+			specialListCmbAllOperators.ItemSelected += (s, e) =>
+			{
+				if(e.SelectedItem is CounterpartyEdoOperator counterpartyEdoOperator)
+				{
+					Entity.EdoOperator = counterpartyEdoOperator.EdoOperator;
+					Entity.PersonalAccountIdInEdo = counterpartyEdoOperator.PersonalAccountIdInEdo;
+				}
+			};
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
