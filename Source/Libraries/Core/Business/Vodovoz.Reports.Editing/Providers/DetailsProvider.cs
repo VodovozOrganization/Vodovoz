@@ -26,20 +26,25 @@ namespace Vodovoz.Reports.Editing.Providers
 			return result;
 		}
 
-		public TableRow GetFooterRow(XDocument report, string tableName)
+		public TableRow GetSecondHeaderRow(XDocument report, string tableName)
 		{
 			var ns = report.Root.Attribute("xmlns").Value;
 			var rows = report
 				.GetTable(tableName, ns)
-				.GetFooter(ns)
+				.GetHeader(ns)
 				.GetTableRows(ns);
 
 			if(!rows.Any())
 			{
-				throw new InvalidOperationException($"В таблице {tableName} в разделе Footer отсутствуют строки");
+				throw new InvalidOperationException($"В таблице {tableName} в разделе Header отсутствуют строки");
 			}
 
-			var row = rows.Elements().First();
+			if(rows.Elements().Count() < 2)
+			{
+				throw new InvalidOperationException($"В таблице {tableName} в разделе Header должно быть 2 строки");
+			}
+
+			var row = rows.Elements().Skip(1).First();
 			var result = row.FromXElement<TableRow>();
 			return result;
 		}

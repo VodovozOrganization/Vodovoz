@@ -77,6 +77,16 @@ namespace Vodovoz.Reports.Editing.Providers
 			return footers.First();
 		}
 
+		public static XElement GetHeader(this XContainer container, string @namespace)
+		{
+			var headers = container.Descendants(XName.Get("Header", @namespace));
+			if(!headers.Any())
+			{
+				ThrowMissingElementException("Header");
+			}
+			return headers.First();
+		}
+
 		public static IEnumerable<XElement> GetTableRows(this XContainer container, string @namespace)
 		{
 			var rows = container.Descendants(XName.Get("TableRows", @namespace));

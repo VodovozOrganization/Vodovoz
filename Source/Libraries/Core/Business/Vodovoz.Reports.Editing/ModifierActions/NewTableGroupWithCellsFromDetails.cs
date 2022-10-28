@@ -62,7 +62,7 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			//Установка новых имен для текстовых боксов ячеек
 			//Установка стиля для ячеек
 			var rowDest = _detailsProvider.GetDetailsRow(report, _tableName);
-			var rowExpressionsSource = _detailsProvider.GetFooterRow(report, _tableName);
+			var rowExpressionsSource = _detailsProvider.GetSecondHeaderRow(report, _tableName);
 			for(int i = 0; i < rowDest.Cells.Count; i++)
 			{
 				var destCell = rowDest.Cells[i];

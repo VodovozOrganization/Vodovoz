@@ -2,8 +2,8 @@
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
-  <PageHeight>209.804mm</PageHeight>
-  <PageWidth>296.926mm</PageWidth>
+  <PageHeight>296mm</PageHeight>
+  <PageWidth>209mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -15,22 +15,23 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>435.5pt</Height>
+    <Height>433.9pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Height>20.29pt</Height>
-        <Width>816.07pt</Width>
+        <Height>17.29pt</Height>
+        <Width>564.56pt</Width>
         <Value>='Отчет по продажам с рентабельностью ' + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd/MM/yyyy"), 'с ' + Format(CDate({?start_date}), "dd/MM/yyyy") + ' по ' + Format(CDate({?end_date}), "dd/MM/yyyy"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>22.2pt</Top>
+        <Top>12.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontSize>16pt</FontSize>
+          <FontSize>11pt</FontSize>
           <TextAlign>Center</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
+          <FontWeight >Bold</FontWeight>
         </Style>
         <Visibility></Visibility>
       </Textbox>
@@ -46,7 +47,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>211.8pt</Width>
+            <Width>201.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>57.8pt</Width>
@@ -160,7 +161,7 @@ Iif(
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>6pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -179,7 +180,7 @@ Iif(
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>6pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -198,7 +199,7 @@ Iif(
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>6pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -216,7 +217,7 @@ Iif(
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>6pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -234,7 +235,7 @@ Iif(
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>6pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -252,7 +253,7 @@ Iif(
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>6pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -271,7 +272,189 @@ Iif(
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>6pt</FontSize>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>13pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Итого:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format ></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>=Sum(
+    Round({count}, 2)
+)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format >0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=Sum(
+    Round({weight}*{count}, 2)
+)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format >0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=Sum(
+    Round({count}*{price}, 2)
+)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format >0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>=Sum(
+    Round(    
+            Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
+            Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
+            Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
+            Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
+            Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
+            *{count}    
+    , 2)
+)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format >0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>=Sum(
+    Round(    
+        ({count}*{price})
+        -
+        Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
+        Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
+        Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
+        Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
+        Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
+        *{count}
+    , 2)
+)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format >0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=
+Round( 
+    Sum(
+        Round(    
+            ({count}*{price})
+            -
+            Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
+            Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
+            Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
+            Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
+            Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
+            *{count}
+        , 2)
+    )
+    /
+    Sum(
+        Round({count}*{price}, 2)
+    )
+, 2)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format >0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -289,7 +472,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxItemData">
-                      <Value>[autogenerated]</Value>
+                      <Value>={order_item_id}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -297,7 +480,7 @@ Iif(
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>5pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <PaddingBottom>1pt</PaddingBottom>
                         <PaddingTop>1pt</PaddingTop>
                       </Style>
@@ -315,7 +498,7 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>5pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <Format>0.00</Format>
                         <TextAlign>Right</TextAlign>
                       </Style>
@@ -333,7 +516,7 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>5pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <Format>0.00</Format>
                         <TextAlign>Right</TextAlign>
                       </Style>
@@ -351,7 +534,7 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>5pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <Format>0.00</Format>
                         <TextAlign>Right</TextAlign>
                       </Style>
@@ -376,7 +559,7 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>5pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <Format>0.00</Format>
                         <TextAlign>Right</TextAlign>
                       </Style>
@@ -403,7 +586,7 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>5pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <Format>0.00</Format>
                         <TextAlign>Right</TextAlign>
                       </Style>
@@ -434,7 +617,7 @@ Iif(
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>5pt</FontSize>
+                        <FontSize>7pt</FontSize>
                         <Format>0.00</Format>
                         <TextAlign>Right</TextAlign>
                       </Style>
@@ -445,249 +628,25 @@ Iif(
             </TableRow>
           </TableRows>
         </Details>
-        <Left>3.2pt</Left>
+        <Left>2.4pt</Left>
         <Top>103.8pt</Top>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>Итого:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>6pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox54">
-                      <Value>=Sum(
-    Round({count}, 2)
-)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>5pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Format>0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox76">
-                      <Value>=Sum(
-    Round({weight}*{count}, 2)
-)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>5pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Format>0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox81">
-                      <Value>=Sum(
-    Round({count}*{price}, 2)
-)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>5pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Format>0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox116">
-                      <Value>=Sum(
-    Round(    
-            Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
-            Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
-            Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
-            Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
-            Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
-            *{count}    
-    , 2)
-)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>5pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Format>0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox121">
-                      <Value>=Sum(
-    Round(    
-        ({count}*{price})
-        -
-        Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
-        Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
-        Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
-        Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
-        Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
-        *{count}
-    , 2)
-)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>5pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Format>0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox126">
-                      <Value>=
-Sum(
-    Round(    
-        ({count}*{price})
-        -
-        Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
-        Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
-        Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
-        Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
-        Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
-        *{count}
-    , 2)
-)
-/
-Sum(
-    Round({count}*{price}, 2)
-)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>5pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Format>0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
       </Table>
       <Textbox Name="Textbox11">
-        <Height>13.51pt</Height>
-        <Width>223.58pt</Width>
+        <Height>33.02pt</Height>
+        <Width>260.85pt</Width>
         <Value>=First({criterions}, "Criterions")</Value>
         <ZIndex>1</ZIndex>
-        <Left>4.80pt</Left>
-        <Top>226.20pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Left</TextAlign>
-        </Style>
-        <CanGrow>true</CanGrow>
-        <CanShrink>true</CanShrink>
-      </Textbox>
-      <Textbox Name="Textbox33">
-        <Height>12.00pt</Height>
-        <Width>270pt</Width>
-        <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>542.4pt</Left>
-        <Top>76.7pt</Top>
+        <Left>301.60pt</Left>
+        <Top>63.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <TextAlign>Right</TextAlign>
+          <FontSize >8pt</FontSize>
         </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>false</CanShrink>
       </Textbox>
       <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
         <Style>
@@ -699,14 +658,57 @@ Sum(
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>104.4pt</Width>
+            <Width>79.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>344.3pt</Width>
+            <Width>195.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
           <TableRows>
+            <TableRow >
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Сформировано:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize >8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>=Format( {?creation_date}, "dd.MM.yyyy HH:mm")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize >8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
@@ -725,6 +727,7 @@ Sum(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -744,6 +747,7 @@ Sum(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -767,6 +771,7 @@ Sum(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -775,7 +780,82 @@ Sum(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>[GROUPS]</Value>
+                      <Value>=
+Iif(
+    {?groups_count} = 3, 
+    Switch(
+        {?group1} = 'Order', 'Заказ',
+        {?group1} = 'Counterparty', 'Контрагент',
+        {?group1} = 'Subdivision', 'Отдел',
+        {?group1} = 'DeliveryDate', 'Дата доставки',
+        {?group1} = 'RouteList', 'МЛ',
+        {?group1} = 'Nomenclature', 'Товар',
+        {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    )
+    + ',  ' +
+    Switch(
+        {?group2} = 'Order', 'Заказ',
+        {?group2} = 'Counterparty', 'Контрагент',
+        {?group2} = 'Subdivision', 'Отдел',
+        {?group2} = 'DeliveryDate', 'Дата доставки',
+        {?group2} = 'RouteList', 'МЛ',
+        {?group2} = 'Nomenclature', 'Товар',
+        {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    )
+    + ',  ' +
+    Switch(
+        {?group3} = 'Order', 'Заказ',
+        {?group3} = 'Counterparty', 'Контрагент',
+        {?group3} = 'Subdivision', 'Отдел',
+        {?group3} = 'DeliveryDate', 'Дата доставки',
+        {?group3} = 'RouteList', 'МЛ',
+        {?group3} = 'Nomenclature', 'Товар',
+        {?group3} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group3} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group3} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    ), 
+    Iif(
+        {?groups_count} = 2, 
+        Switch(
+            {?group1} = 'Order', 'Заказ',
+            {?group1} = 'Counterparty', 'Контрагент',
+            {?group1} = 'Subdivision', 'Отдел',
+            {?group1} = 'DeliveryDate', 'Дата доставки',
+            {?group1} = 'RouteList', 'МЛ',
+            {?group1} = 'Nomenclature', 'Товар',
+            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+        )
+        + ',  ' +
+        Switch(
+            {?group2} = 'Order', 'Заказ',
+            {?group2} = 'Counterparty', 'Контрагент',
+            {?group2} = 'Subdivision', 'Отдел',
+            {?group2} = 'DeliveryDate', 'Дата доставки',
+            {?group2} = 'RouteList', 'МЛ',
+            {?group2} = 'Nomenclature', 'Товар',
+            {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'        
+        ), 
+        Switch(
+            {?group1} = 'Order', 'Заказ',
+            {?group1} = 'Counterparty', 'Контрагент',
+            {?group1} = 'Subdivision', 'Отдел',
+            {?group1} = 'DeliveryDate', 'Дата доставки',
+            {?group1} = 'RouteList', 'МЛ',
+            {?group1} = 'Nomenclature', 'Товар',
+            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+        )
+    )
+)</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -786,6 +866,7 @@ Sum(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -795,8 +876,8 @@ Sum(
             </TableRow>
           </TableRows>
         </Details>
-        <Left>12.3pt</Left>
-        <Top>53.1pt</Top>
+        <Left>1.9pt</Left>
+        <Top>51.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -816,6 +897,7 @@ Sum(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -835,6 +917,7 @@ Sum(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -845,30 +928,44 @@ Sum(
           </TableRows>
         </Footer>
       </fyi:Grid>
+      <Textbox Name="Textbox12" >
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Фильтры:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>489.2pt</Left>
+        <Top>51.7pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <TextAlign>Right</TextAlign>
+          <TextDecoration>None</TextDecoration>
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
-    <Height>13.6pt</Height>
+    <Height>15.1pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox18">
-        <Height>12.00pt</Height>
-        <Width>815.31pt</Width>
+        <Height>12.75pt</Height>
+        <Width>534.53pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>0.0pt</Top>
+        <Left>13.60pt</Left>
+        <Top>0.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
+          <FontSize >8pt</FontSize>
         </Style>
-        <CanGrow>true</CanGrow>
-        <CanShrink>true</CanShrink>
+        <CanGrow>false</CanGrow>
+        <CanShrink>false</CanShrink>
       </Textbox>
     </ReportItems>
   </PageFooter>
@@ -942,12 +1039,12 @@ Sum(
 		FROM 
 			profitability_constants pc
 	) AS administrative_expenses_per_kg,
-	IFNULL(nomen_group_level_1.id, 0) as nomen_group_level_1_id,
-    IFNULL(nomen_group_level_1.name, 'Без группы') as nomen_group_level_1_name,
-    IFNULL(nomen_group_level_2.id, 0) as nomen_group_level_2_id,
-    IFNULL(nomen_group_level_2.name, 'Без группы') as nomen_group_level_2_name,
-    IFNULL(nomen_group_level_3.id, 0) as nomen_group_level_3_id,
-    IFNULL(nomen_group_level_3.name, 'Без группы') as nomen_group_level_3_name
+	IFNULL(group_levels.level_1_id, 0) as nomen_group_level_1_id,
+    IFNULL(group_levels.level_1_name, 'Без группы') as nomen_group_level_1_name,
+    IFNULL(group_levels.level_2_id, 0) as nomen_group_level_2_id,
+    IFNULL(group_levels.level_2_name, 'Без группы') as nomen_group_level_2_name,
+    IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
+    IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name
 FROM
     order_items oi
     LEFT JOIN
@@ -976,37 +1073,47 @@ FROM
     geo_groups gg ON gg.id = distr.geo_group_id
     LEFT JOIN
     (
-        SELECT
-            ng_l1.id,
-            ng_l1.name
-        FROM 
-            nomenclature_groups ng_l1
-        WHERE
-            ng_l1.id IS NOT NULL
-    ) nomen_group_level_1 ON nomen_group_level_1.id = n.group_id
-    LEFT JOIN
-    (
-        SELECT
-            ng_l2.id,
-            ng_l2.name
-        FROM 
-            nomenclature_groups ng_l1
-            LEFT JOIN nomenclature_groups ng_l2 ON ng_l2.parent_id = ng_l1.id
-        WHERE
-            ng_l2.id IS NOT NULL
-    ) nomen_group_level_2 ON nomen_group_level_2.id = n.group_id
-    LEFT JOIN
-    (
-        SELECT
-            ng_l3.id,
-            ng_l3.name
-        FROM 
-            nomenclature_groups ng_l1
-            LEFT JOIN nomenclature_groups ng_l2 ON ng_l2.parent_id = ng_l1.id
-            LEFT JOIN nomenclature_groups ng_l3 ON ng_l3.parent_id = ng_l2.id
-        WHERE
-            ng_l3.id IS NOT NULL
-    ) nomen_group_level_3 ON nomen_group_level_3.id = n.group_id    
+	    SELECT 
+			groups_with_levels.depth AS depth,
+			groups_with_levels.id AS group_id,
+			groups_with_levels.name AS group_name,
+			groups_with_levels.level_1_id AS level_1_id,
+			name_source_1.name AS level_1_name,
+			groups_with_levels.level_2_id AS level_2_id,
+			name_source_2.name AS level_2_name,
+			groups_with_levels.level_3_id AS level_3_id,
+			name_source_3.name AS level_3_name
+		FROM
+			(
+				WITH RECURSIVE groups_source (depth, id, parent_id, name, level_1_id, level_2_id, level_3_id) AS (
+					SELECT 
+						1 AS depth,
+						ng.id AS id,
+						0 AS parent_id,
+						ng.name,
+						ng.id AS level_1_id, 
+						0 AS level_2_id,
+						0 AS level_3_id
+				  	FROM nomenclature_groups ng
+				  	WHERE ng.parent_id IS NULL
+				  UNION
+				  	SELECT 
+						groups_source.depth + 1 AS depth,
+						ng.id AS id,
+						groups_source.id AS parent_id,
+						ng.name,
+						groups_source.level_1_id AS level_1_id,
+						IF(groups_source.depth = 1, ng.id, groups_source.level_2_id) AS level_2_id, 
+						IF(groups_source.depth = 2, ng.id, groups_source.level_3_id) AS level_3_id
+				  	FROM nomenclature_groups ng, groups_source
+				  	WHERE ng.parent_id = groups_source.id
+				)
+				SELECT * FROM groups_source
+			) AS groups_with_levels
+			LEFT JOIN nomenclature_groups name_source_1 ON name_source_1.id = groups_with_levels.level_1_id
+			LEFT JOIN nomenclature_groups name_source_2 ON name_source_2.id = groups_with_levels.level_2_id
+			LEFT JOIN nomenclature_groups name_source_3 ON name_source_3.id = groups_with_levels.level_3_id
+    ) group_levels ON group_levels.group_id = n.group_id    
 WHERE
 	(
 	    o.order_status = 'Accepted'
@@ -1087,28 +1194,6 @@ WHERE
 	        (IFNULL(ng.id , 0) NOT IN (@product_group_exclude) AND 0 IN (@product_group_include)))
 	        OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
 	    )
-GROUP BY
-	CASE 
-		CASE @group_count
-			WHEN 1 THEN @group_1
-			WHEN 2 THEN @group_2  
-			WHEN 3 THEN @group_3
-			ELSE null
-		END
-		WHEN 'Order' THEN o.id 
-		WHEN 'Counterparty' THEN c.id  
-		WHEN 'Subdivision' THEN e.subdivision_id
-		WHEN 'DeliveryDate' THEN o.delivery_date 
-		WHEN 'RouteList' THEN rla.route_list_id 
-		WHEN 'Nomenclature' THEN n.id 
-		WHEN 'NomenclatureGroup1' THEN nomen_group_level_1.id 
-		WHEN 'NomenclatureGroup2' THEN nomen_group_level_2.id 
-		WHEN 'NomenclatureGroup3' THEN nomen_group_level_3.id
-		ELSE null
-	END
-/*GROUP BY c.id, o.id*/
-HAVING route_list IS NOT NULL
-#ORDER BY c.id, rla.route_list_id, o.id
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1614,7 +1699,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -1795,28 +1880,28 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="group2">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="group3">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="groups_count">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
