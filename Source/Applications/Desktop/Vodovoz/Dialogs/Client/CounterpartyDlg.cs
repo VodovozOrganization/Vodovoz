@@ -1085,7 +1085,7 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
 
-			specialListCmbAllOperators.ItemsList = Entity.CounterpartyEdoOperators;
+			specialListCmbAllOperators.ItemsList = Entity.CounterpartyEdoOperators.Distinct();
 			specialListCmbAllOperators.Binding
 				.AddFuncBinding(Entity,
 					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
