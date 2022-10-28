@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -286,9 +286,9 @@ FROM
         LEFT JOIN
     delivery_points ON orders.delivery_point_id=delivery_points.id
         LEFT JOIN
-    phones dp_phones ON delivery_points.id = dp_phones.delivery_point_id
+    phones dp_phones ON delivery_points.id = dp_phones.delivery_point_id AND dp_phones.is_archive = 0
         LEFT JOIN
-    phones cp_phones ON delivery_points.id = cp_phones.counterparty_id
+    phones cp_phones ON delivery_points.id = cp_phones.counterparty_id AND cp_phones.is_archive = 0
         LEFT JOIN
     (SELECT delivery_point_id, (SUM(delivered) - SUM(returned)) as bottle_debt
      FROM bottles_movement_operations GROUP BY delivery_point_id) as debts ON debts.delivery_point_id = orders.delivery_point_id
