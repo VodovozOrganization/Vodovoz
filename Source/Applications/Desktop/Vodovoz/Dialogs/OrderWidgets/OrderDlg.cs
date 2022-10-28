@@ -1005,7 +1005,7 @@ namespace Vodovoz
 					continue;
 				}
 
-				if (flyer.IsForFirstOrder && !Entity.IsFirstOrder)
+				if(flyer.IsForFirstOrder && !Entity.IsFirstOrder)
 				{
 					continue;
 				}
