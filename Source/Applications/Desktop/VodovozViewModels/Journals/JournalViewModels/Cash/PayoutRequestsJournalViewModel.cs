@@ -173,13 +173,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						if(selectedNode.EntityType == typeof(CashRequest))
 						{
 							var cashRequestVM = CreateCashRequestViewModelForOpen(selectedNode);
-							cashRequestVM.ConveyForResultsCommand.Execute();
+							if (cashRequestVM.CanConveyForResults)
+							{
+								cashRequestVM.ConveyForResultsCommand.Execute();
+							}
 							cashRequestVM.Dispose();
 						}
 						else if(selectedNode.EntityType == typeof(CashlessRequest))
 						{
 							var cashlessRequestVM = CreateCashlessRequestViewModelForOpen(selectedNode);
-							cashlessRequestVM.ConveyForPayout();
+							if (cashlessRequestVM.CanConveyForPayout)
+							{
+								cashlessRequestVM.ConveyForPayout();
+							}
 							cashlessRequestVM.Dispose();
 						}
 					}
