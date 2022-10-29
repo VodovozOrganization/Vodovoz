@@ -1798,7 +1798,25 @@ namespace Vodovoz
 
 		protected async void OnYbuttonCheckClientInTaxcomClicked(object sender, EventArgs e)
 		{
-			var contactResult = await _contactListService.CheckContragentAsync(Entity.INN, Entity.KPP);
+			ContactList contactResult = null;
+
+			try
+			{
+				contactResult = await _contactListService.CheckContragentAsync(Entity.INN, Entity.KPP);
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex);
+
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Ошибка при проверке контрагента в Такском.");
+				});
+
+				return;
+			}
+			
 
 			if(contactResult == null || !contactResult.Contacts.Any())
 			{
@@ -1866,7 +1884,24 @@ namespace Vodovoz
 				return;
 			}
 
-			var isRegistered = await _trueApiService.ParticipantsAsync(Entity.INN, "water");
+			bool isRegistered = false;
+
+			try
+			{
+				isRegistered = await _trueApiService.ParticipantsAsync(Entity.INN, "water");
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex);
+				
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, 
+						$"Ошибка при проверке в Честном Знаке.\n{ex.Message}");
+				});
+
+				return;
+			}
 
 			if(isRegistered)
 			{
@@ -1899,12 +1934,12 @@ namespace Vodovoz
 				return;
 			}
 
-			if(string.IsNullOrWhiteSpace(Entity.INN))
+			if(string.IsNullOrWhiteSpace(Entity.INN) || string.IsNullOrWhiteSpace(Entity.KPP))
 			{
 				Application.Invoke((s, arg) =>
 				{
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-						"Проверка согласия невозможна, т.к. не заполнен ИНН");
+						"Проверка согласия невозможна, должен быть заполнен ИНН и КПП");
 				});
 
 				return;
@@ -1913,9 +1948,26 @@ namespace Vodovoz
 			var checkDate = DateTime.Now.AddDays(-_edoSettings.TaxcomCheckConsentDays);
 			var contactListParser = new ContactListParser();
 
-			var contact = await contactListParser.GetLastChangeOnDateByInn(_contactListService, checkDate, Entity.INN);
+			ContactListItem contactListItem = null;
 
-			if(contact == null)
+			try
+			{
+				contactListItem = await contactListParser.GetLastChangeOnDate(_contactListService, checkDate, Entity.INN, Entity.KPP);
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex);
+
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+						$"Ошибка при проверке статуса приглашения.\n{ex.Message}");
+				});
+
+				return;
+			}
+
+			if(contactListItem == null)
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
 
@@ -1928,7 +1980,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.ConsentForEdoStatus = _contactListService.ConvertStateToConsentForEdoStatus(contact.State.Code);
+			Entity.ConsentForEdoStatus = _contactListService.ConvertStateToConsentForEdoStatus(contactListItem.State.Code);
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
@@ -1949,7 +2001,23 @@ namespace Vodovoz
 
 			if(email != null)
 			{
-				resultMessage = await _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo);
+				try
+				{
+					resultMessage =
+						await _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo);
+				}
+				catch(Exception ex)
+				{
+					_logger.Error(ex);
+
+					Application.Invoke((s, arg) =>
+					{
+						_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+							$"Ошибка при отправке приглашения.\n{ex.Message}");
+					});
+
+					return;
+				}
 			}
 			else
 			{

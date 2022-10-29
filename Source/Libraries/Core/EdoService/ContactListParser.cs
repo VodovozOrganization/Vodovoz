@@ -9,7 +9,7 @@ namespace EdoService
 {
 	public class ContactListParser
 	{
-		public async Task<ContactListItem> GetLastChangeOnDateByInn(IContactListService contactListService, DateTime dateLastRequest, string inn, ContactStateCode? status = null)
+		public async Task<ContactListItem> GetLastChangeOnDate(IContactListService contactListService, DateTime dateLastRequest, string inn, string kpp, ContactStateCode? status = null)
 		{
 			List<ContactListItem> items = new List<ContactListItem>();
 			ContactList contactList;
@@ -29,7 +29,7 @@ namespace EdoService
 
 
 			return items
-				.Where(x => x.Inn == inn)
+				.Where(x => x.Inn == inn && x.Kpp == kpp)
 				.OrderByDescending(x => x.State.Changed)
 				.FirstOrDefault();
 		}
