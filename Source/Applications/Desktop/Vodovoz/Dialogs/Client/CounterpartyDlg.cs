@@ -1890,15 +1890,41 @@ namespace Vodovoz
 		{
 			if(Entity.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 			{
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+						"В статусе \"Принят\" проверка согласия не требуется");
+				});
+
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(Entity.INN))
+			{
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+						"Проверка согласия невозможна, т.к. не заполнен ИНН");
+				});
+
 				return;
 			}
 
 			var checkDate = DateTime.Now.AddDays(-_edoSettings.TaxcomCheckConsentDays);
 			var contactListParser = new ContactListParser();
-			var contact = await contactListParser.GetLastChangeOnDateById(_contactListService, checkDate, Entity.PersonalAccountIdInEdo);
+
+			var contact = await contactListParser.GetLastChangeOnDateByInn(_contactListService, checkDate, Entity.INN);
 
 			if(contact == null)
 			{
+				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+						"Приглашение не найдено.");
+				});
+
 				return;
 			}
 
