@@ -1802,6 +1802,12 @@ namespace Vodovoz
 
 			if(contactResult == null || !contactResult.Contacts.Any())
 			{
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Контрагент не найден через Такском.");
+				});
+
 				return;
 			}
 
@@ -1811,7 +1817,13 @@ namespace Vodovoz
 				Entity.PersonalAccountIdInEdo = contactListItem.EdxClientId;
 				Entity.EdoOperator = GetEdoOperatorByEdoAccountId(contactListItem.EdxClientId); ;
 				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
-				
+
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+						"Оператор получен.");
+				});
+
 				return;
 			}
 
@@ -1838,7 +1850,7 @@ namespace Vodovoz
 			Application.Invoke((s, arg) =>
 			{
 				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					"У контрагента несколько операторов, выберите нужный из списка");
+					"У контрагента найдено несколько операторов, выберите нужный из списка.");
 			});
 		}
 
@@ -1866,6 +1878,12 @@ namespace Vodovoz
 			}
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+
+			Application.Invoke((s, arg) =>
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					"Регистрация в Честном Знаке проверена.");
+			});
 		}
 
 		protected async void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
@@ -1887,6 +1905,12 @@ namespace Vodovoz
 			Entity.ConsentForEdoStatus = _contactListService.ConvertStateToConsentForEdoStatus(contact.State.Code);
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+
+			Application.Invoke((s, arg) =>
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					"Согласие проверено.");
+			});
 		}
 
 		protected async void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
@@ -1913,6 +1937,11 @@ namespace Vodovoz
 			if(resultMessage.IsSuccess)
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Sent;
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+						"Приглашение отправлено.");
+				});
 			}
 			else
 			{
