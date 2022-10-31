@@ -837,8 +837,8 @@ FROM
         LEFT JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
         INNER JOIN districts ON districts.id = dp.district_id
         LEFT JOIN geo_groups gg ON gg.id = districts.geo_group_id
-        LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
-        LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
+        LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id AND dp_ph.is_archive = 0
+        LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id AND c_ph.is_archive = 0
 WHERE
     o.delivery_date BETWEEN @start_date AND @end_date
   AND(
@@ -954,8 +954,8 @@ FROM
                 LEFT JOIN employees e ON e.id = o.author_employee_id
                 INNER JOIN districts ON districts.id = dp.district_id
                 LEFT JOIN geo_groups gg ON gg.id = districts.geo_group_id
-                LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
-                LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
+                LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id AND dp_ph.is_archive = 0
+                LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id AND c_ph.is_archive = 0
         WHERE
             o.delivery_date BETWEEN @start_date AND @end_date
           AND(

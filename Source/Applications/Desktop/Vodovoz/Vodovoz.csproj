@@ -459,6 +459,7 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
+    <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
     <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
@@ -1743,6 +1744,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ResponsibleView.cs" />
     <Compile Include="Filters\GtkViews\PhonesJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PhonesJournalFilterView.cs" />
+    <Compile Include="Views\Client\EdoOperatorView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoOperatorView.cs" />
+    <Compile Include="SidePanel\InfoViews\EdoLightsMatrixPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.EdoLightsMatrixPanelView.cs" />
+    <Compile Include="Views\Client\EdoLightsMatrixView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoLightsMatrixView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2079,6 +2086,10 @@
       <Project>{bd514659-1394-4bba-94c5-1bee5c72c7d6}</Project>
       <Name>System.Data.Bindings</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\My-FyiReporting\RdlCri\RdlCri.csproj">
+      <Project>{9c9ecaca-0deb-4517-8cf1-02c3d3eb128e}</Project>
+      <Name>RdlCri</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\My-FyiReporting\RdlEngine\RdlEngine.csproj">
       <Project>{C7571BBF-B005-4240-82FD-28ED785D1606}</Project>
       <Name>RdlEngine</Name>
@@ -2208,11 +2219,11 @@
       <Name>VodovozViewModels</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>   
-    <ContentWithTargetPath Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports\Reports\**">     
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>     
-      <TargetPath>Reports\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>   
-    </ContentWithTargetPath> 
+  <ItemGroup>
+    <ContentWithTargetPath Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports\Reports\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Reports\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

@@ -68,9 +68,13 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.AlwaysSendReceipts).Column("always_send_receipts");
 			Map(x => x.RoboatsExclude).Column("roboats_exclude");
 			Map(x => x.ReasonForLeaving).Column("reason_for_leaving").CustomType<ReasonForLeavingStringType>();
+			Map(x => x.RegistrationInChestnyZnakStatus).Column("registration_in_chestny_znak_status").CustomType<RegistrationInChestnyZnakStatusStringType>();
+			Map(x => x.OrderStatusForSendingUpd).Column("order_status_for_sending_upd").CustomType<OrderStatusForSendingUpdStringType>();
+			Map(x => x.ConsentForEdoStatus).Column("consent_for_edo_status").CustomType<ConsentForEdoStatusStringType>();
 			Map(x => x.IsPaperlessWorkflow).Column("is_paperless_workflow");
 			Map(x => x.IsNotSendDocumentsByEdo).Column("is_not_send_documents_by_edo");
 			Map(x => x.CanSendUpdInAdvance).Column("can_send_upd_in_advance");
+			Map(x => x.PersonalAccountIdInEdo).Column("personal_account_id_in_edo");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");
@@ -83,6 +87,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.FirstOrder).Column("first_order_id");
 			References(x => x.CloseDeliveryPerson).Column("close_delivery_employee_id");
 			References(x => x.WorksThroughOrganization).Column("works_through_organization_id");
+			References(x => x.EdoOperator).Column("edo_operator_id");
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
