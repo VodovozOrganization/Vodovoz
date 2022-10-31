@@ -247,14 +247,35 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Mango.Grpc", "Libraries\Cor
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Vodovoz.Reports", "Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.shproj", "{EB83F1EE-34B2-488D-BBA5-6E2AF4D3B3FC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Taxcom", "Taxcom", "{833CFBC7-0CF8-4F5A-9FD7-37BCC34F94CF}"
+	ProjectSection(SolutionItems) = preProject
+		Libraries\External\Taxcom\Ionic.Zip.dll = Libraries\External\Taxcom\Ionic.Zip.dll
+		Libraries\External\Taxcom\Newtonsoft.Json.dll = Libraries\External\Taxcom\Newtonsoft.Json.dll
+		Libraries\External\Taxcom\NLog.dll = Libraries\External\Taxcom\NLog.dll
+		Libraries\External\Taxcom\Taxcom.Api.ClientShared.dll = Libraries\External\Taxcom\Taxcom.Api.ClientShared.dll
+		Libraries\External\Taxcom\Taxcom.Client.Api.dll = Libraries\External\Taxcom\Taxcom.Client.Api.dll
+		Libraries\External\Taxcom\Taxcom.Common.Utils.dll = Libraries\External\Taxcom\Taxcom.Common.Utils.dll
+		Libraries\External\Taxcom\Taxcom.MegaLog.BE.dll = Libraries\External\Taxcom\Taxcom.MegaLog.BE.dll
+		Libraries\External\Taxcom\Taxcom.SDK.Log.config = Libraries\External\Taxcom\Taxcom.SDK.Log.config
+		Libraries\External\Taxcom\Taxcom.Shared.dll = Libraries\External\Taxcom\Taxcom.Shared.dll
+		Libraries\External\Taxcom\Taxcom.TTC.Container.dll = Libraries\External\Taxcom\Taxcom.TTC.Container.dll
+		Libraries\External\Taxcom\Taxcom.TTC.CRM.Billing.dll = Libraries\External\Taxcom\Taxcom.TTC.CRM.Billing.dll
+		Libraries\External\Taxcom\Taxcom.TTC.Reglament.BE.dll = Libraries\External\Taxcom\Taxcom.TTC.Reglament.BE.dll
+		Libraries\External\Taxcom\Taxcom.TTC.Reglament.Crypto.dll = Libraries\External\Taxcom\Taxcom.TTC.Reglament.Crypto.dll
+		Libraries\External\Taxcom\Taxcom.Zip.dll = Libraries\External\Taxcom\Taxcom.Zip.dll
+		Libraries\External\Taxcom\TISystems.TTC.Common.BE.dll = Libraries\External\Taxcom\TISystems.TTC.Common.BE.dll
+		Libraries\External\Taxcom\TISystems.TTC.Common.dll = Libraries\External\Taxcom\TISystems.TTC.Common.dll
+		Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll = Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll
+		Libraries\External\Taxcom\TISystems.TTC.DocFlow.BE.dll = Libraries\External\Taxcom\TISystems.TTC.DocFlow.BE.dll
+		Libraries\External\Taxcom\TISystems.TTC.TrackingChanges.BE.dll = Libraries\External\Taxcom\TISystems.TTC.TrackingChanges.BE.dll
+		Libraries\External\Taxcom\TISystems.TTC.Verification.BE.dll = Libraries\External\Taxcom\TISystems.TTC.Verification.BE.dll
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EdoService", "EdoService", "{AB8D6BB6-41C6-46AC-835D-4A544B998302}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EdoService", "Libraries\Core\EdoService\EdoService.csproj", "{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{8ff7c332-e6d1-456f-8067-11ce62aaef5a}*SharedItemsImports = 5
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
-		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
@@ -3034,6 +3055,42 @@ Global
 		{5A2BB01E-E124-432E-8099-D1343D3897B9}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{5A2BB01E-E124-432E-8099-D1343D3897B9}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{5A2BB01E-E124-432E-8099-D1343D3897B9}.WinDesktop|x86.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Debug|x86.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Docker|x86.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Docker|x86.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Release|x86.ActiveCfg = Release|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Release|x86.Build.0 = Release|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.ReleaseWin|Any CPU.Build.0 = Release|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.ReleaseWin|x86.Build.0 = Release|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WCF|Any CPU.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WCF|x86.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WCF|x86.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Web|Any CPU.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Web|x86.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.Web|x86.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -3157,9 +3214,19 @@ Global
 		{5A2BB01E-E124-432E-8099-D1343D3897B9} = {ED3C8740-DDE4-4055-9E16-5F0B7A8237CB}
 		{BFB977B8-6C0B-4736-B7DB-DD6B272F980A} = {0025BB16-E692-4DBB-8EC5-DE9869186311}
 		{EB83F1EE-34B2-488D-BBA5-6E2AF4D3B3FC} = {5EC9456D-B8A6-4F42-9E8F-986C72904161}
+		{833CFBC7-0CF8-4F5A-9FD7-37BCC34F94CF} = {DDE3AB35-AFFE-4B12-AA51-E137B49B6699}
+		{AB8D6BB6-41C6-46AC-835D-4A544B998302} = {286272B6-AAA0-47EF-98AF-F43BB3360F48}
+		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0} = {AB8D6BB6-41C6-46AC-835D-4A544B998302}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{8ff7c332-e6d1-456f-8067-11ce62aaef5a}*SharedItemsImports = 5
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
