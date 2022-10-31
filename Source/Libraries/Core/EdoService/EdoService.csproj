@@ -5,65 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NLog" Version="5.0.1" />
-    <PackageReference Include="System.Text.Json" Version="6.0.6" />
-  </ItemGroup>
-
-  <ItemGroup>
 	  <ProjectReference Include="..\Business\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Ionic.Zip">
-      <HintPath>..\..\..\External\Taxcom\Ionic.Zip.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.Api.ClientShared">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.Api.ClientShared.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.Client.Api">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.Client.Api.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.Common.Utils">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.Common.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.MegaLog.BE">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.MegaLog.BE.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.Shared">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.Shared.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.TTC.Container">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.TTC.Container.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.TTC.CRM.Billing">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.TTC.CRM.Billing.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.TTC.Reglament.BE">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.TTC.Reglament.BE.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.TTC.Reglament.Crypto">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.TTC.Reglament.Crypto.dll</HintPath>
-    </Reference>
-    <Reference Include="Taxcom.Zip">
-      <HintPath>..\..\..\External\Taxcom\Taxcom.Zip.dll</HintPath>
-    </Reference>
-    <Reference Include="TISystems.TTC.Common">
-      <HintPath>..\..\..\External\Taxcom\TISystems.TTC.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="TISystems.TTC.Common.BE">
-      <HintPath>..\..\..\External\Taxcom\TISystems.TTC.Common.BE.dll</HintPath>
-    </Reference>
     <Reference Include="TISystems.TTC.CRM.BE">
       <HintPath>..\..\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
-    </Reference>
-    <Reference Include="TISystems.TTC.DocFlow.BE">
-      <HintPath>..\..\..\External\Taxcom\TISystems.TTC.DocFlow.BE.dll</HintPath>
-    </Reference>
-    <Reference Include="TISystems.TTC.TrackingChanges.BE">
-      <HintPath>..\..\..\External\Taxcom\TISystems.TTC.TrackingChanges.BE.dll</HintPath>
-    </Reference>
-    <Reference Include="TISystems.TTC.Verification.BE">
-      <HintPath>..\..\..\External\Taxcom\TISystems.TTC.Verification.BE.dll</HintPath>
     </Reference>
   </ItemGroup>
 
