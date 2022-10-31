@@ -557,7 +557,7 @@ Iif(
         </Details>
         <Left>2.4pt</Left>
         <Top>103.8pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>13.7pt</Height>
@@ -1120,9 +1120,9 @@ Iif(
     IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
     (SELECT weight * count) AS total_weight,
 	(SELECT price * count) AS total_price,
-	(SELECT IF(warehouse_expenses_per_kg = '-', '-', total_weight * warehouse_expenses_per_kg)) AS warehouse_spending,
-	(SELECT IF(administrative_expenses_per_kg = '-', '-', total_weight * administrative_expenses_per_kg)) AS administrative_spending,
-	(SELECT IF(route_list_expenses_per_kg = '-', '-', total_weight * route_list_expenses_per_kg)) AS delivery_spending,
+	(SELECT IF(warehouse_expenses_per_kg = '-', '-', weight * warehouse_expenses_per_kg)) AS warehouse_spending,
+	(SELECT IF(administrative_expenses_per_kg = '-', '-', weight * administrative_expenses_per_kg)) AS administrative_spending,
+	(SELECT IF(route_list_expenses_per_kg = '-', '-', weight * route_list_expenses_per_kg)) AS delivery_spending,
 	(SELECT 
 		IF(cost_purchase_price = '-', 0, cost_purchase_price) + 
 		IF(inner_delivery_price = '-', 0, inner_delivery_price) + 
@@ -1516,7 +1516,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -1805,7 +1805,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -1824,7 +1824,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
