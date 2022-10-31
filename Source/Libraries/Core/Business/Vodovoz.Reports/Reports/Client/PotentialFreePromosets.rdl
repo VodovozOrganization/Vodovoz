@@ -766,7 +766,7 @@ FROM (
 
 		additional_promosets_info.delivery_date as additional_promoset_order_delivery_date,
 
-		(SELECT GROUP_CONCAT(DISTINCT sub_p.`number` SEPARATOR ', ') FROM phones sub_p WHERE sub_p.counterparty_id = o.client_id OR sub_p.delivery_point_id = o.delivery_point_id AND phones.is_archive = 0) as additional_promoset_phone
+		(SELECT GROUP_CONCAT(DISTINCT sub_p.`number` SEPARATOR ', ') FROM phones sub_p WHERE sub_p.counterparty_id = o.client_id OR sub_p.delivery_point_id = o.delivery_point_id AND sub_p.is_archive = 0) as additional_promoset_phone
 
 		
 
@@ -869,10 +869,9 @@ FROM (
 										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
 
 										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+										
 
-										AND pp.is_archive = 0
-
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
+								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id AND pp.is_archive = 0
 
 							WHERE
 
@@ -952,9 +951,7 @@ FROM (
 
 										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 
-										AND pp.is_archive = 0
-
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
+								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id AND pp.is_archive = 0
 
 							WHERE
 
