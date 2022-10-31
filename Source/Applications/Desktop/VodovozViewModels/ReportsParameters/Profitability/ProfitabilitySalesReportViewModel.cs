@@ -426,6 +426,16 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				})
 			);
 
+			_filter.CreateParameterSet(
+				"Статусы заказов",
+				"order_status",
+				new ParametersEnumFactory<OrderStatus>()
+			);
+
+			var orderStatusFilter = _filter.ParameterSets.Single(x => x.ParameterName == "order_status");
+			orderStatusFilter.UpdateOutputParameters();
+			orderStatusFilter.OutputParameters.Single(x => x.Value.Equals(OrderStatus.Closed)).Selected = true;
+
 			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
 		}
 

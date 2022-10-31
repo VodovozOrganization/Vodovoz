@@ -18,10 +18,12 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _groupLevel3Name = "group3";
 
 		private readonly ExpressionRowProvider _expressionRowProvider;
+		private readonly SourceRowProvider _sourceRowProvider;
 
 		public ProfitabilityReportModifier()
 		{
 			_expressionRowProvider = new FooterExpressionRowProvider();
+			_sourceRowProvider = new DetailsSourceRowProvider();
 		}
 
 		public void Setup(IEnumerable<GroupingType> groupings)
@@ -96,7 +98,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.Format = "0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
-			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _expressionRowProvider, groupExpression);
+			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
 			groupModifyAction.NewGroupName = _groupLevel1Name;
 			groupModifyAction.GroupCellsStyle = style;
 			return groupModifyAction;
@@ -108,7 +110,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.Format = "0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
-			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _expressionRowProvider, groupExpression);
+			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
 			groupModifyAction.NewGroupName = _groupLevel2Name;
 			groupModifyAction.AfterGroup = _groupLevel1Name;
 			groupModifyAction.GroupCellsStyle = style;
@@ -121,7 +123,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.Format = "0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
-			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _expressionRowProvider, groupExpression);
+			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
 			groupModifyAction.NewGroupName = _groupLevel3Name;
 			groupModifyAction.AfterGroup = _groupLevel2Name;
 			groupModifyAction.GroupCellsStyle = style;
