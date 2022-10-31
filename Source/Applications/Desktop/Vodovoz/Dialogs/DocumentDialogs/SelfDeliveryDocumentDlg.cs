@@ -196,7 +196,7 @@ namespace Vodovoz
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(new[] { "QS", "Vodovoz" }), _employeeRepository);
 			
 			Entity.CanEdit =
 				permmissionValidator.Validate(

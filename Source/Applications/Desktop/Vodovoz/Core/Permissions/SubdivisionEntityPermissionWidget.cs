@@ -32,7 +32,7 @@ namespace Vodovoz.Core.Permissions
 		{
 			UoW = uow;
 			this.subdivision = subdivision;
-			var permissionExtensionStore = PermissionExtensionSingletonStore.GetInstance();
+			var permissionExtensionStore = PermissionExtensionSingletonStore.GetInstance(new[] { "QS", "Vodovoz" });
 			permissionlistview.ViewModel = new PermissionListViewModel(permissionExtensionStore);
 			ViewModel = new EntitySubdivisionPermissionModel(UoW, subdivision, permissionlistview.ViewModel, new EntityRepositories.Permissions.PermissionRepository());
 

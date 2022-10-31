@@ -598,7 +598,7 @@ namespace Vodovoz
 
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
 			builder.RegisterType<FileDialogService>().As<IFileDialogService>();
-			builder.Register(c => PermissionExtensionSingletonStore.GetInstance()).As<IPermissionExtensionStore>();
+			builder.Register(c => PermissionExtensionSingletonStore.GetInstance(new[] { "QS", "Vodovoz" })).As<IPermissionExtensionStore>();
 			builder.RegisterType<EntityExtendedPermissionValidator>().As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();

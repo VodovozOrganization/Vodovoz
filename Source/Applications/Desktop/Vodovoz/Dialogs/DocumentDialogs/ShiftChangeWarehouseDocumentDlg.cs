@@ -83,7 +83,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today)
 			{
 				var permissionValidator = 
-					new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+					new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(new[] { "QS", "Vodovoz" }), _employeeRepository);
 				
 				canEdit &= permissionValidator.Validate(
 					typeof(ShiftChangeWarehouseDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));

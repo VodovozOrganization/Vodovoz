@@ -161,7 +161,7 @@ namespace Vodovoz
 				LoadReception();
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(new[] { "QS", "Vodovoz" }), _employeeRepository);
 			
 			Entity.CanEdit =
 				permmissionValidator.Validate(typeof(CarUnloadDocument), currentUserId, nameof(RetroactivelyClosePermission));

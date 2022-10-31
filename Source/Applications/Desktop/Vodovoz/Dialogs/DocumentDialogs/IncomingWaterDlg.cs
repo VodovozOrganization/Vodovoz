@@ -105,7 +105,7 @@ namespace Vodovoz
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 
 			var permmissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(new[] { "QS", "Vodovoz" }), _employeeRepository);
 			
 			Entity.CanEdit =
 				permmissionValidator.Validate(

@@ -815,7 +815,7 @@ public partial class MainWindow : Window
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
 		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
-			PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
+			PermissionExtensionSingletonStore.GetInstance(new[] { "QS", "Vodovoz" }), new EmployeeRepository());
 
 		var employeeFilter = new EmployeeFilterViewModel
 		{

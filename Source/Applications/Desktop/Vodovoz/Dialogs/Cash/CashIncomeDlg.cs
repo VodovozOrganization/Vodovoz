@@ -105,7 +105,7 @@ namespace Vodovoz
 			_canEdit = permissionResult.CanUpdate;
 
 			var permissionValidator =
-				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+				new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(new[] { "QS", "Vodovoz" }), _employeeRepository);
 			canEditRectroactively =
 				permissionValidator.Validate(
 					typeof(Income), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
