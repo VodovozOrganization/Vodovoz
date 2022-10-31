@@ -10,6 +10,7 @@ namespace PayPageAPI.Models
 {
 	public class PayViewModel
 	{
+		private const string _paymentAttemptMessage = "Если не получилось с первого раза, то";
 		private decimal _orderSum;
 		private FastPaymentStatus _fastPaymentStatus;
 
@@ -45,6 +46,9 @@ namespace PayPageAPI.Models
 		public bool IsNotProcessingStatus => _fastPaymentStatus != FastPaymentStatus.Processing;
 		public bool IsPerformedStatus => _fastPaymentStatus == FastPaymentStatus.Performed;
 		public string PayOrderTitle => IsOnlineOrder ? $"Оплата онлайн-заказа №{OrderNum}" : $"Оплата заказа №{OrderNum}";
+		public string PaymentAttemptMessage => IsOnlineOrder
+			? $"{_paymentAttemptMessage} вернитесь в свой заказ и попробуйте снова"
+			: $"{_paymentAttemptMessage} перезвоните нам для получения новой ссылки";
 		public string OfertaUrl { get; private set; } 
 		
 		private void Initialize(FastPayment fastPayment)
