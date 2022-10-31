@@ -3,6 +3,7 @@ using NLog;
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
@@ -33,6 +34,12 @@ namespace EdoService.Services
 			};
 
 			_httpClient.DefaultRequestHeaders.Add("Integrator-Id", _edoSettings.TaxcomIntegratorId);
+		}
+
+		private string Encode(string str)
+		{
+			var bytes = Encoding.GetEncoding(1252).GetBytes(str);
+			return Encoding.GetEncoding(1251).GetString(bytes, 0, bytes.Length);
 		}
 
 		private ByteArrayContent PrepareContactsContent(byte[] contacts, string assistantKey)
@@ -131,7 +138,7 @@ namespace EdoService.Services
 			return new ResultDto
 			{
 				IsSuccess = false,
-				ErrorMessage = $"Приглашение не отправлено!\n{response.StatusCode}, {response.ReasonPhrase}"
+				ErrorMessage = $"Приглашение не отправлено!\n{response.StatusCode}, {Encode(response.ReasonPhrase)}"
 			};
 		}
 

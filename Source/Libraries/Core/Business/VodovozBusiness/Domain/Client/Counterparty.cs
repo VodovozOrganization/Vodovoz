@@ -55,8 +55,7 @@ namespace Vodovoz.Domain.Client
 		private ConsentForEdoStatus _consentForEdoStatus;
 		private string _personalAccountIdInEdo;
 		private EdoOperator _edoOperator;
-		private bool _isSendedInviteByTaxcom;
-		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators;
+		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
 		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
 
 		#region Свойства

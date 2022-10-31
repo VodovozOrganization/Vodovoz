@@ -1031,18 +1031,18 @@ namespace Vodovoz
 				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 			};
 
-			yentryPersonalAccountCodeInEdo.KeyReleaseEvent += (s, e) =>
-			{
-				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
-				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
-			};
-
 			yentryPersonalAccountCodeInEdo.Binding
 				.AddFuncBinding(Entity, 
 					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other, 
 					w => w.Sensitive)
 				.AddBinding(Entity, e => e.PersonalAccountIdInEdo, w => w.Text)
 				.InitializeFromSource();
+
+			yentryPersonalAccountCodeInEdo.Changed += (s, e) =>
+			{
+				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+			};
 
 			ybuttonSendInviteByTaxcom.Binding
 				.AddFuncBinding(Entity, 
@@ -1816,9 +1816,8 @@ namespace Vodovoz
 
 				return;
 			}
-			
 
-			if(contactResult == null || !contactResult.Contacts.Any())
+			if(contactResult?.Contacts == null)
 			{
 				Application.Invoke((s, arg) =>
 				{
@@ -2023,9 +2022,11 @@ namespace Vodovoz
 			{
 				Application.Invoke((s, arg) =>
 				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Не удалось отправить приглашение. Заполните Email у контрагента");
 				});
+
+				return;
 			}
 
 			if(resultMessage.IsSuccess)
