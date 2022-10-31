@@ -21,7 +21,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 		public ProfitabilityReportModifier()
 		{
-			_expressionRowProvider = new HeaderExpressionRowProvider(2);
+			_expressionRowProvider = new FooterExpressionRowProvider();
 		}
 
 		public void Setup(IEnumerable<GroupingType> groupings)
@@ -40,6 +40,9 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			var removeDetailsAction = new RemoveDetails(_tableName);
 			AddAction(removeDetailsAction);
+
+			var removeFooterAction = new RemoveFooter(_tableName);
+			AddAction(removeFooterAction);
 		}
 
 		private IEnumerable<ModifierAction> GetGroupingActions(IEnumerable<GroupingType> groupings)

@@ -31,7 +31,7 @@
           <FontSize>11pt</FontSize>
           <TextAlign>Center</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
-          <FontWeight >Bold</FontWeight>
+          <FontWeight>Bold</FontWeight>
         </Style>
         <Visibility></Visibility>
       </Textbox>
@@ -279,7 +279,7 @@ Iif(
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>13pt</Height>
               <TableCells>
                 <TableCell>
@@ -296,7 +296,7 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format ></Format>
+                        <Format></Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -304,9 +304,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>=Sum(
-    Round({count}, 2)
-)</Value>
+                      <Value>=Round(Sum({count}), 2)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -317,7 +315,7 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -325,9 +323,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>=Sum(
-    Round({weight}*{count}, 2)
-)</Value>
+                      <Value>=Round(Sum({total_weight}), 2)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -338,7 +334,7 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -346,9 +342,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>=Sum(
-    Round({count}*{price}, 2)
-)</Value>
+                      <Value>=Round(Sum({total_price})/1000, 2)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -359,7 +353,7 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -367,16 +361,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>=Sum(
-    Round(    
-            Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
-            Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
-            Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
-            Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
-            Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
-            *{count}    
-    , 2)
-)</Value>
+                      <Value>=Round(Sum({total_spending})/1000, 2)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -387,7 +372,7 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -395,18 +380,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>=Sum(
-    Round(    
-        ({count}*{price})
-        -
-        Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
-        Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
-        Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
-        Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
-        Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
-        *{count}
-    , 2)
-)</Value>
+                      <Value>=Round(Sum({profitability})/1000, 2)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -417,7 +391,7 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -425,25 +399,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>=
-Round( 
-    Sum(
-        Round(    
-            ({count}*{price})
-            -
-            Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
-            Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
-            Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
-            Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
-            Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
-            *{count}
-        , 2)
-    )
-    /
-    Sum(
-        Round({count}*{price}, 2)
-    )
-, 2)</Value>
+                      <Value>=Round(Sum({profitability})/Sum({total_price})*100, 2)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -454,7 +410,7 @@ Round(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -508,7 +464,7 @@ Round(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value>=Round({weight}*{count}, 2)</Value>
+                      <Value>={total_weight}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -526,7 +482,7 @@ Round(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox80">
-                      <Value>=Round({count}*{price}, 2)</Value>
+                      <Value>={total_price}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -544,14 +500,7 @@ Round(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox115">
-                      <Value>=Round(
-    Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
-    Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
-    Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
-    Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
-    Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
-    *{count}
-, 2)</Value>
+                      <Value>={total_spending}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -569,16 +518,7 @@ Round(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox120">
-                      <Value>=Round(
-    ({count}*{price})
-    -
-    Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
-    Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
-    Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
-    Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
-    Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
-    *{count}
-, 2)</Value>
+                      <Value>={profitability}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -596,20 +536,7 @@ Round(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox125">
-                      <Value>=Round(
-    (
-        ({count}*{price})
-        -
-        Iif(Fields!cost_purchase_price.IsMissing, 0, {cost_purchase_price})+
-        Iif(Fields!inner_delivery_price.IsMissing, 0, {inner_delivery_price})+
-        Iif(Fields!warehouse_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{warehouse_expenses_per_kg}))+
-        Iif(Fields!administrative_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{administrative_expenses_per_kg}))+
-        Iif(Fields!route_list_expenses_per_kg.IsMissing, 0, ({weight}*{count}*{route_list_expenses_per_kg}))
-        *{count}
-    )
-    /
-    ({count}*{price})
-, 2)</Value>
+                      <Value>={profitability_percent}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -630,11 +557,140 @@ Round(
         </Details>
         <Left>2.4pt</Left>
         <Top>103.8pt</Top>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>13.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({count}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({total_weight}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({total_price}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({total_spending}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({profitability}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({profitability})/Sum({total_price})*100, 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
       <Textbox Name="Textbox11">
         <Height>33.02pt</Height>
         <Width>260.85pt</Width>
-        <Value>=First({criterions}, "Criterions")</Value>
+        <Value>=Iif(First({criterions}, "Criterions") = '', 'Не выбраны', First({criterions}, "Criterions"))</Value>
         <ZIndex>1</ZIndex>
         <Left>301.60pt</Left>
         <Top>63.20pt</Top>
@@ -643,7 +699,7 @@ Round(
           <BorderColor />
           <BorderWidth />
           <TextAlign>Right</TextAlign>
-          <FontSize >8pt</FontSize>
+          <FontSize>8pt</FontSize>
         </Style>
         <CanGrow>true</CanGrow>
         <CanShrink>false</CanShrink>
@@ -666,7 +722,7 @@ Round(
         </TableColumns>
         <Details>
           <TableRows>
-            <TableRow >
+            <TableRow>
               <Height>12 pt</Height>
               <TableCells>
                 <TableCell>
@@ -683,7 +739,7 @@ Round(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -702,7 +758,7 @@ Round(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -727,7 +783,7 @@ Round(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -747,7 +803,7 @@ Round(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -771,7 +827,7 @@ Round(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -866,7 +922,7 @@ Iif(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -897,7 +953,7 @@ Iif(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -917,7 +973,7 @@ Iif(
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -928,7 +984,7 @@ Iif(
           </TableRows>
         </Footer>
       </fyi:Grid>
-      <Textbox Name="Textbox12" >
+      <Textbox Name="Textbox12">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Фильтры:</Value>
@@ -962,7 +1018,7 @@ Iif(
           <BorderWidth />
           <TextAlign>Right</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
-          <FontSize >8pt</FontSize>
+          <FontSize>8pt</FontSize>
         </Style>
         <CanGrow>false</CanGrow>
         <CanShrink>false</CanShrink>
@@ -971,7 +1027,7 @@ Iif(
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     c.name AS counterparty,
@@ -990,61 +1046,93 @@ Iif(
     IFNULL(oi.actual_count, oi.count) AS count,
     oi.price - oi.discount_money AS price,        
     #Пр-во/закупка - если групповая себестоимость то себестоимость, иначе цена закупки
-    IF(n.using_in_group_price_set,
-    	(
-	    	SELECT ncp.cost_price 
-	    	FROM nomenclature_cost_prices ncp 
-	    	WHERE ncp.nomenclature_id = n.id 
-		    AND ncp.start_date &lt;= o.delivery_date 
-		    AND (ncp.end_date IS NULL OR ncp.end_date &gt; o.delivery_date)
-    	),
-    	(
-	    	SELECT npp.purchase_price 
-	    	FROM nomenclature_purchase_prices npp 
-	    	WHERE npp.nomenclature_id = n.id 
-	    	AND npp.start_date &lt;= o.delivery_date 
-	    	AND (npp.end_date IS NULL OR npp.end_date &gt; o.delivery_date)
-    	)
-    ) as cost_purchase_price,    
+    IFNULL(
+	    IF(n.using_in_group_price_set,
+	    	(
+		    	SELECT ncp.cost_price
+		    	FROM nomenclature_cost_prices ncp 
+		    	WHERE ncp.nomenclature_id = n.id 
+			    AND ncp.start_date &lt;= o.delivery_date 
+			    AND (ncp.end_date IS NULL OR ncp.end_date &gt; o.delivery_date)
+	    	),
+	    	(
+		    	SELECT npp.purchase_price
+		    	FROM nomenclature_purchase_prices npp 
+		    	WHERE npp.nomenclature_id = n.id 
+		    	AND npp.start_date &lt;= o.delivery_date 
+		    	AND (npp.end_date IS NULL OR npp.end_date &gt; o.delivery_date)
+	    	)
+	    ), 
+    '-') as cost_purchase_price,    
     #Фура - стоимость доставки до склада
-    (
-    	SELECT nidp.price 
-		FROM nomenclature_inner_delivery_prices nidp  
-		WHERE nidp.nomenclature_id = n.id 
-		AND nidp.start_date &lt;= o.delivery_date 
-		AND (nidp.end_date IS NULL OR nidp.end_date &gt; o.delivery_date)
-    ) as inner_delivery_price,
+    IFNULL(
+	    (
+	    	SELECT 
+	    		IFNULL(nidp.price, '-')
+			FROM nomenclature_inner_delivery_prices nidp  
+			WHERE nidp.nomenclature_id = n.id 
+			AND nidp.start_date &lt;= o.delivery_date 
+			AND (nidp.end_date IS NULL OR nidp.end_date &gt; o.delivery_date)
+	    )
+    , '-') as inner_delivery_price,
     #затраты на адресную доставку на килограмм
-	(
-		SELECT
-			rlp.route_list_expenses_per_kg
-		FROM
-			route_lists rl
-			LEFT JOIN
-			route_lists_profitabilities rlp ON rlp.id = rl.route_list_profitability_id
-		WHERE
-			rl.id = rla.route_list_id
-	) AS route_list_expenses_per_kg,    
+	IFNULL(
+		(
+			SELECT
+				IF(rl.id IS NULL, '-', rlp.route_list_expenses_per_kg)
+			FROM
+				route_lists rl
+				LEFT JOIN
+				route_lists_profitabilities rlp ON rlp.id = rl.route_list_profitability_id
+			WHERE
+				rl.id = rla.route_list_id
+		)
+	, '-')AS route_list_expenses_per_kg,    
     #складские расходы на килограмм
-    (
-	    SELECT		
-			pc.warehouse_expenses_per_kg
-		FROM 
-			profitability_constants pc
-	) AS warehouse_expenses_per_kg,
+    IFNULL(
+	    (
+		    SELECT		
+				pc.warehouse_expenses_per_kg
+			FROM 
+				profitability_constants pc
+			WHERE
+				YEAR(pc.calculated_month) = YEAR(o.delivery_date) 
+				AND MONTH(pc.calculated_month) = MONTH(o.delivery_date)
+		)
+	, '-') AS warehouse_expenses_per_kg,
 	#административные расходы на килограмм
-    (
-	    SELECT		
-			pc.administrative_expenses_per_kg
-		FROM 
-			profitability_constants pc
-	) AS administrative_expenses_per_kg,
+    IFNULL(
+	    (
+		    SELECT		
+				pc.administrative_expenses_per_kg
+			FROM 
+				profitability_constants pc
+			WHERE
+				YEAR(pc.calculated_month) = YEAR(o.delivery_date) 
+				AND MONTH(pc.calculated_month) = MONTH(o.delivery_date)
+		)
+	, '-') AS administrative_expenses_per_kg,
 	IFNULL(group_levels.level_1_id, 0) as nomen_group_level_1_id,
     IFNULL(group_levels.level_1_name, 'Без группы') as nomen_group_level_1_name,
     IFNULL(group_levels.level_2_id, 0) as nomen_group_level_2_id,
     IFNULL(group_levels.level_2_name, 'Без группы') as nomen_group_level_2_name,
     IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
-    IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name
+    IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
+    (SELECT weight * count) AS total_weight,
+	(SELECT price * count) AS total_price,
+	(SELECT IF(warehouse_expenses_per_kg = '-', '-', total_weight * warehouse_expenses_per_kg)) AS warehouse_spending,
+	(SELECT IF(administrative_expenses_per_kg = '-', '-', total_weight * administrative_expenses_per_kg)) AS administrative_spending,
+	(SELECT IF(route_list_expenses_per_kg = '-', '-', total_weight * route_list_expenses_per_kg)) AS delivery_spending,
+	(SELECT 
+		IF(cost_purchase_price = '-', 0, cost_purchase_price) + 
+		IF(inner_delivery_price = '-', 0, inner_delivery_price) + 
+		IF(warehouse_spending = '-', 0, warehouse_spending) + 
+		IF(administrative_spending = '-', 0, administrative_spending) + 
+		IF(delivery_spending = '-', 0, delivery_spending)
+	) AS spending_per_item,
+	(SELECT CAST((spending_per_item * count) AS DECIMAL(12,2))) AS total_spending,
+	(SELECT CAST((total_price - total_spending)  AS DECIMAL(12,2))) AS profitability,
+	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent
 FROM
     order_items oi
     LEFT JOIN
@@ -1282,7 +1370,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="counterparty">
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>
@@ -1386,6 +1474,42 @@ WHERE
         <Field Name="order_item_id">
           <DataField>order_item_id</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="total_weight">
+          <DataField>total_weight</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total_price">
+          <DataField>total_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="warehouse_spending">
+          <DataField>warehouse_spending</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="administrative_spending">
+          <DataField>administrative_spending</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="delivery_spending">
+          <DataField>delivery_spending</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="spending_per_item">
+          <DataField>spending_per_item</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total_spending">
+          <DataField>total_spending</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="profitability">
+          <DataField>profitability</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="profitability_percent">
+          <DataField>profitability_percent</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1664,29 +1788,6 @@ FROM
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Constants">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	#складские расходы на килограмм
-	pc.warehouse_expenses_per_kg,
-	#административные расходы на килограмм
-	pc.administrative_expenses_per_kg
-FROM 
-	profitability_constants pc
-;</CommandText>
-      </Query>
-      <Fields>
-        <Field Name="warehouse_expenses_per_kg">
-          <DataField>warehouse_expenses_per_kg</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="administrative_expenses_per_kg">
-          <DataField>administrative_expenses_per_kg</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
   </DataSets>
   <DataSources>
     <DataSource Name="DS1">
@@ -1699,7 +1800,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>

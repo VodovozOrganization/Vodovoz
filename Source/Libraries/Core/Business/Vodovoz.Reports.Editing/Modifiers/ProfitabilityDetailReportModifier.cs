@@ -39,9 +39,6 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				AddAction(action);
 			}
 
-			/*var removeDetailsAction = new RemoveDetails(_tableName);
-			AddAction(removeDetailsAction);*/
-
 			var removeFooterAction = new RemoveFooter(_tableName);
 			AddAction(removeFooterAction);
 		}
@@ -68,8 +65,6 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				default:
 					throw new NotSupportedException("Выбрано не поддерживаемое количество группировок");
 			}
-
-			//yield return GetBaseLevelAction(groupCount);
 		}
 
 		private IEnumerable<ModifierAction> GetItemDataActions(IEnumerable<GroupingType> groupings)
@@ -135,40 +130,6 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			groupModifyAction.NewGroupName = _groupLevel3Name;
 			groupModifyAction.AfterGroup = _groupLevel2Name;
 			groupModifyAction.GroupCellsStyle = style;
-			return groupModifyAction;
-		}
-
-		private NewTableGroupWithCellsFromDetails GetBaseLevelAction(int groupsCount)
-		{
-			var style = GetBaseLevelGroupStyle();
-			style.Format = "0.00";
-
-			string afterGroup = null;
-			switch(groupsCount)
-			{
-				case 0: 
-					break;
-				case 1:
-					afterGroup = _groupLevel1Name;
-					break;
-				case 2:
-					afterGroup = _groupLevel2Name;
-					break;
-				case 3:
-					afterGroup = _groupLevel3Name;
-					break;
-				default:
-					throw new NotSupportedException("Выбрано не поддерживаемое количество группировок");
-			}
-			
-			var groupExpression = new[] { "={order_item_id}" };
-			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _expressionRowProvider, groupExpression);
-			groupModifyAction.NewGroupName = _groupBaseLevelName;
-			groupModifyAction.GroupCellsStyle = style;
-			if(afterGroup != null)
-			{
-				groupModifyAction.AfterGroup = afterGroup;
-			}
 			return groupModifyAction;
 		}
 
@@ -284,14 +245,6 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		{
 			var style = GetBaseStyleForGrouping();
 			style.TextAlign = "Right";
-			return style;
-		}
-
-		private Style GetBaseLevelGroupStyle()
-		{
-			var style = GetBaseStyleForGrouping();
-			style.TextAlign = "Right";
-			style.FontWeight = "Normal";
 			return style;
 		}
 

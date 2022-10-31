@@ -78,11 +78,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			leftRightListViewModel.RightLabel = "Выбранные группировки";
 			leftRightListViewModel.SetLeftItems(groupingNodes, x => x.Name);
 			GroupingSelectViewModel = leftRightListViewModel;
-
-			var selected = new[] { GroupingType.Counterparty, GroupingType.RouteList, GroupingType.Order };
-			GroupingSelectViewModel.SelectedLeftItems = GroupingSelectViewModel.LeftItems
-				.Cast<LeftRightListItemViewModel<GroupingNode>>()
-				.Where(x => selected.Contains(x.Content.GroupType));
 		}
 
 		protected override Dictionary<string, object> Parameters => _parameters;
