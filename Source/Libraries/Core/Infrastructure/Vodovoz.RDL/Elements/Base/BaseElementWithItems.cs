@@ -51,15 +51,23 @@ namespace Vodovoz.RDL.Elements.Base
 		/// </summary>
 		public virtual void SetItemsValue<T>(T value, [CallerMemberName] string propertyName = null)
 		{
+			if(!IsInitialized(propertyName))
+			{
+				var itemIndex = ItemsList.IndexOf(value);
+				if(itemIndex > -1)
+				{
+					Initialize(propertyName, itemIndex);
+				}
+				else
+				{
+					Initialize(propertyName, null);
+				}
+			}
+
 			if(value == null)
 			{
 				RemoveItemsValue(value, propertyName);
 				return;
-			}
-
-			if(!IsInitialized(propertyName))
-			{
-				Initialize(propertyName, null);
 			}
 
 			var index = InitializedPropertyIndexes[propertyName];
@@ -91,6 +99,11 @@ namespace Vodovoz.RDL.Elements.Base
 			}
 		}
 
+
+		/// <summary>
+		/// Используется когда необходимо получить лист елементов,
+		/// которые содержатся в промежуточном классе
+		/// </summary>
 		public IList<TElement> GetItemsList<TElement, TListHolder>(Func<TListHolder, IList<TElement>> listSelector, [CallerMemberName] string propertyName = null)
 			where TListHolder : new()
 		{

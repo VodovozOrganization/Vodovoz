@@ -23,7 +23,7 @@ namespace Vodovoz.RDL.Elements.Base
 
 		/// <summary>
 		/// Используется когда все поля перечисленны в массиве, 
-		/// без дополнительного массива енамов типов полей
+		/// с дополнительным массивом енамов типов полей
 		/// </summary>
 		public TElement GetEnamedItemsValue<TElement>([CallerMemberName] string propertyName = null)
 		{
@@ -57,7 +57,7 @@ namespace Vodovoz.RDL.Elements.Base
 
 		/// <summary>
 		/// Используется когда все поля перечисленны в массиве, 
-		/// без дополнительного массива енамов типов полей
+		/// с дополнительным массивом енамов типов полей
 		/// </summary>
 		public void SetEnamedItemsValue<TElement>(TElement value, [CallerMemberName] string propertyName = null)
 		{
@@ -115,6 +115,10 @@ namespace Vodovoz.RDL.Elements.Base
 			}
 		}
 
+		/// <summary>
+		/// Используется когда необходимо получить лист елементов,
+		/// которые содержатся в промежуточном классе
+		/// </summary>
 		public IList<TElement> GetEnumedItemsList<TElement, TListHolder>(Func<TListHolder, IList<TElement>> listSelector, [CallerMemberName] string propertyName = null)
 			where TListHolder : new()
 		{
