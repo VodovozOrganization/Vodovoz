@@ -16,7 +16,6 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _groupLevel1Name = "group1";
 		private const string _groupLevel2Name = "group2";
 		private const string _groupLevel3Name = "group3";
-		private const string _groupBaseLevelName = "group_base";
 
 		private readonly ExpressionRowProvider _expressionRowProvider;
 

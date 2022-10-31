@@ -56,10 +56,5 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 				deletingCell.Remove();
 			}
 		}
-
-		private void RemoveTableCell()
-		{
-			
-		}
 	}
 }

@@ -20,13 +20,14 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 	public class NewTableGroupWithCellsFromDetails : ModifierAction
 	{
 		private readonly string _tableName;
+		private readonly SourceRowProvider _sourceRowProvider;
 		private readonly ExpressionRowProvider _expressionRowProvider;
 		private readonly IEnumerable<string> _groupExpressions;
-		private readonly DetailsProvider _detailsProvider;
+		private readonly SourceRowProvider _detailsProvider;
 		private TableGroup _newGroup;
 		private int _groupNameSuffixCounter;
 
-		public NewTableGroupWithCellsFromDetails(string tableName, ExpressionRowProvider expressionRowProvider, IEnumerable<string> groupExpressions)
+		public NewTableGroupWithCellsFromDetails(string tableName, SourceRowProvider sourceRowProvider, ExpressionRowProvider expressionRowProvider, IEnumerable<string> groupExpressions)
 		{
 			if(string.IsNullOrWhiteSpace(tableName))
 			{
@@ -44,9 +45,9 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 			}
 
 			_tableName = tableName;
+			_sourceRowProvider = sourceRowProvider ?? throw new ArgumentNullException(nameof(sourceRowProvider));
 			_expressionRowProvider = expressionRowProvider ?? throw new ArgumentNullException(nameof(expressionRowProvider));
 			_groupExpressions = groupExpressions;
-			_detailsProvider = new DetailsProvider();
 			_newGroup = new TableGroup();
 		}
 
@@ -58,10 +59,10 @@ namespace Vodovoz.Reports.Editing.ModifierActions
 		{
 			var @namespace = report.Root.Attribute("xmlns").Value;
 
-			//Копирование строки из деталей и установка формул из подвала
+			//Копирование строки из деталей и установка формул
 			//Установка новых имен для текстовых боксов ячеек
 			//Установка стиля для ячеек
-			var rowDest = _detailsProvider.GetDetailsRow(report, _tableName);
+			var rowDest = _sourceRowProvider.GetSourceRow(report, _tableName);
 			var rowExpressionsSource = _expressionRowProvider.GetExpressionRow(report, _tableName);
 			for(int i = 0; i < rowDest.Cells.Count; i++)
 			{

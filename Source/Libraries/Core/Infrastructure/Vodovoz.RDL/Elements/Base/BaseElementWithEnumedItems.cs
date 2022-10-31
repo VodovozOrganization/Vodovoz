@@ -116,7 +116,7 @@ namespace Vodovoz.RDL.Elements.Base
 		}
 
 		/// <summary>
-		/// Используется когда необходимо получить лист елементов,
+		/// Используется когда необходимо получить лист элементов,
 		/// которые содержатся в промежуточном классе
 		/// </summary>
 		public IList<TElement> GetEnumedItemsList<TElement, TListHolder>(Func<TListHolder, IList<TElement>> listSelector, [CallerMemberName] string propertyName = null)
