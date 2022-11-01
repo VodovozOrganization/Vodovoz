@@ -118,6 +118,14 @@ namespace Vodovoz.SidePanel
 			UpdatePanelVisibility();
 		}
 
+		public Widget GetWidget(Type type)
+		{
+			var currentViews = content.Children.OfType<PanelViewContainer>();
+			var panelViewContainer =  currentViews.FirstOrDefault(x => x.Widget.GetType() == type);
+
+			return panelViewContainer?.Widget;
+		}
+
 		public void OnInfoProviderDisposed(IInfoProvider provider)
 		{
 			List<PanelViewContainer> views;

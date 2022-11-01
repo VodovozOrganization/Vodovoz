@@ -167,6 +167,7 @@ using QS.Utilities;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.ViewModels.Profitability;
 using Fias.Service.Cache;
+using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 
 public partial class MainWindow : Gtk.Window
@@ -180,6 +181,8 @@ public partial class MainWindow : Gtk.Window
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 
 	public TdiNotebook TdiMain => tdiMain;
+	public InfoPanel InfoPanel => infopanel;
+
 	public readonly TdiNavigationManager NavigationManager;
 	public readonly MangoManager MangoManager;
 
