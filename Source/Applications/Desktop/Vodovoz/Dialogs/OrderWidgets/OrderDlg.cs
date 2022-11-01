@@ -14,8 +14,6 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
-using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -74,8 +72,6 @@ using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Print;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalFilters;
 using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
@@ -97,12 +93,9 @@ using Vodovoz.Models.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
-using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
-using Vodovoz.ViewModels.ViewModels.Organizations;
-using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.ViewModels.Widgets;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
@@ -1633,6 +1626,22 @@ namespace Vodovoz
 
 					return false;
 				}
+			}
+
+			if(Entity.PaymentType == PaymentType.cashless)
+			{
+				var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
+				edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
+				var hasUnknownEdoLightsType = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel.HasUnknown();
+
+				if(hasUnknownEdoLightsType.HasValue
+				   && hasUnknownEdoLightsType.Value
+				   && !ServicesConfig.InteractiveService.Question(
+					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
+				{
+					return false;
+				}
+
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
