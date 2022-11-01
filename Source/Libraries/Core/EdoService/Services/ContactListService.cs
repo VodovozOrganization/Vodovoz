@@ -100,7 +100,6 @@ namespace EdoService.Services
 						Inn = inn,
 						Kpp = kpp,
 						Email = email,
-						EdxClientId = edxClientId,
 						Comment = "Компания Весёлый водовоз приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
 					}
 				}
