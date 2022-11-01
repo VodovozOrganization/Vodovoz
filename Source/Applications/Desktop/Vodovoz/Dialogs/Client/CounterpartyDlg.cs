@@ -1933,12 +1933,12 @@ namespace Vodovoz
 				return;
 			}
 
-			if(string.IsNullOrWhiteSpace(Entity.INN) || string.IsNullOrWhiteSpace(Entity.KPP))
+			if(string.IsNullOrWhiteSpace(Entity.INN))
 			{
 				Application.Invoke((s, arg) =>
 				{
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-						"Проверка согласия невозможна, должен быть заполнен ИНН и КПП");
+						"Проверка согласия невозможна, должен быть заполнен ИНН");
 				});
 
 				return;
