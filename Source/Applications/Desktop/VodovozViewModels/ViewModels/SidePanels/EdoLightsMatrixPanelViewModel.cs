@@ -9,20 +9,18 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 {
 	public class EdoLightsMatrixPanelViewModel : UoWWidgetViewModelBase
 	{
-
-		private  EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly ITdiTab _tdiTab;
 		private DelegateCommand<int> _openEdoTabInCounterparty;
 
 		public EdoLightsMatrixPanelViewModel(EdoLightsMatrixViewModel edoLightsMatrixViewModel, IGtkTabsOpener gtkTabsOpener, ITdiTab tdiTab = null)
 		{
-			_edoLightsMatrixViewModel = edoLightsMatrixViewModel ?? throw new ArgumentNullException(nameof(edoLightsMatrixViewModel));
+			EdoLightsMatrixViewModel = edoLightsMatrixViewModel ?? throw new ArgumentNullException(nameof(edoLightsMatrixViewModel));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_tdiTab = tdiTab;
 		}
 
-		public EdoLightsMatrixViewModel EdoLightsMatrixViewModel => _edoLightsMatrixViewModel;
+		public EdoLightsMatrixViewModel EdoLightsMatrixViewModel { get; }
 
 		public void Refresh(Domain.Client.Counterparty counterparty)
 		{
