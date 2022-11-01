@@ -1046,7 +1046,9 @@ namespace Vodovoz
 
 			ybuttonSendInviteByTaxcom.Binding
 				.AddFuncBinding(Entity, 
-					e => e.EdoOperator != null && !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo),
+					e => e.EdoOperator != null
+					     && !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo)
+					     && e.ConsentForEdoStatus == ConsentForEdoStatus.Unknown,
 					w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -1998,27 +2000,7 @@ namespace Vodovoz
 
 			var resultMessage = new ResultDto();
 
-			if(email != null)
-			{
-				try
-				{
-					resultMessage =
-						await _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo);
-				}
-				catch(Exception ex)
-				{
-					_logger.Error(ex);
-
-					Application.Invoke((s, arg) =>
-					{
-						_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-							$"Ошибка при отправке приглашения.\n{ex.Message}");
-					});
-
-					return;
-				}
-			}
-			else
+			if(email == null)
 			{
 				Application.Invoke((s, arg) =>
 				{
@@ -2029,9 +2011,36 @@ namespace Vodovoz
 				return;
 			}
 
+			if(!_commonServices.InteractiveService.Question("Перед продолжением нужно будет сохранить контрагента.\nПродолжить?"))
+			{
+				return;
+			}
+
+			try
+			{
+				resultMessage =
+					await _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo);
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex);
+
+				Application.Invoke((s, arg) =>
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+						$"Ошибка при отправке приглашения.\n{ex.Message}");
+				});
+
+				return;
+			}
+
 			if(resultMessage.IsSuccess)
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Sent;
+
+				UoW.Save();
+				UoW.Commit();
+				
 				Application.Invoke((s, arg) =>
 				{
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
