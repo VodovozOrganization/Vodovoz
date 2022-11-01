@@ -249,7 +249,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryRulesService", "App
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Vodovoz.Reports", "Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.shproj", "{EB83F1EE-34B2-488D-BBA5-6E2AF4D3B3FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.RDL", "Libraries\Core\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj", "{056BA782-EDEF-4E8E-ABB1-01FD3502A8F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.RDL", "Libraries\Core\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj", "{056BA782-EDEF-4E8E-ABB1-01FD3502A8F0}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -1355,7 +1355,9 @@ Global
 		{CC518C77-1610-4017-8C77-E56C509C5BF9}.WCF|x86.ActiveCfg = Debug|Any CPU
 		{CC518C77-1610-4017-8C77-E56C509C5BF9}.WCF|x86.Build.0 = Debug|Any CPU
 		{CC518C77-1610-4017-8C77-E56C509C5BF9}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC518C77-1610-4017-8C77-E56C509C5BF9}.Web|Any CPU.Build.0 = Debug|Any CPU
 		{CC518C77-1610-4017-8C77-E56C509C5BF9}.Web|x86.ActiveCfg = Debug|Any CPU
+		{CC518C77-1610-4017-8C77-E56C509C5BF9}.Web|x86.Build.0 = Debug|Any CPU
 		{CC518C77-1610-4017-8C77-E56C509C5BF9}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
 		{CC518C77-1610-4017-8C77-E56C509C5BF9}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{CC518C77-1610-4017-8C77-E56C509C5BF9}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
