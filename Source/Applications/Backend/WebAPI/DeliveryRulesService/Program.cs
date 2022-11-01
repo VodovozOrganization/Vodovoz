@@ -1,17 +1,20 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using DeliveryRulesService.Workers;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using System.Threading.Tasks;
 
 namespace DeliveryRulesService
 {
 	public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
-        }
+			await CreateHostBuilder(args).Build().RunAsync();
+		}
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
@@ -20,6 +23,10 @@ namespace DeliveryRulesService
 				{
                     webBuilder.UseStartup<Startup>();
                 })
+				.ConfigureServices(services =>
+				{
+					services.AddHostedService<DistrictCacheWorker>();
+				})
 				.ConfigureLogging(logging =>
 				{
 					logging.ClearProviders();

@@ -1,16 +1,14 @@
 ﻿using DeliveryRulesService.Cache;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Timers;
+using Vodovoz.Infrastructure;
 
 namespace DeliveryRulesService.Workers
 {
-	public class DistrictCacheWorker : IDisposable
+	public class DistrictCacheWorker : TimerServiceBase
 	{
-		private const double _interval = 60 * 60 * 1000;    //1 час
 		private readonly ILogger<DistrictCacheWorker> _logger;
 		private readonly DistrictCache _districtCache;
-		private Timer _timer;
 
 		public DistrictCacheWorker(ILogger<DistrictCacheWorker> logger, DistrictCache districtCache)
 		{
@@ -18,33 +16,23 @@ namespace DeliveryRulesService.Workers
 			_districtCache = districtCache ?? throw new ArgumentNullException(nameof(districtCache));
 		}
 
-		public void Start()
-		{
-			_logger.LogInformation("Запуск процесса создания бэкапа районов...");
-			_timer = new Timer(_interval);
-			_timer.Elapsed += TimerElapsed;
-			_timer.Start();
-			_districtCache.UpdateCache();
-			_logger.LogInformation("Процесс создания бэкапа районов запущен");
-		}
+		protected override TimeSpan Interval => TimeSpan.FromHours(1);
 
-		public void Stop()
-		{
-			_logger.LogInformation("Запуск процесса создания бэкапа районов...");
-			_timer.Stop();
-			_timer.Elapsed -= TimerElapsed;
-			_timer = null;
-			_logger.LogInformation("Процесс создания бэкапа районов запущен");
-		}
-
-		private void TimerElapsed(object sender, ElapsedEventArgs e)
+		protected override void DoWork()
 		{
 			_districtCache.UpdateCache();
 		}
 
-		public void Dispose()
+		protected override void OnStartService()
 		{
-			Stop();
+			base.OnStartService();
+			_logger.LogInformation("Процесс создания бэкапа районов запущен");
+		}
+
+		protected override void OnStopService()
+		{
+			base.OnStopService();
+			_logger.LogInformation("Процесс создания бэкапа районов остановлен");
 		}
 	}
 }

@@ -168,26 +168,6 @@ namespace DeliveryRulesService
 					Assembly.GetAssembly(typeof(Attachment))
 				}
 			);
-
-			string userLogin = domainDBConfig.GetValue<string>("UserID");
-			int serviceUserId = 0;
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
-					.Where(u => u.Login == userLogin)
-					.Select(u => u.Id)
-					.FirstOrDefault();
-			}
-
-			if(serviceUserId == 0)
-			{
-				throw new ApplicationException($"Невозможно получить пользователя по логину: {userLogin}");
-			}
-
-			UserRepository.GetCurrentUserId = () => serviceUserId;
-
-			HistoryMain.Enable();
 		}
 	}
 }

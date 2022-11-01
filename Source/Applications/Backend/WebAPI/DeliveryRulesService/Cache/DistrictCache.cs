@@ -28,9 +28,21 @@ namespace DeliveryRulesService.Cache
 		{
 			_logger.LogInformation("Обновление бэкапа районов...");
 
+			try
+			{
+				RunUpdate();
+				_logger.LogInformation("Обновление бэкапа районов успешно завершено");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "При обновлении кэша районов возникло исключение.");
+			}
+		}
+
+		private void RunUpdate()
+		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-
 				DistrictsSet districtsSetAlias = null;
 				var districts = uow.Session.QueryOver<District>()
 					.JoinAlias(x => x.DistrictsSet, () => districtsSetAlias)
@@ -56,8 +68,6 @@ namespace DeliveryRulesService.Cache
 
 				Districts = districts;
 			}
-
-			_logger.LogInformation("Обновление бэкапа районов успешно завершено");
 		}
     }
 }
