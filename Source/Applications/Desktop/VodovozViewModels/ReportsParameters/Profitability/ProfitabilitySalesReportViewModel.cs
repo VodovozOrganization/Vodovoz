@@ -45,8 +45,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private bool _showPhones;
-		private readonly bool _canSeePhones;
 		private bool _isDetailed;
 		private string _source;
 
@@ -65,9 +63,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
 				&& !_commonServices.UserService.GetCurrentUser(_uow).IsAdmin;
 
-			_canSeePhones = _commonServices.CurrentPermissionService.ValidatePresetPermission("phones_in_detailed_sales_report");
-
-			StartDate = DateTime.Now.AddDays(-60);
+			StartDate = DateTime.Now;
 			EndDate = DateTime.Now;
 
 			SetupFilter();
@@ -75,7 +71,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			var groupingNodes = GetGroupingNodes();
 			LeftRightListViewModel<GroupingNode> leftRightListViewModel = new LeftRightListViewModel<GroupingNode>();
 			leftRightListViewModel.LeftLabel = "Доступные группировки";
-			leftRightListViewModel.RightLabel = "Выбранные группировки";
+			leftRightListViewModel.RightLabel = "Выбранные группировки (макс. 3)";
+			leftRightListViewModel.RightItemsMaximum = 3;
 			leftRightListViewModel.SetLeftItems(groupingNodes, x => x.Name);
 			GroupingSelectViewModel = leftRightListViewModel;
 		}
@@ -108,24 +105,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			set => SetField(ref _endDate, value);
 		}
 
-		public virtual bool ShowPhones
-		{
-			get => _showPhones;
-			set => SetField(ref _showPhones, value);
-		}
-
-		public virtual bool CanEditShowPhones => _canSeePhones && IsDetailed;
-
 		public virtual bool IsDetailed
 		{
 			get => _isDetailed;
-			set
-			{
-				if(SetField(ref _isDetailed, value))
-				{
-					OnPropertyChanged(nameof(CanEditShowPhones));
-				}
-			}
+			set => SetField(ref _isDetailed, value);
 		}
 
 		public virtual SelectableParameterReportFilterViewModel FilterViewModel

@@ -33,11 +33,6 @@ namespace Vodovoz.Reports
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			ycheckbuttonPhones.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanEditShowPhones, w => w.Sensitive)
-				.AddBinding(vm => vm.ShowPhones, w => w.Active)
-				.InitializeFromSource();
-
 			ycheckbuttonDetail.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.IsDetailed, w => w.Active)
 				.InitializeFromSource();

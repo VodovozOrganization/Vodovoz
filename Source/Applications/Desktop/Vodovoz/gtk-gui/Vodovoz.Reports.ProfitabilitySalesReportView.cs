@@ -20,8 +20,6 @@ namespace Vodovoz.Reports
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonDetail;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonPhones;
-
 		private global::Gtk.VBox vboxParameters;
 
 		private global::QS.Widgets.GtkUI.LeftRightListView leftrightlistview;
@@ -100,19 +98,6 @@ namespace Vodovoz.Reports
 			w6.Position = 4;
 			w6.Expand = false;
 			w6.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.ycheckbuttonPhones = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonPhones.Sensitive = false;
-			this.ycheckbuttonPhones.CanFocus = true;
-			this.ycheckbuttonPhones.Name = "ycheckbuttonPhones";
-			this.ycheckbuttonPhones.Label = global::Mono.Unix.Catalog.GetString("С телефонами");
-			this.ycheckbuttonPhones.DrawIndicator = true;
-			this.ycheckbuttonPhones.UseUnderline = true;
-			this.hbox1.Add(this.ycheckbuttonPhones);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ycheckbuttonPhones]));
-			w7.Position = 5;
-			w7.Expand = false;
-			w7.Fill = false;
 			this.vbox4.Add(this.hbox1);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox1]));
 			w8.Position = 0;
