@@ -470,6 +470,7 @@ namespace Vodovoz
 				.AddClearDependence<Equipment>(x => x.AssignedToClient)
 				.AddDeleteDependence<SupplierPriceItem>(x => x.Supplier)
 				.AddDeleteDependence<CallTask>(x => x.Counterparty)
+				.AddDeleteDependence<CounterpartyEdoOperator>(x => x.Counterparty)
 				;
 
 			DeleteConfig.AddHibernateDeleteInfo<Contact>()
@@ -498,6 +499,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<RequestToSupplierItem>()
 						.AddDeleteDependence<RequestToSupplierItem>(x => x.TransferedFromItem)
 						;
+
+			DeleteConfig.AddHibernateDeleteInfo<CounterpartyEdoOperator>();
 
 			//основной класс. не удаляем. в тестах настроен игнор.
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()

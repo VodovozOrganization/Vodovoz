@@ -3,6 +3,6 @@
 	public class EdoLightsMatrixColumn
 	{
 		public EdoLightsMatrixPaymentType PaymentKind { get; set; }
-		public bool IsAllowed { get; set; }
+		public EdoLightsColorizeType EdoLightsColorizeType { get; set; }
 	}
 }

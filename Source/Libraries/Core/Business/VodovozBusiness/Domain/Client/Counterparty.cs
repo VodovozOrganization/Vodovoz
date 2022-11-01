@@ -55,7 +55,8 @@ namespace Vodovoz.Domain.Client
 		private ConsentForEdoStatus _consentForEdoStatus;
 		private string _personalAccountIdInEdo;
 		private EdoOperator _edoOperator;
-		private bool _isSendedInviteByTaxcom;
+		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
+		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
 
 		#region Свойства
 
@@ -346,6 +347,18 @@ namespace Vodovoz.Domain.Client
 			get => emails;
 			set => SetField(ref emails, value, () => Emails);
 		}
+
+		[Display(Name = "Все операторы ЭДО контрагента")]
+		public virtual IList<CounterpartyEdoOperator> CounterpartyEdoOperators
+		{
+			get => _counterpartyEdoOperators;
+			set => SetField(ref _counterpartyEdoOperators, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<CounterpartyEdoOperator> ObservableCounterpartyEdoOperators =>
+				_observableCounterpartyEdoOperators ?? (_observableCounterpartyEdoOperators = new GenericObservableList<CounterpartyEdoOperator>(CounterpartyEdoOperators));
+		
 
 		Employee accountant;
 
