@@ -21,7 +21,7 @@
 		<p hidden=@Model.IsNotProcessingStatus>Нажимая оплатить, Вы соглашаетесь с <a href="@Model.OfertaUrl">договором оферты</a>.</p>
 		<p hidden=@Model.IsPerformedStatus>
 			Оплатить по ссылке можно только один раз.<br>
-			Если не получилось с первого раза, то перезвоните нам для получения новой ссылки
+			@Model.PaymentAttemptMessage
 		</p>
 		<a hidden=@Model.IsNotProcessingStatus class="btn btn-success mt-3" href="@Model.PayUrl">Оплатить</a>
 	</div>

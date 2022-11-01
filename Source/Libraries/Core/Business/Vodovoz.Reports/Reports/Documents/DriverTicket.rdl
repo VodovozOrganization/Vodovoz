@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -114,9 +114,9 @@ FROM
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
         LEFT JOIN
-    phones as delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
+    phones as delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id AND delivery_points_phones.is_archive = 0
         LEFT JOIN
-    phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id
+    phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id AND counterparty_phones.is_archive = 0
 WHERE
     orders.id = @order_id;</CommandText>
         <QueryParameters>
@@ -477,7 +477,7 @@ FROM
     counterparty_contacts ON counterparty_contacts.counterparty_id = orders.client_id
         AND counterparty_contacts.id = counterparty_delivery_point_contacts.contact_person_id
         LEFT JOIN
-    phones ON phones.counterparty_contact_id = counterparty_contacts.id
+    phones ON phones.counterparty_contact_id = counterparty_contacts.id AND phones.is_archive = 0
 WHERE
     orders.id = @order_id
 GROUP BY responsible_person_name</CommandText>

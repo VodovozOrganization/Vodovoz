@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -43,10 +43,12 @@
     IFNULL(
             (SELECT TRIM('\n' FROM GROUP_CONCAT(DISTINCT CONCAT('8', digits_number) SEPARATOR '\n'))
              FROM phones
-             WHERE phones.delivery_point_id = delivery_points.id),
+             WHERE phones.delivery_point_id = delivery_points.id
+             AND phones.is_archive = 0),
             (SELECT TRIM('\n' FROM GROUP_CONCAT(DISTINCT CONCAT('8', digits_number) SEPARATOR '\n'))
              FROM phones
-             WHERE phones.counterparty_id = counterparty.id)
+             WHERE phones.counterparty_id = counterparty.id
+              AND phones.is_archive = 0)
         ) 																		AS phones
 FROM
     orders
