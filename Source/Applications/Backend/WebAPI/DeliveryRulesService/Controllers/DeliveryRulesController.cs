@@ -406,7 +406,6 @@ namespace DeliveryRulesService.Controllers
 				_deliveryRulesParametersProvider,
 				nomenclatureNodes);
 
-			fastDeliveryAvailabilityHistory.AddressWithoutDeliveryPoint = await _fiasApiClient.GetAddressByGeoCoder(latitude, longitude, _cancellationTokenSource.Token);
 			fastDeliveryAvailabilityHistory.District = _deliveryRepository.GetDistrict(uow, latitude, longitude);
 
 			_fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
