@@ -2119,8 +2119,8 @@ public partial class MainWindow : Gtk.Window
 
 		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
-		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory, bool>
-			(null, employeeJournalFactory, false, OpenPageOptions.IgnoreHash);
+		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory, bool, bool>
+			(null, employeeJournalFactory, false, false, OpenPageOptions.IgnoreHash);
 		page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 	}
 
