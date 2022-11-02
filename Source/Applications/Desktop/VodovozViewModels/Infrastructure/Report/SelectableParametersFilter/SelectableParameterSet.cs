@@ -103,7 +103,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			UpdateOutputParameters();
 		}
 
-		private void UpdateOutputParameters()
+		public void UpdateOutputParameters()
 		{
 			if(Parameters.Any(x => x.Children.Any())) {
 				foreach(SelectableParameter sp in Parameters) {
