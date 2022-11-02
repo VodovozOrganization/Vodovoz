@@ -411,8 +411,10 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				{
 					var culture = CultureInfo.CreateSpecificCulture("ru-RU");
 					culture.NumberFormat.NumberDecimalSeparator = ".";
-					latitude = decimal.Parse(findedByGeoCoder.Latitude, culture);
-					longitude = decimal.Parse(findedByGeoCoder.Longitude, culture);
+					var latitudeString = findedByGeoCoder.Latitude.Replace(",", ".");
+					var longitudeString = findedByGeoCoder.Longitude.Replace(",", ".");
+					latitude = decimal.Parse(latitudeString, culture);
+					longitude = decimal.Parse(longitudeString, culture);
 				}
 			}
 			finally
