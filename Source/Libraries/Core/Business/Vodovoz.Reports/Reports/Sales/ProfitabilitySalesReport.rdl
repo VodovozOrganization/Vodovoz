@@ -1,0 +1,2046 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>296mm</PageHeight>
+  <PageWidth>209mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>433.9pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Height>17.29pt</Height>
+        <Width>564.56pt</Width>
+        <Value>='Отчет по продажам с рентабельностью ' + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd/MM/yyyy"), 'с ' + Format(CDate({?start_date}), "dd/MM/yyyy") + ' по ' + Format(CDate({?end_date}), "dd/MM/yyyy"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>12.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+        <Visibility></Visibility>
+      </Textbox>
+      <Table Name="TableProfitability">
+        <DataSetName>Sales</DataSetName>
+        <NoRows>Нет данных</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>201.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>57.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>54.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>61.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>63.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>63.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>27.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxItemHeader">
+                      <Value>=
+Iif(
+    {?groups_count} = 3, 
+    Switch(
+        {?group1} = 'Order', 'Заказ',
+        {?group1} = 'Counterparty', 'Контрагент',
+        {?group1} = 'Subdivision', 'Отдел',
+        {?group1} = 'DeliveryDate', 'Дата доставки',
+        {?group1} = 'RouteList', 'МЛ',
+        {?group1} = 'Nomenclature', 'Товар',
+        {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    )
+    + '  |  ' +
+    Switch(
+        {?group2} = 'Order', 'Заказ',
+        {?group2} = 'Counterparty', 'Контрагент',
+        {?group2} = 'Subdivision', 'Отдел',
+        {?group2} = 'DeliveryDate', 'Дата доставки',
+        {?group2} = 'RouteList', 'МЛ',
+        {?group2} = 'Nomenclature', 'Товар',
+        {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    )
+    + '  |  ' +
+    Switch(
+        {?group3} = 'Order', 'Заказ',
+        {?group3} = 'Counterparty', 'Контрагент',
+        {?group3} = 'Subdivision', 'Отдел',
+        {?group3} = 'DeliveryDate', 'Дата доставки',
+        {?group3} = 'RouteList', 'МЛ',
+        {?group3} = 'Nomenclature', 'Товар',
+        {?group3} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group3} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group3} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    ), 
+    Iif(
+        {?groups_count} = 2, 
+        Switch(
+            {?group1} = 'Order', 'Заказ',
+            {?group1} = 'Counterparty', 'Контрагент',
+            {?group1} = 'Subdivision', 'Отдел',
+            {?group1} = 'DeliveryDate', 'Дата доставки',
+            {?group1} = 'RouteList', 'МЛ',
+            {?group1} = 'Nomenclature', 'Товар',
+            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+        )
+        + '  |  ' +
+        Switch(
+            {?group2} = 'Order', 'Заказ',
+            {?group2} = 'Counterparty', 'Контрагент',
+            {?group2} = 'Subdivision', 'Отдел',
+            {?group2} = 'DeliveryDate', 'Дата доставки',
+            {?group2} = 'RouteList', 'МЛ',
+            {?group2} = 'Nomenclature', 'Товар',
+            {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'        
+        ), 
+        Switch(
+            {?group1} = 'Order', 'Заказ',
+            {?group1} = 'Counterparty', 'Контрагент',
+            {?group1} = 'Subdivision', 'Отдел',
+            {?group1} = 'DeliveryDate', 'Дата доставки',
+            {?group1} = 'RouteList', 'МЛ',
+            {?group1} = 'Nomenclature', 'Товар',
+            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+        )
+    )
+)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>Кол-во, 
+штук</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox74">
+                      <Value>Кол-во, 
+кг</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox79">
+                      <Value>Сумма продаж, тыс. руб</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox114">
+                      <Value>Сумма затрат, тыс. руб</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox119">
+                      <Value>Валовая маржа, тыс. руб</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox124">
+                      <Value>Валовая маржа, 
+%</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>13pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Итого:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format></Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>=Round(Sum({count}), 2)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=Round(Sum({total_weight}), 2)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=Round(Sum({total_price})/1000, 2)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>=Round(Sum({total_spending})/1000, 2)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>=Round(Sum({profitability})/1000, 2)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=Round(Sum({profitability})/Sum({total_price})*100, 2)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxItemData">
+                      <Value>={order_item_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingTop>1pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>={count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <Format>0.00</Format>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox75">
+                      <Value>={total_weight}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <Format>0.00</Format>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox80">
+                      <Value>={total_price}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <Format>0.00</Format>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox115">
+                      <Value>={total_spending}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <Format>0.00</Format>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox120">
+                      <Value>={profitability}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <Format>0.00</Format>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox125">
+                      <Value>={profitability_percent}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <Format>0.00</Format>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>2.4pt</Left>
+        <Top>103.8pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>13.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({count}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({total_weight}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({total_price}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({total_spending}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({profitability}), 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <Format>0.00</Format>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Round(Sum({profitability})/Sum({total_price})*100, 2)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Textbox Name="Textbox11">
+        <Height>33.02pt</Height>
+        <Width>260.85pt</Width>
+        <Value>=Iif(First({criterions}, "Criterions") = '', 'Не выбраны', First({criterions}, "Criterions"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>301.60pt</Left>
+        <Top>63.20pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <FontSize>8pt</FontSize>
+        </Style>
+        <CanGrow>true</CanGrow>
+        <CanShrink>false</CanShrink>
+      </Textbox>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>79.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>195.5pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Сформировано:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>=Format( {?creation_date}, "dd.MM.yyyy HH:mm")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>Настройки отчета:</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>Стандартный отчет</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>Группировка:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow>false</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>=
+Iif(
+    {?groups_count} = 3, 
+    Switch(
+        {?group1} = 'Order', 'Заказ',
+        {?group1} = 'Counterparty', 'Контрагент',
+        {?group1} = 'Subdivision', 'Отдел',
+        {?group1} = 'DeliveryDate', 'Дата доставки',
+        {?group1} = 'RouteList', 'МЛ',
+        {?group1} = 'Nomenclature', 'Товар',
+        {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    )
+    + ',  ' +
+    Switch(
+        {?group2} = 'Order', 'Заказ',
+        {?group2} = 'Counterparty', 'Контрагент',
+        {?group2} = 'Subdivision', 'Отдел',
+        {?group2} = 'DeliveryDate', 'Дата доставки',
+        {?group2} = 'RouteList', 'МЛ',
+        {?group2} = 'Nomenclature', 'Товар',
+        {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    )
+    + ',  ' +
+    Switch(
+        {?group3} = 'Order', 'Заказ',
+        {?group3} = 'Counterparty', 'Контрагент',
+        {?group3} = 'Subdivision', 'Отдел',
+        {?group3} = 'DeliveryDate', 'Дата доставки',
+        {?group3} = 'RouteList', 'МЛ',
+        {?group3} = 'Nomenclature', 'Товар',
+        {?group3} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group3} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group3} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    ), 
+    Iif(
+        {?groups_count} = 2, 
+        Switch(
+            {?group1} = 'Order', 'Заказ',
+            {?group1} = 'Counterparty', 'Контрагент',
+            {?group1} = 'Subdivision', 'Отдел',
+            {?group1} = 'DeliveryDate', 'Дата доставки',
+            {?group1} = 'RouteList', 'МЛ',
+            {?group1} = 'Nomenclature', 'Товар',
+            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+        )
+        + ',  ' +
+        Switch(
+            {?group2} = 'Order', 'Заказ',
+            {?group2} = 'Counterparty', 'Контрагент',
+            {?group2} = 'Subdivision', 'Отдел',
+            {?group2} = 'DeliveryDate', 'Дата доставки',
+            {?group2} = 'RouteList', 'МЛ',
+            {?group2} = 'Nomenclature', 'Товар',
+            {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'        
+        ), 
+        Switch(
+            {?group1} = 'Order', 'Заказ',
+            {?group1} = 'Counterparty', 'Контрагент',
+            {?group1} = 'Subdivision', 'Отдел',
+            {?group1} = 'DeliveryDate', 'Дата доставки',
+            {?group1} = 'RouteList', 'МЛ',
+            {?group1} = 'Nomenclature', 'Товар',
+            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+        )
+    )
+)</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow>false</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>1.9pt</Left>
+        <Top>51.5pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>13.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value>Статусы заказов:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow>false</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Value>Закрыт</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow>false</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </fyi:Grid>
+      <Textbox Name="Textbox12">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Фильтры:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>489.2pt</Left>
+        <Top>51.7pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <TextAlign>Right</TextAlign>
+          <TextDecoration>None</TextDecoration>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>15.1pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems>
+      <Textbox Name="Textbox18">
+        <Height>12.75pt</Height>
+        <Width>534.53pt</Width>
+        <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>13.60pt</Left>
+        <Top>0.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <FontSize>8pt</FontSize>
+        </Style>
+        <CanGrow>false</CanGrow>
+        <CanShrink>false</CanShrink>
+      </Textbox>
+    </ReportItems>
+  </PageFooter>
+  <DataSets>
+    <DataSet Name="Sales">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    c.name AS counterparty,
+    dp.compiled_address_short AS delivery_point,
+    rla.route_list_id AS route_list,
+    o.delivery_date AS delivery_date,
+    e.id AS author_id,
+    GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) AS author,
+    s.id AS author_subdivision_id,
+    s.name AS author_subdivision,
+    o.id AS order_id,
+    oi.id AS order_item_id,
+    n.id AS nomenclature_id,
+    n.official_name AS nomenclature_name,
+    n.weight AS weight,
+    IFNULL(oi.actual_count, oi.count) AS count,
+    oi.price - oi.discount_money AS price,        
+    #Пр-во/закупка - если групповая себестоимость то себестоимость, иначе цена закупки
+    IFNULL(
+	    IF(n.using_in_group_price_set,
+	    	(
+		    	SELECT ncp.cost_price
+		    	FROM nomenclature_cost_prices ncp 
+		    	WHERE ncp.nomenclature_id = n.id 
+			    AND ncp.start_date &lt;= o.delivery_date 
+			    AND (ncp.end_date IS NULL OR ncp.end_date &gt; o.delivery_date)
+	    	),
+	    	(
+		    	SELECT npp.purchase_price
+		    	FROM nomenclature_purchase_prices npp 
+		    	WHERE npp.nomenclature_id = n.id 
+		    	AND npp.start_date &lt;= o.delivery_date 
+		    	AND (npp.end_date IS NULL OR npp.end_date &gt; o.delivery_date)
+	    	)
+	    ), 
+    '-') as cost_purchase_price,    
+    #Фура - стоимость доставки до склада
+    IFNULL(
+	    (
+	    	SELECT 
+	    		IFNULL(nidp.price, '-')
+			FROM nomenclature_inner_delivery_prices nidp  
+			WHERE nidp.nomenclature_id = n.id 
+			AND nidp.start_date &lt;= o.delivery_date 
+			AND (nidp.end_date IS NULL OR nidp.end_date &gt; o.delivery_date)
+	    )
+    , '-') as inner_delivery_price,
+    #затраты на адресную доставку на килограмм
+	IFNULL(
+		(
+			SELECT
+				IF(rl.id IS NULL, '-', rlp.route_list_expenses_per_kg)
+			FROM
+				route_lists rl
+				LEFT JOIN
+				route_lists_profitabilities rlp ON rlp.id = rl.route_list_profitability_id
+			WHERE
+				rl.id = rla.route_list_id
+		)
+	, '-')AS route_list_expenses_per_kg,    
+    #складские расходы на килограмм
+    IFNULL(
+	    (
+		    SELECT		
+				pc.warehouse_expenses_per_kg
+			FROM 
+				profitability_constants pc
+			WHERE
+				YEAR(pc.calculated_month) = YEAR(o.delivery_date) 
+				AND MONTH(pc.calculated_month) = MONTH(o.delivery_date)
+		)
+	, '-') AS warehouse_expenses_per_kg,
+	#административные расходы на килограмм
+    IFNULL(
+	    (
+		    SELECT		
+				pc.administrative_expenses_per_kg
+			FROM 
+				profitability_constants pc
+			WHERE
+				YEAR(pc.calculated_month) = YEAR(o.delivery_date) 
+				AND MONTH(pc.calculated_month) = MONTH(o.delivery_date)
+		)
+	, '-') AS administrative_expenses_per_kg,
+	IFNULL(group_levels.level_1_id, 0) as nomen_group_level_1_id,
+    IFNULL(group_levels.level_1_name, 'Без группы') as nomen_group_level_1_name,
+    IFNULL(group_levels.level_2_id, 0) as nomen_group_level_2_id,
+    IFNULL(group_levels.level_2_name, 'Без группы') as nomen_group_level_2_name,
+    IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
+    IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
+    (SELECT weight * count) AS total_weight,
+	(SELECT price * count) AS total_price,
+	(SELECT IF(warehouse_expenses_per_kg = '-', '-', CAST(weight * warehouse_expenses_per_kg AS DECIMAL(12,2)))) AS warehouse_spending,
+	(SELECT IF(administrative_expenses_per_kg = '-', '-', CAST(weight * administrative_expenses_per_kg AS DECIMAL(12,2)))) AS administrative_spending,
+	(SELECT IF(route_list_expenses_per_kg = '-', '-', CAST(weight * route_list_expenses_per_kg AS DECIMAL(12,2)))) AS delivery_spending,
+	(SELECT 
+		IF(cost_purchase_price = '-', 0, cost_purchase_price) + 
+		IF(inner_delivery_price = '-', 0, inner_delivery_price) + 
+		IF(warehouse_spending = '-', 0, warehouse_spending) + 
+		IF(administrative_spending = '-', 0, administrative_spending) + 
+		IF(delivery_spending = '-', 0, delivery_spending)
+	) AS spending_per_item,
+	(SELECT CAST((spending_per_item * count) AS DECIMAL(12,2))) AS total_spending,
+	(SELECT CAST((total_price - total_spending)  AS DECIMAL(12,2))) AS profitability,
+	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent
+FROM
+    order_items oi
+    LEFT JOIN
+    orders o ON order_id = o.id
+ 	LEFT JOIN
+ 	route_list_addresses rla ON rla.order_id = o.id
+    LEFT JOIN
+    nomenclature n ON oi.nomenclature_id = n.id
+    LEFT JOIN 
+    measurement_units mu ON n.unit_id = mu.id
+    LEFT JOIN
+    nomenclature_groups ng ON n.group_id = ng.id
+    LEFT JOIN
+    counterparty c ON o.client_id = c.id
+    LEFT JOIN
+    delivery_points dp ON o.delivery_point_id = dp.id
+    LEFT JOIN
+    counterparty_contract cc ON o.counterparty_contract_id = cc.id
+    LEFT JOIN
+    employees e ON o.author_employee_id = e.id
+    LEFT JOIN
+    subdivisions s ON s.id = e.subdivision_id
+    LEFT JOIN
+    districts distr ON dp.district_id = distr.id
+    LEFT JOIN
+    geo_groups gg ON gg.id = distr.geo_group_id
+    LEFT JOIN
+    (
+	    SELECT 
+			groups_with_levels.depth AS depth,
+			groups_with_levels.id AS group_id,
+			groups_with_levels.name AS group_name,
+			groups_with_levels.level_1_id AS level_1_id,
+			name_source_1.name AS level_1_name,
+			groups_with_levels.level_2_id AS level_2_id,
+			name_source_2.name AS level_2_name,
+			groups_with_levels.level_3_id AS level_3_id,
+			name_source_3.name AS level_3_name
+		FROM
+			(
+				WITH RECURSIVE groups_source (depth, id, parent_id, name, level_1_id, level_2_id, level_3_id) AS (
+					SELECT 
+						1 AS depth,
+						ng.id AS id,
+						0 AS parent_id,
+						ng.name,
+						ng.id AS level_1_id, 
+						0 AS level_2_id,
+						0 AS level_3_id
+				  	FROM nomenclature_groups ng
+				  	WHERE ng.parent_id IS NULL
+				  UNION
+				  	SELECT 
+						groups_source.depth + 1 AS depth,
+						ng.id AS id,
+						groups_source.id AS parent_id,
+						ng.name,
+						groups_source.level_1_id AS level_1_id,
+						IF(groups_source.depth = 1, ng.id, groups_source.level_2_id) AS level_2_id, 
+						IF(groups_source.depth = 2, ng.id, groups_source.level_3_id) AS level_3_id
+				  	FROM nomenclature_groups ng, groups_source
+				  	WHERE ng.parent_id = groups_source.id
+				)
+				SELECT * FROM groups_source
+			) AS groups_with_levels
+			LEFT JOIN nomenclature_groups name_source_1 ON name_source_1.id = groups_with_levels.level_1_id
+			LEFT JOIN nomenclature_groups name_source_2 ON name_source_2.id = groups_with_levels.level_2_id
+			LEFT JOIN nomenclature_groups name_source_3 ON name_source_3.id = groups_with_levels.level_3_id
+    ) group_levels ON group_levels.group_id = n.group_id    
+WHERE
+	(o.delivery_date &gt;= @start_date
+	AND o.delivery_date &lt;= @end_date)
+	AND !o.is_contract_closer
+	AND (
+	        ((n.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+	            OR
+	        (n.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+	        OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+	    )
+	AND (
+	        ((n.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+	            OR
+	        (n.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+	        OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+	    )
+	AND (
+	        ((o.client_id IN (@counterparty_include) AND 0 IN (@counterparty_exclude) )
+	            OR
+	        (o.client_id NOT IN (@counterparty_exclude) AND 0 IN (@counterparty_include)))
+	        OR (0 IN (@counterparty_include) AND 0 IN (@counterparty_exclude))
+	    )
+	AND (
+	        ((cc.organization_id IN (@organization_include) AND 0 IN (@organization_exclude) )
+	            OR
+	        (cc.organization_id NOT IN (@organization_exclude) AND 0 IN (@organization_include)))
+	        OR (0 IN (@organization_include) AND 0 IN (@organization_exclude))
+	    )
+	AND (
+	        ((oi.discount_reason_id IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude) )
+	            OR
+	        (oi.discount_reason_id NOT IN (@discount_reason_exclude) AND 0 IN (@discount_reason_include)))
+	        OR (0 IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude))
+	    )
+	AND (
+	        ((IF(e.subdivision_id IS NULL, 0, e.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
+	            OR
+	        (IF(e.subdivision_id IS NULL, 0, e.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
+	        OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
+	    )
+	AND (
+	        ((IF(o.author_employee_id IS NULL, 0, o.author_employee_id) IN (@order_author_include) AND 0 IN (@order_author_exclude) )
+	            OR
+	        (IF(o.author_employee_id IS NULL, 0, o.author_employee_id) NOT IN (@order_author_exclude) AND 0 IN (@order_author_include)))
+	        OR (0 IN (@order_author_include) AND 0 IN (@order_author_exclude))
+	    )
+	AND (
+	        ((IFNULL(gg.id, 0) IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude) )
+	            OR
+	        (IFNULL(gg.id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
+	        OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
+	    )
+	AND (
+	        ((o.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
+	            OR
+	        (o.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include)))
+	        OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
+	    )
+	AND (
+	        ((IFNULL(oi.promotional_set_id, 0) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
+	            OR
+	        (IFNULL(oi.promotional_set_id, 0) NOT IN (@promotional_set_exclude) AND 0 IN (@promotional_set_include)))
+	        OR (0 IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
+	    )
+	AND (
+	        ((IFNULL(ng.id , 0) IN (@product_group_include) AND 0 IN (@product_group_exclude))
+	            OR
+	        (IFNULL(ng.id , 0) NOT IN (@product_group_exclude) AND 0 IN (@product_group_include)))
+	        OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
+	    )
+	AND (
+	        ((o.order_status IN (@order_status_include) AND '0' IN (@order_status_exclude) )
+	            OR
+	        (o.order_status NOT IN (@order_status_exclude) AND '0' IN (@order_status_include)))
+	        OR ('0' IN (@order_status_include) AND '0' IN (@order_status_exclude))
+	    )
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_include">
+            <Value>={?nomenclature_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_exclude">
+            <Value>={?nomenclature_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_include">
+            <Value>={?nomenclature_type_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_exclude">
+            <Value>={?nomenclature_type_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="discount_reason_include">
+            <Value>={?discount_reason_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="discount_reason_exclude">
+            <Value>={?discount_reason_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_include">
+            <Value>={?organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_exclude">
+            <Value>={?organization_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_include">
+            <Value>={?counterparty_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>={?counterparty_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_author_include">
+            <Value>={?order_author_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_author_exclude">
+            <Value>={?order_author_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>={?subdivision_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>={?subdivision_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_include">
+            <Value>={?geographic_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>={?geographic_group_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_type_include">
+            <Value>={?payment_type_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_type_exclude">
+            <Value>={?payment_type_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promotional_set_include">
+            <Value>={?promotional_set_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promotional_set_exclude">
+            <Value>={?promotional_set_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_include">
+            <Value>={?product_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_exclude">
+            <Value>={?product_group_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="group_count">
+            <Value>={?groups_count}</Value>
+          </QueryParameter>
+          <QueryParameter Name="group_1">
+            <Value>={?group1}</Value>
+          </QueryParameter>
+          <QueryParameter Name="group_2">
+            <Value>={?group2}</Value>
+          </QueryParameter>
+          <QueryParameter Name="group_3">
+            <Value>={?group3}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_status_include">
+            <Value>={?order_status_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_status_exclude">
+            <Value>={?order_status_exclude}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="counterparty">
+          <DataField>counterparty</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_point">
+          <DataField>delivery_point</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="route_list">
+          <DataField>route_list</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomenclature_id">
+          <DataField>nomenclature_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomenclature_name">
+          <DataField>nomenclature_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="weight">
+          <DataField>weight</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="price">
+          <DataField>price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="cost_purchase_price">
+          <DataField>cost_purchase_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="inner_delivery_price">
+          <DataField>inner_delivery_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_3_id">
+          <DataField>nomen_group_level_3_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_3_name">
+          <DataField>nomen_group_level_3_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="route_list_expenses_per_kg">
+          <DataField>route_list_expenses_per_kg</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="warehouse_expenses_per_kg">
+          <DataField>warehouse_expenses_per_kg</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="administrative_expenses_per_kg">
+          <DataField>administrative_expenses_per_kg</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="author_subdivision">
+          <DataField>author_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="author_id">
+          <DataField>author_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="author_subdivision_id">
+          <DataField>author_subdivision_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_1_id">
+          <DataField>nomen_group_level_1_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_1_name">
+          <DataField>nomen_group_level_1_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_2_id">
+          <DataField>nomen_group_level_2_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_2_name">
+          <DataField>nomen_group_level_2_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_item_id">
+          <DataField>order_item_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="total_weight">
+          <DataField>total_weight</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total_price">
+          <DataField>total_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="warehouse_spending">
+          <DataField>warehouse_spending</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="administrative_spending">
+          <DataField>administrative_spending</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="delivery_spending">
+          <DataField>delivery_spending</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="spending_per_item">
+          <DataField>spending_per_item</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total_spending">
+          <DataField>total_spending</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="profitability">
+          <DataField>profitability</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="profitability_percent">
+          <DataField>profitability_percent</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Criterions">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>SELECT
+	CONCAT(
+		(IF(included_noms!=0,
+		CONCAT('Вкл.ном: ',included_noms,'\n'),
+		'')),
+		(IF(excluded_noms!=0,
+		CONCAT('Искл.ном: ',excluded_noms,'\n'),
+		'')),
+		(IF(included_nomtypes!=0,
+		CONCAT('Вкл.типов ном: ',included_nomtypes,'\n'),
+		'')),
+		(IF(excluded_nomtypes!=0,
+		CONCAT('Искл.типов ном: ',excluded_nomtypes,'\n'),
+		'')),
+		(IF(included_client!=0,
+		CONCAT('Вкл.клиентов: ',included_client,'\n'),
+		'')),
+		(IF(excluded_client!=0,
+		CONCAT('Искл.клиентов: ',excluded_client,'\n'),
+		'')),
+		(IF(included_org!=0,
+		CONCAT('Вкл.орг: ',included_org,'\n'),
+		'')),
+		(IF(excluded_org!=0,
+		CONCAT('Искл.орг: ',excluded_org,'\n'),
+		'')),
+		(IF(included_subdivision!=0,
+		CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
+		'')),
+		(IF(excluded_subdivision!=0,
+		CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
+		'')),
+		(IF(included_orderauthor!=0,
+		CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
+		'')),
+		(IF(excluded_orderauthor!=0,
+		CONCAT('Искл.авторов заказов: ',excluded_orderauthor,'\n'),
+		'')),
+		(IF(included_discountreason!=0,
+		CONCAT('Вкл.причин скидок: ',included_discountreason,'\n'),
+		'')),
+		(IF(excluded_discountreason!=0,
+		CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
+		'')),
+		(IF(included_geographic_groups!=0,
+		CONCAT('Вкл.частей города: ',included_geographic_groups,'\n'),
+		'')),
+		(IF(excluded_geographic_groups!=0,
+		CONCAT('Искл.частей города: ',excluded_geographic_groups,'\n'),
+		'')),
+		(IF(included_payment_types!=0,
+		CONCAT('Вкл.типов оплаты: ',included_payment_types,'\n'),
+		'')),
+		(IF(excluded_payment_types!=0,
+		CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
+		'')),
+		(IF(included_promo_sets!=0,
+		CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
+		'')),
+		(IF(excluded_promo_sets!=0,
+		CONCAT('Искл.промо-наборов: ',excluded_promo_sets,'\n'),
+		'')),
+		(IF(included_product_groups!=0,
+		CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
+		'')),
+        (IF(included_order_statuses!=0,
+		CONCAT('Вкл.статусов заказов: ',included_order_statuses,'\n'),
+		'')),
+		(IF(excluded_order_statuses!=0,
+		CONCAT('Искл.статусов заказов: ',excluded_order_statuses,'\n'),
+		''))
+	) AS criterions
+FROM
+	(SELECT
+		IF(
+			0 NOT IN (@nomenclature_include),
+			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomenclature_include)),
+			0
+		) AS included_noms,
+		IF(
+			0 NOT IN (@nomenclature_exclude),
+			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomenclature_exclude)),
+			0
+		) AS excluded_noms,
+
+		IF(
+			'0' NOT IN (@nomenclature_type_include),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomenclature_type_include) GROUP BY nomenclature.category) AS q),
+			0
+		) AS included_nomtypes,
+		IF(
+			'0' NOT IN (@nomenclature_type_exclude),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomenclature_type_exclude) GROUP BY nomenclature.category) AS q),
+			0
+		) AS excluded_nomtypes,
+
+		IF(
+			0 NOT IN (@counterparty_include),
+			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@counterparty_include)),
+			0
+		) AS included_client,
+		IF(
+			0 NOT IN (@counterparty_exclude),
+			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@counterparty_exclude)),
+			0
+		) AS excluded_client,
+
+		IF(
+			0 NOT IN (@organization_include),
+			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@organization_include)),
+			0
+		) AS included_org,
+		IF(
+			0 NOT IN (@organization_exclude),
+			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@organization_exclude)),
+			0
+		) AS excluded_org,
+
+		IF(
+			0 NOT IN (@subdivision_include),
+			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_include)),
+			0
+		) AS included_subdivision,
+		IF(
+			0 NOT IN (@subdivision_exclude),
+			(SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@subdivision_exclude)),
+			0
+		) AS excluded_subdivision,
+
+		IF(
+			0 NOT IN (@order_author_include),
+			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@order_author_include)),
+			0
+		) AS included_orderauthor,
+		IF(
+			0 NOT IN (@order_author_exclude),
+			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@order_author_exclude)),
+			0
+		) AS excluded_orderauthor,
+
+		IF(
+			0 NOT IN (@discount_reason_include),
+			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discount_reason_include)),
+			0
+		) AS included_discountreason,
+		IF(
+			0 NOT IN (@discount_reason_exclude),
+			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discount_reason_exclude)),
+			0
+		) AS excluded_discountreason,
+
+		IF(
+			0 NOT IN (@geographic_group_include),
+			(SELECT COUNT(@geographic_group_include)),
+			0
+		) AS included_geographic_groups,
+		IF(
+			0 NOT IN (@geographic_group_exclude),
+			(SELECT COUNT(@geographic_group_exclude)),
+			0
+		) AS excluded_geographic_groups,
+		
+		IF(
+			'0' NOT IN (@payment_type_include),
+			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@payment_type_include) GROUP BY orders.payment_type) AS q),
+			0
+		) AS included_payment_types,
+		IF(
+			'0' NOT IN (@payment_type_exclude),
+			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@payment_type_exclude) GROUP BY orders.payment_type) AS q),
+			0
+		) AS excluded_payment_types,
+		
+		IF(
+			0 NOT IN (@promotional_set_include),
+			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promotional_set_include)),
+			0
+		) AS included_promo_sets,
+		IF(
+			0 NOT IN (@promotional_set_exclude),
+			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promotional_set_exclude)),
+			0
+		) AS excluded_promo_sets,
+		IF(
+            0 NOT IN (@product_group_include),
+            (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@product_group_include)),
+            0
+        ) AS included_product_groups,
+        IF(
+            0 NOT IN (@product_group_exclude),
+            (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@product_group_exclude)),
+            0
+        ) AS excluded_product_groups,
+        IF(
+			'0' NOT IN (@order_status_include),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@order_status_include) GROUP BY orders.order_status) AS q),
+			0
+		) AS included_order_statuses,
+		IF(
+			'0' NOT IN (@order_status_exclude),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@order_status_exclude) GROUP BY orders.order_status) AS q),
+			0
+		) AS excluded_order_statuses
+	) AS tbl
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_include">
+            <Value>=Parameters!nomenclature_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_exclude">
+            <Value>=Parameters!nomenclature_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_include">
+            <Value>=Parameters!nomenclature_type_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_exclude">
+            <Value>=Parameters!nomenclature_type_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="discount_reason_include">
+            <Value>=Parameters!discount_reason_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="discount_reason_exclude">
+            <Value>=Parameters!discount_reason_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_include">
+            <Value>=Parameters!organization_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_exclude">
+            <Value>=Parameters!organization_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_include">
+            <Value>=Parameters!counterparty_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>=Parameters!counterparty_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_author_include">
+            <Value>=Parameters!order_author_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_author_exclude">
+            <Value>=Parameters!order_author_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>=Parameters!subdivision_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>=Parameters!subdivision_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_include">
+            <Value>=Parameters!geographic_group_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>=Parameters!geographic_group_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_type_include">
+            <Value>={?payment_type_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_type_exclude">
+            <Value>={?payment_type_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promotional_set_include">
+            <Value>={?promotional_set_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promotional_set_exclude">
+            <Value>={?promotional_set_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_include">
+            <Value>={?product_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_exclude">
+            <Value>={?product_group_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_status_include">
+            <Value>={?order_status_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_status_exclude">
+            <Value>={?order_status_exclude}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="criterions">
+          <DataField>criterions</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString></ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_type_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_type_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="counterparty_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="counterparty_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="organization_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="organization_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="discount_reason_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="discount_reason_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_author_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_author_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="subdivision_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="subdivision_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_group_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="geographic_group_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="payment_type_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="payment_type_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="promotional_set_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="promotional_set_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creation_date">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="product_group_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="product_group_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="group1">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="group2">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="group3">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="groups_count">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_status_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="order_status_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+  </ReportParameters>
+</Report>
