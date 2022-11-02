@@ -254,8 +254,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Taxcom", "Taxcom", "{833CFBC7-0CF8-4F5A-9FD7-37BCC34F94CF}"
 	ProjectSection(SolutionItems) = preProject
 		Libraries\External\Taxcom\Ionic.Zip.dll = Libraries\External\Taxcom\Ionic.Zip.dll
-		Libraries\External\Taxcom\Newtonsoft.Json.dll = Libraries\External\Taxcom\Newtonsoft.Json.dll
-		Libraries\External\Taxcom\NLog.dll = Libraries\External\Taxcom\NLog.dll
 		Libraries\External\Taxcom\Taxcom.Api.ClientShared.dll = Libraries\External\Taxcom\Taxcom.Api.ClientShared.dll
 		Libraries\External\Taxcom\Taxcom.Client.Api.dll = Libraries\External\Taxcom\Taxcom.Client.Api.dll
 		Libraries\External\Taxcom\Taxcom.Common.Utils.dll = Libraries\External\Taxcom\Taxcom.Common.Utils.dll

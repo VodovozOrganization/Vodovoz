@@ -30,6 +30,6 @@ namespace Vodovoz.Domain.Client
 			get => _personalAccountIdInEdo;
 			set => SetField(ref _personalAccountIdInEdo, value);
 		}
-		public virtual string Title => $"{EdoOperator.Name} ({PersonalAccountIdInEdo})";
+		public virtual string Title => $"{EdoOperator?.Name} ({PersonalAccountIdInEdo})";
 	}
 }

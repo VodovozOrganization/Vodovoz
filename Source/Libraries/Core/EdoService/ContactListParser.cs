@@ -29,7 +29,8 @@ namespace EdoService
 
 
 			return items
-				.Where(x => x.Inn == inn && x.Kpp == kpp)
+				.Where(x => x.Inn == inn 
+				            && (string.IsNullOrWhiteSpace(x.Kpp) || x.Kpp == kpp))
 				.OrderByDescending(x => x.State.Changed)
 				.FirstOrDefault();
 		}
