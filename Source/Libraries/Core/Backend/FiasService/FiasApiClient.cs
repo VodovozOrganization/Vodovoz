@@ -139,10 +139,12 @@ namespace Fias.Service
 			var cache = GetCachedCoordinates(address);
 			if(cache != null)
 			{
+				var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+				culture.NumberFormat.NumberDecimalSeparator = ".";
 				var result = new PointDTO
 				{
-					Latitude = cache.Latitude.ToString(),
-					Longitude = cache.Longitude.ToString()
+					Latitude = cache.Latitude.ToString(culture),
+					Longitude = cache.Longitude.ToString(culture)
 				};
 
 				return result;
