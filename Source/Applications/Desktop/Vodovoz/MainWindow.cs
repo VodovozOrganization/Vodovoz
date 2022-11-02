@@ -169,6 +169,7 @@ using Vodovoz.ViewModels.Profitability;
 using Fias.Service.Cache;
 using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -391,6 +392,12 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
 
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
+		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
+	}
+
+	private void ActionProfitabilitySalesReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ProfitabilitySalesReportViewModel));
 	}
 
 	#region Методы для уведомления об отправленных перемещениях для подразделения
@@ -2112,8 +2119,8 @@ public partial class MainWindow : Gtk.Window
 
 		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
-		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory, bool>
-			(null, employeeJournalFactory, false, OpenPageOptions.IgnoreHash);
+		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory, bool, bool>
+			(null, employeeJournalFactory, false, false, OpenPageOptions.IgnoreHash);
 		page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 	}
 

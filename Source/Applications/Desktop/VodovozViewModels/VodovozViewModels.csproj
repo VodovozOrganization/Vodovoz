@@ -67,6 +67,7 @@
     <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
+    <Compile Include="ReportsParameters\Profitability\ProfitabilitySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\PhoneViewModel.cs" />
@@ -571,6 +572,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
       <Project>{3032f22e-2c78-4fad-9936-552fd7de8d7f}</Project>
       <Name>RabbitMQ.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
+      <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>
+      <Name>Vodovoz.Reports.Editing</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</Project>
