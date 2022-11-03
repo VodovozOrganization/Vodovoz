@@ -1798,34 +1798,28 @@ namespace Vodovoz
 			RefreshBulkEmailEventStatus();
 		}
 
-		protected async void OnYbuttonCheckClientInTaxcomClicked(object sender, EventArgs e)
+		protected void OnYbuttonCheckClientInTaxcomClicked(object sender, EventArgs e)
 		{
-			ContactList contactResult = null;
+			ContactList contactResult;
 
 			try
 			{
-				contactResult = await _contactListService.CheckContragentAsync(Entity.INN, Entity.KPP);
+				contactResult = _contactListService.CheckContragentAsync(Entity.INN, Entity.KPP).Result;
 			}
 			catch(Exception ex)
 			{
 				_logger.Error(ex);
 
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Ошибка при проверке контрагента в Такском.");
-				});
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					"Ошибка при проверке контрагента в Такском.");
 
 				return;
 			}
 
 			if(contactResult?.Contacts == null)
 			{
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Контрагент не найден через Такском.");
-				});
 
 				return;
 			}
@@ -1837,11 +1831,8 @@ namespace Vodovoz
 				Entity.EdoOperator = GetEdoOperatorByEdoAccountId(contactListItem.EdxClientId); ;
 				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 						"Оператор получен.");
-				});
 
 				return;
 			}
@@ -1866,40 +1857,32 @@ namespace Vodovoz
 			Entity.EdoOperator = null;
 			Entity.PersonalAccountIdInEdo = null;
 
-			Application.Invoke((s, arg) =>
-			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					"У контрагента найдено несколько операторов, выберите нужный из списка.");
-			});
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+				"У контрагента найдено несколько операторов, выберите нужный из списка.");
 		}
 
-		protected async void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
+		protected  void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
 		{
 			if(Entity.CheckForINNDuplicate(_counterpartyRepository, UoW))
 			{
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-						"Контрагент с данным ИНН уже существует.\nПроверка в Честном знаке не выполнена.");
-				});
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					"Контрагент с данным ИНН уже существует.\nПроверка в Честном знаке не выполнена.");
+
 				return;
 			}
 
-			bool isRegistered = false;
+			bool isRegistered;
 
 			try
 			{
-				isRegistered = await _trueApiService.ParticipantsAsync(Entity.INN, "water");
+				isRegistered = _trueApiService.ParticipantsAsync(Entity.INN, "water").Result;
 			}
 			catch(Exception ex)
 			{
 				_logger.Error(ex);
-				
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, 
-						$"Ошибка при проверке в Честном Знаке.\n{ex.Message}");
-				});
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Ошибка при проверке в Честном Знаке.\n{ex.Message}");
 
 				return;
 			}
@@ -1915,33 +1898,26 @@ namespace Vodovoz
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
-			Application.Invoke((s, arg) =>
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					"Регистрация в Честном Знаке проверена.");
-			});
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+				"Регистрация в Честном Знаке проверена.");
 		}
 
-		protected async void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
+		protected void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
 		{
 			if(Entity.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 			{
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-						"В статусе \"Принят\" проверка согласия не требуется");
-				});
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					"В статусе \"Принят\" проверка согласия не требуется");
 
 				return;
 			}
 
 			if(string.IsNullOrWhiteSpace(Entity.INN))
 			{
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-						"Проверка согласия невозможна, должен быть заполнен ИНН");
-				});
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					"Проверка согласия невозможна, должен быть заполнен ИНН");
 
 				return;
 			}
@@ -1953,17 +1929,13 @@ namespace Vodovoz
 
 			try
 			{
-				contactListItem = await contactListParser.GetLastChangeOnDate(_contactListService, checkDate, Entity.INN, Entity.KPP);
+				contactListItem = contactListParser.GetLastChangeOnDate(_contactListService, checkDate, Entity.INN, Entity.KPP).Result;
 			}
 			catch(Exception ex)
 			{
 				_logger.Error(ex);
 
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-						$"Ошибка при проверке статуса приглашения.\n{ex.Message}");
-				});
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Ошибка при проверке статуса приглашения.\n{ex.Message}");
 
 				return;
 			}
@@ -1972,11 +1944,7 @@ namespace Vodovoz
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
 
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-						"Приглашение не найдено.");
-				});
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Приглашение не найдено.");
 
 				return;
 			}
@@ -1985,28 +1953,21 @@ namespace Vodovoz
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
-			Application.Invoke((s, arg) =>
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					"Согласие проверено.");
-			});
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Согласие проверено.");
 		}
 
-		protected async void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
+		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
 		{
 			var email = Entity.Emails.LastOrDefault (em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
 			            ?? Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.Work)
 			            ?? Entity.Emails.LastOrDefault();
 
-			var resultMessage = new ResultDto();
+			ResultDto resultMessage;
 
 			if(email == null)
 			{
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Не удалось отправить приглашение. Заполните Email у контрагента");
-				});
 
 				return;
 			}
@@ -2018,18 +1979,14 @@ namespace Vodovoz
 
 			try
 			{
-				resultMessage =
-					await _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo);
+				resultMessage = _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo).Result;
 			}
 			catch(Exception ex)
 			{
 				_logger.Error(ex);
 
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-						$"Ошибка при отправке приглашения.\n{ex.Message}");
-				});
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					$"Ошибка при отправке приглашения.\n{ex.Message}");
 
 				return;
 			}
@@ -2040,19 +1997,13 @@ namespace Vodovoz
 
 				UoW.Save();
 				UoW.Commit();
-				
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-						"Приглашение отправлено.");
-				});
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					"Приглашение отправлено.");
 			}
 			else
 			{
-				Application.Invoke((s, arg) =>
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, resultMessage.ErrorMessage);
-				});
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, resultMessage.ErrorMessage);
 			}
 		}
 
