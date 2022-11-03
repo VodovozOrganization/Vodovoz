@@ -99,7 +99,8 @@ namespace FastPaymentsAPI.Library.Managers
 				//Обновляем сущность, т.к. колбэк может поменять статус быстрого платежа
 				uow.Session.Refresh(payment);
 
-				if(payment.FastPaymentStatus == FastPaymentStatus.Rejected && response.Status == FastPaymentDTOStatus.Processing)
+				if((payment.FastPaymentStatus == FastPaymentStatus.Rejected && response.Status == FastPaymentDTOStatus.Processing)
+					|| (payment.FastPaymentStatus == FastPaymentStatus.Performed && response.Status == FastPaymentDTOStatus.Performed))
 				{
 					continue;
 				}
