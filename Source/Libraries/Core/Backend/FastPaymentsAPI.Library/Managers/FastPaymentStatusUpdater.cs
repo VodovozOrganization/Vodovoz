@@ -95,6 +95,15 @@ namespace FastPaymentsAPI.Library.Managers
 					_errorHandler.LogErrorMessageFromUpdateOrderInfo(response, ticket, _logger);
 					continue;
 				}
+
+				//Обновляем сущность, т.к. колбэк может поменять статус быстрого платежа
+				uow.Session.Refresh(payment);
+
+				if(payment.FastPaymentStatus == FastPaymentStatus.Rejected && response.Status == FastPaymentDTOStatus.Processing)
+				{
+					continue;
+				}
+				
 				if((int)response.Status == (int)payment.FastPaymentStatus)
 				{
 					var fastPaymentWithQRNotFromOnline = payment.FastPaymentPayType == FastPaymentPayType.ByQrCode && !payment.OnlineOrderId.HasValue;
