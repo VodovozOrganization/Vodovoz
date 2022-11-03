@@ -162,6 +162,7 @@ namespace DriverAPI.Library.Converters
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
+				OrderItemPrice = saleItem.Price,
 				TotalOrderItemPrice = saleItem.ActualSum,
 				IsBottleStock = saleItem.DiscountByStock > 0,
 				IsDiscountInMoney = saleItem.IsDiscountInMoney,
