@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -63,6 +65,14 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			return uow.Session.QueryOver<Counterparty>()
 				.Where(c => c.INN == inn).List<Counterparty>();
+		}
+
+		public Task<IList<Counterparty>> GetCounterpartiesByInnAndKpp(
+			IUnitOfWork uow, string inn, string kpp, CancellationToken stoppingToken)
+		{
+			return uow.Session.QueryOver<Counterparty>()
+				.Where(x => x.INN == inn && x.KPP == kpp)
+				.ListAsync(stoppingToken);
 		}
 
 		public Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber)
@@ -142,6 +152,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				   .List<Counterparty>();
 			}
 			return result;
+		}
+		
+		public Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId)
+		{
+			return uow.Session.QueryOver<Counterparty>()
+				.Where(c => c.PersonalAccountIdInEdo == edxClientId)
+				.SingleOrDefault();
 		}
 	}
 }
