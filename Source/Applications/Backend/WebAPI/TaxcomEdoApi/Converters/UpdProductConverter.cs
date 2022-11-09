@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using Vodovoz.Domain.Orders;
 
-namespace TaxcomEdoApi
+namespace TaxcomEdoApi.Converters
 {
 	public class UpdProductConverter
 	{

@@ -15,10 +15,11 @@ namespace Vodovoz.HibernateMapping.Order
 			Map(x => x.IsIncoming).Column("is_incoming");
 			Map(x => x.DocFlowId).Column("doc_flow_id");
 			Map(x => x.InternalId).Column("internal_id");
-			Map(x => x.EdoContainerStatus).Column("edo_container_status");
+			Map(x => x.EdoDocFlowStatus).Column("edo_doc_flow_status");
 			Map(x => x.ErrorDescription).Column("error_description");
 			Map(x => x.MainDocumentId).Column("main_document_id");
 			Map(x => x.Container).Column("container");
+			Map(x => x.Created).Column("created");
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.Counterparty).Column("counterparty_id");

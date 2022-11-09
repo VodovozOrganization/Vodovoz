@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
 
-namespace TaxcomEdoApi
+namespace TaxcomEdoApi.Services
 {
 	public class AutoSendReceiveService : BackgroundService
 	{

@@ -19,8 +19,12 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using Taxcom.Client.Api;
+using TaxcomEdoApi.Converters;
+using TaxcomEdoApi.Factories;
+using TaxcomEdoApi.Services;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Tools.Orders;
@@ -50,24 +54,33 @@ namespace TaxcomEdoApi
 			
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "TaxcomEdoApi", Version = "v1" }); });
 			
-			// Подключение к БД
-			services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис электронного документооборота"));
-
 			var apiSection = Configuration.GetSection("Api");
+			var certificate =
+				CertificateLogic.GetAvailableCertificates().SingleOrDefault(
+					x => x.Subject.Contains(apiSection.GetValue<string>("CertificateSubjectName")));
+
+			if(certificate is null)
+			{
+				throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
+			}
 			
-			//services.AddHostedService<AutoSendReceiveService>();
-			//services.AddHostedService<ContactsUpdaterService>();
-			//services.AddHostedService<DocumentFlowService>();
+			services.AddHostedService<AutoSendReceiveService>();
+			services.AddHostedService<ContactsUpdaterService>();
+			services.AddHostedService<DocumentFlowService>();
 			services.AddSingleton(_ => new Factory().CreateApi(
 				apiSection.GetValue<string>("BaseUrl"),
 				true,
 				apiSection.GetValue<string>("IntegratorId"),
-				System.IO.File.ReadAllBytes(apiSection.GetValue<string>("Certificate")),
+				certificate.RawData,
 				apiSection.GetValue<string>("EdxClientId")));
 
+			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
+			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
+			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<ICounterpartyRepository, CounterpartyRepository>();
-			
+
+			services.AddSingleton(_ => certificate);
 			services.AddSingleton<EdoUpdFactory>();
 			services.AddSingleton<ParticipantDocFlowConverter>();
 			services.AddSingleton<EdoContainerMainDocumentIdParser>();
@@ -110,13 +123,13 @@ namespace TaxcomEdoApi
 
 			var connectionString = conStrBuilder.GetConnectionString(true);
 
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 					.Dialect<MySQL57SpatialExtendedDialect>()
 					.ConnectionString(connectionString);
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
-				db_config,
+				dbConfig,
 				new[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
@@ -139,12 +152,8 @@ namespace TaxcomEdoApi
 					.FirstOrDefault();
 			}
 
-			if(serviceUserId == 0)
-			{
-				throw new ApplicationException($"Невозможно получить пользователя по логину: {userLogin}");
-			}
-
 			UserRepository.GetCurrentUserId = () => serviceUserId;
+			HistoryMain.Enable();
 		}
 	}
 }

@@ -885,30 +885,18 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault<PaymentType>();
 		}
 
-		public IList<VodovozOrder> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime? startDate)
+		public IList<VodovozOrder> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime? startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
 			VodovozOrder orderAlias = null;
 			EdoContainer edoContainerAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
-			var orderStatusProjection = Projections.Conditional(
-				Restrictions.Eq(Projections.Property(
-					() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.Delivered),
-				Projections.Constant(OrderStatus.Shipped),
-				Projections.Constant(OrderStatus.OnTheWay));
-			
-			var subOrderStatus = QueryOver.Of<VodovozOrder>()
-				.Select(Projections.Conditional(
-					Restrictions.Eq(Projections.Property(
-						() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.Delivered),
-					Projections.Constant(new[]{ OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed }),
-					Projections.Constant(
-						new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed })));
-			
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias, () => orderAlias.Id == edoContainerAlias.Order.Id, JoinType.LeftOuterJoin);
 
 			if(startDate.HasValue)
@@ -918,12 +906,12 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
 				.And(Restrictions.Disjunction()
-					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.Other)
 					.Add(() => (counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
-						|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
-						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+								|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+								&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
@@ -937,6 +925,18 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			return uow.Session.QueryOver<EdoContainer>()
 				.Where(x => x.MainDocumentId == mainDocId)
+				.SingleOrDefault();
+		}
+		
+		public EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId)
+		{
+			if(docFlowId is null)
+			{
+				return null;
+			}
+			
+			return uow.Session.QueryOver<EdoContainer>()
+				.Where(x => x.DocFlowId == docFlowId)
 				.SingleOrDefault();
 		}
 	}

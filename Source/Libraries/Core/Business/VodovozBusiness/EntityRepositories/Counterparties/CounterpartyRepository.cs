@@ -67,14 +67,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(c => c.INN == inn).List<Counterparty>();
 		}
 
-		public Task<IList<Counterparty>> GetCounterpartiesByInnAndKpp(
-			IUnitOfWork uow, string inn, string kpp, CancellationToken stoppingToken)
-		{
-			return uow.Session.QueryOver<Counterparty>()
-				.Where(x => x.INN == inn && x.KPP == kpp)
-				.ListAsync(stoppingToken);
-		}
-
 		public Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber)
 		{
 			if(string.IsNullOrWhiteSpace(accountNumber))
@@ -158,6 +150,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		{
 			return uow.Session.QueryOver<Counterparty>()
 				.Where(c => c.PersonalAccountIdInEdo == edxClientId)
+				.SingleOrDefault();
+		}
+
+		public EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode)
+		{
+			return uow.Session.QueryOver<EdoOperator>()
+				.Where(x => x.Code == edoOperatorCode)
 				.SingleOrDefault();
 		}
 	}

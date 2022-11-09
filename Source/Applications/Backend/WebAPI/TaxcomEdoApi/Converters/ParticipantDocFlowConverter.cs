@@ -4,7 +4,7 @@ using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 
-namespace TaxcomEdoApi
+namespace TaxcomEdoApi.Converters
 {
 	public class ParticipantDocFlowConverter
 	{
@@ -51,15 +51,7 @@ namespace TaxcomEdoApi
 							IdSv = new UchastnikTipIdSv
 							{
 								Item = GetSpecialConsignee(client, deliveryPoint?.KPP)
-							},
-							/*Adres = new AdresTip
-							{
-								Item = new AdrInfTip
-								{
-									KodStr = _russiaCode,
-									AdrTekst = deliveryPoint != null ? deliveryPoint.CompiledAddress : client.JurAddress
-								}
-							}*/
+							}
 						};
 					}
 					return ConvertCounterpartyToUchastnikTip(client);

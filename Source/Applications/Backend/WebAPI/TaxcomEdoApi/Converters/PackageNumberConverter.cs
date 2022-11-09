@@ -1,4 +1,4 @@
-﻿namespace TaxcomEdoApi
+﻿namespace TaxcomEdoApi.Converters
 {
 	public class PackageNumberConverter
 	{

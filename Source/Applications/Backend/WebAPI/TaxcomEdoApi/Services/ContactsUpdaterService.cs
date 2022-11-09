@@ -12,12 +12,13 @@ using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 
-namespace TaxcomEdoApi
+namespace TaxcomEdoApi.Services
 {
 	public class ContactsUpdaterService : BackgroundService
 	{
 		private readonly ILogger<ContactsUpdaterService> _logger;
 		private readonly TaxcomApi _taxcomApi;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IContactStateConverter _contactStateConverter;
 		private readonly ICounterpartyRepository _counterpartyRepository;
@@ -26,12 +27,14 @@ namespace TaxcomEdoApi
 		public ContactsUpdaterService(
 			ILogger<ContactsUpdaterService> logger,
 			TaxcomApi taxcomApi,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IParametersProvider parametersProvider,
 			IContactStateConverter contactStateConverter,
 			ICounterpartyRepository counterpartyRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_contactStateConverter = contactStateConverter ?? throw new ArgumentNullException(nameof(contactStateConverter));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
@@ -54,7 +57,7 @@ namespace TaxcomEdoApi
 				{
 					_logger.LogInformation("Обновление списка контактов...");
 
-					using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 					{
 						var contactUpdates = new ContactList();
 
@@ -84,10 +87,9 @@ namespace TaxcomEdoApi
 								{
 									case ContactStateCode.Incoming:
 										_logger.LogInformation("Входящее приглашение...");
-										_taxcomApi.AcceptContact(contact.EdxClientId); //Перепроверить какой надо Id
+										_taxcomApi.AcceptContact(contact.EdxClientId);
 
-										counterparties = await _counterpartyRepository.GetCounterpartiesByInnAndKpp(
-											uow, contact.Inn, contact.Kpp, stoppingToken);
+										counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
 
 										if(counterparties == null)
 										{
@@ -97,9 +99,8 @@ namespace TaxcomEdoApi
 										foreach(var counterparty in counterparties)
 										{
 											_logger.LogInformation($"Обновляем данные у клиента Id {counterparty.Id}");
-											counterparty.EdoOperator = await uow.Session.QueryOver<EdoOperator>()
-												.Where(x => x.Code == contact.EdxClientId.Substring(0, 3))
-												.SingleOrDefaultAsync(stoppingToken);
+											counterparty.EdoOperator =
+												_counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
 											counterparty.PersonalAccountIdInEdo = contact.EdxClientId;
 											counterparty.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
 
@@ -112,8 +113,7 @@ namespace TaxcomEdoApi
 									case ContactStateCode.Rejected:
 									case ContactStateCode.Error:
 										_logger.LogInformation($"Обрабатываем контакт в статусе {contact.State.Code}");
-										counterparties = await _counterpartyRepository.GetCounterpartiesByInnAndKpp(
-											uow, contact.Inn, contact.Kpp, stoppingToken);
+										counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
 
 										if(counterparties == null)
 										{

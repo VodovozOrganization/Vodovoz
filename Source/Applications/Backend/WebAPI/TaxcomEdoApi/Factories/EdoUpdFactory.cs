@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
+using TaxcomEdoApi.Converters;
+using TISystems.TTC.Common;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
-namespace TaxcomEdoApi
+namespace TaxcomEdoApi.Factories
 {
 	public class EdoUpdFactory
 	{
@@ -21,19 +23,18 @@ namespace TaxcomEdoApi
 			_updProductConverter = updProductConverter ?? throw new ArgumentNullException(nameof(updProductConverter));
 		}
 		
-		public Fajl CreateNewUpdXml(Order order)
+		public Fajl CreateNewUpdXml(Order order, string organizationAccountId, string certificateSubject)
 		{
 			var org = order.Contract.Organization;
-
-			//TODO уточнить нужно ли по дефолту брать логин Водовоза, как отправителя УПД
+			
 			var upd = new Fajl
 			{
 				VersForm = FajlVersForm.Item501,
 				VersProg = "ВерсПрог",
 				SvUchDokObor = new FajlSvUchDokObor
 				{
-					IdOtpr = org.TaxcomEdoAccountId, //ЭкоСовКод
-					IdPol = /*order.Client.PersonalAccountIdInEdo*/"2AL-3978EE3E-C84E-49F7-A214-4D533028AAD9-00000" //ФинСофтХим
+					IdOtpr = organizationAccountId,
+					IdPol = order.Client.PersonalAccountIdInEdo
 				}
 			};
 
@@ -71,6 +72,7 @@ namespace TaxcomEdoApi
 				_participantDocFlowConverter.ConvertOrganizationToUchastnikTip(org, order.DeliveryDate)
 			};
 
+			//Грузоотправитель
 			upd.Dokument.SvSchFakt.GruzOt = new[]
 			{
 				new FajlDokumentSvSchFaktGruzOt
@@ -85,6 +87,7 @@ namespace TaxcomEdoApi
 				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(order.Client)
 			};
 			
+			//Грузополучатель
 			upd.Dokument.SvSchFakt.GruzPoluch = new[]
 			{
 				_participantDocFlowConverter.ConvertCounterpartyToUchastnikTip(order.Client, order.DeliveryPoint?.Id)
@@ -131,7 +134,10 @@ namespace TaxcomEdoApi
 					}
 				}
 			};
-
+			
+			var certDetails = new CertificateParser().ParseCertificate(certificateSubject, Guid.NewGuid());
+			var firstNameAndPatronymic = certDetails.GivenName.Split(' ');
+			
 			upd.Dokument.Podpisant = new[]
 			{
 				new FajlDokumentPodpisant
@@ -143,13 +149,13 @@ namespace TaxcomEdoApi
 					{
 						FIO = new FIOTip
 						{
-							Familija = "Шевалье",
-							Imja = "Ефрем",
-							Otchestvo = "Филимонович"
+							Familija = certDetails.SurName,
+							Imja = firstNameAndPatronymic[0],
+							Otchestvo = firstNameAndPatronymic[1]
 						},
-						INNJuL = "8978118407",//org.INN,
-						NaimOrg = "ООО \"ЭкоСовКод\"",//org.Name,
-						Dolzhn = "Гл бух"
+						INNJuL = org.INN,
+						NaimOrg = certDetails.OrganizationName,
+						Dolzhn = certDetails.Title
 					}
 				}
 			};

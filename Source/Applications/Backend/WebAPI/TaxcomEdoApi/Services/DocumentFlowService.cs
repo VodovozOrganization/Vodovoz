@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -11,23 +11,30 @@ using Taxcom.Client.Api;
 using Taxcom.Client.Api.Converters;
 using Taxcom.Client.Api.Entity;
 using Taxcom.Client.Api.Entity.DocFlow;
+using TaxcomEdoApi.Factories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
 using Vodovoz.Tools.Orders;
 
-namespace TaxcomEdoApi
+namespace TaxcomEdoApi.Services
 {
 	public class DocumentFlowService : BackgroundService
 	{
 		private readonly ILogger<DocumentFlowService> _logger;
 		private readonly TaxcomApi _taxcomApi;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IOrganizationRepository _organizationRepository;
+		private readonly IConfigurationSection _apiSection;
 		private readonly EdoUpdFactory _edoUpdFactory;
 		private readonly EdoContainerMainDocumentIdParser _edoContainerMainDocumentIdParser;
+		private readonly X509Certificate2 _certificate;
 		private const int _delaySec = 90;
 
 		private long? _lastEventIngoingDocumentsTimeStamp;
@@ -36,18 +43,26 @@ namespace TaxcomEdoApi
 		public DocumentFlowService(
 			ILogger<DocumentFlowService> logger,
 			TaxcomApi taxcomApi,
+			IConfiguration configuration,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IParametersProvider parametersProvider,
 			IOrderRepository orderRepository,
+			IOrganizationRepository organizationRepository,
 			EdoUpdFactory edoUpdFactory,
-			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser)
+			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
+			X509Certificate2 certificate)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_edoUpdFactory = edoUpdFactory ?? throw new ArgumentNullException(nameof(edoUpdFactory));
 			_edoContainerMainDocumentIdParser =
 				edoContainerMainDocumentIdParser ?? throw new ArgumentNullException(nameof(edoContainerMainDocumentIdParser));
+			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
+			_apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -60,29 +75,36 @@ namespace TaxcomEdoApi
 
 		private async Task StartWorkingAsync(CancellationToken stoppingToken)
 		{
-			var certificates = CertificateLogic.GetAvailableCertificates();
-
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				await DelayAsync(stoppingToken);
 				
-				var startDate = new DateTime(2015, 1, 1)/*DateTime.Today.AddDays(-3)*/;
+				var startDate = DateTime.Today.AddDays(-8);
 
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
-					await CreateAndSendUpd(uow, startDate, certificates);
+					await CreateAndSendUpd(uow, startDate);
 					await ProcessOutgoingDocuments(uow);
 					await ProcessIngoingDocuments(uow);
 				}
 			}
 		}
 		
-		private Task CreateAndSendUpd(IUnitOfWork uow, DateTime startDate, IList<X509Certificate2> certificates)
+		private Task CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
 		{
 			try
 			{
+				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
+				var organization = uow.GetById<Organization>(1);//_organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
+
+				if(organization is null)
+				{
+					_logger.LogError($"Не найдена организация по edxClientId {edoAccountId}");
+					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
+				}
+				
 				_logger.LogInformation("Получаем заказы по которым надо создать и отправить УПД");
-				var orders = _orderRepository.GetCashlessOrdersForEdoSend(uow, startDate);
+				var orders = _orderRepository.GetCashlessOrdersForEdoSend(uow, startDate, organization.Id);
 
 				//Фильтруем заказы в которых есть УПД и которые не в пути, если у клиента стоит выборка по статусу доставлен
 				var filteredOrders =
@@ -97,7 +119,7 @@ namespace TaxcomEdoApi
 					_logger.LogInformation($"Создаем УПД по заказу №{order.Id}");
 					try
 					{
-						var updXml = _edoUpdFactory.CreateNewUpdXml(order);
+						var updXml = _edoUpdFactory.CreateNewUpdXml(order, edoAccountId, _certificate.Subject);
 						var container = new TaxcomContainer
 						{
 							SignMode = DocumentSignMode.UseSpecifiedCertificate
@@ -106,19 +128,26 @@ namespace TaxcomEdoApi
 						var upd = new UniversalInvoiceDocument();
 						UniversalInvoiceConverter.Convert(upd, updXml);
 
-						upd.Validate(out var errors);
+						if(!upd.Validate(out var errors))
+						{
+							var errorsString = string.Join(", ", errors);
+							_logger.LogError($"УПД {order.Id} не прошла валидацию\nОшибки: {errorsString}");
+							continue;
+						}
 
 						container.Documents.Add(upd);
-						upd.AddCertificateForSign(certificates[1].Thumbprint);
+						upd.AddCertificateForSign(_certificate.Thumbprint);
 
 						var containerRawData = container.ExportToZip();
 
 						var edoContainer = new EdoContainer
 						{
+							Created = DateTime.Now,
 							Container = containerRawData,
 							Order = order,
+							Counterparty = order.Client,
 							MainDocumentId = $"{upd.FileIdentifier}.xml",
-							EdoContainerStatus = EdoContainerStatus.NotStarted
+							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
 						};
 
 						_logger.LogInformation($"Сохраняем контейнер по заказу №{order.Id}");
@@ -130,7 +159,7 @@ namespace TaxcomEdoApi
 					}
 					catch(Exception e)
 					{
-						_logger.LogError(e, "Ошибка в процессе формирования УПД и ее отправки");
+						_logger.LogError(e, $"Ошибка в процессе формирования УПД №{order.Id} и ее отправки");
 					}
 				}
 			}
@@ -162,51 +191,24 @@ namespace TaxcomEdoApi
 					_logger.LogInformation($"Обрабатываем полученные контейнеры {docFlowUpdates.Updates.Count}");
 					foreach(var item in docFlowUpdates.Updates)
 					{
-						EdoContainer container = null;
-
-						switch(item.Status)
-						{
-							case DocFlowUpdateStatus.Error:
-							case DocFlowUpdateStatus.Unknown:
-							case DocFlowUpdateStatus.Warning:
-							case DocFlowUpdateStatus.NotAccepted:
-							case DocFlowUpdateStatus.NotStarted:
-							case DocFlowUpdateStatus.CompletedWithDivergences:
-							case DocFlowUpdateStatus.InProgress:
-								container = _orderRepository.GetEdoContainerByMainDocumentId(uow, item.Documents[0].ExternalIdentifier);
-								var containerReceived = false;
-
-								if(item.Status == DocFlowUpdateStatus.InProgress)
-								{
-									containerReceived =
-										item.Documents.SingleOrDefault(x => x.TransactionCode == "PostDateConfirmation") != null;
-								}
-
-								if(container != null)
-								{
-									container.DocFlowId = item.Id;
-									container.InternalId = item.Documents[0].InternalId;
-									container.ErrorDescription = item.ErrorDescription;
-									container.EdoContainerStatus = Enum.Parse<EdoContainerStatus>(item.Status.ToString());
-									container.Received = containerReceived;
-								}
-
-								break;
-							case DocFlowUpdateStatus.Succeed:
-								container = _orderRepository.GetEdoContainerByMainDocumentId(uow, item.Documents[0].ExternalIdentifier);
-
-								var rawContainer = _taxcomApi.GetDocflowRawData(item.Id.Value.ToString());
-
-								if(container != null)
-								{
-									container.Container = rawContainer;
-								}
-
-								break;
-						}
+						var container = _orderRepository.GetEdoContainerByMainDocumentId(uow, item.Documents[0].ExternalIdentifier);
 
 						if(container != null)
 						{
+							var containerReceived =
+								item.Documents.SingleOrDefault(x => x.TransactionCode == "PostDateConfirmation") != null;
+							
+							container.DocFlowId = item.Id;
+							container.Received = containerReceived;
+							container.InternalId = item.Documents[0].InternalId;
+							container.ErrorDescription = item.ErrorDescription;
+							container.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString());
+							
+							if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+							{
+								container.Container = _taxcomApi.GetDocflowRawData(item.Id.Value.ToString());
+							}
+							
 							_logger.LogInformation($"Сохраняем изменения контейнера по заказу №{container.Order.Id}");
 							uow.Save(container);
 							uow.Commit();
@@ -253,18 +255,28 @@ namespace TaxcomEdoApi
 						var client = _edoContainerMainDocumentIdParser.GetCounterpartyFromMainDocumentId(
 							uow, item.Documents[0].ExternalIdentifier);
 
-						var container = new EdoContainer
-						{
-							Container = rawContainer,
-							IsIncoming = true,
-							DocFlowId = item.Id,
-							InternalId = item.Documents[0].InternalId,
-							MainDocumentId = item.Documents[0].ExternalIdentifier,
-							EdoContainerStatus = Enum.Parse<EdoContainerStatus>(item.Status.ToString()),
-							Counterparty = client
-						};
+						var edoContainer = _orderRepository.GetEdoContainerByDocFlowId(uow, item.Id);
 
-						uow.Save(container);
+						if(edoContainer != null)
+						{
+							edoContainer.Container = rawContainer;
+							edoContainer.EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString());
+						}
+						else
+						{
+							edoContainer = new EdoContainer
+							{
+								Container = rawContainer,
+								IsIncoming = true,
+								DocFlowId = item.Id,
+								InternalId = item.Documents[0].InternalId,
+								MainDocumentId = item.Documents[0].ExternalIdentifier,
+								EdoDocFlowStatus = Enum.Parse<EdoDocFlowStatus>(item.Status.ToString()),
+								Counterparty = client
+							};
+						}
+
+						uow.Save(edoContainer);
 						uow.Commit();
 						_lastEventIngoingDocumentsTimeStamp = item.StatusChangeDateTime.ToBinary();
 					}

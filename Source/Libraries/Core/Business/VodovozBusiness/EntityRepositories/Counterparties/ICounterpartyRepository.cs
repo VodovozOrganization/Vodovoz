@@ -23,7 +23,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		bool IsCashlessPayment(PaymentType payment);
 		IList<CounterpartyTo1CNode> GetCounterpartiesWithInnAndAnyContact(IUnitOfWork uow);
 		IList<Counterparty> GetDealers();
-		Task<IList<Counterparty>> GetCounterpartiesByInnAndKpp(IUnitOfWork uow, string inn, string kpp, CancellationToken stoppingToken);
 		Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId);
+		EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode);
 	}
 }
