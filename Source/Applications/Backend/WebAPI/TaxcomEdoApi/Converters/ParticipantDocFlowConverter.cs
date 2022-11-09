@@ -51,6 +51,10 @@ namespace TaxcomEdoApi.Converters
 							IdSv = new UchastnikTipIdSv
 							{
 								Item = GetSpecialConsignee(client, deliveryPoint?.KPP)
+							},
+							Adres = new AdresTip
+							{
+								Item = GetCustomAddress(client.CargoReceiver)
 							}
 						};
 					}
@@ -140,8 +144,8 @@ namespace TaxcomEdoApi.Converters
 					}
 
 					return !string.IsNullOrWhiteSpace(deliveryPointKpp)
-						? GetUchastnikUl(client.INN, deliveryPointKpp, client.CargoReceiver)
-						: GetUchastnikUl(client.INN, client.KPP, client.CargoReceiver);
+						? GetUchastnikUl(client.INN, deliveryPointKpp, client.FullName)
+						: GetUchastnikUl(client.INN, client.KPP, client.FullName);
 				case PersonType.natural:
 				default:
 					throw new InvalidOperationException("Нельзя сделать УПД для физического лица");
