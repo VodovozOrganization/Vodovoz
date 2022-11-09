@@ -1644,10 +1644,8 @@ namespace Vodovoz
 			   && edoLightsMatrixViewModel.CheckPaymentAllowedStatus(Entity.Client.ReasonForLeaving, edoLightsMatrixPaymentType, EdoLightsColorizeType.Forbidden))
 			{
 				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
-				                                              $"Оставить черновик заказа в статусе \"Новый\" с формой оплаты \"Безнал\"?"))
+				                                              $"Оставить черновик заказа в статусе \"Новый\"?"))
 				{
-					Entity.PaymentType = PaymentType.cashless;
-					
 					return Save(); 
 				}
 
