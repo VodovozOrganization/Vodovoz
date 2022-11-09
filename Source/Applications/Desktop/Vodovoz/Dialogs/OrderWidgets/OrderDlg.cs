@@ -98,6 +98,7 @@ using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
 namespace Vodovoz
 {
@@ -1628,14 +1629,34 @@ namespace Vodovoz
 				}
 			}
 
+			var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
+			var edoLightsMatrixViewModel = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel;
+			edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
+
+			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.cashless
+				? EdoLightsMatrixPaymentType.Cashless
+				: EdoLightsMatrixPaymentType.Receipt;
+
+			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInChestniyZnak);
+
+			if(isAccountableInChestniyZnak
+			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
+			   && edoLightsMatrixViewModel.CheckPaymentAllowedStatus(Entity.Client.ReasonForLeaving, edoLightsMatrixPaymentType, EdoLightsColorizeType.Forbidden))
+			{
+				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
+				                                              $"Оставить черновик заказа в статусе \"Новый\"?"))
+				{
+					return Save(); 
+				}
+
+				return false;
+			}
+
 			if(Entity.PaymentType == PaymentType.cashless)
 			{
-				var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
-				edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
-				var hasUnknownEdoLightsType = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel.HasUnknown();
+				var hasUnknownEdoLightsType = edoLightsMatrixViewModel.HasUnknown();
 
-				if(hasUnknownEdoLightsType.HasValue
-				   && hasUnknownEdoLightsType.Value
+				if(hasUnknownEdoLightsType
 				   && !ServicesConfig.InteractiveService.Question(
 					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
 				{
