@@ -230,12 +230,6 @@ namespace Vodovoz.Configuration
 
             #region Goods
 
-            OrmMain.AddObjectDescription<Nomenclature>().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView()
-                .SearchColumn("Код", x => x.Id.ToString())
-                .SearchColumn("Название", x => x.Name)
-                .Column("Тип", x => x.CategoryString)
-                .SearchColumn("Номер в ИМ", x => x.OnlineStoreExternalId)
-                .End();
             OrmMain.AddObjectDescription<Folder1c>().Dialog<Folder1cDlg>()
                 .DefaultTableView()
                 .SearchColumn("Код 1С", x => x.Code1c)

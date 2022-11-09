@@ -610,8 +610,8 @@ namespace Vodovoz.EntityRepositories.Orders
 						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
 						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
 						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
-						//Не выбираем данный источник отправки для чеков, пока нет оплаты на сайте по QR
-						/*.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCode)*/));
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
 
 			var statusRestriction = Restrictions.Disjunction()
 				.Add(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),

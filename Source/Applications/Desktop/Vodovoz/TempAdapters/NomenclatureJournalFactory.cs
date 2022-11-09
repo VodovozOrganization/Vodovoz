@@ -237,5 +237,71 @@ namespace Vodovoz.TempAdapters
 
 			return new EntityAutocompleteSelectorFactory<RoboatsWaterNomenclatureJournalViewModel>(typeof(Nomenclature), () => journalViewModel);
 		}
+
+		public IEntityAutocompleteSelectorFactory GetDepositSelectorFactory()
+		{
+			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(typeof(Nomenclature), () => GetDepositJournal());
+		}
+
+		private NomenclaturesJournalViewModel GetDepositJournal()
+		{
+			var nomenclatureFilter = new NomenclatureFilterViewModel { HidenByDefault = true };
+			nomenclatureFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = NomenclatureCategory.deposit
+			);
+
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var nomRep = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
+
+			var journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new EmployeeService(),
+				new NomenclatureJournalFactory(),
+				counterpartyJournalFactory,
+				nomRep,
+				userRepository)
+			{
+				SelectionMode = JournalSelectionMode.Single,
+			};
+
+			journalViewModel.HideButtons();
+			return journalViewModel;
+		}
+
+		public IEntityAutocompleteSelectorFactory GetServiceSelectorFactory()
+		{
+			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(typeof(Nomenclature), () => GetServiceJournal());
+		}
+
+		private NomenclaturesJournalViewModel GetServiceJournal()
+		{
+			var nomenclatureFilter = new NomenclatureFilterViewModel { HidenByDefault = true };
+			nomenclatureFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = NomenclatureCategory.service
+			);
+
+			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var nomRep = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+			var userRepository = new UserRepository();
+
+			var journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new EmployeeService(),
+				new NomenclatureJournalFactory(),
+				counterpartyJournalFactory,
+				nomRep,
+				userRepository)
+			{
+				SelectionMode = JournalSelectionMode.Single,
+			};
+
+			journalViewModel.HideButtons();
+			return journalViewModel;
+		}
 	}
 }

@@ -182,6 +182,22 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
+using Vodovoz.ReportsParameters.Orders;
+using QS.DomainModel.NotifyChange;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.ViewModels.Profitability;
+using Vodovoz.Views.Profitability;
+using Vodovoz.ViewModels.Dialogs.Sales;
+using Vodovoz.Views.Sale;
+using Vodovoz.Models;
+using QS.Validation;
+using Vodovoz.ViewWidgets;
+using Vodovoz.ViewModels.Dialogs.Complaints;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.Reports;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 
 namespace Vodovoz
 {
@@ -316,8 +332,9 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
+				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				;
-			
+
 			//Регистрация виджетов
 			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalFilterViewModel, DistrictsSetJournalFilterView>()
@@ -390,6 +407,8 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RoboatsCallsFilterViewModel, RoboatsCallsFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryScheduleFilterViewModel, DeliveryScheduleFilterView>()
 				.RegisterWidgetForWidgetViewModel<BulkEmailEventReportViewModel, BulkEmailEventReportView>()
+				.RegisterWidgetForWidgetViewModel<ProfitabilitySalesReportViewModel, ProfitabilitySalesReportView>()
+				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

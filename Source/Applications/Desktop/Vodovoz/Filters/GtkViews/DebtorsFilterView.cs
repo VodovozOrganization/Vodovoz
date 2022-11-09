@@ -31,6 +31,7 @@ namespace Vodovoz.Filters.GtkViews
 			yvalidatedentryDeliveryPointsFrom.ValidationMode = QSWidgetLib.ValidationType.numeric;
 
 			yenumcomboboxOPF.ItemsEnum = typeof(PersonType);
+			yenumcomboboxHasTask.ItemsEnum = typeof(DebtorsTaskStatus);
 
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = ViewModel.UoW?.Session.QueryOver<DiscountReason>().List();
@@ -62,6 +63,7 @@ namespace Vodovoz.Filters.GtkViews
 			listDeliveryPointCategories.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedDeliveryPointCategory, w => w.SelectedItem)
 				.InitializeFromSource();
+			yenumcomboboxHasTask.Binding.AddBinding(ViewModel, x => x.DebtorsTaskStatus, x => x.SelectedItemOrNull).InitializeFromSource();
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)

@@ -22,7 +22,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozInfrastructure.Attributes;
@@ -51,6 +50,13 @@ namespace Vodovoz.Domain.Client
 		private bool _isPaperlessWorkflow;
 		private bool _isNotSendDocumentsByEdo;
 		private bool _canSendUpdInAdvance;
+		private RegistrationInChestnyZnakStatus _registrationInChestnyZnakStatus;
+		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
+		private ConsentForEdoStatus _consentForEdoStatus;
+		private string _personalAccountIdInEdo;
+		private EdoOperator _edoOperator;
+		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
+		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
 
 		#region Свойства
 
@@ -342,6 +348,18 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref emails, value, () => Emails);
 		}
 
+		[Display(Name = "Все операторы ЭДО контрагента")]
+		public virtual IList<CounterpartyEdoOperator> CounterpartyEdoOperators
+		{
+			get => _counterpartyEdoOperators;
+			set => SetField(ref _counterpartyEdoOperators, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<CounterpartyEdoOperator> ObservableCounterpartyEdoOperators =>
+				_observableCounterpartyEdoOperators ?? (_observableCounterpartyEdoOperators = new GenericObservableList<CounterpartyEdoOperator>(CounterpartyEdoOperators));
+		
+
 		Employee accountant;
 
 		[Display(Name = "Бухгалтер")]
@@ -609,12 +627,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref cargoReceiverSource, value, () => CargoReceiverSource);
 		}
 
-		[Display(Name = "Причина выбытия")]
-		public virtual ReasonForLeaving ReasonForLeaving
-		{
-			get => _reasonForLeaving;
-			set => SetField(ref _reasonForLeaving, value);
-		}
 
 		IList<SpecialNomenclature> specialNomenclatures = new List<SpecialNomenclature>();
 		[Display(Name = "Особенный номер ТМЦ")]
@@ -634,6 +646,73 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion ОсобаяПечать
+
+		#region ЭДО и Честный знак
+
+		[Display(Name = "Причина выбытия")]
+		public virtual ReasonForLeaving ReasonForLeaving
+		{
+			get => _reasonForLeaving;
+			set => SetField(ref _reasonForLeaving, value);
+		}
+
+		[Display(Name = "Статус регистрации в Честном Знаке")]
+		public virtual RegistrationInChestnyZnakStatus RegistrationInChestnyZnakStatus
+		{
+			get => _registrationInChestnyZnakStatus;
+			set => SetField(ref _registrationInChestnyZnakStatus, value);
+		}
+
+		[Display(Name = "Согласие клиента на ЭДО")]
+		public virtual ConsentForEdoStatus ConsentForEdoStatus
+		{
+			get => _consentForEdoStatus;
+			set => SetField(ref _consentForEdoStatus, value);
+		}
+
+		[Display(Name = "Статус заказа для отправки УПД")]
+		public virtual OrderStatusForSendingUpd OrderStatusForSendingUpd
+		{
+			get => _orderStatusForSendingUpd;
+			set => SetField(ref _orderStatusForSendingUpd, value);
+		}
+
+		[Display(Name = "Отказ от печатных документов")]
+		public virtual bool IsPaperlessWorkflow
+		{
+			get => _isPaperlessWorkflow;
+			set => SetField(ref _isPaperlessWorkflow, value);
+		}
+
+		[Display(Name = "Не отправлять документы по EDO")]
+		public virtual bool IsNotSendDocumentsByEdo
+		{
+			get => _isNotSendDocumentsByEdo;
+			set => SetField(ref _isNotSendDocumentsByEdo, value);
+		}
+
+		[Display(Name = "Отправлять УПД заранее")]
+		public virtual bool CanSendUpdInAdvance
+		{
+			get => _canSendUpdInAdvance;
+			set => SetField(ref _canSendUpdInAdvance, value);
+		}
+
+		[Display(Name = "Код личного кабинета в ЭДО")]
+		public virtual string PersonalAccountIdInEdo
+		{
+			get => _personalAccountIdInEdo;
+			set => SetField(ref _personalAccountIdInEdo, value);
+		}
+
+		[Display(Name = "Оператор ЭДО")]
+		public virtual EdoOperator EdoOperator
+		{
+			get => _edoOperator;
+			set => SetField(ref _edoOperator, value);
+		}
+		
+		#endregion
 
 		#endregion
 
@@ -679,27 +758,6 @@ namespace Vodovoz.Domain.Client
 	        get => _isForSalesDepartment;
 	        set => SetField(ref _isForSalesDepartment, value);
         }
-
-		[Display(Name = "Отказ от печатных документов")]
-		public virtual bool IsPaperlessWorkflow
-		{
-			get => _isPaperlessWorkflow;
-			set => SetField(ref _isPaperlessWorkflow, value);
-		}
-
-		[Display(Name = "Не отправлять документы по EDO")]
-		public virtual bool IsNotSendDocumentsByEdo
-		{
-			get => _isNotSendDocumentsByEdo;
-			set => SetField(ref _isNotSendDocumentsByEdo, value);
-		}
-
-		[Display(Name = "Отправлять УПД заранее")]
-		public virtual bool CanSendUpdInAdvance
-		{
-			get => _canSendUpdInAdvance;
-			set => SetField(ref _canSendUpdInAdvance, value);
-		}
 
 		private bool noPhoneCall;
         [Display(Name = "Без прозвона")]
@@ -851,6 +909,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		GenericObservableList<ISupplierPriceNode> observablePriceNodes;
+
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ISupplierPriceNode> ObservablePriceNodes {
 			get {
@@ -1007,9 +1066,9 @@ namespace Vodovoz.Domain.Client
 
 		#region IValidatableObject implementation
 
-		private bool CheckForINNDuplicate(ICounterpartyRepository counterpartyRepository)
+		public virtual bool CheckForINNDuplicate(ICounterpartyRepository counterpartyRepository, IUnitOfWork uow)
 		{
-			IList<Counterparty> counterarties = counterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+			IList<Counterparty> counterarties = counterpartyRepository.GetCounterpartiesByINN(uow, INN);
 			if(counterarties == null)
 				return false;
 			if(counterarties.Any(x => x.Id != Id))
@@ -1054,7 +1113,7 @@ namespace Vodovoz.Domain.Client
 					$"Длина строки \"Грузополучатель\" не должна превышать {_cargoReceiverLimitSymbols} символов");
 			}
 
-			if(CheckForINNDuplicate(counterpartyRepository))
+			if(CheckForINNDuplicate(counterpartyRepository, UoW))
 			{
 				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
 												  new[] { this.GetPropertyName(o => o.INN) });
@@ -1269,15 +1328,66 @@ namespace Vodovoz.Domain.Client
 
 	public enum ReasonForLeaving
 	{
+		[Display(Name = "Неизвестно")]
+		Unknown,
 		[Display(Name = "Для собственных нужд")]
 		ForOwnNeeds,
 		[Display(Name = "Перепродажа")]
-		Resale
+		Resale,
+		[Display(Name = "Иная")]
+		Other
 	}
 
 	public class ReasonForLeavingStringType : NHibernate.Type.EnumStringType
 	{
 		public ReasonForLeavingStringType() : base(typeof(ReasonForLeaving)) { }
+	}
+
+	public enum RegistrationInChestnyZnakStatus
+	{
+		[Display(Name = "Неизвестно")]
+		Unknown,
+		[Display(Name = "В процессе регистрации")]
+		InProcess,
+		[Display(Name = "Зарегистрирован")]
+		Registered,
+		[Display(Name = "Заблокирован")]
+		Blocked
+	}
+
+	public class RegistrationInChestnyZnakStatusStringType : NHibernate.Type.EnumStringType
+	{
+		public RegistrationInChestnyZnakStatusStringType() : base(typeof(RegistrationInChestnyZnakStatus)) { }
+	}
+
+	public enum ConsentForEdoStatus
+	{
+		[Display(Name = "Неизвестно")]
+		Unknown,
+		[Display(Name = "Отправлено")]
+		Sent,
+		[Display(Name = "Согласен")]
+		Agree,
+		[Display(Name = "Отклонено")]
+		Rejected
+	}
+
+	public class ConsentForEdoStatusStringType : NHibernate.Type.EnumStringType
+	{
+		public ConsentForEdoStatusStringType() : base(typeof(ConsentForEdoStatus)) { }
+	}
+
+	public enum OrderStatusForSendingUpd
+	{
+		[Display(Name = "Доставлен")]
+		Delivered,
+		[Display(Name = "В пути")]
+		EnRoute
+	}
+
+	public class OrderStatusForSendingUpdStringType : NHibernate.Type.EnumStringType
+	{
+		public OrderStatusForSendingUpdStringType() : base(typeof(OrderStatusForSendingUpd)) { }
 	}
 
 	#region Для уровневого отображения цен поставщика

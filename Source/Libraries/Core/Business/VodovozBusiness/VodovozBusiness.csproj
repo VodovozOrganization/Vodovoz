@@ -82,6 +82,7 @@
     <Compile Include="Domain\Client\CounterpartyFile.cs" />
     <Compile Include="Domain\Client\BulkEmailEvent.cs" />
     <Compile Include="Domain\Client\LocalityType.cs" />
+    <Compile Include="Domain\Client\EdoOperator.cs" />
     <Compile Include="Domain\Client\RoomType.cs" />
     <Compile Include="Domain\Client\SubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\UnsubscribingBulkEmailEvent.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Domain\Documents\IncomeCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\RouteListItemCashDistributionDocument.cs" />
     <Compile Include="Domain\Documents\SelfDeliveryCashDistributionDocument.cs" />
+    <Compile Include="Domain\Client\CounterpartyEdoOperator.cs" />
     <Compile Include="Domain\Employees\CashSubdivisionSortingSettings.cs" />
     <Compile Include="Domain\Employees\PremiumBase.cs" />
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
@@ -142,9 +144,10 @@
     <Compile Include="Domain\Geocoder\GeocoderAddressCache.cs" />
     <Compile Include="Domain\Geocoder\GeocoderCoordinatesCache.cs" />
     <Compile Include="Domain\Goods\AdditionalLoadingNomenclatureDistribution.cs" />
+    <Compile Include="Domain\Goods\NomenclatureCostPrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureInnerDeliveryPrice.cs" />
     <Compile Include="Domain\Goods\OrderItemComparerForCopyingFromUndelivery.cs" />
-    <Compile Include="Domain\Goods\NomenclatureCostPurchasePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclaturePurchasePrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
     <Compile Include="Domain\EntityFactories\NomenclatureFixedPriceFactory.cs" />
     <Compile Include="Domain\INomenclatureFixedPriceProvider.cs" />
@@ -391,6 +394,8 @@
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\BulkEmailEventMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\BulkEmailEventReasonMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\CounterpartyEdoOperatorMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\OperatorEdoMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyPatronymicMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyNameMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyFileMap.cs" />
@@ -412,10 +417,11 @@
     <Compile Include="HibernateMapping\Geocoder\GeocoderCoordinatesCacheMap.cs" />
     <Compile Include="HibernateMapping\Geocoder\GeocoderAddressCacheMap.cs" />
     <Compile Include="HibernateMapping\Goods\AdditionalLoadingNomenclatureDistributionMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureCostPriceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
     <Compile Include="HibernateMapping\FlyerMap.cs" />
-    <Compile Include="HibernateMapping\Goods\NomenclatureCostPurchasePriceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureInnerDeliveryPriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
@@ -482,10 +488,11 @@
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
+    <Compile Include="Models\NomenclatureCostPriceModel.cs" />
     <Compile Include="Models\NomenclatureGroupPricingModel.cs" />
     <Compile Include="Models\NomenclatureGroupPricingPriceModel.cs" />
     <Compile Include="Models\NomenclatureInnerDeliveryPriceModel.cs" />
-    <Compile Include="Models\NomenclatureCostPurchasePriceModel.cs" />
+    <Compile Include="Models\NomenclaturePurchasePriceModel.cs" />
     <Compile Include="Models\Orders\CopyingOrder.cs" />
     <Compile Include="Models\Orders\OrderCopyModel.cs" />
     <Compile Include="Models\Orders\RoboatsOrderArgs.cs" />
@@ -497,6 +504,7 @@
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
+    <Compile Include="Parameters\EdoSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
@@ -524,8 +532,10 @@
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
+    <Compile Include="Parameters\PhoneTypeSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
+    <Compile Include="Services\IEdoSettings.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
@@ -774,6 +784,7 @@
     <Compile Include="Services\IGeographicGroupParametersProvider.cs" />
     <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IFiasApiParametersProvider.cs" />
+    <Compile Include="Services\IPhoneTypeSettings.cs" />
     <Compile Include="Services\IProductionWarehouseMovementReportProvider.cs" />
     <Compile Include="Services\IOrganizationCashTransferDocumentParametersProvider.cs" />
     <Compile Include="Services\INomenclaturePlanParametersProvider.cs" />

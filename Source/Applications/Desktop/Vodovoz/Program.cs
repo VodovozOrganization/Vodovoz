@@ -26,6 +26,7 @@ using MySql.Data.MySqlClient;
 using QS.BaseParameters;
 using QS.ChangePassword.Views;
 using QS.Dialog;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.DB.Passwords;
 using QS.Project.Repositories;
 using QS.Project.Versioning;
@@ -191,6 +192,8 @@ namespace Vodovoz
 			{
 				return;
 			}
+
+			PermissionExtensionSingletonStore.AssembliesFilter = new[] { "QS", "Vodovoz" };
 
 			PerformanceHelper.EndPointsGroup ();
 

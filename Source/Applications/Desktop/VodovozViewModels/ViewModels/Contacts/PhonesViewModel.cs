@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
+using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
@@ -18,6 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 	public class PhonesViewModel : WidgetViewModelBase
 	{
 		#region Properties
+		private ICommonServices commonServices;
 
 		public IList<PhoneType> PhoneTypes;
 		public event Action PhonesListReplaced; //Убрать
@@ -46,6 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			this.contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			var roboAtsCounterpartyNamePermissions = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboAtsCounterpartyName));
 			CanReadCounterpartyName = roboAtsCounterpartyNamePermissions.CanRead;
@@ -83,6 +86,15 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		IPhoneRepository phoneRepository;
 
 		#endregion Prorerties
+
+		#region Methods
+		public PhoneViewModel GetPhoneViewModel(Phone phone)
+		{
+			return new PhoneViewModel(phone,
+				commonServices,
+				new PhoneTypeSettings(new ParametersProvider()));
+		}
+		#endregion
 
 		#region Commands
 

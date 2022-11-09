@@ -7,7 +7,7 @@ namespace FastPaymentsAPI.Library.Managers
 {
 	public interface IFastPaymentManager
 	{
-		bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQR, bool fastPaymentFromOnline);
+		bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQRNotFromOnline, bool fastPaymentFromOnline);
 		void UpdateFastPaymentStatus(IUnitOfWork uow, FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
 	}
 }

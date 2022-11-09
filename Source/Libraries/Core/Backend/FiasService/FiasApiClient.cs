@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Fias.Search.DTO;
+using Fias.Service.Cache;
+using NLog;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
@@ -7,9 +10,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Fias.Search.DTO;
-using Fias.Service.Cache;
-using NLog;
 using Vodovoz.Domain.Geocoder;
 
 namespace Fias.Service
@@ -25,7 +25,6 @@ namespace Fias.Service
 		private class RequestSender<T>
 		{
 			private readonly string _requestParams;
-			private readonly GeocoderCache _geocoderCache;
 			private readonly string _requestPath;
 
 			public RequestSender(string requestPath, string requestParams = null)
@@ -34,7 +33,7 @@ namespace Fias.Service
 				_requestParams = requestParams != null ? $"?{requestParams}" : "";
 			}
 
-			public T GetResponseAsync(CancellationToken? cancellationToken = null)
+			public async Task<T> GetResponseAsync(CancellationToken? cancellationToken = null)
 			{
 				_client.DefaultRequestHeaders.Accept.Clear();
 				_client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -59,7 +58,7 @@ namespace Fias.Service
 
 				if(response.IsSuccessStatusCode && response.StatusCode == HttpStatusCode.OK)
 				{
-					var result = response.Content.ReadFromJsonAsync<T>().Result;
+					var result = await response.Content.ReadFromJsonAsync<T>();
 					return result;
 				}
 
@@ -90,7 +89,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<CityDTO>>("/api/GetCitiesByCriteria", requestParams);
-			return requestSender.GetResponseAsync() ?? new List<CityDTO>();
+			return requestSender.GetResponseAsync().Result ?? new List<CityDTO>();
 		}
 
 		public IEnumerable<StreetDTO> GetStreetsByCriteria(Guid cityGuid, string searchString, int limit, bool isActive = true)
@@ -104,7 +103,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<StreetDTO>>("/api/GetStreetsByCriteria", requestParams);
-			return requestSender.GetResponseAsync() ?? new List<StreetDTO>();
+			return requestSender.GetResponseAsync().Result ?? new List<StreetDTO>();
 		}
 
 		public IEnumerable<HouseDTO> GetHousesFromStreetByCriteria(Guid streetGuid, string searchString, int? limit = null, bool isActive = true)
@@ -118,7 +117,7 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<HouseDTO>>("/api/GetHousesFromStreetByCriteria", requestParams);
-			return requestSender.GetResponseAsync() ?? new List<HouseDTO>();
+			return requestSender.GetResponseAsync().Result ?? new List<HouseDTO>();
 		}
 
 		public IEnumerable<HouseDTO> GetHousesFromCityByCriteria(Guid cityGuid, string searchString, int? limit = null, bool isActive = true)
@@ -132,18 +131,20 @@ namespace Fias.Service
 			};
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<IEnumerable<HouseDTO>>("/api/GetHousesFromCityByCriteria", requestParams);
-			return requestSender.GetResponseAsync() ?? new List<HouseDTO>();
+			return requestSender.GetResponseAsync().Result ?? new List<HouseDTO>();
 		}
 
-		public PointDTO GetCoordinatesByGeoCoder(string address, CancellationToken cancellationToken)
+		public async Task<PointDTO> GetCoordinatesByGeoCoder(string address, CancellationToken cancellationToken)
 		{
 			var cache = GetCachedCoordinates(address);
 			if(cache != null)
 			{
+				var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+				culture.NumberFormat.NumberDecimalSeparator = ".";
 				var result = new PointDTO
 				{
-					Latitude = cache.Latitude.ToString(),
-					Longitude = cache.Longitude.ToString()
+					Latitude = cache.Latitude.ToString(culture),
+					Longitude = cache.Longitude.ToString(culture)
 				};
 
 				return result;
@@ -156,8 +157,7 @@ namespace Fias.Service
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<PointDTO>("/api/GetCoordinatesByGeoCoder", requestParams);
 			_logger.Info($"Обращение к яндексу за координатами");
-			var task = requestSender.GetResponseAsync(cancellationToken);
-			var response = task;
+			var response = await requestSender.GetResponseAsync(cancellationToken);
 			_logger.Info($"Координаты по адресу {address}: {response?.Latitude},{response?.Longitude}");
 			if(response != null)
 			{
@@ -166,7 +166,7 @@ namespace Fias.Service
 			return response;
 		}
 
-		public string GetAddressByGeoCoder(decimal latitude, decimal longitude, CancellationToken cancellationToken)
+		public async Task<string> GetAddressByGeoCoder(decimal latitude, decimal longitude, CancellationToken cancellationToken)
 		{
 			var cache = GetCachedAddress(latitude, longitude);
 			if(cache != null)
@@ -183,8 +183,7 @@ namespace Fias.Service
 			var requestParams = new FormUrlEncodedContent(inputParams).ReadAsStringAsync().Result;
 			var requestSender = new RequestSender<string>("/api/GetAddressByGeoCoder", requestParams);
 			_logger.Info($"Обращение к яндексу за адресом");
-			var task = requestSender.GetResponseAsync(cancellationToken);
-			var response = task;
+			var response = await requestSender.GetResponseAsync(cancellationToken);
 			_logger.Info($"Адрес по координатам {latitude},{longitude}: {response}");
 			if(!string.IsNullOrWhiteSpace(response))
 			{
@@ -193,7 +192,7 @@ namespace Fias.Service
 			return response;
 		}
 
-		private GeocoderAddressCache GetCachedAddress(decimal latitude, decimal longitude)
+		private GeocoderCoordinatesCache GetCachedAddress(decimal latitude, decimal longitude)
 		{
 			try
 			{
@@ -208,7 +207,7 @@ namespace Fias.Service
 			return null;
 		}
 
-		private GeocoderCoordinatesCache GetCachedCoordinates(string address)
+		private GeocoderAddressCache GetCachedCoordinates(string address)
 		{
 			try
 			{

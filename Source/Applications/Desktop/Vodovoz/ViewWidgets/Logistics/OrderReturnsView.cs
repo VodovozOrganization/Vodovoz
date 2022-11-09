@@ -365,10 +365,8 @@ namespace Vodovoz
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
-
-			//Пока не запустили онлайн оплату по QR блокируем выбор этого источника во избежание ошибок
-			var paymentByCardFromSiteByQrCode = _orderParametersProvider.GetPaymentByCardFromSiteByQrCode;
-			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(x => x.Id != paymentByCardFromSiteByQrCode).List();
+			
+			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible)
 				.InitializeFromSource();
@@ -461,8 +459,7 @@ namespace Vodovoz
 
 		int GetMaxCount(OrderItemReturnsNode node)
 		{
-			var count = (node.Nomenclature.Category == NomenclatureCategory.service
-			             || node.Nomenclature.Category == NomenclatureCategory.master
+			var count = (node.Nomenclature.Category == NomenclatureCategory.master
 			             || node.Nomenclature.Category == NomenclatureCategory.deposit)
 				? 1
 				: 9999;

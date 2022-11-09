@@ -84,6 +84,8 @@ namespace FastPaymentsAPI.Library.Managers
 			IUnitOfWork uow)
 		{
 			var orderRequestManager = scope.ServiceProvider.GetRequiredService<IOrderRequestManager>();
+			var fastPaymentStatusChangeNotifier = scope.ServiceProvider.GetRequiredService<IFastPaymentStatusChangeNotifier>();
+
 			foreach(var payment in processingFastPayments)
 			{
 				var ticket = payment.Ticket;
@@ -93,11 +95,21 @@ namespace FastPaymentsAPI.Library.Managers
 					_errorHandler.LogErrorMessageFromUpdateOrderInfo(response, ticket, _logger);
 					continue;
 				}
+
+				//Обновляем сущность, т.к. колбэк может поменять статус быстрого платежа
+				uow.Session.Refresh(payment);
+
+				if((payment.FastPaymentStatus == FastPaymentStatus.Rejected && response.Status == FastPaymentDTOStatus.Processing)
+					|| (payment.FastPaymentStatus == FastPaymentStatus.Performed && response.Status == FastPaymentDTOStatus.Performed))
+				{
+					continue;
+				}
+				
 				if((int)response.Status == (int)payment.FastPaymentStatus)
 				{
-					var fastPaymentWithQR = !string.IsNullOrWhiteSpace(payment.QRPngBase64);
+					var fastPaymentWithQRNotFromOnline = payment.FastPaymentPayType == FastPaymentPayType.ByQrCode && !payment.OnlineOrderId.HasValue;
 					var fastPaymentFromOnline = payment.OnlineOrderId.HasValue;
-					if(!_fastPaymentManager.IsTimeToCancelPayment(payment.CreationDate, fastPaymentWithQR, fastPaymentFromOnline))
+					if(!_fastPaymentManager.IsTimeToCancelPayment(payment.CreationDate, fastPaymentWithQRNotFromOnline, fastPaymentFromOnline))
 					{
 						continue;
 					}
@@ -116,6 +128,7 @@ namespace FastPaymentsAPI.Library.Managers
 				uow.Save(payment);
 				uow.Commit();
 				_updatedCount++;
+				NotifyFastPaymentStatusChange(fastPaymentStatusChangeNotifier, payment);
 			}
 		}
 
@@ -130,6 +143,23 @@ namespace FastPaymentsAPI.Library.Managers
 			{
 				_logger.LogInformation("Ждем 25сек");
 				await Task.Delay(25000, stoppingToken);
+			}
+		}
+
+		private void NotifyFastPaymentStatusChange(IFastPaymentStatusChangeNotifier notifier, FastPayment payment)
+		{
+			switch(payment.FastPaymentStatus)
+			{
+				case FastPaymentStatus.Rejected:
+					notifier.NotifyVodovozSite(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, false);
+					notifier.NotifyMobileApp(
+						payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, false, payment.CallbackUrlForMobileApp);
+					break;
+				case FastPaymentStatus.Performed:
+					notifier.NotifyVodovozSite(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, true);
+					notifier.NotifyMobileApp(
+						payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, true, payment.CallbackUrlForMobileApp);
+					break;
 			}
 		}
 	}

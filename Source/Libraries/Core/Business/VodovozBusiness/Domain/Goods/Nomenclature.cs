@@ -25,15 +25,20 @@ namespace Vodovoz.Domain.Goods
 	[HistoryTrace]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
-		private IList<NomenclatureCostPurchasePrice> _purchasePrices = new List<NomenclatureCostPurchasePrice>();
+		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
+		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
 		private IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureInnerDeliveryPrice>();
-		private GenericObservableList<NomenclatureCostPurchasePrice> _observablePurchasePrices;
+		private GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
+		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
 		private bool _usingInGroupPriceSet;
 
 		private decimal _length;
 		private decimal _width;
 		private decimal _height;
+
+		private bool _isAccountableInChestniyZnak;
+		private string _gtin;
 
 		public Nomenclature()
 		{
@@ -540,14 +545,25 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		[Display(Name = "Цены закупки ТМЦ")]
-		public virtual IList<NomenclatureCostPurchasePrice> PurchasePrices
+		public virtual IList<NomenclaturePurchasePrice> PurchasePrices
 		{
 			get => _purchasePrices;
 			set => SetField(ref _purchasePrices, value);
 		}
 
-		public virtual GenericObservableList<NomenclatureCostPurchasePrice> ObservablePurchasePrices =>
-			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclatureCostPurchasePrice>(PurchasePrices));
+		public virtual GenericObservableList<NomenclaturePurchasePrice> ObservablePurchasePrices =>
+			_observablePurchasePrices ?? (_observablePurchasePrices = new GenericObservableList<NomenclaturePurchasePrice>(PurchasePrices));
+
+		[Display(Name = "Себестоимость ТМЦ")]
+		public virtual IList<NomenclatureCostPrice> CostPrices
+		{
+			get => _costPrices;
+			set => SetField(ref _costPrices, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<NomenclatureCostPrice> ObservableCostPrices =>
+			_observableCostPrices ?? (_observableCostPrices = new GenericObservableList<NomenclatureCostPrice>(CostPrices));
 
 		[Display(Name = "Стоимости доставки ТМЦ на склад")]
 		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
@@ -558,6 +574,21 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
+
+		[Display(Name = "Подлежит учету в Честном Знаке")]
+		public virtual bool IsAccountableInChestniyZnak
+		{
+			get => _isAccountableInChestniyZnak;
+			set => SetField(ref _isAccountableInChestniyZnak, value);
+		}
+
+		[Display(Name = "Номер товарной продукции GTIN")]
+		public virtual string Gtin
+		{
+			get => _gtin;
+			set => SetField(ref _gtin, value);
+		}
+
 		#endregion
 
 		#region Свойства товаров для магазина
@@ -967,6 +998,18 @@ namespace Vodovoz.Domain.Goods
 				{
 					yield return validationResult;
 				}
+			}
+
+			if(IsAccountableInChestniyZnak && string.IsNullOrWhiteSpace(Gtin))
+			{
+				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
+					new[] { nameof(Gtin) });
+			}
+
+			if(Gtin?.Length < 8 || Gtin?.Length > 14)
+			{
+				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
+					new[] { nameof(Gtin) });
 			}
 		}
 

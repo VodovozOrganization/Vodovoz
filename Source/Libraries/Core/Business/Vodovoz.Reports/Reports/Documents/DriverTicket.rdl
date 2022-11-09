@@ -1,0 +1,2618 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>11.69in</PageHeight>
+  <PageWidth>8.27in</PageWidth>
+  <Width>.1pt</Width>
+  <TopMargin>0mm</TopMargin>
+  <LeftMargin>0mm</LeftMargin>
+  <RightMargin>0mm</RightMargin>
+  <BottomMargin>0mm</BottomMargin>
+  <DataSets>
+    <DataSet Name="Order">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    orders.id AS order_id,
+    orders.delivery_date AS order_date,
+    orders.self_delivery AS self_delivery,
+    delivery_points.organization AS organization,
+    IF(is_bottle_stock, orders.bottles_by_stock_count, orders.bottles_return) AS bottles_return,
+    orders.sum_to_receive AS total,
+    orders.comment AS order_comment,
+    orders.comment_logist AS comment_for_logist,
+    CASE orders.signature_type
+        WHEN 'BySeal' THEN 'По печати'
+        WHEN 'ByProxy' THEN 'По доверенности'
+        WHEN 'ProxyOnDeliveryPoint' THEN 'Доверенность на адресе'
+        ELSE ''
+        END AS signature_type,
+    CASE orders.payment_type
+        WHEN 'cash' THEN 'НАЛ'
+        WHEN 'cashless' THEN 'БЕЗНАЛ'
+        WHEN 'ByCard' THEN 'ПО КАРТЕ'
+        WHEN 'Terminal' THEN 'ТЕРМИНАЛ'
+        ELSE ''
+        END AS pay_type,
+    delivery_schedule.name AS delivery_schedule,
+    CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
+    DATE_FORMAT(
+            counterparty_contract.issue_date,
+            '%d.%m.%y'
+        ) AS contract_date,
+    counterparty.full_name AS client_name,
+    counterparty.address AS client_address,
+    organizations.full_name AS org_name,
+    ov.address AS org_address,
+    GROUP_CONCAT(
+        DISTINCT
+            CONCAT(
+                    '+7 ',
+                    delivery_points_phones.number,
+                    IF(
+                            delivery_points_phones.comment IS NULL,
+                            '',
+                            CONCAT(' ', delivery_points_phones.comment)
+                        )
+                )
+            SEPARATOR '; '
+        ) AS delivery_point_contact,
+    GROUP_CONCAT(
+        DISTINCT
+            CONCAT(
+                    '+7 ',
+                    counterparty_phones.number,
+                    IF(
+                            counterparty_phones.comment IS NULL,
+                            '',
+                            CONCAT(' ', counterparty_phones.comment)
+                        )
+                )
+            SEPARATOR '; '
+        ) AS client_contact,
+    districts.district_name AS logistics_area,
+    delivery_points.compiled_address_short AS del_point_address,
+    delivery_points.city AS city,
+    delivery_points.street AS street,
+    delivery_points.building AS building,
+    delivery_points.room AS room,
+    delivery_points.latitude,
+    delivery_points.longitude,
+    orders.daily_number_1c AS daily_number,
+    CONCAT_WS('',
+              CONCAT(employees.last_name, ' '),
+              IF(employees.name = '',
+                 '',
+                 CONCAT(LEFT(employees.name, 1), '.')),
+              IF(employees.patronymic = '',
+                 '',
+                 CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
+    orders.trifle AS trifle
+FROM
+    orders
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
+        LEFT JOIN
+    organizations ON organizations.id = counterparty_contract.organization_id
+        LEFT JOIN
+    organization_versions ov
+        ON
+            organizations.id = ov.organization_id 
+        AND
+            ov.start_date &lt;= orders.bill_date 
+        AND
+            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+        LEFT JOIN
+    delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+        LEFT JOIN
+    delivery_points ON orders.delivery_point_id = delivery_points.id
+        LEFT JOIN
+    districts ON delivery_points.district_id = districts.id
+        LEFT JOIN
+    employees ON employees.id = orders.author_employee_id
+        LEFT JOIN
+    phones as delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id AND delivery_points_phones.is_archive = 0
+        LEFT JOIN
+    phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id AND counterparty_phones.is_archive = 0
+WHERE
+    orders.id = @order_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="bottles_return">
+          <DataField>bottles_return</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="total">
+          <DataField>total</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="order_comment">
+          <DataField>order_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_schedule">
+          <DataField>delivery_schedule</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="contract_date">
+          <DataField>contract_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_name">
+          <DataField>client_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_address">
+          <DataField>client_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_name">
+          <DataField>org_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_address">
+          <DataField>org_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_contact">
+          <DataField>client_contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="logistics_area">
+          <DataField>logistics_area</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="city">
+          <DataField>city</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="street">
+          <DataField>street</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="building">
+          <DataField>building</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="room">
+          <DataField>room</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="latitude">
+          <DataField>latitude</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="longitude">
+          <DataField>longitude</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="trifle">
+          <DataField>trifle</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="daily_number">
+          <DataField>daily_number</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="delivery_point_contact">
+          <DataField>delivery_point_contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="del_point_address">
+          <DataField>del_point_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="signature_type">
+          <DataField>signature_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment_for_logist">
+          <DataField>comment_for_logist</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="pay_type">
+          <DataField>pay_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="self_delivery">
+          <DataField>self_delivery</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="organization">
+          <DataField>organization</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Equipments">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    (SELECT 
+            GROUP_CONCAT(CONCAT(nomenclature.name,
+                            ' - ',
+                            order_equipment.count,
+					'\n(',
+					(
+						CASE order_equipment.own_type
+							WHEN 'Client' THEN 'Клиента'
+							WHEN 'Duty' THEN 'Дежурный'
+							WHEN 'Rent' THEN 'Аренда'
+							ELSE 'неизвестно'
+						END
+                    ),
+                    (
+						CASE order_equipment.direction_reason
+							WHEN 'Rent' THEN ': В аренду'
+							WHEN 'Repair' THEN ': Из ремонта'
+							WHEN 'Cleaning' THEN ': После сан.обр.'
+							WHEN 'RepairAndCleaning' THEN ': После сан.обр. и ремонта'
+							ELSE ''
+						END
+					),
+                    ')'
+                    )
+                    SEPARATOR '\n')
+        FROM
+            `order_equipment`
+                LEFT JOIN
+            nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+        WHERE
+            order_equipment.order_id = @order_id
+                AND order_equipment.direction = 'Deliver') AS equipment_to,
+    (SELECT 
+            GROUP_CONCAT(CONCAT(nomenclature.name,
+                            ' - ',
+                            order_equipment.count,
+					'\n(',
+					(
+						CASE order_equipment.own_type
+							WHEN 'Client' THEN 'Клиента'
+							WHEN 'Duty' THEN 'Дежурный'
+							WHEN 'Rent' THEN 'Аренда'
+							ELSE 'неизвестно'
+						END
+                    ),
+                    (
+						CASE order_equipment.direction_reason
+							WHEN 'Rent' THEN ': Закрытие'
+							WHEN 'Repair' THEN ': В ремонт'
+							WHEN 'Cleaning' THEN ': На сан.обр.'
+							WHEN 'RepairAndCleaning' THEN ': На сан.обр.и ремонт'
+							ELSE ''
+						END
+					),
+                    ')'
+                    )
+                    SEPARATOR '\n')
+        FROM
+            `order_equipment`
+                LEFT JOIN
+            nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+        WHERE
+            order_equipment.order_id = @order_id
+                AND order_equipment.direction = 'PickUp') AS equipment_from</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="equipment_to">
+          <DataField>equipment_to</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="equipment_from">
+          <DataField>equipment_from</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Goods">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>SELECT
+    nomenclature.id AS id,
+    nomenclature.name AS name,
+    '--' AS unit_code,
+    measurement_units.name AS mu_name,
+    measurement_units.digits AS digits,
+    IFNULL(actual_count, count) AS count,
+    order_items.price * (1 - order_items.discount/100) AS item_price,
+    order_items.price * IFNULL(actual_count, count) - order_items.discount_money AS total,
+    IFNULL(order_items.include_nds, 0) AS include_nds
+FROM order_items
+         LEFT JOIN
+     nomenclature ON order_items.nomenclature_id = nomenclature.id
+         LEFT JOIN
+     measurement_units ON nomenclature.unit_id = measurement_units.id
+         LEFT JOIN
+     orders ON orders.id = order_items.order_id
+WHERE
+        order_items.order_id = @order_id
+/*Отображенеие строки Забор-Доставка, если нет номенклатур в заказе*/
+UNION ALL
+SELECT DISTINCT
+    null AS id,
+    'Забор-Доставка' AS name,
+    null AS unit_code,
+    null AS mu_name,
+    null AS digits,
+    null AS count,
+    null AS item_price,
+#	null AS item_discount,
+#	null AS total_wo_disc,
+    null AS total,
+    null AS include_nds
+FROM
+    order_items
+WHERE NOT EXISTS (
+        SELECT id
+        FROM order_items
+        WHERE order_id = @order_id
+    );</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="unit_code">
+          <DataField>unit_code</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="mu_name">
+          <DataField>mu_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="item_price">
+          <DataField>item_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="total">
+          <DataField>total</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="include_nds">
+          <DataField>include_nds</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DepositRefund">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+deposit_sum,count as deposit_count, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
+FROM
+order_deposit_items
+WHERE
+order_id = @order_id
+AND 
+payment_type='ToClient'</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="deposit_price">
+          <DataField>deposit_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="deposit_type">
+          <DataField>deposit_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="deposit_count">
+          <DataField>deposit_count</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="RefundExists">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT * FROM order_deposit_items LIMIT 1;</CommandText>
+      </Query>
+      <Fields />
+    </DataSet>
+    <DataSet Name="ResponsiblePerson">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	CONCAT (
+    counterparty_contacts.surname, ' ',
+    counterparty_contacts.name, ' ',
+    counterparty_contacts.patronymic) AS responsible_person_name,
+    GROUP_CONCAT(number SEPARATOR '\n') AS responsible_person_phone
+FROM
+    orders
+        LEFT JOIN
+    counterparty_delivery_point_contacts ON counterparty_delivery_point_contacts.delivery_point_id = orders.delivery_point_id
+        LEFT JOIN
+    counterparty_contacts ON counterparty_contacts.counterparty_id = orders.client_id
+        AND counterparty_contacts.id = counterparty_delivery_point_contacts.contact_person_id
+        LEFT JOIN
+    phones ON phones.counterparty_contact_id = counterparty_contacts.id AND phones.is_archive = 0
+WHERE
+    orders.id = @order_id
+GROUP BY responsible_person_name</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="responsible_person_name">
+          <DataField>responsible_person_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="responsible_person_phone">
+          <DataField>responsible_person_phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Proxies">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	counterparty_proxies.number as proxyNumber,
+    start_date as proxyStartDate,
+    expiration_date as proxyExpirationDate,
+    proxy_persons.FIO as proxyFIO
+FROM
+	counterparty_proxies
+    LEFT JOIN
+    counterparty ON counterparty.id = counterparty_proxies.counterparty_id
+    LEFT JOIN
+    orders ON orders.client_id = counterparty.id
+    LEFT JOIN
+    (
+		SELECT
+			counterparty_proxy_id,
+			GROUP_CONCAT(CONCAT(IFNULL(persons.surname,''), ' ', IFNULL(persons.name,''), ' ', IFNULL(persons.patronymic,'')) SEPARATOR ',\n') as FIO 
+		FROM 
+			persons
+		GROUP BY counterparty_proxy_id
+    ) AS proxy_persons
+    ON proxy_persons.counterparty_proxy_id = counterparty_proxies.id
+WHERE 
+	orders.id = @order_id
+    AND orders.payment_type = 'cashless'
+    AND orders.signature_type = 'ByProxy'</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="proxyNumber">
+          <DataField>proxyNumber</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="proxyStartDate">
+          <DataField>proxyStartDate</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="proxyExpirationDate">
+          <DataField>proxyExpirationDate</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="proxyFIO">
+          <DataField>proxyFIO</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Orders_count">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	COUNT(id) as ord_cnt
+FROM
+	order_items
+WHERE
+	order_id = @order_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="ord_cnt">
+          <DataField>ord_cnt</DataField>
+          <TypeName>System.Int64</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Image">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>/*
+SET @id1 = 3; #VodovozLogo
+SET @id2 = 4; #VISA 
+SET @id3 = 5; #MasterCard
+SET @id4 = 6; #Пожалуйся директору
+SET @id5 = 7; #рекламный баннер
+SET @id6 = 8; #телефон
+SET @id7 = 9; #VIP
+SET @id8 = 10; #Договор оферты
+SET @id9 = 13; #Безконтактная доставка
+*/
+
+SELECT
+
+stored_resource.id AS ID1,
+stored_resource.binary_file AS IM1 ,
+
+R2.id as ID2 ,
+R2.binary_file as IM2 ,
+
+R3.id as ID3 ,
+R3.binary_file as IM3 ,
+
+R4.id as ID4 ,
+R4.binary_file as IM4 ,
+
+R5.id as ID5 ,
+R5.binary_file as IM5 ,
+
+R6.id as ID6 ,
+R6.binary_file as IM6 ,
+
+R7.id as ID7 ,
+R7.binary_file as IM7 ,
+
+R8.id as ID8 ,
+R8.binary_file as IM8 ,
+
+R9.id as ID9 ,
+R9.binary_file as IM9 
+
+FROM stored_resource
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id2
+) as R2 ON R2.id = @id2
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id3
+) as R3 ON R3.id = @id3
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id4
+) as R4 ON R4.id = @id4
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id5
+) as R5 ON R5.id = @id5
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id6
+) as R6 ON R6.id = @id6
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id7
+) as R7 ON R7.id = @id7
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id8
+) as R8 ON R8.id = @id8
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id9
+) as R9 ON R9.id = @id9
+
+WHERE stored_resource.id = @id1</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id1">
+            <Value>3</Value>
+          </QueryParameter>
+          <QueryParameter Name="id2">
+            <Value>4</Value>
+          </QueryParameter>
+          <QueryParameter Name="id3">
+            <Value>5</Value>
+          </QueryParameter>
+          <QueryParameter Name="id4">
+            <Value>6</Value>
+          </QueryParameter>
+          <QueryParameter Name="id5">
+            <Value>7</Value>
+          </QueryParameter>
+          <QueryParameter Name="id6">
+            <Value>8</Value>
+          </QueryParameter>
+          <QueryParameter Name="id7">
+            <Value>9</Value>
+          </QueryParameter>
+          <QueryParameter Name="id8">
+            <Value>10</Value>
+          </QueryParameter>
+          <QueryParameter Name="id9">
+            <Value>13</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="IM1">
+          <DataField>IM1</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM2">
+          <DataField>IM2</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM3">
+          <DataField>IM3</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM4">
+          <DataField>IM4</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM5">
+          <DataField>IM5</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM6">
+          <DataField>IM6</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM7">
+          <DataField>IM7</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM8">
+          <DataField>IM8</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM9">
+          <DataField>IM9</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>550.0pt</Height>
+    <Columns>1</Columns>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Goods</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <PaddingTop>0pt</PaddingTop>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>24.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>276.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>49.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>27.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>53.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>66.6pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>№</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Товар</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingTop>0pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Кол-во</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Visibility>
+                        <Hidden></Hidden>
+                      </Visibility>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>Ед.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Visibility></Visibility>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Цена</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Сумма</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>=RowNumber()</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>=Fields!name.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>=Fields!count.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <Format>="N" + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>=Fields!mu_name.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>=Fields!item_price.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format># ##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>={total}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format># ##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>52.1pt</Left>
+        <Top>177.1pt</Top>
+        <Visibility>
+          <Hidden>=Iif(First({ord_cnt}, "Orders_count")&gt;0, 'false', 'true')</Hidden>
+        </Visibility>
+      </Table>
+      <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>67.02pt</Width>
+        <Value>=Format(Sum({total}, 'Goods'), "N2")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>485.0pt</Left>
+        <Top>203.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Normal</FontWeight>
+          <Format># ##0.00</Format>
+        </Style>
+        <CanGrow>false</CanGrow>
+      </Textbox>
+      <Subreport Name="Subreport1">
+        <Height>11.26pt</Height>
+        <Width>598.34pt</Width>
+        <Left>0.0pt</Left>
+        <Top>237.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>InvoiceDepositRefundTable</ReportName>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
+          <Parameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </Parameter>
+        </Parameters>
+      </Subreport>
+      <Textbox Name="Textbox38" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>66.27pt</Width>
+        <Value>=Format(Sum(Iif({count}&gt;0,{include_nds},0), 'Goods'), "N2")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>484.8pt</Left>
+        <Top>217.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Normal</FontWeight>
+          <Format># ##0.00</Format>
+        </Style>
+        <CanGrow>false</CanGrow>
+      </Textbox>
+      <List Name="List5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>34.72pt</Height>
+        <Width>540.51pt</Width>
+        <Left>27.3pt</Left>
+        <Top>321.4pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox11">
+            <Height>27.80pt</Height>
+            <Width>77.70pt</Width>
+            <Value>Оборудование
+к клиенту: </Value>
+            <ZIndex>1</ZIndex>
+            <Left>1.6pt</Left>
+            <Top>14.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Right</TextAlign>
+            </Style>
+            <Visibility>
+              <Hidden>=Count({equipment_to},"Equipments")  = 0</Hidden>
+            </Visibility>
+          </Textbox>
+          <Textbox Name="Textbox34">
+            <Height>27.80pt</Height>
+            <Width>180.23pt</Width>
+            <Value>=Fields!equipment_to.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>80.2pt</Left>
+            <Top>15.3pt</Top>
+            <CanGrow>true</CanGrow>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+            <Visibility>
+              <Hidden>=Count({equipment_to},"Equipments")  = 0</Hidden>
+            </Visibility>
+          </Textbox>
+          <Textbox Name="Textbox40">
+            <Height>27.80pt</Height>
+            <Width>75.27pt</Width>
+            <Value>Оборудование
+ от клиента:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>261.6pt</Left>
+            <Top>15.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Right</TextAlign>
+            </Style>
+            <Visibility>
+              <Hidden>=Count({equipment_from},"Equipments")  = 0</Hidden>
+            </Visibility>
+          </Textbox>
+          <Textbox Name="Textbox43">
+            <Height>27.80pt</Height>
+            <Width>187.47pt</Width>
+            <Value>=Fields!equipment_from.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>336.2pt</Left>
+            <Top>15.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <Visibility>
+              <Hidden>=Count({equipment_from},"Equipments")  = 0</Hidden>
+            </Visibility>
+          </Textbox>
+        </ReportItems>
+        <Visibility>
+          <Hidden>=Countrows("Equipments")
+ = 0</Hidden>
+        </Visibility>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <DataSetName>Equipments</DataSetName>
+      </List>
+      <Textbox Name="Textbox32">
+        <Height>12.00pt</Height>
+        <Width>53.52pt</Width>
+        <Value>Итого:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>429.8pt</Left>
+        <Top>202.8pt</Top>
+        <Style>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox33">
+        <Height>12.00pt</Height>
+        <Width>93.27pt</Width>
+        <Value>В том числе НДС:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>389.9pt</Left>
+        <Top>216.6pt</Top>
+        <Style>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.53pt</Height>
+        <Width>536.74pt</Width>
+        <Value>=First({order_comment}, "Order")
++ Iif(
+    First({comment_for_logist}, "Order") != '',
+    '\n' + First({comment_for_logist}, "Order"),
+    ''
+)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>30.7pt</Left>
+        <Top>294.5pt</Top>
+        <CanGrow>true</CanGrow>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>533.24pt</Width>
+        <Value>='Предполагаемое количеcтво возвратной тары: ' + Iif(First({bottles_return}, "Order")&gt;0,First({bottles_return}, "Order"),0) + ' бутылей'</Value>
+        <ZIndex>1</ZIndex>
+        <Left>30.5pt</Left>
+        <Top>271.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox39" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>347.52pt</Width>
+        <Value>=Code.SummaString_Val(Convert.ToString(First({total}, "Order")))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>31.4pt</Left>
+        <Top>251.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox41" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>145.77pt</Width>
+        <Value>='Всего: ' + First({total}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>383.3pt</Left>
+        <Top>251.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox30" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.57pt</Height>
+        <Width>77.15pt</Width>
+        <Value>Доверенности:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>30.8pt</Left>
+        <Top>315.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+        </Style>
+        <Visibility>
+          <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
+        </Visibility>
+      </Textbox>
+      <Table Name="Table2">
+        <DataSetName>Proxies</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>210.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>231.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>16.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>="№ " + {proxyNumber} + " с "+ Format({proxyStartDate}, "dd.MM.yyyy") + " по " + Format({proxyExpirationDate}, "dd.MM.yyyy") + " на "</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>=Fields!proxyFIO.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>107.2pt</Left>
+        <Top>316.6pt</Top>
+        <Visibility>
+          <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
+        </Visibility>
+      </Table>
+      <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>73.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>70.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>59.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>48.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>86.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>27.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>73.6pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>18.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>='Талон доставки № ' + {order_id} + ' от ' + Format({order_date}, "dd.MM.yy") + ' БезНал'</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>14pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>={pay_type}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox85">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox94">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox103">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!order_id.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Поставщик:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>={org_name} + ' ' + {org_address}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!order_date.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>Покупатель:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>={client_name}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!bottles_return.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>Адрес:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>=
+Iif({self_delivery}, "САМОВЫВОЗ",
+    Iif(
+            {logistics_area} = null, 
+            "",
+            "["+ {logistics_area} + "]"
+        )
+        + {del_point_address}
+)
++ ' ' + {organization}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!total.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>Комментарий:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>= Trim(
+   Iif(
+            Fields!signature_type.IsMissing,
+            '',
+            ', ' + {signature_type}
+        )
+)</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <Visibility>
+                <Hidden>=Iif(Fields!order_comment.Value = Nothing, true, false)</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value>Телефон:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>=Iif(
+    {delivery_point_contact} = null,
+    {client_contact},
+    {delivery_point_contact}
+)</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox91">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox100">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox82">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox109">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>Время дост.:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>={delivery_schedule}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox92">
+                      <Value>Договор:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox101">
+                      <Value>={contract_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox83">
+                      <Value>от</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox110">
+                      <Value>={contract_date}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Left>1pt</Left>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>28.1pt</Left>
+        <Top>44.9pt</Top>
+      </Table>
+      <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Type>QR Code</Type>
+        <Height>90pt</Height>
+        <Width>90pt</Width>
+        <CustomProperties>
+          <CustomProperty>
+            <Name>QrCode</Name>
+            <Value>="Invoice;"+Max({order_id}, "Order")+";"+Format(Max({order_date}, "Order"), "ddMMyyyy")</Value>
+          </CustomProperty>
+        </CustomProperties>
+        <Left>475.9pt</Left>
+        <Top>14.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <BackgroundColor></BackgroundColor>
+          <BackgroundGradientType>None</BackgroundGradientType>
+          <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+          <TextAlign>Left</TextAlign>
+          <PaddingTop>0pt</PaddingTop>
+        </Style>
+      </CustomReportItem>
+      <Table Name="Table4">
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>236.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>27.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>= "Исполнитель: " + {author}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>={daily_number}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>184.3pt</Left>
+        <Top>22.2pt</Top>
+      </Table>
+      <Image Name="Image1">
+        <Height>77.53pt</Height>
+        <Width>110.60pt</Width>
+        <Left>466.70pt</Left>
+        <Top>95.96pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <MIMEType>image/jpeg</MIMEType>
+        <Source>Database</Source>
+        <Value>=iif({?contactless_delivery}, First( {IM9}, "Image" ), NULL)</Value>
+        <Sizing>FitProportional</Sizing>
+      </Image>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <Code>Public Function SummaString_Val(ByVal Summa As String) As String
+        Dim T1Str As String
+        Dim T2Str As String
+        Dim T3Str As String
+        Dim T4Str As String
+        Dim KStr As String
+        Dim Cel As String
+        Dim KNameStr As String
+ 
+        Summa = Trim$(Summa) 'Удалить пробелы
+        Summa = Replace(Summa, ",", ".", , , vbBinaryCompare) 'Заменить запятые на точки
+        If InStr(1, Summa, ".", vbBinaryCompare) = 0 Then Summa = Summa &amp; ".00" 'Дописать копейки
+        If Mid$(Summa, Len(Summa) - 1, 1) = "." Then Summa = Summa &amp; "0" '
+        'Проверка длины числа
+        If Len(Summa) &gt; 15 Then
+            MsgBox("Слишком длинное число.", vbInformation, "Мультивалютная сумма прописью")
+            Return "Invalid value!"
+            Exit Function
+        End If
+ 
+        If Len(Summa) &lt; 15 Then Summa = New String("0", 15 - Len(Summa)) &amp; Summa
+ 
+        'Анализ первой триады
+        T1Str = TrStr(Left(Summa, 3), 0)
+        If T1Str &lt;&gt; "" Then
+            Select Case Right$(Left(Summa, 3), 1)
+                Case Is = "0"
+                    T1Str = T1Str &amp; "миллиардов "
+                Case Is = "1"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиард "
+                    End If
+                Case Is = "2"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Is = "3"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Is = "4"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Else
+                    T1Str = T1Str &amp; "миллиардов "
+            End Select
+        End If
+ 
+        'Анализ второй триады
+        T2Str = TrStr(Mid$(Summa, 4, 3), 0)
+        If T2Str &lt;&gt; "" Then
+            Select Case Right$(Mid$(Summa, 4, 3), 1)
+                Case Is = "0"
+                    T2Str = T2Str &amp; "миллионов "
+                Case Is = "1"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллион "
+                    End If
+                Case Is = "2"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Is = "3"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Is = "4"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Else
+                    T2Str = T2Str &amp; "миллионов "
+            End Select
+        End If
+ 
+        'Анализ третьей триады
+        T3Str = TrStr(Mid$(Summa, 7, 3), 1)
+        If T3Str &lt;&gt; "" Then
+            Select Case Right$(Mid$(Summa, 7, 3), 1)
+                Case Is = "0"
+                    T3Str = T3Str &amp; "тысяч "
+                Case Is = "1"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысяча "
+                    End If
+                Case Is = "2"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Is = "3"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Is = "4"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Else
+                    T3Str = T3Str &amp; "тысяч "
+            End Select
+        End If
+ 
+        'Анализ четвертой триады
+        T4Str = TrStr(Mid$(Summa, 10, 3), 0)
+  
+        If Len(T1Str &amp; T2Str &amp; T3Str &amp; T4Str) = 0 Then
+            Cel = "ноль "
+        Else
+            Cel = T1Str &amp; T2Str &amp; T3Str &amp; T4Str
+        End If
+ 
+        '========= Приписать валюту =========
+        'Рубли
+        If Val(Mid$(Summa, 11, 1)) &lt;&gt; 1 Then
+            Select Case Mid$(Summa, 12, 1)
+                Case Is = "0"
+                    Cel = Cel &amp; "рублей "
+                Case Is = "1"
+                    Cel = Cel &amp; "рубль "
+                Case Is = "2"
+                    Cel = Cel &amp; "рубля "
+                Case Is = "3"
+                    Cel = Cel &amp; "рубля "
+                Case Is = "4"
+                    Cel = Cel &amp; "рубля "
+                Case Else
+                    Cel = Cel &amp; "рублей "
+            End Select
+        End If
+ 
+        Select Case Mid$(Summa, 11, 2)
+            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
+                Cel = Cel &amp; "рублей "
+        End Select
+ 
+        'Копейки
+        If Val(Mid$(Summa, 14, 1)) &lt;&gt; 1 Then
+            Select Case Right$(Summa, 1)
+                Case Is = "0"
+	    KNameStr = " копеек"
+                Case Is = "1"
+	    KNameStr = " копейка"
+                Case Is = "2"
+                    KNameStr = " копейки"
+                Case Is = "3"
+	    KNameStr = " копейки"
+                Case Is = "4"
+	    KNameStr = " копейки"
+                Case Else
+	    KNameStr = " копеек"
+            End Select
+        End If
+ 
+        Select Case Right$(Summa, 2)
+            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
+	KNameStr = " копеек"
+        End Select
+ 
+        Return Strings.Left(Cel &amp; KStr, 1).ToUpper &amp; Strings.Right(Cel &amp; Right$(Summa, 2) &amp; KNameStr, Len(Cel &amp; Right$(Summa, 2) &amp; KNameStr) - 1)
+
+    End Function
+    Private Function TrStr(ByVal Triada As String, ByVal Rod As Integer) As String
+        TrStr = ""
+        If Rod = 0 Then
+            Select Case Left$(Triada, 1)
+                Case Is = "1"
+                    TrStr = TrStr &amp; "сто "
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двести "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "триста "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "четыреста "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьсот "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьсот "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьсот "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьсот "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девятьсот "
+            End Select
+ 
+            Select Case Mid$(Triada, 2, 1)
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двадцать "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "тридцать "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "сорок "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьдесят "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьдесят "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьдесят "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьдесят "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девяносто "
+            End Select
+ 
+            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
+                Select Case Right$(Triada, 1)
+                    Case Is = "1"
+                        TrStr = TrStr &amp; "один "
+                    Case Is = "2"
+                        TrStr = TrStr &amp; "два "
+                    Case Is = "3"
+                        TrStr = TrStr &amp; "три "
+                    Case Is = "4"
+                        TrStr = TrStr &amp; "четыре "
+                    Case Is = "5"
+                        TrStr = TrStr &amp; "пять "
+                    Case Is = "6"
+                        TrStr = TrStr &amp; "шесть "
+                    Case Is = "7"
+                        TrStr = TrStr &amp; "семь "
+                    Case Is = "8"
+                        TrStr = TrStr &amp; "восемь "
+                    Case Is = "9"
+                        TrStr = TrStr &amp; "девять "
+                End Select
+            End If
+ 
+            Select Case Right$(Triada, 2)
+                Case Is = "01"
+                    TrStr = TrStr &amp; "один "
+                Case Is = "02"
+                    TrStr = TrStr &amp; "два "
+                Case Is = "03"
+                    TrStr = TrStr &amp; "три "
+                Case Is = "04"
+                    TrStr = TrStr &amp; "четыре "
+                Case Is = "05"
+                    TrStr = TrStr &amp; "пять "
+                Case Is = "06"
+                    TrStr = TrStr &amp; "шесть "
+                Case Is = "07"
+                    TrStr = TrStr &amp; "семь "
+                Case Is = "08"
+                    TrStr = TrStr &amp; "восемь "
+                Case Is = "09"
+                    TrStr = TrStr &amp; "девять "
+                Case Is = "10"
+                    TrStr = TrStr &amp; "десять "
+                Case Is = "11"
+                    TrStr = TrStr &amp; "одиннадцать "
+                Case Is = "12"
+                    TrStr = TrStr &amp; "двенадцать "
+                Case Is = "13"
+                    TrStr = TrStr &amp; "тринадцать "
+                Case Is = "14"
+                    TrStr = TrStr &amp; "четырнадцать "
+                Case Is = "15"
+                    TrStr = TrStr &amp; "пятнадцать "
+                Case Is = "16"
+                    TrStr = TrStr &amp; "шестнадцать "
+                Case Is = "17"
+                    TrStr = TrStr &amp; "семьнадцать "
+                Case Is = "18"
+                    TrStr = TrStr &amp; "восемнадцать "
+                Case Is = "19"
+                    TrStr = TrStr &amp; "девятнадцать "
+            End Select
+        Else
+            Select Case Left$(Triada, 1)
+                Case Is = "1"
+                    TrStr = TrStr &amp; "сто "
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двести "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "триста "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "четыреста "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьсот "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьсот "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьсот "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьсот "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девятьсот "
+            End Select
+ 
+            Select Case Mid$(Triada, 2, 1)
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двадцать "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "тридцать "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "сорок "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьдесят "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьдесят "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьдесят "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьдесят "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девяносто "
+            End Select
+ 
+            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
+                Select Case Right$(Triada, 1)
+                    Case Is = "1"
+                        TrStr = TrStr &amp; "одна "
+                    Case Is = "2"
+                        TrStr = TrStr &amp; "две "
+                    Case Is = "3"
+                        TrStr = TrStr &amp; "три "
+                    Case Is = "4"
+                        TrStr = TrStr &amp; "четыре "
+                    Case Is = "5"
+                        TrStr = TrStr &amp; "пять "
+                    Case Is = "6"
+                        TrStr = TrStr &amp; "шесть "
+                    Case Is = "7"
+                        TrStr = TrStr &amp; "семь "
+                    Case Is = "8"
+                        TrStr = TrStr &amp; "восемь "
+                    Case Is = "9"
+                        TrStr = TrStr &amp; "девять "
+                End Select
+            End If
+ 
+            Select Case Right$(Triada, 2)
+                Case Is = "01"
+                    TrStr = TrStr &amp; "одна "
+                Case Is = "02"
+                    TrStr = TrStr &amp; "две "
+                Case Is = "03"
+                    TrStr = TrStr &amp; "три "
+                Case Is = "04"
+                    TrStr = TrStr &amp; "четыре "
+                Case Is = "05"
+                    TrStr = TrStr &amp; "пять "
+                Case Is = "06"
+                    TrStr = TrStr &amp; "шесть "
+                Case Is = "07"
+                    TrStr = TrStr &amp; "семь "
+                Case Is = "08"
+                    TrStr = TrStr &amp; "восемь "
+                Case Is = "09"
+                    TrStr = TrStr &amp; "девять "
+                Case Is = "10"
+                    TrStr = TrStr &amp; "десять "
+                Case Is = "11"
+                    TrStr = TrStr &amp; "одиннадцать "
+                Case Is = "12"
+                    TrStr = TrStr &amp; "двенадцать "
+                Case Is = "13"
+                    TrStr = TrStr &amp; "тринадцать "
+                Case Is = "14"
+                    TrStr = TrStr &amp; "четырнадцать "
+                Case Is = "15"
+                    TrStr = TrStr &amp; "пятнадцать "
+                Case Is = "16"
+                    TrStr = TrStr &amp; "шестнадцать "
+                Case Is = "17"
+                    TrStr = TrStr &amp; "семьнадцать "
+                Case Is = "18"
+                    TrStr = TrStr &amp; "восемнадцать "
+                Case Is = "19"
+                    TrStr = TrStr &amp; "девятнадцать "
+            End Select
+        End If
+    End Function</Code>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>260729</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="contactless_delivery">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>
