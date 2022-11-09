@@ -1641,7 +1641,7 @@ namespace Vodovoz
 
 			if(isAccountableInChestniyZnak
 			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
-			   && edoLightsMatrixViewModel.CheckPaymentAllowedStatus(Entity.Client.ReasonForLeaving, edoLightsMatrixPaymentType, EdoLightsColorizeType.Forbidden))
+			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType))
 			{
 				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
 				                                              $"Оставить черновик заказа в статусе \"Новый\"?"))
