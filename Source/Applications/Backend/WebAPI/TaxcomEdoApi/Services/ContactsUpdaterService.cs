@@ -125,15 +125,23 @@ namespace TaxcomEdoApi.Services
 										
 										foreach(var counterparty in counterparties)
 										{
-											if(counterparty.ConsentForEdoStatus != consentForEdoStatus)
+											if(counterparty.ConsentForEdoStatus == consentForEdoStatus)
 											{
-												_logger.LogInformation(
-													$"Обновляем согласие на ЭДО у клиента Id {counterparty.Id}" +
-													$" с {counterparty.ConsentForEdoStatus} на {consentForEdoStatus}");
-												counterparty.ConsentForEdoStatus = consentForEdoStatus;
-												uow.Save(counterparty);
-												uow.Commit();
+												continue;
 											}
+
+											_logger.LogInformation(
+												$"Обновляем согласие на ЭДО у клиента Id {counterparty.Id}" +
+												$" с {counterparty.ConsentForEdoStatus} на {consentForEdoStatus}");
+											
+											if(consentForEdoStatus == ConsentForEdoStatus.Agree)
+											{
+												counterparty.PersonalAccountIdInEdo = contact.EdxClientId;
+											}
+											
+											counterparty.ConsentForEdoStatus = consentForEdoStatus;
+											uow.Save(counterparty);
+											uow.Commit();
 										}
 
 										break;
