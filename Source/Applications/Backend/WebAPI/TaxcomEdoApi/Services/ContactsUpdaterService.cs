@@ -86,7 +86,7 @@ namespace TaxcomEdoApi.Services
 								switch(contact.State.Code)
 								{
 									case ContactStateCode.Incoming:
-										_logger.LogInformation("Входящее приглашение...");
+										_logger.LogInformation($"Входящее приглашение от клиента с аккаунтом {contact.EdxClientId}...");
 										_taxcomApi.AcceptContact(contact.EdxClientId);
 
 										counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
