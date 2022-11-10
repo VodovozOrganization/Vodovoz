@@ -333,7 +333,10 @@ namespace DeliveryRulesService.Controllers
 			{
 				return isStoppedOnlineDeliveriesToday
 					? new List<DeliverySchedule>()
-					: GetScheduleRestrictionsForWeekDay(district, weekDay);
+					: district.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+						.Where(x => x.AcceptBefore.Time > currentDate.TimeOfDay)
+						.Select(x => x.DeliverySchedule)
+						.ToList();
 			}
 
 			return GetScheduleRestrictionsByDate(district, weekDay, currentDate);
