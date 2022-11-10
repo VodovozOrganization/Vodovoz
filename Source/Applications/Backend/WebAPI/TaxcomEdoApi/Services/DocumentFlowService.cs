@@ -78,8 +78,12 @@ namespace TaxcomEdoApi.Services
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				await DelayAsync(stoppingToken);
-				
-				var startDate = DateTime.Today.AddDays(-8);
+
+				//Хардкодим дату начала выборки, т.к. еще не все согласия получены,
+				//чтобы отстающим формировались документы начиная с 1 ноября 22 года
+				var startDate = DateTime.Now < new DateTime(2023, 3, 1)
+					? new DateTime(2022, 11, 1)
+					: DateTime.Today.AddDays(-8);
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
