@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -1634,13 +1634,13 @@ logistican.last_name AS LogisticanLastname,
 route_lists.date as Date
 FROM route_lists
 LEFT JOIN employees driver ON route_lists.driver_id = driver.id
-LEFT JOIN phones driver_phone ON driver.id = driver_phone.employee_id
+LEFT JOIN phones driver_phone ON driver.id = driver_phone.employee_id AND driver_phone.is_archive = 0
 LEFT JOIN cars ON cars.id = route_lists.car_id
 LEFT JOIN car_models cm ON cars.model_id = cm.id
 LEFT JOIN fuel_types ON fuel_types.id = cars.fuel_type_id
 LEFT JOIN employees forwarder ON route_lists.forwarder_id = forwarder.id
 LEFT JOIN employees logistican ON route_lists.logistican_id = logistican.id
-LEFT JOIN phones forwarder_phone ON forwarder.id = forwarder_phone.employee_id
+LEFT JOIN phones forwarder_phone ON forwarder.id = forwarder_phone.employee_id AND forwarder_phone.is_archive = 0
 WHERE route_lists.id = @route_list_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@route_list_id">

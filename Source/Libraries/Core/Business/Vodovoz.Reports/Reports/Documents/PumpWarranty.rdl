@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -133,7 +133,7 @@ LEFT JOIN accounts ON accounts.id = organizations.default_account_id
 LEFT JOIN banks ON banks.id = accounts.bank_id
 LEFT JOIN employees leader ON leader.id = ov.leader_id
 LEFT JOIN employees buh ON buh.id = ov.accountant_id
-LEFT JOIN phones ON organizations.id = phones.org_id
+LEFT JOIN phones ON organizations.id = phones.org_id AND phones.is_archive = 0
 WHERE organizations.id = @organization_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="organization_id">

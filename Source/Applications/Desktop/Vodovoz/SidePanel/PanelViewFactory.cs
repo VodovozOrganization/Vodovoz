@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using QS.Tdi;
 using Vodovoz.Core.DataService;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Complaints;
@@ -16,6 +18,7 @@ using Vodovoz.Parameters;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.SidePanels;
+using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
 namespace Vodovoz.SidePanel
 {
@@ -58,6 +61,12 @@ namespace Vodovoz.SidePanel
 						new CashRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
 						new UserRepository());
+				case PanelViewType.EdoLightsMatrixPanelView:
+					var edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
+					IGtkTabsOpener gtkTabsOpener = new GtkTabsOpener();
+					ITdiTab tdiTab = TDIMain.MainNotebook.CurrentTab;
+					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
+					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
 				default:
 					throw new NotSupportedException();
 			}

@@ -11,6 +11,7 @@
 		ComplaintPanelView,
 		SmsSendPanelView,
 		FixedPricesPanelView,
-		CashInfoPanelView
+		CashInfoPanelView,
+		EdoLightsMatrixPanelView
 	}
 }

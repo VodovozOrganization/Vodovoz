@@ -37,11 +37,11 @@ namespace FastPaymentsAPI.Library.Managers
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 		}
 
-		public bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQR, bool fastPaymentFromOnline)
+		public bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQRNotFromOnline, bool fastPaymentFromOnline)
 		{
 			var elapsedTime = (DateTime.Now - fastPaymentCreationDate).TotalMinutes;
 
-			if(fastPaymentWithQR)
+			if(fastPaymentWithQRNotFromOnline)
 			{
 				if(elapsedTime > _fastPaymentParametersProvider.GetQRLifetime)
 				{
@@ -114,7 +114,7 @@ namespace FastPaymentsAPI.Library.Managers
 			}
 			else
 			{
-				paymentFromId = _orderParametersProvider.GetPaymentByCardFromSiteByQrCode;
+				paymentFromId = _orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId;
 			}
 
 			fastPayment.PaymentByCardFrom = uow.GetById<PaymentFrom>(paymentFromId);

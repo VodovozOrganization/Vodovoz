@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -138,7 +138,7 @@ WHERE
     organizations.full_name AS org_name,
     ov.jur_address as org_address,
     organizations.INN AS org_inn, 
-    (SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.org_id = organizations.id) AS org_phone_number,
+    (SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.org_id = organizations.id AND phones.is_archive = 0) AS org_phone_number,
     org_account.number AS org_acc_number,
     org_bank.name AS org_bank_name,
     org_bank.bik AS org_bank_bik,
@@ -154,8 +154,8 @@ WHERE
     IF(counterparty.use_special_doc_fields, IF(!IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp), counterparty.kpp) AS KPP
 FROM 
     orders
-    LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id
-    LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id
+    LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id AND client_phones.is_archive = 0
+    LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id AND delivery_point_phones.is_archive = 0
     LEFT JOIN counterparty ON orders.client_id = counterparty.id
     LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
     LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id

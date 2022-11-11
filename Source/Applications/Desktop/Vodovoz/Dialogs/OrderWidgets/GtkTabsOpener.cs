@@ -91,5 +91,22 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			var track = new TrackOnMapWnd(routeListId);
 			track.Show();
 		}
+
+		public ITdiTab OpenCounterpartyEdoTab(int counterpartyId, ITdiTab master = null)
+		{
+			var counterpartyDlg = new CounterpartyDlg(counterpartyId);
+			counterpartyDlg.ActivateEdoTab();
+
+			if(master != null)
+			{
+				return master.TabParent.OpenTab(
+					DialogHelper.GenerateDialogHashName<Counterparty>(counterpartyId),
+					() => counterpartyDlg);
+			}
+
+			TDIMain.MainNotebook.AddTab(counterpartyDlg);
+
+			return counterpartyDlg;
+		}
 	}
 }
