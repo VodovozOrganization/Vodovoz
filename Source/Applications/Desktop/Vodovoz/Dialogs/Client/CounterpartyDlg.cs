@@ -30,6 +30,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using EdoService;
+using EdoService.Converters;
 using EdoService.Services;
 using QS.Dialog;
 using TISystems.TTC.CRM.BE.Serialization;
@@ -1110,7 +1111,7 @@ namespace Vodovoz
 			_edoSettings = new EdoSettings(new ParametersProvider());
 			IAuthorizationService taxcomAuthorizationService = new TaxcomAuthorizationService(_edoSettings);
 			IAuthorizationService trueApiAuthorizationService = new TrueApiAuthorizationService(_edoSettings);
-			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings);
+			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings, new ContactStateConverter());
 			_trueApiService = new TrueApiService(trueApiAuthorizationService, _edoSettings);
 		}
 	

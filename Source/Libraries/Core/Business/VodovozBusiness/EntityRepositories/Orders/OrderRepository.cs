@@ -7,16 +7,14 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion.Lambda;
-using NHibernate.Impl;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
@@ -885,6 +883,61 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(o => o.Id == orderId)
 				.Select(o => o.PaymentType)
 				.SingleOrDefault<PaymentType>();
+		}
+
+		public IList<VodovozOrder> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime? startDate, int organizationId)
+		{
+			Counterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			VodovozOrder orderAlias = null;
+			EdoContainer edoContainerAlias = null;
+
+			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.JoinEntityAlias(() => edoContainerAlias, () => orderAlias.Id == edoContainerAlias.Order.Id, JoinType.LeftOuterJoin);
+
+			if(startDate.HasValue)
+			{
+				query.Where(() => orderAlias.DeliveryDate >= startDate);
+			}
+
+			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
+				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.And(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
+				.And(Restrictions.Disjunction()
+					.Add(() => (counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
+								|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+								&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
+						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
+				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
+				.TransformUsing(Transformers.RootEntity)
+				.List();
+
+			return result;
+		}
+
+		public EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId)
+		{
+			return uow.Session.QueryOver<EdoContainer>()
+				.Where(x => x.MainDocumentId == mainDocId)
+				.SingleOrDefault();
+		}
+		
+		public EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId)
+		{
+			if(docFlowId is null)
+			{
+				return null;
+			}
+			
+			return uow.Session.QueryOver<EdoContainer>()
+				.Where(x => x.DocFlowId == docFlowId)
+				.SingleOrDefault();
 		}
 	}
 
