@@ -145,13 +145,13 @@ namespace Vodovoz.Domain.Organizations
 			set => SetField(ref _avangardShopId, value);
 		}
 		
-		/*[IgnoreHistoryTrace]
+		[IgnoreHistoryTrace]
 		[Display(Name = "Id кабинета в Такскоме")]
 		public virtual string TaxcomEdoAccountId
 		{
 			get => _taxcomEdoAccountId;
 			set => SetField(ref _taxcomEdoAccountId, value);
-		}*/
+		}
 
 		#endregion
 

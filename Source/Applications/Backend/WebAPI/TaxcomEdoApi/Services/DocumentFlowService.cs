@@ -99,7 +99,7 @@ namespace TaxcomEdoApi.Services
 			try
 			{
 				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
-				var organization = uow.GetById<Organization>(1);//_organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
+				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
 
 				if(organization is null)
 				{

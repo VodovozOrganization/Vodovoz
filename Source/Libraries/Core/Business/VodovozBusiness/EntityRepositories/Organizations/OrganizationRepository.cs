@@ -55,12 +55,12 @@ namespace Vodovoz.EntityRepositories.Organizations
 				.SingleOrDefault<Organization>();
 		}
 
-		/*public Organization GetOrganizationByTaxcomEdoAccountId(IUnitOfWork uow, string edoAccountId)
+		public Organization GetOrganizationByTaxcomEdoAccountId(IUnitOfWork uow, string edoAccountId)
 		{
 			return uow.Session.QueryOver<Organization>()
 				.Where(x => x.TaxcomEdoAccountId == edoAccountId)
 				.SingleOrDefault();
-		}*/
+		}
 	}
 }
 
