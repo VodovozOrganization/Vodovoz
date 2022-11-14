@@ -69,6 +69,7 @@ namespace RoboAtsService
 			builder.RegisterType<RoboatsCallFactory>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsSettings>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<RoboatsCallBatchRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ValidOrdersProvider>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<CallTaskWorker>()

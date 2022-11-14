@@ -1,10 +1,8 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
-using RoboAtsService.Workers;
 using System.Threading.Tasks;
 
 namespace RoboAtsService
@@ -23,10 +21,6 @@ namespace RoboAtsService
 				{
                     webBuilder.UseStartup<Startup>();
                 })
-				.ConfigureServices(services =>
-				{
-					services.AddHostedService<CloseStaleCallsWorker>();
-				})
 				.ConfigureLogging(logging =>
 				{
 					logging.ClearProviders();
