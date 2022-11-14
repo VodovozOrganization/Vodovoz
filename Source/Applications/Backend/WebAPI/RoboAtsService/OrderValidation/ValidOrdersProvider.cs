@@ -1,4 +1,5 @@
 ﻿using NHibernate;
+using QS.DomainModel.UoW;
 using QS.ErrorReporting;
 using RoboAtsService.Monitoring;
 using System;
@@ -13,12 +14,18 @@ namespace RoboAtsService.OrderValidation
 {
 	public class ValidOrdersProvider
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly IRoboatsRepository _roboatsRepository;
-		private readonly RoboatsCallRegistrator _roboatsCallRegistrator;
+		private readonly RoboatsCallBatchRegistrator _roboatsCallRegistrator;
 
-		public ValidOrdersProvider(INomenclatureParametersProvider nomenclatureParametersProvider, IRoboatsRepository roboatsRepository, RoboatsCallRegistrator roboatsCallRegistrator)
+		public ValidOrdersProvider(
+			IUnitOfWorkFactory uowFactory,
+			INomenclatureParametersProvider nomenclatureParametersProvider,
+			IRoboatsRepository roboatsRepository,
+			RoboatsCallBatchRegistrator roboatsCallRegistrator)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
@@ -58,9 +65,10 @@ namespace RoboAtsService.OrderValidation
 
 		private IEnumerable<Order> InvokeGetValidLastOrders(string clientPhone, Guid callGuid, int counterpartyId, IEnumerable<Order> orders, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
 		{
+			using var uow = _uowFactory.CreateWithoutRoot();
 			if(!orders.Any())
 			{
-				_roboatsCallRegistrator.RegisterFail(clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation,
+				_roboatsCallRegistrator.RegisterFail(uow, clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation,
 					$"У контрагента {counterpartyId} нет заказов");
 			}
 			else
@@ -76,7 +84,6 @@ namespace RoboAtsService.OrderValidation
 				multiValidator.AddValidator(new RoboatsWaterOrderValidator(_roboatsRepository));
 				multiValidator.AddValidator(new WaterRowDuplicateOrderValidator());
 
-
 				var result = multiValidator.ValidateOrders(orders);
 				if(result.HasValidOrders)
 				{
@@ -86,12 +93,14 @@ namespace RoboAtsService.OrderValidation
 				{
 					foreach(var problemMessage in result.ProblemMessages)
 					{
-						_roboatsCallRegistrator.RegisterFail(clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation, problemMessage);
+						_roboatsCallRegistrator.RegisterFail(uow, clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation, problemMessage);
 					}
 				}
 			}
 
-			_roboatsCallRegistrator.AbortCall(clientPhone, callGuid);
+			_roboatsCallRegistrator.AbortCall(uow, clientPhone, callGuid);
+			uow.Commit();
+
 			return Enumerable.Empty<Order>();
 		}
 	}

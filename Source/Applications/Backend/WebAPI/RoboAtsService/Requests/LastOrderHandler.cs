@@ -190,7 +190,7 @@ namespace RoboAtsService.Requests
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.BottlesReturnNotFound, RoboatsCallOperation.GetBottlesReturn,
 					$"Не найдено количество возвратной тары для заказа {orderId}");
-				return ErrorMessage;
+				return "0";
 			}
 
 			return $"{bottlesReturn.Value}";
