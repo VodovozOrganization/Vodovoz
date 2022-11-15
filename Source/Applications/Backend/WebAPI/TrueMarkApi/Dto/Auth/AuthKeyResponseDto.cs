@@ -5,7 +5,7 @@ namespace TrueMarkApi.Dto.Auth
 	/// <summary>
 	/// Ответ на запрос для авторизации.
 	/// </summary>
-	public class AuthKeyResponse
+	public class AuthKeyResponseDto
 	{
 		/// <summary>
 		/// уникальный идентификатор сгенерированных случайных данных, тип string

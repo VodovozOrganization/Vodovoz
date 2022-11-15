@@ -47,7 +47,7 @@ namespace TrueMarkApi.Services
 
 			var authKeyResponse = await _httpClient.GetAsync(authUrn);
 			var authKeyStream = await authKeyResponse.Content.ReadAsStreamAsync();
-			var authKey = JsonSerializer.Deserialize<AuthKeyResponse>(authKeyStream);
+			var authKey = await JsonSerializer.DeserializeAsync<AuthKeyResponseDto>(authKeyStream);
 			var authKeyDataInBase64String = Convert.ToBase64String(Encoding.UTF8.GetBytes(authKey.Data));
 
 			var signModel = new SignModel(_thumbPrint, authKeyDataInBase64String, true);
@@ -65,7 +65,7 @@ namespace TrueMarkApi.Services
 			if(tokenResponseBody.IsSuccessStatusCode)
 			{
 				var responseContent = await tokenResponseBody.Content.ReadAsStreamAsync();
-				var tokenResponse = JsonSerializer.Deserialize<TokenResponseDto>(responseContent);
+				var tokenResponse = await JsonSerializer.DeserializeAsync<TokenResponseDto>(responseContent);
 				_tokenTime = DateTime.Now;
 
 				return _cachedToken = tokenResponse?.Token;
