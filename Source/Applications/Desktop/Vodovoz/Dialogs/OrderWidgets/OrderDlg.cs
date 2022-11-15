@@ -995,13 +995,17 @@ namespace Vodovoz
 					continue;
 				}
 
-				if(flyer.IsForFirstOrder
-					&& (!(Entity.Id == 0 && Entity.Client != null && Entity.Client.FirstOrder == null) || !Entity.IsFirstOrder))
+				if(!flyer.IsForFirstOrder)
 				{
-					continue;
+					Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
 				}
-
-				Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
+				else
+				{
+					if((Entity.Id == 0 && Entity.Client != null && Entity.Client.FirstOrder == null) || Entity.IsFirstOrder)
+					{
+						Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
+					}
+				}
 			}
 			orderEquipmentItemsView.UpdateActiveFlyersNomenclaturesIds();
 			_previousDeliveryDate = Entity.DeliveryDate;
