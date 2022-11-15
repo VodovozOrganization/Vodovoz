@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TrueApi.Dto.Auth
+namespace TrueMarkApi.Dto.Auth
 {
 	/// <summary>
 	/// Ответ на запрос для авторизации.

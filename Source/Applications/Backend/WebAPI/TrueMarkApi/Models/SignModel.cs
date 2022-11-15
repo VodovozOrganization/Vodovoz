@@ -1,6 +1,6 @@
 ﻿using Taxcom.TTC.Reglament.Crypto;
 
-namespace TrueApi.Models
+namespace TrueMarkApi.Models
 {
 	public class SignModel
 	{

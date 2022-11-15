@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TrueApi.Dto.Documents
+namespace TrueMarkApi.Dto.Documents
 {
 	public class GtinReceiptDocumentDto
 	{
@@ -15,17 +15,5 @@ namespace TrueApi.Dto.Documents
 
 		[JsonPropertyName("signature")]
 		public string Signature { get; set; }
-	}
-
-	public class Product
-	{
-		[JsonPropertyName("gtin")]
-		public string Gtin { get; set; }
-
-		[JsonPropertyName("gtin_quantity")]
-		public string GtinQuantity { get; set; }
-
-		[JsonPropertyName("product_cost")]
-		public string ProductCost { get; set; }
 	}
 }

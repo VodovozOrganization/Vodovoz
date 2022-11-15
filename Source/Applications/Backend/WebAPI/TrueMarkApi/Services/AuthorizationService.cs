@@ -6,10 +6,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TrueApi.Dto.Auth;
-using TrueApi.Models;
+using TrueMarkApi.Dto.Auth;
+using TrueMarkApi.Models;
 
-namespace TrueApi.Services
+namespace TrueMarkApi.Services
 {
 	public class AuthorizationService:IAuthorizationService
 	{

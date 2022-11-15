@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Orders
 	[EntityPermission]
 	[HistoryTrace]
 
-	public  class TrueApiDocument : PropertyChangedBase, IDomainObject
+	public  class TrueMarkApiDocument : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _creationDate;
 		private Order _order;

@@ -2,40 +2,41 @@
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using TrueApi.Dto.Documents;
-using Vodovoz.Domain.Orders;
+using TrueMarkApi.Dto.Documents;
+using Order = Vodovoz.Domain.Orders.Order;
 
-namespace TrueApi.Factories
+namespace TrueMarkApi.Factories
 {
-	public class ProductDocumentForOwnUseFactory : IProductDocumentFactory
+	/// <summary>
+	/// Бартер
+	/// </summary>
+	public class ProductDocumentForDonationFactory : IProductDocumentFactory
 	{
 		private readonly string _organizationInn;
 		private readonly Order _order;
 
-		public ProductDocumentForOwnUseFactory(string organizationInn, Order order)
+		public ProductDocumentForDonationFactory(string organizationInn, Order order)
 		{
 			_organizationInn = organizationInn;
 			_order = order;
 		}
-
 		public string CreateProductDocument()
 		{
-			var accountableItems = _order.OrderItems.Where(oi => oi.Nomenclature.IsAccountableInChestniyZnak);
+			var accountableItems = _order.OrderItems.Where(oi => oi.Nomenclature.IsAccountableInChestniyZnak).ToList();
 
 			var productDocument = new ProductDocumentDto
 			{
 				Inn = _organizationInn,
 				BuyerInn = _order.Client.INN,
-				Action = "OWN_USE",
+				Action = "DONATION",
 				ActionDate = _order.DeliveryDate.Value,
-				DocumentType = "OTHER",
+				DocumentType = "CONSIGNMENT_NOTE",
 				DocumentNumber = _order.Id.ToString(),
 				DocumentDate = _order.DeliveryDate.Value,
-				PrimaryDocumentCustomName = "UTD",
-				Products = accountableItems.Select(ai =>
-					new Product
-					{
-						Gtin = ai.Nomenclature.Gtin,
+				Products = accountableItems.Select(ai => 
+					new ProductDto 
+					{ 
+						Gtin = ai.Nomenclature.Gtin, 
 						GtinQuantity = ((int)ai.Count).ToString()
 					}).ToList()
 			};

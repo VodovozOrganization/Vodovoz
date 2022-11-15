@@ -940,21 +940,21 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault();
 		}
 
-		public IList<VodovozOrder> GetOrdersForTrueApi(IUnitOfWork uow, DateTime? startDate, int organizationId)
+		public IList<VodovozOrder> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			TrueApiDocument trueApiDocument = null;
+			TrueMarkApiDocument trueMarkApiDocument = null;
 
 			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
-				.JoinEntityAlias(() => trueApiDocument, () => orderAlias.Id == trueApiDocument.Order.Id, JoinType.LeftOuterJoin);
+				.JoinEntityAlias(() => trueMarkApiDocument, () => orderAlias.Id == trueMarkApiDocument.Order.Id, JoinType.LeftOuterJoin);
 
 			var hasGtinNomenclaturesSubQuery = QueryOver.Of(() => orderItemAlias)
 					.JoinAlias(()=> orderItemAlias.Nomenclature, ()=>nomenclatureAlias)
@@ -969,7 +969,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			}
 
 			var result = query.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
-				.And(Restrictions.IsNull(Projections.Property(() => trueApiDocument.Id)))
+				.And(Restrictions.IsNull(Projections.Property(() => trueMarkApiDocument.Id)))
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
 				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered 

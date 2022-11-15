@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace TrueApi.Dto.Participants
+namespace TrueMarkApi.Dto.Participants
 {
 	public class ParticipantRegistrationDto
 	{

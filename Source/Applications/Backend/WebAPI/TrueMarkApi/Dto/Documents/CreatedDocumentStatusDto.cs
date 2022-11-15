@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace TrueApi.Dto.Documents
+namespace TrueMarkApi.Dto.Documents
 {
 	public class CreatedDocumentInfoDto
 	{

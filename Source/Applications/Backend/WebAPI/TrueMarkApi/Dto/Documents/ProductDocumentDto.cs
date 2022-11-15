@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace TrueApi.Dto.Documents
+namespace TrueMarkApi.Dto.Documents
 {
 	public class ProductDocumentDto
 	{
@@ -25,7 +25,7 @@ namespace TrueApi.Dto.Documents
 		public string DocumentType { get; set; }
 
 		[JsonPropertyName("products")]
-		public IList<Product> Products { get; set; }
+		public IList<ProductDto> Products { get; set; }
 
 		[JsonPropertyName("action_date")]
 		public string ActionDateString => ActionDate.ToString("yyyy-MM-dd");

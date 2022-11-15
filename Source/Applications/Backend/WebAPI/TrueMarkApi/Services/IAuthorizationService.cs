@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace TrueApi.Services
+namespace TrueMarkApi.Services
 {
 	public interface IAuthorizationService
 	{

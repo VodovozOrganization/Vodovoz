@@ -3,11 +3,11 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.HibernateMapping.Logistic
 {
-	public class TrueApiDocumentMap : ClassMap<TrueApiDocument>
+	public class TrueMarkApiDocumentMap : ClassMap<TrueMarkApiDocument>
 	{
-		public TrueApiDocumentMap()
+		public TrueMarkApiDocumentMap()
 		{
-			Table("true_api_documents");
+			Table("true_mark_api_documents");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.CreationDate).Column("creation_date").ReadOnly();

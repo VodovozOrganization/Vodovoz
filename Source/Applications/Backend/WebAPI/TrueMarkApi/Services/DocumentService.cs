@@ -11,10 +11,10 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueApi.Dto.Documents;
-using TrueApi.Dto.Participants;
-using TrueApi.Factories;
-using TrueApi.Models;
+using TrueMarkApi.Dto.Documents;
+using TrueMarkApi.Dto.Participants;
+using TrueMarkApi.Factories;
+using TrueMarkApi.Models;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
@@ -22,7 +22,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace TrueApi.Services
+namespace TrueMarkApi.Services
 {
 	public class DocumentService : BackgroundService
 	{
@@ -102,7 +102,7 @@ namespace TrueApi.Services
 				}
 
 				_logger.LogInformation("Получаем заказы, по которым надо осуществить вывод из оборота");
-				var orders = _orderRepository.GetOrdersForTrueApi(uow, startDate, organization.Id);
+				var orders = _orderRepository.GetOrdersForTrueMarkApi(uow, startDate, organization.Id);
 
 				_logger.LogInformation($"Всего заказов для формирования выводов из оборота и отправки: {orders.Count}");
 
@@ -131,14 +131,14 @@ namespace TrueApi.Services
 							productDocumentFactory = new ProductDocumentForOwnUseFactory(organization.INN, order);
 						}
 
-						var trueApiDocument = await CreateDocument(productDocumentFactory);
-						trueApiDocument.Order = order;
-						uow.Save(trueApiDocument);
+						var trueMarkApiDocument = await CreateDocument(productDocumentFactory);
+						trueMarkApiDocument.Order = order;
+						uow.Save(trueMarkApiDocument);
 						uow.Commit();
 
-						if(!trueApiDocument.IsSuccess)
+						if(!trueMarkApiDocument.IsSuccess)
 						{
-							_logger.LogError(trueApiDocument.ErrorMessage);
+							_logger.LogError(trueMarkApiDocument.ErrorMessage);
 						}
 					}
 					catch(Exception e)
@@ -153,7 +153,7 @@ namespace TrueApi.Services
 			}
 		}
 
-		private async Task<TrueApiDocument> CreateDocument(IProductDocumentFactory productDocumentFactory)
+		private async Task<TrueMarkApiDocument> CreateDocument(IProductDocumentFactory productDocumentFactory)
 		{
 			var documentCreateUrl = "lk/documents/create?pg=water";
 
@@ -182,7 +182,7 @@ namespace TrueApi.Services
 
 			if(!documentResponse.IsSuccessStatusCode)
 			{
-				return new TrueApiDocument
+				return new TrueMarkApiDocument
 				{
 					IsSuccess = false,
 					ErrorMessage = $"Error status code: {documentResponse.StatusCode}. Response phrase: {documentResponse.ReasonPhrase}"
@@ -216,7 +216,7 @@ namespace TrueApi.Services
 
 			if(!resultInfoResponse.IsSuccessStatusCode)
 			{
-				return new TrueApiDocument
+				return new TrueMarkApiDocument
 				{
 					Guid = new Guid(documentId),
 					IsSuccess = false,
@@ -229,7 +229,7 @@ namespace TrueApi.Services
 
 			if(createdDocumentInfo == null)
 			{
-				return new TrueApiDocument
+				return new TrueMarkApiDocument
 				{
 					Guid = new Guid(documentId),
 					IsSuccess = false,
@@ -239,7 +239,7 @@ namespace TrueApi.Services
 
 			if(createdDocumentInfo.Errors != null && createdDocumentInfo.Errors.Any())
 			{
-				return new TrueApiDocument
+				return new TrueMarkApiDocument
 				{
 					Guid = new Guid(documentId),
 					IsSuccess = false,
@@ -247,14 +247,14 @@ namespace TrueApi.Services
 				};
 			}
 
-			return new TrueApiDocument
+			return new TrueMarkApiDocument
 			{
 				Guid = new Guid(documentId),
 				IsSuccess = true
 			};
 		}
 
-		private async Task CheckAndSaveRegistrationInTrueApi(IList<Order> orders, IUnitOfWork uow)
+		private async Task CheckAndSaveRegistrationInTrueMarkApi(IList<Order> orders, IUnitOfWork uow)
 		{
 			var url = "participants";
 

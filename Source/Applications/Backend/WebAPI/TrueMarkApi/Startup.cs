@@ -18,13 +18,13 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using TrueApi.Services;
+using TrueMarkApi.Services;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 
-namespace TrueApi
+namespace TrueMarkApi
 {
 	public class Startup
 	{
@@ -58,7 +58,7 @@ namespace TrueApi
 
 			services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "TrueApi", Version = "v1" });
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "TrueMarkApi", Version = "v1" });
 			});
 
 			services.AddLogging(
@@ -101,7 +101,7 @@ namespace TrueApi
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrueApi v1"));
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrueMarkApi v1"));
 			}
 
 			app.UseHttpsRedirection();

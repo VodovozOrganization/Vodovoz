@@ -1,4 +1,4 @@
-{
+﻿{
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
@@ -8,7 +8,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "TrueApi": {
+    "TrueMarkApi": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

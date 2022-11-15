@@ -1,4 +1,4 @@
-﻿namespace TrueApi.Factories
+﻿namespace TrueMarkApi.Factories
 {
 	public interface IProductDocumentFactory
 	{

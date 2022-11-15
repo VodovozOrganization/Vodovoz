@@ -8,24 +8,24 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TrueApi.Dto.Participants;
-using TrueApi.Services;
+using TrueMarkApi.Dto.Participants;
+using TrueMarkApi.Services;
 
-namespace TrueApi.Controllers
+namespace TrueMarkApi.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class TrueApiController : ControllerBase
+	public class TrueMarkApiController : ControllerBase
 	{
 		private readonly IAuthorizationService _authorizationService;
 		private static HttpClient _httpClient;
-		private readonly ILogger<TrueApiController> _logger;
+		private readonly ILogger<TrueMarkApiController> _logger;
 
-		public TrueApiController(
+		public TrueMarkApiController(
 			IConfiguration configuration,
 			IHttpClientFactory httpClientFactory,
 			IAuthorizationService authorizationService,
-			ILogger<TrueApiController> logger)
+			ILogger<TrueMarkApiController> logger)
 		{
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			var apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
