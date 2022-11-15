@@ -204,9 +204,9 @@ namespace Vodovoz.JournalViewModels
 			}
 
 			query
-				.Left.JoinAlias(c => c.Phones, () => phoneAlias, () => !phoneAlias.IsArchive)
+				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias, () => !deliveryPointPhoneAlias.IsArchive);
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
 
 			var searchHealperNew = new TempAdapters.SearchHelper(Search);
 
@@ -372,9 +372,9 @@ namespace Vodovoz.JournalViewModels
 			));
 
 			query
-				.Left.JoinAlias(c => c.Phones, () => phoneAlias, () => !phoneAlias.IsArchive)
+				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias, () => !deliveryPointPhoneAlias.IsArchive);
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
 
 			var resultCountQuery = query
 				.SelectList(list => list

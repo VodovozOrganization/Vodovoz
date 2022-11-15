@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -47,7 +47,7 @@ FROM
 LEFT JOIN 
 	counterparty ON bwsfap.client_id = counterparty.id
 LEFT JOIN
-	phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id
+	phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id AND counterparty_phones.is_archive = 0
 LEFT JOIN 
 	employees ON employees.id = bwsfap.author_id
 WHERE 
@@ -204,7 +204,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -247,7 +247,7 @@ FROM
         LEFT JOIN
     employees buh ON buh.id = ov.accountant_id 
         LEFT JOIN
-    phones ON organizations.id = phones.org_id
+    phones ON organizations.id = phones.org_id AND phones.is_archive = 0
 WHERE
     organizations.id = @organization_id;</CommandText>
         <QueryParameters>
@@ -259,7 +259,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -403,7 +403,7 @@ WHERE org.id = @organization_id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Signatures">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	(SELECT binary_file FROM stored_resource WHERE id = 
@@ -452,7 +452,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="chief">
           <DataField>chief</DataField>
           <TypeName>System.String</TypeName>

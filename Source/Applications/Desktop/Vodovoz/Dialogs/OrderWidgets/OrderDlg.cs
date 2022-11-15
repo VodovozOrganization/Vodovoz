@@ -14,8 +14,6 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
-using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
@@ -74,8 +72,6 @@ using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Print;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalFilters;
 using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
@@ -97,14 +93,12 @@ using Vodovoz.Models.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
-using QS.Project.Services.FileDialog;
 using QS.Dialog.GtkUI.FileDialog;
-using Vodovoz.ViewModels.ViewModels.Organizations;
-using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.ViewModels.Widgets;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
 namespace Vodovoz
 {
@@ -563,7 +557,6 @@ namespace Vodovoz
 				_orderParametersProvider.PaymentByCardFromSmsId,
 				_orderParametersProvider.GetPaymentByCardFromAvangardId,
 				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
-				_orderParametersProvider.GetPaymentByCardFromSiteByQrCode,
 				_orderParametersProvider.PaymentByCardFromOnlineStoreId
 			};
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
@@ -1639,6 +1632,42 @@ namespace Vodovoz
 				}
 			}
 
+			var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
+			var edoLightsMatrixViewModel = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel;
+			edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
+
+			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.cashless
+				? EdoLightsMatrixPaymentType.Cashless
+				: EdoLightsMatrixPaymentType.Receipt;
+
+			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInChestniyZnak);
+
+			if(isAccountableInChestniyZnak
+			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
+			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType))
+			{
+				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
+				                                              $"Оставить черновик заказа в статусе \"Новый\"?"))
+				{
+					return Save(); 
+				}
+
+				return false;
+			}
+
+			if(Entity.PaymentType == PaymentType.cashless)
+			{
+				var hasUnknownEdoLightsType = edoLightsMatrixViewModel.HasUnknown();
+
+				if(hasUnknownEdoLightsType
+				   && !ServicesConfig.InteractiveService.Question(
+					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
+				{
+					return false;
+				}
+
+			}
+
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 			}
@@ -2601,6 +2630,8 @@ namespace Vodovoz
 			{
 				return;
 			}
+
+			UoW.Session.Refresh(DeliveryPoint);
 
 			AddCommentFromDeliveryPoint();
 			AddCommentLogistFromDeliveryPoint();
@@ -3600,8 +3631,8 @@ namespace Vodovoz
 			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
 
 			ylblPhoneNumber.Text = Entity.DeliveryPoint?.Phones.Count > 0
-				? string.Join(", ", Entity.DeliveryPoint.Phones.Select(p => p.DigitsNumber))
-				: string.Join(", ", Entity.Client.Phones.Select(p => p.DigitsNumber));
+				? string.Join(", ", Entity.DeliveryPoint.Phones.Where(p => !p.IsArchive).Select(p => p.DigitsNumber))
+				: string.Join(", ", Entity.Client.Phones.Where(p => !p.IsArchive).Select(p => p.DigitsNumber));
 
 			ylblDeliveryDate.Text = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
 			ylblDeliveryInterval.Text = Entity.DeliverySchedule?.DeliveryTime;

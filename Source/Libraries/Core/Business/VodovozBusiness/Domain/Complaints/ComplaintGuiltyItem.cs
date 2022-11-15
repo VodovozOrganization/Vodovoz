@@ -88,12 +88,12 @@ namespace Vodovoz.Domain.Complaints
 					"Ответственная сторона не выбрана",
 					new[] { this.GetPropertyName(o => o.Responsible) }
 				);
-			if(Responsible.IsEmployeeResponsible && Employee == null)
+			if(Responsible != null && Responsible.IsEmployeeResponsible && Employee == null)
 				yield return new ValidationResult(
 					"Укажите ответственного сотрудника",
 					new[] { this.GetPropertyName(o => o.Employee) }
 				);
-			if(Responsible.IsSubdivisionResponsible && Subdivision == null)
+			if(Responsible != null && Responsible.IsSubdivisionResponsible && Subdivision == null)
 				yield return new ValidationResult(
 					"Укажите ответственный отдел ВВ",
 					new[] { this.GetPropertyName(o => o.Subdivision) }
