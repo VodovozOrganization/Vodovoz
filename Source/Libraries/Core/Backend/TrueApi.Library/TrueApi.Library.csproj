@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.2">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Taxcom.TTC.Reglament.Crypto">
+      <HintPath>..\..\..\External\Taxcom\Taxcom.TTC.Reglament.Crypto.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dto\" />
+  </ItemGroup>
+
+</Project>

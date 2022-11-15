@@ -1923,7 +1923,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var checkDate = DateTime.Now.AddDays(-_edoSettings.TaxcomCheckConsentDays);
+			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays);
 			var contactListParser = new ContactListParser();
 
 			ContactListItem contactListItem = null;

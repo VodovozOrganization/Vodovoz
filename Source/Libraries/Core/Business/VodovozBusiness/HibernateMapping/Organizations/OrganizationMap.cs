@@ -21,7 +21,7 @@ namespace Vodovoz.HibernateMapping.Organizations
 			Map(x => x.WithoutVAT).Column("without_vat").ReadOnly();
 			Map(x => x.CashBoxId).Column("cash_box_id");
 			Map(x => x.AvangardShopId).Column("avangard_shop_id");
-			Map(x => x.TaxcomEdoAccountId).Column("taxcom_edo_account_id");
+			//Map(x => x.TaxcomEdoAccountId).Column("taxcom_edo_account_id");
 
 			References(x => x.Stamp).Column("stamp_id");
 

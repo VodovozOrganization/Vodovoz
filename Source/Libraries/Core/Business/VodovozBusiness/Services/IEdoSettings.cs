@@ -11,6 +11,6 @@
 		string TaxcomGetContactListUpdatesUri { get; }
 		string TrueApiBaseAddressUri { get; }
 		string TrueApiParticipantsUri { get; }
-		int TaxcomCheckConsentDays { get; }
+		int EdoCheckPeriodDays { get; }
 	}
 }
