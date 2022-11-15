@@ -114,7 +114,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref createDate, value, () => CreateDate);
 		}
 
-		bool isFirstOrder = true;
+		bool isFirstOrder;
 		[Display(Name = "Первый заказ")]
 		public virtual bool IsFirstOrder {
 			get => isFirstOrder;

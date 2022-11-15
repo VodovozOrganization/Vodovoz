@@ -141,6 +141,7 @@ namespace Vodovoz
 		private IOrderParametersProvider _orderParametersProvider;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 
+		private readonly IRouteListParametersProvider _routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
@@ -996,16 +997,13 @@ namespace Vodovoz
 
 			foreach(var flyer in activeFlyers)
 			{
-				if(!_orderRepository.CanAddFlyerToOrder(
-					UoW,
-					new RouteListParametersProvider(_parametersProvider),
-					flyer.FlyerNomenclature.Id,
-					geographicGroupId))
+				if(!_orderRepository.HasFlyersOnStock(UoW, _routeListParametersProvider, flyer.FlyerNomenclature.Id, geographicGroupId))
 				{
 					continue;
 				}
 
-				if(flyer.IsForFirstOrder && !Entity.IsFirstOrder)
+				if(flyer.IsForFirstOrder
+					&& (!(Entity.Id == 0 && Entity.Client != null && Entity.Client.FirstOrder == null) || !Entity.IsFirstOrder))
 				{
 					continue;
 				}
