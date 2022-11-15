@@ -42,6 +42,7 @@ namespace TrueApi.Factories
 
 			var serializedProductDocument = JsonSerializer.Serialize(productDocument);
 			var serializedProductDocumentBytes = Encoding.UTF8.GetBytes(serializedProductDocument);
+
 			return Convert.ToBase64String(serializedProductDocumentBytes);
 		}
 	}

@@ -17,7 +17,5 @@ namespace TrueApi.Dto.Participants
 
 		[JsonIgnore] 
 		public bool IsRegisteredForWater => ProductGroups != null && ProductGroups.Any(pg => pg == "water") && IsRegistered;
-
-
 	}
 }

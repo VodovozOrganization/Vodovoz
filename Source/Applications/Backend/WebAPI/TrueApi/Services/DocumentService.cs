@@ -94,6 +94,7 @@ namespace TrueApi.Services
 				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
 				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
 				_logger.LogInformation("Организация получена");
+
 				if(organization is null)
 				{
 					_logger.LogError($"Не найдена организация по edxClientId {edoAccountId}");
@@ -111,7 +112,7 @@ namespace TrueApi.Services
 				}
 
 				// На данный момент не проверяем в ЧЗ и не сохраняем в контрагенте
-				//	await CheckAndSaveRegistrationInTrueApi(orders, uow);
+				// await CheckAndSaveRegistrationInTrueApi(orders, uow);
 
 				foreach(var order in orders)
 				{
@@ -203,6 +204,11 @@ namespace TrueApi.Services
 					await Task.Delay(_createDocumentDelaySec * 1000);
 
 					resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
+
+					if(resultInfoResponse.IsSuccessStatusCode)
+					{
+						break;
+					}
 				}
 			}
 
@@ -251,6 +257,7 @@ namespace TrueApi.Services
 		private async Task CheckAndSaveRegistrationInTrueApi(IList<Order> orders, IUnitOfWork uow)
 		{
 			var url = "participants";
+
 			var token = await _authorizationService.Login();
 
 			var httpClient = _httpClientClientFactory.CreateClient();
@@ -272,7 +279,6 @@ namespace TrueApi.Services
 
 				var registrations = await JsonSerializer.DeserializeAsync<IList<ParticipantRegistrationDto>>(responseBody);
 
-
 				foreach(var registration in registrations)
 				{
 					var orderForUpdate = orders.FirstOrDefault(o =>
@@ -285,9 +291,10 @@ namespace TrueApi.Services
 						counterparty.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
 						uow.Save(counterparty);
 						CheckAndRemoveOrder(orders, orderForUpdate);
-
 					}
 				}
+
+				uow.Commit();
 			}
 		}
 

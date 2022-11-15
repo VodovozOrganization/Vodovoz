@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using TrueApi.Dto.Participants;
 using TrueApi.Services;
 
-
 namespace TrueApi.Controllers
 {
 	[ApiController]
@@ -26,8 +25,7 @@ namespace TrueApi.Controllers
 			IConfiguration configuration,
 			IHttpClientFactory httpClientFactory,
 			IAuthorizationService authorizationService,
-			ILogger<TrueApiController> logger
-			)
+			ILogger<TrueApiController> logger)
 		{
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			var apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
@@ -43,11 +41,11 @@ namespace TrueApi.Controllers
 		[Route("/api/ParticipantRegistrationByProductGroup")]
 		public async Task<bool> ParticipantRegistrationByProductGroupAsync(string inn, string productGroup)
 		{
-			var urn = $"participants?inns={inn}";
+			var uri = $"participants?inns={inn}";
 
 			var token = await _authorizationService.Login();
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			var response = await _httpClient.GetAsync(urn);
+			var response = await _httpClient.GetAsync(uri);
 
 			if(response.IsSuccessStatusCode)
 			{
@@ -56,16 +54,11 @@ namespace TrueApi.Controllers
 
 				if(registrationResult != null)
 				{
-					var registration = registrationResult.FirstOrDefault();
+					var registration = registrationResult.FirstOrDefault(r=>r.IsRegistered && r.ProductGroups.Contains(productGroup));
 
-					var isRegisteredForProductGroup = registration != null
-													  && registration.IsRegistered
-													  && registration.ProductGroups.Contains(productGroup);
-
-					return isRegisteredForProductGroup;
+					return registration != null;
 				}
 			}
-
 
 			_logger.LogError($"Ошибка при получении статуса регистрации в ЧЗ: Http code {response.StatusCode}, причина {response.ReasonPhrase}");
 
@@ -81,13 +74,14 @@ namespace TrueApi.Controllers
 				return null;
 			}
 
-			var innString = string.Join("&inns=", inns);
-
-			var urn = $"participants?inns={innString}";
-
 			var token = await _authorizationService.Login();
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			var response = await _httpClient.GetAsync(urn);
+			
+			var innString = string.Join("&inns=", inns);
+			
+			var uri = $"participants?inns={innString}";
+			
+			var response = await _httpClient.GetAsync(uri);
 
 			if(response.IsSuccessStatusCode)
 			{
@@ -103,5 +97,3 @@ namespace TrueApi.Controllers
 		}
 	}
 }
-
-
