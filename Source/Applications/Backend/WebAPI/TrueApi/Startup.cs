@@ -12,8 +12,11 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
+using QS.Project.Domain;
+using QS.Project.Repositories;
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using TrueApi.Services;
 using Vodovoz.EntityRepositories.Orders;
@@ -115,51 +118,49 @@ namespace TrueApi
 
 		private void CreateBaseConfig()
 		{
-			_logger.LogInformation("Настройка параметров Nhibernate...");
-
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
-			var domainDBConfig = Configuration.GetSection("DomainDB");
+			var domainDbConfig = Configuration.GetSection("DomainDB");
 
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
+			conStrBuilder.Server = domainDbConfig.GetValue<string>("Server");
+			conStrBuilder.Port = domainDbConfig.GetValue<uint>("Port");
+			conStrBuilder.Database = domainDbConfig.GetValue<string>("Database");
+			conStrBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
+			conStrBuilder.Password = domainDbConfig.GetValue<string>("Password");
 			conStrBuilder.SslMode = MySqlSslMode.None;
 
 			var connectionString = conStrBuilder.GetConnectionString(true);
 
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.Driver<LoggedMySqlClientDriver>();
+				.ConnectionString(connectionString);
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
-				db_config,
-				new System.Reflection.Assembly[]
+				dbConfig,
+				new[]
 				{
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
-					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
-					System.Reflection.Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Bank)),
+					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(TypeOfEntity)),
+					Assembly.GetAssembly(typeof(Attachment))
 				}
 			);
 
-			var serviceUserId = 0;
+			string userLogin = domainDbConfig.GetValue<string>("UserID");
+			int serviceUserId = 0;
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
 				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
-					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
+					.Where(u => u.Login == userLogin)
 					.Select(u => u.Id)
 					.FirstOrDefault();
 			}
 
-			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
+			UserRepository.GetCurrentUserId = () => serviceUserId;
 			HistoryMain.Enable();
 		}
 	}
