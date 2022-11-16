@@ -136,8 +136,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
-		bool CanAddFlyerToOrder(
-			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
+		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
 		int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate);
 		DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId);
 		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
@@ -146,6 +145,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
+		IList<Order> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 	}
 
 	public class ClientEquipmentNode

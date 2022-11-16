@@ -21,5 +21,6 @@ namespace Vodovoz.Parameters
 		public string TrueApiBaseAddressUri => _parametersProvider.GetStringValue("TrueApiBaseAddressUri");
 		public string TrueApiParticipantsUri => _parametersProvider.GetStringValue("TrueApiParticipantsUri");
 		public int TaxcomCheckConsentDays => _parametersProvider.GetIntValue("TaxcomCheckConsentDays");
+		public int EdoCheckPeriodDays => _parametersProvider.GetIntValue("EdoCheckPeriodDays");
 	}
 }
