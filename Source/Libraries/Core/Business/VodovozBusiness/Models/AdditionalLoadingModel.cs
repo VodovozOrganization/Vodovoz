@@ -186,6 +186,10 @@ namespace Vodovoz.Models
 
 			foreach(var flyer in _activeFlyers)
 			{
+				if(flyer.IsForFirstOrder)
+				{
+					continue;
+				}
 				if(items.Any(x => x.Nomenclature.Id == flyer.FlyerNomenclature.Id))
 				{
 					continue;
