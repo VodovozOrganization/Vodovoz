@@ -514,19 +514,19 @@ namespace Vodovoz.Domain.Client
 
 		#endregion Особое требование срок годности
 		
-		[Display(Name = "Особое название договора")]
+		[Display(Name = "Название особого договора")]
 		public virtual string SpecialContractName {
 			get => _specialContractName;
 			set => SetField(ref _specialContractName, value);
 		}
 		
-		[Display(Name = "Особый номер договора")]
+		[Display(Name = "Номер особого договора")]
 		public virtual string SpecialContractNumber {
 			get => _specialContractNumber;
 			set => SetField(ref _specialContractNumber, value);
 		}
 		
-		[Display(Name = "Особая дата договора")]
+		[Display(Name = "Дата особого договора")]
 		public virtual DateTime? SpecialContractDate {
 			get => _specialContractDate;
 			set => SetField(ref _specialContractDate, value);
