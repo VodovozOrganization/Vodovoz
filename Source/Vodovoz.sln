@@ -279,7 +279,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EdoService", "EdoService", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EdoService", "Libraries\Core\EdoService\EdoService.csproj", "{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IIS", "IIS", "{AA384BE0-D7B1-4A95-BFB4-6B4B5ACD452E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoboatsCallsWorker", "Applications\Backend\Workers\IIS\RoboatsCallsWorker\RoboatsCallsWorker.csproj", "{4910571E-628B-44FD-8B46-2E0BCC794D94}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{8ff7c332-e6d1-456f-8067-11ce62aaef5a}*SharedItemsImports = 5
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
@@ -3185,6 +3196,42 @@ Global
 		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}.WinDesktop|x86.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Debug|x86.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Docker|x86.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Docker|x86.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Release|x86.ActiveCfg = Release|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Release|x86.Build.0 = Release|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.ReleaseWin|Any CPU.Build.0 = Release|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.ReleaseWin|x86.Build.0 = Release|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WCF|Any CPU.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WCF|x86.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WCF|x86.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Web|Any CPU.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Web|x86.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Web|x86.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -3314,16 +3361,11 @@ Global
 		{833CFBC7-0CF8-4F5A-9FD7-37BCC34F94CF} = {DDE3AB35-AFFE-4B12-AA51-E137B49B6699}
 		{AB8D6BB6-41C6-46AC-835D-4A544B998302} = {286272B6-AAA0-47EF-98AF-F43BB3360F48}
 		{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0} = {AB8D6BB6-41C6-46AC-835D-4A544B998302}
+		{AA384BE0-D7B1-4A95-BFB4-6B4B5ACD452E} = {938BE8F2-8595-4C90-A08D-8FE55F0C5328}
+		{4910571E-628B-44FD-8B46-2E0BCC794D94} = {AA384BE0-D7B1-4A95-BFB4-6B4B5ACD452E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{8ff7c332-e6d1-456f-8067-11ce62aaef5a}*SharedItemsImports = 5
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
-		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
