@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -30,7 +30,9 @@
     counterparty.use_special_doc_fields,
     counterparty.special_cargo_receiver,
     counterparty.special_customer,
-    counterparty.special_contract_number,
+    IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
+       CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
+       counterparty.special_contract_name) AS special_contract_number,
     counterparty.payer_special_kpp,
     counterparty.special_gov_contract,
     counterparty.special_delivery_address,
@@ -49,11 +51,11 @@
     CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
 FROM
     bills_without_shipment_for_debt bwsfd
-LEFT JOIN
+        LEFT JOIN
     counterparty ON bwsfd.client_id = counterparty.id
-LEFT JOIN
+        LEFT JOIN
     phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id AND  counterparty_phones.is_archive = 0
-LEFT JOIN
+        LEFT JOIN
     employees ON employees.id = bwsfd.author_id
 WHERE
         bwsfd.id = @bill_ws_for_debt_id;</CommandText>
@@ -147,7 +149,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -201,7 +203,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>

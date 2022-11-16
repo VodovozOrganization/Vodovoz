@@ -127,10 +127,7 @@ namespace TaxcomEdoApi.Factories
 					SodOper = GetOperationName(order.OrderItems),
 					OsnPer = new[]
 					{
-						new OsnovanieTip
-						{
-							NaimOsn = "Без документа-основания"
-						}
+						GetBasis(order)
 					}
 				}
 			};
@@ -161,6 +158,40 @@ namespace TaxcomEdoApi.Factories
 			};
 
 			return upd;
+		}
+
+		private OsnovanieTip GetBasis(Order order)
+		{
+			var basis = new OsnovanieTip();
+
+			if(order.Client.UseSpecialDocFields
+				&& !string.IsNullOrWhiteSpace(order.Client.SpecialContractName)
+				&& !string.IsNullOrWhiteSpace(order.Client.SpecialContractNumber)
+				&& order.Client.SpecialContractDate.HasValue)
+			{
+				basis.NaimOsn = order.Client.SpecialContractName;
+				basis.NomOsn = order.Client.SpecialContractNumber;
+				basis.DataOsn = $"{order.Client.SpecialContractDate.Value:dd.MM.yyyy}";
+				return basis;
+			}
+			if(order.Client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(order.Client.SpecialContractName))
+			{
+				basis.NaimOsn = "Без документа-основания";
+				return basis;
+			}
+
+			if(order.Contract != null)
+			{
+				basis.NaimOsn = "Договор";
+				basis.NomOsn = order.Contract.Number;
+				basis.DataOsn = $"{order.Contract.IssueDate:dd.MM.yyyy}";
+			}
+			else
+			{
+				basis.NaimOsn = "Без документа-основания";
+			}
+
+			return basis;
 		}
 
 		private string GetOperationName(IList<OrderItem> orderItems)
