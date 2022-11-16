@@ -23,6 +23,7 @@ namespace Vodovoz.Domain.Organizations
 	public class Organization : AccountOwnerBase, IDomainObject
 	{
 		private int? _avangardShopId;
+		private string _taxcomEdoAccountId;
 		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private OrganizationVersion _activeOrganizationVersion;
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
@@ -142,6 +143,14 @@ namespace Vodovoz.Domain.Organizations
 		{
 			get => _avangardShopId;
 			set => SetField(ref _avangardShopId, value);
+		}
+		
+		[IgnoreHistoryTrace]
+		[Display(Name = "Id кабинета в Такскоме")]
+		public virtual string TaxcomEdoAccountId
+		{
+			get => _taxcomEdoAccountId;
+			set => SetField(ref _taxcomEdoAccountId, value);
 		}
 
 		#endregion

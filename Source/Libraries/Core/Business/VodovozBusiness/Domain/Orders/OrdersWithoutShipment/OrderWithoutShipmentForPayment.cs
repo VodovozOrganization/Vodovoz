@@ -108,7 +108,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual string Name => string.Format($"Счет №Ф{Id}");
 
-		public virtual string SpecialContractNumber => Client.IsForRetail ? Client.SpecialContractNumber : string.Empty;
+		public virtual string SpecialContractNumber => Client.IsForRetail ? Client.GetSpecialContractString() : string.Empty;
 
 		public virtual DateTime? DocumentDate => CreateDate;
 		public virtual Counterparty Counterparty => Client;

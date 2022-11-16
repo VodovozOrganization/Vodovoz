@@ -98,80 +98,82 @@ WHERE
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	orders.id AS order_id,
-	orders.delivery_date AS order_date,
-	CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
-	DATE_FORMAT(counterparty_contract.issue_date,
-			'%d.%m.%y') AS contract_date,
-	counterparty.full_name AS client_name,
-	counterparty.jur_address AS client_address,
-	counterparty.inn AS client_inn,
-	counterparty.kpp AS client_kpp,
-	counterparty.use_special_doc_fields,
-	counterparty.special_cargo_receiver,
-	counterparty.special_customer,
-	counterparty.special_contract_number,
-	counterparty.payer_special_kpp,
-	counterparty.special_gov_contract,
-	counterparty.special_delivery_address,
-	CONCAT(
-		counterparty.inn,
-		'/',
-		IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp)
-	) AS inn_kpp,
-	CASE
-		WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
-		WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields AND @special_fields THEN counterparty.special_cargo_receiver
-	ELSE CONCAT(counterparty.full_name, ', ', counterparty.jur_address) END AS cargo_receiver,
-	organizations.full_name AS org_name,
-	ov.jur_address AS org_address,
-	delivery_points.compiled_address_short AS del_point_address,
-	CONCAT_WS(
-		', ',
-		delivery_points.city,
-		delivery_points.street,
-		delivery_points.building
-	) AS del_point_address_composite,
-	organizations.INN AS org_inn,
-	organizations.KPP AS org_kpp,
-	buhgalter.last_name AS buh_last_name,
-	LEFT(buhgalter.name, 1) AS buh_name,
-	LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
-	leader.last_name AS leader_last_name,
-	LEFT(leader.name, 1) AS leader_name,
-	LEFT(leader.patronymic, 1) AS leader_patronymic,
-	IF(
-		orders.order_status = 'Closed',
-		MAX(route_list_addresses.bottles_returned),
-		'    '
-	) AS bottles_in_fact,
-	orders.self_delivery AS is_self_delivery
+    orders.id AS order_id,
+    orders.delivery_date AS order_date,
+    CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber) AS contract_number,
+    DATE_FORMAT(counterparty_contract.issue_date,
+                '%d.%m.%y') AS contract_date,
+    counterparty.full_name AS client_name,
+    counterparty.jur_address AS client_address,
+    counterparty.inn AS client_inn,
+    counterparty.kpp AS client_kpp,
+    counterparty.use_special_doc_fields,
+    counterparty.special_cargo_receiver,
+    counterparty.special_customer,
+    IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
+        CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
+        counterparty.special_contract_name) AS special_contract_number,
+    counterparty.payer_special_kpp,
+    counterparty.special_gov_contract,
+    counterparty.special_delivery_address,
+    CONCAT(
+            counterparty.inn,
+            '/',
+            IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp)
+        ) AS inn_kpp,
+    CASE
+        WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
+        WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields AND @special_fields THEN counterparty.special_cargo_receiver
+        ELSE CONCAT(counterparty.full_name, ', ', counterparty.jur_address) END AS cargo_receiver,
+    organizations.full_name AS org_name,
+    ov.jur_address AS org_address,
+    delivery_points.compiled_address_short AS del_point_address,
+    CONCAT_WS(
+            ', ',
+            delivery_points.city,
+            delivery_points.street,
+            delivery_points.building
+        ) AS del_point_address_composite,
+    organizations.INN AS org_inn,
+    organizations.KPP AS org_kpp,
+    buhgalter.last_name AS buh_last_name,
+    LEFT(buhgalter.name, 1) AS buh_name,
+    LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
+    leader.last_name AS leader_last_name,
+    LEFT(leader.name, 1) AS leader_name,
+    LEFT(leader.patronymic, 1) AS leader_patronymic,
+    IF(
+                orders.order_status = 'Closed',
+                MAX(route_list_addresses.bottles_returned),
+                '    '
+        ) AS bottles_in_fact,
+    orders.self_delivery AS is_self_delivery
 FROM
-	orders
-		LEFT JOIN
-	counterparty ON orders.client_id = counterparty.id
-		LEFT JOIN
-	route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status = 'Completed'
-		LEFT JOIN
-	counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
-		LEFT JOIN
-	organizations ON organizations.id = counterparty_contract.organization_id
-                LEFT JOIN
-        organization_versions ov
-            ON
-                organizations.id = ov.organization_id 
+    orders
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status = 'Completed'
+        LEFT JOIN
+    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    organizations ON organizations.id = counterparty_contract.organization_id
+        LEFT JOIN
+    organization_versions ov
+    ON
+                organizations.id = ov.organization_id
             AND
-                ov.start_date &lt;= orders.bill_date 
+                ov.start_date &lt;= orders.bill_date
             AND
                 (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
-		LEFT JOIN
-	delivery_points ON orders.delivery_point_id = delivery_points.id
-		LEFT JOIN
-	employees leader ON leader.id = ov.leader_id
-		LEFT JOIN
-	employees buhgalter ON buhgalter.id = ov.accountant_id 
+        LEFT JOIN
+    delivery_points ON orders.delivery_point_id = delivery_points.id
+        LEFT JOIN
+    employees leader ON leader.id = ov.leader_id
+        LEFT JOIN
+    employees buhgalter ON buhgalter.id = ov.accountant_id
 WHERE
-	orders.id = @order_id;</CommandText>
+        orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -3527,8 +3529,8 @@ WHERE o.id = @order_id
             <Width>326.90pt</Width>
             <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value + ' от ' + Fields!contract_date.Value)</Value>
             <ZIndex>1</ZIndex>
-            <Left>258.7pt</Left>
-            <Top>45.7pt</Top>
+            <Left>258.70pt</Left>
+            <Top>45.70pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
