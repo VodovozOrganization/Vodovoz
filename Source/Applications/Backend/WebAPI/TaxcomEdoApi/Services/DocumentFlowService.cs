@@ -200,7 +200,7 @@ namespace TaxcomEdoApi.Services
 						if(container != null)
 						{
 							var containerReceived =
-								item.Documents.SingleOrDefault(x => x.TransactionCode == "PostDateConfirmation") != null;
+								item.Documents.FirstOrDefault(x => x.TransactionCode == "PostDateConfirmation") != null;
 							
 							container.DocFlowId = item.Id;
 							container.Received = containerReceived;

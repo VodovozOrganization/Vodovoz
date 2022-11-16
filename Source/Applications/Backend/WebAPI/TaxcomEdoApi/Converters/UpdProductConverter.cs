@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using Vodovoz.Domain.Orders;
 
@@ -44,7 +45,8 @@ namespace TaxcomEdoApi.Converters
 				OKEI_Tov = orderItem.Nomenclature.Unit.OKEI,
 				DopSvedTov = new FajlDokumentTablSchFaktSvedTovDopSvedTov
 				{
-					NaimEdIzm = orderItem.Nomenclature.Unit.Name
+					NaimEdIzm = orderItem.Nomenclature.Unit.Name,
+					KodTov = GetProductCode(orderItem.Order, orderItem.Nomenclature.Id)
 				}
 			};
 
@@ -71,6 +73,15 @@ namespace TaxcomEdoApi.Converters
 			};
 
 			return product;
+		}
+
+		private string GetProductCode(Order order, int nomenclatureId)
+		{
+			var specialNomenclature = order.Client.SpecialNomenclatures.SingleOrDefault(x => x.Nomenclature.Id == nomenclatureId);
+
+			return specialNomenclature != null
+				? specialNomenclature.SpecialId.ToString()
+				: nomenclatureId.ToString();
 		}
 
 		private FajlDokumentTablSchFaktSvedTovNalSt GetProductTaxRate(decimal? orderItemTax)

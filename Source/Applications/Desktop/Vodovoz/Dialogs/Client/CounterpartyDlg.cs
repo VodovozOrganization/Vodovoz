@@ -775,10 +775,16 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
 				.InitializeFromSource();
 			yentryCustomer.IsEditable = CanEdit;
+
+			#region Особый договор
+
 			yentrySpecialContract.Binding
-				.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text)
+				.AddBinding(Entity, e => e.SpecialContractName, w => w.Text)
 				.InitializeFromSource();
 			yentrySpecialContract.IsEditable = CanEdit;
+
+			#endregion
+			
 			yentrySpecialKPP.Binding
 				.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text)
 				.InitializeFromSource();

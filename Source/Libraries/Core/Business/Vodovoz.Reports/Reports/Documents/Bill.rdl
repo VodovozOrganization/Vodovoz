@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -26,45 +26,47 @@
     c.use_special_doc_fields,
     c.special_cargo_receiver,
     c.special_customer,
-    c.special_contract_number,
+    IF(!IS_NULL_OR_WHITESPACE(c.special_contract_number) and c.special_contract_date is not null,
+       CONCAT(c.special_contract_name, ' №', c.special_contract_number, ' от ', DATE_FORMAT(c.special_contract_date, '%d.%m.%y')),
+       c.special_contract_name) AS special_contract_number,
     c.payer_special_kpp,
     c.special_gov_contract,
     c.special_delivery_address,
     (
-        Select 
-               GROUP_CONCAT(
-                   CONCAT(
-                           '+7 ',
-                           p_delivery_point.number,
-                           IF(
-                                   p_delivery_point.comment IS NULL,
-                                   '',
-                                   CONCAT(' ', p_delivery_point.comment)
-                               )
-                       )
-                   SEPARATOR '; '
-                   )
+        Select
+            GROUP_CONCAT(
+                    CONCAT(
+                            '+7 ',
+                            p_delivery_point.number,
+                            IF(
+                                    p_delivery_point.comment IS NULL,
+                                    '',
+                                    CONCAT(' ', p_delivery_point.comment)
+                                )
+                        )
+                    SEPARATOR '; '
+                )
         from phones p_delivery_point
         where dp.id = p_delivery_point.delivery_point_id
-        and p_delivery_point.is_archive = 0
+          and p_delivery_point.is_archive = 0
     )AS delivery_point_contact,
     (
         Select
-             GROUP_CONCAT(
-                 CONCAT(
-                         '+7 ',
-                         p_counterparty.number,
-                         IF(
-                                 p_counterparty.comment IS NULL,
-                                 '',
-                                 CONCAT(' ', p_counterparty.comment)
-                             )
-                     )
-                 SEPARATOR '; '
-             )
+            GROUP_CONCAT(
+                    CONCAT(
+                            '+7 ',
+                            p_counterparty.number,
+                            IF(
+                                    p_counterparty.comment IS NULL,
+                                    '',
+                                    CONCAT(' ', p_counterparty.comment)
+                                )
+                        )
+                    SEPARATOR '; '
+                )
         from phones p_counterparty
         where c.id = p_counterparty.counterparty_id
-        and p_counterparty.is_archive = 0
+          and p_counterparty.is_archive = 0
     )AS client_contact,
     CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
 FROM
@@ -76,7 +78,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
 WHERE
-    orders.id = @order_id;</CommandText>
+        orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -241,7 +243,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -296,7 +298,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
