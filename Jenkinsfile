@@ -218,10 +218,10 @@ parallel (
 					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					echo 'Publish TrueMarkAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Frontend\\TrueMarkAPI\\TrueMarkAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 					
 					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Source\\Applications\\Frontend\\TrueMarkAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\TrueMarkAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\TrueMarkAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
 				}
 				else
 				{
