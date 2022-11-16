@@ -17,7 +17,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using QS.Services;
-using RoboAtsService.Middleware;
+using RoboAtsService.Authentication;
 using RoboAtsService.Monitoring;
 using RoboAtsService.OrderValidation;
 using System;
@@ -48,10 +48,10 @@ namespace RoboAtsService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-			services.AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
-                .AddAzureADBearer(options => Configuration.Bind("AzureAd", options));
-            services.AddMvc().AddControllersAsServices();
+			services.AddAuthentication()
+				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
+			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
+			services.AddMvc().AddControllersAsServices();
 
 			NLogBuilder.ConfigureNLog("NLog.config");
 
@@ -72,6 +72,8 @@ namespace RoboAtsService
 			builder.RegisterType<RoboatsCallBatchRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ValidOrdersProvider>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<ApiKeyAuthenticationOptions>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()
 				.AsImplementedInterfaces();
@@ -129,10 +131,12 @@ namespace RoboAtsService
 
             app.UseRouting();
 
+			app.UseAuthentication();
             app.UseAuthorization();
-			app.UseMiddleware<ApiKeyMiddleware>();
 
-            app.UseEndpoints(endpoints =>
+
+
+			app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
