@@ -112,7 +112,7 @@ WHERE
     counterparty.special_customer,
     IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
        CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
-       counterparty.special_contract_number) AS special_contract_number,
+       counterparty.special_contract_name) AS special_contract_number,
     counterparty.payer_special_kpp,
     counterparty.special_gov_contract,
     counterparty.special_delivery_address,
