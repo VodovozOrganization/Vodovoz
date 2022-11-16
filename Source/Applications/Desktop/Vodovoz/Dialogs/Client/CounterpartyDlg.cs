@@ -778,13 +778,23 @@ namespace Vodovoz
 
 			#region Особый договор
 
-			yentrySpecialContract.Binding
+			entrySpecialContractName.Binding
 				.AddBinding(Entity, e => e.SpecialContractName, w => w.Text)
 				.InitializeFromSource();
-			yentrySpecialContract.IsEditable = CanEdit;
+			entrySpecialContractName.IsEditable = CanEdit;
+
+			entrySpecialContractNumber.Binding
+				.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text)
+				.InitializeFromSource();
+			entrySpecialContractNumber.IsEditable = CanEdit;
+
+			datePickerSpecialContractDate.Binding
+				.AddBinding(Entity, e => e.SpecialContractDate, w => w.DateOrNull)
+				.InitializeFromSource();
+			datePickerSpecialContractDate.IsEditable = CanEdit;
 
 			#endregion
-			
+
 			yentrySpecialKPP.Binding
 				.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text)
 				.InitializeFromSource();
