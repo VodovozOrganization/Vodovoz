@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RoboAtsService.Monitoring;
@@ -6,12 +7,12 @@ using RoboAtsService.Requests;
 using System;
 using System.Diagnostics;
 using Vodovoz.Domain.Roboats;
-using Vodovoz.Parameters;
 
 namespace RoboAtsService.Controllers
 {
 	[ApiController]
 	[Route("api")]
+	[Authorize]
 	public class RoboATSController : ControllerBase
 	{
 		private readonly ILogger<RoboATSController> _logger;

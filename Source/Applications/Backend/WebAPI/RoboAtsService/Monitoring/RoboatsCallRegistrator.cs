@@ -117,14 +117,5 @@ namespace RoboAtsService.Monitoring
 				_logger.LogError(ex, "Возникло исключение при регистрации записи в мониторинг.");
 			}
 		}
-
-		public void CloseStaleCalls()
-		{
-			using var uow = _uowFactory.CreateWithoutRoot();
-
-			_roboatsCallBatchRegistrator.CloseStaleCalls(uow);
-
-			uow.Commit();
-		}
 	}
 }

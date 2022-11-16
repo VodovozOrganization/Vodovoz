@@ -8,25 +8,27 @@ using System.Threading.Tasks;
 namespace RoboAtsService
 {
 	public class Program
-    {
-        public static async Task Main(string[] args)
-        {
+	{
+		public static async Task Main(string[] args)
+		{
 			await CreateHostBuilder(args).Build().RunAsync();
-        }
+		}
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+		public static IHostBuilder CreateHostBuilder(string[] args)
+		{
+			return Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                .ConfigureWebHostDefaults(webBuilder =>
+				.ConfigureWebHostDefaults(webBuilder =>
 				{
-                    webBuilder.UseStartup<Startup>();
-                })
+					webBuilder.UseStartup<Startup>();
+				})
 				.ConfigureLogging(logging =>
 				{
 					logging.ClearProviders();
 					logging.SetMinimumLevel(LogLevel.Trace);
 				})
 				.UseNLog()
-			;
-    }
+;
+		}
+	}
 }
