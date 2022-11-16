@@ -281,7 +281,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EdoService", "Libraries\Cor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IIS", "IIS", "{AA384BE0-D7B1-4A95-BFB4-6B4B5ACD452E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoboatsCallsWorker", "Applications\Backend\Workers\IIS\RoboatsCallsWorker\RoboatsCallsWorker.csproj", "{4910571E-628B-44FD-8B46-2E0BCC794D94}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoboatsCallsWorker", "Applications\Backend\Workers\IIS\RoboatsCallsWorker\RoboatsCallsWorker.csproj", "{4910571E-628B-44FD-8B46-2E0BCC794D94}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -3205,13 +3205,9 @@ Global
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.DebugWin|x86.ActiveCfg = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.DebugWin|x86.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
-		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Docker|Any CPU.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Docker|x86.ActiveCfg = Debug|Any CPU
-		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Docker|x86.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
-		{4910571E-628B-44FD-8B46-2E0BCC794D94}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
-		{4910571E-628B-44FD-8B46-2E0BCC794D94}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Release|x86.ActiveCfg = Release|Any CPU
@@ -3221,17 +3217,13 @@ Global
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.ReleaseWin|x86.Build.0 = Release|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
-		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WCF|Any CPU.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WCF|x86.ActiveCfg = Debug|Any CPU
-		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WCF|x86.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Web|Any CPU.ActiveCfg = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Web|Any CPU.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Web|x86.ActiveCfg = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.Web|x86.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
-		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
-		{4910571E-628B-44FD-8B46-2E0BCC794D94}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
