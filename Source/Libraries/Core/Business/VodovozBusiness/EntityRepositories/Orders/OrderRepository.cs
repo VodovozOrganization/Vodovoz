@@ -957,10 +957,10 @@ namespace Vodovoz.EntityRepositories.Orders
 				.JoinEntityAlias(() => trueMarkApiDocument, () => orderAlias.Id == trueMarkApiDocument.Order.Id, JoinType.LeftOuterJoin);
 
 			var hasGtinNomenclaturesSubQuery = QueryOver.Of(() => orderItemAlias)
-					.JoinAlias(()=> orderItemAlias.Nomenclature, ()=>nomenclatureAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-					.And(()=>nomenclatureAlias.IsAccountableInChestniyZnak)
-					.And(()=>nomenclatureAlias.Gtin != null )
+					.And(() => nomenclatureAlias.IsAccountableInChestniyZnak)
+					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 
 			if(startDate.HasValue)
@@ -972,8 +972,8 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(Restrictions.IsNull(Projections.Property(() => trueMarkApiDocument.Id)))
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
-				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered 
-				           || orderAlias.OrderStatus != OrderStatus.OnTheWay)
+				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
+						   || orderAlias.OrderStatus != OrderStatus.OnTheWay)
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
@@ -981,11 +981,11 @@ namespace Vodovoz.EntityRepositories.Orders
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
-							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess 
-							           && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
+							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
-						.Add(()=> orderAlias.PaymentType == PaymentType.barter)
-						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN),0))
+						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
 					)
 				)
 				.TransformUsing(Transformers.RootEntity) 

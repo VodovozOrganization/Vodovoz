@@ -17,6 +17,7 @@ using TrueMarkApi.Factories;
 using TrueMarkApi.Models;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Services;
@@ -35,7 +36,7 @@ namespace TrueMarkApi.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private const int _workerDelaySec = 300;
-		private const int _createDocumentDelaySec = 10;
+		private const int _createDocumentDelaySec = 5;
 
 		public DocumentService(
 			ILogger<DocumentService> logger,
@@ -162,7 +163,7 @@ namespace TrueMarkApi.Services
 			var httpClient = _httpClientClientFactory.CreateClient();
 			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("BaseUrl"));
+			httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
 
 			var productDocument = productDocumentFactory.CreateProductDocument();
 
@@ -193,16 +194,18 @@ namespace TrueMarkApi.Services
 
 			var resultInfoUrl = $"doc/{documentId}/info";
 
+			// Делаем паузу перед получением информации по созданному документу
+			await Task.Delay(_createDocumentDelaySec * 1000);
+
 			var resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
 
 			if(!resultInfoResponse.IsSuccessStatusCode)
 			{
+				// Производим ещё несколько попыток получения информации по созданному документу
 				for(int i = 0; i < 5; i++)
 				{
 					_logger.LogWarning($"Повторный запрос результатов создания документа {documentId}");
-					// Делаем паузу перед получением информации по созданному документу
 					await Task.Delay(_createDocumentDelaySec * 1000);
-
 					resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
 
 					if(resultInfoResponse.IsSuccessStatusCode)
@@ -254,7 +257,7 @@ namespace TrueMarkApi.Services
 			};
 		}
 
-		private async Task CheckAndSaveRegistrationInTrueMarkApi(IList<Order> orders, IUnitOfWork uow)
+		private async Task CheckAndSaveRegistrationInTrueApi(IList<Order> orders, IUnitOfWork uow)
 		{
 			var url = "participants";
 

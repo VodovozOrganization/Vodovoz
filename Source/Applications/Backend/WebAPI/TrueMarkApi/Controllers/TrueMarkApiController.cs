@@ -6,15 +6,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using TrueMarkApi.Dto.Participants;
-using TrueMarkApi.Services;
+using TrueMarkApi.Library.Dto;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using IAuthorizationService = TrueMarkApi.Services.IAuthorizationService;
 
 namespace TrueMarkApi.Controllers
 {
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[ApiController]
 	[Route("api/[controller]")]
+	
 	public class TrueMarkApiController : ControllerBase
 	{
 		private readonly IAuthorizationService _authorizationService;
@@ -31,38 +37,71 @@ namespace TrueMarkApi.Controllers
 			var apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
 
 			_httpClient = httpClientFactory.CreateClient();
-			_httpClient.BaseAddress = new Uri(apiSection.GetValue<string>("BaseUrl"));
+			_httpClient.BaseAddress = new Uri(apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
 			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		[HttpGet]
-		[Route("/api/ParticipantRegistrationByProductGroup")]
-		public async Task<bool> ParticipantRegistrationByProductGroupAsync(string inn, string productGroup)
+		[Route("/api/ParticipantRegistrationForWater")]
+		public async Task<TrueMarkResponseResultDto> ParticipantRegistrationForWaterAsync(string inn)
 		{
 			var uri = $"participants?inns={inn}";
 
 			var token = await _authorizationService.Login();
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			var response = await _httpClient.GetAsync(uri);
 
-			if(response.IsSuccessStatusCode)
+			StringBuilder errorMessage = new StringBuilder();
+			errorMessage.AppendLine("Не удалось получить статус регистрации учатниска.");
+
+			try
 			{
-				string responseBody = await response.Content.ReadAsStringAsync();
-				var registrationResult = JsonSerializer.Deserialize<IEnumerable<ParticipantRegistrationDto>>(responseBody);
+				var response = await _httpClient.GetAsync(uri);
 
-				if(registrationResult != null)
+				if(response.IsSuccessStatusCode)
 				{
-					var registration = registrationResult.FirstOrDefault(r=>r.IsRegistered && r.ProductGroups.Contains(productGroup));
+					string responseBody = await response.Content.ReadAsStringAsync();
+					var registrationResult = JsonSerializer.Deserialize<IList<ParticipantRegistrationDto>>(responseBody).FirstOrDefault();
 
-					return registration != null;
+					if(!string.IsNullOrWhiteSpace(registrationResult.ErrorMessage))
+					{
+						return new TrueMarkResponseResultDto
+						{
+							ErrorMessage = registrationResult.ErrorMessage
+						};
+					}
+
+					if(!registrationResult.IsRegisteredForWater)
+					{
+						return new TrueMarkResponseResultDto
+						{
+							ErrorMessage = "Участник зарегистрирован в Честном Знаке, но нет регистрации по группе товаров \"Вода\"!"
+						};
+					}
+
+					return new TrueMarkResponseResultDto
+					{
+						RegistrationStatusString = registrationResult.Status
+					};
+
 				}
+
+				return new TrueMarkResponseResultDto
+				{
+					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
+				};
 			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, errorMessage.ToString());
 
-			_logger.LogError($"Ошибка при получении статуса регистрации в ЧЗ: Http code {response.StatusCode}, причина {response.ReasonPhrase}");
+				return new TrueMarkResponseResultDto
+				{
+					ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
 
-			return false;
+				};
+			}
 		}
 
 		[HttpPost]
@@ -76,11 +115,11 @@ namespace TrueMarkApi.Controllers
 
 			var token = await _authorizationService.Login();
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			
+
 			var innString = string.Join("&inns=", inns);
-			
+
 			var uri = $"participants?inns={innString}";
-			
+
 			var response = await _httpClient.GetAsync(uri);
 
 			if(response.IsSuccessStatusCode)
