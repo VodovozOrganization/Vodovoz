@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -95,41 +95,44 @@ WHERE
     <DataSet Name="Order">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    orders.id AS order_id, 
+        <CommandText>SELECT
+    orders.id AS order_id,
     orders.delivery_date AS order_date,
-
-    IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_number), counterparty.special_contract_number, CONCAT(counterparty_contract.id, ' от ', DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y'))) AS contract_number,
+    IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_name) AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) AND counterparty.special_contract_date is not null,
+        CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
+        IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_name),
+            counterparty.special_contract_name,
+            CONCAT(counterparty_contract.id, ' от ', DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y')))) AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
-    counterparty.full_name AS client_name, 
-    counterparty.jur_address AS client_address, 
-    counterparty.inn AS client_inn, 
-    
+    counterparty.full_name AS client_name,
+    counterparty.jur_address AS client_address,
+    counterparty.inn AS client_inn,
+
     IF(counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields,
-		counterparty.special_cargo_receiver,	
-		CONCAT_WS(', ',	
-			CASE
-				WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
-				#WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
-		   ELSE CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address) END,
-			
-			#телефоны, выбирается только 2 первых
-			NULLIF(
-				(SELECT REPLACE(phones.number, ' ', '') 
-				FROM phones 
-				WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
-				LIMIT 1) ,
-			''),
-			
-			CONCAT('р/с ', client_account.number, ' в ', client_bank.name, ', БИК ', client_bank.bik, ', к/с ', client_bank_cor_accounts.cor_account_number)
-		)
-	 ) AS cargo_receiver,
+       counterparty.special_cargo_receiver,
+       CONCAT_WS(', ',
+                 CASE
+                     WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
+                     #WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
+                     ELSE CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address) END,
+
+           #телефоны, выбирается только 2 первых
+                 NULLIF(
+                         (SELECT REPLACE(phones.number, ' ', '')
+                          FROM phones
+                          WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+                          LIMIT 1) ,
+                         ''),
+
+                 CONCAT('р/с ', client_account.number, ' в ', client_bank.name, ', БИК ', client_bank.bik, ', к/с ', client_bank_cor_accounts.cor_account_number)
+           )
+        ) AS cargo_receiver,
     NULLIF(
-			(SELECT REPLACE(phones.number, ' ', '') 
-			FROM phones 
-			WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
-			LIMIT 1) ,
-		'') AS client_phone_number,
+            (SELECT REPLACE(phones.number, ' ', '')
+             FROM phones
+             WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+             LIMIT 1) ,
+            '') AS client_phone_number,
     client_account.number AS client_acc_number,
     client_bank.name AS client_bank_name,
     client_bank.bik AS client_bank_bik,
@@ -137,7 +140,7 @@ WHERE
 
     organizations.full_name AS org_name,
     ov.jur_address as org_address,
-    organizations.INN AS org_inn, 
+    organizations.INN AS org_inn,
     (SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.org_id = organizations.id AND phones.is_archive = 0) AS org_phone_number,
     org_account.number AS org_acc_number,
     org_bank.name AS org_bank_name,
@@ -148,35 +151,35 @@ WHERE
     LEFT(buhgalter.name, 1) AS buh_name,
     LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
 
-    leader.last_name AS leader_last_name, 
-    LEFT(leader.name, 1) AS leader_name, 
+    leader.last_name AS leader_last_name,
+    LEFT(leader.name, 1) AS leader_name,
     LEFT(leader.patronymic, 1) AS leader_patronymic,
     IF(counterparty.use_special_doc_fields, IF(!IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp), counterparty.kpp) AS KPP
-FROM 
+FROM
     orders
-    LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id AND client_phones.is_archive = 0
-    LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id AND delivery_point_phones.is_archive = 0
-    LEFT JOIN counterparty ON orders.client_id = counterparty.id
-    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-    LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
-    LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
-    LEFT JOIN organization_versions ov
-        ON
-            organizations.id = ov.organization_id 
-        AND
-            ov.start_date &lt;= orders.bill_date 
-        AND
-            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
-    LEFT JOIN employees leader ON leader.id = ov.leader_id 
-    LEFT JOIN employees buhgalter ON buhgalter.id = ov.accountant_id 
-    LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
-    LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
-    LEFT JOIN accounts client_account ON client_account.counterparty_id = counterparty.id AND client_account.is_default
-    LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
-    LEFT JOIN banks_cor_accounts client_bank_cor_accounts ON client_account.bank_cor_account_id = client_bank_cor_accounts.id
-WHERE 
-    counterparty_contract.id=orders.counterparty_contract_id
-    AND orders.id = @order_id
+        LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id AND client_phones.is_archive = 0
+        LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id AND delivery_point_phones.is_archive = 0
+        LEFT JOIN counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+        LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
+        LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
+        LEFT JOIN organization_versions ov
+                  ON
+                              organizations.id = ov.organization_id
+                          AND
+                              ov.start_date &lt;= orders.bill_date
+                          AND
+                              (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+        LEFT JOIN employees leader ON leader.id = ov.leader_id
+        LEFT JOIN employees buhgalter ON buhgalter.id = ov.accountant_id
+        LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
+        LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
+        LEFT JOIN accounts client_account ON client_account.counterparty_id = counterparty.id AND client_account.is_default
+        LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
+        LEFT JOIN banks_cor_accounts client_bank_cor_accounts ON client_account.bank_cor_account_id = client_bank_cor_accounts.id
+WHERE
+        counterparty_contract.id=orders.counterparty_contract_id
+  AND orders.id = @order_id
 GROUP BY orders.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">

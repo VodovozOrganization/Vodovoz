@@ -14,7 +14,7 @@ namespace VodovozBusinessTests.Counterparties
 			Counterparty subjectFilled = new Counterparty();
 			subjectFilled.CargoReceiver = "CargoReceiver";
 			subjectFilled.SpecialCustomer = "SpecialCustomer";
-			subjectFilled.SpecialContractNumber = "SpecialContractNumber";
+			subjectFilled.SpecialContractName = "SpecialContractName";
 			subjectFilled.PayerSpecialKPP = "SpecialKPP";
 			subjectFilled.GovContract = "GovContract";
 			subjectFilled.SpecialDeliveryAddress = "SpecialDeliveryAddress";

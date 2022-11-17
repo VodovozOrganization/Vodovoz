@@ -404,6 +404,10 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual decimal PriceWithoutVat => Math.Round(Price / ((ValueAddedTax ?? 0m) + 1) * (1 - Discount / 100), 2);
+		public virtual decimal SumWithoutVat =>
+			Math.Round(Price * CurrentCount - (IncludeNDS ?? 0 * (1 - Discount / 100)) - DiscountMoney, 2);
+
 		public decimal CurrentCount => ActualCount ?? Count;
 
 		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);
