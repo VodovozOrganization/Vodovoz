@@ -30,6 +30,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using EdoService;
+using EdoService.Converters;
 using EdoService.Services;
 using QS.Dialog;
 using TISystems.TTC.CRM.BE.Serialization;
@@ -774,10 +775,26 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
 				.InitializeFromSource();
 			yentryCustomer.IsEditable = CanEdit;
-			yentrySpecialContract.Binding
+
+			#region Особый договор
+
+			entrySpecialContractName.Binding
+				.AddBinding(Entity, e => e.SpecialContractName, w => w.Text)
+				.InitializeFromSource();
+			entrySpecialContractName.IsEditable = CanEdit;
+
+			entrySpecialContractNumber.Binding
 				.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text)
 				.InitializeFromSource();
-			yentrySpecialContract.IsEditable = CanEdit;
+			entrySpecialContractNumber.IsEditable = CanEdit;
+
+			datePickerSpecialContractDate.Binding
+				.AddBinding(Entity, e => e.SpecialContractDate, w => w.DateOrNull)
+				.InitializeFromSource();
+			datePickerSpecialContractDate.IsEditable = CanEdit;
+
+			#endregion
+
 			yentrySpecialKPP.Binding
 				.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text)
 				.InitializeFromSource();
@@ -1110,7 +1127,7 @@ namespace Vodovoz
 			_edoSettings = new EdoSettings(new ParametersProvider());
 			IAuthorizationService taxcomAuthorizationService = new TaxcomAuthorizationService(_edoSettings);
 			IAuthorizationService trueApiAuthorizationService = new TrueApiAuthorizationService(_edoSettings);
-			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings);
+			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings, new ContactStateConverter());
 			_trueApiService = new TrueApiService(trueApiAuthorizationService, _edoSettings);
 		}
 	
@@ -1922,7 +1939,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var checkDate = DateTime.Now.AddDays(-_edoSettings.TaxcomCheckConsentDays);
+			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays);
 			var contactListParser = new ContactListParser();
 
 			ContactListItem contactListItem = null;

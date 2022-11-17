@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Gtk;
 using QS.Banks.Domain;
+using QS.Deletion.Views;
 using QS.Dialog.GtkUI;
 using QS.HistoryLog;
 using QS.Journal.GtkUI;
@@ -34,6 +35,7 @@ namespace Vodovoz.Core
 		public ViewModelWidgetResolver()
 		{
 			var usedAssemblies = new Assembly[] {
+				Assembly.GetAssembly(typeof(DeletionView)), 
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
 				Assembly.GetAssembly(typeof(Bank)),

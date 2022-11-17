@@ -38,7 +38,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.AlwaysPrintInvoice).Column("always_print_invoice");
 			Map(x => x.CargoReceiver).Column("special_cargo_receiver");
 			Map(x => x.SpecialCustomer).Column("special_customer");
-			Map(x => x.SpecialContractNumber).Column("special_contract_number");
+			Map(x => x.SpecialContractName).Column("special_contract_name");
 			Map(x => x.SpecialExpireDatePercent).Column("special_expire_date_percent");
 			Map(x => x.SpecialExpireDatePercentCheck).Column("special_expire_date_percent_check");
 			Map(x => x.PayerSpecialKPP).Column("payer_special_kpp");
@@ -75,6 +75,9 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.IsNotSendDocumentsByEdo).Column("is_not_send_documents_by_edo");
 			Map(x => x.CanSendUpdInAdvance).Column("can_send_upd_in_advance");
 			Map(x => x.PersonalAccountIdInEdo).Column("personal_account_id_in_edo");
+			Map(x => x.SpecialContractNumber).Column("special_contract_number");
+			Map(x => x.SpecialContractDate).Column("special_contract_date");
+
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");
@@ -88,6 +91,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.CloseDeliveryPerson).Column("close_delivery_employee_id");
 			References(x => x.WorksThroughOrganization).Column("works_through_organization_id");
 			References(x => x.EdoOperator).Column("edo_operator_id");
+			
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
@@ -105,6 +109,12 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.NomenclatureFixedPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad()
 				.KeyColumn("counterparty_id");
+			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
+				.KeyColumn("supplier_id");
+			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("counterparty_id");
+			HasMany(x => x.CounterpartyEdoOperators).Cascade.AllDeleteOrphan().Inverse().LazyLoad()
+				.KeyColumn("counterparty_id");
+			
 			HasManyToMany(x => x.Tags).Table("counterparty_tags")
 									  .ParentKeyColumn("counterparty_id")
 									  .ChildKeyColumn("tag_id")
@@ -113,10 +123,6 @@ namespace Vodovoz.HibernateMapping
 						  .ParentKeyColumn("counterparty_id")
 						  .ChildKeyColumn("sales_channel_id")
 						  .LazyLoad();
-			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
-				.KeyColumn("supplier_id");
-			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("counterparty_id");
-			HasMany(x => x.CounterpartyEdoOperators).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("counterparty_id");
 		}
 	}
 }
