@@ -77,6 +77,7 @@ namespace TrueMarkApi
 
 			services.AddControllers();
 
+			services.AddHostedService<DocumentService>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IAuthorizationService, AuthorizationService>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
@@ -86,7 +87,6 @@ namespace TrueMarkApi
 			services.AddSingleton<IEdoSettings, EdoSettings>();
 			services.AddSingleton(_ => certificate);
 			services.AddHttpClient();
-			services.AddHostedService<DocumentService>();
 
 			// Авторизация
 			services.AddAuthorization();
