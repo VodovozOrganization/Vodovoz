@@ -83,6 +83,7 @@ using System.Threading;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
+using QS.Attachments.Domain;
 
 namespace Vodovoz
 {
@@ -124,10 +125,9 @@ namespace Vodovoz
 		private double _emailLastScrollPosition;
 		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 		private IContactListService _contactListService;
-		private EdoSettings _edoSettings;
 		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
-
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private IEdoSettings _edoSettings;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -1999,7 +1999,12 @@ namespace Vodovoz
 
 		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
 		{
-			var email = Entity.Emails.LastOrDefault (em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
+			SendContact(true); ///!!! УБРАТЬ
+		}
+
+		private void SendContact(bool isManual = false)
+		{
+			var email = Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
 			            ?? Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.Work)
 			            ?? Entity.Emails.LastOrDefault();
 
@@ -2008,7 +2013,7 @@ namespace Vodovoz
 			if(email == null)
 			{
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Не удалось отправить приглашение. Заполните Email у контрагента");
+					"Не удалось отправить приглашение. Заполните Email у контрагента");
 
 				return;
 			}
@@ -2020,7 +2025,15 @@ namespace Vodovoz
 
 			try
 			{
-				resultMessage = _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo).Result;
+				if(isManual)
+				{
+					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
+					resultMessage = _contactListService.SendContactsForManualInvitationAsync(Entity.INN, Entity.KPP, Entity.EdoOperator.Code, email.Address, document.FileName, document.ByteFile).Result;
+				}
+				else
+				{
+					resultMessage = _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo).Result;
+				}
 			}
 			catch(Exception ex)
 			{
