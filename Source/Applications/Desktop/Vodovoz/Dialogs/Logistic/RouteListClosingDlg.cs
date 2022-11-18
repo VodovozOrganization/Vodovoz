@@ -67,7 +67,9 @@ namespace Vodovoz
 			new DeliveryRulesParametersProvider(_parametersProvider);
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider =
 			new NomenclatureParametersProvider(_parametersProvider);
-		
+		private static readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), _baseParametersProvider);
+
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
@@ -76,7 +78,6 @@ namespace Vodovoz
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private readonly IFuelRepository _fuelRepository = new FuelRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(_nomenclatureParametersProvider);
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -85,7 +86,8 @@ namespace Vodovoz
 				new RouteListProfitabilityFactory(),
 				_nomenclatureParametersProvider,
 				new ProfitabilityConstantsRepository(),
-				new RouteListProfitabilityRepository());
+				new RouteListProfitabilityRepository(),
+				_routeListRepository);
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 
