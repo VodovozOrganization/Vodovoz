@@ -18,11 +18,15 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using TrueMarkApi.Services;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace TrueMarkApi
 {
@@ -71,16 +75,33 @@ namespace TrueMarkApi
 			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
 				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
 
+			services.AddControllers();
+
+			services.AddHostedService<DocumentService>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IAuthorizationService, AuthorizationService>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
+			services.AddSingleton<IEdoSettings, EdoSettings>();
 			services.AddSingleton(_ => certificate);
 			services.AddHttpClient();
-			services.AddControllers();
-			services.AddHostedService<DocumentService>();
+
+			// Авторизация
+			services.AddAuthorization();
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer(options =>
+				{
+					options.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuer = false,
+						ValidateAudience = false,
+						ValidateLifetime = false,
+						ValidateIssuerSigningKey = true,
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(apiSection.GetValue<string>("SecurityKey")))
+					};
+				});
 
 			// Конфигурация Nhibernate
 			try
@@ -103,8 +124,6 @@ namespace TrueMarkApi
 				app.UseSwagger();
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrueMarkApi v1"));
 			}
-
-			app.UseHttpsRedirection();
 
 			app.UseRouting();
 

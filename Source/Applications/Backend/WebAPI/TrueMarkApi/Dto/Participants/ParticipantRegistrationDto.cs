@@ -12,6 +12,12 @@ namespace TrueMarkApi.Dto.Participants
 		[JsonPropertyName("is_registered")]
 		public bool IsRegistered { get; set; }
 
+		[JsonPropertyName("status")]
+		public string Status { get; set; }
+
+		[JsonPropertyName("error_message")]
+		public string ErrorMessage { get; set; }
+
 		[JsonPropertyName("productGroups")]
 		public IEnumerable<string> ProductGroups { get; set; }
 
