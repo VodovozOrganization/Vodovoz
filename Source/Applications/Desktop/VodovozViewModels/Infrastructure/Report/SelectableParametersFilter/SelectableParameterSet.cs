@@ -1,0 +1,209 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
+using QS.DomainModel.Entity;
+
+namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
+{
+	public class SelectableParameterSet : PropertyChangedBase
+	{
+		private readonly IParametersFactory parametersFactory;
+		private readonly string includeSuffix;
+		private readonly string excludeSuffix;
+
+		protected List<Func<ICriterion>> FilterRelations { get; } = new List<Func<ICriterion>>();
+
+		public string Name { get; set; }
+
+		public virtual object[] EmptyValue { get; set; } = new object[] { "0" };
+
+		private SelectableFilterType filterType;
+		public virtual SelectableFilterType FilterType {
+			get => filterType;
+			set => SetField(ref filterType, value);
+		}
+
+		private GenericObservableList<SelectableParameter> outputParameters = new GenericObservableList<SelectableParameter>();
+		public virtual GenericObservableList<SelectableParameter> OutputParameters {
+			get => outputParameters;
+			set => SetField(ref outputParameters, value, () => OutputParameters);
+		}
+
+		private GenericObservableList<SelectableParameter> parameters;
+		public GenericObservableList<SelectableParameter> Parameters {
+			get {
+				if(parameters == null) {
+					parameters = new GenericObservableList<SelectableParameter>(parametersFactory.GetParameters(FilterRelations));
+					foreach(SelectableParameter parameter in parameters) {
+						parameter.AnySelectedChanged += Parameter_AnySelectedChanged;
+					}
+				}
+				return parameters;
+			}
+
+			set {
+				var oldParameters = parameters;
+				if(oldParameters != null) {
+					foreach(SelectableParameter oldParameter in oldParameters) {
+						oldParameter.AnySelectedChanged -= Parameter_AnySelectedChanged;
+					}
+				}
+				if(SetField(ref parameters, value) && parameters != null) {
+					foreach(SelectableParameter parameter in Parameters) {
+						parameter.AnySelectedChanged += Parameter_AnySelectedChanged;
+					}
+					UpdateOutputParameters();
+				}
+			}
+		}
+
+		public string ParameterName { get; }
+
+		public event EventHandler SelectionChanged;
+
+		public SelectableParameterSet(string name, IParametersFactory parametersFactory, string parameterName, string includeSuffix = "_include", string excludeSuffix = "_exclude")
+		{
+			if(string.IsNullOrWhiteSpace(name)) {
+				throw new ArgumentNullException(nameof(name));
+			}
+
+			if(string.IsNullOrWhiteSpace(parameterName)) {
+				throw new ArgumentNullException(nameof(parameterName));
+			}
+
+			this.includeSuffix = includeSuffix;
+			this.excludeSuffix = excludeSuffix;
+
+			Name = name;
+			this.parametersFactory = parametersFactory ?? throw new ArgumentNullException(nameof(parametersFactory));
+			ParameterName = parameterName;
+		}
+
+		void Parameter_AnySelectedChanged(object sender, EventArgs e)
+		{
+			RaiseSelectionChanged();
+		}
+
+		private bool suppressSelectionChangedEvent;
+
+		private void RaiseSelectionChanged()
+		{
+			if(suppressSelectionChangedEvent) {
+				return;
+			}
+			SelectionChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		private string searchValue;
+		public void FilterParameters(string searchValue)
+		{
+			this.searchValue = searchValue;
+			UpdateOutputParameters();
+		}
+
+		public void UpdateOutputParameters()
+		{
+			if(Parameters.Any(x => x.Children.Any())) {
+				foreach(SelectableParameter sp in Parameters) {
+					sp.FilterChilds(searchValue);
+				}
+				OutputParameters = new GenericObservableList<SelectableParameter>(Parameters.Where(x => x.Children.Any() || x.Title.ToLower().Contains(searchValue == null ? "" : searchValue.ToLower())).ToList());
+			} else {
+				OutputParameters = new GenericObservableList<SelectableParameter>(Parameters.Where(x => x.Title.ToLower().Contains(searchValue == null ? "" : searchValue.ToLower())).ToList());
+			}
+		}
+
+		public void SelectAll()
+		{
+			suppressSelectionChangedEvent = true;
+			foreach(SelectableParameter value in OutputParameters) {
+				value.Selected = true;
+			}
+			suppressSelectionChangedEvent = false;
+			RaiseSelectionChanged();
+		}
+
+		public void UnselectAll()
+		{
+			suppressSelectionChangedEvent = true;
+			foreach(SelectableParameter value in OutputParameters) {
+				value.Selected = false;
+			}
+			suppressSelectionChangedEvent = false;
+			RaiseSelectionChanged();
+		}
+
+		public IEnumerable<object> GetSelectedValues()
+		{
+			var selectedValues = OutputParameters.SelectMany(x => x.GetAllSelected().Select(y => y.Value));
+			return selectedValues;
+		}
+
+		/// <summary>
+		/// Возвращает выбранные параметры. Если фильтр в Exclude - вернет все, кроме выбранных параметров
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		public IEnumerable<SelectableParameter> GetIncludedParameters()
+		{
+			var selectedValues = OutputParameters.SelectMany(x => x.GetAllSelected()).ToList();
+			IEnumerable<SelectableParameter> includedValues;
+			switch (FilterType)
+			{
+				case SelectableFilterType.Include:
+					includedValues = selectedValues;
+					break;
+				case SelectableFilterType.Exclude:
+					includedValues = OutputParameters.Where(x => !selectedValues.Select(sv => sv.Value).Contains(x.Value));
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			return includedValues;
+		}
+
+		public Dictionary<string, object> GetParameters()
+		{
+			Dictionary<string, object> result = new Dictionary<string, object>();
+
+			var selectedValues = GetSelectedValues();
+
+			result.Add($"{ParameterName}{includeSuffix}", FilterType == SelectableFilterType.Include ? GetValidSelectedValues(selectedValues) : EmptyValue);
+			result.Add($"{ParameterName}{excludeSuffix}", FilterType == SelectableFilterType.Exclude ? GetValidSelectedValues(selectedValues) : EmptyValue);
+
+			return result;
+		}
+
+		private object[] GetValidSelectedValues(IEnumerable<object> selectedValues)
+		{
+			if(!selectedValues.Any()) {
+				return EmptyValue;
+			}
+			return selectedValues.ToArray();
+		}
+
+		public void AddFilterOnSourceSelectionChanged(SelectableParameterSet sourceParameterSet, Func<ICriterion> filterCriterionFunc)
+		{
+			if(sourceParameterSet == null) {
+				throw new ArgumentNullException(nameof(sourceParameterSet));
+			}
+
+			if(filterCriterionFunc == null) {
+				throw new ArgumentNullException(nameof(filterCriterionFunc));
+			}
+
+			FilterRelations.Add(filterCriterionFunc);
+
+			sourceParameterSet.SelectionChanged -= MasterParameterSet_SelectionChanged;
+			sourceParameterSet.SelectionChanged += MasterParameterSet_SelectionChanged;
+		}
+
+		void MasterParameterSet_SelectionChanged(object sender, EventArgs e)
+		{
+			Parameters = new GenericObservableList<SelectableParameter>(parametersFactory.GetParameters(FilterRelations));
+		}
+	}
+}

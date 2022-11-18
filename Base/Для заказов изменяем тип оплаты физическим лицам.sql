@@ -1,1 +1,0 @@
-UPDATE orders SET orders.payment_type = "ByCard" WHERE orders.delivery_date > '2018-07-07' AND orders.payment_type = 'cashless' AND (SELECT counterparty.person_type = 'natural' FROM counterparty WHERE counterparty.id = orders.client_id)
