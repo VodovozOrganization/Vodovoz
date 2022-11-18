@@ -25,7 +25,7 @@ namespace TrueMarkApi.Services
 			_thumbPrint = apiSection.GetValue<string>("CertificateThumbPrint");
 
 			_httpClient = httpClientFactory.CreateClient();
-			_httpClient.BaseAddress = new Uri(apiSection.GetValue<string>("BaseUrl"));
+			_httpClient.BaseAddress = new Uri(apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
 			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
