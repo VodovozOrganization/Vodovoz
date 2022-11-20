@@ -47,8 +47,15 @@ namespace Vodovoz.Infrastructure
 				SlaveConnectionStringBuilder.Server = slaveHost;
 				SlaveConnectionStringBuilder.Port = (uint)slavePort;
 
-
-				return SlaveConnectionStringBuilder.ConnectionString;
+				var connected = TestConnection(SlaveConnectionStringBuilder.ConnectionString);
+				if(connected)
+				{
+					return SlaveConnectionStringBuilder.ConnectionString;
+				}
+				else
+				{
+					return MasterConnectionString;
+				}
 			}
 		}
 
@@ -72,6 +79,23 @@ namespace Vodovoz.Infrastructure
 				throw new InvalidOperationException("Подключение еще не было настроено, получение строки подключения невозможно.");
 			}
 			return QSMain.ConnectionStringBuilder.ConnectionString;
+		}
+
+		private bool TestConnection(string connectionString)
+		{
+			using(MySqlConnection connection = new MySqlConnection(connectionString))
+			{
+				try
+				{
+					connection.Open();
+					return true;
+				}
+				catch(Exception ex)
+				{
+					_logger.Error(ex, "Возникло исключение при проверки соединения к slave серверу.");
+					return false;
+				}
+			}
 		}
 	}
 }

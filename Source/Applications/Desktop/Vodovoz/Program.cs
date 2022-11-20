@@ -50,6 +50,7 @@ namespace Vodovoz
 		private static IApplicationInfo applicationInfo;
 		private static IPasswordValidator passwordValidator;
 
+		public static IDataBaseInfo DataBaseInfo { get; private set; }
 		public static MainWindow MainWin;
 
 		[STAThread]
@@ -95,6 +96,7 @@ namespace Vodovoz
 				return;
 
 			LoginDialog.Destroy ();
+			DataBaseInfo = new Infrastructure.DatabaseInfo(LoginDialog.BaseName, false);
 
 			PerformanceHelper.StartMeasurement ("Замер запуска приложения");
 			GetPermissionsSettings();

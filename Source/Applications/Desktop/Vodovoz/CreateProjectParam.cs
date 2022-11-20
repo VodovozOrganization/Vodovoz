@@ -542,7 +542,8 @@ namespace Vodovoz
 		{
 			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
 			builder.RegisterInstance(ViewModelWidgetResolver.Instance).AsSelf().AsImplementedInterfaces();
-
+			
+			builder.RegisterInstance(MainClass.DataBaseInfo).AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ConnectionStringProvider>().AsSelf().AsImplementedInterfaces();
 
 			#region Adapters & Factories
