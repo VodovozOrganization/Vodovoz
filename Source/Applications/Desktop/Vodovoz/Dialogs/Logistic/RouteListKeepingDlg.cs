@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using QSOrmProject;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -28,6 +27,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Profitability;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
@@ -42,14 +42,16 @@ namespace Vodovoz
 {
 	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
 			new RouteListProfitabilityController(
 				new RouteListProfitabilityFactory(),
-				new NomenclatureParametersProvider(new ParametersProvider()),
+				new NomenclatureParametersProvider(_parametersProvider),
 				new ProfitabilityConstantsRepository(),
-				new RouteListProfitabilityRepository());
+				new RouteListProfitabilityRepository(),
+				new RouteListRepository(new StockRepository(), new BaseParametersProvider(_parametersProvider)));
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
@@ -57,7 +59,7 @@ namespace Vodovoz
 		private readonly bool _isUserLogist;
 		private Employee previousForwarder = null;
 		WageParameterService wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
 
 		public event RowActivatedHandler OnClosingItemActivated;
 

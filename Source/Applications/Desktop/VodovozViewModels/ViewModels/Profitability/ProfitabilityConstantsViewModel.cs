@@ -4,6 +4,7 @@ using QS.Services;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using NLog;
 using QS.Navigation;
 using QS.Validation;
 using QS.ViewModels.Dialog;
@@ -22,6 +23,12 @@ namespace Vodovoz.ViewModels.Profitability
 {
 	public class ProfitabilityConstantsViewModel : DialogViewModelBase, IDisposable
 	{
+		private const string _startCalculateConstants = "Начинаем расчет констант...";
+		private const string _saveConstants = "Сохраняем константы";
+		private const string _startRecalculateRlProfitabilities = "Начинаем перерасчет рентабельностей МЛ...";
+		private const string _recalculated = "Завершили перерасчет";
+		
+		private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 		private readonly ProfitabilityConstantsViewModelHandler _profitabilityConstantsViewModelHandler;
 		private readonly IUserService _userService;
 		private readonly IProfitabilityConstantsRepository _profitabilityConstantsRepository;
@@ -35,6 +42,7 @@ namespace Vodovoz.ViewModels.Profitability
 		private DelegateCommand _recalculateAndSaveCommand;
 		private ProfitabilityConstantsDataViewModel _constantsDataViewModel;
 		private Employee _currentEditor;
+		private bool _isIdleState = true;
 		
 		public ProfitabilityConstantsViewModel(
 			ProfitabilityConstantsViewModelHandler profitabilityConstantsViewModelHandler,
@@ -76,6 +84,12 @@ namespace Vodovoz.ViewModels.Profitability
 		public ProfitabilityConstants Entity => UoWGeneric.Root;
 		public MonthPickerViewModel MonthPickerViewModel { get; private set; }
 
+		public bool IsIdleState
+		{
+			get => _isIdleState;
+			set => SetField(ref _isIdleState, value);
+		}
+
 		public ProfitabilityConstantsDataViewModel ConstantsDataViewModel
 		{
 			get => _constantsDataViewModel;
@@ -90,15 +104,45 @@ namespace Vodovoz.ViewModels.Profitability
 					return;
 				}
 
-				CalculateAdministrativeAndWarehouseExpensesConstants();
-				CalculateAmortisationConstants();
-				CalculateRepairCostConstants();
+				try
+				{
+					IsIdleState = false;
+					MonthPickerViewModel.UpdateState();
+					var progress = ConstantsDataViewModel.ProgressBarDisplayable;
+					progress.Update(_startCalculateConstants);
+					_logger.Debug(_startCalculateConstants);
+					progress.Update("Считаем затраты по первому блоку...");
+					CalculateAdministrativeAndWarehouseExpensesConstants();
+					progress.Update("Считаем затраты по второму блоку...");
+					CalculateAmortisationConstants();
+					progress.Update("Считаем затраты по третьему блоку...");
+					CalculateRepairCostConstants();
+					_logger.Debug("Закончили");
 
-				_routeListProfitabilityController.RecalculateRouteListProfitabilitiesByCalculatedMonth(UoW, CalculatedMonth);
+					progress.Update(_saveConstants);
+					_logger.Debug(_saveConstants);
+					Save();
 
-				Save();
-				ConstantsDataViewModel.FirePropertyChanged(nameof(ConstantsDataViewModel.IsCalculationDateAndAuthorActive));
-				MonthPickerViewModel.UpdateState();
+					progress.Update(_startRecalculateRlProfitabilities);
+					_logger.Debug(_startRecalculateRlProfitabilities);
+					_routeListProfitabilityController.RecalculateRouteListProfitabilitiesByCalculatedMonth(
+						UoW, CalculatedMonth, true, progress);
+					progress.Update(_recalculated);
+					_logger.Debug(_recalculated);
+
+					UoW.Save();
+				}
+				catch(Exception e)
+				{
+					_logger.Error(e, "Ошибка при пересчете констант");
+					throw;
+				}
+				finally
+				{
+					IsIdleState = true;
+					ConstantsDataViewModel.FirePropertyChanged(nameof(ConstantsDataViewModel.IsCalculationDateAndAuthorActive));
+					MonthPickerViewModel.UpdateState();
+				}
 			}
 			));
 		
@@ -225,7 +269,7 @@ namespace Vodovoz.ViewModels.Profitability
 
 		private bool CanSelectNextMonth(DateTime dateTime)
 		{
-			if(dateTime.Month == DateTime.Today.Month - 1)
+			if(dateTime.Month == DateTime.Today.Month - 1 || !IsIdleState)
 			{
 				return false;
 			}
@@ -235,7 +279,8 @@ namespace Vodovoz.ViewModels.Profitability
 		
 		private bool CanSelectPreviousMonth(DateTime dateTime)
 		{
-			return _profitabilityConstantsRepository.ProfitabilityConstantsByCalculatedMonthExists(UoW, dateTime.AddMonths(-1), dateTime);
+			return IsIdleState &&
+				_profitabilityConstantsRepository.ProfitabilityConstantsByCalculatedMonthExists(UoW, dateTime.AddMonths(-1), dateTime);
 		}
 
 		public virtual void Dispose()

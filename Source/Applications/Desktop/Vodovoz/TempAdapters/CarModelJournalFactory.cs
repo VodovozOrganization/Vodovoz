@@ -3,8 +3,11 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Controllers;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Factories;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
@@ -20,15 +23,20 @@ namespace Vodovoz.TempAdapters
 		{
 			return new EntityAutocompleteSelectorFactory<CarModelJournalViewModel>(
 				typeof(CarModel),
-				() => new CarModelJournalViewModel(
-					filter ?? new CarModelJournalFilterViewModel(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
-					new CarManufacturerJournalFactory(), new RouteListProfitabilityController(
-						new RouteListProfitabilityFactory(), new NomenclatureParametersProvider(new ParametersProvider()),
-						new ProfitabilityConstantsRepository(), new RouteListProfitabilityRepository()))
+				() =>
 				{
-					SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single
-				}
-			);
+					var parametersProvider = new ParametersProvider();
+					
+					return new CarModelJournalViewModel(
+						filter ?? new CarModelJournalFilterViewModel(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
+						new CarManufacturerJournalFactory(), new RouteListProfitabilityController(
+							new RouteListProfitabilityFactory(), new NomenclatureParametersProvider(parametersProvider),
+							new ProfitabilityConstantsRepository(), new RouteListProfitabilityRepository(),
+							new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider))))
+					{
+						SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single
+					};
+				});
 		}
 	}
 }
