@@ -216,6 +216,8 @@ namespace Vodovoz.Views.Profitability
 			panelFilters.Panel = hboxProfitabilityFilters;
 			panelFilters.IsHided = true;
 			panelFilters.WidthRequest = 350;
+
+			ViewModel.ProgressBarDisplayable = progressWidget;
 		}
 
 		private void OnAnyFilterPressed(object sender, EventArgs e)

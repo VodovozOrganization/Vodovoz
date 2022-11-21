@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -21,6 +22,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Services;
@@ -1109,6 +1111,70 @@ namespace Vodovoz.EntityRepositories.Logistic
 				var result = query.List<int>();
 				return result.Any();
 			}
+		}
+		
+		public decimal GetRouteListTotalWeight(IUnitOfWork uow, int routeListId)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			RouteList rlAlias = null;
+			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
+			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
+
+			var weightOrderItems = QueryOver.Of<RouteListItem>()
+				.Where(rla => rla.Status != RouteListItemStatus.Transfered)
+				.And(rla => rla.RouteList.Id == rlAlias.Id)
+				.JoinAlias(rla => rla.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Select(Projections.Sum(() => orderItemAlias.Count * nomenclatureAlias.Weight));
+			
+			var weightEquipments = QueryOver.Of<RouteListItem>()
+				.Where(rla => rla.Status != RouteListItemStatus.Transfered)
+				.And(rla => rla.RouteList.Id == rlAlias.Id)
+				.JoinAlias(rla => rla.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias, JoinType.InnerJoin,
+					Restrictions.Where(() => orderEquipmentAlias.Direction == Direction.Deliver))
+				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
+				.Select(Projections.Sum(() => orderEquipmentAlias.Count * nomenclatureAlias.Weight));
+			
+			var weightAdditional = QueryOver.Of<RouteList>()
+				.Where(rl => rl.Id == rlAlias.Id)
+				.JoinAlias(rl => rl.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
+				.JoinAlias(() => additionalLoadingDocumentAlias.Items, () => additionalLoadingDocumentItemAlias)
+				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount * nomenclatureAlias.Weight));
+
+			var total = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?4) + IFNULL(?2, ?4) + IFNULL(?3, ?4)"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(weightOrderItems),
+				Projections.SubQuery(weightEquipments),
+				Projections.SubQuery(weightAdditional),
+				Projections.Constant(0));
+
+			var result = uow.Session.QueryOver(() => rlAlias)
+				.Where(rl => rl.Id == routeListId)
+				.Select(total)
+				.SingleOrDefault<decimal>();
+
+			return result;
+		}
+		
+		public decimal GetRouteListPaidDeliveriesSum(IUnitOfWork uow, int routeListId, IEnumerable<int> paidDeliveriesNomenclaturesIds)
+		{
+			OrderItem orderItemAlias = null;
+			VodovozOrder orderAlias = null;
+			
+			return uow.Session.QueryOver<RouteListItem>()
+				.Where(rla => rla.RouteList.Id == routeListId)
+				.JoinAlias(rla => rla.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.WhereRestrictionOn(() => orderItemAlias.Nomenclature.Id).IsInG(paidDeliveriesNomenclaturesIds)
+				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
+				.SingleOrDefault<decimal>();
 		}
 	}
 

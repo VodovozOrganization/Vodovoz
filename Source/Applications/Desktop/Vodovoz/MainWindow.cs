@@ -14,7 +14,6 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
-using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs;
@@ -39,7 +38,6 @@ using QSOrmProject;
 using QSProjectsLib;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Vodovoz;
@@ -111,7 +109,6 @@ using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Roboats;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
@@ -145,31 +142,23 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Settings;
-using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Interfaces;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
-using QS.Project.Services.FileDialog;
-using QS.Dialog.GtkUI.FileDialog;
-using QS.DomainModel.Entity;
-using Vodovoz.ViewModels.Dialogs.Fuel;
-using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
-using Vodovoz.ViewModels.Dialogs.Roboats;
-using QS.DomainModel.NotifyChange;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Controllers;
-using QS.Utilities;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.ViewModels.Profitability;
 using Fias.Service.Cache;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Order = Vodovoz.Domain.Orders.Order;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -807,9 +796,11 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
+		var parametersProvider = new ParametersProvider();
 		var routeListProfitabilityController = new RouteListProfitabilityController(
-			new RouteListProfitabilityFactory(), new NomenclatureParametersProvider(new ParametersProvider()),
-			new ProfitabilityConstantsRepository(), new RouteListProfitabilityRepository());
+			new RouteListProfitabilityFactory(), new NomenclatureParametersProvider(parametersProvider),
+			new ProfitabilityConstantsRepository(), new RouteListProfitabilityRepository(),
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider)));
 		var commonServices = ServicesConfig.CommonServices;
 		var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
 

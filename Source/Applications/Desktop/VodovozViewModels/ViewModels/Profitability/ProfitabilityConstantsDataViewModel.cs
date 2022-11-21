@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Gamma.Utilities;
 using NHibernate;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -46,6 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 		public SelectableParametersFilterViewModel WarehouseExpensesProductGroupsFilterViewModel { get; private set; }
 		public SelectableParametersFilterViewModel WarehouseExpensesWarehousesFilterViewModel { get; private set; }
 		public SelectableParametersFilterViewModel CarEventsFilterViewModel { get; private set; }
+		public IProgressBarDisplayable ProgressBarDisplayable { get; set; }
 
 		public bool IsAdministrativeExpensesProductGroupsFilterActive
 		{

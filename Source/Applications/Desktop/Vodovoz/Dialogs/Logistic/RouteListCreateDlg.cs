@@ -61,12 +61,13 @@ namespace Vodovoz
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 		private static readonly IAdditionalLoadingModel _additionalLoadingModel = new AdditionalLoadingModel(new EmployeeRepository(),
 			new FlyerRepository(), new DeliveryRulesParametersProvider(_parametersProvider), new StockRepository());
+		private static readonly IRouteListRepository _routeListRepository =
+			new RouteListRepository(new StockRepository(), _baseParametersProvider);
 
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory =
 			new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		private readonly IRouteListRepository _routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private readonly WageParameterService _wageParameterService =
@@ -77,7 +78,8 @@ namespace Vodovoz
 				new RouteListProfitabilityFactory(),
 				new NomenclatureParametersProvider(_parametersProvider),
 				new ProfitabilityConstantsRepository(),
-				new RouteListProfitabilityRepository());
+				new RouteListProfitabilityRepository(),
+				_routeListRepository);
 
 		private AdditionalLoadingItemsView _additionalLoadingItemsView;
 
