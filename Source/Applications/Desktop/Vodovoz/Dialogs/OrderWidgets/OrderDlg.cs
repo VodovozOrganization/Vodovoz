@@ -803,6 +803,8 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
 
 			UpdateAvailableEnumSignatureTypes();
+
+			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
@@ -1268,7 +1270,9 @@ namespace Vodovoz
 
 			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
 				.AddColumn("Код документооборота")
-					.AddTextRenderer(x => x.DocFlowId.ToString())
+					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
+				.AddColumn("Отправленные документы")
+					.AddTextRenderer(x => x.SentDocuments)
 				.AddColumn("Статус документооборота")
 					.AddEnumRenderer(x => x.EdoDocFlowStatus)
 				.AddColumn("Получено опреатором?")
