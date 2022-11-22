@@ -1286,6 +1286,27 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
+			if(ContactPhone != null)
+			{
+				var phones = new List<string>();
+
+				if(Client != null && Client.Phones.Any())
+				{
+					phones.AddRange(Client.Phones.Select(x => x.DigitsNumber));
+				}
+
+				if(DeliveryPoint != null && DeliveryPoint.Phones.Any())
+				{
+					phones.AddRange(DeliveryPoint.Phones.Select(x => x.DigitsNumber));
+				}
+
+				if(!phones.Contains(ContactPhone.DigitsNumber))
+				{
+					yield return new ValidationResult("Номер для связи не найден в списке телефонных номеров ни контрагента, ни точки доставки.",
+						new[] { nameof(ContactPhone) });
+				}
+			}
+
 			if(DeliveryDate >= new DateTime(2022, 11, 01) && PaymentType == PaymentType.ContractDoc)
 			{
 				yield return new ValidationResult($"Для заказов с датой доставки 01.11.2022 и далее нельзя выбрать тип оплаты {PaymentType.ContractDoc.GetEnumTitle()}",
