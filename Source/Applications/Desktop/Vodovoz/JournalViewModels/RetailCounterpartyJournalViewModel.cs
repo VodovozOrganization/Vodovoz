@@ -68,6 +68,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(t => t.CounterpartyType == FilterViewModel.CounterpartyType);
 			}
 
+			if(FilterViewModel?.ReasonForLeaving != null)
+			{
+				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
+			}
+
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
 			{
 				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => counterpartyAlias.Name),
@@ -205,6 +210,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel?.CounterpartyType != null)
 			{
 				query.Where(t => t.CounterpartyType == FilterViewModel.CounterpartyType);
+			}
+
+			if(FilterViewModel?.ReasonForLeaving != null)
+			{
+				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
