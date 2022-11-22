@@ -251,7 +251,7 @@ LEFT JOIN
 LEFT JOIN
     delivery_points ON orders.delivery_point_id = delivery_points.id
 LEFT JOIN
-    phones dp_phones ON delivery_points.id = dp_phones.delivery_point_idp_dp AND dp_phones.is_archive = 0
+    phones dp_phones ON delivery_points.id = dp_phones.delivery_point_id AND dp_phones.is_archive = 0
 LEFT JOIN
     phones cp_phones ON delivery_points.id = cp_phones.counterparty_id AND cp_phones.is_archive = 0
 LEFT JOIN
