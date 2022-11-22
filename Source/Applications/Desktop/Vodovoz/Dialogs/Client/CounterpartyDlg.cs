@@ -1127,6 +1127,10 @@ namespace Vodovoz
 					Entity.PersonalAccountIdInEdo = counterpartyEdoOperator.PersonalAccountIdInEdo;
 				}
 			};
+			
+			yChkBtnDoNotMixMarkedAndUnmarkedGoodsInOrder.Binding
+				.AddBinding(Entity, e => e.DoNotMixMarkedAndUnmarkedGoodsInOrder, w => w.Active)
+				.InitializeFromSource();
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
@@ -1136,7 +1140,6 @@ namespace Vodovoz
 
 			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
 		}
-	
 
 		private void RefreshBulkEmailEventStatus()
 		{

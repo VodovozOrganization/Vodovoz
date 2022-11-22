@@ -1115,10 +1115,9 @@ namespace Vodovoz.Domain.Orders
 						var doNotMixMarkedAndUnmarkedGoodsInOrderName =
 							Client.GetPropertyInfo(c => c.DoNotMixMarkedAndUnmarkedGoodsInOrder)
 							.GetCustomAttribute<DisplayAttribute>(true).Name;
-						
+
 						yield return new ValidationResult(
-							"Нельзя выставлять в одном заказе маркированные и" +
-							$" немаркированные позиции для клиента с параметром \"{doNotMixMarkedAndUnmarkedGoodsInOrderName}\"",
+							$"У клиента стоит признак \"{doNotMixMarkedAndUnmarkedGoodsInOrderName}\"",
 							new[] { nameof(OrderItems) });
 					}
 				}
