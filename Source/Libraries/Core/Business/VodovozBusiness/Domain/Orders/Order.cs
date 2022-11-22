@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using fyiReporting.RDL;
 using Gamma.Utilities;
@@ -1108,6 +1109,18 @@ namespace Vodovoz.Domain.Orders
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
 					);
+
+					if(Client.DoNotMixMarkedAndUnmarkedGoodsInOrder && HasMarkedAndUnmarkedOrderItems())
+					{
+						var doNotMixMarkedAndUnmarkedGoodsInOrderName =
+							Client.GetPropertyInfo(c => c.DoNotMixMarkedAndUnmarkedGoodsInOrder)
+							.GetCustomAttribute<DisplayAttribute>(true).Name;
+						
+						yield return new ValidationResult(
+							"Нельзя выставлять в одном заказе маркированные и" +
+							$" немаркированные позиции для клиента с параметром \"{doNotMixMarkedAndUnmarkedGoodsInOrderName}\"",
+							new[] { nameof(OrderItems) });
+					}
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -4057,6 +4070,27 @@ namespace Vodovoz.Domain.Orders
 
 		#region	Внутренние функции
 
+		private bool HasMarkedAndUnmarkedOrderItems()
+		{
+			var hasMarkedOrderItem = false;
+			var hasUnmarkedOrderItem = false;
+
+			foreach(var orderItem in ObservableOrderItems)
+			{
+				if(!hasMarkedOrderItem)
+				{
+					hasMarkedOrderItem = !string.IsNullOrWhiteSpace(orderItem.Nomenclature.Gtin);
+				}
+
+				if(!hasUnmarkedOrderItem)
+				{
+					hasUnmarkedOrderItem = string.IsNullOrWhiteSpace(orderItem.Nomenclature.Gtin);
+				}
+			}
+
+			return hasMarkedOrderItem && hasUnmarkedOrderItem;
+		}
+		
 		decimal GetFixedPrice(OrderItem item) => item.GetWaterFixedPrice() ?? default(decimal);
 
 		decimal GetNomenclaturePrice(OrderItem item)
