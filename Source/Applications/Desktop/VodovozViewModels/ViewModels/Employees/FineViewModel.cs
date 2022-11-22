@@ -59,6 +59,10 @@ namespace Vodovoz.ViewModels.Employees
 				() => IsStandartFine
 			);
 
+			SetPropertyChangeRelation(e => e.FineReasonString,
+				() => FineReasonString
+			);
+
 			SetPropertyChangeRelation(e => e.RouteList,
 				() => CanShowRequestRouteListMessage,
 				() => DateEditable
