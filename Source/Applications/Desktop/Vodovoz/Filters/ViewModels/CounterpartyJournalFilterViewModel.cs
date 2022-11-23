@@ -17,11 +17,13 @@ namespace Vodovoz.Filters.ViewModels
 		private string _counterpartyPhone;
 		private GenericObservableList<SalesChannelSelectableNode> _salesChannels;
 		private bool? _isForSalesDepartment;
+		private ReasonForLeaving? _reasonForLeaving;
 
 		public CounterpartyJournalFilterViewModel()
 		{
 			UpdateWith(
 				x => x.CounterpartyType,
+				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
 				x => x.Tag
 			);
@@ -107,6 +109,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _deliveryPointPhone;
 			set => SetField(ref _deliveryPointPhone, value);
+		}
+
+		public ReasonForLeaving? ReasonForLeaving
+		{
+			get => _reasonForLeaving;
+			set => SetField(ref _reasonForLeaving, value);
 		}
 
 		private void UnsubscribeOnCheckChanged()
