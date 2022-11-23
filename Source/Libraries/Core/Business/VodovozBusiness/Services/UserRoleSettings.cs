@@ -12,7 +12,7 @@ namespace Vodovoz.Services
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
 		}
 
-		public int GetDefaultUserRoleId => _parametersProvider.GetIntValue("default_user_role_id");
-		public int GetDefaultAvailableDatabaseId => _parametersProvider.GetIntValue("default_available_database_id");
+		public string GetDefaultUserRoleName => _parametersProvider.GetStringValue("default_user_role_name");
+		public string GetDatabaseForNewUser => _parametersProvider.GetStringValue("database_for_new_user");
 	}
 }

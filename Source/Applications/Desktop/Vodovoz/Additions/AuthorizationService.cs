@@ -105,19 +105,14 @@ namespace Vodovoz.Additions
 			try
 			{
 				_logger.Info("Выдаем права пользователю");
-				var userRole = _userRoleRepository.GetUserRoleById(uow, _userRoleSettings.GetDefaultUserRoleId);
-				var database = _userRoleRepository.GetAvailableDatabaseById(uow, _userRoleSettings.GetDefaultAvailableDatabaseId);
-				var privileges = string.Join(
-						", ",
-						userRole.Privileges
-							.Where(x => x.DatabaseName == database.Name)
-							.Select(x => x.PrivilegeName.Name))
-					.TrimEnd(',', ' ');
-				_userRepository.GrantPrivilegesToUser(uow, privileges, database.Name, user.Login);
+				
+				var database = _userRoleSettings.GetDatabaseForNewUser;
+				_userRepository.GrantPrivilegesToNewUser(uow, database, user.Login);
 				_userRepository.GiveSelectPrivilegesToArchiveDataBase(uow, user.Login);
+				var userRole = _userRoleSettings.GetDefaultUserRoleName;
 				
 				_logger.Info("Выдаем роль пользователю");
-				_userRoleRepository.GrantRoleToUser(uow, userRole.Name, user.Login);
+				_userRoleRepository.GrantRoleToUser(uow, userRole, user.Login);
 				_logger.Info("Назначаем ее по умолчанию для него");
 				_userRoleRepository.SetDefaultRoleToUser(uow, userRole, user.Login);
 				_logger.Info("Сохраняем пользователя");

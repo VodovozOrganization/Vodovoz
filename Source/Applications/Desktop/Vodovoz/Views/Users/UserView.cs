@@ -152,7 +152,7 @@ namespace Vodovoz.Views.Users
 				.InitializeFromSource();
 			ytreeviewAddedRoles.RowActivated += (o, args) => ViewModel.RemoveUserRoleCommand.Execute();
 			ytreeviewAddedRoles.ItemsDataSource = ViewModel.Entity.ObservableUserRoles;
-			ytreeviewAvailableRoles.Sensitive = ytreeviewAddedRoles.Sensitive = !ViewModel.IsSameUser;
+			ytreeviewAvailableRoles.Sensitive = ytreeviewAddedRoles.Sensitive = !ViewModel.IsSameUser && ViewModel.HasUserOnServer;
 		}
 
 		private void OnUpdateEntitySubdivisionForUserPermissionsAction(IList<EntitySubdivisionForUserPermission> newUserPermissions)

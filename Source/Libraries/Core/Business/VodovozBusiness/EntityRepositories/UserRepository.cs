@@ -93,5 +93,11 @@ namespace Vodovoz.EntityRepositories
 			var query = $"GRANT {privileges} ON `{tableName}`.* TO '{login}'";
 			uow.Session.CreateSQLQuery(query).ExecuteUpdate();
 		}
+
+		public void GrantPrivilegesToNewUser(IUnitOfWork uow, string tableName, string login)
+		{
+			var privileges = "SELECT, INSERT, UPDATE, DELETE, EXECUTE";
+			GrantPrivilegesToUser(uow, privileges, tableName, login);
+		}
 	}
 }

@@ -134,7 +134,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 		#endregion AddDocumentTypeCommand
 
-
 		#region DeleteDocumentCommand
 
 		public DelegateCommand<TypeOfEntity> DeleteDocumentCommand { get; private set; }

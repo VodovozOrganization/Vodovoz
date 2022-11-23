@@ -17,5 +17,6 @@ namespace Vodovoz.EntityRepositories
 		void CreateUser(IUnitOfWork uow, string login, string password);
 		void DropUser(IUnitOfWork uow, string login);
 		void GrantPrivilegesToUser(IUnitOfWork uow, string privileges, string tableName, string login);
+		void GrantPrivilegesToNewUser(IUnitOfWork uow, string tableName, string login);
 	}
 }

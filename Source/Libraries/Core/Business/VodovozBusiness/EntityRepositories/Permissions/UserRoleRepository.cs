@@ -48,7 +48,12 @@ namespace Vodovoz.EntityRepositories.Permissions
 		public void SetDefaultRoleToUser(IUnitOfWork uow, UserRole role, string login)
 		{
 			var roleName = role != null ? $"'{role.Name}'" : "NONE";
-			var sql = $"SET DEFAULT ROLE {roleName} FOR '{login}'";
+			SetDefaultRoleToUser(uow, roleName, login);
+		}
+
+		public void SetDefaultRoleToUser(IUnitOfWork uow, string role, string login)
+		{
+			var sql = $"SET DEFAULT ROLE {role} FOR '{login}'";
 			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
 		}
 

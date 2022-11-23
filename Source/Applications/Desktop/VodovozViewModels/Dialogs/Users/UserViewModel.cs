@@ -30,7 +30,6 @@ namespace Vodovoz.ViewModels
 		private readonly ILifetimeScope _scope;
 		private readonly IUserPermissionsController _userPermissionsController;
 		private readonly UserRole _oldCurrentUserRole;
-		private readonly IEnumerable<string> _userGrants;
 		private readonly IList<UserRole> _rolesToRevoke = new List<UserRole>();
 		private readonly IList<UserRole> _rolesToGrant = new List<UserRole>();
 
@@ -44,6 +43,7 @@ namespace Vodovoz.ViewModels
 		private DelegateCommand _changePermissionsFromUserCommand;
 		private DelegateCommand _addUserRoleToUserCommand;
 		private DelegateCommand _removeUserRoleCommand;
+		private IEnumerable<string> _userGrants;
 
 		public UserViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels
 			_userPermissionsController = _scope.Resolve<IUserPermissionsController>();
 
 			var allAvailableUserRoles = _userRoleRepository.GetAllUserRoles(UoW);
-			_userGrants = _userRoleRepository.ShowGrantsForUser(UoW, Entity.Login);
+			GetUserGrants();
 			UpdateCurrentUserRole(allAvailableUserRoles);
 			GetUserRoles(allAvailableUserRoles);
 			AvailableUserRoles = new GenericObservableList<UserRole>(GetAvailableUserRoles(allAvailableUserRoles));
@@ -76,6 +76,8 @@ namespace Vodovoz.ViewModels
 
 		public bool CanEditLogin => UoW.IsNew;
 		public bool IsSameUser { get; }
+		public bool HasUserOnServer { get; private set; }
+		
 		public override bool HasChanges => true;
 		
 		public GenericObservableList<UserRole> AvailableUserRoles { get; }
@@ -156,6 +158,23 @@ namespace Vodovoz.ViewModels
 				Close(false, CloseSource.Save);
 			}));
 
+		private void GetUserGrants()
+		{
+			try
+			{
+				_userGrants = _userRoleRepository.ShowGrantsForUser(UoW, Entity.Login);
+				HasUserOnServer = true;
+			}
+			catch(Exception e)
+			{
+				_logger.Error(e, $"Ошибка при проверке прав у пользователя {Entity.Name}, логин {Entity.Login}");
+				_userGrants = Array.Empty<string>();
+				ShowErrorMessage("Произошла ошибка.\nСкорее всего пользователь не зарегистрирован на сервере\n" +
+					"Вкладка откроется после закрытия информационного окна");
+				HasUserOnServer = false;
+			}
+		}
+		
 		private void UpdateUserRoles()
 		{
 			var devSubdivisionId = _scope.Resolve<ISubdivisionParametersProvider>().GetDevelopersSubdivisionId;
