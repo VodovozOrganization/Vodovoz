@@ -9,7 +9,6 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Representations;
-using Vodovoz.ViewModel;
 using System;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.WageCalculation;
@@ -30,16 +29,16 @@ namespace Vodovoz
 	[Obsolete("Использовать Vodovoz.Views.Organization.SubdivisionView")]
 	public partial class SubdivisionDlg : QS.Dialog.Gtk.EntityDialogBase<Subdivision>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		SubdivisionsVM subdivisionsVM;
-		PresetSubdivisionPermissionsViewModel presetPermissionVM;
-        WarehousePermissionsViewModel warehousePermissionsViewModel;
+		private SubdivisionsVM _subdivisionsVm;
+		private PresetSubdivisionPermissionsViewModel _presetPermissionVm;
+		private WarehousePermissionsViewModel _warehousePermissionsViewModel;
 
 		[Obsolete("Использовать Vodovoz.Views.Organization.SubdivisionView")]
 		public SubdivisionDlg()
 		{
-			this.Build();
+			Build();
 			TabName = "Новое подразделение";
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Subdivision>();
 			ConfigureDlg();
@@ -48,8 +47,8 @@ namespace Vodovoz
 		[Obsolete("Использовать Vodovoz.Views.Organization.SubdivisionView")]
 		public SubdivisionDlg(int id)
 		{
-			this.Build();
-			logger.Info("Загрузка информации о подразделении...");
+			Build();
+			_logger.Info("Загрузка информации о подразделении...");
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Subdivision>(id);
 			ConfigureDlg();
 		}
@@ -73,9 +72,9 @@ namespace Vodovoz
 			yenumcomboType.Binding.AddBinding(Entity, e => e.SubdivisionType, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboType.Sensitive = false;
 
-			subdivisionsVM = new SubdivisionsVM(UoW, Entity);
-			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;
-			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
+			_subdivisionsVm = new SubdivisionsVM(UoW, Entity);
+			repTreeChildSubdivisions.RepresentationModel = _subdivisionsVm;
+			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(_subdivisionsVm.Result, x => x.Parent, x => x.Children);
 
 			ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeoGroup>().List();
 			ySpecCmbGeographicGroup.Binding.AddBinding(Entity, e => e.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
@@ -86,21 +85,33 @@ namespace Vodovoz
 				.AddColumn("Документ").AddTextRenderer(x => x.CustomName)
 				.Finish();
 			ytreeviewDocuments.ItemsDataSource = Entity.ObservableDocumentTypes;
+
+			var admin = QSMain.User.Admin;
 			
 			lblWarehouses.LineWrapMode = Pango.WrapMode.Word;
 			lblWarehouses.LineWrap = true;
 			if(Entity.Id > 0)
+			{
 				lblWarehouses.Text = Entity.GetWarehousesNames(UoW, _subdivisionRepository);
+			}
 			else
+			{
 				frmWarehoses.Visible = false;
-			vboxDocuments.Visible = QSMain.User.Admin;
+			}
 
-			presetPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, new PermissionRepository(), Entity);
-			vboxPresetPermissions.Add(new PresetPermissionsView(presetPermissionVM));
-			vboxPresetPermissions.ShowAll();
-			vboxPresetPermissions.Visible = QSMain.User.Admin;
+			vboxDocuments.Visible = admin;
 
-			presetPermissionVM.ObservablePermissionsList.ListContentChanged += (sender, e) => HasChanges = true;
+			if(admin)
+			{
+				CreatePresetSubdivisionPermissionsView();
+				CreateWarehousePermissionView();
+			}
+			else
+			{
+				vboxPresetPermissions.Visible = false;
+				vboxSubdivision.Visible = false;
+			}
+
 			Entity.ObservableDocumentTypes.ListContentChanged += (sender, e) => HasChanges = true;
 			subdivisionentitypermissionwidget.ViewModel.ObservableTypeOfEntitiesList.ListContentChanged += (sender, e) => HasChanges = true;
 
@@ -116,7 +127,6 @@ namespace Vodovoz
 			));
 			entryDefaultSalesPlan.Binding.AddBinding(Entity, s => s.DefaultSalesPlan, w => w.Subject).InitializeFromSource();
 			entryDefaultSalesPlan.CanEditReference = false;
-			notebook1.SwitchPage += OnNotebook1SwitchPage;
 		}
 
 		void YSpecCmbGeographicGroup_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -139,8 +149,8 @@ namespace Vodovoz
 
 			UoWGeneric.Save();
 			subdivisionentitypermissionwidget?.ViewModel.SavePermissions(UoW);
-			presetPermissionVM?.SaveCommand.Execute();
-			warehousePermissionsViewModel?.SaveWarehousePermissions();
+			_presetPermissionVm?.SaveCommand.Execute();
+			_warehousePermissionsViewModel?.SaveWarehousePermissions();
 			UoW.Commit();
 			return true;
 		}
@@ -174,31 +184,24 @@ namespace Vodovoz
 				= Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
 		}
 
-        protected void OnNotebook1SwitchPage(object o, Gtk.SwitchPageArgs args)
-        {
-	        if (args.PageNum == 3)
-	        {
-		        if(vboxPresetPermissions.Children.Length < 1) {
-			        presetPermissionVM =
-				        new PresetSubdivisionPermissionsViewModel(UoW, new PermissionRepository(), Entity);
-			        vboxPresetPermissions.Add(new PresetPermissionsView(presetPermissionVM));
-			        vboxPresetPermissions.ShowAll();
-			        vboxPresetPermissions.Visible = QSMain.User.Admin;
-		        }
-	        }
+		private void CreatePresetSubdivisionPermissionsView()
+		{
+			_presetPermissionVm = new PresetSubdivisionPermissionsViewModel(UoW, new PermissionRepository(), Entity);
+			vboxPresetPermissions.Add(new PresetPermissionsView(_presetPermissionVm));
+			vboxPresetPermissions.ShowAll();
+			
+			_presetPermissionVm.ObservablePermissionsList.ListContentChanged += (sender, e) => HasChanges = true;
+		}
 
-	        if (args.PageNum == 4)
-	        {
-		        if (vboxSubdivision.Children.Length < 1)
-		        {
-					var _warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
-			        warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, _warehousePermissionModel);
-			        warehousePermissionsViewModel.CanEdit = permissionResult.CanUpdate;
-					vboxSubdivision.Add(new WarehousePermissionView(warehousePermissionsViewModel));
-			        vboxSubdivision.ShowAll();
-			        vboxSubdivision.Visible = QSMain.User.Admin;
-		        }
-	        }
-        }
+		private void CreateWarehousePermissionView()
+		{
+			var warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
+			_warehousePermissionsViewModel = new WarehousePermissionsViewModel(UoW, warehousePermissionModel)
+			{
+				CanEdit = permissionResult.CanUpdate
+			};
+			vboxSubdivision.Add(new WarehousePermissionView(_warehousePermissionsViewModel));
+			vboxSubdivision.ShowAll();
+		}
 	}
 }

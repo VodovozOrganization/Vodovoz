@@ -84,15 +84,15 @@ namespace Vodovoz.Views.Organization
 
 			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.SavePermissions(subdivisionentitypermissionwidget.UoW);
 
-			permissionsPresetContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
 			permissionsPresetContainerView.Binding
 				.AddBinding(ViewModel, vm => vm.PresetSubdivisionPermissionVM, w => w.WidgetViewModel)
 				.InitializeFromSource();
+			permissionsPresetContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
 
-			warehousesPermissionsContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
 			warehousesPermissionsContainerView.Binding
 				.AddBinding(ViewModel, vm => vm.WarehousePermissionsVM, w => w.WidgetViewModel)
 				.InitializeFromSource();
+			warehousesPermissionsContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
 
 			entryDefaultSalesPlan.SetEntityAutocompleteSelectorFactory(ViewModel.SalesPlanSelectorFactory);
 			entryDefaultSalesPlan.Binding.AddBinding(ViewModel.Entity, e => e.DefaultSalesPlan, w => w.Subject).InitializeFromSource();
