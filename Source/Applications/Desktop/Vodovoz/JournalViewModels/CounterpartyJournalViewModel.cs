@@ -165,6 +165,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(t => t.CounterpartyType == FilterViewModel.CounterpartyType);
 			}
 
+			if(FilterViewModel?.ReasonForLeaving != null)
+			{
+				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
+			}
+
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
 				.Left.JoinAlias(c => c.Counterparty, () => counterpartyAliasForSubquery)
 				.Where(() => counterpartyAlias.Id == counterpartyAliasForSubquery.Id)
@@ -311,6 +316,11 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel?.CounterpartyType != null) {
 				query.Where(t => t.CounterpartyType == FilterViewModel.CounterpartyType);
+			}
+
+			if(FilterViewModel?.ReasonForLeaving != null)
+			{
+				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
