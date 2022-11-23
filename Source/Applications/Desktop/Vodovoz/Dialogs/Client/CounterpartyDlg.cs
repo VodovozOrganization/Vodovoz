@@ -1182,10 +1182,6 @@ namespace Vodovoz
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
-			if(!Entity.IsChainStore)
-			{
-				Entity.DelayDaysForBuyers = 0;
-			}
 		}
 
 		private void OnButtonLoadFromDeliveryPointClicked(object sender, EventArgs e)
