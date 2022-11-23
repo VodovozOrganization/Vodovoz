@@ -176,6 +176,8 @@ using Vodovoz.Models;
 using QS.Validation;
 using Vodovoz.ViewWidgets;
 using Vodovoz.ViewModels.Dialogs.Complaints;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.ViewModels.Infrastructure.Services;
@@ -315,8 +317,9 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
+				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				;
-			
+
 			//Регистрация виджетов
 			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalFilterViewModel, DistrictsSetJournalFilterView>()
@@ -390,6 +393,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RoboatsCallsFilterViewModel, RoboatsCallsFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryScheduleFilterViewModel, DeliveryScheduleFilterView>()
 				.RegisterWidgetForWidgetViewModel<BulkEmailEventReportViewModel, BulkEmailEventReportView>()
+				.RegisterWidgetForWidgetViewModel<ProfitabilitySalesReportViewModel, ProfitabilitySalesReportView>()
 				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
 				;

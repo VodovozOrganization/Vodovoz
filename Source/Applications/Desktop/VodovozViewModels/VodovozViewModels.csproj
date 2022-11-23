@@ -64,9 +64,19 @@
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
+    <Compile Include="ReportsParameters\Profitability\ProfitabilitySalesReportViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\PhoneViewModel.cs" />
+    <Compile Include="ViewModels\Contacts\PhoneViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\EdoOperatorsJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IEdoOperatorsJournalFactory.cs" />
+    <Compile Include="Journals\JournalNodes\Client\EdoOperatorJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
+    <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
@@ -298,7 +308,7 @@
     <Compile Include="ViewModels\Logistic\TariffZoneViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TrackPointViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarManufacturerViewModel.cs" />
-    <Compile Include="ViewModels\Goods\NomenclatureCostPurchasePriceViewModel.cs" />
+    <Compile Include="ViewModels\Goods\NomenclatureCostPriceViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\EquipmentKindViewModel.cs" />
     <Compile Include="ViewModels\Goods\ProductGroupViewModel.cs" />
@@ -417,6 +427,7 @@
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\BulkEmailViewModel.cs" />
     <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
+    <Compile Include="ViewModels\SidePanels\EdoLightsMatrixPanelViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\Store\MovementWagonViewModel.cs" />
     <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryViewModel.cs" />
@@ -528,6 +539,11 @@
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Orders\FastDeliveryVerificationDetailsViewModel.cs" />
     <Compile Include="ViewModels\Reports\IncomingCallsAnalysisReportViewModel.cs" />
+    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsColorizeType.cs" />
+    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixViewModel.cs" />
+    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixColumn.cs" />
+    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixRow.cs" />
+    <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixPaymentType.cs" />
     <Compile Include="Widgets\OrganizationVersionsViewModel.cs" />
     <Compile Include="Widgets\FastDeliveryVerificationViewModel.cs" />
     <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
@@ -550,6 +566,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
       <Project>{3032f22e-2c78-4fad-9936-552fd7de8d7f}</Project>
       <Name>RabbitMQ.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
+      <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>
+      <Name>Vodovoz.Reports.Editing</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</Project>
@@ -654,5 +674,6 @@
       <Version>1.7.4</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

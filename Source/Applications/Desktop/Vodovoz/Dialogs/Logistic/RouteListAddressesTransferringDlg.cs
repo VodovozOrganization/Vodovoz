@@ -16,7 +16,6 @@ using QS.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Goods;
@@ -30,7 +29,6 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModel;
@@ -52,12 +50,8 @@ namespace Vodovoz
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
 		private readonly ICategoryRepository _categoryRepository;
-		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
-			new RouteListProfitabilityController(
-				new RouteListProfitabilityFactory(),
-				new NomenclatureParametersProvider(_parametersProvider),
-				new ProfitabilityConstantsRepository(),
-				new RouteListProfitabilityRepository());
+		
+		private IRouteListProfitabilityController _routeListProfitabilityController;
 
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceFrom { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceTo { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
@@ -133,6 +127,10 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			_routeListProfitabilityController = new RouteListProfitabilityController(new RouteListProfitabilityFactory(),
+				new NomenclatureParametersProvider(_parametersProvider), new ProfitabilityConstantsRepository(),
+				new RouteListProfitabilityRepository(), _routeListRepository);
+			
 			var filterFrom = new RouteListsFilter(UoW);
 			filterFrom.SetAndRefilterAtOnce(
 				f => f.OnlyStatuses = new[] {

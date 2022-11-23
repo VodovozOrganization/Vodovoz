@@ -35,7 +35,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string SpecialContractNumber => Order.Client.IsForRetail ? Order.Client.SpecialContractNumber : string.Empty;
+		public virtual string SpecialContractNumber => Order.Client.IsForRetail ? Order.Client.GetSpecialContractString() : string.Empty;
 
 		public virtual string Title => $"Особый счет № { Order.Id } от { Order.BillDate.ToShortDateString() } { SpecialContractNumber }";
 

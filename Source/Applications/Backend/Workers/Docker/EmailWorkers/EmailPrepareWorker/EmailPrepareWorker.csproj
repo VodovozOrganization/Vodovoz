@@ -3,7 +3,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-DocumentForEmailPreparingWorker-4C283AF3-DD08-43DA-B451-0DD6165221E8</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..\..</DockerfileContext>
+    <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
@@ -18,7 +18,6 @@
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozReports\VodovozReports.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\External\My-FyiReporting\RdlEngine\RdlEngine.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
@@ -34,4 +33,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <Import Project="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 </Project>

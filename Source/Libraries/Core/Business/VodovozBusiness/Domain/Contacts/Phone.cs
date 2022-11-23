@@ -24,9 +24,11 @@ namespace Vodovoz.Domain.Contacts
 		public virtual int Id { get; set; }
 
 		private string number;
-		public virtual string Number {
+		public virtual string Number
+		{
 			get => number;
-			set {
+			set
+			{
 				var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
 				string phone = formatter.FormatString(value);
 				SetField(ref number, phone, () => Number);
@@ -36,9 +38,11 @@ namespace Vodovoz.Domain.Contacts
 
 		private string digitsNumber;
 		[Display(Name = "Только цифры")]
-		public virtual string DigitsNumber {
-			get => digitsNumber; 
-			protected set {
+		public virtual string DigitsNumber
+		{
+			get => digitsNumber;
+			protected set
+			{
 				var formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
 				string phone = formatter.FormatString(value);
 				SetField(ref digitsNumber, phone, () => DigitsNumber);
@@ -48,7 +52,8 @@ namespace Vodovoz.Domain.Contacts
 		public virtual string Additional { get; set; }
 
 		private PhoneType phoneType;
-		public virtual PhoneType PhoneType {
+		public virtual PhoneType PhoneType
+		{
 			get => phoneType;
 			set { SetField(ref phoneType, value, () => PhoneType); }
 		}
@@ -56,16 +61,25 @@ namespace Vodovoz.Domain.Contacts
 		private string _comment;
 
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
+		public virtual string Comment
+		{
 			get => _comment;
 			set { SetField(ref _comment, value); }
+		}
+
+		private bool _isArchive;
+		[Display(Name = "Архив")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
 
 		[Display(Name = "Точка доставки")]
 		public virtual DeliveryPoint DeliveryPoint
 		{
 			get => _deliveryPoint;
-			set => SetField(ref _deliveryPoint, value); 
+			set => SetField(ref _deliveryPoint, value);
 		}
 
 		[Display(Name = "Контрагент")]
@@ -93,8 +107,10 @@ namespace Vodovoz.Domain.Contacts
 
 		#region Рассчетные
 
-		public virtual string LongText {
-			get {
+		public virtual string LongText
+		{
+			get
+			{
 				return PhoneType?.Name
 					 + (String.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
 					 + (String.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)

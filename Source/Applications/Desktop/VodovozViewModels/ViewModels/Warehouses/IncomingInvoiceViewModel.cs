@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Warehouses
         private readonly IOrderSelectorFactory orderSelectorFactory;
         private readonly IWarehouseRepository warehouseRepository;
         private readonly IRDLPreviewOpener rdlPreviewOpener;
-		private readonly NomenclatureCostPurchasePriceModel _nomenclatureCostPurchasePriceModel;
+		private readonly NomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
 		private readonly IWarehousePermissionValidator warehousePermissionValidator;
         private readonly IStockRepository _stockRepository;
         
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Warehouses
             IWarehouseRepository warehouseRepository,
             IRDLPreviewOpener rdlPreviewOpener,
             ICommonServices commonServices,
-			NomenclatureCostPurchasePriceModel nomenclatureCostPurchasePriceModel,
+			NomenclaturePurchasePriceModel nomenclaturePurchasePriceModel,
             IStockRepository stockRepository) 
             : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.Warehouses
             this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
             this.warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
             this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			_nomenclatureCostPurchasePriceModel = nomenclatureCostPurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclatureCostPurchasePriceModel));
+			_nomenclaturePurchasePriceModel = nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
             warehousePermissionValidator = warehousePermissionService.GetValidator(CurrentEmployee.Subdivision);
 
@@ -134,12 +134,12 @@ namespace Vodovoz.ViewModels.Warehouses
 					continue;
 				}
 
-				var canCreateNewPrice = _nomenclatureCostPurchasePriceModel.CanCreatePrice(item.Nomenclature, Entity.TimeStamp.Date, item.PrimeCost);
+				var canCreateNewPrice = _nomenclaturePurchasePriceModel.CanCreatePrice(item.Nomenclature, Entity.TimeStamp.Date, item.PrimeCost);
 				if(!canCreateNewPrice)
 				{
 					continue;
 				}
-				var newPrice = _nomenclatureCostPurchasePriceModel.CreatePrice(item.Nomenclature, Entity.TimeStamp.Date, item.PrimeCost);
+				var newPrice = _nomenclaturePurchasePriceModel.CreatePrice(item.Nomenclature, Entity.TimeStamp.Date, item.PrimeCost);
 				UoW.Save(newPrice);
 			}
 		}

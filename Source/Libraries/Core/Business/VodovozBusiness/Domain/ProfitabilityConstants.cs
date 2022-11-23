@@ -384,7 +384,7 @@ namespace Vodovoz.Domain
 			IEnumerable<int> productGroupsIds,
 			IEnumerable<int> warehousesIds)
 		{
-			AdministrativeTotalShipped = (int)warehouseRepository.GetTotalShippedKgByWarehousesAndProductGroups(
+			AdministrativeTotalShipped = warehouseRepository.GetTotalShippedKgByWarehousesAndProductGroups(
 				uow,
 				CalculatedMonth,
 				CalculatedMonth.AddMonths(1),
@@ -392,7 +392,7 @@ namespace Vodovoz.Domain
 				warehousesIds);
 			
 			AdministrativeExpensesPerKg = AdministrativeTotalShipped != default(int)
-				? (decimal)AdministrativeExpenses / AdministrativeTotalShipped
+				? Math.Round((decimal)AdministrativeExpenses / AdministrativeTotalShipped, 2)
 				: 0;
 		}
 		
@@ -402,14 +402,14 @@ namespace Vodovoz.Domain
 			IEnumerable<int> productGroupsIds,
 			IEnumerable<int> warehousesIds)
 		{
-			WarehousesTotalShipped = (int)warehouseRepository.GetTotalShippedKgByWarehousesAndProductGroups(
+			WarehousesTotalShipped = warehouseRepository.GetTotalShippedKgByWarehousesAndProductGroups(
 				uow,
 				CalculatedMonth,
 				CalculatedMonth.AddMonths(1),
 				productGroupsIds,
 				warehousesIds);
 			WarehouseExpensesPerKg = WarehousesTotalShipped != default(int)
-				? (decimal)WarehouseExpenses / WarehousesTotalShipped
+				? Math.Round((decimal)WarehouseExpenses / WarehousesTotalShipped, 2)
 				: 0;
 		}
 
@@ -444,13 +444,13 @@ namespace Vodovoz.Domain
 		public virtual void CalculateAmortisation()
 		{
 			GazelleAmortisationPerKm = GazelleAverageMileage != default(int)
-				? (decimal)DecreaseGazelleCostFor3Year / _threeYearsInMonths / GazelleAverageMileage
+				? Math.Round((decimal)DecreaseGazelleCostFor3Year / _threeYearsInMonths / GazelleAverageMileage, 2)
 				: 0;
 			LargusAmortisationPerKm = LargusAverageMileage != default(int)
-				? (decimal)DecreaseLargusCostFor3Year / _threeYearsInMonths / LargusAverageMileage
+				? Math.Round((decimal)DecreaseLargusCostFor3Year / _threeYearsInMonths / LargusAverageMileage, 2)
 				: 0;
 			TruckAmortisationPerKm = TruckAverageMileage != default(int)
-				? (decimal)DecreaseTruckCostFor3Year / _threeYearsInMonths / TruckAverageMileage
+				? Math.Round((decimal)DecreaseTruckCostFor3Year / _threeYearsInMonths / TruckAverageMileage, 2)
 				: 0;
 		}
 
@@ -515,13 +515,13 @@ namespace Vodovoz.Domain
 		public virtual void CalculateRepairCost()
 		{
 			GazelleRepairCostPerKm = AverageMileageAllGazelles != default(int)
-				? (decimal)OperatingExpensesAllGazelles / AverageMileageAllGazelles
+				? Math.Round((decimal)OperatingExpensesAllGazelles / AverageMileageAllGazelles, 2)
 				: 0;
 			LargusRepairCostPerKm = AverageMileageAllLarguses != default(int)
-				? (decimal)OperatingExpensesAllLarguses / AverageMileageAllLarguses
+				? Math.Round((decimal)OperatingExpensesAllLarguses / AverageMileageAllLarguses, 2)
 				: 0;
 			TruckRepairCostPerKm = AverageMileageAllTrucks != default(int)
-				? (decimal)OperatingExpensesAllTrucks / AverageMileageAllTrucks
+				? Math.Round((decimal)OperatingExpensesAllTrucks / AverageMileageAllTrucks, 2)
 				: 0;
 		}
 		

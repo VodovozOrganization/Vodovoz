@@ -434,6 +434,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref contract, value, () => Contract);
 		}
 
+		[Display(Name = "Номер для связи")]
 		public virtual Phone ContactPhone
 		{
 			get => _contactPhone;

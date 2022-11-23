@@ -14,7 +14,7 @@ namespace Vodovoz.EntityRepositories.Store
 		IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds);
 		IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId);
 		bool WarehouseByMovementDocumentsNotificationsSubdivisionExists(IUnitOfWork uow, int subdivisionId);
-		decimal GetTotalShippedKgByWarehousesAndProductGroups(
+		int GetTotalShippedKgByWarehousesAndProductGroups(
 			IUnitOfWork uow, DateTime dateFrom, DateTime dateTo, IEnumerable<int> productGroupsIds, IEnumerable<int> warehousesIds);
 	}
 

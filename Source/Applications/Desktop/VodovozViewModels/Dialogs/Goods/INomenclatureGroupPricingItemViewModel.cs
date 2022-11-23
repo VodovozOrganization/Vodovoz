@@ -6,8 +6,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 	{
 		bool IsGroup { get; }
 		string Name { get; }
-		bool InvalidCostPurchasePrice { get; }
-		decimal CostPurchasePrice { get; set; }
+		bool InvalidCostPrice { get; }
+		decimal CostPrice { get; set; }
 		bool InvalidInnerDeliveryPrice { get; }
 		decimal InnerDeliveryPrice { get; set; }
 	}

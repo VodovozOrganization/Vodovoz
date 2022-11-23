@@ -1,9 +1,9 @@
 ﻿using DriverAPI.Library.DTOs;
 using Microsoft.Extensions.Logging;
-using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Utilities.Numeric;
 using Vodovoz.Domain;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
@@ -73,6 +73,7 @@ namespace DriverAPI.Library.Converters
 			var phoneFormatter = new PhoneFormatter(PhoneFormat.RussiaOnlyShort);
 
 			var deliveryPointPhones = vodovozOrder.DeliveryPoint.Phones
+				.Where(p => !p.IsArchive)
 				.GroupBy(p => p.DigitsNumber)
 				.Select(x => new PhoneDto 
 				{ 
@@ -82,6 +83,7 @@ namespace DriverAPI.Library.Converters
 				.ToList();
 
 			var counterpartyPhones = vodovozOrder.Client.Phones
+				.Where(p => !p.IsArchive)
 				.GroupBy(p => p.DigitsNumber)
 				.Select(x => new PhoneDto 
 				{ 
@@ -91,6 +93,7 @@ namespace DriverAPI.Library.Converters
 				.ToList();
 
 			var allPhones = deliveryPointPhones.Concat(counterpartyPhones);
+
 			var orderContactPhone = vodovozOrder.ContactPhone;
 
 			if(orderContactPhone == null)
@@ -99,6 +102,11 @@ namespace DriverAPI.Library.Converters
 			}
 
 			var foundContactPhone = allPhones.FirstOrDefault(p => p.Number == phoneFormatter.FormatString(orderContactPhone.DigitsNumber));
+
+			if(foundContactPhone == null)
+			{
+				return allPhones;
+			}
 
 			var resultPhoneList = new List<PhoneDto>
 			{
@@ -156,11 +164,7 @@ namespace DriverAPI.Library.Converters
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
-				TotalOrderItemPrice = saleItem.ActualSum,
-				IsBottleStock = saleItem.DiscountByStock > 0,
-				IsDiscountInMoney = saleItem.IsDiscountInMoney,
-				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
-				DiscountReason = saleItem.DiscountReason?.Name
+				TotalOrderItemPrice = saleItem.ActualSum
 			};
 
 			return result;

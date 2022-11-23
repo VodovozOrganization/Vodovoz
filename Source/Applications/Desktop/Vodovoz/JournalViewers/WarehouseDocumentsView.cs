@@ -128,7 +128,7 @@ namespace Vodovoz
 								new WarehouseRepository(),
 								new RdlPreviewOpener(),
 								ServicesConfig.CommonServices,
-								new NomenclatureCostPurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
+								new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
 								new StockRepository()
 							);
 						},
@@ -182,7 +182,7 @@ namespace Vodovoz
 									new WarehouseRepository(),
 									new RdlPreviewOpener(),
 									ServicesConfig.CommonServices,
-									new NomenclatureCostPurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
+									new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
 									new StockRepository()
 								);
 							},

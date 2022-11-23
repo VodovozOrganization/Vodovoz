@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
+using Gdk;
 using Gtk;
 using NHibernate;
 using NHibernate.Transform;
@@ -28,6 +29,11 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using EdoService;
+using EdoService.Converters;
+using EdoService.Services;
+using QS.Dialog;
+using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -71,7 +77,12 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
-using Vodovoz.ViewWidgets;
+using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using EdoService.Dto;
+using System.Threading;
+using TrueMarkApi.Library.Converters;
+using TrueMarkApi.Library.Dto;
+using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 
 namespace Vodovoz
 {
@@ -97,6 +108,7 @@ namespace Vodovoz
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
+		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private readonly IEmailParametersProvider _emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
@@ -110,6 +122,12 @@ namespace Vodovoz
 		private Employee _currentEmployee;
 		private PhonesViewModel _phonesViewModel;
 		private double _emailLastScrollPosition;
+		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
+		private IContactListService _contactListService;
+		private EdoSettings _edoSettings;
+		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -286,7 +304,8 @@ namespace Vodovoz
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
 			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
-
+			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
+			
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
 
@@ -313,6 +332,7 @@ namespace Vodovoz
 			ConfigureTabSpecialFields();
 			ConfigureTabPrices();
 			ConfigureTabFixedPrices();
+			CongigureTabEdo();
 			ConfigureValidationContext();
 
 			//make actions menu
@@ -414,21 +434,6 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.IsForSalesDepartment, w => w.Active)
 				.InitializeFromSource();
 			ycheckIsForSalesDepartment.Sensitive = CanEdit;
-
-			yChkBtnIsPaperlessWorkflow.Binding
-				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
-				.InitializeFromSource();
-			yChkBtnIsPaperlessWorkflow.Sensitive = CanEdit;
-
-			yChkBtnIsNotSendDocumentsByEdo.Binding
-				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
-				.InitializeFromSource();
-			yChkBtnIsNotSendDocumentsByEdo.Sensitive = CanEdit;
-
-			yChkBtnCanSendUpdInAdvance.Binding
-				.AddBinding(Entity, e => e.CanSendUpdInAdvance, w => w.Active)
-				.InitializeFromSource();
-			yChkBtnCanSendUpdInAdvance.Sensitive = CanEdit;
 
 			ycheckNoPhoneCall.Binding
 				.AddBinding(Entity, e => e.NoPhoneCall, w => w.Active)
@@ -768,12 +773,6 @@ namespace Vodovoz
 				.InitializeFromSource();
 			enumcomboCargoReceiverSource.Sensitive = CanEdit;
 
-			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
-			yEnumCmbReasonForLeaving.Binding
-				.AddBinding(Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
-				.InitializeFromSource();
-			yEnumCmbReasonForLeaving.Sensitive = CanEdit;
-
 			yentryCargoReceiver.Binding
 				.AddBinding(Entity, e => e.CargoReceiver, w => w.Text)
 				.InitializeFromSource();
@@ -782,10 +781,26 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
 				.InitializeFromSource();
 			yentryCustomer.IsEditable = CanEdit;
-			yentrySpecialContract.Binding
+
+			#region Особый договор
+
+			entrySpecialContractName.Binding
+				.AddBinding(Entity, e => e.SpecialContractName, w => w.Text)
+				.InitializeFromSource();
+			entrySpecialContractName.IsEditable = CanEdit;
+
+			entrySpecialContractNumber.Binding
 				.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text)
 				.InitializeFromSource();
-			yentrySpecialContract.IsEditable = CanEdit;
+			entrySpecialContractNumber.IsEditable = CanEdit;
+
+			datePickerSpecialContractDate.Binding
+				.AddBinding(Entity, e => e.SpecialContractDate, w => w.DateOrNull)
+				.InitializeFromSource();
+			datePickerSpecialContractDate.IsEditable = CanEdit;
+
+			#endregion
+
 			yentrySpecialKPP.Binding
 				.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text)
 				.InitializeFromSource();
@@ -973,6 +988,156 @@ namespace Vodovoz
 			RefreshBulkEmailEventStatus();
 		}
 
+		private void CongigureTabEdo()
+		{
+			edoLightsMatrixView.ViewModel = _edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
+
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choise_other_reason_leaving"))
+			{
+				yEnumCmbReasonForLeaving.AddEnumToHideList(ReasonForLeaving.Other);
+			}
+
+			yEnumCmbReasonForLeaving.ItemsEnum = typeof(ReasonForLeaving);
+			yEnumCmbReasonForLeaving.Binding
+				.AddBinding(Entity, e => e.ReasonForLeaving, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yEnumCmbReasonForLeaving.ChangedByUser += (s, e) =>
+			{
+				var isInnRequired = string.IsNullOrWhiteSpace(Entity.INN) && 
+				                    (Entity.ReasonForLeaving == ReasonForLeaving.Resale 
+				                     || (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
+				                         && Entity.PersonType == PersonType.legal)
+				                     );
+
+				if(isInnRequired)
+				{
+						_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заполните ИНН у контрагента!");
+				}
+
+				Entity.IsNotSendDocumentsByEdo = Entity.ReasonForLeaving == ReasonForLeaving.Other;
+
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+			};
+
+			yChkBtnIsNotSendDocumentsByEdo.Sensitive = false;
+			yChkBtnIsNotSendDocumentsByEdo.Binding
+				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
+				.InitializeFromSource();
+
+			edoValidatedINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			edoValidatedINN.Binding
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.natural && e.ReasonForLeaving == ReasonForLeaving.Resale,
+					w => w.Sensitive)
+				.AddBinding(Entity, e => e.INN, w => w.Text)
+				.InitializeFromSource();
+
+			ybuttonCheckClientInTaxcom.Binding
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.legal && (e.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || e.ReasonForLeaving == ReasonForLeaving.Resale),
+					w => w.Sensitive)
+				.InitializeFromSource();
+
+			var edoOperatorsAutocompleteSelectorFactory = _edoOperatorsJournalFactory.CreateEdoOperatorsAutocompleteSelectorFactory();
+			evmeOperatoEdo.SetEntityAutocompleteSelectorFactory(edoOperatorsAutocompleteSelectorFactory);
+			evmeOperatoEdo.Binding
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
+					w => w.Sensitive)
+				.AddBinding(Entity, e => e.EdoOperator, w => w.Subject)
+				.InitializeFromSource();
+
+			evmeOperatoEdo.ChangedByUser += (s, e) =>
+			{
+				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+			};
+
+			yentryPersonalAccountCodeInEdo.Binding
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other, 
+					w => w.Sensitive)
+				.AddBinding(Entity, e => e.PersonalAccountIdInEdo, w => w.Text)
+				.InitializeFromSource();
+
+			yentryPersonalAccountCodeInEdo.Changed += (s, e) =>
+			{
+				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+			};
+
+			ybuttonSendInviteByTaxcom.Binding
+				.AddFuncBinding(Entity, 
+					e => e.EdoOperator != null
+					     && !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo)
+					     && e.ConsentForEdoStatus == ConsentForEdoStatus.Unknown,
+					w => w.Sensitive)
+				.InitializeFromSource();
+
+			yEnumCmbConsentForEdo.ItemsEnum = typeof(ConsentForEdoStatus);
+			yEnumCmbConsentForEdo.Binding
+				.AddBinding(Entity, e => e.ConsentForEdoStatus, w => w.SelectedItem)
+				.InitializeFromSource();
+			yEnumCmbConsentForEdo.Sensitive = false;
+
+			ybuttonCheckConsentForEdo.Binding
+				.AddFuncBinding(Entity, e => e.ConsentForEdoStatus == ConsentForEdoStatus.Sent, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonRegistrationInChestnyZnak.Binding
+				.AddFuncBinding(Entity, 
+					e => e.ReasonForLeaving == ReasonForLeaving.Resale && !string.IsNullOrWhiteSpace(e.INN),
+					w => w.Sensitive)
+				.InitializeFromSource();
+
+			yEnumCmbRegistrationInChestnyZnak.ItemsEnum = typeof(RegistrationInChestnyZnakStatus);
+			yEnumCmbRegistrationInChestnyZnak.Binding
+				.AddBinding(Entity, e => e.RegistrationInChestnyZnakStatus, w => w.SelectedItem)
+				.InitializeFromSource();
+			yEnumCmbRegistrationInChestnyZnak.Sensitive = false;
+
+			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
+			yEnumCmbSendUpdInOrderStatus.Binding
+				.AddFuncBinding(Entity, 
+					e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
+					w => w.Sensitive)
+				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yChkBtnIsPaperlessWorkflow.Binding
+				.AddFuncBinding(Entity,
+					e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
+					w => w.Sensitive)
+				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
+				.InitializeFromSource();
+
+			specialListCmbAllOperators.Binding
+				.AddFuncBinding(Entity,
+					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
+					w => w.Sensitive)
+				.AddBinding(Entity, e => e.ObservableCounterpartyEdoOperators, w => w.ItemsList)
+				.InitializeFromSource();
+
+			specialListCmbAllOperators.ItemSelected += (s, e) =>
+			{
+				if(e.SelectedItem is CounterpartyEdoOperator counterpartyEdoOperator)
+				{
+					Entity.EdoOperator = counterpartyEdoOperator.EdoOperator;
+					Entity.PersonalAccountIdInEdo = counterpartyEdoOperator.PersonalAccountIdInEdo;
+				}
+			};
+
+			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+
+			_edoSettings = new EdoSettings(new ParametersProvider());
+			IAuthorizationService taxcomAuthorizationService = new TaxcomAuthorizationService(_edoSettings);
+			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings, new ContactStateConverter());
+
+			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
+		}
+	
+
 		private void RefreshBulkEmailEventStatus()
 		{
 			var lastBulkEmailEvent = _emailRepository.GetLastBulkEmailEvent(UoW, Entity.Id);
@@ -1053,6 +1218,14 @@ namespace Vodovoz
 			if(radioContacts.Sensitive)
 			{
 				radioContacts.Active = true;
+			}
+		}
+
+		public void ActivateEdoTab()
+		{
+			if(rbnEdo.Sensitive)
+			{
+				rbnEdo.Active = true;
 			}
 		}
 
@@ -1299,6 +1472,14 @@ namespace Vodovoz
 			}
 		}
 
+		protected void OnRadioEdoToggled(object sender, EventArgs e)
+		{
+			if(rbnEdo.Active)
+			{
+				notebook1.CurrentPage = 12;
+			}
+		}
+
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
@@ -1523,10 +1704,34 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(typeof(Nomenclature));
-			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
-			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
-			TabParent.AddSlaveTab(this, nomenclatureSelectDlg);
+			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel();
+			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+
+			TabParent.AddSlaveTab(this, journal);
+		}
+
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			if(selectedNode == null)
+			{
+				return;
+			}
+
+			if(Entity.ObservableSpecialNomenclatures.Any(x => x.Nomenclature.Id == selectedNode.Id))
+			{
+				return;
+			}
+
+			var selectedNomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
+			var specNomenclature = new SpecialNomenclature
+			{
+				Nomenclature = selectedNomenclature,
+				Counterparty = Entity
+			};
+
+			Entity.ObservableSpecialNomenclatures.Add(specNomenclature);
 		}
 
 		private void NomenclatureSelectDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
@@ -1614,6 +1819,241 @@ namespace Vodovoz
 			}
 
 			RefreshBulkEmailEventStatus();
+		}
+
+		protected void OnYbuttonCheckClientInTaxcomClicked(object sender, EventArgs e)
+		{
+			ContactList contactResult;
+
+			try
+			{
+				contactResult = _contactListService.CheckContragentAsync(Entity.INN, Entity.KPP).Result;
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex);
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					"Ошибка при проверке контрагента в Такском.");
+
+				return;
+			}
+
+			if(contactResult?.Contacts == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Контрагент не найден через Такском.");
+
+				return;
+			}
+
+			if(contactResult.Contacts.Length == 1)
+			{
+				var contactListItem = contactResult.Contacts[0];
+				Entity.PersonalAccountIdInEdo = contactListItem.EdxClientId;
+				Entity.EdoOperator = GetEdoOperatorByEdoAccountId(contactListItem.EdxClientId); ;
+				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+						"Оператор получен.");
+
+				return;
+			}
+
+			foreach(var edoOperator in contactResult.Contacts)
+			{
+				var isNotExists = Entity.CounterpartyEdoOperators.FirstOrDefault(x => x.PersonalAccountIdInEdo == edoOperator.EdxClientId) == null;
+				
+				if(isNotExists)
+				{
+					Entity.ObservableCounterpartyEdoOperators.Add(new CounterpartyEdoOperator
+					{
+						PersonalAccountIdInEdo = edoOperator.EdxClientId,
+						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
+						Counterparty = Entity
+					});
+
+					specialListCmbAllOperators.SetRenderTextFunc<CounterpartyEdoOperator>(x => x.Title);
+				}
+			}
+
+			Entity.EdoOperator = null;
+			Entity.PersonalAccountIdInEdo = null;
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+				"У контрагента найдено несколько операторов, выберите нужный из списка.");
+		}
+
+		protected  void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
+		{
+			if(Entity.CheckForINNDuplicate(_counterpartyRepository, UoW))
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					"Контрагент с данным ИНН уже существует.\nПроверка в Честном знаке не выполнена.");
+
+				return;
+			}
+
+			TrueMarkResponseResultDto trueMarkResponse;
+
+			try
+			{
+				trueMarkResponse = _trueMarkApiClient.GetParticipantRegistrationForWaterStatusAsync(
+					_edoSettings.TrueMarkApiParticipantRegistrationForWaterUri, Entity.INN,_cancellationTokenSource.Token)
+					.Result;
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex);
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Ошибка при проверке в Честном Знаке.\n{ex.Message}");
+
+				return;
+			}
+
+			if(!string.IsNullOrWhiteSpace(trueMarkResponse.ErrorMessage))
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Результат проверки в Честном Знаке:\n{trueMarkResponse.ErrorMessage}");
+
+				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
+
+				return;
+			}
+
+			var statusConverter = new TrueMarkApiRegistrationStatusConverter();
+			var status = statusConverter.ConvertToChestnyZnakStatus(trueMarkResponse.RegistrationStatusString);
+
+			if(status == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Такой статус участника в Честном Знаке у нас не используется:\n{trueMarkResponse.RegistrationStatusString}");
+
+				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
+
+				return;
+			}
+
+			Entity.RegistrationInChestnyZnakStatus = status.Value;
+
+			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, 
+				$"Статус регистрации в Честном Знаке:\n{trueMarkResponse.RegistrationStatusString}");
+		}
+
+		protected void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
+		{
+			if(Entity.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+			{
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					"В статусе \"Принят\" проверка согласия не требуется");
+
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(Entity.INN))
+			{
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					"Проверка согласия невозможна, должен быть заполнен ИНН");
+
+				return;
+			}
+
+			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays);
+			var contactListParser = new ContactListParser();
+
+			ContactListItem contactListItem = null;
+
+			try
+			{
+				contactListItem = contactListParser.GetLastChangeOnDate(_contactListService, checkDate, Entity.INN, Entity.KPP).Result;
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex);
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Ошибка при проверке статуса приглашения.\n{ex.Message}");
+
+				return;
+			}
+
+			if(contactListItem == null)
+			{
+				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Приглашение не найдено.");
+
+				return;
+			}
+
+			Entity.ConsentForEdoStatus = _contactListService.ConvertStateToConsentForEdoStatus(contactListItem.State.Code);
+
+			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Согласие проверено.");
+		}
+
+		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
+		{
+			var email = Entity.Emails.LastOrDefault (em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
+			            ?? Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.Work)
+			            ?? Entity.Emails.LastOrDefault();
+
+			ResultDto resultMessage;
+
+			if(email == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Не удалось отправить приглашение. Заполните Email у контрагента");
+
+				return;
+			}
+
+			if(!_commonServices.InteractiveService.Question("Перед продолжением нужно будет сохранить контрагента.\nПродолжить?"))
+			{
+				return;
+			}
+
+			try
+			{
+				resultMessage = _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo).Result;
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex);
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					$"Ошибка при отправке приглашения.\n{ex.Message}");
+
+				return;
+			}
+
+			if(resultMessage.IsSuccess)
+			{
+				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Sent;
+
+				UoW.Save();
+				UoW.Commit();
+
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					"Приглашение отправлено.");
+			}
+			else
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, resultMessage.ErrorMessage);
+			}
+		}
+
+		private EdoOperator GetEdoOperatorByEdoAccountId(string id) => UoW.GetAll<EdoOperator>().SingleOrDefault(eo => eo.Code == id.Substring(0, 3));
+
+		public override void Dispose()
+		{
+			_cancellationTokenSource.Cancel();
+			base.Dispose();
 		}
 	}
 

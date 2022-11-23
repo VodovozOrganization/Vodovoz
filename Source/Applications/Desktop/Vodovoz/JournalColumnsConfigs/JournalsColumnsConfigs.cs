@@ -1744,6 +1744,17 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 			
+			//EdoOperatorJournalViewModel
+			TreeViewColumnsConfigFactory.Register<EdoOperatorsJournalViewModel>(
+				() => FluentColumnsConfig<EdoOpeartorJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Брендовое название").AddNumericRenderer(node => node.BrandName)
+					.AddColumn("Трёхзначный код").AddNumericRenderer(node => node.Code)
+					.AddColumn("")
+					.Finish()
+			);
+
 			//UserRolesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<UserRolesJournalViewModel>(
 				() => FluentColumnsConfig<UserRolesJournalNode>.Create()

@@ -76,6 +76,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			CreateEditAction();
 			CreateDefaultDeleteAction();
 		}
+
+		public void HideButtons()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+		}
 		
 		private void CreateEditAction()
 		{
@@ -179,6 +185,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			if(AdditionalJournalRestriction != null)
 				foreach(var expr in AdditionalJournalRestriction.ExternalRestrictions)
 					itemsQuery.Where(expr);
+
+			if(FilterViewModel.IsDefectiveBottle)
+			{
+				itemsQuery.Where(x => x.IsDefectiveBottle);
+			}
 
 			if(CalculateQtyOnStock) {
 				itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)

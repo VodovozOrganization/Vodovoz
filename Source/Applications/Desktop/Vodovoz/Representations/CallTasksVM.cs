@@ -21,6 +21,7 @@ using Vodovoz.Services;
 using ClosedXML.Excel;
 using QS.Project.Services.FileDialog;
 using Gamma.Utilities;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Representations
 {
@@ -55,8 +56,8 @@ namespace Vodovoz.Representations
 			.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Срочность").AddPixbufRenderer(node => node.ImportanceDegree == ImportanceDegreeType.Important && !node.IsTaskComplete ? img : emptyImg)
 			.AddColumn("Статус").AddEnumRenderer(node => node.TaskStatus)
-			.AddColumn("Клиент").AddTextRenderer(node => node.ClientName ?? String.Empty)
-			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? "Самовывоз")
+			.AddColumn("Клиент").AddTextRenderer(node => node.ClientName ?? String.Empty).WrapWidth(500).WrapMode(WrapMode.WordChar)
+			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? "Самовывоз").WrapWidth(500).WrapMode(WrapMode.WordChar)
 			.AddColumn("Долг по адресу").AddTextRenderer(node => node.DebtByAddress.ToString()).XAlign(0.5f)
 			.AddColumn("Долг по клиенту").AddTextRenderer(node => node.DebtByClient.ToString()).XAlign(0.5f)
 			.AddColumn("Телефоны").AddTextRenderer(node => node.DeliveryPointPhones == "+7" ? String.Empty : node.DeliveryPointPhones)
@@ -144,8 +145,8 @@ namespace Vodovoz.Representations
 				));
 
 			var tasks = tasksQuery
-			.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhonesAlias)
-			.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhonesAlias)
+			.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhonesAlias, () => !deliveryPointPhonesAlias.IsArchive)
+			.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhonesAlias, () => !counterpartyPhonesAlias.IsArchive)
 			.Left.JoinAlias(() => callTaskAlias.Counterparty, () => counterpartyAlias)
 			.Left.JoinAlias(() => callTaskAlias.AssignedEmployee, () => employeeAlias)
 			.SelectList(list => list

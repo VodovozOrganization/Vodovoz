@@ -308,6 +308,10 @@ namespace Vodovoz.Views.Goods
 			checkGroupPricing.Binding
 				.AddBinding(ViewModel.Entity, e => e.UsingInGroupPriceSet, w => w.Active)
 				.InitializeFromSource();
+			ycheckIsAccountableInChestniyZnak.Binding.AddBinding(ViewModel.Entity, e => e.IsAccountableInChestniyZnak, w => w.Active).InitializeFromSource();
+			validatedGtin.ValidationMode = ValidationType.numeric;
+			validatedGtin.MaxLength = 14;
+			validatedGtin.Binding.AddBinding(ViewModel.Entity, e => e.Gtin, w => w.Text).InitializeFromSource();
 
 			#region Вкладка Оборудование
 
@@ -357,6 +361,9 @@ namespace Vodovoz.Views.Goods
 			#endregion
 
 			#region Вкладка Цена закупки
+
+			nomenclaturecostpricesview.ViewModel = ViewModel.NomenclatureCostPricesViewModel;
+			nomenclaturecostpricesview.Sensitive = ViewModel.CanEdit;
 
 			nomenclaturePurchasePricesView.ViewModel = ViewModel.NomenclaturePurchasePricesViewModel;
 			nomenclaturePurchasePricesView.Sensitive = ViewModel.CanEdit;

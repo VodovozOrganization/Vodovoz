@@ -124,7 +124,8 @@ namespace FastPaymentsAPI.Library.Factories
 			PaymentFrom paymentByCardFrom,
 			Order order = null,
 			string phoneNumber = null,
-			int? onlineOrderId = null)
+			int? onlineOrderId = null,
+			string callbackUrl = null)
 		{
 			return new FastPayment
 			{
@@ -139,7 +140,8 @@ namespace FastPaymentsAPI.Library.Factories
 				PhoneNumber = phoneNumber,
 				FastPaymentGuid = fastPaymentGuid,
 				OnlineOrderId = onlineOrderId,
-				FastPaymentPayType = payType
+				FastPaymentPayType = payType,
+				CallbackUrlForMobileApp = callbackUrl
 			};
 		}
 
@@ -160,5 +162,28 @@ namespace FastPaymentsAPI.Library.Factories
 				FastPaymentPayType = paymentDto.FastPaymentPayType
 			};
 		}
+
+		public FastPaymentStatusChangeNotificationDto GetFastPaymentStatusChangeNotificationDto(
+			int onlineOrderId, decimal amount, bool paymentSucceeded)
+		{
+			return new FastPaymentStatusChangeNotificationDto
+			{
+				PaymentDetails = GetNewOnlinePaymentDetailsDto(onlineOrderId, amount),
+				PaymentStatus = paymentSucceeded ? PaymentStatusNotification.succeeded : PaymentStatusNotification.canceled
+			};
+		}
+
+		private OnlinePaymentDetailsDto GetNewOnlinePaymentDetailsDto(int onlineOrderId, decimal amount) =>
+			new OnlinePaymentDetailsDto
+			{
+				OnlineOrderId = onlineOrderId,
+				PaymentSumDetails = GetNewOnlinePaymentSumDetailsDto(amount)
+			};
+
+		private OnlinePaymentSumDetailsDto GetNewOnlinePaymentSumDetailsDto(decimal amount) =>
+			new OnlinePaymentSumDetailsDto
+			{
+				PaymentSum = amount
+			};
 	}
 }

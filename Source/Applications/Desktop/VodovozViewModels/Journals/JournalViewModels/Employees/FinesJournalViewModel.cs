@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -147,13 +148,18 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			if (FilterViewModel.FindFinesWithIds != null && FilterViewModel.FindFinesWithIds.Any())
 				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(FilterViewModel.FindFinesWithIds);
 
+			var employeeProjection = CustomProjections.Concat_WS(
+				" ",
+				() => employeeAlias.LastName,
+				() => employeeAlias.Name,
+				() => employeeAlias.Patronymic
+			);
+
 			query.Where(GetSearchCriterion(
 				() => fineAlias.Id,
 				() => fineAlias.TotalMoney,
 				() => fineAlias.FineReasonString,
-				() => employeeAlias.Name,
-				() => employeeAlias.LastName,
-				() => employeeAlias.Patronymic
+				() => employeeProjection
 			));
 
 			return query
