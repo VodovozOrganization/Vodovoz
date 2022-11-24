@@ -995,6 +995,7 @@ namespace Vodovoz.EntityRepositories.Orders
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
 					)
 				)
+				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc)
 				.TransformUsing(Transformers.RootEntity) 
 				.List();
 
