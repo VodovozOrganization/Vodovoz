@@ -43,7 +43,8 @@ namespace Vodovoz.Reports.Logistic
 					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Id ?? 0 },
 					{ "geographic_group_name", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Name ?? "Все" },
 					{ "exclude_truck_drivers_office_employees", ycheckExcludeTruckAndOfficeEmployees.Active },
-					{ "select_mode", GetSelectMode().ToString() }
+					{ "order_select_mode", GetOrderSelectMode().ToString() },
+					{ "interval_select_mode", GetIntervalSelectMode().ToString() },
 				}
 			};
 		}
@@ -57,24 +58,32 @@ namespace Vodovoz.Reports.Logistic
 			OnUpdate (true);
 		}
 
-		private SelectMode GetSelectMode()
+		private OrderSelectMode GetOrderSelectMode()
 		{
 			if (ycheckOnlyFastSelect.Active)
 			{
-				return SelectMode.DeliveryInAnHour;
+				return OrderSelectMode.DeliveryInAnHour;
 			}
 			if (ycheckWithoutFastSelect.Active)
 			{
-				return SelectMode.WithoutDeliveryInAnHour;
+				return OrderSelectMode.WithoutDeliveryInAnHour;
 			}
-			return SelectMode.All;
+			return OrderSelectMode.All;
 		}
 
-		private enum SelectMode
+		private enum OrderSelectMode
 		{
 			All,
 			DeliveryInAnHour,
 			WithoutDeliveryInAnHour
+		}
+
+		private IntervalSelectMode GetIntervalSelectMode => ycheckIntervalFromCreateTime.Active ? IntervalSelectMode.Create : IntervalSelectMode.Transfer;
+		
+		private enum IntervalSelectMode
+		{
+			Create,
+			Transfer
 		}
 	}
 }
