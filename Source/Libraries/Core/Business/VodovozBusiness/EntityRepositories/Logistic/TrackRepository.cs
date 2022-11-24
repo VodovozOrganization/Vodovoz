@@ -38,6 +38,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			Track trackAlias = null;
 			TrackPoint subPoint = null;
 			DriverPosition result = null;
+			RouteList routeListsAlias = null;
 
 			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
 				.Where(() => subPoint.Track.Id == trackAlias.Id);
@@ -51,10 +52,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			return uow.Session.QueryOver<TrackPoint>()
 				.JoinAlias(p => p.Track, () => trackAlias)
+				.JoinAlias(() => trackAlias.RouteList, () => routeListsAlias)
 				.Where(() => trackAlias.RouteList.Id.IsIn(routeListsIds))
 				.WithSubquery.WhereProperty(p => p.TimeStamp).Eq(lastTimeTrackQuery)
 				.SelectList(list => list
-					.Select(() => trackAlias.Driver.Id).WithAlias(() => result.DriverId)
+					.Select(() => routeListsAlias.Driver.Id).WithAlias(() => result.DriverId)
 					.Select(() => trackAlias.RouteList.Id).WithAlias(() => result.RouteListId)
 					.Select(x => x.TimeStamp).WithAlias(() => result.Time)
 					.Select(x => x.Latitude).WithAlias(() => result.Latitude)
