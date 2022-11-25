@@ -34,6 +34,8 @@ namespace Vodovoz.Reports.Logistic
 
 		private global::Gtk.Label labelOrders;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxInterval;
+
 		private global::Gtk.Frame frameInterval;
 
 		private global::Gtk.Alignment GtkAlignmentInterval;
@@ -200,6 +202,10 @@ namespace Vodovoz.Reports.Logistic
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.yhboxInterval = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxInterval.Name = "yhboxInterval";
+			this.yhboxInterval.Spacing = 6;
+			// Container child yhboxInterval.Gtk.Box+BoxChild
 			this.frameInterval = new global::Gtk.Frame();
 			this.frameInterval.Name = "frameInterval";
 			this.frameInterval.ShadowType = ((global::Gtk.ShadowType)(0));
@@ -239,14 +245,19 @@ namespace Vodovoz.Reports.Logistic
 			this.frameInterval.Add(this.GtkAlignmentInterval);
 			this.labelInterval = new global::Gtk.Label();
 			this.labelInterval.Name = "labelInterval";
-			this.labelInterval.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Считать интервал от времени:</b>");
+			this.labelInterval.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Для экспресс-доставок считать интервал от времени:</b>");
 			this.labelInterval.UseMarkup = true;
 			this.frameInterval.LabelWidget = this.labelInterval;
-			this.vbox1.Add(this.frameInterval);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameInterval]));
-			w18.Position = 4;
+			this.yhboxInterval.Add(this.frameInterval);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yhboxInterval[this.frameInterval]));
+			w18.Position = 0;
 			w18.Expand = false;
 			w18.Fill = false;
+			this.vbox1.Add(this.yhboxInterval);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yhboxInterval]));
+			w19.Position = 4;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -254,10 +265,10 @@ namespace Vodovoz.Reports.Logistic
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w19.Position = 5;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w20.Position = 5;
+			w20.Expand = false;
+			w20.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

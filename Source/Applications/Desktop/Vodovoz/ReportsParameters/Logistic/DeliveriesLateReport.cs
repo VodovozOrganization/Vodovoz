@@ -16,6 +16,9 @@ namespace Vodovoz.Reports.Logistic
 			this.Build ();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeoGroup>();
+
+			ycheckAllSelect.Toggled += (s, e) => SetIntervalAvailability();
+			ycheckOnlyFastSelect.Toggled += (s, e) => SetIntervalAvailability();
 		}
 
 		#region IParametersWidget implementation
@@ -25,6 +28,11 @@ namespace Vodovoz.Reports.Logistic
 		public string Title => "Отчет по опозданиям";
 
 		#endregion
+
+		private void SetIntervalAvailability()
+		{
+			yhboxInterval.Visible = ycheckOnlyFastSelect.Active || ycheckAllSelect.Active;
+		}
 
 		private void OnUpdate (bool hide = false)
 		{
@@ -78,7 +86,7 @@ namespace Vodovoz.Reports.Logistic
 			WithoutDeliveryInAnHour
 		}
 
-		private IntervalSelectMode GetIntervalSelectMode => ycheckIntervalFromCreateTime.Active ? IntervalSelectMode.Create : IntervalSelectMode.Transfer;
+		private IntervalSelectMode GetIntervalSelectMode() => ycheckIntervalFromCreateTime.Active ? IntervalSelectMode.Create : IntervalSelectMode.Transfer;
 		
 		private enum IntervalSelectMode
 		{
