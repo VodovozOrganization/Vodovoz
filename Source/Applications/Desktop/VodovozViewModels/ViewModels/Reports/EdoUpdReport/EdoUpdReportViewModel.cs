@@ -10,11 +10,14 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
@@ -25,23 +28,30 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 		private readonly IFileDialogService _fileDialogService;
 		private DelegateCommand _generateCommand;
 		private DelegateCommand _exportCommand;
+		private readonly IInteractiveService _interactiveService;
+		private bool _isRunning;
 
 		public EdoUpdReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
 			INavigationManager navigation, IFileDialogService fileDialogService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			Title = "Отчёт об УПД, не отражённых в ЧЗ";
 
 			DateFrom = DateTime.Now.Date;
 			DateTo = DateTime.Now.Date.Add(new TimeSpan(0, 23, 59, 59));
+
+			Organizations = UoW.Session.QueryOver<Organization>().List();
+			Organization = Organizations.FirstOrDefault();
 		}
 
 		private IList<EdoUpdReportRow> GenerateReportRows()
 		{
-			if(!HasDates)
+			if(!HasDates || Organization == null)
 			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не все фильтры выбраны!");
 				return new List<EdoUpdReportRow>();
 			}
 
@@ -71,7 +81,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 				.And(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => nomenclatureAlias.IsAccountableInChestniyZnak)
 				.And(() => nomenclatureAlias.Gtin != null)
-				.And(() => counterpartyContractAlias.Organization.Id == 1)
+				.And(() => counterpartyContractAlias.Organization.Id == Organization.Id)
 				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
 				           || orderAlias.OrderStatus != OrderStatus.OnTheWay)
 				.And(Restrictions.Disjunction()
@@ -114,6 +124,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 					.Select(() => orderItemAlias.Price).WithAlias(() => resultAlias.Price)
 					.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.Count)
 					.Select(() => edoContainerAlias.EdoDocFlowStatus).WithAlias(() => resultAlias.EdoDocFlowStatus)
+					.Select(() => edoContainerAlias.ErrorDescription).WithAlias(() => resultAlias.EdoDocError)
 					.Select(() => trueMarkApiDocumentAlias.IsSuccess).WithAlias(() => resultAlias.IsTrueMarkApiSuccess)
 					.Select(() => trueMarkApiDocumentAlias.ErrorMessage).WithAlias(() => resultAlias.TrueMarkApiError)
 				)
@@ -131,7 +142,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 					var dialogSettings = new DialogSettings();
 					dialogSettings.Title = "Сохранить";
 					dialogSettings.DefaultFileExtention = ".xlsx";
-					dialogSettings.FileName = $"Отчёт о событиях рассылки {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+					dialogSettings.FileName = $"Отчёт об УПД, не отраженным в ЧЗ. {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 					if(result.Successful)
@@ -140,6 +151,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 						template.AddVariable(Report);
 						template.Generate();
 						template.SaveAs(result.Path);
+						_interactiveService.ShowMessage(ImportanceLevel.Info, "Экспорт отчёта в Excel завершён");
 					}
 				},
 				() => true)
@@ -148,10 +160,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 		public DelegateCommand GenerateCommand => _generateCommand ?? (_generateCommand = new DelegateCommand(
 				() =>
 				{
+					IsRunning = true;
 					Report = new EdoUpdReport
 					{
-						Rows = GenerateReportRows(),
+						Rows = GenerateReportRows()
 					};
+					IsRunning = false;
 				},
 				() => true)
 			);
@@ -162,9 +176,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 		public DateTime? DateFrom { get; set; }
 		public DateTime? DateTo { get; set; }
 		public bool HasDates => DateFrom != null && DateTo != null;
-		public bool IsSuccess { get; set; }
-		public bool IsNotSuccess { get; set; }
 		public EdoUpdReportType ReportType { get; set; }
+		public Organization Organization { get; set; }
+		public IList<Organization> Organizations { get; set; }
+		public bool IsRunning
+		{
+			get => _isRunning;
+			set => SetField(ref _isRunning, value);
+		}
 	}
 }
 
