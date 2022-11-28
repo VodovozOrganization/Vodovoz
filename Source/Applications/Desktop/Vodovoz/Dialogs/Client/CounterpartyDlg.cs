@@ -1239,7 +1239,8 @@ namespace Vodovoz
 
 			var orderJournalFilter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory()) { RestrictCounterparty = Entity };
+				new DeliveryPointJournalFactory(),
+				new EmployeeJournalFactory()) { RestrictCounterparty = Entity };
 			var orderJournalViewModel = new OrderJournalViewModel(
 				orderJournalFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
