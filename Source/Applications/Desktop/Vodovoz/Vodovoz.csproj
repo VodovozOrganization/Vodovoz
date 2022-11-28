@@ -1756,6 +1756,8 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.EdoLightsMatrixPanelView.cs" />
     <Compile Include="Views\Client\EdoLightsMatrixView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoLightsMatrixView.cs" />
+    <Compile Include="Views\Reports\EdoUpdReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.EdoUpdReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

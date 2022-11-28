@@ -158,6 +158,7 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Order = Vodovoz.Domain.Orders.Order;
 
 public partial class MainWindow : Gtk.Window
@@ -2700,6 +2701,16 @@ public partial class MainWindow : Gtk.Window
 
 		BulkEmailEventReportViewModel viewModel = new BulkEmailEventReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, bulkEmailEventReasonJournalFactory, counterpartyJournalFactory);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	protected void OnActionEdoUpdReportActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		var viewModel = new EdoUpdReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
 
 		tdiMain.AddTab(viewModel);
 	}
