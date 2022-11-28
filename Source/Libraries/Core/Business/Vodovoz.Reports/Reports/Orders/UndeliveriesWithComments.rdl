@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -658,101 +658,103 @@
     <DataSet Name="UndeliveriesAndComments">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	un_ord_subqry.N,
-	un_ord_subqry.old_order_date AS order_by_column,
-	DATE_FORMAT(un_ord_subqry.old_order_date, '%e.%m') AS old_order_date,
-	un_ord_subqry.client AS client,
-	un_ord_subqry.driver AS driver_name,
-    un_ord_subqry.status,
-    un_ord_subqry.fines,
-    un_ord_subqry.guilty,
-    un_ord_subqry.at_work_sub,
-    un_ord_subqry.transfer_type,
-    un_ord_subqry.problem_source,
-    un_ord_subqry.reason
-FROM
-#поля недовоза
-(
-	SELECT 
-		un.id AS N,
-		oldo.delivery_date AS old_order_date,
-		un.new_order_id AS new_order_id,
-		coun.name AS client,
-		#водители
-		IFNULL(
-			(SELECT GROUP_CONCAT(
-				TRIM(
-					BOTH '.'
-					FROM CONCAT_WS(
-						'.',
-						LEFT(employees.name, 1),
-						LEFT(employees.patronymic, 1),
-						employees.last_name
-					)
-				)
-				ORDER BY route_list_addresses.id
-				DESC
-				SEPARATOR ', '
-			)
-			FROM route_list_addresses
-			LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
-			LEFT JOIN employees ON employees.id = route_lists.driver_id
-			WHERE route_list_addresses.order_id = oldo.id),
-			'Не в МЛ'
-		) AS driver,
-		
-		GROUP_CONCAT(
-			CASE g.guilty_side
-				WHEN 'Client' THEN 'Клиент'
-				WHEN 'Driver' THEN 'Водитель'
-				WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
-				WHEN 'ServiceMan' THEN 'Мастер СЦ'
-                WHEN 'ForceMajor' THEN 'Форс-мажор'
-                WHEN 'DirectorLO' THEN 'Директор ЛО (Доставка за час)'
-				WHEN 'None' THEN 'Нет (не недовоз)'
-				WHEN 'Unknown' THEN 'Неизвестно'
-				ELSE g.guilty_side
-			END
-			SEPARATOR ';\n'
-		) AS guilty,
-		CASE un.status
-			WHEN 'InProcess' THEN 'В работе'
-			WHEN 'Checking' THEN 'На проверке'
-			WHEN 'Closed' THEN 'Закрыт'
-		END AS status,
-        CASE un.transfer_type
-			WHEN 'AutoTransferApproved' THEN 'Автоперенос согласован'
-			WHEN 'AutoTransferNotApproved' THEN 'Автоперенос н/согл'
+        <CommandText>
+            SELECT
+            un_ord_subqry.N,
+            un_ord_subqry.old_order_date AS order_by_column,
+            DATE_FORMAT(un_ord_subqry.old_order_date, '%e.%m') AS old_order_date,
+            un_ord_subqry.client AS client,
+            un_ord_subqry.driver AS driver_name,
+            un_ord_subqry.status,
+            un_ord_subqry.fines,
+            un_ord_subqry.guilty,
+            un_ord_subqry.at_work_sub,
+            un_ord_subqry.transfer_type,
+            un_ord_subqry.problem_source,
+            un_ord_subqry.reason
+            FROM
+            #поля недовоза
+            (
+            SELECT
+            un.id AS N,
+            oldo.delivery_date AS old_order_date,
+            un.new_order_id AS new_order_id,
+            coun.name AS client,
+            #водители
+            IFNULL(
+            (SELECT GROUP_CONCAT(
+            TRIM(
+            BOTH '.'
+            FROM CONCAT_WS(
+            '.',
+            LEFT(employees.name, 1),
+            LEFT(employees.patronymic, 1),
+            employees.last_name
+            )
+            )
+            ORDER BY route_list_addresses.id
+            DESC
+            SEPARATOR ', '
+            )
+            FROM route_list_addresses
+            LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id
+            LEFT JOIN employees ON employees.id = route_lists.driver_id
+            WHERE route_list_addresses.order_id = oldo.id),
+            'Не в МЛ'
+            ) AS driver,
+
+            GROUP_CONCAT(
+            CASE g.guilty_side
+            WHEN 'Client' THEN 'Клиент'
+            WHEN 'Driver' THEN 'Водитель'
+            WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
+            WHEN 'ServiceMan' THEN 'Мастер СЦ'
+            WHEN 'ForceMajor' THEN 'Форс-мажор'
+            WHEN 'DirectorLO' THEN 'Директор ЛО (Доставка за час)'
+            WHEN 'DirectorLOCurrentDayDelivery' THEN 'Директор ЛО (Доставка в тот же день)'
+            WHEN 'None' THEN 'Нет (не недовоз)'
+            WHEN 'Unknown' THEN 'Неизвестно'
+            ELSE g.guilty_side
+            END
+            SEPARATOR ';\n'
+            ) AS guilty,
+            CASE un.status
+            WHEN 'InProcess' THEN 'В работе'
+            WHEN 'Checking' THEN 'На проверке'
+            WHEN 'Closed' THEN 'Закрыт'
+            END AS status,
+            CASE un.transfer_type
+            WHEN 'AutoTransferApproved' THEN 'Автоперенос согласован'
+            WHEN 'AutoTransferNotApproved' THEN 'Автоперенос н/согл'
             WHEN 'TransferredByCounterparty' THEN 'Перенос клиентом'
-		END AS transfer_type,
-        
-	GROUP_CONCAT(CONCAT_WS(': ',fine_employee.last_name, fines_items.money) SEPARATOR '\n') AS fines,
-    IF(in_work_sub.short_name IS NULL OR in_work_sub.short_name = '', in_work_sub.name, in_work_sub.short_name) as at_work_sub,
-    ups.name as problem_source,
-    un.reason as reason
-    
-	FROM undelivered_orders un
-	LEFT JOIN undelivery_problem_sources ups ON ups.id = un.undelivery_problem_source_id 
-    LEFT JOIN fines ON fines.undelivery_id = un.id
-    LEFT JOIN fines_items ON fines_items.fine_id = fines.id
-    LEFT JOIN employees AS fine_employee ON fine_employee.id = fines_items.employee_id
-    LEFT JOIN subdivisions AS in_work_sub ON in_work_sub.id = un.in_process_at
-	LEFT JOIN orders oldo ON un.old_order_id = oldo.id
-	LEFT JOIN delivery_schedule old_schedule ON old_schedule.id = oldo.delivery_schedule_id
-	LEFT JOIN orders newo ON un.new_order_id = newo.id
-	LEFT JOIN delivery_schedule new_schedule ON new_schedule.id = newo.delivery_schedule_id
-	LEFT JOIN counterparty coun ON coun.id = oldo.client_id
-	LEFT JOIN delivery_points delp ON delp.id = oldo.delivery_point_id
-	LEFT JOIN employees oaut ON oaut.id = oldo.author_employee_id
-	LEFT JOIN employees ureg ON ureg.id = un.registered_by_employee_id
-	LEFT JOIN employees uaut ON uaut.id = un.author_employee_id
-	LEFT JOIN guilty_in_undelivered_orders g ON un.id = g.undelivery_id
-	LEFT JOIN subdivisions dep ON dep.id = g.guilty_department_id
-	LEFT JOIN route_list_addresses rla ON rla.order_id = oldo.id
-	LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
-	WHERE 
-		oldo.delivery_date &gt;= @start_date AND oldo.delivery_date &lt;= @end_date
+            END AS transfer_type,
+
+            GROUP_CONCAT(CONCAT_WS(': ',fine_employee.last_name, fines_items.money) SEPARATOR '\n') AS fines,
+            IF(in_work_sub.short_name IS NULL OR in_work_sub.short_name = '', in_work_sub.name, in_work_sub.short_name) as at_work_sub,
+            ups.name as problem_source,
+            un.reason as reason
+
+            FROM undelivered_orders un
+            LEFT JOIN undelivery_problem_sources ups ON ups.id = un.undelivery_problem_source_id
+            LEFT JOIN fines ON fines.undelivery_id = un.id
+            LEFT JOIN fines_items ON fines_items.fine_id = fines.id
+            LEFT JOIN employees AS fine_employee ON fine_employee.id = fines_items.employee_id
+            LEFT JOIN subdivisions AS in_work_sub ON in_work_sub.id = un.in_process_at
+            LEFT JOIN orders oldo ON un.old_order_id = oldo.id
+            LEFT JOIN delivery_schedule old_schedule ON old_schedule.id = oldo.delivery_schedule_id
+            LEFT JOIN orders newo ON un.new_order_id = newo.id
+            LEFT JOIN delivery_schedule new_schedule ON new_schedule.id = newo.delivery_schedule_id
+            LEFT JOIN counterparty coun ON coun.id = oldo.client_id
+            LEFT JOIN delivery_points delp ON delp.id = oldo.delivery_point_id
+            LEFT JOIN employees oaut ON oaut.id = oldo.author_employee_id
+            LEFT JOIN employees ureg ON ureg.id = un.registered_by_employee_id
+            LEFT JOIN employees uaut ON uaut.id = un.author_employee_id
+            LEFT JOIN guilty_in_undelivered_orders g ON un.id = g.undelivery_id
+            LEFT JOIN subdivisions dep ON dep.id = g.guilty_department_id
+            LEFT JOIN route_list_addresses rla ON rla.order_id = oldo.id
+            LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
+            WHERE
+            oldo.delivery_date &gt;= @start_date AND oldo.delivery_date &lt;= @end_date
 	AND
 		(oldo.id = @old_order_id OR @old_order_id = 0)
 	AND
