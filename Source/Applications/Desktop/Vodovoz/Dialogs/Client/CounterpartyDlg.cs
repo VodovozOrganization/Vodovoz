@@ -444,7 +444,9 @@ namespace Vodovoz
 			DelayDaysForBuyerValue.Binding
 				.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt)
 				.InitializeFromSource();
-			lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = Entity?.IsChainStore ?? false;
+			DelayDaysForBuyerValue.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+						"can_change_delay_days_for_buyers_and_chain_store");
 
 			yspinDelayDaysForTechProcessing.Binding
 				.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
@@ -1180,15 +1182,6 @@ namespace Vodovoz
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
-			if(Entity.IsChainStore)
-			{
-				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = true;
-			}
-			else
-			{
-				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
-				Entity.DelayDaysForBuyers = 0;
-			}
 		}
 
 		private void OnButtonLoadFromDeliveryPointClicked(object sender, EventArgs e)
