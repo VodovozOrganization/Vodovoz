@@ -18,13 +18,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 		public decimal Sum => Price * Count;
 		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
 		public string EdoDocError { get; set; }
+
 		public string EdoDocFlowStatusString => EdoDocFlowStatus.HasValue && EdoDocFlowStatus == Domain.Orders.Documents.EdoDocFlowStatus.Error 
 			? EdoDocError 
 			: EdoDocFlowStatus?.GetEnumTitle() ?? "Не отправлялось";
+
 		public string TrueMarkApiError { get; set; }
 		public bool? IsTrueMarkApiSuccess { get; set; }
 
-		public string TrueMarkApiErrorString => IsTrueMarkApiSuccess.HasValue && IsTrueMarkApiSuccess.Value
+		public string TrueMarkApiStatusString => IsTrueMarkApiSuccess.HasValue && IsTrueMarkApiSuccess.Value
 			? "Успешно"
 			: string.IsNullOrWhiteSpace(TrueMarkApiError)
 				? "Не выводилось"

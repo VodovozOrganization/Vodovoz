@@ -1,4 +1,4 @@
-﻿using ClosedXML.Report;
+﻿using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -10,7 +10,6 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
@@ -87,13 +86,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
-						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
-					)
+						.Add(() => orderAlias.PaymentType == PaymentType.cashless))
 					.Add(Restrictions.Conjunction()
 						.Add(() => orderAlias.PaymentType == PaymentType.barter)
-						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
-					)
-				)
+						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))))
 				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc);
 
 			switch(ReportType)
@@ -142,35 +138,92 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 					var dialogSettings = new DialogSettings();
 					dialogSettings.Title = "Сохранить";
 					dialogSettings.DefaultFileExtention = ".xlsx";
-					dialogSettings.FileName = $"Отчёт об УПД, не отраженным в ЧЗ. {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+					dialogSettings.FileName = $"Отчёт об УПД, не отраженных в ЧЗ {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
 					if(result.Successful)
 					{
-						var template = new XLTemplate(_templatePath);
-						template.AddVariable(Report);
-						template.Generate();
-						template.SaveAs(result.Path);
+						SaveReport(result.Path);
+
 						_interactiveService.ShowMessage(ImportanceLevel.Info, "Экспорт отчёта в Excel завершён");
 					}
-				},
-				() => true)
+				})
 			);
 
 		public DelegateCommand GenerateCommand => _generateCommand ?? (_generateCommand = new DelegateCommand(
 				() =>
 				{
-					IsRunning = true;
 					Report = new EdoUpdReport
 					{
 						Rows = GenerateReportRows()
 					};
-					IsRunning = false;
-				},
-				() => true)
+				})
 			);
 
 		#endregion
+
+		private void SaveReport(string path)
+		{
+			using(var workbook = new XLWorkbook())
+			{
+				var worksheet = workbook.Worksheets.Add("Отчёт об УПД");
+
+				worksheet.Column(1).Width = 5;
+				worksheet.Column(2).Width = 15;
+				worksheet.Column(3).Width = 50;
+				worksheet.Column(4).Width = 12;
+				worksheet.Column(5).Width = 15;
+				worksheet.Column(6).Width = 20;
+				worksheet.Column(7).Width = 10;
+				worksheet.Column(8).Width = 10;
+				worksheet.Column(9).Width = 15;
+				worksheet.Column(10).Width = 45;
+				worksheet.Column(11).Width = 45;
+
+				worksheet.Cell(1, 1).Value = "№";
+				worksheet.Cell(1, 2).Value = "ИНН";
+				worksheet.Cell(1, 3).Value = "Название контрагента";
+				worksheet.Cell(1, 4).Value = "№ заказа";
+				worksheet.Cell(1, 5).Value = "Дата";
+				worksheet.Cell(1, 6).Value = "GTIN";
+				worksheet.Cell(1, 7).Value = "Кол-во";
+				worksheet.Cell(1, 8).Value = "Цена с НДС";
+				worksheet.Cell(1, 9).Value = "Стоимость\nстроки с НДС";
+				worksheet.Cell(1, 10).Value = "Статус УПД в ЭДО";
+				worksheet.Cell(1, 11).Value = "Статус прямого вывода\nиз оборота в Честном Знаке";
+
+				var rows = Report.Rows;
+
+				for(int i = 0; i < rows.Count; i++)
+				{
+					worksheet.Cell(i + 2, 1).Value = i + 1;
+					worksheet.Cell(i + 2, 2).Value = rows[i].Inn;
+					worksheet.Cell(i + 2, 3).Value = rows[i].CounterpartyName;
+					worksheet.Cell(i + 2, 4).Value = rows[i].OrderId;
+					worksheet.Cell(i + 2, 5).Value = rows[i].UpdDate;
+					worksheet.Cell(i + 2, 6).Value = rows[i].Gtin;
+					worksheet.Cell(i + 2, 7).Value = rows[i].Count;
+					worksheet.Cell(i + 2, 8).Value = rows[i].Price;
+					worksheet.Cell(i + 2, 9).Value = rows[i].Sum;
+					worksheet.Cell(i + 2, 10).Value = rows[i].EdoDocFlowStatusString;
+					worksheet.Cell(i + 2, 11).Value = rows[i].TrueMarkApiStatusString;
+				}
+
+				worksheet.Column(2).CellsUsed().SetDataType(XLDataType.Text);
+				worksheet.Column(6).CellsUsed().SetDataType(XLDataType.Text);
+
+				for(int c = 1; c <= 7; c++)
+				{
+					for(int r = 1; r <= rows.Count + 1; r++)
+					{
+						worksheet.Cell(r, c).Style.Alignment.WrapText = true;
+					}
+				}
+
+				workbook.SaveAs(path);
+			}
+		}
 
 		public EdoUpdReport Report { get; set; }
 		public DateTime? DateFrom { get; set; }

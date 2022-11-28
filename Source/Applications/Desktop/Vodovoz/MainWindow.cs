@@ -2709,10 +2709,10 @@ public partial class MainWindow : Gtk.Window
 	{
 		IFileDialogService fileDialogService = new FileDialogService();
 
-		var viewModel = new EdoUpdReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+		var edoUpdReportViewModel = new EdoUpdReportViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, NavigationManager,
+			fileDialogService);
 
-		tdiMain.AddTab(viewModel);
+		tdiMain.AddTab(edoUpdReportViewModel);
 	}
 
 	protected void OnProfitabilityConstantsActionActivated(object sender, EventArgs e)

@@ -1,8 +1,7 @@
-﻿using System;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
-using NHibernate.Criterion;
 using QS.Views.GtkUI;
+using System;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using WrapMode = Pango.WrapMode;
@@ -44,13 +43,15 @@ namespace Vodovoz.Views.Reports
 				.AddFuncBinding(ViewModel, vm => !vm.IsRunning, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonSave.Clicked += (sender, args) => ViewModel.ExportCommand.Execute();
+			ybuttonSave.Clicked += (s, e) => ViewModel.ExportCommand.Execute();
 
 			ConfigureReportTreeView();
 		}
 
 		private async void OnYbtnRunReportClicked(object sender, System.EventArgs e)
 		{
+			SetRunningState(true);
+
 			await Task.Run(() =>
 			{
 				try
@@ -62,6 +63,8 @@ namespace Vodovoz.Views.Reports
 					Application.Invoke((s, eventArgs) => throw ex);
 				}
 
+				SetRunningState(false);
+
 				Application.Invoke((s, a) =>
 				{
 					ytreeviewReport.ItemsDataSource = ViewModel.Report.Rows;
@@ -69,7 +72,6 @@ namespace Vodovoz.Views.Reports
 
 				});
 			});
-
 		}
 
 		private void ConfigureReportTreeView()
@@ -85,7 +87,7 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("Цена").AddNumericRenderer(r => r.Price)
 				.AddColumn("Стоимость\nстроки с НДС").AddNumericRenderer(r => r.Sum)
 				.AddColumn("Статус УПД в ЭДО").AddTextRenderer(r => r.EdoDocFlowStatusString).WrapWidth(300).WrapMode(WrapMode.WordChar)
-				.AddColumn("Статус прямого вывода из\nоборота в Честном Знаке").AddTextRenderer(r => r.TrueMarkApiErrorString).WrapWidth(300).WrapMode(WrapMode.WordChar)
+				.AddColumn("Статус прямого вывода из\nоборота в Честном Знаке").AddTextRenderer(r => r.TrueMarkApiStatusString).WrapWidth(300).WrapMode(WrapMode.WordChar)
 				.AddColumn("")
 				.Finish();
 		}
@@ -99,6 +101,14 @@ namespace Vodovoz.Views.Reports
 		private void UpdateSliderArrow()
 		{
 			arrowSlider.ArrowType = parametersContainer.Visible ? ArrowType.Left : ArrowType.Right;
+		}
+
+		private void SetRunningState(bool isRunning)
+		{
+			Application.Invoke((s, a) =>
+			{
+				ViewModel.IsRunning = isRunning;
+			});
 		}
 	}
 }
