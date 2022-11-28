@@ -52,6 +52,9 @@ namespace Vodovoz.ViewModels.Permissions
 
 		public override void StartSearch(string searchString)
 		{
+			FillObservableList(permissionList, ObservablePermissionsList);
+			FillObservableList(originalPermissionsSourceList, ObservablePermissionsSourceList);
+			
 			if(!searchString.IsEmpty())
 			{
 				for(int i = 0; i < ObservablePermissionsSourceList.Count; i++)
@@ -70,11 +73,6 @@ namespace Vodovoz.ViewModels.Permissions
 						i--;
 					}
 				}
-			}
-			else
-			{
-				FillObservableList(permissionList, ObservablePermissionsList);
-				FillObservableList(originalPermissionsSourceList, ObservablePermissionsSourceList);
 			}
 		}
 

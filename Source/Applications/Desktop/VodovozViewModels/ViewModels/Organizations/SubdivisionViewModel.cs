@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -18,35 +19,10 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 {
 	public class SubdivisionViewModel : EntityTabViewModelBase<Subdivision>
 	{
+		private PresetSubdivisionPermissionsViewModel _presetSubdivisionPermissionVm;
+		private WarehousePermissionsViewModel _warehousePermissionsVm;
 
-		public event Action OnSavedEntity;
-
-		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory;
-
-		private PresetSubdivisionPermissionsViewModel presetSubdivisionPermissionVM;
-		public PresetSubdivisionPermissionsViewModel PresetSubdivisionPermissionVM {
-			get { return presetSubdivisionPermissionVM; }
-			set {
-				if(value != presetSubdivisionPermissionVM && presetSubdivisionPermissionVM != null) {
-					OnSavedEntity -= presetSubdivisionPermissionVM.SaveCommand.Execute;
-					if(value != null)
-						OnSavedEntity += value.SaveCommand.Execute;
-				}
-				SetField(ref presetSubdivisionPermissionVM, value); 
-			}
-		}
-
-        private WarehousePermissionsViewModel warehousePermissionsVm;
-        public WarehousePermissionsViewModel WarehousePermissionsVM
-        {
-            get => warehousePermissionsVm;
-            set
-            {
-	            SetField(ref warehousePermissionsVm, value);
-            }
-        }
-
-        public SubdivisionViewModel(
+		public SubdivisionViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -59,17 +35,38 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		{
 			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
-			var _warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
-			WarehousePermissionsVM = new WarehousePermissionsViewModel(UoW, _warehousePermissionModel);
-			WarehousePermissionsVM.CanEdit = PermissionResult.CanUpdate;
+			var warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
+			WarehousePermissionsVM = new WarehousePermissionsViewModel(UoW, warehousePermissionModel)
+			{
+				CanEdit = PermissionResult.CanUpdate
+			};
+			var permissionListViewModel = new PermissionListViewModel(PermissionExtensionSingletonStore.GetInstance());
+			EntitySubdivisionPermissionViewModel = new EntitySubdivisionPermissionViewModel(
+				UoW, Entity, permissionListViewModel, permissionRepository);
 			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			SalesPlanSelectorFactory = (salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory)))
 				.CreateSalesPlanAutocompleteSelectorFactory(nomenclatureSelectorFactory);
 			ConfigureEntityChangingRelations();
 			CreateCommands();
+
+			SubscribeUpdateOnChanges();
 		}
-		
+
 		public ISubdivisionRepository SubdivisionRepository { get; }
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+		public EntitySubdivisionPermissionViewModel EntitySubdivisionPermissionViewModel { get; }
+
+		public PresetSubdivisionPermissionsViewModel PresetSubdivisionPermissionVM
+		{
+			get => _presetSubdivisionPermissionVm;
+			set => SetField(ref _presetSubdivisionPermissionVm, value);
+		}
+
+		public WarehousePermissionsViewModel WarehousePermissionsVM
+		{
+			get => _warehousePermissionsVm;
+			set => SetField(ref _warehousePermissionsVm, value);
+		}
 
 		private void ConfigureEntityChangingRelations()
 		{
@@ -86,14 +83,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		}
 
 		public override bool HasChanges => true;
-
-		public override bool Save(bool close)
-		{
-			bool res = base.Save(close);
-			OnSavedEntity?.Invoke();
-			UoW.Commit();
-			return res;
-		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;
 
@@ -149,5 +138,47 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		#endregion DeleteDocumentCommand
 
 		#endregion Commands
+
+		protected override bool BeforeSave()
+		{
+			EntitySubdivisionPermissionViewModel.SavePermissions();
+			PresetSubdivisionPermissionVM.SaveCommand.Execute();
+			WarehousePermissionsVM.SaveWarehousePermissions();
+			return base.BeforeSave();
+		}
+
+		public override void Dispose()
+		{
+			UnsubscribeUpdateOnChanges();
+			base.Dispose();
+		}
+
+		private void SubscribeUpdateOnChanges()
+		{
+			Entity.PropertyChanged += UpdateChanges;
+			Entity.ObservableDocumentTypes.ListContentChanged += UpdateChanges;
+			EntitySubdivisionPermissionViewModel.ObservableTypeOfEntitiesList.ListContentChanged += UpdateChanges;
+			PresetSubdivisionPermissionVM.ObservablePermissionsList.ListContentChanged += UpdateChanges;
+			
+			foreach(var warehousePermissionNode in WarehousePermissionsVM.AllWarehouses)
+			{
+				warehousePermissionNode.SubNodeViewModel.ListContentChanged += UpdateChanges;
+			}
+		}
+		
+		private void UnsubscribeUpdateOnChanges()
+		{
+			Entity.PropertyChanged -= UpdateChanges;
+			Entity.ObservableDocumentTypes.ListContentChanged -= UpdateChanges;
+			EntitySubdivisionPermissionViewModel.ObservableTypeOfEntitiesList.ListContentChanged -= UpdateChanges;
+			PresetSubdivisionPermissionVM.ObservablePermissionsList.ListContentChanged -= UpdateChanges;
+			
+			foreach(var warehousePermissionNode in WarehousePermissionsVM.AllWarehouses)
+			{
+				warehousePermissionNode.SubNodeViewModel.ListContentChanged -= UpdateChanges;
+			}
+		}
+
+		private void UpdateChanges(object sender, EventArgs e) => HasChanges = true;
 	}
 }

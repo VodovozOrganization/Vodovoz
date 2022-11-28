@@ -380,6 +380,7 @@
     <Compile Include="ViewModels\PermissionNode\WarehouseAllNodeViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\WarehousePermissionAllNodeViewModelBase.cs" />
     <Compile Include="ViewModels\PermissionNode\WarehousePermissionNodeViewModel.cs" />
+    <Compile Include="ViewModels\Permissions\EntitySubdivisionPermissionViewModel.cs" />
     <Compile Include="ViewModels\Permissions\WarehousePermissionsViewModel.cs" />
     <Compile Include="ViewModels\Payments\AutoPaymentMatching.cs" />
     <Compile Include="ViewModels\Payments\ManualPaymentMatchingViewModel.cs" />

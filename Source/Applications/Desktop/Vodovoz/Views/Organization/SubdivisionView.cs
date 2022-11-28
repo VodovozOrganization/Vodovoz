@@ -22,7 +22,7 @@ namespace Vodovoz.Views.Organization
 
 		private void ConfigureDlg()
 		{
-			subdivisionentitypermissionwidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);
+			subdivisionentitypermissionwidget.ConfigureDlg(ViewModel.EntitySubdivisionPermissionViewModel);
 			subdivisionentitypermissionwidget.Sensitive = ViewModel.CanEdit;
 
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
@@ -81,8 +81,6 @@ namespace Vodovoz.Views.Organization
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
-
-			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.SavePermissions(subdivisionentitypermissionwidget.UoW);
 
 			permissionsPresetContainerView.Binding
 				.AddBinding(ViewModel, vm => vm.PresetSubdivisionPermissionVM, w => w.WidgetViewModel)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -20,7 +21,7 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
         {
             WarehousePermissionsType = warehousePermissionsType;
             Title = WarehousePermissionsType.GetEnumTitle();
-            SubNodeViewModel = new List<WarehousePermissionNodeViewModel>();
+            SubNodeViewModel = new GenericObservableList<WarehousePermissionNodeViewModel>();
             foreach (var warehouse in warehouses)
             {
                 var permissionNode = new WarehousePermissionNodeViewModel(warehouse, warehousePermissionsType, warehousePermissionModelBase);

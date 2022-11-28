@@ -10,6 +10,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Representations;
 using System;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.ViewWidgets.Permissions;
@@ -58,7 +59,11 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			subdivisionentitypermissionwidget.ConfigureDlg(UoW, Entity);
+			var permissionListViewModel = new PermissionListViewModel(PermissionExtensionSingletonStore.GetInstance());
+			var entitySubdivisionPermissionModel = new EntitySubdivisionPermissionViewModel(
+				UoW, Entity, permissionListViewModel, new PermissionRepository());
+			
+			subdivisionentitypermissionwidget.ConfigureDlg(entitySubdivisionPermissionModel);
 			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text).InitializeFromSource();
 			yentryrefParentSubdivision.SubjectType = typeof(Subdivision);
@@ -112,8 +117,8 @@ namespace Vodovoz
 				vboxSubdivision.Visible = false;
 			}
 
-			Entity.ObservableDocumentTypes.ListContentChanged += (sender, e) => HasChanges = true;
-			subdivisionentitypermissionwidget.ViewModel.ObservableTypeOfEntitiesList.ListContentChanged += (sender, e) => HasChanges = true;
+			Entity.ObservableDocumentTypes.ListContentChanged += UpdateChanges;
+			subdivisionentitypermissionwidget.ViewModel.ObservableTypeOfEntitiesList.ListContentChanged += UpdateChanges;
 
 			entryDefaultSalesPlan.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<SalesPlanJournalViewModel>(typeof(SalesPlan),
@@ -127,6 +132,8 @@ namespace Vodovoz
 			));
 			entryDefaultSalesPlan.Binding.AddBinding(Entity, s => s.DefaultSalesPlan, w => w.Subject).InitializeFromSource();
 			entryDefaultSalesPlan.CanEditReference = false;
+
+			Entity.PropertyChanged += UpdateChanges;
 		}
 
 		void YSpecCmbGeographicGroup_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -137,7 +144,6 @@ namespace Vodovoz
 					s.GeographicGroup = Entity.GeographicGroup;
 				}
 		}
-		public override bool HasChanges => true;
 
 		#region implemented abstract members of OrmGtkDialogBase
 
@@ -148,7 +154,7 @@ namespace Vodovoz
 				return false;
 
 			UoWGeneric.Save();
-			subdivisionentitypermissionwidget?.ViewModel.SavePermissions(UoW);
+			subdivisionentitypermissionwidget?.ViewModel.SavePermissions();
 			_presetPermissionVm?.SaveCommand.Execute();
 			_warehousePermissionsViewModel?.SaveWarehousePermissions();
 			UoW.Commit();
@@ -169,13 +175,17 @@ namespace Vodovoz
 		protected void OnButtonDeleteDocumentClicked(object sender, System.EventArgs e)
 		{
 			if(ytreeviewDocuments.GetSelectedObject() is TypeOfEntity selectedObject)
+			{
 				Entity.ObservableDocumentTypes.Remove(selectedObject);
+			}
 		}
 
 		void DocTypesJournal_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			if(e.Subject is TypeOfEntity selectedObject)
+			{
 				Entity.ObservableDocumentTypes.Add(selectedObject);
+			}
 		}
 
 		void SetControlsAccessibility()
@@ -190,7 +200,7 @@ namespace Vodovoz
 			vboxPresetPermissions.Add(new PresetPermissionsView(_presetPermissionVm));
 			vboxPresetPermissions.ShowAll();
 			
-			_presetPermissionVm.ObservablePermissionsList.ListContentChanged += (sender, e) => HasChanges = true;
+			_presetPermissionVm.ObservablePermissionsList.ListContentChanged += UpdateChanges;
 		}
 
 		private void CreateWarehousePermissionView()
@@ -202,6 +212,34 @@ namespace Vodovoz
 			};
 			vboxSubdivision.Add(new WarehousePermissionView(_warehousePermissionsViewModel));
 			vboxSubdivision.ShowAll();
+
+			foreach(var warehousePermissionNode in _warehousePermissionsViewModel.AllWarehouses)
+			{
+				warehousePermissionNode.SubNodeViewModel.ListContentChanged += UpdateChanges;
+			}
+		}
+
+		private void UpdateChanges(object sender, EventArgs args) => HasChanges = true;
+
+		public override void Destroy ()
+		{
+			Entity.PropertyChanged -= UpdateChanges;
+			Entity.ObservableDocumentTypes.ListContentChanged -= UpdateChanges;
+			subdivisionentitypermissionwidget.ViewModel.ObservableTypeOfEntitiesList.ListContentChanged -= UpdateChanges;
+			
+			if(_presetPermissionVm != null)
+			{
+				_presetPermissionVm.ObservablePermissionsList.ListContentChanged -= UpdateChanges;
+			}
+
+			if(_warehousePermissionsViewModel != null)
+			{
+				foreach(var warehousePermissionNode in _warehousePermissionsViewModel.AllWarehouses)
+				{
+					warehousePermissionNode.SubNodeViewModel.ListContentChanged -= UpdateChanges;
+				}
+			}
+			base.Destroy ();
 		}
 	}
 }

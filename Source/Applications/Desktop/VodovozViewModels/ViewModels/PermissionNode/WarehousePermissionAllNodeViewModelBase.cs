@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.ViewModels.PermissionNode
@@ -13,8 +13,8 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
             set => SetField(ref _title, value);
         }
         
-        private List<WarehousePermissionNodeViewModel> _subNodeViewModel;
-        public List<WarehousePermissionNodeViewModel> SubNodeViewModel
+        private GenericObservableList<WarehousePermissionNodeViewModel> _subNodeViewModel;
+        public GenericObservableList<WarehousePermissionNodeViewModel> SubNodeViewModel
         {
             get => _subNodeViewModel;
             set => SetField(ref _subNodeViewModel, value);
