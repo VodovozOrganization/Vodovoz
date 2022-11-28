@@ -397,6 +397,7 @@
     <Compile Include="ViewModels\Reports\DebtorsJournalReport\DebtorsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReport.cs" />
     <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReportRow.cs" />
+    <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReportType.cs" />
     <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAvailabilityHistoryReport.cs" />
     <Compile Include="ViewModels\Reports\CostCarExploitationReportViewModel.cs" />

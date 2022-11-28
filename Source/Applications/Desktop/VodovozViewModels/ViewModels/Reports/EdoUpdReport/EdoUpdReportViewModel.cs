@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
-using ClosedXML.Report;
+﻿using ClosedXML.Report;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -12,6 +9,8 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -20,7 +19,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 {
-	public class EdoUpdReportViewModel : DialogTabViewModelBase
+	public partial class EdoUpdReportViewModel : DialogTabViewModelBase
 	{
 		private const string _templatePath = @".\Reports\Orders\EdoUpdReport.xlsx";
 		private readonly IFileDialogService _fileDialogService;
@@ -47,6 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 			}
 
 			Domain.Client.Counterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
 			Order orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -59,6 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 
 			var query = UoW.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => orderItemAlias, () => orderAlias.Id == orderItemAlias.Order.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinEntityAlias(() => trueMarkApiDocumentAlias, () => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id, JoinType.LeftOuterJoin)
@@ -69,13 +70,39 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.And(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => nomenclatureAlias.IsAccountableInChestniyZnak)
-				.And(() => nomenclatureAlias.Gtin != null);
+				.And(() => nomenclatureAlias.Gtin != null)
+				.And(() => counterpartyContractAlias.Organization.Id == 1)
+				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
+				           || orderAlias.OrderStatus != OrderStatus.OnTheWay)
+				.And(Restrictions.Disjunction()
+					.Add(Restrictions.Conjunction()
+						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
+						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+					)
+					.Add(Restrictions.Conjunction()
+						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
+					)
+				)
+				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc);
 
-
-			query.Where(Restrictions.Disjunction()
-				.Add(() => trueMarkApiDocumentAlias.IsSuccess)
-				.Add(Restrictions.On(() => edoContainerAlias.EdoDocFlowStatus).IsIn(edoDocFlowStatuses))
-			);
+			switch(ReportType)
+			{
+				case EdoUpdReportType.Successfull:
+					query.Where(Restrictions.Disjunction()
+						.Add(() => trueMarkApiDocumentAlias.IsSuccess)
+						.Add(Restrictions.On(() => edoContainerAlias.EdoDocFlowStatus).IsIn(edoDocFlowStatuses)));
+					break;
+				case EdoUpdReportType.Missing:
+					query.Where(Restrictions.Conjunction()
+						.Add(Restrictions.Disjunction()
+							.Add(Restrictions.IsNull(Projections.Property(() => trueMarkApiDocumentAlias.Id)))
+							.Add(() => !trueMarkApiDocumentAlias.IsSuccess))
+						.Add(Restrictions.Disjunction()
+							.Add(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
+							.Add(Restrictions.On(() => edoContainerAlias.EdoDocFlowStatus).Not.IsIn(edoDocFlowStatuses))));
+					break;
+			}
 
 			var result = query
 				.SelectList(list => list
@@ -95,29 +122,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 
 			return result;
 		}
-
-		//private string GenerateSelectedFiltersString()
-		//{
-		//	var selectedFilters = new StringBuilder().AppendLine("Выбранные фильтры:");
-
-		//	if(DateFrom != null && DateTo != null)
-		//	{
-		//		selectedFilters.AppendLine(
-		//			$"Время события: с {DateFrom.Value.ToShortDateString()} по {DateTo.Value.ToShortDateString()}; ");
-		//	}
-
-		//	if(Counterparty != null)
-		//	{
-		//		selectedFilters.AppendLine($"Контрагент: {Counterparty.Name}; ");
-		//	}
-
-		//	if(BulkEmailEventReason != null)
-		//	{
-		//		selectedFilters.AppendLine($"Причина: {BulkEmailEventReason.Name}; ");
-		//	}
-
-		//	return selectedFilters.ToString();
-		//}
 
 		#region Commands
 
@@ -147,7 +151,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 					Report = new EdoUpdReport
 					{
 						Rows = GenerateReportRows(),
-						//SelectedFilters = GenerateSelectedFiltersString()
 					};
 				},
 				() => true)
@@ -161,6 +164,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 		public bool HasDates => DateFrom != null && DateTo != null;
 		public bool IsSuccess { get; set; }
 		public bool IsNotSuccess { get; set; }
+		public EdoUpdReportType ReportType { get; set; }
 	}
 }
 

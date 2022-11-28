@@ -18,8 +18,11 @@ namespace Vodovoz.Views.Reports
 			rangeDate.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.DateFrom, w => w.StartDateOrNull)
-				.AddBinding(vm => vm.DateFrom, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.DateTo, w => w.EndDateOrNull)
 				.InitializeFromSource();
+
+			yenumcomboboxReportType.ItemsEnum = typeof(EdoUpdReportViewModel.EdoUpdReportType);
+			yenumcomboboxReportType.Binding.AddBinding(ViewModel, s => s.ReportType, w => w.SelectedItem).InitializeFromSource();
 
 			ybuttonCreateReport.Clicked += OnYbtnRunReportClicked;
 			ybuttonSave.Clicked += (sender, args) => ViewModel.ExportCommand.Execute();

@@ -11,15 +11,20 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 		public string CounterpartyName { get; set; }
 		public int OrderId { get; set; }
 		public DateTime UpdDate { get; set; }
-		public string UpdDateString => UpdDate.ToString("g");
+		public string UpdDateString => UpdDate.ToString("dd.MM.yyyy");
 		public string Gtin { get; set; }
 		public decimal Count { get; set; }
 		public decimal Price { get; set; }
-		public decimal Sum { get; set; }
+		public decimal Sum => Price * Count;
 		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
-		public string EdoDocFlowStatusString => EdoDocFlowStatus?.GetEnumTitle() ?? "-";
+		public string EdoDocFlowStatusString => EdoDocFlowStatus?.GetEnumTitle() ?? "";
 		public string TrueMarkApiError { get; set; }
 		public bool? IsTrueMarkApiSuccess { get; set; }
-		public string TrueMarkApiErrorString => IsTrueMarkApiSuccess.HasValue && IsTrueMarkApiSuccess.Value ?   "Успешно" : "Не выводилось";
+
+		public string TrueMarkApiErrorString => IsTrueMarkApiSuccess.HasValue && IsTrueMarkApiSuccess.Value
+			? "Успешно"
+			: string.IsNullOrWhiteSpace(TrueMarkApiError)
+				? "Не выводилось"
+				: TrueMarkApiError;
 	}
 }
