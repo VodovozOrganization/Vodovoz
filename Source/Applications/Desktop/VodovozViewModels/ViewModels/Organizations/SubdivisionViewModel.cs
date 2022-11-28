@@ -82,8 +82,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			Entity.ObservableChildSubdivisions.ElementRemoved += (aList, aIdx, aObject) => OnPropertyChanged(() => GeographicGroupVisible);
 		}
 
-		public override bool HasChanges => true;
-
 		public bool CanEdit => PermissionResult.CanUpdate;
 
 		public bool GeographicGroupVisible => Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
