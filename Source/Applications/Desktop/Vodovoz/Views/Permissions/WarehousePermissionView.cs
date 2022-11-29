@@ -9,17 +9,17 @@ using Vodovoz.ViewModels.ViewModels.PermissionNode;
 
 namespace Vodovoz.Views.Permissions
 {
-    [System.ComponentModel.ToolboxItem(true)]
-    public partial class WarehousePermissionView : WidgetViewBase<WarehousePermissionsViewModel>
-    {
-        private NullableCheckButton[,] _checkButtons;
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class WarehousePermissionView : WidgetViewBase<WarehousePermissionsViewModel>
+	{
+		private NullableCheckButton[,] _checkButtons;
 		private IList<yLabel> _labels = new List<yLabel>();
 
-        public WarehousePermissionView(WarehousePermissionsViewModel viewModel) : base(viewModel)
-        {
-            Build();
-            ConfigureView();
-        }
+		public WarehousePermissionView(WarehousePermissionsViewModel viewModel) : base(viewModel)
+		{
+			Build();
+			ConfigureView();
+		}
 
 		private void ConfigureView()
 		{

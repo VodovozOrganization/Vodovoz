@@ -23,8 +23,8 @@ using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels
 {
-    public class UserViewModel : EntityTabViewModelBase<User>
-    {
+	public class UserViewModel : EntityTabViewModelBase<User>
+	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IUserRoleRepository _userRoleRepository;
 		private readonly ILifetimeScope _scope;
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels
 			INavigationManager navigation,
 			IUserRoleRepository userRoleRepository,
 			ILifetimeScope scope) 
-            : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));

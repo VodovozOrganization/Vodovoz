@@ -49,8 +49,10 @@ namespace Vodovoz.ViewModels.Permissions
 
 		public void AddPermission(TypeOfEntity entityNode)
 		{
-			if(entityNode == null) 
+			if(entityNode == null)
+			{
 				return;
+			}
 
 			ObservableTypeOfEntitiesList.Remove(entityNode);
 			SubdivisionPermissionNode savedPermission;
@@ -86,7 +88,10 @@ namespace Vodovoz.ViewModels.Permissions
 			PermissionListViewModel.PermissionsList.Remove(deletedPermission);
 			_uow.Delete(deletedPermission.EntitySubdivisionOnlyPermission);
 			foreach(var permission in deletedPermission.EntityPermissionExtended)
+			{
 				_uow.Delete(permission);
+			}
+
 			SortTypeOfEntityList();
 		}
 
@@ -107,7 +112,9 @@ namespace Vodovoz.ViewModels.Permissions
 		private void SortTypeOfEntityList()
 		{
 			if(originalTypeOfEntityList?.FirstOrDefault() == null)
+			{
 				return;
+			}
 
 			originalTypeOfEntityList.Sort((x, y) =>
 					string.Compare(x.CustomName ?? x.Type, y.CustomName ?? y.Type));

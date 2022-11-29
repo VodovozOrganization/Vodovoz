@@ -16,9 +16,7 @@ namespace Vodovoz.Core.Permissions
 			Build();
 			Sensitive = false;
 		}
-
-		public EntitySubdivisionPermissionViewModel ViewModel { get; set; }
-
+		
 		public void ConfigureDlg(EntitySubdivisionPermissionViewModel viewViewModel)
 		{
 			ViewModel = viewViewModel;
@@ -26,6 +24,8 @@ namespace Vodovoz.Core.Permissions
 			ConfigureDlg();
 		}
 		
+		public EntitySubdivisionPermissionViewModel ViewModel { get; set; }
+
 		private void ConfigureDlg()
 		{
 			var extensions = ViewModel.ExtensionStore.PermissionExtensions;

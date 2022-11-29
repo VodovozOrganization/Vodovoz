@@ -46,7 +46,9 @@ namespace Vodovoz.ViewModels.ViewModels.Security
 				{
 					var selectedNode = ea.SelectedNodes.FirstOrDefault();
 					if(selectedNode == null)
+					{
 						return;
+					}
 
 					var user = UoWGeneric.Session.Get<User>(selectedNode.Id);
 

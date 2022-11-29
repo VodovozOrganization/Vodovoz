@@ -27,11 +27,15 @@ namespace Vodovoz.Additions.Store
 				var permissionEdit =
 					warehouses.SingleOrDefault(x => x.WarehousePermissionType == edit)?.PermissionValue;
 				if((permission.HasValue && permission.Value) && (permissionEdit.HasValue && permissionEdit.Value))
+				{
 					return warehouse;
+				}
 			}
 
 			if(WarehousePermissions.WarehousePermissions.Count(x => x.WarehousePermissionType == edit) == 1)
+			{
 				return WarehousePermissions.WarehousePermissions.First(x => x.WarehousePermissionType == edit).Warehouse;
+			}
 
 			return null;
 		}
@@ -45,14 +49,19 @@ namespace Vodovoz.Additions.Store
 			//Внимание!!! Склад пустой обычно у новых документов. Возможность создания должна проверятся другими условиями. Тут пропускаем.
 			warehouses = warehouses.Where(x => x != null).ToArray();
 			if(warehouses.Length == 0)
+			{
 				return false;
+			}
+
 			var permission =
 				WarehousePermissions.WarehousePermissions.Where(x =>
 					x.WarehousePermissionType == WarehousePermissionsType.WarehouseView);
 			var permissionEdit = WarehousePermissions.WarehousePermissions.Where(x => x.WarehousePermissionType == edit);
 			if(warehouses.Any(x => permission.SingleOrDefault(y=>y.Warehouse.Id == x.Id).PermissionValue.Value
 			                       || permissionEdit.SingleOrDefault(y=>y.Warehouse.Id == x.Id).PermissionValue.Value))
+			{
 				return false;
+			}
 
 			MessageDialogHelper.RunErrorDialog($"У вас нет прав на просмотр документов склада '{string.Join(";", warehouses.Distinct().Select(x => x.Name))}'.");
 			return true;
@@ -65,9 +74,14 @@ namespace Vodovoz.Additions.Store
 		public bool CheckCreateDocument(WarehousePermissionsType edit, params Warehouse[] warehouses)
 		{
 			warehouses = warehouses.Where(x => x != null).ToArray();
-			if(warehouses.Any()) {
-				if(warehouses.Any(x => WarehousePermissions.WarehousePermissions.SingleOrDefault(y=>y.WarehousePermissionType == edit && y.Warehouse.Id == x.Id).PermissionValue.Value))
+			if(warehouses.Any())
+			{
+				if(warehouses.Any(
+						x => WarehousePermissions.WarehousePermissions.SingleOrDefault(
+							y=>y.WarehousePermissionType == edit && y.Warehouse.Id == x.Id).PermissionValue.Value))
+				{
 					return false;
+				}
 
 				MessageDialogHelper.RunErrorDialog(
 					string.Format(
@@ -75,9 +89,13 @@ namespace Vodovoz.Additions.Store
 						string.Join(";", warehouses.Distinct().Select(x => x.Name))
 					)
 				);
-			} else {
+			}
+			else
+			{
 				if(WarehousePermissions.WarehousePermissions.Any(x => x.WarehousePermissionType == edit))
+				{
 					return false;
+				}
 
 				MessageDialogHelper.RunErrorDialog("У вас нет прав на создание этого документа.");
 			}
@@ -91,10 +109,14 @@ namespace Vodovoz.Additions.Store
 		public bool CheckAllPermissions(bool isNew, WarehousePermissionsType edit, params Warehouse[] warehouses)
 		{
 			if(isNew && CheckCreateDocument(edit, warehouses))
+			{
 				return true;
+			}
 
 			if(CheckViewWarehouse(edit, warehouses))
+			{
 				return true;
+			}
 
 			return false;
 		}
@@ -107,7 +129,12 @@ namespace Vodovoz.Additions.Store
 		{
 			warehouses = warehouses.Where(x => x != null).ToArray();
 			if(warehouses.Any())
-				return warehouses.Any(x => WarehousePermissions.WarehousePermissions.SingleOrDefault(y=>y.WarehousePermissionType == edit && y.Warehouse.Id == x.Id).PermissionValue.Value);
+			{
+				return warehouses.Any(
+					x => WarehousePermissions.WarehousePermissions.SingleOrDefault(
+						y=>y.WarehousePermissionType == edit && y.Warehouse.Id == x.Id).PermissionValue.Value);
+			}
+
 			return WarehousePermissions.WarehousePermissions.Any(x => x.WarehousePermissionType == edit);
 		}
 
@@ -119,7 +146,12 @@ namespace Vodovoz.Additions.Store
 			var disjunction = new Disjunction();
 
 			foreach(var p in permissions) {
-				disjunction.Add<Warehouse>(w => w.Id.IsIn(WarehousePermissions.WarehousePermissions.Where(x=>x.WarehousePermissionType == p && x.PermissionValue == true).Select(x => x.Warehouse.Id).ToArray()));
+				disjunction.Add<Warehouse>(
+					w => w.Id.IsIn(
+						WarehousePermissions.WarehousePermissions
+							.Where(x=>x.WarehousePermissionType == p && x.PermissionValue == true)
+							.Select(x => x.Warehouse.Id)
+							.ToArray()));
 			}
 
 			return query.Where(disjunction);
@@ -150,7 +182,10 @@ namespace Vodovoz.Additions.Store
 		public QueryOver<Warehouse> GetRestrictedWarehouseQuery()
 		{
 			return QueryOver.Of<Warehouse>()
-							.Where(w => w.Id.IsIn(WarehousePermissions.WarehousePermissions.Where(x=>x.PermissionValue == true).Select(x => x.Warehouse.Id).ToArray()))
+							.Where(w => w.Id.IsIn(
+								WarehousePermissions.WarehousePermissions
+									.Where(x=>x.PermissionValue == true)
+									.Select(x => x.Warehouse.Id).ToArray()))
 							.AndNot(w => w.IsArchive);
 		}
 

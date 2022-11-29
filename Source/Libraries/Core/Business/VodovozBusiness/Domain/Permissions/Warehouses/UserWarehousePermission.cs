@@ -6,17 +6,17 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {
-    [EntityPermission]
-    [HistoryTrace]
-    public class UserWarehousePermission : WarehousePermissionBase
-    {
-        public override PermissionType PermissionType => PermissionType.User;
+	[EntityPermission]
+	[HistoryTrace]
+	public class UserWarehousePermission : WarehousePermissionBase
+	{
+		public override PermissionType PermissionType => PermissionType.User;
 
-        private User _user;
-        [Display(Name = "Пользователь")]
-        public virtual User User {
-            get => _user;
-            set => SetField(ref _user, value);
-        }
-    }
+		private User _user;
+		[Display(Name = "Пользователь")]
+		public virtual User User {
+			get => _user;
+			set => SetField(ref _user, value);
+		}
+	}
 }

@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 	{
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly WarehouseJournalFilterViewModel _filterViewModel;
-        private WarehousePermissionsType[] warehousePermissions;
+		private WarehousePermissionsType[] _warehousePermissions;
 		
 		public WarehouseJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			TabName = "Журнал складов";
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_filterViewModel = filterViewModel;
-			warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
+			_warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
 
 			UpdateOnChanges(
 				typeof(Warehouse)
@@ -47,12 +47,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			CreateDefaultAddActions();
 		}
 
-        protected override Func<IUnitOfWork, IQueryOver<Warehouse>> ItemsSourceQueryFunction => (uow) => {
-            Warehouse warehouseAlias = null;
-            WarehouseJournalNode warehouseNodeAlias = null;
+		protected override Func<IUnitOfWork, IQueryOver<Warehouse>> ItemsSourceQueryFunction => (uow) => {
+			Warehouse warehouseAlias = null;
+			WarehouseJournalNode warehouseNodeAlias = null;
 
-            var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias).WhereNot(w => w.IsArchive);
-            var disjunction = new Disjunction();
+			var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias).WhereNot(w => w.IsArchive);
+			var disjunction = new Disjunction();
 
 			if(_filterViewModel?.ExcludeWarehousesIds != null)
 			{
@@ -64,42 +64,42 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				query.WhereRestrictionOn(x => x.Id).IsInG(_filterViewModel.IncludeWarehouseIds);
 			}
 
-            var permission = new CurrentWarehousePermissions();
-            foreach (var p in warehousePermissions)
-            {
-                disjunction.Add<Warehouse>(
+			var permission = new CurrentWarehousePermissions();
+			foreach (var p in _warehousePermissions)
+			{
+				disjunction.Add<Warehouse>(
 					w =>
 						w.Id.IsIn(permission.WarehousePermissions.Where(x => x.WarehousePermissionType == p && x.PermissionValue == true)
 						.Select(x => x.Warehouse.Id).ToArray()));
-            }
-            query.Where(disjunction);
+			}
+			query.Where(disjunction);
 
-            query.Where(GetSearchCriterion(
-                () => warehouseAlias.Id,
-                () => warehouseAlias.Name
-            ));
-            var result = query.SelectList(list => list
-                    .Select(w => w.Id).WithAlias(() => warehouseNodeAlias.Id)
-                    .Select(w => w.Name).WithAlias(() => warehouseNodeAlias.Name))
-                .OrderBy(w => w.Name).Asc
-                .TransformUsing(Transformers.AliasToBean<WarehouseJournalNode>());
-            return result;
-        };
+			query.Where(GetSearchCriterion(
+				() => warehouseAlias.Id,
+				() => warehouseAlias.Name
+			));
+			var result = query.SelectList(list => list
+					.Select(w => w.Id).WithAlias(() => warehouseNodeAlias.Id)
+					.Select(w => w.Name).WithAlias(() => warehouseNodeAlias.Name))
+				.OrderBy(w => w.Name).Asc
+				.TransformUsing(Transformers.AliasToBean<WarehouseJournalNode>());
+			return result;
+		};
 
-        protected override Func<WarehouseViewModel> CreateDialogFunction => () => new WarehouseViewModel(
-            EntityUoWBuilder.ForCreate(),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            commonServices,
-            _subdivisionRepository
-        );
+		protected override Func<WarehouseViewModel> CreateDialogFunction => () => new WarehouseViewModel(
+			EntityUoWBuilder.ForCreate(),
+			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			commonServices,
+			_subdivisionRepository
+		);
 
-        protected override Func<WarehouseJournalNode, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
-            EntityUoWBuilder.ForOpen(node.Id),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-            commonServices,
-            _subdivisionRepository
-        );
-    }
+		protected override Func<WarehouseJournalNode, WarehouseViewModel> OpenDialogFunction => node => new WarehouseViewModel(
+			EntityUoWBuilder.ForOpen(node.Id),
+			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			commonServices,
+			_subdivisionRepository
+		);
+	}
 
 
 	public class WarehouseJournalFilterViewModel

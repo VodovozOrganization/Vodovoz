@@ -17,8 +17,11 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 		{
 			get
 			{
-				if (permissions == null)
+				if(permissions == null)
+				{
 					Load();
+				}
+
 				return permissions;
 			}
 		}

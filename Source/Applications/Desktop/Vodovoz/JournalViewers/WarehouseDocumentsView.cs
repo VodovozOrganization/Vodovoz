@@ -52,8 +52,12 @@ namespace Vodovoz
 			CurrentWarehousePermissions warehousePermissions = new CurrentWarehousePermissions();
 			var allPermissions = warehousePermissions.WarehousePermissions;
 			foreach(DocumentType doctype in Enum.GetValues(typeof(DocumentType))) {
-				if(allPermissions.Any(x => x.WarehousePermissionType.GetAttributes<DocumentTypeAttribute>().Any(at => at.Type.Equals(doctype))))
+				if(allPermissions.Any(x => x.WarehousePermissionType.GetAttributes<DocumentTypeAttribute>()
+					.Any(at => at.Type.Equals(doctype))))
+				{
 					continue;
+				}
+
 				buttonAdd.SetSensitive(doctype, false);
 			}
 		}

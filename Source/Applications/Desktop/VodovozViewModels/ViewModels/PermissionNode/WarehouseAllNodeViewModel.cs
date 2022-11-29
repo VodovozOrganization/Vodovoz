@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 			}
 			UnSetAll = true;
 			var collection = SubNodeViewModel.Where(x => x.WarehousePermissionsType !=
-			                                             warehousePermissionNodeViewModel.WarehousePermissionsType);
+														 warehousePermissionNodeViewModel.WarehousePermissionsType);
 			if(collection.All(x => x.PermissionValue == true) && warehousePermissionNodeViewModel.PermissionValue == true)
 			{
 				PermissionValue = warehousePermissionNodeViewModel.PermissionValue;
@@ -51,7 +51,10 @@ namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 			{
 				PermissionValue = warehousePermissionNodeViewModel.PermissionValue;
 			}
-			else PermissionValue = null;
+			else
+			{
+				PermissionValue = null;
+			}
 
 			UnSetAll = false;
 		}
