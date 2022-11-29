@@ -44,6 +44,7 @@ namespace RoboAtsService.Requests
 
 		public string ExecuteRequest()
 		{
+			var intervalRestrictions = _roboatsRepository.GetRoboatsDeliveryIntervalRestrictions();
 			var intervals = _roboatsRepository.GetRoboatsAvailableDeliveryIntervals();
 			if(!intervals.Any())
 			{
@@ -64,7 +65,28 @@ namespace RoboAtsService.Requests
 				{
 					result += "|";
 				}
-				result += GetOutputIntervalString(date, intervals.Select(x => x.Id));
+
+				if(DateTime.Today.AddDays(1) == date)
+				{
+					var availableIntervals = intervals.ToList();
+
+					var deniedIntervalIds = intervalRestrictions.Where(x => x.BeforeAcceptOrderHour < DateTime.Now.Hour)
+						.Select(x => x.DeliverySchedule.Id);
+
+					foreach(var interval in intervals)
+					{
+						if(deniedIntervalIds.Contains(interval.Id))
+						{
+							availableIntervals.Remove(interval);
+						}
+					}
+
+					intervals = availableIntervals;
+				}
+
+
+				var availableIntervalIds = intervals.Select(x => x.Id);
+				result += GetOutputIntervalString(date, availableIntervalIds);
 			}
 
 			return result;

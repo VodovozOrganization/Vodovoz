@@ -202,6 +202,7 @@
     <Compile Include="Domain\Organizations\Organization.cs" />
     <Compile Include="Domain\Payments\AllocationStatus.cs" />
     <Compile Include="Domain\Roboats\RoboatsCallDetail.cs" />
+    <Compile Include="Domain\Roboats\RoboatsDeliveryIntervalRestriction.cs" />
     <Compile Include="Domain\Roboats\RoboatsEntityType.cs" />
     <Compile Include="Domain\Roboats\RoboatsStreet.cs" />
     <Compile Include="Domain\Roboats\RoboatsWaterType.cs" />
@@ -457,6 +458,7 @@
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryTransferAbsenceReasonMap.cs" />
     <Compile Include="HibernateMapping\Organizations\OrganizationVersionMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\RoboatsDeliveryIntervalRestrictionMap.cs" />
     <Compile Include="HibernateMapping\Organizations\RoboatsStreetMap.cs" />
     <Compile Include="HibernateMapping\Organizations\RoboatsWaterTypeMap.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromAvangardMap.cs" />
