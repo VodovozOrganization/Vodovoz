@@ -121,10 +121,7 @@ namespace DriverAPI.Library.Models
 				RegistrationTime = actionTime
 			};
 
-			deliveryPoint.DeliveryPointEstimatedCoordinates.Add(coordinate);
-
 			_unitOfWork.Save(coordinate);
-			_unitOfWork.Save(deliveryPoint);
 			_unitOfWork.Commit();
 		}
 
