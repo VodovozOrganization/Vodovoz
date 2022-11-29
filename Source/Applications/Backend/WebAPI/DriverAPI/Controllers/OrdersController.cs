@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
+using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers
 {
@@ -52,7 +53,8 @@ namespace DriverAPI.Controllers
 		public OrderDto Get(int orderId)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(orderId: {orderId}) User token: {tokenStr}");
+			_logger.LogInformation("(OrderId: {OrderId}) User token: {TokenString}",
+				orderId, tokenStr);
 
 			return _aPIOrderData.Get(orderId);
 		}
@@ -60,16 +62,17 @@ namespace DriverAPI.Controllers
 		// POST: CompleteOrderDelivery / CompleteRouteListAddress
 		[HttpPost]
 		[Route("/api/CompleteOrderDelivery")]
-		public void CompleteOrderDelivery([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
+		public async Task CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(OrderId: {completedOrderRequestModel.OrderId}) User token: {tokenStr}");
+			_logger.LogInformation("(OrderId: {OrderId}) User token: {TokenString}",
+				completedOrderRequestModel.OrderId, tokenStr);
 
 			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			var recievedTime = DateTime.Now;
 
-			var user = _userManager.GetUserAsync(User).Result;
+			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
 			var resultMessage = "OK";
@@ -106,7 +109,7 @@ namespace DriverAPI.Controllers
 		/// <param name="changeOrderPaymentTypeRequestModel">Модель данных входящего запроса</param>
 		[HttpPost]
 		[Route("/api/ChangeOrderPaymentType")]
-		public void ChangeOrderPaymentType(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
+		public async Task ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation($"(OrderId: {changeOrderPaymentTypeRequestModel.OrderId}) User token: {tokenStr}");
@@ -119,7 +122,7 @@ namespace DriverAPI.Controllers
 			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType }" +
 				$" на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
-			var user = _userManager.GetUserAsync(User).Result;
+			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
 			var resultMessage = "OK";

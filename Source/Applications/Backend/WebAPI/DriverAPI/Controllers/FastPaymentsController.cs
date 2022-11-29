@@ -79,7 +79,7 @@ namespace DriverAPI.Controllers
 		{
 			var recievedTime = DateTime.Now;
 			
-			var user = _userManager.GetUserAsync(User).Result;
+			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
 			_logger.LogInformation($"Запрос смены оплаты заказа: { payByQRRequestDTO.OrderId }" +

@@ -15,8 +15,8 @@ namespace DriverAPI.Library.Models
 
 		public DriverMobileAppActionRecordModel(IUnitOfWork unitOfWork, ActionTypeConverter actionTypeConverter)
 		{
-			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			this._actionTypeConverter = actionTypeConverter ?? throw new ArgumentNullException(nameof(actionTypeConverter));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_actionTypeConverter = actionTypeConverter ?? throw new ArgumentNullException(nameof(actionTypeConverter));
 		}
 
 		public void RegisterAction(Employee driver, DriverActionDto driverAction)
