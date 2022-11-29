@@ -67,6 +67,7 @@ namespace Vodovoz.ViewModels
 			IsSameUser = CommonServices.UserService.CurrentUserId == Entity.Id;
 			
 			ConfigureEntityChangingRelations();
+			SubscribeUpdateOnChanges();
 		}
 
 		public event Action<IList<UserPermissionNode>> UpdateEntityUserPermissionsAction;
@@ -77,8 +78,6 @@ namespace Vodovoz.ViewModels
 		public bool CanEditLogin => UoW.IsNew;
 		public bool IsSameUser { get; }
 		public bool HasUserOnServer { get; private set; }
-		
-		public override bool HasChanges => true;
 		
 		public GenericObservableList<UserRole> AvailableUserRoles { get; }
 		public bool HasCurrentUserRole => Entity.CurrentUserRole != null;
@@ -281,6 +280,8 @@ namespace Vodovoz.ViewModels
 				() => CanRemoveUserRole)
 			);
 
+		public void UpdateChanges(object sender, EventArgs e) => HasChanges = true;
+
 		private bool CanAddUserRoleToUser => SelectedAvailableUserRole != null;
 		private bool CanRemoveUserRole => SelectedUserRole != null && SelectedUserRole.Id != Entity.CurrentUserRole?.Id;
 
@@ -380,6 +381,38 @@ namespace Vodovoz.ViewModels
 				ShowErrorMessage("При установке роли пользователя по умолчанию произошла ошибка. Возможно не хватает прав.");
 				_logger.Error(e, "Ошибка при установке роли по умолчанию");
 			}
+		}
+		
+		private void SubscribeUpdateOnChanges()
+		{
+			Entity.PropertyChanged += UpdateChanges;
+			AvailableUserRoles.ListContentChanged += UpdateChanges;
+			Entity.ObservableUserRoles.ListContentChanged += UpdateChanges;
+			PresetPermissionsViewModel.ObservablePermissionsList.ListContentChanged += UpdateChanges;
+			
+			foreach(var warehousePermissionNode in WarehousePermissionsViewModel.AllWarehouses)
+			{
+				warehousePermissionNode.SubNodeViewModel.ListContentChanged += UpdateChanges;
+			}
+		}
+		
+		private void UnsubscribeUpdateOnChanges()
+		{
+			Entity.PropertyChanged -= UpdateChanges;
+			AvailableUserRoles.ListContentChanged -= UpdateChanges;
+			Entity.ObservableUserRoles.ListContentChanged -= UpdateChanges;
+			PresetPermissionsViewModel.ObservablePermissionsList.ListContentChanged -= UpdateChanges;
+			
+			foreach(var warehousePermissionNode in WarehousePermissionsViewModel.AllWarehouses)
+			{
+				warehousePermissionNode.SubNodeViewModel.ListContentChanged -= UpdateChanges;
+			}
+		}
+
+		public override void Dispose()
+		{
+			UnsubscribeUpdateOnChanges();
+			base.Dispose();
 		}
 	}
 }
