@@ -188,6 +188,7 @@ namespace Vodovoz.SidePanel.InfoViews
 							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
 							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
 							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN 'Директор ЛО (Доставка за час)' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN 'Директор ЛО (Доставка в тот же день)' " +
 							$"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
 							"ELSE ?1 " +
 							"END ORDER BY ?1 ASC SEPARATOR '\n')"
