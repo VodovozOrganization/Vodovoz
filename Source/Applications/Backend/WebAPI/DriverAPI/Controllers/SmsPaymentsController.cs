@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
+using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers
 {
@@ -85,7 +86,7 @@ namespace DriverAPI.Controllers
 		/// <param name="payBySmsRequestModel"></param>
 		[HttpPost]
 		[Route("/api/PayBySms")]
-		public void PayBySms(PayBySmsRequestDto payBySmsRequestModel)
+		public async Task PayBySmsAsync(PayBySmsRequestDto payBySmsRequestModel)
 		{
 			return;
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
@@ -93,7 +94,7 @@ namespace DriverAPI.Controllers
 
 			var recievedTime = DateTime.Now;
 
-			var user = _userManager.GetUserAsync(User).Result;
+			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
 			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId }" +
