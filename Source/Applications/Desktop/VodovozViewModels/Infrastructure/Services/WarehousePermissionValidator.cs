@@ -45,8 +45,16 @@ namespace Vodovoz.ViewModels.Infrastructure.Services
 		}
 
 		public bool Validate(WarehousePermissionsType warehousePermissionsType, int warehouseId)
-			=> _subdivisionWarehousePermissions.SingleOrDefault(x =>
-					x.Warehouse.Id == warehouseId && x.WarehousePermissionType == warehousePermissionsType).PermissionValue
-				.Value;
+		{
+			var warehousePermission = _subdivisionWarehousePermissions.SingleOrDefault(x =>
+					x.Warehouse.Id == warehouseId && x.WarehousePermissionType == warehousePermissionsType);
+
+			if(warehousePermission is null)
+			{
+				return false;
+			}
+			
+			return warehousePermission.PermissionValue.HasValue && warehousePermission.PermissionValue.Value;
+		}
 	}
 }
