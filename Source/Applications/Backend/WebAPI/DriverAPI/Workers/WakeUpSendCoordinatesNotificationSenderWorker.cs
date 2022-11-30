@@ -4,8 +4,6 @@ using DriverAPI.Services;
 using FluentNHibernate.Conventions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Crypto.Tls;
-using Renci.SshNet.Messages;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
