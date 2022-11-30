@@ -14,7 +14,7 @@ using Vodovoz.ViewModels.Users;
 
 namespace Vodovoz.Views.Users
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class UserSettingsView : TabViewBase<UserSettingsViewModel>
 	{
 		public UserSettingsView(UserSettingsViewModel viewModel) : base(viewModel) {
@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Users
 
 		private void ConfigureDlg()
 		{
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
+			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetNotArchiveWarehousesQuery();
 			yentryrefWarehouse.Binding
 				.AddBinding(ViewModel.Entity, e => e.DefaultWarehouse, w => w.Subject)
 				.InitializeFromSource();

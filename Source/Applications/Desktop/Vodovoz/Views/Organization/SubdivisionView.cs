@@ -22,7 +22,7 @@ namespace Vodovoz.Views.Organization
 
 		private void ConfigureDlg()
 		{
-			subdivisionentitypermissionwidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);
+			subdivisionentitypermissionwidget.ConfigureDlg(ViewModel.EntitySubdivisionPermissionViewModel);
 			subdivisionentitypermissionwidget.Sensitive = ViewModel.CanEdit;
 
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
@@ -72,7 +72,6 @@ namespace Vodovoz.Views.Organization
 			}
 
 			vboxDocuments.Visible = ViewModel.CurrentUser.IsAdmin;
-			widgetcontainerview2.Visible = ViewModel.CurrentUser.IsAdmin;
 
 			buttonAddDocument.Clicked += ButtonAddDocument_Clicked;
 			buttonAddDocument.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -83,9 +82,15 @@ namespace Vodovoz.Views.Organization
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
-			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.SavePermissions(subdivisionentitypermissionwidget.UoW);
+			permissionsPresetContainerView.Binding
+				.AddBinding(ViewModel, vm => vm.PresetSubdivisionPermissionVM, w => w.WidgetViewModel)
+				.InitializeFromSource();
+			permissionsPresetContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
 
-			widgetcontainerview2.Binding.AddBinding(ViewModel, vm => vm.PresetSubdivisionPermissionVM, w => w.WidgetViewModel).InitializeFromSource();
+			warehousesPermissionsContainerView.Binding
+				.AddBinding(ViewModel, vm => vm.WarehousePermissionsVM, w => w.WidgetViewModel)
+				.InitializeFromSource();
+			warehousesPermissionsContainerView.Visible = ViewModel.CurrentUser.IsAdmin;
 
 			entryDefaultSalesPlan.SetEntityAutocompleteSelectorFactory(ViewModel.SalesPlanSelectorFactory);
 			entryDefaultSalesPlan.Binding.AddBinding(ViewModel.Entity, e => e.DefaultSalesPlan, w => w.Subject).InitializeFromSource();

@@ -7,6 +7,7 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using Vodovoz.Domain.Security;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Security;
@@ -15,7 +16,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
 {
     public class RegisteredRMJournalViewModel : FilterableSingleEntityJournalViewModelBase<RegisteredRM, RegisteredRMViewModel, RegisteredRMJournalNode, RegisteredRMJournalFilterViewModel>
     {
-        public RegisteredRMJournalViewModel(RegisteredRMJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+		private readonly IPermissionRepository _permissionRepository;
+
+		public RegisteredRMJournalViewModel(
+			RegisteredRMJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IPermissionRepository permissionRepository,
+			ICommonServices commonServices)
             : base(filterViewModel, unitOfWorkFactory, commonServices)
         {
             TabName = "Журнал зарегистрированных RM";
@@ -23,7 +30,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
             UpdateOnChanges(
                 typeof(RegisteredRM)
             );
-        }
+			_permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
+		}
 
         protected override Func<IUnitOfWork, IQueryOver<RegisteredRM>> ItemsSourceQueryFunction => (uow) =>
         {
@@ -53,12 +61,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Security
         protected override Func<RegisteredRMViewModel> CreateDialogFunction => () => new RegisteredRMViewModel(
                EntityUoWBuilder.ForCreate(),
                UnitOfWorkFactory,
-               commonServices
+			   commonServices,
+			   _permissionRepository
            );
 
-        protected override Func<RegisteredRMJournalNode, RegisteredRMViewModel> OpenDialogFunction => (node) => new RegisteredRMViewModel(
+		protected override Func<RegisteredRMJournalNode, RegisteredRMViewModel> OpenDialogFunction => (node) => new RegisteredRMViewModel(
                EntityUoWBuilder.ForOpen(node.Id),
                UnitOfWorkFactory,
-               commonServices);
+			   commonServices,
+			   _permissionRepository
+			);
     }
 }
