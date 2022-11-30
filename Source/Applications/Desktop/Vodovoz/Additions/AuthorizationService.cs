@@ -129,7 +129,7 @@ namespace Vodovoz.Additions
 			bool sendResult = false;
 			try
 			{
-				sendResult = true;//SendCredentialsToEmail(user.Login, password, employee.Email, employee.FullName, uow);
+				sendResult = SendCredentialsToEmail(user.Login, password, employee.Email, employee.FullName, uow);
 			}
 			catch(TimeoutException)
 			{
