@@ -160,6 +160,10 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -216,7 +220,8 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
-		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
+		var currentWarehousePermissions = new CurrentWarehousePermissions();
+		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
 		bool hasAccessToCRM = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
 		bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
@@ -1438,7 +1443,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
 	{
-		tdiMain.AddTab(new Vodovoz.Dialogs.HistoryView());
+		tdiMain.AddTab(new Vodovoz.Dialogs.HistoryView(new UserJournalFactory()));
 	}
 
 	protected void OnAction45Activated(object sender, EventArgs e)
@@ -1650,10 +1655,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionUsersActivated(object sender, EventArgs e)
 	{
-		UsersDialog usersDlg = new UsersDialog(ServicesConfig.InteractiveService);
-		usersDlg.Show();
-		usersDlg.Run();
-		usersDlg.Destroy();
+		NavigationManager.OpenViewModel<UsersJournalViewModel>(null);
 	}
 
 	protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)
@@ -2184,6 +2186,7 @@ public partial class MainWindow : Gtk.Window
 			new RegisteredRMJournalViewModel(
 				new RegisteredRMJournalFilterViewModel(),
 				UnitOfWorkFactory.GetDefaultFactory,
+				new PermissionRepository(),
 				ServicesConfig.CommonServices
 			)
 		);
@@ -2739,5 +2742,10 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionEdoOperatorsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<EdoOperatorsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+	
+	protected void OnUsersRolesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<UserRolesJournalViewModel>(null);
 	}
 }

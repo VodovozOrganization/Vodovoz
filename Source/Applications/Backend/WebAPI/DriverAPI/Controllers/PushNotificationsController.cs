@@ -42,12 +42,12 @@ namespace DriverAPI.Controllers
 		/// <param name="enablePushNotificationsRequest"></param>
 		[HttpPost]
 		[Route("/api/EnablePushNotifications")]
-		public void EnablePushNotifications([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
+		public async Task EnablePushNotificationsAsync([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation($"(FirebaseToken: {enablePushNotificationsRequest.Token}) User token: {tokenStr}");
 
-			var user = _userManager.GetUserAsync(User).Result;
+			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
 		}
@@ -57,12 +57,12 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		[HttpPost]
 		[Route("/api/DisablePushNotifications")]
-		public void DisablePushNotifications()
+		public async Task DisablePushNotificationsAsync()
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation($"User token: {tokenStr}");
 
-			var user = _userManager.GetUserAsync(User).Result;
+			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_employeeData.DisablePushNotifications(driver);
 		}

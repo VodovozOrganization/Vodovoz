@@ -121,7 +121,7 @@ namespace DriverAPI.Controllers
 		/// <returns></returns>
 		[HttpPost]
 		[Route("/api/RollbackRouteListAddressStatusEnRoute")]
-		public void RollbackRouteListAddressStatusEnRoute([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
+		public async Task RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 			_logger.LogInformation($"(RoutelistAddressId: {requestDto.RoutelistAddressId}) User token: {tokenStr}");
@@ -131,7 +131,7 @@ namespace DriverAPI.Controllers
 			var recievedTime = DateTime.Now;
 			var resultMessage = "OK";
 
-			var user = _userManager.GetUserAsync(User).Result;
+			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
 			try

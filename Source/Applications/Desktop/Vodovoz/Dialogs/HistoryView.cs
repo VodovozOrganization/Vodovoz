@@ -10,20 +10,17 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.HistoryLog.Domain;
 using QS.Project.DB;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Utilities;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.HistoryChanges;
 using Vodovoz.Journal;
 using Vodovoz.JournalNodes;
-using Vodovoz.Journals;
-using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
+using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Dialogs
@@ -49,7 +46,7 @@ namespace Vodovoz.Dialogs
 
 		public IUnitOfWork UoW { get; private set; }
 
-		public HistoryView()
+		public HistoryView(IUserJournalFactory userJournalFactory)
 		{
 			this.Build();
 
@@ -61,9 +58,7 @@ namespace Vodovoz.Dialogs
 
 			comboAction.ItemsEnum = typeof(EntityChangeOperation);
 
-			entryUser.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<User, UserJournalViewModel, UserJournalFilterViewModel>(ServicesConfig.CommonServices));
-
+			entryUser.SetEntityAutocompleteSelectorFactory(userJournalFactory.CreateSelectUserAutocompleteSelectorFactory());
 			entryUser.ChangedByUser += (sender, e) => UpdateJournal();
 
 			entryObject3.SetNodeAutocompleteSelectorFactory(

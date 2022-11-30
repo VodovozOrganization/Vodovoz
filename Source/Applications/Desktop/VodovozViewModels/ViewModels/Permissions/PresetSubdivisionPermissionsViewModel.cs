@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Commands;
@@ -10,7 +9,7 @@ using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz.ViewModels.Permissions
 {
-	public class PresetSubdivisionPermissionsViewModel: PresetPermissionsViewModelBase
+	public class PresetSubdivisionPermissionsViewModel : PresetPermissionsViewModelBase
 	{
 		protected Subdivision subdivision;
 
@@ -38,57 +37,59 @@ namespace Vodovoz.ViewModels.Permissions
 			OrderPermission();
 		}
 
-		public override DelegateCommand<PresetUserPermissionSource> AddPermissionCommand {
-			get {
-				if(addPermissionCommand == null) {
-					addPermissionCommand = new DelegateCommand<PresetUserPermissionSource>(
-						(source) => {
-							var newPermission = new HierarchicalPresetSubdivisionPermission {
-								PermissionName = source.Name,
-								Value = true,
-								Subdivision = subdivision
-							};
-							ObservablePermissionsList.Add(newPermission);
+		public override DelegateCommand AddPermissionCommand =>
+			addPermissionCommand ?? (addPermissionCommand = new DelegateCommand(
+				() =>
+				{
+					if(SelectedPresetUserPermissionSource is null)
+					{
+						return;
+					}
+					
+					var newPermission = new HierarchicalPresetSubdivisionPermission
+					{
+						PermissionName = SelectedPresetUserPermissionSource.Name,
+						Value = true,
+						Subdivision = subdivision
+					};
+					ObservablePermissionsList.Add(newPermission);
 
-							var sourceItem = ObservablePermissionsSourceList
-												.SingleOrDefault(x => x.Name == newPermission.PermissionName);
-							ObservablePermissionsSourceList.Remove(sourceItem);
-
-							var deletedPermission = deletePermissionList.FirstOrDefault(x => x.PermissionName == source.Name);
-							if(deletedPermission != null)
-								deletePermissionList.Remove(deletedPermission);
-
-							OrderPermission();
-
-						},
-						(source) => true
-					);
+					var sourceItem = ObservablePermissionsSourceList
+						.SingleOrDefault(x => x.Name == newPermission.PermissionName);
+					var deletedPermission =
+						deletePermissionList.FirstOrDefault(x => x.PermissionName == SelectedPresetUserPermissionSource.Name);
+					
+					if(deletedPermission != null)
+					{
+						deletePermissionList.Remove(deletedPermission);
+					}
+					
+					ObservablePermissionsSourceList.Remove(sourceItem);
+					OrderPermission();
 				}
-				return addPermissionCommand;
-			}
-		}
+			));
 
-		public override DelegateCommand<HierarchicalPresetPermissionBase> RemovePermissionCommand {
-			get {
-				if(removePermissionCommand == null) {
-					removePermissionCommand = new DelegateCommand<HierarchicalPresetPermissionBase>(
-						(permissionBase) => {
-							var permission = permissionBase as HierarchicalPresetSubdivisionPermission;
-							ObservablePermissionsList.Remove(permission);
-							var source = PermissionsSettings.PresetPermissions[permission.PermissionName];
-							ObservablePermissionsSourceList.Add(source);
+		public override DelegateCommand RemovePermissionCommand =>
+			removePermissionCommand ?? (removePermissionCommand = new DelegateCommand(
+				() =>
+				{
+					if(SelectedHierarchicalPresetPermissionBase is null)
+					{
+						return;
+					}
+					
+					var source = PermissionsSettings.PresetPermissions[SelectedHierarchicalPresetPermissionBase.PermissionName];
+					ObservablePermissionsSourceList.Add(source);
 
-							if(permission.Id > 0)
-								deletePermissionList.Add(permission);
-
-							OrderPermission();
-						},
-						(permission) => true
-					);
+					if(SelectedHierarchicalPresetPermissionBase.Id > 0)
+					{
+						deletePermissionList.Add(SelectedHierarchicalPresetPermissionBase);
+					}
+					
+					ObservablePermissionsList.Remove(SelectedHierarchicalPresetPermissionBase);
+					OrderPermission();
 				}
-				return removePermissionCommand;
-			}
-		}
+			));
 
 		public override DelegateCommand SaveCommand {
 			get {

@@ -50,6 +50,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
@@ -70,6 +71,8 @@ namespace Vodovoz.JournalColumnsConfigs
 		private static readonly Color _colorLightGrey = new Color(0xcc, 0xcc, 0xcc);
 		private static readonly Color _colorDarkGrey = new Color(0x80, 0x80, 0x80);
 		private static readonly Color _colorLightGreen = new Color(0xc0, 0xff, 0xc0);
+		private static readonly Color _colorBlue = new Color(0x00, 0x18, 0xf9);
+		private static readonly Color _colorBabyBlue = new Color(0x89, 0xcf, 0xef);
 
 		public static void RegisterColumns()
 		{
@@ -1009,8 +1012,8 @@ namespace Vodovoz.JournalColumnsConfigs
 			);
 
 
-			//UserJournalViewModel
-			TreeViewColumnsConfigFactory.Register<UserJournalViewModel>(
+			//SelectUserJournalViewModel
+			TreeViewColumnsConfigFactory.Register<SelectUserJournalViewModel>(
 				() => FluentColumnsConfig<UserJournalNode>.Create()
 					.AddColumn("Код")
 						.AddTextRenderer(node => node.Id.ToString())
@@ -1022,6 +1025,35 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) =>
 							c.ForegroundGdk = n.Deactivated ? _colorDarkGrey : _colorBlack)
+					.Finish()
+			);
+
+			//UserJournalViewModel
+			TreeViewColumnsConfigFactory.Register<UsersJournalViewModel>(
+				() => FluentColumnsConfig<UserJournalNode>.Create()
+					.AddColumn("Код")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Имя")
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("Логин")
+						.AddTextRenderer(node => node.Login)
+					.AddColumn("Id сотрудника")
+						.AddTextRenderer(node => node.EmployeeId.HasValue ? node.EmployeeId.ToString() : string.Empty)
+					.AddColumn("ФИО сотрудника")
+						.AddTextRenderer(node => node.EmployeeFIO)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) =>
+						{
+							if(n.Deactivated)
+							{
+								c.ForegroundGdk = n.IsAdmin ? _colorBabyBlue : _colorDarkGrey;
+							}
+							else
+							{
+								c.ForegroundGdk = n.IsAdmin ? _colorBlue : _colorBlack;
+							}
+						})
 					.Finish()
 			);
 
@@ -1721,7 +1753,20 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Трёхзначный код").AddNumericRenderer(node => node.Code)
 					.AddColumn("")
 					.Finish()
-				);
+			);
+
+			//UserRolesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<UserRolesJournalViewModel>(
+				() => FluentColumnsConfig<UserRolesJournalNode>.Create()
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id)
+					.AddColumn("Название")
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("Описание роли")
+						.AddTextRenderer(node => node.Description)
+					.AddColumn("")
+					.Finish()
+			);
 		}
 	}
 }
