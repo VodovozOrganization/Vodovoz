@@ -128,5 +128,13 @@ namespace Vodovoz.EntityRepositories.Employees
 					.SingleOrDefault();
 			}
 		}
+
+		public IList<string> GetAllPushTokens(IUnitOfWork uow)
+		{
+			return uow.Session.Query<Employee>()
+				.Where(e => e.AndroidToken != null && e.AndroidToken != string.Empty)
+				.Select(e => e.AndroidToken)
+				.ToList();
+		}
 	}
 }

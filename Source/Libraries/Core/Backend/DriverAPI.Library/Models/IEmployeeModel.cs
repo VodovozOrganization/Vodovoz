@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.Employees;
+﻿using System.Collections.Generic;
+using Vodovoz.Domain.Employees;
 
 namespace DriverAPI.Library.Models
 {
@@ -6,6 +7,7 @@ namespace DriverAPI.Library.Models
 	{
 		void DisablePushNotifications(Employee driver);
 		void EnablePushNotifications(Employee driver, string token);
+		IList<string> GetAllPushNotifiableTokens();
 		Employee GetByAPILogin(string login);
 	}
 }

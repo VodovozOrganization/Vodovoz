@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
 
@@ -34,6 +35,11 @@ namespace DriverAPI.Library.Models
 		{
 			return _employeeRepository.GetDriverByAndroidLogin(_unitOfWork, login)
 				?? throw new DataNotFoundException(nameof(login), $"Не найден сотрудник для логина { login }");
+		}
+
+		public IList<string> GetAllPushNotifiableTokens()
+		{
+			return _employeeRepository.GetAllPushTokens(_unitOfWork);
 		}
 	}
 }

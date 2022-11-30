@@ -1,5 +1,4 @@
-﻿using DriverAPI.Library.DTOs;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -24,22 +23,66 @@ namespace DriverAPI.Library.Helpers
 				to = pushNotificationClientToken,
 				notification = new
 				{
-					title = title,
-					body = body
+					title,
+					body
 				}
 			};
 
 			using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request))
 			{
-				if (response.IsSuccessStatusCode)
-				{
-					return;
-				}
-				else
+				if(!response.IsSuccessStatusCode)
 				{
 					throw new FCMException(response.ReasonPhrase);
 				}
 			}
+		}
+
+		public async Task SendWakeUpNotification(string pushNotificationClientToken)
+		{
+			var request = new
+			{
+				to = pushNotificationClientToken,
+				priority = "high"
+			};
+
+			//using HttpResponseMessage response = await _apiClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request);
+			//"message": {
+
+			//					"token": recieverFcm,
+			//			   "data": {
+			//						"title": senderName,
+			//   				   "body": message,
+			//   				   "chatRoomId": chatRoomId,
+			//   				   "sender_profile_pic": senderProfilePic,
+			//   				   "senderUid": senderUid,
+			//   				   "data_type": messageType,
+			//   				   "click_action": "OPEN_CHAT_ROOM"
+
+			// },
+			//			   "android": {
+			//						"priority": "high"
+
+			// },
+			//			   "apns": {
+			//						"payload": {
+			//							"aps": {
+			//								"category": "OPEN_CHAT_ROOM",
+			//           				   "sound": "enable",
+			//           				   "content-available": 1,
+			//       				   },
+			//       				   "data": {
+			//								"title": senderName,
+			//           				   "body": message,
+			//           				   "chatRoomId": chatRoomId,
+			//           				   "sender_profile_pic": senderProfilePic,
+			//           				   "senderUid": senderUid,
+			//           				   "data_type": messageType,
+			//           				   "click_action": "OPEN_CHAT_ROOM"
+
+			//	 },
+			//   				   }
+			//					}
+			//				}
 		}
 
 		private void InitializeClient(IConfiguration configuration)
