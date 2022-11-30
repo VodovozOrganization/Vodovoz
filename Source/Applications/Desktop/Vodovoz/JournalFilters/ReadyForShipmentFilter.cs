@@ -4,10 +4,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Additions.Store;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
-using Vodovoz.Infrastructure.Permissions;
-using Vodovoz.JournalViewModels;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
@@ -20,8 +18,8 @@ namespace Vodovoz
 
         protected override void ConfigureWithUow()
 		{
-            var warehousesList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, new[] { WarehousePermissions.WarehouseView })
-                                    .OrderBy(w => w.Name).ToList();
+            var warehousesList = new StoreDocumentHelper().GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WarehouseView)
+				.OrderBy(w => w.Name).ToList();
 
             bool accessToWarehouseAndComplaints =
 	            ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")

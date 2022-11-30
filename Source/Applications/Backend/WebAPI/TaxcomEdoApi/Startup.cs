@@ -55,9 +55,8 @@ namespace TaxcomEdoApi
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "TaxcomEdoApi", Version = "v1" }); });
 			
 			var apiSection = Configuration.GetSection("Api");
-			var certificate =
-				CertificateLogic.GetAvailableCertificates().SingleOrDefault(
-					x => x.Subject.Contains(apiSection.GetValue<string>("CertificateSubjectName")));
+			var certificateThumbprint = apiSection.GetValue<string>("CertificateThumbprint").ToUpper();
+			var certificate = CertificateLogic.GetAvailableCertificates().SingleOrDefault(x => x.Thumbprint == certificateThumbprint);
 
 			if(certificate is null)
 			{

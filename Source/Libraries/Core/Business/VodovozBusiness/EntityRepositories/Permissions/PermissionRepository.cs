@@ -1,17 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
+using NHibernate.Criterion;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Permissions
 {
-	public class PermissionRepository: IPermissionRepository
+	public class PermissionRepository : IPermissionRepository
 	{
 		public IEnumerable<SubdivisionPermissionNode> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId, IPermissionExtensionStore permissionExtensionStore)
 		{
@@ -133,11 +135,45 @@ namespace Vodovoz.EntityRepositories.Permissions
 					.SingleOrDefault();
 		}
 
-		public IList<HierarchicalPresetUserPermission> GetAllPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user)
+		public IList<HierarchicalPresetUserPermission> GetAllPresetUserPermission(IUnitOfWork uow, int userId)
 		{
-			return uow.Session.QueryOver<HierarchicalPresetUserPermission>()
-						.Where(x => x.User.Id == user.Id)
-						.List();
+			return GetPresetUserPermissionByUserId(userId)
+				.GetExecutableQueryOver(uow.Session)
+				.List();
+		}
+		
+		public IList<HierarchicalPresetPermissionBase> GetAllPresetUserPermissionBase(IUnitOfWork uow, int userId)
+		{
+			return GetPresetUserPermissionByUserId(userId)
+				.GetExecutableQueryOver(uow.Session)
+				.List<HierarchicalPresetPermissionBase>();
+		}
+
+		public IList<WarehousePermissionBase> GetAllUserWarehousesPermissions(IUnitOfWork uow, int userId)
+		{
+			return uow.Session.QueryOver<UserWarehousePermission>()
+				.Where(x => x.User.Id == userId)
+				.List<WarehousePermissionBase>();
+		}
+		
+		public IEnumerable<EntityUserPermission> GetAllEntityUserPermissions(IUnitOfWork uow, int userId)
+		{
+			return uow.Session.QueryOver<EntityUserPermission>()
+				.Where(x => x.User.Id == userId)
+				.List();
+		}
+		
+		public IEnumerable<EntityUserPermissionExtended> GetAllEntityUserPermissionsExtended(IUnitOfWork uow, int userId)
+		{
+			return uow.Session.QueryOver<EntityUserPermissionExtended>()
+				.Where(x => x.User.Id == userId)
+				.List();
+		}
+		
+		private QueryOver<HierarchicalPresetUserPermission, HierarchicalPresetUserPermission> GetPresetUserPermissionByUserId(int userId)
+		{
+			return QueryOver.Of<HierarchicalPresetUserPermission>()
+				.Where(x => x.User.Id == userId);
 		}
 	}
 }

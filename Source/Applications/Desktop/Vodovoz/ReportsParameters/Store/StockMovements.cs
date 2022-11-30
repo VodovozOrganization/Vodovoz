@@ -31,7 +31,7 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
+			yentryrefWarehouse.ItemsQuery = new StoreDocumentHelper().GetRestrictedWarehouseQuery();
 			filter = new SelectableParametersReportFilter(UoW);
 			
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
