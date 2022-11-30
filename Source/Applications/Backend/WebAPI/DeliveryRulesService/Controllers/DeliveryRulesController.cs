@@ -400,7 +400,7 @@ namespace DeliveryRulesService.Controllers
 
 			fastDeliveryAvailabilityHistory.District = _deliveryRepository.GetDistrict(uow, latitude, longitude);
 
-			//_fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
+			_fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 			var allowedRouteLists = fastDeliveryAvailabilityHistory.Items;
 			return await ValueTask.FromResult(
