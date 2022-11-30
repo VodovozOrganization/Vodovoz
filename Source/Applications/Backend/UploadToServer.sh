@@ -1,12 +1,10 @@
 ﻿#!/bin/bash
 
 echo "Какие службы необходимо обновить?"
-echo "1) SmsInformer"
-echo "2) ModulKassa (SalesReceipts)"
-echo "3) InstantSms"
-echo "4) DeliveryRules"
-echo "5) SmsPayment"
-echo "6) Mango"
+echo "1) ModulKassa (SalesReceipts)"
+echo "2) InstantSms"
+echo "3) SmsPayment"
+echo "4) Mango"
 
 echo "Можно вызывать вместе, перечислив номера через запятую, например SmsInformer+ModulKassa=1,2"
 read service;
@@ -16,17 +14,11 @@ echo "1) Release"
 echo "2) Debug"
 read build;
 
-smsServiceFolder="VodovozSmsInformerService"
-smsServiceName="vodovoz-smsinformer.service"
-
 kassaServiceFolder="VodovozSalesReceiptsService"
 kassaServiceName="vodovoz-sales-receipts.service"
 
 instantSmsServiceFolder="VodovozInstantSmsService"
 instantSmsServiceName="vodovoz-instant-sms.service"
-
-deliveryRulesServiceFolder="VodovozDeliveryRulesService"
-deliveryRulesServiceName="vodovoz-delivery-rules.service"
 
 smsPaymentServiceFolder="VodovozSmsPaymentService"
 smsPaymentServiceName="vodovoz-sms-payment.service"
@@ -70,20 +62,6 @@ function PublishProject {
     dotnet publish "$1/$2" --configuration $buildFolderName
 }
 
-function UpdateSMSInformerService {
-	printf "\nОбновление службы SMS информирования\n"
-
-	echo "-- Stoping $smsServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $smsServiceName
-
-	echo "-- Copying $smsServiceName files"
-	DeleteHttpDll "Workers/Mono" $smsServiceFolder
-	CopyFiles "Workers/Mono" $smsServiceFolder
-
-	echo "-- Starting $smsServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $smsServiceName
-}
-
 function UpdateSalesReceiptsService {
 	printf "\nОбновление службы управления кассовым апаратом\n"
 
@@ -110,20 +88,6 @@ function UpdateInstantSmsService {
 
 	echo "-- Starting $instantSmsServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $instantSmsServiceName
-}
-
-function UpdateDeliveryRulesService {
-	printf "\nОбновление службы правил доставки\n"
-
-	echo "-- Stoping $deliveryRulesServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $deliveryRulesServiceName
-
-	echo "-- Copying $deliveryRulesServiceName files"
-	DeleteHttpDll "WCF" $deliveryRulesServiceFolder
-	CopyFiles "WCF" $deliveryRulesServiceFolder
-
-	echo "-- Starting $deliveryRulesServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $deliveryRulesServiceName
 }
 
 function UpdateSmsPaymentService {
@@ -159,21 +123,15 @@ function UpdateMangoService {
 service2=",$service,"
 case $service2 in
 	*,1,*)
-		UpdateSMSInformerService
-	;;&
-	*,2,*)
 		UpdateSalesReceiptsService
 	;;&
-	*,3,*)
+	*,2,*)
 		UpdateInstantSmsService
 	;;&
-	*,4,*)
-		UpdateDeliveryRulesService
-	;;&
-	*,5,*)
+	*,3,*)
 		UpdateSmsPaymentService
 	;;&
-	*,6,*)
+	*,4,*)
 		UpdateMangoService
 	;;
 esac
