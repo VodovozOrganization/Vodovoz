@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -6,6 +6,9 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -17,6 +20,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 	{
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly WarehouseJournalFilterViewModel _filterViewModel;
+		private WarehousePermissionsType[] _warehousePermissions;
 		
 		public WarehouseJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -28,6 +32,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			TabName = "Журнал складов";
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_filterViewModel = filterViewModel;
+			_warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
 
 			UpdateOnChanges(
 				typeof(Warehouse)
@@ -47,6 +52,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			WarehouseJournalNode warehouseNodeAlias = null;
 
 			var query = uow.Session.QueryOver<Warehouse>(() => warehouseAlias).WhereNot(w => w.IsArchive);
+			var disjunction = new Disjunction();
 
 			if(_filterViewModel?.ExcludeWarehousesIds != null)
 			{
@@ -57,6 +63,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				query.WhereRestrictionOn(x => x.Id).IsInG(_filterViewModel.IncludeWarehouseIds);
 			}
+
+			var permission = new CurrentWarehousePermissions();
+			foreach (var p in _warehousePermissions)
+			{
+				disjunction.Add<Warehouse>(
+					w =>
+						w.Id.IsIn(permission.WarehousePermissions.Where(x => x.WarehousePermissionType == p && x.PermissionValue == true)
+						.Select(x => x.Warehouse.Id).ToArray()));
+			}
+			query.Where(disjunction);
 
 			query.Where(GetSearchCriterion(
 				() => warehouseAlias.Id,
@@ -84,6 +100,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			_subdivisionRepository
 		);
 	}
+
 
 	public class WarehouseJournalFilterViewModel
 	{

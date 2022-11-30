@@ -295,7 +295,7 @@ namespace Vodovoz.Models.Orders
 				Nomenclature = orderItem.Nomenclature,
 				PromoSet = orderItem.PromoSet,
 				Price = orderItem.Price,
-				IsUserPrice = withPrices || orderItem.IsUserPrice,
+				IsUserPrice = withPrices,
 				Count = orderItem.Count,
 				IncludeNDS = orderItem.IncludeNDS
 			};

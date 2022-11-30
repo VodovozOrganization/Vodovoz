@@ -12,6 +12,9 @@ namespace Vodovoz.ViewModels.Permissions
 {
 	public abstract class PresetPermissionsViewModelBase : UoWWidgetViewModelBase
 	{
+		private HierarchicalPresetPermissionBase _selectedHierarchicalPresetPermissionBase;
+		private PresetUserPermissionSource _selectedPresetUserPermissionSource;
+		
 		protected IPermissionRepository permissionRepository;
 
 		protected IList<HierarchicalPresetPermissionBase> deletePermissionList = new List<HierarchicalPresetPermissionBase>();
@@ -36,13 +39,25 @@ namespace Vodovoz.ViewModels.Permissions
 
 		public virtual void StartSearch(string searchstring) { }
 
-		protected DelegateCommand<PresetUserPermissionSource> addPermissionCommand;
-		public virtual DelegateCommand<PresetUserPermissionSource> AddPermissionCommand { get; }
+		protected DelegateCommand addPermissionCommand;
+		public virtual DelegateCommand AddPermissionCommand { get; }
 
-		protected DelegateCommand<HierarchicalPresetPermissionBase> removePermissionCommand;
-		public virtual DelegateCommand<HierarchicalPresetPermissionBase> RemovePermissionCommand { get; }
+		protected DelegateCommand removePermissionCommand;
+		public virtual DelegateCommand RemovePermissionCommand { get; }
 
 		protected DelegateCommand saveCommand;
 		public virtual DelegateCommand SaveCommand { get; }
+
+		public HierarchicalPresetPermissionBase SelectedHierarchicalPresetPermissionBase
+		{
+			get => _selectedHierarchicalPresetPermissionBase;
+			set => SetField(ref _selectedHierarchicalPresetPermissionBase, value);
+		}
+		
+		public PresetUserPermissionSource SelectedPresetUserPermissionSource
+		{
+			get => _selectedPresetUserPermissionSource;
+			set => SetField(ref _selectedPresetUserPermissionSource, value);
+		}
 	}
 }

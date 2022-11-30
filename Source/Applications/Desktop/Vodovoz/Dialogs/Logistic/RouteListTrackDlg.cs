@@ -255,7 +255,7 @@ namespace Vodovoz
 				foreach(var pointsForDriver in lastPoints.GroupBy(x => x.DriverId)) {
 					var lastPoint = pointsForDriver.OrderBy(x => x.Time).Last();
 					var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<WorkingDriverVMNode>)
-								.First(x => x.Id == lastPoint.DriverId);
+						.First(x => x.Id == lastPoint.DriverId);
 
 					CarMarkerType iconType;
 					var ere20 = ere20Minuts.Where(x => x.DriverId == pointsForDriver.Key).OrderBy(x => x.Time).LastOrDefault();

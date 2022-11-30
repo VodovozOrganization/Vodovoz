@@ -525,7 +525,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		{
 			var result = new List<KeyValuePair<string, object>>();
 			var groupItems = GroupingSelectViewModel.GetRightItems().ToList();
-			if(!groupItems.Any() && !IsDetailed)
+			if(!groupItems.Any())
 			{
 				groupItems.Add(new GroupingNode { GroupType = GroupingType.Nomenclature });
 			}

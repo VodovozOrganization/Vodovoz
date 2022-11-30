@@ -1,10 +1,7 @@
-﻿using QS.Dialog.GtkUI;
-using QS.Project.DB;
-using QS.Project.Dialogs.GtkUI.ServiceDlg;
-using QS.Project.Repositories;
-using QS.Project.Services.GtkUI;
-using Vodovoz.Additions;
+﻿using Vodovoz.Additions;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Infrastructure.Services;
 
@@ -12,12 +9,14 @@ namespace Vodovoz.Factories
 {
 	public class AuthorizationServiceFactory : IAuthorizationServiceFactory
 	{
+		private static readonly IParametersProvider _parametersProvider = new ParametersProvider(); 
+		
 		public IAuthorizationService CreateNewAuthorizationService() =>
 			new AuthorizationService(
 				new PasswordGenerator(),
-				new MySQLUserRepository(
-					new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService()),
+				new UserRoleSettings(_parametersProvider),
+				new UserRoleRepository(),
 				new EntityRepositories.UserRepository(),
-				new EmailParametersProvider(new ParametersProvider()));
+				new EmailParametersProvider(_parametersProvider));
 	}
 }

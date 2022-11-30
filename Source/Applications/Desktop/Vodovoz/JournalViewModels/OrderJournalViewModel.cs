@@ -118,6 +118,8 @@ namespace Vodovoz.JournalViewModels
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !commonServices.UserService.GetCurrentUser(UoW).IsAdmin;
 
+			SearchEnabled = false;
+
 			RegisterOrders();
 			RegisterOrdersWithoutShipmentForDebt();
 			RegisterOrdersWithoutShipmentForPayment();
@@ -225,7 +227,7 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(o => o.Id == -1);
 			}
-			
+
 			if(FilterViewModel.RestrictStatus != null) {
 				query.Where(o => o.OrderStatus == FilterViewModel.RestrictStatus);
 			}
@@ -252,6 +254,11 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.DeliveryPoint != null) {
 				query.Where(o => o.DeliveryPoint == FilterViewModel.DeliveryPoint);
+			}
+
+			if(FilterViewModel.Author != null)
+			{
+				query.Where(o => o.Author == FilterViewModel.Author);
 			}
 
 			if(FilterViewModel.StartDate != null)
@@ -345,6 +352,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.OrderId != null)
 			{
 				query.Where(() => orderAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
+			if(FilterViewModel.OnlineOrderId != null)
+			{
+				query.Where(() => orderAlias.OnlineOrder == FilterViewModel.OnlineOrderId);
 			}
 
 			if(FilterViewModel.IsForSalesDepartment != null)
@@ -498,6 +510,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
 				|| FilterViewModel.RestrictPaymentType != null
 				|| FilterViewModel.DeliveryPoint != null
+				|| FilterViewModel.OnlineOrderId != null
 				|| FilterViewModel.RestrictOnlyService != null
 				|| FilterViewModel.RestrictOnlySelfDelivery != null
 				|| FilterViewModel.RestrictLessThreeHours == true
@@ -519,6 +532,11 @@ namespace Vodovoz.JournalViewModels
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
+			}
+
+			if(FilterViewModel.Author != null)
+			{
+				query.Where(o => o.Author == FilterViewModel.Author);
 			}
 
 			if(FilterViewModel.OrderId != null)
@@ -635,7 +653,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
 			    || FilterViewModel.RestrictPaymentType != null
 			    || FilterViewModel.DeliveryPoint != null
-			    || FilterViewModel.RestrictOnlyService != null
+				|| FilterViewModel.OnlineOrderId != null
+				|| FilterViewModel.RestrictOnlyService != null
 				|| FilterViewModel.RestrictOnlySelfDelivery != null
 			    || FilterViewModel.RestrictLessThreeHours == true
 			    || FilterViewModel.OrderPaymentStatus != null
@@ -656,6 +675,11 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.RestrictCounterparty != null) {
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
+			}
+
+			if(FilterViewModel.Author != null)
+			{
+				query.Where(o => o.Author == FilterViewModel.Author);
 			}
 
 			var bottleCountSubquery = QueryOver.Of(() => orderWSPItemAlias)
@@ -793,7 +817,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
 			    || FilterViewModel.RestrictPaymentType != null
 			    || FilterViewModel.DeliveryPoint != null
-			    || FilterViewModel.RestrictOnlyService != null
+				|| FilterViewModel.OnlineOrderId != null
+				|| FilterViewModel.RestrictOnlyService != null
 			    || FilterViewModel.RestrictOnlySelfDelivery != null
 			    || FilterViewModel.RestrictLessThreeHours == true
 			    || FilterViewModel.OrderPaymentStatus != null
@@ -814,6 +839,11 @@ namespace Vodovoz.JournalViewModels
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
+			}
+
+			if(FilterViewModel.Author != null)
+			{
+				query.Where(o => o.Author == FilterViewModel.Author);
 			}
 
 			var bottleCountSubquery = QueryOver.Of(() => orderWSAPItemAlias)

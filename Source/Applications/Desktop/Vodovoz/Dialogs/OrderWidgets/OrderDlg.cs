@@ -3668,6 +3668,12 @@ namespace Vodovoz
 
 		protected void OnBtnFormClicked(object sender, EventArgs e)
 		{
+			if(Entity.Client is null)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
+				return;
+			}
+			
 			ylblCounterpartyFIO.Text = Entity.Client.FullName;
 			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
 
