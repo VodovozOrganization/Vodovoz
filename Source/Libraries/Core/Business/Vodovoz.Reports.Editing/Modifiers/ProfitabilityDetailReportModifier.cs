@@ -99,7 +99,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private NewTableGroupWithCellsFromDetails GetFirstLevelAction(GroupingType groupingType)
 		{
 			var style = GetFirstLevelGroupStyle();
-			style.Format = "0.00";
+			style.Format = "# ##0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
 			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
@@ -111,7 +111,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private NewTableGroupWithCellsFromDetails GetSecondLevelAction(GroupingType groupingType)
 		{
 			var style = GetSecondLevelGroupStyle();
-			style.Format = "0.00";
+			style.Format = "# ##0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
 			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
@@ -124,7 +124,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private NewTableGroupWithCellsFromDetails GetThirdLevelAction(GroupingType groupingType)
 		{
 			var style = GetThirdLevelGroupStyle();
-			style.Format = "0.00";
+			style.Format = "# ##0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
 			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
