@@ -10,6 +10,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -40,7 +41,9 @@ namespace Vodovoz.Filters.ViewModels
 		private ViewTypes _viewTypes;
 		private bool _canChangeDeliveryPoint = true;
 		private DeliveryPoint _deliveryPoint;
+		private Employee _author;
 		private int? _orderId;
+		private int? _onlineOrderId;
 		private string _counterpartyPhone;
 		private string _deliveryPointPhone;
 		private DateTime? _endDate;
@@ -52,7 +55,8 @@ namespace Vodovoz.Filters.ViewModels
 
 		public OrderJournalFilterViewModel(
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory)
+			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			IEmployeeJournalFactory employeeJournalFactory)
 		{
 			Organisations = UoW.GetAll<Organization>();
 			PaymentsFrom = UoW.GetAll<PaymentFrom>();
@@ -60,8 +64,13 @@ namespace Vodovoz.Filters.ViewModels
 			deliveryPointJournalFactory?.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
 			DeliveryPointSelectorFactory = deliveryPointJournalFactory?.CreateDeliveryPointByClientAutocompleteSelectorFactory()
 			                               ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
 			                              ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+
+			AuthorSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
+									?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+
 			GeographicGroups = UoW.Session.QueryOver<GeoGroup>().List<GeoGroup>().ToList();
 		}
 
@@ -72,6 +81,7 @@ namespace Vodovoz.Filters.ViewModels
 		public IEnumerable<PaymentFrom> PaymentsFrom { get; }
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory { get; }
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public virtual IEntityAutocompleteSelectorFactory AuthorSelectorFactory { get; }
 
 		#endregion
 
@@ -189,6 +199,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _deliveryPoint;
 			set => UpdateFilterField(ref _deliveryPoint, value);
+		}
+
+		public virtual Employee Author
+		{
+			get => _author;
+			set => UpdateFilterField(ref _author, value);
 		}
 
 		public bool CanChangeDeliveryPoint
@@ -426,6 +442,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _orderId;
 			set => SetField(ref _orderId, value);
+		}
+
+		public int? OnlineOrderId
+		{
+			get => _onlineOrderId;
+			set => SetField(ref _onlineOrderId, value);
 		}
 
 		public string CounterpartyPhone

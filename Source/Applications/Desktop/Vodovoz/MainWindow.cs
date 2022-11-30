@@ -2275,8 +2275,9 @@ public partial class MainWindow : Gtk.Window
 	{
 		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+		var employeeJournalFactory = new EmployeeJournalFactory();
 
-		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory)
+		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
 		{
 			IsForRetail = true
 		};

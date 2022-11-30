@@ -30,6 +30,10 @@ namespace Vodovoz.Filters.GtkViews
 			entryOrderId.KeyReleaseEvent += OnKeyReleased;
 			entryOrderId.Binding.AddBinding(ViewModel, vm => vm.OrderId, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 
+			eOnlineOrderId.ValidationMode = ValidationType.Numeric;
+			eOnlineOrderId.KeyReleaseEvent += OnKeyReleased;
+			eOnlineOrderId.Binding.AddBinding(ViewModel, vm => vm.OnlineOrderId, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
+
 			entryCounterpartyPhone.ValidationMode = ValidationType.Numeric;
 			entryCounterpartyPhone.KeyReleaseEvent += OnKeyReleased;
 			entryCounterpartyPhone.Binding.AddBinding(ViewModel, vm => vm.CounterpartyPhone, w => w.Text).InitializeFromSource();
@@ -60,6 +64,11 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DeliveryPoint, w => w.Subject)
 				.AddFuncBinding(vm => vm.CanChangeDeliveryPoint && vm.RestrictCounterparty != null, w => w.Sensitive)
 				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
+				.InitializeFromSource();
+
+			evmeAuthor.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Author, w => w.Subject)
+				.AddBinding(vm => vm.AuthorSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
 
 			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
