@@ -36,7 +36,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual string Title => String.Format("Счет №{0} от {1:d} {2}", Order.Id, Order.BillDate, SpecialContractNumber);
 
-		public virtual string SpecialContractNumber => Order.Client.IsForRetail ? Order.Client.SpecialContractNumber : string.Empty;
+		public virtual string SpecialContractNumber => Order.Client.IsForRetail ? Order.Client.GetSpecialContractString() : string.Empty;
 
 		public override string Name => String.Format("Счет №{0}", Order.Id);
 

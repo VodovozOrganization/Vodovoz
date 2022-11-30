@@ -232,11 +232,11 @@ namespace DriverAPI.Library.Models
 			int driverComplaintReasonId,
 			string otherDriverComplaintReasonComment,
 			string driverComment,
-			DateTime recievedTime)
+			DateTime actionTime)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
 			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
-			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).SingleOrDefault();
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null)
 			{
@@ -261,7 +261,8 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				_logger.LogWarning($"Водитель {driver.Id} попытался завершить заказ {orderId} водителя {routeList.Driver.Id}");
+				_logger.LogWarning("Водитель {DriverId} попытался завершить заказ {OrderId} водителя {RouteListDriverId}",
+					driver.Id, orderId, routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя завершить заказ другого водителя");
 			}
 
@@ -296,8 +297,8 @@ namespace DriverAPI.Library.Models
 					Order = vodovozOrder,
 					DriverRating = rating,
 					DeliveryPoint = vodovozOrder.DeliveryPoint,
-					CreationDate = recievedTime,
-					ChangedDate = recievedTime,
+					CreationDate = actionTime,
+					ChangedDate = actionTime,
 					CreatedBy = driver,
 					ChangedBy = driver,
 					ComplaintText = $"Заказ номер { orderId }\n" +
@@ -312,7 +313,7 @@ namespace DriverAPI.Library.Models
 				if(!string.IsNullOrWhiteSpace(driverComment))
 				{
 					vodovozOrder.DriverMobileAppComment = driverComment;
-					vodovozOrder.DriverMobileAppCommentTime = recievedTime;
+					vodovozOrder.DriverMobileAppCommentTime = actionTime;
 				}
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
@@ -333,7 +334,7 @@ namespace DriverAPI.Library.Models
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
 			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
-			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).FirstOrDefault();
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null
 			|| routeList is null
@@ -350,7 +351,8 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Driver.Id != driverId)
 			{
-				_logger.LogWarning($"Водитель {driverId} попытался запросить оплату по СМС для заказа {orderId} водителя {routeList.Driver.Id}");
+				_logger.LogWarning("Водитель {DriverId} попытался запросить оплату по СМС для заказа {OrderId} водителя {RouteListDriverId}",
+					driverId, orderId, routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя запросить оплату по СМС для заказа другого водителя");
 			}
 
@@ -361,7 +363,7 @@ namespace DriverAPI.Library.Models
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
 			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
-			var routeListAddress = routeList.Addresses.Where(x => x.Order.Id == orderId).FirstOrDefault();
+			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null || routeList is null || routeListAddress is null)
 			{
@@ -375,7 +377,8 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Driver.Id != driverId)
 			{
-				_logger.LogWarning($"Водитель {driverId} попытался запросить оплату по QR для заказа {orderId} водителя {routeList.Driver.Id}");
+				_logger.LogWarning("Водитель {DriverId} попытался запросить оплату по QR для заказа {OrderId} водителя {RouteListDriverId}",
+					driverId, orderId, routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя запросить оплату по QR для заказа другого водителя");
 			}
 
@@ -384,7 +387,7 @@ namespace DriverAPI.Library.Models
 
 			if(payByQRResponseDto.QRPaymentStatus == QRPaymentDTOStatus.Paid)
 			{
-				payByQRResponseDto.AvailablePaymentTypes = Array.Empty<PaymentDtoType>();
+				payByQRResponseDto.AvailablePaymentTypes = Enumerable.Empty<PaymentDtoType>();
 				payByQRResponseDto.CanReceiveQR = false;
 			}
 			else

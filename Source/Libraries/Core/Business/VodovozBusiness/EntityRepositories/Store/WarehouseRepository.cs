@@ -133,22 +133,37 @@ namespace Vodovoz.EntityRepositories.Store
 					.Any();
 		}
 		
-		public decimal GetTotalShippedKgByWarehousesAndProductGroups(
+		public int GetTotalShippedKgByWarehousesAndProductGroups(
 			IUnitOfWork uow, DateTime dateFrom, DateTime dateTo, IEnumerable<int> productGroupsIds, IEnumerable<int> warehousesIds)
 		{
+			NomenclatureTotalShippedKg resultAlias = null;
 			Warehouse warehouseAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			Equipment equipmentAlias = null;
-			Nomenclature nomenclatureEquipmentAlias = null;
 
-			return uow.Session.QueryOver<WarehouseMovementOperation>()
+			var result = uow.Session.QueryOver<WarehouseMovementOperation>()
 				.JoinAlias(wmo => wmo.WriteoffWarehouse, () => warehouseAlias)
 				.JoinAlias(wmo => wmo.Nomenclature, () => nomenclatureAlias)
 				.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).IsInG(productGroupsIds)
 				.AndRestrictionOn(() => warehouseAlias.Id).IsInG(warehousesIds)
 				.And(wmo => wmo.OperationTime >= dateFrom && wmo.OperationTime < dateTo)
-				.Select(Projections.Sum(() => nomenclatureAlias.Weight))
-				.SingleOrDefault<decimal>();
+				.And(wmo => wmo.IncomingWarehouse == null)
+				.SelectList(list => list
+					.SelectGroup(x => x.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Int32, "?1 * ?2"),
+						NHibernateUtil.Int32,
+						Projections.Sum<WarehouseMovementOperation>(wmo => wmo.Amount),
+						Projections.Property(() => nomenclatureAlias.Weight))).WithAlias(() => resultAlias.TotalShippedKg))
+				.TransformUsing(Transformers.AliasToBean<NomenclatureTotalShippedKg>())
+				.List<NomenclatureTotalShippedKg>();
+
+			return result.Sum(x => x.TotalShippedKg);
+		}
+
+		public class NomenclatureTotalShippedKg
+		{
+			public int NomenclatureId { get; set; }
+			public int TotalShippedKg { get; set; }
 		}
 	}
 }

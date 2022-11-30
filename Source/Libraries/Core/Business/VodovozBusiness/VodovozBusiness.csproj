@@ -171,6 +171,8 @@
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
+    <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
+    <Compile Include="Domain\Orders\TrueMarkApiDocument.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
     <Compile Include="Domain\ProfitabilityConstants.cs" />
     <Compile Include="Domain\Profitability\RouteListProfitability.cs" />
@@ -448,7 +450,9 @@
     <Compile Include="HibernateMapping\Logistic\ArchivedTrackPointMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Order\TrueMarkApiDocumentMap.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />
+    <Compile Include="HibernateMapping\Order\EdoContainerMap.cs" />
     <Compile Include="HibernateMapping\Order\OnlineStoreMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentMap.cs" />
@@ -888,6 +892,7 @@
     <Compile Include="Domain\Goods\NomenclatureProperties.cs" />
     <Compile Include="Attributes\OnlineStoreGuidAttribute.cs" />
     <Compile Include="ConfigureDeletion.cs" />
+    <Compile Include="Tools\Orders\EdoContainerMainDocumentIdParser.cs" />
     <Compile Include="Tools\Orders\FastDeliveryHistoryConverter.cs" />
     <Compile Include="Tools\Orders\OrderStateKey.cs" />
     <Compile Include="Tools\Orders\OrderRules.cs" />
