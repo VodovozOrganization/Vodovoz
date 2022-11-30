@@ -388,6 +388,17 @@ namespace Vodovoz
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard
 				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
 			{
+				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
+
+				var copiedPaymentByCardFrom = copying.GetCopiedOrder.PaymentByCardFrom;
+
+				if(!currentPaymentFromTypes
+					.Contains(copiedPaymentByCardFrom))
+				{
+					currentPaymentFromTypes.Add(copiedPaymentByCardFrom);
+					ySpecPaymentFrom.ItemsList = currentPaymentFromTypes;
+				}
+				
 				copying.CopyPaymentByCardDataIfPossible();
 			}
 
