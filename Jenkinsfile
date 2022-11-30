@@ -45,7 +45,6 @@ parallel (
 			stage('Build WCF'){
 				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:4'
 
-				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozDeliveryRulesService/', 'DeliveryRulesService')
 				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozInstantSmsService/', 'InstantSmsService')
 				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSalesReceiptsService/', 'SalesReceiptsService')
 				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/', 'SmsInformerService')
@@ -93,7 +92,6 @@ parallel (
 					{					
 						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
-						UnzipArtifact('DeliveryRulesService')
 						UnzipArtifact('InstantSmsService')
 						UnzipArtifact('SalesReceiptsService')
 						UnzipArtifact('SmsInformerService')

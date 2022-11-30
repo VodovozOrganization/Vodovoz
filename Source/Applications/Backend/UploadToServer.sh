@@ -4,9 +4,8 @@ echo "Какие службы необходимо обновить?"
 echo "1) SmsInformer"
 echo "2) ModulKassa (SalesReceipts)"
 echo "3) InstantSms"
-echo "4) DeliveryRules"
-echo "5) SmsPayment"
-echo "6) Mango"
+echo "4) SmsPayment"
+echo "5) Mango"
 
 echo "Можно вызывать вместе, перечислив номера через запятую, например SmsInformer+ModulKassa=1,2"
 read service;
@@ -24,9 +23,6 @@ kassaServiceName="vodovoz-sales-receipts.service"
 
 instantSmsServiceFolder="VodovozInstantSmsService"
 instantSmsServiceName="vodovoz-instant-sms.service"
-
-deliveryRulesServiceFolder="VodovozDeliveryRulesService"
-deliveryRulesServiceName="vodovoz-delivery-rules.service"
 
 smsPaymentServiceFolder="VodovozSmsPaymentService"
 smsPaymentServiceName="vodovoz-sms-payment.service"
@@ -112,20 +108,6 @@ function UpdateInstantSmsService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $instantSmsServiceName
 }
 
-function UpdateDeliveryRulesService {
-	printf "\nОбновление службы правил доставки\n"
-
-	echo "-- Stoping $deliveryRulesServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $deliveryRulesServiceName
-
-	echo "-- Copying $deliveryRulesServiceName files"
-	DeleteHttpDll "WCF" $deliveryRulesServiceFolder
-	CopyFiles "WCF" $deliveryRulesServiceFolder
-
-	echo "-- Starting $deliveryRulesServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $deliveryRulesServiceName
-}
-
 function UpdateSmsPaymentService {
 	printf "\nОбновление службы отправки платежей по sms\n"
 
@@ -168,12 +150,9 @@ case $service2 in
 		UpdateInstantSmsService
 	;;&
 	*,4,*)
-		UpdateDeliveryRulesService
-	;;&
-	*,5,*)
 		UpdateSmsPaymentService
 	;;&
-	*,6,*)
+	*,5,*)
 		UpdateMangoService
 	;;
 esac
