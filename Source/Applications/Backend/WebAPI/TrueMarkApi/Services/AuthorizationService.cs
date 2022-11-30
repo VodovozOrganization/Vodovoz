@@ -14,7 +14,6 @@ namespace TrueMarkApi.Services
 	public class AuthorizationService:IAuthorizationService
 	{
 		private static HttpClient _httpClient;
-		private readonly string _thumbPrint;
 		private string _cachedToken;
 		private DateTime _tokenTime;
 		private readonly ILogger<AuthorizationService> _logger;
@@ -22,7 +21,6 @@ namespace TrueMarkApi.Services
 		public AuthorizationService(IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<AuthorizationService> logger)
 		{
 			var apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
-			_thumbPrint = apiSection.GetValue<string>("CertificateThumbPrint");
 
 			_httpClient = httpClientFactory.CreateClient();
 			_httpClient.BaseAddress = new Uri(apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
@@ -30,7 +28,7 @@ namespace TrueMarkApi.Services
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public async Task<string> Login()
+		public async Task<string> Login(string _сertificateThumbPrint)
 		{
 			var authUrn = "auth/key";
 			var signInUrn = "auth/simpleSignIn";
@@ -50,7 +48,7 @@ namespace TrueMarkApi.Services
 			var authKey = await JsonSerializer.DeserializeAsync<AuthKeyResponseDto>(authKeyStream);
 			var authKeyDataInBase64String = Convert.ToBase64String(Encoding.UTF8.GetBytes(authKey.Data));
 
-			var signModel = new SignModel(_thumbPrint, authKeyDataInBase64String, true);
+			var signModel = new SignModel(_сertificateThumbPrint, authKeyDataInBase64String, true);
 
 			var tokenRequest = new TokenRequestDto
 			{

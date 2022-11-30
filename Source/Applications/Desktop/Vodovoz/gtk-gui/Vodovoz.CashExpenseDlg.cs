@@ -140,7 +140,7 @@ namespace Vodovoz
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(5)), ((uint)(4)), false);
+			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(4)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -149,6 +149,7 @@ namespace Vodovoz
 			this.entityVMEntryExpenseCategory.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryExpenseCategory.Name = "entityVMEntryExpenseCategory";
 			this.entityVMEntryExpenseCategory.CanEditReference = false;
+			this.entityVMEntryExpenseCategory.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryExpenseCategory);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryExpenseCategory]));
 			w10.TopAttach = ((uint)(1));
@@ -175,17 +176,18 @@ namespace Vodovoz
 			this.evmeCashier.Events = ((global::Gdk.EventMask)(256));
 			this.evmeCashier.Name = "evmeCashier";
 			this.evmeCashier.CanEditReference = true;
+			this.evmeCashier.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeCashier);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeCashier]));
 			w12.LeftAttach = ((uint)(3));
 			w12.RightAttach = ((uint)(4));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.evmeEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.evmeEmployee.Name = "evmeEmployee";
 			this.evmeEmployee.CanEditReference = true;
+			this.evmeEmployee.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeEmployee);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeEmployee]));
 			w13.TopAttach = ((uint)(3));
@@ -222,8 +224,8 @@ namespace Vodovoz
 			w15.Fill = false;
 			this.table1.Add(this.hbox6);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox6]));
-			w16.TopAttach = ((uint)(4));
-			w16.BottomAttach = ((uint)(5));
+			w16.TopAttach = ((uint)(5));
+			w16.BottomAttach = ((uint)(6));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -279,8 +281,8 @@ namespace Vodovoz
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Сумма:");
 			this.table1.Add(this.label5);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.label5]));
-			w21.TopAttach = ((uint)(4));
-			w21.BottomAttach = ((uint)(5));
+			w21.TopAttach = ((uint)(5));
+			w21.BottomAttach = ((uint)(6));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -324,7 +326,6 @@ namespace Vodovoz
 			w24.BottomAttach = ((uint)(2));
 			w24.LeftAttach = ((uint)(3));
 			w24.RightAttach = ((uint)(4));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
@@ -341,13 +342,14 @@ namespace Vodovoz
 			this.ylabelEmployeeWageBalance = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelEmployeeWageBalance.Name = "ylabelEmployeeWageBalance";
 			this.ylabelEmployeeWageBalance.Xalign = 0F;
-			this.ylabelEmployeeWageBalance.LabelProp = global::Mono.Unix.Catalog.GetString("Текущий баланс сотрудника:");
+			this.ylabelEmployeeWageBalance.LabelProp = global::Mono.Unix.Catalog.GetString("<span font=\'large\' weight=\'bold\'>Текущий баланс сотрудника:</span>");
+			this.ylabelEmployeeWageBalance.UseMarkup = true;
 			this.table1.Add(this.ylabelEmployeeWageBalance);
 			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelEmployeeWageBalance]));
-			w26.TopAttach = ((uint)(3));
-			w26.BottomAttach = ((uint)(4));
-			w26.LeftAttach = ((uint)(3));
-			w26.RightAttach = ((uint)(4));
+			w26.TopAttach = ((uint)(4));
+			w26.BottomAttach = ((uint)(5));
+			w26.LeftAttach = ((uint)(1));
+			w26.RightAttach = ((uint)(2));
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);

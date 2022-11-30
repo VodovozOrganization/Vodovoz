@@ -95,7 +95,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private NewTableGroupWithCellsFromDetails GetFirstLevelAction(GroupingType groupingType, int groupsCount)
 		{
 			var style = groupsCount == 1 ? GetLastLevelGroupStyle() : GetFirstLevelGroupStyle();
-			style.Format = "0.00";
+			style.Format = "# ##0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
 			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
@@ -107,7 +107,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private NewTableGroupWithCellsFromDetails GetSecondLevelAction(GroupingType groupingType, int groupsCount)
 		{
 			var style = groupsCount == 2 ? GetLastLevelGroupStyle() : GetSecondLevelGroupStyle();
-			style.Format = "0.00";
+			style.Format = "# ##0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
 			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
@@ -120,7 +120,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private NewTableGroupWithCellsFromDetails GetThirdLevelAction(GroupingType groupingType, int groupsCount)
 		{
 			var style = GetLastLevelGroupStyle();
-			style.Format = "0.00";
+			style.Format = "# ##0.00";
 
 			var groupExpression = GetGroupExpression(groupingType);
 			var groupModifyAction = new NewTableGroupWithCellsFromDetails(_tableName, _sourceRowProvider, _expressionRowProvider, groupExpression);
@@ -245,7 +245,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.BorderStyle.Bottom= "Solid";
 			style.FontWeight = "Bold";
 			style.FontSize = "6pt";
-			style.VerticalAlign = "Middle";			
+			style.VerticalAlign = "Middle";
 			return style;
 		}
 	}
