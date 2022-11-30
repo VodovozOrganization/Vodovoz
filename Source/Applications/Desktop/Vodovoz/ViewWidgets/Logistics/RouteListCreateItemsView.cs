@@ -299,7 +299,8 @@ namespace Vodovoz
 		{
 			var filter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory())
+				new DeliveryPointJournalFactory(),
+				new EmployeeJournalFactory())
 			{
 				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
 			};

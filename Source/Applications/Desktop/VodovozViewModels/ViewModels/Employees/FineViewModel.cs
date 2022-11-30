@@ -49,7 +49,6 @@ namespace Vodovoz.ViewModels.Employees
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
-			UpdateEmployeeList();
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -57,6 +56,10 @@ namespace Vodovoz.ViewModels.Employees
 			SetPropertyChangeRelation(e => e.FineType,
 				() => IsFuelOverspendingFine,
 				() => IsStandartFine
+			);
+
+			SetPropertyChangeRelation(e => e.FineReasonString,
+				() => FineReasonString
 			);
 
 			SetPropertyChangeRelation(e => e.RouteList,
@@ -111,8 +114,11 @@ namespace Vodovoz.ViewModels.Employees
 			get => Entity.FineType;
 			set
 			{
-				Entity.FineType = value;
-				UpdateEmployeeList();
+				if(Entity.FineType != value)
+				{
+					Entity.FineType = value;
+					UpdateEmployeeList();
+				}
 			}
 		}
 
@@ -127,9 +133,12 @@ namespace Vodovoz.ViewModels.Employees
 			get => Entity.RouteList;
 			set
 			{
-				Entity.RouteList = value;
-				UpdateEmployeeList();
-				CalculateMoneyFromLiters();
+				if(Entity.RouteList != value)
+				{
+					Entity.RouteList = value;
+					UpdateEmployeeList();
+					CalculateMoneyFromLiters();
+				}
 			}
 		}
 
@@ -145,7 +154,7 @@ namespace Vodovoz.ViewModels.Employees
 
 		#region IAskSaveOnCloseViewModel
 
-		public bool AskSaveOnClose => CanEdit;
+		public bool AskSaveOnClose => CanEdit && HasChanges;
 
 		#endregion
 

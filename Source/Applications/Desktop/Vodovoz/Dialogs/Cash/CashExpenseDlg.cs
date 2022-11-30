@@ -306,7 +306,7 @@ namespace Vodovoz
 			UpdateEmployeeBalanceVisibility();
 
 			_currentEmployeeWage = 0;
-			var labelTemplate = "Текущий баланс сотрудника: {0}";
+			var labelTemplate = "<span font='large' weight='bold'>Текущий баланс сотрудника: {0}</span>";
 
 			if(evmeEmployee.Subject is Employee employee)
 			{
