@@ -58,6 +58,7 @@
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
     <Compile Include="Controllers\IRouteListProfitabilityController.cs" />
+    <Compile Include="Controllers\IUserPermissionsController.cs" />
     <Compile Include="Controllers\OdometerReadingsController.cs" />
     <Compile Include="Controllers\IOdometerReadingsController.cs" />
     <Compile Include="Controllers\OrganizationVersionsController.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Controllers\ProfitabilityConstantsViewModelHandler.cs" />
     <Compile Include="Controllers\RouteListProfitabilityController.cs" />
     <Compile Include="Controllers\RouteListsWageController.cs" />
+    <Compile Include="Controllers\UserPermissionsController.cs" />
     <Compile Include="DocTemplates\WayBillDocumentParser.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequest.cs" />
     <Compile Include="Domain\Cash\CashRequest\CashlessRequestFile.cs" />
@@ -174,6 +176,15 @@
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
     <Compile Include="Domain\Orders\TrueMarkApiDocument.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
+    <Compile Include="Domain\Permissions\AvailableDatabase.cs" />
+    <Compile Include="Domain\Permissions\DatabasePrivilege.cs" />
+    <Compile Include="Domain\Permissions\GlobalPrivilege.cs" />
+    <Compile Include="Domain\Permissions\PrivilegeBase.cs" />
+    <Compile Include="Domain\Permissions\PrivilegeName.cs" />
+    <Compile Include="Domain\Permissions\SpecialPrivilege.cs" />
+    <Compile Include="Domain\Permissions\TablePrivilege.cs" />
+    <Compile Include="Domain\Permissions\UserRole.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\CurrentWarehousePermissions.cs" />
     <Compile Include="Domain\ProfitabilityConstants.cs" />
     <Compile Include="Domain\Profitability\RouteListProfitability.cs" />
     <Compile Include="Domain\Roboats\IRoboatsEntity.cs" />
@@ -210,6 +221,14 @@
     <Compile Include="Domain\Roboats\RoboatsWaterType.cs" />
     <Compile Include="Domain\Payments\PaymentFromAvangard.cs" />
     <Compile Include="Domain\Payments\PaymentsFromYookassaParser.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\SubdivisionWarehousePermissionModel.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\UserWarehousePermissionModel.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\WarehousePermissionModelBase.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\IWarehousePermissionValidator.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\IWarehousePermissionValidatorFactory.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\SubdivisionWarehousePermission.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\UserWarehousePermission.cs" />
+    <Compile Include="Domain\Permissions\Warehouses\WarehousePermissionBase.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposal.cs" />
     <Compile Include="Domain\Proposal\ApplicationDevelopmentProposalStatus.cs" />
     <Compile Include="Domain\Retail\SalesChannel.cs" />
@@ -327,6 +346,10 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\IPrivilegesRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\IUserRoleRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\PrivilegesRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserRoleRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\IProfitabilityConstantsRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\IRouteListProfitabilityRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\ProfitabilityConstantsRepository.cs" />
@@ -370,7 +393,6 @@
     <Compile Include="Factories\IRouteListProfitabilityFactory.cs" />
     <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
-    <Compile Include="Factories\OsrmClientFactory.cs" />
     <Compile Include="Factories\RoboatsCallFactory.cs" />
     <Compile Include="Factories\RoboatsFileStorageFactory.cs" />
     <Compile Include="Factories\IPaymentFromAvangardFactory.cs" />
@@ -459,6 +481,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
+    <Compile Include="HibernateMapping\Permissions\WarehousePermissionMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryTransferAbsenceReasonMap.cs" />
     <Compile Include="HibernateMapping\Organizations\OrganizationVersionMap.cs" />
@@ -481,6 +504,14 @@
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
+    <Compile Include="HibernateMapping\Users\AvailableDatabaseMap.cs" />
+    <Compile Include="HibernateMapping\Users\DatabasePrivilegeMap.cs" />
+    <Compile Include="HibernateMapping\Users\GlobalPrivilegeMap.cs" />
+    <Compile Include="HibernateMapping\Users\PrivilegeBaseMap.cs" />
+    <Compile Include="HibernateMapping\Users\PrivilegeNameMap.cs" />
+    <Compile Include="HibernateMapping\Users\SpecialPrivilegeMap.cs" />
+    <Compile Include="HibernateMapping\Users\TablePrivilegeMap.cs" />
+    <Compile Include="HibernateMapping\Users\UserRoleMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\SalesPlanItemMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverDistrictPriorityMap.cs" />
@@ -802,6 +833,8 @@
     <Compile Include="Services\ITerminalNomenclatureProvider.cs" />
     <Compile Include="Services\IDriverApiParametersProvider.cs" />
     <Compile Include="Services\DriverApiParametersProvider.cs" />
+    <Compile Include="Services\IUserRoleSettings.cs" />
+    <Compile Include="Services\UserRoleSettings.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />

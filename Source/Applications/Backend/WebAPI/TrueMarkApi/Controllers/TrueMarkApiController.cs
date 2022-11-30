@@ -14,6 +14,7 @@ using TrueMarkApi.Dto.Participants;
 using TrueMarkApi.Library.Dto;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using IAuthorizationService = TrueMarkApi.Services.IAuthorizationService;
+using TrueMarkApi.Dto;
 
 namespace TrueMarkApi.Controllers
 {
@@ -26,6 +27,7 @@ namespace TrueMarkApi.Controllers
 		private readonly IAuthorizationService _authorizationService;
 		private static HttpClient _httpClient;
 		private readonly ILogger<TrueMarkApiController> _logger;
+		private readonly OrganizationCertificate _organizationCertificate;
 
 		public TrueMarkApiController(
 			IConfiguration configuration,
@@ -40,6 +42,9 @@ namespace TrueMarkApi.Controllers
 			_httpClient.BaseAddress = new Uri(apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
 			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+			var organizationsCertificateSection = apiSection.GetSection("OrganizationCertificates");
+			_organizationCertificate = organizationsCertificateSection.Get<OrganizationCertificate[]>().ToArray().FirstOrDefault();
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -49,7 +54,7 @@ namespace TrueMarkApi.Controllers
 		{
 			var uri = $"participants?inns={inn}";
 
-			var token = await _authorizationService.Login();
+			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint);
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 			StringBuilder errorMessage = new StringBuilder();
@@ -113,7 +118,7 @@ namespace TrueMarkApi.Controllers
 				return null;
 			}
 
-			var token = await _authorizationService.Login();
+			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint);
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 			var innString = string.Join("&inns=", inns);

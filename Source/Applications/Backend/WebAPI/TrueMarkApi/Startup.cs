@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MySql.Data.MySqlClient;
 using NLog.Web;
@@ -17,10 +19,7 @@ using QS.Project.Repositories;
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using TrueMarkApi.Services;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -44,21 +43,6 @@ namespace TrueMarkApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			var apiSection = Configuration.GetSection("Api");
-			X509Certificate2Collection сertificates;
-
-			using(var store = new X509Store(StoreName.My, StoreLocation.CurrentUser))
-			{
-				store.Open(OpenFlags.ReadOnly);
-				сertificates = store.Certificates
-					.Find(X509FindType.FindByThumbprint, apiSection.GetValue<string>("CertificateThumbPrint"), true);
-			}
-
-			var certificate = сertificates?[0];
-
-			if(certificate is null)
-			{
-				throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
-			}
 
 			services.AddSwaggerGen(c =>
 			{
@@ -85,7 +69,6 @@ namespace TrueMarkApi
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
 			services.AddSingleton<IEdoSettings, EdoSettings>();
-			services.AddSingleton(_ => certificate);
 			services.AddHttpClient();
 
 			// Авторизация

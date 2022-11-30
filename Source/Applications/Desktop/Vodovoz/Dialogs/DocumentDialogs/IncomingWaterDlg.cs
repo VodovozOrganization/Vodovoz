@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
 using Vodovoz.Additions.Store;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -13,13 +11,10 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Domain.Client;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -34,10 +29,11 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
+		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper();
 
 		public IncomingWaterDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
@@ -45,17 +41,18 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-
-			Entity.IncomingWarehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.IncomingWaterEdit);
-			Entity.WriteOffWarehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.IncomingWaterEdit);
+			
+			Entity.IncomingWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.IncomingWaterEdit);
+			Entity.WriteOffWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.IncomingWaterEdit);
 
 			ConfigureDlg();
 		}
 
 		public IncomingWaterDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
+			
 			ConfigureDlg();
 		}
 
@@ -65,12 +62,15 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
-			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse)) {
+			if(_storeDocumentHelper.CheckAllPermissions(
+					UoW.IsNew, WarehousePermissionsType.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse))
+			{
 				FailInitialize = true;
 				return;
 			}
 
-			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse);
+			var editing = _storeDocumentHelper.CanEditDocument(
+				WarehousePermissionsType.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse);
 			buttonFill.Sensitive = yentryProduct.IsEditable = spinAmount.Sensitive = editing;
 			incomingwatermaterialview1.Sensitive = editing;
 
@@ -90,7 +90,7 @@ namespace Vodovoz
 				sourceWarehouseEntry.CanEditReference = destinationWarehouseEntry.CanEditReference = true;
 			}
 
-			var availableWarehousesIds = StoreDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissions.IncomingWaterEdit);
+			var availableWarehousesIds = _storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.IncomingWaterEdit);
 			var warehouseFilter = new WarehouseJournalFilterViewModel
 			{
 				IncludeWarehouseIds = availableWarehousesIds

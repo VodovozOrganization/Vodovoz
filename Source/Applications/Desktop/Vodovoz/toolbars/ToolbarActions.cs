@@ -755,8 +755,9 @@ public partial class MainWindow : Window
 		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var parametersProvider = new ParametersProvider();
+		var employeeJournalFactory = new EmployeeJournalFactory();
 
-		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory);
+		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
 
 		filter.SetAndRefilterAtOnce(
 			x => x.AllowStatuses = new[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
@@ -1084,7 +1085,9 @@ public partial class MainWindow : Window
 	{
 		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory)
+		var employeeJournalFactory = new EmployeeJournalFactory();
+
+		var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
 		{
 			IsForRetail = false
 		};
@@ -1213,8 +1216,9 @@ public partial class MainWindow : Window
 	{
 		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
+		var employeeJournalFactory = new EmployeeJournalFactory();
 
-		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory)
+		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
 		{
 			IsForSalesDepartment = true
 		};
