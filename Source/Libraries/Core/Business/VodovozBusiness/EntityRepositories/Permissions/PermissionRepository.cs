@@ -169,6 +169,26 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.Where(x => x.User.Id == userId)
 				.List();
 		}
+
+		public UserWarehousePermission GetUserWarehousePermission(
+			IUnitOfWork uow, int userId, int warehouseId, WarehousePermissionsType warehousePermissionsType)
+		{
+			return uow.Session.QueryOver<UserWarehousePermission>()
+				.Where(x => x.User.Id == userId)
+				.And(x => x.Warehouse.Id == warehouseId)
+				.And(x => x.WarehousePermissionType == warehousePermissionsType)
+				.SingleOrDefault();
+		}
+		
+		public SubdivisionWarehousePermission GetSubdivisionWarehousePermission(
+			IUnitOfWork uow, int subdivisionId, int warehouseId, WarehousePermissionsType warehousePermissionsType)
+		{
+			return uow.Session.QueryOver<SubdivisionWarehousePermission>()
+				.Where(x => x.Subdivision.Id == subdivisionId)
+				.And(x => x.Warehouse.Id == warehouseId)
+				.And(x => x.WarehousePermissionType == warehousePermissionsType)
+				.SingleOrDefault();
+		}
 		
 		private QueryOver<HierarchicalPresetUserPermission, HierarchicalPresetUserPermission> GetPresetUserPermissionByUserId(int userId)
 		{
