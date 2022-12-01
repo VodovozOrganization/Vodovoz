@@ -1,7 +1,7 @@
 stage('Checkout'){
 	parallel (
 		"Desktop" : {
-			node('Vod6'){
+			node('DESKTOP_BUILD'){
 				PrepareSources("${JENKINS_HOME_WIN}")
 			}
 		},
@@ -15,7 +15,7 @@ stage('Checkout'){
 stage('Restore'){
 	parallel (
 		"Desktop" : {
-			node('Vod6'){
+			node('DESKTOP_BUILD'){
 				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
 			}
 		},
@@ -30,14 +30,70 @@ stage('Restore'){
 }
 parallel (
 	"Desktop" : {
-		node('Vod6'){
-			stage('Build Desktop, WEB'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86'
+		node('DESKTOP_BUILD'){
+			stage('Build Desktop'){
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86'
 
 				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
 				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin'
 				archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true			
 			}
+
+			stage('Build WEB'){
+				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				{				
+					PublishBuildWebService('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0_publish')
+
+					PublishBuildWebService('FastPaymentsAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0_publish')
+
+					PublishBuildWebService('PayPageAPI', 'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0_publish')
+
+					PublishBuildWebService('MailjetEventsDistributorAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0_publish')
+						
+					PublishBuildWebService('UnsubscribePage', 'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj', 
+						'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\bin\\Release\\net5.0_publish')
+
+					PublishBuildWebService('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0_publish')
+
+					PublishBuildWebService('RoboAtsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\RoboAtsService.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\bin\\Release\\net5.0_publish')
+
+					PublishBuildWebService('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
+				}
+				else
+				{
+					BuildWebService('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0_publish')
+
+					BuildWebService('FastPaymentsAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0_publish')
+
+					BuildWebService('PayPageAPI', 'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0_publish')
+
+					BuildWebService('MailjetEventsDistributorAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0_publish')
+						
+					BuildWebService('UnsubscribePage', 'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj', 
+						'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\bin\\Release\\net5.0_publish')
+
+					BuildWebService('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0_publish')
+
+					BuildWebService('RoboAtsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\RoboAtsService.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\bin\\Release\\net5.0_publish')
+
+					BuildWebService('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
+				}
+			}
+			
 		}
 	},
 	"WCF" : {
@@ -58,7 +114,7 @@ parallel (
 
 parallel (
 	"Desktop" : {
-		node('Vod3'){
+		node('DESKTOP_RUNTIME'){
 			stage('Deploy Desktop'){
 				script{
 					def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
@@ -104,122 +160,19 @@ parallel (
 		}	
 	},
 	"WEB" : {
-		node('Vod6'){
+		node('WIN_WEB_RUNTIME'){
 			stage('Deploy WEB'){
-				echo 'DriverAPI Deploy'
-				if(env.BRANCH_NAME ==~ /(develop|master)/
-					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
-					echo 'Publish DriverAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-					
-					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\DriversAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-				}
-				else
-				{
-					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-				}
+					copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
-				echo 'FastPaymentsAPI Deploy'
-				if(env.BRANCH_NAME ==~ /(develop|master)/
-					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-				{
-					echo 'Publish FastPaymentsAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-					
-					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\FastPaymentsAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-				}
-				else
-				{
-					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-				}
-
-				echo 'PayPageAPI Deploy'
-				if(env.BRANCH_NAME ==~ /(develop|master)/
-					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-				{
-					echo 'Publish PayPageAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-					
-					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\PayPageAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-				}
-				else
-				{
-					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-				}
-
-				echo 'MailjetEventsDistributorAPI Deploy'
-				if(env.BRANCH_NAME ==~ /(develop|master)/
-					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-				{
-					echo 'Publish MailjetEventsDistributorAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-					
-					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\MailjetEventsDistributorAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-				}
-				else
-				{
-					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-				}
-				
-				echo 'UnsubscribePage Deploy'
-				if(env.BRANCH_NAME ==~ /(develop|master)/
-					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-				{
-					echo 'Publish UnsubscribePage to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-					
-					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\bin\\Release\\net5.0\\publish" "E:\\CD\\UnsubscribePage\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-				}
-				else
-				{
-					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-				}
-				
-				echo 'DeliveryRulesService Deploy'
-				if(env.BRANCH_NAME ==~ /(develop|master)/
-					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-				{
-					echo 'Publish DeliveryRulesService to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-					
-					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0\\publish" "E:\\CD\\DeliveryRulesService\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-				}
-				else
-				{
-					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-				}
-				
-				echo 'RoboAtsService Deploy'
-				if(env.BRANCH_NAME ==~ /(develop|master)/
-					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-				{
-					echo 'Publish RoboAtsService to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\RoboAtsService.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-					
-					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\bin\\Release\\net5.0\\publish" "E:\\CD\\RoboAtsService\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
-				}
-				else
-				{
-					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-				}
-
-				echo 'TrueMarkAPI Deploy'
-				if(env.BRANCH_NAME ==~ /(develop|master)/
-					|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-				{
-					echo 'Publish TrueMarkAPI to folder (' + env.BRANCH_NAME + ')'
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
-					
-					echo 'Move files to CD folder'
-					bat 'xcopy "Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0\\publish" "E:\\CD\\TrueMarkAPI\\' + env.BRANCH_NAME.replaceAll('/','') + '\\" /R /Y /E'
+					DeployWebService('DriversAPI')
+					DeployWebService('FastPaymentsAPI')
+					DeployWebService('MailjetEventsDistributorAPI')
+					DeployWebService('UnsubscribePage')
+					DeployWebService('DeliveryRulesService')
+					DeployWebService('RoboAtsService')
+					DeployWebService('TrueMarkAPI')
 				}
 				else
 				{
@@ -253,4 +206,35 @@ def ZipArtifact(path, serviceName) {
 def UnzipArtifact(serviceName) {
 	def SERVICE_PATH = "/opt/jenkins/builds/${serviceName}"
 	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH 
+}
+
+def PublishBuildWebService(serviceName, csprojPath, outputPath) {
+	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
+	
+	echo "Publish ${serviceName} to folder (${env.BRANCH_NAME})"
+	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+
+	
+	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
+	zip zipFile: "${serviceName}.zip", archive: false, dir: outputPath
+	archiveArtifacts artifacts: "${serviceName}.zip", onlyIfSuccessful: true
+}
+
+def BuildWebService(serviceName, csprojPath, outputPath) {
+	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
+	
+	echo "Publish ${serviceName} to folder (${env.BRANCH_NAME})"
+	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86'
+
+	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
+	zip zipFile: "${serviceName}.zip", archive: false, dir: outputPath
+	archiveArtifacts artifacts: "${serviceName}.zip", onlyIfSuccessful: true
+}
+
+def DeployWebService(serviceName) {
+	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
+	def SERVICE_PATH = "E:\\CD\\${serviceName}\\${BRANCH_NAME}"
+	
+    echo "Deploy ${serviceName} to CD folder"
+	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH
 }
