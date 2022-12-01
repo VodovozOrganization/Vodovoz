@@ -16,7 +16,6 @@ stage('Restore'){
 	parallel (
 		"Desktop" : {
 			node('Vod6'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Libraries\\External\\QSProjects\\QSProjectsLib.sln -t:Restore -p:Configuration=Debug -p:Platform=x86'
 				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
 			}
 		},
