@@ -70,7 +70,7 @@ namespace RoboAtsService.Requests
 				{
 					var availableIntervals = intervals.ToList();
 
-					var deniedIntervalIds = intervalRestrictions.Where(x => x.BeforeAcceptOrderHour < DateTime.Now.Hour)
+					var deniedIntervalIds = intervalRestrictions.Where(x => x.BeforeAcceptOrderHour <= DateTime.Now.Hour)
 						.Select(x => x.DeliverySchedule.Id);
 
 					foreach(var interval in intervals)
