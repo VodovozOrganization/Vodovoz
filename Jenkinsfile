@@ -68,29 +68,8 @@ parallel (
 				}
 				else
 				{
-					BuildWebService('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0_publish')
-
-					BuildWebService('FastPaymentsAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0_publish')
-
-					BuildWebService('PayPageAPI', 'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0_publish')
-
-					BuildWebService('MailjetEventsDistributorAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0_publish')
-						
-					BuildWebService('UnsubscribePage', 'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj', 
-						'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\bin\\Release\\net5.0_publish')
-
-					BuildWebService('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0_publish')
-
-					BuildWebService('RoboAtsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\RoboAtsService.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\bin\\Release\\net5.0_publish')
-
-					BuildWebService('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
+					//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86'
 				}
 			}
 			
@@ -215,17 +194,6 @@ def PublishBuildWebService(serviceName, csprojPath, outputPath) {
 	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
 
 	
-	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
-	zip zipFile: "${serviceName}.zip", archive: false, dir: outputPath
-	archiveArtifacts artifacts: "${serviceName}.zip", onlyIfSuccessful: true
-}
-
-def BuildWebService(serviceName, csprojPath, outputPath) {
-	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
-	
-	echo "Publish ${serviceName} to folder (${env.BRANCH_NAME})"
-	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86'
-
 	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
 	zip zipFile: "${serviceName}.zip", archive: false, dir: outputPath
 	archiveArtifacts artifacts: "${serviceName}.zip", onlyIfSuccessful: true
