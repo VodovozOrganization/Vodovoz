@@ -34,6 +34,8 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.Label label4;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonInfo;
+
 		private global::Gamma.Widgets.yEntryReference yentryreferenceShift;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelOwnType;
@@ -214,37 +216,55 @@ namespace Vodovoz.JournalViewers
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.ybuttonInfo = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonInfo.TooltipMarkup = "Справка по работе с отчётом";
+			this.ybuttonInfo.CanFocus = true;
+			this.ybuttonInfo.Name = "ybuttonInfo";
+			this.ybuttonInfo.UseUnderline = true;
+			this.ybuttonInfo.Relief = ((global::Gtk.ReliefStyle)(1));
+			global::Gtk.Image w19 = new global::Gtk.Image();
+			w19.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.ybuttonInfo.Image = w19;
+			this.table1.Add(this.ybuttonInfo);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.ybuttonInfo]));
+			w20.TopAttach = ((uint)(2));
+			w20.BottomAttach = ((uint)(3));
+			w20.LeftAttach = ((uint)(1));
+			w20.RightAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.yentryreferenceShift = new global::Gamma.Widgets.yEntryReference();
 			this.yentryreferenceShift.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceShift.Name = "yentryreferenceShift";
 			this.table1.Add(this.yentryreferenceShift);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryreferenceShift]));
-			w19.TopAttach = ((uint)(2));
-			w19.BottomAttach = ((uint)(3));
-			w19.LeftAttach = ((uint)(3));
-			w19.RightAttach = ((uint)(4));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryreferenceShift]));
+			w21.TopAttach = ((uint)(2));
+			w21.BottomAttach = ((uint)(3));
+			w21.LeftAttach = ((uint)(3));
+			w21.RightAttach = ((uint)(4));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelOwnType = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOwnType.Name = "ylabelOwnType";
 			this.ylabelOwnType.LabelProp = global::Mono.Unix.Catalog.GetString("Принадлежность авто:");
 			this.table1.Add(this.ylabelOwnType);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelOwnType]));
-			w20.LeftAttach = ((uint)(6));
-			w20.RightAttach = ((uint)(7));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelOwnType]));
+			w22.LeftAttach = ((uint)(6));
+			w22.RightAttach = ((uint)(7));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelTypeOfUse = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelTypeOfUse.Name = "ylabelTypeOfUse";
 			this.ylabelTypeOfUse.LabelProp = global::Mono.Unix.Catalog.GetString("Тип авто:");
 			this.table1.Add(this.ylabelTypeOfUse);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelTypeOfUse]));
-			w21.LeftAttach = ((uint)(5));
-			w21.RightAttach = ((uint)(6));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelTypeOfUse]));
+			w23.LeftAttach = ((uint)(5));
+			w23.RightAttach = ((uint)(6));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ySpecCmbGeographicGroup = new global::Gamma.Widgets.ySpecComboBox();
 			this.ySpecCmbGeographicGroup.Name = "ySpecCmbGeographicGroup";
@@ -253,24 +273,24 @@ namespace Vodovoz.JournalViewers
 			this.ySpecCmbGeographicGroup.ShowSpecialStateAll = true;
 			this.ySpecCmbGeographicGroup.ShowSpecialStateNot = false;
 			this.table1.Add(this.ySpecCmbGeographicGroup);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.ySpecCmbGeographicGroup]));
-			w22.LeftAttach = ((uint)(3));
-			w22.RightAttach = ((uint)(4));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.ySpecCmbGeographicGroup]));
+			w24.LeftAttach = ((uint)(3));
+			w24.RightAttach = ((uint)(4));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ytreeviewAddressTypes = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeviewAddressTypes.CanFocus = true;
 			this.ytreeviewAddressTypes.Name = "ytreeviewAddressTypes";
 			this.ytreeviewAddressTypes.HeadersVisible = false;
 			this.table1.Add(this.ytreeviewAddressTypes);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.ytreeviewAddressTypes]));
-			w23.TopAttach = ((uint)(1));
-			w23.BottomAttach = ((uint)(3));
-			w23.LeftAttach = ((uint)(4));
-			w23.RightAttach = ((uint)(5));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.ytreeviewAddressTypes]));
+			w25.TopAttach = ((uint)(1));
+			w25.BottomAttach = ((uint)(3));
+			w25.LeftAttach = ((uint)(4));
+			w25.RightAttach = ((uint)(5));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			w1.Add(this.table1);
 			this.scrolledwindow1.Add(w1);
 			this.Add(this.scrolledwindow1);
