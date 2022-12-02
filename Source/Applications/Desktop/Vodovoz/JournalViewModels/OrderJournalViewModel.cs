@@ -50,6 +50,8 @@ namespace Vodovoz.JournalViewModels
 {
 	public class OrderJournalViewModel : FilterableMultipleEntityJournalViewModelBase<OrderJournalNode, OrderJournalFilterViewModel>
 	{
+		private const int _minLengthLikeSearch = 3;
+
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -364,7 +366,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment.Value);
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
 
@@ -377,7 +379,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
 			{
 				Phone deliveryPointPhoneAlias = null;
 
@@ -388,6 +390,16 @@ namespace Vodovoz.JournalViewModels
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(deliveryPointPhonesSubquery.DetachedCriteria));
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike) && FilterViewModel.DeliveryPointAddressLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => deliveryPointAlias.CompiledAddress), FilterViewModel.DeliveryPointAddressLike, MatchMode.Anywhere));
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
@@ -517,7 +529,8 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.OrderPaymentStatus != null
 				|| FilterViewModel.Organisation != null
 				|| FilterViewModel.PaymentByCardFrom != null
-				|| FilterViewModel.SortDeliveryDate == true)
+				|| FilterViewModel.SortDeliveryDate == true
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -565,6 +578,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.IsForSalesDepartment != null)
 			{
 				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment.Value);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 
 			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
@@ -660,7 +678,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
-			    || FilterViewModel.SortDeliveryDate == true)
+			    || FilterViewModel.SortDeliveryDate == true
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -733,6 +752,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.IsForSalesDepartment != null)
 			{
 				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment.Value);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 
 			query.Where(GetSearchCriterion(
@@ -824,7 +848,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
-			    || FilterViewModel.SortDeliveryDate == true)
+			    || FilterViewModel.SortDeliveryDate == true
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -889,6 +914,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.IsForSalesDepartment != null)
 			{
 				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment.Value);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 
 			query.Where(GetSearchCriterion(
