@@ -23,7 +23,15 @@
     IFNULL(orders.time_delivered,
            route_list_addresses.status_last_update) AS delivered_time,
 IF(is_fast_delivery,
-		TIMEDIFF(IFNULL(orders.time_delivered, route_list_addresses.status_last_update), (IF(@interval_select_mode = 'Transfer', route_list_addresses.creation_date, orders.create_date) + INTERVAL (SELECT str_value FROM base_parameters WHERE base_parameters.name = 'fast_delivery_time') HOUR )),
+		TIMEDIFF(IFNULL(orders.time_delivered, route_list_addresses.status_last_update),
+			(IF(@interval_select_mode = 'Transfer',
+				route_list_addresses.creation_date,
+				IF(@interval_select_mode = 'FirstAddress',
+					(SELECT rla.creation_date FROM route_list_addresses rla WHERE rla.order_id = orders.id ORDER BY creation_date LIMIT 1),
+					orders.create_date
+					)
+				)
+				+ INTERVAL (SELECT str_value FROM base_parameters WHERE base_parameters.name = 'fast_delivery_time') HOUR )),
 		TIMEDIFF(TIME(IFNULL(orders.time_delivered, route_list_addresses.status_last_update)), delivery_schedule.to_time)) AS delay,
 
     lar.name as late_reason_name,
@@ -1272,7 +1280,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
