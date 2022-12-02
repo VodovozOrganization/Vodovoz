@@ -30,10 +30,8 @@ namespace Vodovoz.ViewModels.Warehouses
 	public class MovementDocumentViewModel : EntityTabViewModelBase<MovementDocument>
 	{
 		private readonly IEmployeeService employeeService;
-		private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
 		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
 		private readonly IOrderSelectorFactory orderSelectorFactory;
-		private readonly IWarehouseRepository warehouseRepository;
 		private readonly IUserRepository userRepository;
 		private readonly IRDLPreviewOpener rdlPreviewOpener;
 		private readonly IStockRepository _stockRepository;
@@ -56,18 +54,25 @@ namespace Vodovoz.ViewModels.Warehouses
 		: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-			this.warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			warehousePermissionValidator = warehousePermissionService.GetValidator(CurrentEmployee.Subdivision);
+			warehousePermissionValidator = warehousePermissionService.GetValidator();
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 
-			canEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			if(warehouseRepository is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseRepository));
+			}
+			
+			canEditRectroactively =
+				(entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator)))
+				.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			
 			ConfigureEntityChangingRelations();
-			if(UoW.IsNew) {
+			if(UoW.IsNew)
+			{
 				Entity.DocumentType = MovementDocumentType.Transportation;
 				SetDefaultWarehouseFrom();
 			}
@@ -279,7 +284,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanSend => CanEdit
 			&& Entity.CanSend
-			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee.User);
+			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee);
 
 		private DelegateCommand sendCommand;
 		public DelegateCommand SendCommand {
@@ -304,7 +309,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanReceive => CanEdit
 			&& Entity.CanReceive
-			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.ToWarehouse, CurrentEmployee.User);
+			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.ToWarehouse, CurrentEmployee);
 
 		private DelegateCommand receiveCommand;
 		public DelegateCommand ReceiveCommand {
@@ -329,7 +334,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanAcceptDiscrepancy => CanEdit
 			&& Entity.CanAcceptDiscrepancy
 			&& CommonServices.PermissionService.ValidateUserPresetPermission("can_accept_movement_document_dicrepancy", CommonServices.UserService.CurrentUserId)
-			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee.User);
+			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee);
 
 		private DelegateCommand acceptDiscrepancyCommand;
 		public DelegateCommand AcceptDiscrepancyCommand {

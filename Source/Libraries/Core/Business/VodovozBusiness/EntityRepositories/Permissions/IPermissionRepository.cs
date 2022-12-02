@@ -28,6 +28,10 @@ namespace Vodovoz.EntityRepositories.Permissions
 		IList<WarehousePermissionBase> GetAllUserWarehousesPermissions(IUnitOfWork uow, int userId);
 		IEnumerable<EntityUserPermission> GetAllEntityUserPermissions(IUnitOfWork uow, int userId);
 		IEnumerable<EntityUserPermissionExtended> GetAllEntityUserPermissionsExtended(IUnitOfWork uow, int userId);
+		UserWarehousePermission GetUserWarehousePermission(
+			IUnitOfWork uow, int userId, int warehouseId, WarehousePermissionsType warehousePermissionsType);
+		SubdivisionWarehousePermission GetSubdivisionWarehousePermission(
+			IUnitOfWork uow, int subdivisionId, int warehouseId, WarehousePermissionsType warehousePermissionsType);
 	}
 
 	public class SubdivisionPermissionNode : IPermissionNode
