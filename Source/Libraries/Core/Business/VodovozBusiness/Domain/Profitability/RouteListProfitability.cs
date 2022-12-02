@@ -18,10 +18,10 @@ namespace Vodovoz.Domain.Profitability
 		private decimal _routeListExpenses;
 		private decimal _totalGoodsWeight;
 		private decimal _routeListExpensesPerKg;
-		private decimal _salesSum;
-		private decimal _expensesSum;
-		private decimal _grossMarginSum;
-		private decimal _grossMarginPercents;
+		private decimal? _salesSum;
+		private decimal? _expensesSum;
+		private decimal? _grossMarginSum;
+		private decimal? _grossMarginPercents;
 		private DateTime? _profitabilityConstantsCalculatedMonth;
 		
 		public virtual int Id { get; set; }
@@ -97,28 +97,28 @@ namespace Vodovoz.Domain.Profitability
 		}
 		
 		[Display(Name = "Сумма продаж, руб")]
-		public virtual decimal SalesSum
+		public virtual decimal? SalesSum
 		{
 			get => _salesSum;
 			set => SetField(ref _salesSum, value);
 		}
 
 		[Display(Name = "Сумма затрат, руб")]
-		public virtual decimal ExpensesSum
+		public virtual decimal? ExpensesSum
 		{
 			get => _expensesSum;
 			set => SetField(ref _expensesSum, value);
 		}
 
 		[Display(Name = "Валовая маржа, руб")]
-		public virtual decimal GrossMarginSum
+		public virtual decimal? GrossMarginSum
 		{
 			get => _grossMarginSum;
 			set => SetField(ref _grossMarginSum, value);
 		}
 
 		[Display(Name = "Валовая маржа, %")]
-		public virtual decimal GrossMarginPercents
+		public virtual decimal? GrossMarginPercents
 		{
 			get => _grossMarginPercents;
 			set => SetField(ref _grossMarginPercents, value);

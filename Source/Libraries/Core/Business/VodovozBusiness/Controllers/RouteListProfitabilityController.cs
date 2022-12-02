@@ -3,9 +3,11 @@ using System.Linq;
 using NLog;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Profitability;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.Factories;
@@ -20,6 +22,7 @@ namespace Vodovoz.Controllers
 		private readonly IProfitabilityConstantsRepository _profitabilityConstantsRepository;
 		private readonly IRouteListProfitabilityRepository _routeListProfitabilityRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly int[] _paidDeliveriesNomenclaturesIds;
 
 		public RouteListProfitabilityController(
@@ -27,7 +30,8 @@ namespace Vodovoz.Controllers
 			INomenclatureParametersProvider nomenclatureParametersProvider,
 			IProfitabilityConstantsRepository profitabilityConstantsRepository,
 			IRouteListProfitabilityRepository routeListProfitabilityRepository,
-			IRouteListRepository routeListRepository)
+			IRouteListRepository routeListRepository,
+			INomenclatureRepository nomenclatureRepository)
 		{
 			_routeListProfitabilityFactory =
 				routeListProfitabilityFactory ?? throw new ArgumentNullException(nameof(routeListProfitabilityFactory));
@@ -36,6 +40,7 @@ namespace Vodovoz.Controllers
 			_routeListProfitabilityRepository =
 				routeListProfitabilityRepository ?? throw new ArgumentNullException(nameof(routeListProfitabilityRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_paidDeliveriesNomenclaturesIds =
 				(nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider)))
 				.PaidDeliveriesNomenclaturesIds();
@@ -118,6 +123,9 @@ namespace Vodovoz.Controllers
 			_logger.Debug("Рассчитываем основные показатели рентабельности...");
 			CalculateGeneralDataRouteListProfitability(uow, routeList, routeListProfitability, useDataFromDataBase);
 			
+			var nearestProfitabilityConstants = _profitabilityConstantsRepository.GetNearestProfitabilityConstantsByDate(
+				uow, new DateTime(routeList.Date.Year, routeList.Date.Month, 1));
+			
 			_logger.Debug("Рассчитываем остальные показатели рентабельности...");
 			if(routeList.HasFixedShippingPrice)
 			{
@@ -125,7 +133,7 @@ namespace Vodovoz.Controllers
 			}
 			else if(carVersion != null && carVersion.IsCompanyCar)
 			{
-				CalculateRouteListProfitabilityForCompanyCar(uow, routeList, routeListProfitability, carVersion);
+				CalculateRouteListProfitabilityForCompanyCar(routeList, routeListProfitability, carVersion, nearestProfitabilityConstants);
 			}
 			else
 			{
@@ -134,7 +142,25 @@ namespace Vodovoz.Controllers
 			
 			_logger.Debug("Рассчитываем затраты на кг...");
 			routeListProfitability.RouteListExpensesPerKg = routeListProfitability.TotalGoodsWeight > 0
-				? routeListProfitability.RouteListExpenses / routeListProfitability.TotalGoodsWeight
+				? Math.Round(routeListProfitability.RouteListExpenses / routeListProfitability.TotalGoodsWeight, 2)
+				: default(decimal);
+			
+			_logger.Debug("Рассчитываем валовую маржу...");
+			CalculateRouteListProfitabilityGrossMargin(uow, routeList, routeListProfitability, nearestProfitabilityConstants);
+		}
+
+		private void CalculateRouteListProfitabilityGrossMargin(
+			IUnitOfWork uow,
+			RouteList routeList,
+			RouteListProfitability routeListProfitability,
+			ProfitabilityConstants nearestProfitabilityConstants)
+		{
+			routeListProfitability.SalesSum = _routeListRepository.GetRouteListSalesSum(uow, routeList.Id);
+			routeListProfitability.ExpensesSum =
+				CalculateExpenses(uow, routeList, routeListProfitability, nearestProfitabilityConstants);
+			routeListProfitability.GrossMarginSum = routeListProfitability.SalesSum - routeListProfitability.ExpensesSum;
+			routeListProfitability.GrossMarginPercents = routeListProfitability.SalesSum != 0
+				? Math.Round(routeListProfitability.GrossMarginSum.Value / routeListProfitability.SalesSum.Value * 100, 2)
 				: default(decimal);
 		}
 
@@ -149,8 +175,27 @@ namespace Vodovoz.Controllers
 			routeListProfitability.Mileage = GetMileageFromRouteList(routeList);
 			routeListProfitability.PaidDelivery = paidDelivery;
 			routeListProfitability.TotalGoodsWeight = useDataFromDataBase
-				? Math.Round(_routeListRepository.GetRouteListTotalWeight(uow, routeList.Id), 3)
+				? Math.Round(_routeListRepository.GetRouteListTotalWeight(uow, routeList.Id), 2)
 				: routeList.GetTotalWeight();
+		}
+		
+		private decimal CalculateExpenses(
+			IUnitOfWork uow,
+			RouteList routeList,
+			RouteListProfitability routeListProfitability,
+			ProfitabilityConstants nearestProfitabilityConstants)
+		{
+			var purchasePrice = _nomenclatureRepository.GetPurchasePrice(uow, routeList.Id, routeList.Date);
+			var innerDeliveryPrice = _nomenclatureRepository.GetInnerDeliveryPrice(uow, routeList.Id, routeList.Date);
+
+			var warehouseExpenses =
+				_nomenclatureRepository.GetWarehouseExpensesForRoute(uow, routeList.Id, nearestProfitabilityConstants.WarehouseExpensesPerKg);
+			
+			var otherExpenses = _nomenclatureRepository.GetOtherRouteExpenses(uow, routeList.Id,
+				nearestProfitabilityConstants.AdministrativeExpensesPerKg, routeListProfitability.RouteListExpensesPerKg);
+
+			return purchasePrice + innerDeliveryPrice + otherExpenses.AdministrativeExpenses + warehouseExpenses
+				+ otherExpenses.RouteListExpenses;
 		}
 
 		private void CalculateRouteListProfitabilityWithFixedShippingPrice(
@@ -164,9 +209,12 @@ namespace Vodovoz.Controllers
 		}
 
 		private void CalculateRouteListProfitabilityForCompanyCar(
-			IUnitOfWork uow, RouteList routeList, RouteListProfitability routeListProfitability, CarVersion carVersion)
+			RouteList routeList,
+			RouteListProfitability routeListProfitability,
+			CarVersion carVersion,
+			ProfitabilityConstants nearestProfitabilityConstants)
 		{
-			CalculateAmortisationAndRepairCosts(uow, routeList, routeListProfitability, carVersion);
+			CalculateAmortisationAndRepairCosts(routeListProfitability, carVersion, nearestProfitabilityConstants);
 			routeListProfitability.FuelCosts = CalculateFuelCosts(routeList.Car, routeListProfitability.Mileage, routeList.Date);
 			routeListProfitability.DriverAndForwarderWages = routeList.GetDriversTotalWage() + routeList.GetForwardersTotalWage();
 			routeListProfitability.RouteListExpenses =
@@ -177,12 +225,12 @@ namespace Vodovoz.Controllers
 		}
 
 		private void CalculateAmortisationAndRepairCosts(
-			IUnitOfWork uow, RouteList routeList, RouteListProfitability routeListProfitability, CarVersion carVersion)
+			RouteListProfitability routeListProfitability,
+			CarVersion carVersion,
+			ProfitabilityConstants nearestProfitabilityConstants)
 		{
 			var amortisationPerKm = default(decimal);
 			var repairCostsPerKm = default(decimal);
-			var nearestProfitabilityConstants = _profitabilityConstantsRepository.GetNearestProfitabilityConstantsByDate(
-					uow, new DateTime(routeList.Date.Year, routeList.Date.Month, 1));
 
 			if(nearestProfitabilityConstants != null)
 			{
@@ -245,9 +293,10 @@ namespace Vodovoz.Controllers
 			var paidDeliveriesSum = useDataFromDataBase ?
 				_routeListRepository.GetRouteListPaidDeliveriesSum(uow, routeList.Id, _paidDeliveriesNomenclaturesIds)
 				: routeList.Addresses
-				.SelectMany(ri => ri.Order.OrderItems)
-				.Where(oi => _paidDeliveriesNomenclaturesIds.Contains(oi.Nomenclature.Id))
-				.Sum(oi => oi.ActualSum);
+					.Where(a => a.Status != RouteListItemStatus.Transfered)
+					.SelectMany(ri => ri.Order.OrderItems)
+					.Where(oi => _paidDeliveriesNomenclaturesIds.Contains(oi.Nomenclature.Id))
+					.Sum(oi => oi.ActualSum);
 
 			return paidDeliveriesSum;
 		}

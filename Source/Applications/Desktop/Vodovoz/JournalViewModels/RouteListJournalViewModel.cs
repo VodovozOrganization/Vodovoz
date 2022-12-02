@@ -49,6 +49,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
@@ -83,6 +84,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly decimal _routeListProfitabilityIndicator;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
@@ -116,6 +118,7 @@ namespace Vodovoz.JournalViewModels
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -149,6 +152,10 @@ namespace Vodovoz.JournalViewModels
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
+				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
+				.GetRouteListProfitabilityIndicatorInPercents;
+			
 			_warehousePermissionValidator =
 				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService)))
 				.GetValidator(UoW, commonServices.UserService.CurrentUserId);
@@ -173,12 +180,13 @@ namespace Vodovoz.JournalViewModels
 			Subdivision subdivisionAlias = null;
 			GeoGroup geoGroupAlias = null;
 			GeoGroupVersion geoGroupVersionAlias = null;
+			RouteListProfitability routeListProfitabilityAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
-				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
-				.Left.JoinAlias(o => o.Car, () => carAlias)
-				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
-				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias, 
+				.Left.JoinAlias(rl => rl.Shift, () => shiftAlias)
+				.Left.JoinAlias(rl => rl.Car, () => carAlias)
+				.Left.JoinAlias(rl => rl.GeographicGroups, () => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias,
 						Restrictions.Conjunction()
 							.Add(Restrictions.Where(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date))
 							.Add(
@@ -188,7 +196,8 @@ namespace Vodovoz.JournalViewModels
 							)
 				)
 				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
-				.Left.JoinAlias(o => o.Driver, () => driverAlias)
+				.Left.JoinAlias(rl => rl.Driver, () => driverAlias)
+				.Left.JoinAlias(rl => rl.RouteListProfitability, () => routeListProfitabilityAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinEntityAlias(() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id
@@ -322,6 +331,10 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => routeListJournalNodeAlias.NotFullyLoaded)
 					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => routeListJournalNodeAlias.CarTypeOfUse)
 					.Select(() => carVersionAlias.CarOwnType).WithAlias(() => routeListJournalNodeAlias.CarOwnType)
+					.Select(() => routeListProfitabilityAlias.GrossMarginPercents)
+						.WithAlias(() => routeListJournalNodeAlias.GrossMarginPercents)
+					.Select(Projections.Constant(_routeListProfitabilityIndicator))
+						.WithAlias(() => routeListJournalNodeAlias.RouteListProfitabilityIndicator)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 

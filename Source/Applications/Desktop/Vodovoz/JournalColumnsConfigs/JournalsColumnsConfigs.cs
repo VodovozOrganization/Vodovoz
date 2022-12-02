@@ -1166,6 +1166,20 @@ namespace Vodovoz.JournalColumnsConfigs
 						.WrapMode(WrapMode.WordChar)
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
+						.AddSetter<CellRenderer>(
+							(c, n) => {
+								var color = _colorWhite;
+								
+								if(n.StatusEnum != RouteListStatus.New
+									&& n.GrossMarginPercents.HasValue
+									&& n.GrossMarginPercents.Value != 0
+									&& n.GrossMarginPercents.Value < n.RouteListProfitabilityIndicator)
+								{
+									color = _colorLightGrey;
+								}
+
+								c.CellBackgroundGdk = color;
+							})
 					.Finish()
 			);
 

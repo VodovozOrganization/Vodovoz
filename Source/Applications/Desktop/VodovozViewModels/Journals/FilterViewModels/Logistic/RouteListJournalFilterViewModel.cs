@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Gamma.Utilities;
+using QS.Commands;
+using QS.Dialog;
 using QS.Utilities.Enums;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -25,6 +28,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private List<RouteListStatusNode> _statusNodes;
 		private IList<CarOwnType> _restrictedCarOwnTypes;
 		private IList<CarTypeOfUse> _restrictedCarTypesOfUse;
+		private DelegateCommand _infoCommand;
 
 		public RouteListJournalFilterViewModel()
 		{
@@ -218,6 +222,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		public bool WithChainStoreAddresses => AddressTypeNodes.Any(an => an.AddressType == AddressType.ChainStore && an.Selected);
 
 		public bool CanSelectStatuses { get; private set; } = true;
+		
+		public decimal RouteListProfitabilityIndicator { get; set; }
 
 		public void SelectAllRouteListStatuses()
 		{
@@ -230,6 +236,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			_statusNodes.ForEach(x => x.Selected = false);
 			Update();
 		}
+		
+		public DelegateCommand InfoCommand => _infoCommand ?? (_infoCommand = new DelegateCommand(
+			() => ServicesConfig.InteractiveService.ShowMessage(
+				ImportanceLevel.Info,
+				"Описание расцветки строк журнала МЛ:\n\n" +
+				$"Если у МЛ стоит флаг не полной загрузки, то запись строки будет сделана оранжевым цветом\n" +
+				$"Если Рентабельность рейса меньше {RouteListProfitabilityIndicator}% И МЛ не в статусе {RouteListStatus.New.GetEnumTitle()}," +
+				" то строка будет выделена серым цветом\n" +
+				"В остальных случаях используется стандартная расцветка")
+		));
 
 		private void SubscribeOnCheckChanged()
 		{
