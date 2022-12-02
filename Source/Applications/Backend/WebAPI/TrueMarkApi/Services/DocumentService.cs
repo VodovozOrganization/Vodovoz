@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TrueMarkApi.Dto;
 using TrueMarkApi.Dto.Documents;
 using TrueMarkApi.Dto.Participants;
 using TrueMarkApi.Factories;
@@ -35,7 +36,7 @@ namespace TrueMarkApi.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private const int _workerDelaySec = 300;
-		private const int _createDocumentDelaySec = 10;
+		private const int _createDocumentDelaySec = 5;
 
 		public DocumentService(
 			ILogger<DocumentService> logger,
@@ -75,9 +76,15 @@ namespace TrueMarkApi.Services
 
 					var startDate = DateTime.Today.AddDays(-_edoSettings.EdoCheckPeriodDays);
 
+					var organizationsCertificateSection = _apiSection.GetSection("OrganizationCertificates");
+					var organizationsCertificates = organizationsCertificateSection.Get<OrganizationCertificate[]>().ToArray();
+
 					using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 					{
-						await CreateAndSendDocuments(uow, startDate);
+						foreach(var organizationCertificate in organizationsCertificates)
+						{
+							await WithdrawFromCirculation(uow, startDate, organizationCertificate);
+						}
 					}
 				}
 				catch(Exception e)
@@ -87,17 +94,16 @@ namespace TrueMarkApi.Services
 			}
 		}
 
-		private async Task CreateAndSendDocuments(IUnitOfWork uow, DateTime startDate)
+		private async Task WithdrawFromCirculation(IUnitOfWork uow, DateTime startDate, OrganizationCertificate organizationCertificate)
 		{
 			try
 			{
-				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
-				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
+				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, organizationCertificate.EdxClientId);
 				_logger.LogInformation("Организация получена");
 
 				if(organization is null)
 				{
-					_logger.LogError($"Не найдена организация по edxClientId {edoAccountId}");
+					_logger.LogError($"Не найдена организация по edxClientId {organizationCertificate.EdxClientId}");
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
 
@@ -120,18 +126,11 @@ namespace TrueMarkApi.Services
 
 					try
 					{
-						IProductDocumentFactory productDocumentFactory;
+						IProductDocumentFactory productDocumentFactory = order.PaymentType == PaymentType.barter
+							? new ProductDocumentForDonationFactory(organization.INN, order)
+							: new ProductDocumentForOwnUseFactory(organization.INN, order);
 
-						if(order.PaymentType == PaymentType.barter)
-						{
-							productDocumentFactory = new ProductDocumentForDonationFactory(organization.INN, order);
-						}
-						else
-						{
-							productDocumentFactory = new ProductDocumentForOwnUseFactory(organization.INN, order);
-						}
-
-						var trueMarkApiDocument = await CreateDocument(productDocumentFactory);
+						var trueMarkApiDocument = await CreateAndSendDocument(productDocumentFactory, organizationCertificate.CertificateThumbPrint);
 						trueMarkApiDocument.Order = order;
 						uow.Save(trueMarkApiDocument);
 						uow.Commit();
@@ -153,20 +152,20 @@ namespace TrueMarkApi.Services
 			}
 		}
 
-		private async Task<TrueMarkApiDocument> CreateDocument(IProductDocumentFactory productDocumentFactory)
+		private async Task<TrueMarkApiDocument> CreateAndSendDocument(IProductDocumentFactory productDocumentFactory, string certificateThumbPrint)
 		{
 			var documentCreateUrl = "lk/documents/create?pg=water";
 
-			var token = await _authorizationService.Login();
+			var token = await _authorizationService.Login(certificateThumbPrint);
 
 			var httpClient = _httpClientClientFactory.CreateClient();
 			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("BaseUrl"));
+			httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
 
 			var productDocument = productDocumentFactory.CreateProductDocument();
 
-			var signModel = new SignModel(_apiSection.GetValue<string>("CertificateThumbPrint"), productDocument, false);
+			var signModel = new SignModel(certificateThumbPrint, productDocument, false);
 
 			var gtinReceiptDocument = new GtinReceiptDocumentDto
 			{
@@ -193,16 +192,18 @@ namespace TrueMarkApi.Services
 
 			var resultInfoUrl = $"doc/{documentId}/info";
 
+			// Делаем паузу перед получением информации по созданному документу
+			await Task.Delay(_createDocumentDelaySec * 1000);
+
 			var resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
 
 			if(!resultInfoResponse.IsSuccessStatusCode)
 			{
+				// Производим ещё несколько попыток получения информации по созданному документу
 				for(int i = 0; i < 5; i++)
 				{
 					_logger.LogWarning($"Повторный запрос результатов создания документа {documentId}");
-					// Делаем паузу перед получением информации по созданному документу
 					await Task.Delay(_createDocumentDelaySec * 1000);
-
 					resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
 
 					if(resultInfoResponse.IsSuccessStatusCode)
@@ -254,11 +255,11 @@ namespace TrueMarkApi.Services
 			};
 		}
 
-		private async Task CheckAndSaveRegistrationInTrueMarkApi(IList<Order> orders, IUnitOfWork uow)
+		private async Task CheckAndSaveRegistrationInTrueApi(IList<Order> orders, IUnitOfWork uow, string certificateThumbPrint)
 		{
 			var url = "participants";
 
-			var token = await _authorizationService.Login();
+			var token = await _authorizationService.Login(certificateThumbPrint);
 
 			var httpClient = _httpClientClientFactory.CreateClient();
 			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

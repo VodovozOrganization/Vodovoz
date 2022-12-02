@@ -1,5 +1,6 @@
 ﻿using System;
 using Gamma.GtkWidgets;
+using Gdk;
 using Gtk;
 using QS.DomainModel.UoW;
 using QS.Permissions;
@@ -9,7 +10,6 @@ using QS.Widgets.GtkUI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewWidgets.Permissions
@@ -17,69 +17,21 @@ namespace Vodovoz.ViewWidgets.Permissions
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PresetPermissionsView : WidgetViewBase<PresetPermissionsViewModelBase>, IUserPermissionTab
 	{
+		private static readonly Color _colorBlack = new Color(0, 0, 0);
+		private static readonly Color _colorBlue = new Color(0x00, 0x18, 0xf9);
+		private static readonly Color _colorDarkGrey = new Color(0x80, 0x80, 0x80);
+		
 		public string Title => "Предустановленные права";
 
 		public PresetPermissionsView(PresetPermissionsViewModelBase viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
 		public PresetPermissionsView()
 		{
-			this.Build();
-			searchPresetPermissions.TextChanged += SearchPresetPermissionsOnTextChanged;
-		}
-
-		private void SearchPresetPermissionsOnTextChanged(object sender, EventArgs e)
-		{ 
-			ytreeviewAvailablePermissions.ItemsDataSource = null;
-			ytreeviewSelectedPermissions.ItemsDataSource = null;
-			ViewModel.StartSearch(searchPresetPermissions.Text);
-			ytreeviewAvailablePermissions.ItemsDataSource = ViewModel.ObservablePermissionsSourceList;
-			ytreeviewSelectedPermissions.ItemsDataSource = ViewModel.ObservablePermissionsList;
-		}
-
-		protected void Configure()
-		{
-			ytreeviewAvailablePermissions.ColumnsConfig = ColumnsConfigFactory.Create<PresetUserPermissionSource>()
-						.AddColumn("Право").AddTextRenderer(x => x.DisplayName)
-						.Finish();
-			ytreeviewAvailablePermissions.ItemsDataSource = ViewModel.ObservablePermissionsSourceList;
-
-			ytreeviewSelectedPermissions.ColumnsConfig = ColumnsConfigFactory.Create<HierarchicalPresetPermissionBase>()
-				.AddColumn("Право").AddTextRenderer(x => x.DisplayName)
-				.AddColumn("Значение").AddToggleRenderer(x => x.Value)
-				.RowCells().AddSetter((CellRenderer cell, HierarchicalPresetPermissionBase node) => cell.Sensitive = !node.IsLostPermission)
-				.Finish();
-			ytreeviewSelectedPermissions.ItemsDataSource = ViewModel.ObservablePermissionsList;
-		}
-
-		private void AddPermission()
-		{
-			if(ytreeviewAvailablePermissions.GetSelectedObject() is PresetUserPermissionSource selected)
-				ViewModel.AddPermissionCommand.Execute(selected);
-		}
-
-		private void DeletePermisission()
-		{
-			if(ytreeviewSelectedPermissions.GetSelectedObject() is HierarchicalPresetPermissionBase selected)
-				ViewModel.RemovePermissionCommand.Execute(selected);
-		}
-
-		protected void OnYtreeviewAvailablePermissionsRowActivated(object o, RowActivatedArgs args)
-		{
-			AddPermission();
-		}
-
-		protected void OnButtonAddClicked(object sender, EventArgs e)
-		{
-			AddPermission();
-		}
-
-		protected void OnButtonDeleteClicked(object sender, EventArgs e)
-		{
-			DeletePermisission();
+			Build();
 		}
 
 		public void ConfigureDlg(IUnitOfWork uow, UserBase user)
@@ -91,6 +43,61 @@ namespace Vodovoz.ViewWidgets.Permissions
 		public void Save()
 		{
 			ViewModel.SaveCommand.Execute();
+		}
+
+		protected void Configure()
+		{
+			ytreeviewAvailablePermissions.ColumnsConfig = ColumnsConfigFactory.Create<PresetUserPermissionSource>()
+						.AddColumn("Право").AddTextRenderer(x => x.DisplayName)
+						.Finish();
+			ytreeviewAvailablePermissions.ItemsDataSource = ViewModel.ObservablePermissionsSourceList;
+			ytreeviewAvailablePermissions.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedPresetUserPermissionSource, w => w.SelectedRow)
+				.InitializeFromSource();
+
+			ytreeviewSelectedPermissions.ColumnsConfig = ColumnsConfigFactory.Create<HierarchicalPresetPermissionBase>()
+				.AddColumn("Право").AddTextRenderer(x => x.DisplayName)
+				.AddColumn("Значение").AddToggleRenderer(x => x.Value)
+					.AddSetter((c, n) => c.Activatable = !n.IsLostPermission)
+				.RowCells()
+					.AddSetter((CellRendererText cell, HierarchicalPresetPermissionBase node) =>
+					{
+						if(node.IsLostPermission)
+						{
+							cell.ForegroundGdk = _colorDarkGrey;
+						}
+						else
+						{
+							cell.ForegroundGdk = node.Id > 0 ? _colorBlack : _colorBlue;
+						}
+					})
+				.Finish();
+			ytreeviewSelectedPermissions.ItemsDataSource = ViewModel.ObservablePermissionsList;
+			ytreeviewSelectedPermissions.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedHierarchicalPresetPermissionBase, w => w.SelectedRow)
+				.InitializeFromSource();
+			
+			searchPresetPermissions.TextChanged += SearchPresetPermissionsOnTextChanged;
+		}
+		
+		protected void OnYtreeviewAvailablePermissionsRowActivated(object o, RowActivatedArgs args)
+		{
+			ViewModel.AddPermissionCommand.Execute();
+		}
+
+		protected void OnButtonAddClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddPermissionCommand.Execute();
+		}
+
+		protected void OnButtonDeleteClicked(object sender, EventArgs e)
+		{
+			ViewModel.RemovePermissionCommand.Execute();
+		}
+
+		private void SearchPresetPermissionsOnTextChanged(object sender, EventArgs e)
+		{ 
+			ViewModel.StartSearch(searchPresetPermissions.Text);
 		}
 	}
 }

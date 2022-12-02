@@ -79,6 +79,10 @@ using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using EdoService.Dto;
+using System.Threading;
+using TrueMarkApi.Library.Converters;
+using TrueMarkApi.Library.Dto;
+using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 
 namespace Vodovoz
 {
@@ -120,8 +124,10 @@ namespace Vodovoz
 		private double _emailLastScrollPosition;
 		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 		private IContactListService _contactListService;
-		private ITrueApiService _trueApiService;
 		private EdoSettings _edoSettings;
+		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
+
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -438,7 +444,9 @@ namespace Vodovoz
 			DelayDaysForBuyerValue.Binding
 				.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt)
 				.InitializeFromSource();
-			lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = Entity?.IsChainStore ?? false;
+			DelayDaysForBuyerValue.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+						"can_change_delay_days_for_buyers_and_chain_store");
 
 			yspinDelayDaysForTechProcessing.Binding
 				.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
@@ -1121,16 +1129,19 @@ namespace Vodovoz
 					Entity.PersonalAccountIdInEdo = counterpartyEdoOperator.PersonalAccountIdInEdo;
 				}
 			};
+			
+			yChkBtnDoNotMixMarkedAndUnmarkedGoodsInOrder.Binding
+				.AddBinding(Entity, e => e.DoNotMixMarkedAndUnmarkedGoodsInOrder, w => w.Active)
+				.InitializeFromSource();
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
 			_edoSettings = new EdoSettings(new ParametersProvider());
 			IAuthorizationService taxcomAuthorizationService = new TaxcomAuthorizationService(_edoSettings);
-			IAuthorizationService trueApiAuthorizationService = new TrueApiAuthorizationService(_edoSettings);
 			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings, new ContactStateConverter());
-			_trueApiService = new TrueApiService(trueApiAuthorizationService, _edoSettings);
+
+			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
 		}
-	
 
 		private void RefreshBulkEmailEventStatus()
 		{
@@ -1174,15 +1185,6 @@ namespace Vodovoz
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
-			if(Entity.IsChainStore)
-			{
-				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = true;
-			}
-			else
-			{
-				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
-				Entity.DelayDaysForBuyers = 0;
-			}
 		}
 
 		private void OnButtonLoadFromDeliveryPointClicked(object sender, EventArgs e)
@@ -1237,7 +1239,8 @@ namespace Vodovoz
 
 			var orderJournalFilter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory()) { RestrictCounterparty = Entity };
+				new DeliveryPointJournalFactory(),
+				new EmployeeJournalFactory()) { RestrictCounterparty = Entity };
 			var orderJournalViewModel = new OrderJournalViewModel(
 				orderJournalFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
@@ -1888,11 +1891,13 @@ namespace Vodovoz
 				return;
 			}
 
-			bool isRegistered;
+			TrueMarkResponseResultDto trueMarkResponse;
 
 			try
 			{
-				isRegistered = _trueApiService.ParticipantsAsync(Entity.INN, "water").Result;
+				trueMarkResponse = _trueMarkApiClient.GetParticipantRegistrationForWaterStatusAsync(
+					_edoSettings.TrueMarkApiParticipantRegistrationForWaterUri, Entity.INN,_cancellationTokenSource.Token)
+					.Result;
 			}
 			catch(Exception ex)
 			{
@@ -1904,19 +1909,35 @@ namespace Vodovoz
 				return;
 			}
 
-			if(isRegistered)
+			if(!string.IsNullOrWhiteSpace(trueMarkResponse.ErrorMessage))
 			{
-				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
-			}
-			else
-			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Результат проверки в Честном Знаке:\n{trueMarkResponse.ErrorMessage}");
+
 				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
+
+				return;
 			}
+
+			var statusConverter = new TrueMarkApiRegistrationStatusConverter();
+			var status = statusConverter.ConvertToChestnyZnakStatus(trueMarkResponse.RegistrationStatusString);
+
+			if(status == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Такой статус участника в Честном Знаке у нас не используется:\n{trueMarkResponse.RegistrationStatusString}");
+
+				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
+
+				return;
+			}
+
+			Entity.RegistrationInChestnyZnakStatus = status.Value;
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-				"Регистрация в Честном Знаке проверена.");
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, 
+				$"Статус регистрации в Честном Знаке:\n{trueMarkResponse.RegistrationStatusString}");
 		}
 
 		protected void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
@@ -2025,7 +2046,12 @@ namespace Vodovoz
 		}
 
 		private EdoOperator GetEdoOperatorByEdoAccountId(string id) => UoW.GetAll<EdoOperator>().SingleOrDefault(eo => eo.Code == id.Substring(0, 3));
-		
+
+		public override void Dispose()
+		{
+			_cancellationTokenSource.Cancel();
+			base.Dispose();
+		}
 	}
 
 	public class SalesChannelSelectableNode : PropertyChangedBase

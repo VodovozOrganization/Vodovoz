@@ -18,7 +18,6 @@ using QS.Project.Domain;
 using QS.Report;
 using QS.Tdi;
 using Vodovoz.Additions.Store;
-using Vodovoz.Core;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -38,7 +37,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Infrastructure;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
@@ -51,6 +49,8 @@ using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.JournalViewModels
@@ -83,6 +83,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
+		private readonly Employee _currentEmployee;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
 
@@ -114,7 +116,8 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IRouteListItemRepository routeListItemRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IWarehousePermissionService warehousePermissionService) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -147,6 +150,9 @@ namespace Vodovoz.JournalViewModels
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			_warehousePermissionValidator =
+				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
 
 			TabName = "Журнал МЛ";
 
@@ -419,7 +425,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(defaultWarehouse != null
 			   && !cashWarehouseIds.Contains(defaultWarehouse.Id)
-			   && CurrentPermissions.Warehouse[WarehousePermissions.CarLoadEdit, defaultWarehouse])
+			   && _warehousePermissionValidator.Validate(WarehousePermissionsType.CarLoadEdit, defaultWarehouse, _currentEmployee))
 			{
 				return new JournalAction(
 					$"Отправить МЛ на погрузку со скалада\n'{defaultWarehouse.Name}' и распечатать",
@@ -436,9 +442,10 @@ namespace Vodovoz.JournalViewModels
 				);
 			}
 
-			var warehousesAvailableForUser = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarLoadEdit)
-				.Where(x => !cashWarehouseIds.Contains(x.Id))
-				.ToList();
+			var warehousesAvailableForUser =
+				new StoreDocumentHelper().GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit)
+					.Where(x => !cashWarehouseIds.Contains(x.Id))
+					.ToList();
 
 			if(!warehousesAvailableForUser.Any())
 			{
@@ -802,11 +809,9 @@ namespace Vodovoz.JournalViewModels
 
 		private void FillCarLoadDocument(CarLoadDocument document, IUnitOfWork uow, int routeListId, int warehouseId)
 		{
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-
 			document.RouteList = uow.GetById<RouteList>(routeListId);
-			document.Author = currentEmployee;
-			document.LastEditor = currentEmployee;
+			document.Author = _currentEmployee;
+			document.LastEditor = _currentEmployee;
 			document.LastEditedTime = DateTime.Now;
 			document.Warehouse = uow.GetById<Warehouse>(warehouseId);
 

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Utilities.Extensions;
 using QS.ViewModels.Extension;
@@ -178,13 +179,14 @@ namespace Vodovoz
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
 		private PhonesJournalFilterViewModel _contactPhoneFilter;
+		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
-		private  INomenclatureRepository nomenclatureRepository;
+		private INomenclatureRepository nomenclatureRepository;
 		public virtual INomenclatureRepository NomenclatureRepository {
 			get {
-				if (nomenclatureRepository == null) {
+				if(nomenclatureRepository == null) {
 					nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
 				}
 				return nomenclatureRepository;
@@ -209,7 +211,7 @@ namespace Vodovoz
 				return _driverApiHelper;
 			}
 		}
-		
+
 		private ICounterpartyJournalFactory counterpartySelectorFactory;
 		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
 			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory());
@@ -351,7 +353,7 @@ namespace Vodovoz
 			if(NeedCopy) {
 				Entity.Client = UoW.GetById<Counterparty>(copiedOrder.Client.Id);
 
-				if (copiedOrder.DeliveryPoint != null) {
+				if(copiedOrder.DeliveryPoint != null) {
 					Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id);
 				}
 
@@ -381,7 +383,7 @@ namespace Vodovoz
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
-			
+
 			Entity.IsCopiedFromUndelivery = true;
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard
 				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
@@ -429,7 +431,7 @@ namespace Vodovoz
 			_previousDeliveryDate = Entity.DeliveryDate;
 			_canChangeDiscountValue = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
-			_nomenclatureFixedPriceProvider	=
+			_nomenclatureFixedPriceProvider =
 				new NomenclatureFixedPriceController(
 					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
@@ -551,7 +553,7 @@ namespace Vodovoz
 
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
-			
+
 			var excludedPaymentFromIds = new[]
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
@@ -753,10 +755,10 @@ namespace Vodovoz
 				SetDiscountEditable();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
-			
+
 			ycheckPaymentBySms.Toggled += OnCheckPaymentBySmsToggled;
 			chkPaymentByQr.Toggled += OnCheckPaymentByQrToggled;
-			
+
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
 			chkPaymentByQr.Binding.AddBinding(Entity, e => e.PaymentByQr, w => w.Active).InitializeFromSource();
 
@@ -801,6 +803,8 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
 
 			UpdateAvailableEnumSignatureTypes();
+
+			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
@@ -814,7 +818,7 @@ namespace Vodovoz
 				chkPaymentByQr.Visible = true;
 			}
 		}
-		
+
 		private void OnCheckPaymentByQrToggled(object sender, EventArgs e)
 		{
 			if(Entity.PaymentByQr)
@@ -1068,7 +1072,7 @@ namespace Vodovoz
 		private void OnNomenclatureFixedPriceChanged(EntityChangeEvent[] changeevents)
 		{
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<NomenclatureFixedPrice>();
-			if (changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id))
+			if(changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id))
 			{
 				DeliveryPoint.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
 				RefreshEntity(DeliveryPoint);
@@ -1167,7 +1171,7 @@ namespace Vodovoz
 					.AddSetter((c, n) => {
 						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
 							c.Text = CurrencyWorks.GetShortCurrencyString(n.OriginalSum);
-						}
+					}
 					)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
@@ -1241,7 +1245,7 @@ namespace Vodovoz
 				.AddSetter((c, n) => c.Visible = n is ISignableDocument)
 				.AddSetter((toggle, document) =>
 				{
-					if (document.Type == OrderDocumentType.UPD)
+					if(document.Type == OrderDocumentType.UPD)
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureUpd;
 					}
@@ -1263,6 +1267,29 @@ namespace Vodovoz
 			treeDocuments.Selection.Changed += Selection_Changed;
 
 			treeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
+
+			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
+				.AddColumn("Код документооборота")
+					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
+				.AddColumn("Отправленные\nдокументы")
+					.AddTextRenderer(x => x.SentDocuments)
+				.AddColumn("Статус\nдокументооборота")
+					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+				.AddColumn("Доставлено\nклиенту?")
+					.AddToggleRenderer(x => x.Received)
+					.Editing(false)
+				.AddColumn("Описание ошибки")
+					.AddTextRenderer(x => x.ErrorDescription)
+					.WrapWidth(500)
+				.AddColumn("")
+				.Finish();
+
+			if(Entity.Id != 0)
+			{
+				UpdateEdoContainers();
+			}
+
+			treeViewEdoContainers.ItemsDataSource = _edoContainers;
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
 				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
@@ -1316,6 +1343,16 @@ namespace Vodovoz
 			});
 		}
 
+		private void UpdateEdoContainers()
+		{
+			_edoContainers.Clear();
+
+			foreach(var item in _orderRepository.GetEdoContainersByOrderId(UoW, Entity.Id))
+			{
+				_edoContainers.Add(item);
+			}
+		}
+
 		private void ConfigureAcceptButtons()
 		{
 			buttonAcceptOrderWithClose.Clicked += OnButtonAcceptOrderWithCloseClicked;
@@ -1362,7 +1399,7 @@ namespace Vodovoz
 			SendDocumentByEmailViewModel =
 				new SendDocumentByEmailViewModel(_emailRepository,  new EmailParametersProvider(new ParametersProvider()), _currentEmployee, ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
-			hbox19.Add(sendEmailView);
+			hbox20.Add(sendEmailView);
 			sendEmailView.Show();
 		}
 
@@ -3324,10 +3361,10 @@ namespace Vodovoz
 		{
 			treeItems.Sensitive = sensitive;
 			hbox12.Sensitive = sensitive;
-			hbox10.Sensitive = sensitive;
+			hbox11.Sensitive = sensitive;
 			hboxReturnTareReason.Sensitive = sensitive;
 			orderEquipmentItemsView.Sensitive = sensitive;
-			hbox11.Sensitive = sensitive;
+			hbox13.Sensitive = sensitive;
 			depositrefunditemsview.Sensitive = sensitive;
 			table2.Sensitive = sensitive;
 		}
@@ -3631,6 +3668,12 @@ namespace Vodovoz
 
 		protected void OnBtnFormClicked(object sender, EventArgs e)
 		{
+			if(Entity.Client is null)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
+				return;
+			}
+			
 			ylblCounterpartyFIO.Text = Entity.Client.FullName;
 			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
 

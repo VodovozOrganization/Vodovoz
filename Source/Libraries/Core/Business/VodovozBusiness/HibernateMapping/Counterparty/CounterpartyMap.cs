@@ -77,6 +77,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PersonalAccountIdInEdo).Column("personal_account_id_in_edo");
 			Map(x => x.SpecialContractNumber).Column("special_contract_number");
 			Map(x => x.SpecialContractDate).Column("special_contract_date");
+			Map(x => x.DoNotMixMarkedAndUnmarkedGoodsInOrder).Column("do_not_mix_marked_and_unmarked_goods_in_order");
 
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");

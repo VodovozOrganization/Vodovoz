@@ -104,6 +104,9 @@ namespace Vodovoz.Domain.Orders.Documents
 			get => _created;
 			set => SetField(ref _created, value);
 		}
+
+		[Display(Name = "Отправленные документы")]
+		public virtual string SentDocuments => "УПД";
 	}
 
 	public enum EdoDocFlowStatus

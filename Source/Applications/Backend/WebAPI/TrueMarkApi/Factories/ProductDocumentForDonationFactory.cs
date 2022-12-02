@@ -22,7 +22,10 @@ namespace TrueMarkApi.Factories
 		}
 		public string CreateProductDocument()
 		{
-			var accountableItems = _order.OrderItems.Where(oi => oi.Nomenclature.IsAccountableInChestniyZnak).ToList();
+			var accountableItems = _order.OrderItems.Where(oi => oi.Nomenclature.IsAccountableInChestniyZnak)
+				.GroupBy(oi => oi.Nomenclature.Gtin)
+				.Select(gp => new ProductDto { Gtin = gp.Key, GtinQuantity = gp.Sum(s => (int)s.Count).ToString() })
+				.ToList();
 
 			var productDocument = new ProductDocumentDto
 			{
@@ -33,12 +36,7 @@ namespace TrueMarkApi.Factories
 				DocumentType = "CONSIGNMENT_NOTE",
 				DocumentNumber = _order.Id.ToString(),
 				DocumentDate = _order.DeliveryDate.Value,
-				Products = accountableItems.Select(ai => 
-					new ProductDto 
-					{ 
-						Gtin = ai.Nomenclature.Gtin, 
-						GtinQuantity = ((int)ai.Count).ToString()
-					}).ToList()
+				Products = accountableItems
 			};
 
 			var serializedProductDocument = JsonSerializer.Serialize(productDocument);

@@ -77,6 +77,7 @@ namespace Vodovoz.Views.Client
 			entryCity.CitiesDataLoader = ViewModel.CitiesDataLoader;
 			entryStreet.StreetsDataLoader = ViewModel.StreetsDataLoader;
 			entryBuilding.HousesDataLoader = ViewModel.HousesDataLoader;
+			entryBuilding.WidthRequest = 200;
 			entryCity.CitySelected += EntryCityOnCitySelected;
 			entryStreet.StreetSelected += EntryStreetOnStreetSelected;
 			entryStreet.FocusOutEvent += EntryStreetOnFocusOutEvent;

@@ -58,6 +58,7 @@ namespace Vodovoz.Domain.Client
 		private string _specialContractName;
 		private string _specialContractNumber;
 		private DateTime? _specialContractDate;
+		private bool _doNotMixMarkedAndUnmarkedGoodsInOrder;
 
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
 		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
@@ -724,6 +725,13 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _edoOperator;
 			set => SetField(ref _edoOperator, value);
+		}
+		
+		[Display(Name = "Не смешивать в одном заказе маркированные и немаркированные товары")]
+		public virtual bool DoNotMixMarkedAndUnmarkedGoodsInOrder
+		{
+			get => _doNotMixMarkedAndUnmarkedGoodsInOrder;
+			set => SetField(ref _doNotMixMarkedAndUnmarkedGoodsInOrder, value);
 		}
 		
 		#endregion
