@@ -17,6 +17,7 @@ using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
@@ -46,6 +47,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly decimal _routeListProfitabilityIndicator;
 
 		public RouteListWorkingJournalViewModel(
 			RouteListJournalFilterViewModel filterViewModel,
@@ -58,7 +60,8 @@ namespace Vodovoz.JournalViewModels
 			IExpenseParametersProvider expenseParametersProvider,
 			ISubdivisionRepository subdivisionRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
-			IGtkTabsOpener gtkTabsOpener)
+			IGtkTabsOpener gtkTabsOpener,
+			IRouteListProfitabilitySettings routeListProfitabilitySettings)
 		: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Работа кассы с МЛ";
@@ -71,7 +74,9 @@ namespace Vodovoz.JournalViewModels
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-
+			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
+				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
+				.GetRouteListProfitabilityIndicatorInPercents;
 			UseSlider = false;
 
 			NotifyConfiguration.Enable();
@@ -97,6 +102,7 @@ namespace Vodovoz.JournalViewModels
 			Subdivision subdivisionAlias = null;
 			GeoGroup geoGroupAlias = null;
 			GeoGroupVersion geoGroupVersionAlias = null;
+			RouteListProfitability routeListProfitabilityAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
@@ -113,6 +119,7 @@ namespace Vodovoz.JournalViewModels
 				)
 				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
 				.Left.JoinAlias(o => o.Driver, () => driverAlias)
+				.Left.JoinAlias(rl => rl.RouteListProfitability, () => routeListProfitabilityAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinEntityAlias(() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id
@@ -230,22 +237,26 @@ namespace Vodovoz.JournalViewModels
 
 			var result = query
 				.SelectList(list => list
-				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
-					   .Select(() => routeListAlias.Date).WithAlias(() => routeListJournalNodeAlias.Date)
-					   .Select(() => routeListAlias.Status).WithAlias(() => routeListJournalNodeAlias.StatusEnum)
-					   .Select(() => shiftAlias.Name).WithAlias(() => routeListJournalNodeAlias.ShiftName)
-					   .Select(() => carModelAlias.Name).WithAlias(() => routeListJournalNodeAlias.CarModelName)
-					   .Select(() => carAlias.RegistrationNumber).WithAlias(() => routeListJournalNodeAlias.CarNumber)
-					   .Select(() => driverAlias.LastName).WithAlias(() => routeListJournalNodeAlias.DriverSurname)
-					   .Select(() => driverAlias.Name).WithAlias(() => routeListJournalNodeAlias.DriverName)
-					   .Select(() => driverAlias.Patronymic).WithAlias(() => routeListJournalNodeAlias.DriverPatronymic)
-					   .Select(() => driverAlias.Comment).WithAlias(() => routeListJournalNodeAlias.DriverComment)
-					   .Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
-					   .Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
-					   .Select(() => subdivisionAlias.Name).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
-					   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => routeListJournalNodeAlias.NotFullyLoaded)
-					   .Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => routeListJournalNodeAlias.CarTypeOfUse)
-					   .Select(() => carVersionAlias.CarOwnType).WithAlias(() => routeListJournalNodeAlias.CarOwnType)
+					.SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
+					.Select(() => routeListAlias.Date).WithAlias(() => routeListJournalNodeAlias.Date)
+					.Select(() => routeListAlias.Status).WithAlias(() => routeListJournalNodeAlias.StatusEnum)
+					.Select(() => shiftAlias.Name).WithAlias(() => routeListJournalNodeAlias.ShiftName)
+					.Select(() => carModelAlias.Name).WithAlias(() => routeListJournalNodeAlias.CarModelName)
+					.Select(() => carAlias.RegistrationNumber).WithAlias(() => routeListJournalNodeAlias.CarNumber)
+					.Select(() => driverAlias.LastName).WithAlias(() => routeListJournalNodeAlias.DriverSurname)
+					.Select(() => driverAlias.Name).WithAlias(() => routeListJournalNodeAlias.DriverName)
+					.Select(() => driverAlias.Patronymic).WithAlias(() => routeListJournalNodeAlias.DriverPatronymic)
+					.Select(() => driverAlias.Comment).WithAlias(() => routeListJournalNodeAlias.DriverComment)
+					.Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
+					.Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
+					.Select(() => subdivisionAlias.Name).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
+					.Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => routeListJournalNodeAlias.NotFullyLoaded)
+					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => routeListJournalNodeAlias.CarTypeOfUse)
+					.Select(() => carVersionAlias.CarOwnType).WithAlias(() => routeListJournalNodeAlias.CarOwnType)
+					.Select(() => routeListProfitabilityAlias.GrossMarginPercents)
+						.WithAlias(() => routeListJournalNodeAlias.GrossMarginPercents)
+					.Select(Projections.Constant(_routeListProfitabilityIndicator))
+						.WithAlias(() => routeListJournalNodeAlias.RouteListProfitabilityIndicator)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 
