@@ -34,7 +34,10 @@ namespace Vodovoz.Additions.Store
 
 			if(WarehousePermissions.WarehousePermissions.Count(x => x.WarehousePermissionType == edit) == 1)
 			{
-				return WarehousePermissions.WarehousePermissions.First(x => x.WarehousePermissionType == edit).Warehouse;
+				var warehouse =
+					WarehousePermissions.WarehousePermissions.First(x => x.WarehousePermissionType == edit).Warehouse;
+				
+				return uow.GetById<Warehouse>(warehouse.Id);
 			}
 
 			return null;
