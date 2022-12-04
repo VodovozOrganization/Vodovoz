@@ -6,14 +6,18 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Store;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Store
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NotFullyLoadedRouteListsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public NotFullyLoadedRouteListsReport()
+		private readonly ReportFactory _reportFactory;
+
+		public NotFullyLoadedRouteListsReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yEntRefWarehouse.SubjectType = typeof(Warehouse);
@@ -40,15 +44,17 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private ReportInfo GetReportInfo()
 		{
-			var reportInfo = new ReportInfo {
-				Identifier = "Store.NotFullyLoadedRouteLists",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", datePeriodPicker.StartDateOrNull.Value },
-					{ "end_date", datePeriodPicker.EndDateOrNull.Value },
-					{ "warehouse_id", (yEntRefWarehouse.Subject as Warehouse)?.Id ?? 0}
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", datePeriodPicker.StartDateOrNull.Value },
+				{ "end_date", datePeriodPicker.EndDateOrNull.Value },
+				{ "warehouse_id", (yEntRefWarehouse.Subject as Warehouse)?.Id ?? 0}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Store.NotFullyLoadedRouteLists";
+			reportInfo.Parameters = parameters;
+
 			return reportInfo;
 		}
 

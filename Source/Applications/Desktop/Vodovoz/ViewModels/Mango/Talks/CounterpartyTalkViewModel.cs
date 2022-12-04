@@ -17,6 +17,7 @@ using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Reports;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IParametersProvider _parametersProvider;
+		private readonly ReportFactory _reportFactory;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
@@ -59,6 +61,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			INomenclatureRepository nomenclatureRepository,
 			IOrderRepository orderRepository,
 			IParametersProvider parametersProvider,
+			ReportFactory reportFactory,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory) : base(navigation, manager)
 		{
@@ -73,6 +76,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 			_deliveryPointJournalFactory =
@@ -216,6 +220,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		public void BottleActCommand()
 		{
 			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(
+				_reportFactory,
 				_orderRepository,
 				_counterpartyJournalFactory,
 				_deliveryPointJournalFactory);

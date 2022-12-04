@@ -14,8 +14,11 @@ namespace Vodovoz.Reports
 {
 	public partial class FuelReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public FuelReport()
+		private readonly ReportFactory _reportFactory;
+
+		public FuelReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var filterDriver = new EmployeeFilterViewModel();
@@ -64,21 +67,19 @@ namespace Vodovoz.Reports
 				parameters.Add("driver_id", -1);
 			}
 
+			string reportName = "Logistic.FuelReport";
+
 			if(radioSumm.Active) {
 				parameters.Add("author", (evmeAuthor.Subject as Employee)?.Id ?? -1);
-
-				return new ReportInfo {
-					Identifier = yCheckButtonDatailedSummary.Active?"Logistic.FuelReportSummaryDetailed":"Logistic.FuelReportSummaryBasic",
-					UseUserVariables = true,
-					Parameters = parameters
-				};
+				reportName = yCheckButtonDatailedSummary.Active ? "Logistic.FuelReportSummaryDetailed" : "Logistic.FuelReportSummaryBasic";
 			}
-			 
-			return new ReportInfo {
-				Identifier = "Logistic.FuelReport",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = reportName;
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

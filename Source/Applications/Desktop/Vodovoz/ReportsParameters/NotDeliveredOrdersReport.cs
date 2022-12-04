@@ -5,15 +5,19 @@ using QS.Dialog;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NotDeliveredOrdersReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public NotDeliveredOrdersReport()
+		private readonly ReportFactory _reportFactory;
+
+		public NotDeliveredOrdersReport(ReportFactory reportFactory)
 		{
 			this.Build();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			dateperiodpicker1.StartDate = DateTime.Now.Date;
 			dateperiodpicker1.EndDate = DateTime.Now.Date;
@@ -45,14 +49,17 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Orders.NotDeliveredOrders",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", dateperiodpicker1.StartDateOrNull },
-					{ "endDate", dateperiodpicker1.EndDateOrNull },
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "startDate", dateperiodpicker1.StartDateOrNull },
+				{ "endDate", dateperiodpicker1.EndDateOrNull },
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Orders.NotDeliveredOrders";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 	}
 }

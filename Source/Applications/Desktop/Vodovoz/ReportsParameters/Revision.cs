@@ -10,11 +10,14 @@ namespace Vodovoz.Reports
 {
 	public partial class Revision : SingleUoWWidgetBase, IParametersWidget
 	{
-		public Revision()
+		private readonly ReportFactory _reportFactory;
+
+		public Revision(ReportFactory reportFactory)
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(UoW);
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}	
 
 		#region IParametersWidget implementation
@@ -45,18 +48,20 @@ namespace Vodovoz.Reports
 		}
 
 		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
+		{
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Client.Revision",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
-					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
-					{ "CounterpartyID", (referenceCounterparty.Subject as Counterparty).Id}
-				}
+				{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
+				{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
+				{ "CounterpartyID", (referenceCounterparty.Subject as Counterparty).Id}
 			};
-		}			
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Client.Revision";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
+		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)
 		{

@@ -8,16 +8,19 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class WayBillReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICarJournalFactory _carJournalFactory;
 
-		public WayBillReport(IEmployeeJournalFactory employeeJournalFactory, ICarJournalFactory carJournalFactory)
+		public WayBillReport(ReportFactory reportFactory, IEmployeeJournalFactory employeeJournalFactory, ICarJournalFactory carJournalFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 
@@ -48,18 +51,20 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.WayBillReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", datepicker.Date },
-					{ "driver_id", (entryDriver?.Subject as Employee)?.Id ?? -1 },
-					{ "car_id", (entryCar?.Subject as Car)?.Id ?? -1 },
-					{ "time", timeHourEntry.Text + ":" + timeMinuteEntry.Text },
-					{ "need_date", !datepicker.IsEmpty }
-				}
+				{ "date", datepicker.Date },
+				{ "driver_id", (entryDriver?.Subject as Employee)?.Id ?? -1 },
+				{ "car_id", (entryCar?.Subject as Car)?.Id ?? -1 },
+				{ "time", timeHourEntry.Text + ":" + timeMinuteEntry.Text },
+				{ "need_date", !datepicker.IsEmpty }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.WayBillReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)

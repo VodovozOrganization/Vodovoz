@@ -24,6 +24,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.Reports;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Reports;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private readonly bool _userIsSalesRepresentative;
+		private readonly ReportFactory _reportFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
@@ -48,8 +50,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private bool _isDetailed;
 		private string _source;
 
-		public ProfitabilitySalesReportViewModel(RdlViewerViewModel rdlViewerViewModel, IEmployeeRepository employeeRepository, ICommonServices commonServices) : base(rdlViewerViewModel)
+		public ProfitabilitySalesReportViewModel(ReportFactory reportFactory, RdlViewerViewModel rdlViewerViewModel, IEmployeeRepository employeeRepository, ICommonServices commonServices) : base(rdlViewerViewModel)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_interactiveService = commonServices.InteractiveService;
@@ -83,12 +86,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		{
 			get
 			{
-				var reportInfo = new ReportInfo
-				{
-					Source = _source,
-					Parameters = Parameters,
-					Title = Title
-				};
+				var reportInfo = _reportFactory.CreateReport();
+				reportInfo.Source = _source;
+				reportInfo.Parameters = Parameters;
+				reportInfo.Title = Title;
+
 				return reportInfo;
 			}
 		}

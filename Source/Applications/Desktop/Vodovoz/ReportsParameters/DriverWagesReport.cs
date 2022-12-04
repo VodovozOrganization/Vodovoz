@@ -13,8 +13,11 @@ namespace Vodovoz.Reports
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DriverWagesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public DriverWagesReport()
+		private readonly ReportFactory _reportFactory;
+
+		public DriverWagesReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var driverFilter = new EmployeeFilterViewModel();
@@ -73,11 +76,12 @@ namespace Vodovoz.Reports
 			} else {
 				parameters.Add("showbalance", "0");
 			}
-			return new ReportInfo
-			{
-				Identifier = "Wages.DriverWage",
-				Parameters = parameters
-			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Wages.DriverWage";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}	
 
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)

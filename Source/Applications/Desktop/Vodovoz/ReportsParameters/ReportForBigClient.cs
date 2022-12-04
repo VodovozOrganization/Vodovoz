@@ -10,6 +10,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -18,8 +19,9 @@ namespace Vodovoz.ReportsParameters
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
+		private readonly ReportFactory _reportFactory;
 
-		public ReportForBigClient()
+		public ReportForBigClient(ReportFactory reportFactory)
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -34,6 +36,7 @@ namespace Vodovoz.ReportsParameters
 			evmeDeliveryPoint
 				.SetEntityAutocompleteSelectorFactory(_deliveryPointJournalFactory
 					.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		#region IParametersWidget implementation
@@ -56,17 +59,19 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Client.SummaryBottlesAndDepositsKungolovo",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", dateperiodpicker1.StartDateOrNull },
-					{ "endDate", dateperiodpicker1.EndDateOrNull },
-					{ "client_id", evmeCounterparty.SubjectId },
-					{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId }
-				}
+				{ "startDate", dateperiodpicker1.StartDateOrNull },
+				{ "endDate", dateperiodpicker1.EndDateOrNull },
+				{ "client_id", evmeCounterparty.SubjectId },
+				{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Client.SummaryBottlesAndDepositsKungolovo";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)

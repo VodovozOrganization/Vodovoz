@@ -8,13 +8,17 @@ using QS.Widgets;
 using QSReport;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class RouteListsOnClosingReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public RouteListsOnClosingReport()
+		private readonly ReportFactory _reportFactory;
+
+		public RouteListsOnClosingReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -43,18 +47,20 @@ namespace Vodovoz.ReportsParameters.Logistic
 			var carTypesOfUse = enumcheckCarTypeOfUse.SelectedValues.ToArray();
 			var carOwnTypes = enumcheckCarOwnType.SelectedValues.ToArray();
 
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.RouteListOnClosing",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Id ?? 0 },
-					{ "car_types_of_use", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
-					{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } },
-					{ "show_today_route_lists", ycheckTodayRouteLists.Active },
-					{ "include_visiting_masters", nullCheckVisitingMasters.Active }
-				}
+				{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Id ?? 0 },
+				{ "car_types_of_use", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
+				{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } },
+				{ "show_today_route_lists", ycheckTodayRouteLists.Active },
+				{ "include_visiting_masters", nullCheckVisitingMasters.Active }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.RouteListOnClosing";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void OnButtonCreateReportClicked(object sender, EventArgs e)

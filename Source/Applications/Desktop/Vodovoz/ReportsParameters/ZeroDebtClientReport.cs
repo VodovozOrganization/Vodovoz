@@ -6,17 +6,21 @@ using QS.Report;
 using QSReport;
 using QSWidgetLib;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ZeroDebtClientReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ZeroDebtClientReport()
+		private readonly ReportFactory _reportFactory;
+
+		public ZeroDebtClientReport(ReportFactory reportFactory)
 		{
 			this.Build();
 			ydateperiodpicker.StartDate = DateTime.Now.Date;
 			ydateperiodpicker.EndDate = DateTime.Now.Date;
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		#region IParametersWidget implementation
@@ -33,14 +37,17 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Client.ZeroDebtClient",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", ydateperiodpicker.StartDate },
-					{ "endDate", ydateperiodpicker.EndDate }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "startDate", ydateperiodpicker.StartDate },
+				{ "endDate", ydateperiodpicker.EndDate }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Client.ZeroDebtClient";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

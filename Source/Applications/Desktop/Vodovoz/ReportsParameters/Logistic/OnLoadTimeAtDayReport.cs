@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using QS.Report;
 using QSReport;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class OnLoadTimeAtDayReport : Gtk.Bin, IParametersWidget
 	{
-		public OnLoadTimeAtDayReport()
+		private readonly ReportFactory _reportFactory;
+
+		public OnLoadTimeAtDayReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			ydateAtDay.Date = DateTime.Today;
 		}
@@ -34,13 +38,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Logistic.OnLoadTimeAtDay",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", ydateAtDay.Date },
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "date", ydateAtDay.Date },
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.OnLoadTimeAtDay";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

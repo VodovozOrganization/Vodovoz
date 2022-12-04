@@ -9,18 +9,22 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class MileageReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICarJournalFactory _carJournalFactory;
 
 		public MileageReport(
+			ReportFactory reportFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICarJournalFactory carJournalFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 
@@ -74,12 +78,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 				{ "difference_km", validatedentryDifference.Text }
 			};
 
-			return new ReportInfo
-			{
-				Identifier = "Logistic.MileageReport",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.MileageReport";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void OnButtonCreateReportClicked(object sender, EventArgs e)

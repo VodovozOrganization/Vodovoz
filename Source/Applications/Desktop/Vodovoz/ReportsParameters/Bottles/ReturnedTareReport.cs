@@ -12,6 +12,7 @@ using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.Reports;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -19,6 +20,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ReturnedTareReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly SelectableParametersReportFilter _filter;
 
@@ -30,8 +32,9 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		#endregion
 
-		public ReturnedTareReport(IInteractiveService interactiveService)
+		public ReturnedTareReport(ReportFactory reportFactory, IInteractiveService interactiveService)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -161,12 +164,12 @@ namespace Vodovoz.ReportsParameters.Bottles
 			{
 				parameters.Add(item.Key, item.Value);
 			}
-			
-			return new ReportInfo
-			{
-				Identifier = "Bottles.ReturnedTareReport",
-				Parameters = parameters
-			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.ReturnedTareReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));

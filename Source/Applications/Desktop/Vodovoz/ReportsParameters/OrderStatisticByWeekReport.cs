@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ReportsParameters
@@ -19,8 +20,9 @@ namespace Vodovoz.ReportsParameters
 	public partial class OrderStatisticByWeekReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly GenericObservableList<GeographicGroupNode> _geographicGroupNodes;
+		private readonly ReportFactory _reportFactory;
 
-		public OrderStatisticByWeekReport()
+		public OrderStatisticByWeekReport(ReportFactory reportFactory)
 		{
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -46,6 +48,7 @@ namespace Vodovoz.ReportsParameters
 
 			ytreeviewGeographicGroup.ItemsDataSource = _geographicGroupNodes;
 			ytreeviewGeographicGroup.HeadersVisible = false;
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		#region IParametersWidget implementation
@@ -83,18 +86,20 @@ namespace Vodovoz.ReportsParameters
 				? _geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.GeographicGroup.Id)
 				: _geographicGroupNodes.Select(ggn => ggn.GeographicGroup.Id);
 
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.OrderStatisticByWeek",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
-					{ "report_mode", comboboxReportMode.Active },
-					{ "geographic_group_id", selectedGeoGroupsIds },
-					{ "selected_filters", GetSelectedFilters() }
-				}
+				{ "start_date", dateperiodpicker.StartDate },
+				{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
+				{ "report_mode", comboboxReportMode.Active },
+				{ "geographic_group_id", selectedGeoGroupsIds },
+				{ "selected_filters", GetSelectedFilters() }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.OrderStatisticByWeek";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private string GetSelectedFilters()

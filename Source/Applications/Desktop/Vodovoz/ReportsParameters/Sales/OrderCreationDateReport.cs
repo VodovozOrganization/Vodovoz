@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
@@ -12,8 +13,11 @@ namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class OrderCreationDateReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public OrderCreationDateReport()
+		private readonly ReportFactory _reportFactory;
+
+		public OrderCreationDateReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var officeFilter = new EmployeeFilterViewModel();
@@ -42,10 +46,11 @@ namespace Vodovoz.ReportsParameters.Sales
 				{ "employee_id", (evmeEmployee.Subject as Employee)?.Id ?? 0 }
 			};
 
-			return new ReportInfo {
-				Identifier = "Sales.OrderCreationDateReport",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Sales.OrderCreationDateReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

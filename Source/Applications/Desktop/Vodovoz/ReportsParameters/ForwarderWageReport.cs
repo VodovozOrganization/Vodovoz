@@ -13,8 +13,11 @@ namespace Vodovoz.Reports
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ForwarderWageReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ForwarderWageReport()
+		private readonly ReportFactory _reportFactory;
+
+		public ForwarderWageReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var forwarderFilter = new EmployeeFilterViewModel();
@@ -51,10 +54,11 @@ namespace Vodovoz.Reports
 				parameters.Add("showbalance", "0");
 			}
 
-			return new ReportInfo {
-				Identifier = "Employees.ForwarderWage",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Employees.ForwarderWage";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

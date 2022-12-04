@@ -6,6 +6,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
@@ -14,7 +15,9 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DefectiveItemsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public DefectiveItemsReport()
+		private readonly ReportFactory _reportFactory;
+
+		public DefectiveItemsReport(ReportFactory reportFactory)
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -32,6 +35,7 @@ namespace Vodovoz.ReportsParameters.Store
 			datePeriod.StartDate = datePeriod.EndDate = DateTime.Today;
 			buttonRun.Clicked += (sender, e) => OnUpdate(true);
 			datePeriod.PeriodChanged += (sender, e) => ValidateParameters();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		#region IParametersWidget implementation
@@ -58,18 +62,19 @@ namespace Vodovoz.ReportsParameters.Store
 			var startDate = datePeriod.StartDateOrNull.Value.ToString("yyyy-MM-dd");
 			var endDate = datePeriod.EndDateOrNull.Value.ToString("yyyy-MM-dd");
 
-			var repInfo = new ReportInfo {
-				Identifier = "Store.DefectiveItemsReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", startDate },
-					{ "end_date", endDate },
-					{ "source", source },
-					{ "driver_id", driver }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", startDate },
+				{ "end_date", endDate },
+				{ "source", source },
+				{ "driver_id", driver }
 			};
 
-			return repInfo;
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Store.DefectiveItemsReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void ValidateParameters()

@@ -19,6 +19,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Services;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private readonly IEmployeeJournalFactory employeeJournalFactory;
 		private readonly ICarJournalFactory carJournalFactory;
 		private readonly IReportViewOpener reportViewOpener;
+		private readonly ReportFactory _reportFactory;
 
 		public FuelTransferDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -40,7 +42,8 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICarJournalFactory carJournalFactory,
-			IReportViewOpener reportViewOpener
+			IReportViewOpener reportViewOpener,
+			ReportFactory reportFactory
 			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -49,6 +52,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			this.carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			TabName = "Документ перемещения топлива";
 
 			if(CurrentEmployee == null) {
@@ -223,11 +227,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 					if((UoW.IsNew && Entity.Id == 0 || sendedNow || receivedNow) && (!AskQuestion("Сохранить изменения перед печатью?") || !Save()))
 						return;
 
-					var reportInfo = new QS.Report.ReportInfo {
-						Title = string.Format($"Документ перемещения №{Entity.Id} от {Entity.CreationTime:d}"),
-						Identifier = "Documents.FuelTransferDocument",
-						Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } }
-					};
+					var reportInfo = _reportFactory.CreateReport();
+					reportInfo.Title = string.Format($"Документ перемещения №{Entity.Id} от {Entity.CreationTime:d}");
+					reportInfo.Identifier = "Documents.FuelTransferDocument";
+					reportInfo.Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } };
 
 					reportViewOpener.OpenReport(this, reportInfo);
 				},

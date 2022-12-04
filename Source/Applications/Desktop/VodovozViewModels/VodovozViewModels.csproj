@@ -573,6 +573,10 @@
       <Project>{3032f22e-2c78-4fad-9936-552fd7de8d7f}</Project>
       <Name>RabbitMQ.Infrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Core\Vodovoz.Reports.Core.csproj">
+      <Project>{7A098C1A-0313-4CF5-BE84-4AE7C2BD3EF3}</Project>
+      <Name>Vodovoz.Reports.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
       <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>
       <Name>Vodovoz.Reports.Editing</Name>

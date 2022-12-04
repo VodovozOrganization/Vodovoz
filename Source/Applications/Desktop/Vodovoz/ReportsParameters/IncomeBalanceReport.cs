@@ -4,15 +4,18 @@ using QS.Report;
 using QSReport;
 using System.ComponentModel.DataAnnotations;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class IncomeBalanceReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private string reportPath = "Sales.CommonIncomeBalance";
+		private readonly ReportFactory _reportFactory;
 
-		public IncomeBalanceReport()
+		public IncomeBalanceReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			dateperiodpicker.StartDate = DateTime.Now.Date;
 			dateperiodpicker.EndDate = DateTime.Now.Date;
@@ -38,11 +41,12 @@ namespace Vodovoz.ReportsParameters
 				{ "EndDate", endDate }
 			};
 
-			return new ReportInfo {
-				Identifier = reportPath,
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = reportPath;
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

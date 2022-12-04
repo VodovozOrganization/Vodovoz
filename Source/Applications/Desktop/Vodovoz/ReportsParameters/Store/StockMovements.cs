@@ -26,9 +26,11 @@ namespace Vodovoz.Reports
 		SelectableParametersReportFilter filter;
 
 		private GenericObservableList<SelectableSortTypeNode> selectableSortTypeNodes = new GenericObservableList<SelectableSortTypeNode>();
+		private readonly ReportFactory _reportFactory;
 
-		public StockMovements()
+		public StockMovements(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
@@ -208,11 +210,11 @@ namespace Vodovoz.Reports
 				parameters.Add(item.Key, item.Value);
 			}
 
-			return new ReportInfo
-			{
-				Identifier = reportId,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = reportId;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)

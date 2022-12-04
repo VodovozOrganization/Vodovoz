@@ -12,6 +12,7 @@ using QS.Utilities.Enums;
 using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Reports;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 
@@ -19,16 +20,19 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 {
 	public partial class CounterpartyCashlessDebtsReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 
 		public CounterpartyCashlessDebtsReport(
+			ReportFactory reportFactory,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IInteractiveService interactiveService,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_deliveryScheduleParametersProvider = deliveryScheduleParametersProvider
 				?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -91,42 +95,44 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 		private ReportInfo GetReportInfo(Button button)
 		{
 			var orderStatuses = enumcheckOrderStatuses.SelectedValuesList.Any() ? enumcheckOrderStatuses.SelectedValuesList : (object)0;
-			var reportInfo = new ReportInfo
+
+			var parameters = new Dictionary<string, object>
 			{
-				Title = button.Label,
-				
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", periodPicker.StartDateOrNull },
-					{ "end_date", periodPicker.EndDateOrNull },
-					{ "counterparty_id", entryCounterparty.Subject?.GetIdOrNull() ?? 0 },
-					{ "filters_text", GetFiltersText(button.Name) },
-					{ "creation_date", DateTime.Now },
-					{ "order_statuses", orderStatuses },
-					{ "exclude_closing_documents", ycheckExcludeClosingDocuments.Active },
-					{ "closing_document_delivery_schedule_id",_deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId },
-					{ "exclude_chain_stores", ycheckExcludeChainStores.Active },
-					{ "expired_only", ycheckExpiredOnly.Active }
-				}
+				{ "start_date", periodPicker.StartDateOrNull },
+				{ "end_date", periodPicker.EndDateOrNull },
+				{ "counterparty_id", entryCounterparty.Subject?.GetIdOrNull() ?? 0 },
+				{ "filters_text", GetFiltersText(button.Name) },
+				{ "creation_date", DateTime.Now },
+				{ "order_statuses", orderStatuses },
+				{ "exclude_closing_documents", ycheckExcludeClosingDocuments.Active },
+				{ "closing_document_delivery_schedule_id",_deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId },
+				{ "exclude_chain_stores", ycheckExcludeChainStores.Active },
+				{ "expired_only", ycheckExpiredOnly.Active }
 			};
 
+			string reportName = "";
 			switch(button.Name)
 			{
 				case nameof(ybuttonCounterpartyDebtBalance):
-					reportInfo.Identifier = "Bookkeeping.CounterpartyDebtBalance";
+					reportName = "Bookkeeping.CounterpartyDebtBalance";
 					break;
 				case nameof(ybuttonNotPaidOrders):
-					reportInfo.Identifier = "Bookkeeping.NotPaidOrders";
-					reportInfo.Parameters.Add("order_by_date", chkOrderByDate.Active);
+					reportName = "Bookkeeping.NotPaidOrders";
+					parameters.Add("order_by_date", chkOrderByDate.Active);
 					break;
 				case nameof(ybuttonCounterpartyDebtDetails):
-					reportInfo.Identifier = !chkOrderByDate.Active
+					reportName = !chkOrderByDate.Active
 						? "Bookkeeping.CounterpartyDebtDetailsWithoutOrderByDate"
 						: "Bookkeeping.CounterpartyDebtDetails";
 					break;
 				default:
 					throw new NotSupportedException($"'{button.Name}' button name is not supported");
 			}
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = reportName;
+			reportInfo.Parameters = parameters;
+			reportInfo.Title = button.Label;
 
 			return reportInfo;
 		}

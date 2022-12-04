@@ -9,6 +9,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.Reports;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters.Sales
@@ -17,9 +18,11 @@ namespace Vodovoz.ReportsParameters.Sales
 	public partial class SalesByDiscountReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly SelectableParametersReportFilter _filter;
+		private readonly ReportFactory _reportFactory;
 
-		public SalesByDiscountReport()
+		public SalesByDiscountReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
@@ -108,11 +111,11 @@ namespace Vodovoz.ReportsParameters.Sales
 				parameters.Add(item.Key, item.Value);
 			}
 
-			return new ReportInfo
-			{
-				Identifier = "Sales.SalesByDiscountReport",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Sales.SalesByDiscountReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

@@ -11,19 +11,22 @@ using QS.Report;
 using QS.Services;
 using QSReport;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class DeliveryTimeReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IInteractiveService interactiveService;
 
-		public DeliveryTimeReport(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService)
+		public DeliveryTimeReport(ReportFactory reportFactory, IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService)
 		{
 			if(unitOfWorkFactory == null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			Build();
@@ -68,18 +71,20 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = comboboxReportType.Active == 0 ? "Logistic.DeliveryTimeGrouped" : "Logistic.DeliveryTime",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "beforeTime", ytimeDelivery.Text },
-					{ "geographic_groups", GetSelectedGeoGroupIds() },
-					{ "rl_type_of_use", GetSelectedRouteListTypeOfUses() },
-					{ "filters_text", GetSelectedFilters() },
-					{ "creation_date", DateTime.Now }
-				}
+				{ "beforeTime", ytimeDelivery.Text },
+				{ "geographic_groups", GetSelectedGeoGroupIds() },
+				{ "rl_type_of_use", GetSelectedRouteListTypeOfUses() },
+				{ "filters_text", GetSelectedFilters() },
+				{ "creation_date", DateTime.Now }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = comboboxReportType.Active == 0 ? "Logistic.DeliveryTimeGrouped" : "Logistic.DeliveryTime";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private string GetSelectedFilters()

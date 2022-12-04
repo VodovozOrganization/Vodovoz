@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.Report;
 using QSReport;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class BottlesMovementReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public BottlesMovementReport()
+		private readonly ReportFactory _reportFactory;
+
+		public BottlesMovementReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 		}
 
@@ -29,14 +33,17 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Bottles.BottlesMovementReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.BottlesMovementReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

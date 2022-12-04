@@ -10,20 +10,25 @@ using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Retail;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Retail
 {
     public partial class QualityReport : SingleUoWWidgetBase, IParametersWidget
     {
-        private readonly IInteractiveService interactiveService;
+		private readonly ReportFactory _reportFactory;
+		private readonly IInteractiveService interactiveService;
         
-        public QualityReport(IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+        public QualityReport(
+			ReportFactory reportFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
             IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
             IEntityAutocompleteSelectorFactory employeeSelectorFactory,
             IUnitOfWorkFactory unitOfWorkFactory,
             IInteractiveService interactiveService)
         {
-            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             this.Build();
             UoW = unitOfWorkFactory.CreateWithoutRoot();
             Configure(counterpartySelectorFactory, salesChannelSelectorFactory, employeeSelectorFactory);
@@ -51,11 +56,11 @@ namespace Vodovoz.ReportsParameters.Retail
                 { "main_contact_id", ((Employee)yEntityMainContact.Subject)?.Id ?? 0}
             };
 
-            return new ReportInfo
-            {
-                Identifier = "Retail.QualityReport",
-                Parameters = parameters
-            };
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Retail.QualityReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
         }
 
         public string Title => $"Качественный отчет";

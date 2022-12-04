@@ -7,13 +7,17 @@ using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SetBillsReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
+
 		public SetBillsReport(
+			ReportFactory reportFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEntityAutocompleteSelectorFactory subdivisionSelectorFactory)
 		{
@@ -32,6 +36,7 @@ namespace Vodovoz.ReportsParameters
 			ybuttonCreateReport.TooltipText = $"Формирует отчет по заказам в статусе '{OrderStatus.WaitForPayment.GetEnumTitle()}'";
 
 			entrySubdivision.SetEntityAutocompleteSelectorFactory(subdivisionSelectorFactory);
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		#region IParametersWidget implementation
@@ -48,16 +53,19 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Sales.SetBillsReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "creationDate", DateTime.Now },
-					{ "startDate", daterangepickerOrderCreation.StartDate.Date },
-					{ "endDate", daterangepickerOrderCreation.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "authorSubdivision", (entrySubdivision.Subject as Subdivision)?.Id }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "creationDate", DateTime.Now },
+				{ "startDate", daterangepickerOrderCreation.StartDate.Date },
+				{ "endDate", daterangepickerOrderCreation.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59) },
+				{ "authorSubdivision", (entrySubdivision.Subject as Subdivision)?.Id }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Sales.SetBillsReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

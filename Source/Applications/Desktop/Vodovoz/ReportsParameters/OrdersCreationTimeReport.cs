@@ -13,6 +13,7 @@ using Gamma.ColumnConfig;
 using NHibernate.Transform;
 using NHibernate.Criterion;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -25,9 +26,11 @@ namespace Vodovoz.ReportsParameters
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public OrdersCreationTimeReport()
+		public OrdersCreationTimeReport(ReportFactory reportFactory)
 		{
 			this.Build();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			filter = new SelectableParametersReportFilter(UoW);
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
@@ -219,10 +222,11 @@ namespace Vodovoz.ReportsParameters
 				parameters.Add($"interval{i}", intervalValue);
 			}
 
-			return new ReportInfo {
-				Identifier = "Logistic.OrdersCreationTime",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.OrdersCreationTime";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)
@@ -235,6 +239,7 @@ namespace Vodovoz.ReportsParameters
 		}
 
 		public GenericObservableList<Time> Times = new GenericObservableList<Time>();
+		private readonly ReportFactory _reportFactory;
 
 		private void UpdateButtonAddIntervalSensitive()
 		{

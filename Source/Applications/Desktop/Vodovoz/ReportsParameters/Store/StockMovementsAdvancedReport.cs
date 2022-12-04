@@ -16,6 +16,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Store
 {
@@ -132,8 +133,9 @@ namespace Vodovoz.ReportsParameters.Store
 
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
 
-		public StockMovementsAdvancedReport()
+		public StockMovementsAdvancedReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
@@ -308,26 +310,29 @@ namespace Vodovoz.ReportsParameters.Store
 			string[] includeDocTypes = GetDocumetTypes(criterions[FilterTypes.DocumentTypeInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 			string[] excludeDocTypes = GetDocumetTypes(criterions[FilterTypes.DocumentTypeExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 
-			return new ReportInfo {
-				Identifier = "Store.StockMovementsAdvancedReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1) },
-					//склады
-					{ "wh_include", GetResultIds(criterions[FilterTypes.WarehouseInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-					{ "wh_exclude", GetResultIds(criterions[FilterTypes.WarehouseExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-					//категории номенклатур
-					{ "nomcat_include", includeCategories },
-					{ "nomcat_exclude", excludeCategories },
-					//номенклатуры
-					{ "nomen_include", GetResultIds(criterions[FilterTypes.NomenclatureInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
-					{ "nomen_exclude", GetResultIds(criterions[FilterTypes.NomenclatureExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
-					//типы документов
-					{ "doctype_include", includeDocTypes},
-					{ "doctype_exclude", excludeDocTypes}
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1) },
+				//склады
+				{ "wh_include", GetResultIds(criterions[FilterTypes.WarehouseInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+				{ "wh_exclude", GetResultIds(criterions[FilterTypes.WarehouseExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+				//категории номенклатур
+				{ "nomcat_include", includeCategories },
+				{ "nomcat_exclude", excludeCategories },
+				//номенклатуры
+				{ "nomen_include", GetResultIds(criterions[FilterTypes.NomenclatureInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
+				{ "nomen_exclude", GetResultIds(criterions[FilterTypes.NomenclatureExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id))},
+				//типы документов
+				{ "doctype_include", includeDocTypes},
+				{ "doctype_exclude", excludeDocTypes}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Store.StockMovementsAdvancedReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
@@ -341,6 +346,7 @@ namespace Vodovoz.ReportsParameters.Store
 		}
 
 		GenericObservableList<StockMovementsAdvancedReportNode> treeNodes;
+		private readonly ReportFactory _reportFactory;
 
 		protected void OnBtnWarehousesSelectClicked(object sender, EventArgs e)
 		{

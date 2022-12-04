@@ -8,18 +8,24 @@ using QS.Services;
 using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Payments
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PaymentsFromBankClientReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IUserRepository userRepository;
 		private readonly ICommonServices commonServices;
-		public PaymentsFromBankClientReport(IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IUserRepository userRepository, ICommonServices commonServices)
+		public PaymentsFromBankClientReport(
+			ReportFactory reportFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			IUserRepository userRepository, 
+			ICommonServices commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -55,10 +61,11 @@ namespace Vodovoz.ReportsParameters.Payments
 
 			parameters.Add("date", DateTime.Today);
 
-			return new ReportInfo {
-				Identifier = reportName,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = reportName;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void Validate()

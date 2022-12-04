@@ -6,14 +6,18 @@ using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersByDistrictsAndDeliverySchedulesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public OrdersByDistrictsAndDeliverySchedulesReport()
+		private readonly ReportFactory _reportFactory;
+
+		public OrdersByDistrictsAndDeliverySchedulesReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
@@ -49,17 +53,21 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Logistic.OrdersByDistrictsAndDeliverySchedules",
-				Parameters = new Dictionary<string, object> {
-					{ "start_date", pkrDate.StartDate },
-					{ "end_date", pkrDate.EndDate },
-					{ "geographic_group_id",(lstGeographicGroup.SelectedItem as GeoGroup)?.Id },
-					{ "geographic_group_name",(lstGeographicGroup.SelectedItem as GeoGroup)?.Name },
-					{ "tariff_zone_id",(yspeccomboboxTariffZone.SelectedItem as TariffZone)?.Id },
-					{ "tariff_zone_name",(yspeccomboboxTariffZone.SelectedItem as TariffZone)?.Name }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", pkrDate.StartDate },
+				{ "end_date", pkrDate.EndDate },
+				{ "geographic_group_id",(lstGeographicGroup.SelectedItem as GeoGroup)?.Id },
+				{ "geographic_group_name",(lstGeographicGroup.SelectedItem as GeoGroup)?.Name },
+				{ "tariff_zone_id",(yspeccomboboxTariffZone.SelectedItem as TariffZone)?.Id },
+				{ "tariff_zone_name",(yspeccomboboxTariffZone.SelectedItem as TariffZone)?.Name }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.OrdersByDistrictsAndDeliverySchedules";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 	}
 }

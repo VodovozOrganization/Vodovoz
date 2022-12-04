@@ -13,9 +13,11 @@ namespace Vodovoz.Reports
 	public partial class EmployeesFines : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly EmployeeFilterViewModel _employeeFilter = new EmployeeFilterViewModel {Status = EmployeeStatus.IsWorking};
+		private readonly ReportFactory _reportFactory;
 
-		public EmployeesFines()
+		public EmployeesFines(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			var employeeFactory = new EmployeeJournalFactory(_employeeFilter);
@@ -62,11 +64,11 @@ namespace Vodovoz.Reports
 			parameters.Add("routelist", 0);
 			parameters.Add("category", GetCategory());
 
-			return new ReportInfo
-			{
-				Identifier = "Employees.Fines",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Employees.Fines";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void ValidateParameters()

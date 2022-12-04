@@ -13,6 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Reports;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -35,7 +36,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    private readonly ICarJournalFactory _carJournalFactory;
 	    private readonly IReportViewOpener _reportViewOpener;
 	    private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
-	    private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly ReportFactory _reportFactory;
+		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
 	    public FuelDocumentsJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
@@ -50,6 +52,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ICarJournalFactory carJournalFactory,
             IReportViewOpener reportViewOpener,
             IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
+			ReportFactory reportFactory,
             IRouteListProfitabilityController routeListProfitabilityController) : base(unitOfWorkFactory, commonServices)
         {
 	        _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -65,7 +68,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	        _reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 	        _expenseCategorySelectorFactory =
 		        expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
-	        _routeListProfitabilityController =
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_routeListProfitabilityController =
 		        routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 
 	        TabName = "Журнал учета топлива";
@@ -235,8 +239,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _commonServices,
 					    _employeeJournalFactory,
 					    _carJournalFactory,
-					    _reportViewOpener
-				    ),
+					    _reportViewOpener,
+						_reportFactory
+					),
 				    //функция диалога открытия документа
 				    (FuelDocumentJournalNode node) => new FuelTransferDocumentViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
@@ -247,10 +252,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _commonServices,
 					    _employeeJournalFactory,
 					    _carJournalFactory,
-					    _reportViewOpener
+					    _reportViewOpener,
+						_reportFactory
 				    ),
-				    //функция идентификации документа 
-				    (FuelDocumentJournalNode node) => {
+					//функция идентификации документа 
+					(FuelDocumentJournalNode node) => {
 					    return node.EntityType == typeof(FuelTransferDocument);
 				    },
 				    "Перемещение"
@@ -329,6 +335,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
 					    _expenseCategorySelectorFactory,
+						_reportFactory,
 					    _routeListProfitabilityController),
 				    //функция диалога открытия документа
 				    (FuelDocumentJournalNode node) => new FuelWriteoffDocumentViewModel(
@@ -342,9 +349,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
 					    _expenseCategorySelectorFactory,
+						_reportFactory,
 					    _routeListProfitabilityController),
-				    //функция идентификации документа 
-				    (FuelDocumentJournalNode node) => {
+					//функция идентификации документа 
+					(FuelDocumentJournalNode node) => {
 					    return node.EntityType == typeof(FuelWriteoffDocument);
 				    },
 				    "Акт выдачи топлива"

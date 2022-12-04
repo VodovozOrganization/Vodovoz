@@ -12,8 +12,12 @@ namespace Vodovoz.Reports
 {
 	public partial class AccountFlow : SingleUoWWidgetBase, IParametersWidget
 	{
-		public AccountFlow (ICategoryRepository categoryRepository)
+		private readonly ReportFactory _reportFactory;
+
+		public AccountFlow(ReportFactory reportFactory, ICategoryRepository categoryRepository)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+
 			if(categoryRepository == null)
 			{
 				throw new ArgumentNullException(nameof(categoryRepository));
@@ -26,7 +30,6 @@ namespace Vodovoz.Reports
 			comboExpenseCategory.SelectedItem = Gamma.Widgets.SpecialComboState.All;
 			comboIncomeCategory.ItemsList = categoryRepository.IncomeCategories (UoW);
 			comboIncomeCategory.SelectedItem = Gamma.Widgets.SpecialComboState.All;
-
 		}
 
 		#region IParametersWidget implementation
@@ -74,16 +77,20 @@ namespace Vodovoz.Reports
 				|| comboExpenseCategory.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All)
 				? -1
 				: (comboExpenseCategory.SelectedItem as ExpenseCategory).Id;
-			
-			return new ReportInfo {
-				Identifier = ReportName,
-				Parameters = new Dictionary<string, object> {
-					{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
-					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
-					{ "IncomeCategory", inCat },
-					{ "ExpenseCategory", exCat }
-				}
+
+			var parameters = new Dictionary<string, object>
+			{
+				{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
+				{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
+				{ "IncomeCategory", inCat },
+				{ "ExpenseCategory", exCat }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = ReportName;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged (object sender, EventArgs e)

@@ -5,15 +5,18 @@ using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Payments
 {
 	public partial class PaymentsFromTinkoffReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IPaymentsRepository _paymentsRepository;
 		
-		public PaymentsFromTinkoffReport(IPaymentsRepository paymentsRepository)
+		public PaymentsFromTinkoffReport(ReportFactory reportFactory, IPaymentsRepository paymentsRepository)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 
 			Build();
@@ -60,15 +63,18 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		private ReportInfo GetReportInfo()
 		{
-			var rInfo = new ReportInfo {
-				Identifier = "Payments.PaymentsFromTinkoffReport",
-				Parameters = new Dictionary<string, object> {
-					{ "startDate", dateperiodpicker.StartDate },
-                    { "endDate", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-                    { "shop", ySCmbShop.SelectedItem ?? "ALL" }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "startDate", dateperiodpicker.StartDate },
+				{ "endDate", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
+				{ "shop", ySCmbShop.SelectedItem ?? "ALL" }
 			};
-			return rInfo;
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Payments.PaymentsFromTinkoffReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnRbtnLast3DaysToggled(object sender, EventArgs e)

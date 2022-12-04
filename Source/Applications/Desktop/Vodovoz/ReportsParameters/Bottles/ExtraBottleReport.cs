@@ -4,14 +4,18 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ExtraBottleReport : Gtk.Bin, IParametersWidget
 	{
-		public ExtraBottleReport()
+		private readonly ReportFactory _reportFactory;
+
+		public ExtraBottleReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			datePeriodPicker.StartDate = DateTime.Now.AddMonths(-2);
 			datePeriodPicker.EndDate = DateTime.Now;
@@ -37,14 +41,16 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private ReportInfo GetReportInfo()
 		{
-			var reportInfo = new ReportInfo {
-				Identifier = "Bottles.ExtraBottlesReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", datePeriodPicker.StartDateOrNull},
-					{ "end_date", datePeriodPicker.EndDateOrNull},
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", datePeriodPicker.StartDateOrNull},
+				{ "end_date", datePeriodPicker.EndDateOrNull},
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.ExtraBottlesReport";
+			reportInfo.Parameters = parameters;
+
 			return reportInfo;
 		}
 	}

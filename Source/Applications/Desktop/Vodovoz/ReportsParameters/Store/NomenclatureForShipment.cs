@@ -12,6 +12,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.Reports;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters.Store
@@ -20,10 +21,12 @@ namespace Vodovoz.ReportsParameters.Store
 	public partial class NomenclatureForShipment : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private readonly ReportFactory _reportFactory;
 		private SelectableParametersReportFilter _filter;
 
-		public NomenclatureForShipment()
+		public NomenclatureForShipment(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
@@ -131,11 +134,11 @@ namespace Vodovoz.ReportsParameters.Store
 
 			}
 
-			var repInfo = new ReportInfo {
-				Identifier = "Store.GoodsToShipOnDate",
-				Parameters = parameters
-			};
-			return repInfo;
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Store.GoodsToShipOnDate";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

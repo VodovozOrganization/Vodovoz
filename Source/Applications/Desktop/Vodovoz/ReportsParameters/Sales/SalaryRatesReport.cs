@@ -13,20 +13,23 @@ using QS.Report;
 using QS.Services;
 using QSReport;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Reports;
 using Vodovoz.Services;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class SalaryRatesReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IWageParametersProvider _wageParametersProvider;
 		private readonly ICommonServices _commonServices;
 
 		private readonly GenericObservableList<SalaryRateFilterNode> _salaryRateFilterNodes;
 
-		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, IWageParametersProvider wageParametersProvider,
+		public SalaryRatesReport(ReportFactory reportFactory, IUnitOfWorkFactory unitOfWorkFactory, IWageParametersProvider wageParametersProvider,
 			ICommonServices commonServices)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
@@ -53,16 +56,18 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Sales.SalaryRatesReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "wageIds", _salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId) },
-					{ "cityId", _wageParametersProvider.GetCityWageDistrictId },
-					{ "suburbId", _wageParametersProvider.GetSuburbWageDistrictId },
-				}
+				{ "wageIds", _salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId) },
+				{ "cityId", _wageParametersProvider.GetCityWageDistrictId },
+				{ "suburbId", _wageParametersProvider.GetSuburbWageDistrictId },
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Sales.SalaryRatesReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;

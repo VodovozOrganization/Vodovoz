@@ -5,15 +5,19 @@ using QS.Dialog;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersWithMinPriceLessThan : SingleUoWWidgetBase, IParametersWidget
 	{
-		public OrdersWithMinPriceLessThan()
+		private readonly ReportFactory _reportFactory;
+
+		public OrdersWithMinPriceLessThan(ReportFactory reportFactory)
 		{
 			this.Build();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		#region IParametersWidget implementation
@@ -30,13 +34,11 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Orders.OrdersWithMinPriceLessThan",
-				Parameters = new Dictionary<string, object>
-				{
-					
-				}
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Orders.OrdersWithMinPriceLessThan";
+			reportInfo.Parameters = new Dictionary<string, object>();
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

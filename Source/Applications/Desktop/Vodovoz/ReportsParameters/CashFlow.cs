@@ -26,6 +26,7 @@ namespace Vodovoz.Reports
 {
 	public partial class CashFlow : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICommonServices _commonServices;
 
@@ -36,9 +37,13 @@ namespace Vodovoz.Reports
 			Name = "Все"
 		};
 
-		public CashFlow (
-			ISubdivisionRepository subdivisionRepository, ICommonServices commonServices, ICategoryRepository categoryRepository)
+		public CashFlow(
+			ReportFactory reportFactory,
+			ISubdivisionRepository subdivisionRepository,
+			ICommonServices commonServices,
+			ICategoryRepository categoryRepository)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
@@ -237,38 +242,40 @@ namespace Vodovoz.Reports
 				                  .Select(x => x.Name)
 				                  .SingleOrDefault();
 
-			var reportInfo =  new ReportInfo {
-				Identifier = ReportName,
-				Parameters = new Dictionary<string, object> {
-					{ "StartDate", dateStart.DateOrNull.Value },
-					{ "EndDate", dateEnd.DateOrNull.Value },
-					{ "IncomeCategory", inCat },
-					{ "ExpenseCategory", ids },
-					{ "ExpenseCategoryUsed", exCategorySelected ? 1 : 0 },
-					{ "Casher", casherId },
-					{ "Employee", employeeId },
-					{ "CasherName", casherName },
-					{ "EmployeeName", employeeName }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "StartDate", dateStart.DateOrNull.Value },
+				{ "EndDate", dateEnd.DateOrNull.Value },
+				{ "IncomeCategory", inCat },
+				{ "ExpenseCategory", ids },
+				{ "ExpenseCategoryUsed", exCategorySelected ? 1 : 0 },
+				{ "Casher", casherId },
+				{ "Employee", employeeId },
+				{ "CasherName", casherName },
+				{ "EmployeeName", employeeName }
 			};
 
 			if (checkOrganisations.Active)
 			{
-				reportInfo.Parameters.Add("organisations", organisations);
-				reportInfo.Parameters.Add("organisation_name",
+				parameters.Add("organisations", organisations);
+				parameters.Add("organisation_name",
 					(specialListCmbOrganisations.SelectedItem as Organization) != null
 						? (specialListCmbOrganisations.SelectedItem as Organization).Name
 						: "Все организации");
 			}
 			else
 			{
-				reportInfo.Parameters.Add("cash_subdivisions", cashSubdivisions);
-				reportInfo.Parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
+				parameters.Add("cash_subdivisions", cashSubdivisions);
+				parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
 			}
 
 			var cashCategoryParametersProvider = new OrganizationCashTransferDocumentParametersProvider(new ParametersProvider());
-			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategoryParametersProvider.CashIncomeCategoryTransferId);
-			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategoryParametersProvider.CashExpenseCategoryTransferId);
+			parameters.Add("cash_income_category_transfer_id", cashCategoryParametersProvider.CashIncomeCategoryTransferId);
+			parameters.Add("cash_expense_category_transfer_id", cashCategoryParametersProvider.CashExpenseCategoryTransferId);
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = ReportName;
+			reportInfo.Parameters = parameters;
 
 			return reportInfo;
 		}

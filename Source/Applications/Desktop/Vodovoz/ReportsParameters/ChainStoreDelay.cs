@@ -10,6 +10,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
@@ -17,10 +18,12 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ChainStoreDelayReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		
-		public ChainStoreDelayReport(IEmployeeJournalFactory employeeJournalFactory)
+		public ChainStoreDelayReport(ReportFactory reportFactory, IEmployeeJournalFactory employeeJournalFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			
 			Build();
@@ -64,15 +67,19 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Payments.PaymentsDelayNetwork",
-				Parameters = new Dictionary<string, object> {
-					{ "date", ydatepicker.Date },
-					{ "counterparty_id", (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? -1},
-					{ "sell_manager_id", (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1},
-					{ "order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1}
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "date", ydatepicker.Date },
+				{ "counterparty_id", (entityviewmodelentryCounterparty.Subject as Counterparty)?.Id ?? -1},
+				{ "sell_manager_id", (entityviewmodelentrySellManager.Subject as Employee)?.Id ?? -1},
+				{ "order_author_id", (entityviewmodelentryOrderAuthor.Subject as Employee)?.Id ?? -1}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Payments.PaymentsDelayNetwork";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));

@@ -10,58 +10,62 @@ using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Retail
 {
-    [System.ComponentModel.ToolboxItem(true)]
-    public partial class CounterpartyReport : SingleUoWWidgetBase, IParametersWidget
-    {
-        private readonly IInteractiveService interactiveService;
-        
-        public CounterpartyReport(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory districtSelectorFactory, IUnitOfWorkFactory unitOfWorkFactory,
-            IInteractiveService interactiveService)
-        {
-            this.Build();
-            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-            UoW = unitOfWorkFactory.CreateWithoutRoot();
-            ConfigureView(salesChannelSelectorFactory, districtSelectorFactory);
-        }
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class CounterpartyReport : SingleUoWWidgetBase, IParametersWidget
+	{
+		private readonly ReportFactory _reportFactory;
 
-        public string Title => $"Отчет по контрагентам розницы";
+		public CounterpartyReport(
+			ReportFactory reportFactory,
+			IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
+			IEntityAutocompleteSelectorFactory districtSelectorFactory,
+			IUnitOfWorkFactory unitOfWorkFactory)
+		{
+			this.Build();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			ConfigureView(salesChannelSelectorFactory, districtSelectorFactory);
+		}
 
-        public event EventHandler<LoadReportEventArgs> LoadReport;
+		public string Title => $"Отчет по контрагентам розницы";
 
-        private void ConfigureView(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory districtSelectorFactory)
-        {
-            buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
-            yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
-            yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
-            yenumPaymentType.ItemsEnum = typeof(PaymentType);
-            yenumPaymentType.SelectedItem = PaymentType.cash;
-        }
+		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-        private ReportInfo GetReportInfo()
-        {
-                var parameters = new Dictionary<string, object> {
-                { "create_date", ydateperiodpickerCreate.StartDateOrNull },
-                { "end_date", ydateperiodpickerCreate.EndDateOrNull?.AddDays(1).AddSeconds(-1) },
-                { "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
-                { "district", (yEntityDistrict.Subject as District)?.Id ?? 0 },
-                { "payment_type", (yenumPaymentType.SelectedItemOrNull)},
-                { "all_types", (ycheckpaymentform.Active)}
-            };
-                return new ReportInfo
-            {
-                Identifier = "Retail.CounterpartyReport",
-                Parameters = parameters
-            };
-        }
+		private void ConfigureView(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
+			IEntityAutocompleteSelectorFactory districtSelectorFactory)
+		{
+			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
+			yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
+			yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
+			yenumPaymentType.ItemsEnum = typeof(PaymentType);
+			yenumPaymentType.SelectedItem = PaymentType.cash;
+		}
 
-        void OnUpdate(bool hide = false)
-        {
-            LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-        }
-    }
+		private ReportInfo GetReportInfo()
+		{
+			var parameters = new Dictionary<string, object> {
+				{ "create_date", ydateperiodpickerCreate.StartDateOrNull },
+				{ "end_date", ydateperiodpickerCreate.EndDateOrNull?.AddDays(1).AddSeconds(-1) },
+				{ "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
+				{ "district", (yEntityDistrict.Subject as District)?.Id ?? 0 },
+				{ "payment_type", (yenumPaymentType.SelectedItemOrNull)},
+				{ "all_types", (ycheckpaymentform.Active)}
+			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Retail.CounterpartyReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
+		}
+
+		void OnUpdate(bool hide = false)
+		{
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+		}
+	}
 }

@@ -5,14 +5,18 @@ using QS.Dialog;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CompanyTrucksReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public CompanyTrucksReport()
+		private readonly ReportFactory _reportFactory;
+
+		public CompanyTrucksReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		}
@@ -27,15 +31,18 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Logistic.CompanyTrucks",
-				UseUserVariables = true,
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.CompanyTrucks";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

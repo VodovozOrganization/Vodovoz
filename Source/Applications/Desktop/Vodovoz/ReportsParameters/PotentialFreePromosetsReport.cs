@@ -12,6 +12,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.Parameters;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -19,8 +20,9 @@ namespace Vodovoz.ReportsParameters
 	public partial class PotentialFreePromosetsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		IEnumerable<PromosetReportNode> promotionalSets;
+		private readonly ReportFactory _reportFactory;
 
-		public PotentialFreePromosetsReport()
+		public PotentialFreePromosetsReport(ReportFactory reportFactory)
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -52,7 +54,7 @@ namespace Vodovoz.ReportsParameters
 			}
 
 			ytreeview1.ItemsDataSource = promotionalSets;
-
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		#region IParametersWidget implementation
@@ -84,11 +86,12 @@ namespace Vodovoz.ReportsParameters
 			parameters.Add("end_date", dateperiodpicker.EndDate);
 			parameters.Add("promosets", GetSelectedPromotionalSets());
 
-			return new ReportInfo {
-				Identifier = "Client.PotentialFreePromosets",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Client.PotentialFreePromosets";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

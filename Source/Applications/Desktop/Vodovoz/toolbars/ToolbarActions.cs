@@ -605,7 +605,11 @@ public partial class MainWindow : Window
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
 	{
 		var reportViewDlg = new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
-				new OrderRepository(), new CounterpartyJournalFactory(), new DeliveryPointJournalFactory()));
+			_reportFactory,
+			new OrderRepository(), 
+			new CounterpartyJournalFactory(), 
+			new DeliveryPointJournalFactory()
+		));
 
 		tdiMain.AddTab(reportViewDlg);
 	}
@@ -614,7 +618,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.ReportDebtorsBottles>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.ReportDebtorsBottles())
+			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.ReportDebtorsBottles(_reportFactory))
 		);
 	}
 
@@ -746,7 +750,11 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow(
-				new SubdivisionRepository(parametersProvider), ServicesConfig.CommonServices, new CategoryRepository(parametersProvider)))
+				_reportFactory, 
+				new SubdivisionRepository(parametersProvider), 
+				ServicesConfig.CommonServices, 
+				new CategoryRepository(parametersProvider)
+			))
 		);
 	}
 
@@ -891,7 +899,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Revision>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Revision())
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Revision(_reportFactory))
 		);
 	}
 
@@ -899,7 +907,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.AccountFlow>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.AccountFlow(new CategoryRepository(new ParametersProvider())))
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.AccountFlow(_reportFactory, new CategoryRepository(new ParametersProvider())))
 		);
 	}
 

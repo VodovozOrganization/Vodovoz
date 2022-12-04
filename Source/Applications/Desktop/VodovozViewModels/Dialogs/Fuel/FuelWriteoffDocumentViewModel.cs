@@ -16,6 +16,7 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Reports;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -29,6 +30,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private readonly IFuelRepository _fuelRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IReportViewOpener _reportViewOpener;
+		private readonly ReportFactory _reportFactory;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
 		private Employee _currentEmployee;
@@ -45,6 +47,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IReportViewOpener reportViewOpener,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
+			ReportFactory reportFactory,
 			IRouteListProfitabilityController routeListProfitabilityController) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -57,7 +60,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			ExpenseSelectorFactory =
 				expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
-
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			CreateCommands();
 			UpdateCashSubdivisions();
 
@@ -224,11 +227,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		{
 			PrintCommand = new DelegateCommand(
 				() => {
-					var reportInfo = new QS.Report.ReportInfo {
-						Title = String.Format($"Акт выдачи топлива №{Entity.Id} от {Entity.Date:d}"),
-						Identifier = "Documents.FuelWriteoffDocument",
-						Parameters = new Dictionary<string, object> { { "document_id", Entity.Id } }
-					};
+					var reportInfo = _reportFactory.CreateReport();
+					reportInfo.Title = String.Format($"Акт выдачи топлива №{Entity.Id} от {Entity.Date:d}");
+					reportInfo.Identifier = "Documents.FuelWriteoffDocument";
+					reportInfo.Parameters = new Dictionary<string, object> { { "document_id", Entity.Id } };
 
 					_reportViewOpener.OpenReport(this, reportInfo);
 				},

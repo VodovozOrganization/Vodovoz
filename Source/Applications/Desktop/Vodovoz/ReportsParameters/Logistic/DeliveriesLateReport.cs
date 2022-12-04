@@ -11,8 +11,11 @@ namespace Vodovoz.Reports.Logistic
 {
 	public partial class DeliveriesLateReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public DeliveriesLateReport ()
+		private readonly ReportFactory _reportFactory;
+
+		public DeliveriesLateReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build ();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeoGroup>();
@@ -33,19 +36,22 @@ namespace Vodovoz.Reports.Logistic
 
 		private ReportInfo GetReportInfo ()
 		{
-			return new ReportInfo {
-				Identifier = "Logistic.DeliveriesLate",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate.AddHours(3) },
-					{ "is_driver_sort", ychkDriverSort.Active },
-					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Id ?? 0 },
-					{ "geographic_group_name", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Name ?? "Все" },
-					{ "exclude_truck_drivers_office_employees", ycheckExcludeTruckAndOfficeEmployees.Active },
-					{ "select_mode", GetSelectMode().ToString() }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dateperiodpicker.StartDate },
+				{ "end_date", dateperiodpicker.EndDate.AddHours(3) },
+				{ "is_driver_sort", ychkDriverSort.Active },
+				{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Id ?? 0 },
+				{ "geographic_group_name", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Name ?? "Все" },
+				{ "exclude_truck_drivers_office_employees", ycheckExcludeTruckAndOfficeEmployees.Active },
+				{ "select_mode", GetSelectMode().ToString() }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.DeliveriesLate";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)

@@ -12,6 +12,7 @@ using QSReport;
 using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Logistic
@@ -19,12 +20,15 @@ namespace Vodovoz.ReportsParameters.Logistic
 	public partial class GeneralSalaryInfoReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly ReportFactory _reportFactory;
 		private readonly IInteractiveService _interactiveService;
 
 		public GeneralSalaryInfoReport(
+			ReportFactory reportFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
 				?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -78,21 +82,23 @@ namespace Vodovoz.ReportsParameters.Logistic
 				? new DateTime(creationDate.Year, creationDate.Month, creationDate.Day, 23, 59, 59)
 				: new DateTime(selectedYear, selectedMonth, DateTime.DaysInMonth(selectedYear, selectedMonth), 23, 59, 59);
 
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.GeneralSalaryInfoReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", new DateTime(selectedYear, selectedMonth, 1) },
-					{ "end_date", endDate },
-					{ "creation_date", creationDate },
-					{ "driver_of_car_own_type", comboDriverOfCarOwnType.SelectedItemOrNull },
-					{ "driver_of_car_type_of_use", comboDriverOfCarTypeOfUse.SelectedItemOrNull },
-					{ "employee_category", comboCategory.SelectedItemOrNull },
-					{ "employee_id", entryEmployee.Subject?.GetIdOrNull() },
-					{ "filters", GetSelectedFilters() }
-				}
+				{ "start_date", new DateTime(selectedYear, selectedMonth, 1) },
+				{ "end_date", endDate },
+				{ "creation_date", creationDate },
+				{ "driver_of_car_own_type", comboDriverOfCarOwnType.SelectedItemOrNull },
+				{ "driver_of_car_type_of_use", comboDriverOfCarTypeOfUse.SelectedItemOrNull },
+				{ "employee_category", comboCategory.SelectedItemOrNull },
+				{ "employee_id", entryEmployee.Subject?.GetIdOrNull() },
+				{ "filters", GetSelectedFilters() }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.GeneralSalaryInfoReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private string GetSelectedFilters()

@@ -9,14 +9,18 @@ using Vodovoz.Domain.Orders;
 using QS.Dialog.GtkUI;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShortfallBattlesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ShortfallBattlesReport()
+		private readonly ReportFactory _reportFactory;
+
+		public ShortfallBattlesReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			ydatepicker.Date = DateTime.Now.Date;
 			comboboxDriver.ItemsEnum = typeof(Drivers);
@@ -50,11 +54,12 @@ namespace Vodovoz.ReportsParameters.Bottles
 				{ "date", ydatepicker.Date }
 			};
 
-			return new ReportInfo {
-				Identifier = "Bottles.ShortfallBattlesReport",
-				ParameterDatesWithTime = false,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.ShortfallBattlesReport";
+			reportInfo.ParameterDatesWithTime = false;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)
