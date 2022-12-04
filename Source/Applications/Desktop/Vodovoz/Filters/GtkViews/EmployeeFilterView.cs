@@ -17,9 +17,18 @@ namespace Vodovoz.Filters.GtkViews
 		private void ConfigureDlg()
 		{
 			enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
-			enumcomboCategory.ShowSpecialStateAll = true;
 			enumcomboCategory.ShowSpecialStateNot = false;
 
+			if(ViewModel.HideEmployeeCategories != null)
+			{
+				enumcomboCategory.ShowSpecialStateAll = false;
+				enumcomboCategory.AddEnumerableToHideList(ViewModel.HideEmployeeCategories);
+			}
+			else
+			{
+				enumcomboCategory.ShowSpecialStateAll = true;
+			}
+			
 			enumcomboCategory.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Category, w => w.SelectedItemOrNull)
 				.AddBinding(vm => vm.CanChangeCategory, w => w.Sensitive)
