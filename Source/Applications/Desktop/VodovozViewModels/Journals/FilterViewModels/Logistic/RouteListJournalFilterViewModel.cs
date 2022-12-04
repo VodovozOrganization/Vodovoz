@@ -241,8 +241,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			() => ServicesConfig.InteractiveService.ShowMessage(
 				ImportanceLevel.Info,
 				"Описание расцветки строк журнала МЛ:\n\n" +
-				$"Если у МЛ стоит флаг не полной загрузки, то запись строки будет сделана оранжевым цветом\n" +
-				$"Если Рентабельность рейса меньше {RouteListProfitabilityIndicator}% И МЛ не в статусе {RouteListStatus.New.GetEnumTitle()}," +
+				"Если МЛ отправлен В Путь пользователем без полной загрузки, то запись строки будет сделана оранжевым цветом\n" +
+				$"Если Рентабельность рейса меньше {RouteListProfitabilityIndicator}% и МЛ не в статусе {RouteListStatus.New.GetEnumTitle()}," +
 				" то строка будет выделена серым цветом\n" +
 				"В остальных случаях используется стандартная расцветка")
 		));

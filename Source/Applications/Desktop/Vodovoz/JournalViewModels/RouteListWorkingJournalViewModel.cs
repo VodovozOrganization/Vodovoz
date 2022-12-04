@@ -79,9 +79,7 @@ namespace Vodovoz.JournalViewModels
 				.GetRouteListProfitabilityIndicatorInPercents;
 			UseSlider = false;
 
-			NotifyConfiguration.Enable();
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(OnRouteListChanged);
-
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability));
 			InitPopupActions();
 		}
 

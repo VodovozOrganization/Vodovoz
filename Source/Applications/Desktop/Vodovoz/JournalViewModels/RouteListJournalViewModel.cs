@@ -2,7 +2,6 @@
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
@@ -163,9 +162,7 @@ namespace Vodovoz.JournalViewModels
 
 			TabName = "Журнал МЛ";
 
-			NotifyConfiguration.Enable();
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(changeEvents => Refresh());
-
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability));
 			InitPopupActions();
 		}
 
