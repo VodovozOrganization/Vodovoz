@@ -14,9 +14,11 @@ namespace Vodovoz.Reports.Logistic
 	public partial class RoutesListRegisterReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		GenericObservableList<GeoGroup> geographicGroups;
+		private readonly ReportFactory _reportFactory;
 
-		public RoutesListRegisterReport()
+		public RoutesListRegisterReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			ConfigureDlg();
 		}
@@ -52,16 +54,19 @@ namespace Vodovoz.Reports.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Bottles.RoutesListRegister",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "is_driver_master", chkMasters.Active ? 1 : 0 },
-					{ "geographic_groups", GetResultIds(geographicGroups.Select(g => g.Id)) }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull },
+				{ "is_driver_master", chkMasters.Active ? 1 : 0 },
+				{ "geographic_groups", GetResultIds(geographicGroups.Select(g => g.Id)) }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.RoutesListRegister";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

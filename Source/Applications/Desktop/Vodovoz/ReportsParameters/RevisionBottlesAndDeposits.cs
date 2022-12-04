@@ -15,6 +15,7 @@ namespace Vodovoz.Reports
 {
 	public partial class RevisionBottlesAndDeposits : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilter = new DeliveryPointJournalFilterViewModel();
 		//Т.к. отчет открывается из диалога звонка, то мы не можем контролировать время жизни скоупа
@@ -23,10 +24,12 @@ namespace Vodovoz.Reports
 		private bool _showStockBottle;
 
 		public RevisionBottlesAndDeposits(
+			ReportFactory reportFactory,
 			IOrderRepository orderRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			
 			Build();
@@ -71,20 +74,22 @@ namespace Vodovoz.Reports
 		}
 
 		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
+		{
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Client.SummaryBottlesAndDeposits",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", new DateTime(2000,1,1) },
-					{ "endDate", DateTime.Today.AddYears(1) },
-					{ "client_id", entityViewModelEntryCounterparty.GetSubject<Counterparty>().Id},
-					{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId},
-					{ "show_stock_bottle", _showStockBottle }
-				}
+				{ "startDate", new DateTime(2000,1,1) },
+				{ "endDate", DateTime.Today.AddYears(1) },
+				{ "client_id", entityViewModelEntryCounterparty.GetSubject<Counterparty>().Id},
+				{ "delivery_point_id", evmeDeliveryPoint.Subject == null ? -1 : evmeDeliveryPoint.SubjectId},
+				{ "show_stock_bottle", _showStockBottle }
 			};
-		}			
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Client.SummaryBottlesAndDeposits";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
+		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)
 		{

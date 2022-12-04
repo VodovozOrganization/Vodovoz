@@ -8,15 +8,18 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class FuelConsumptionReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		GenericObservableList<GeoGroup> geographicGroups;
+		private readonly ReportFactory _reportFactory;
 
-		public FuelConsumptionReport(bool orderById = false)
+		public FuelConsumptionReport(ReportFactory reportFactory, bool orderById = false)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			ConfigureDlg();
 		}
@@ -52,15 +55,18 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = chkDetailed.Active ? "Logistic.FuelConsumptionDetailedReport" : "Logistic.FuelConsumptionReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "geo_group_ids", GetResultIds(geographicGroups.Select(g => g.Id)) }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull },
+				{ "geo_group_ids", GetResultIds(geographicGroups.Select(g => g.Id)) }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = chkDetailed.Active ? "Logistic.FuelConsumptionDetailedReport" : "Logistic.FuelConsumptionReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

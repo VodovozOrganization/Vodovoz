@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using QS.Report;
 using QSReport;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	public partial class ProfitabilityBottlesByStockReport : Gtk.Bin, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
+
 		class PercentNode
 		{
 			public PercentNode(int pct) => Pct = pct;
@@ -15,8 +18,9 @@ namespace Vodovoz.ReportsParameters.Bottles
 			public string Name => string.Format("{0}%", Pct);
 		}
 
-		public ProfitabilityBottlesByStockReport()
+		public ProfitabilityBottlesByStockReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			ConfigureDlg();
 		}
@@ -47,16 +51,18 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		ReportInfo GetReportInfo()
 		{
-			var repInfo = new ReportInfo {
-				Identifier = "Bottles.ProfitabilityBottlesByStock",
-				Parameters = new Dictionary<string, object> {
-					{ "start_date", dtrngPeriod.StartDate },
-					{ "end_date", dtrngPeriod.EndDate },
-					{ "discount_stock", (specCmbDiscountPct.SelectedItem as PercentNode)?.Pct ?? -1}
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dtrngPeriod.StartDate },
+				{ "end_date", dtrngPeriod.EndDate },
+				{ "discount_stock", (specCmbDiscountPct.SelectedItem as PercentNode)?.Pct ?? -1}
 			};
 
-			return repInfo;
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.ProfitabilityBottlesByStock";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 	}
 }

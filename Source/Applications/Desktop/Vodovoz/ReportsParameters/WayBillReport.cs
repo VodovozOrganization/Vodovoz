@@ -16,12 +16,15 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class WayBillReport : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly ReportFactory _reportFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
 		private ITdiTab _parentTab;
@@ -29,10 +32,12 @@ namespace Vodovoz.ReportsParameters
 
 		public WayBillReport(
 			ILifetimeScope lifetimeScope,
+			ReportFactory reportFactory,
 			IUnitOfWorkFactory uowFactory,
 			IEmployeeJournalFactory employeeJournalFactory)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 
 			Build();
@@ -109,7 +114,7 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
 				Identifier = "Logistic.WayBillReport",
 				Parameters = new Dictionary<string, object>
@@ -121,6 +126,12 @@ namespace Vodovoz.ReportsParameters
 					{ "need_date", !datepicker.IsEmpty }
 				}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.WayBillReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)

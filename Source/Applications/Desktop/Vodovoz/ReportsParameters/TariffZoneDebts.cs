@@ -8,13 +8,16 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class TariffZoneDebts : SingleUoWWidgetBase, IParametersWidget
 	{
-		public TariffZoneDebts()
+		private readonly ReportFactory _reportFactory;
+
+		public TariffZoneDebts(ReportFactory reportFactory)
 		{
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -23,6 +26,7 @@ namespace Vodovoz.ReportsParameters
 
 			yspeccomboboxTariffZone.SetRenderTextFunc<TariffZone>(x => x.Name);
 			yspeccomboboxTariffZone.ItemsList = UoW.GetAll<TariffZone>().ToList();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 
@@ -63,10 +67,11 @@ namespace Vodovoz.ReportsParameters
 
 			parameters.Add("tariff_zone_id", ((TariffZone)yspeccomboboxTariffZone.SelectedItem).Id);
 
-			return new ReportInfo {
-				Identifier = "Client.TariffZoneDebts",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Client.TariffZoneDebts";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 	}
 }

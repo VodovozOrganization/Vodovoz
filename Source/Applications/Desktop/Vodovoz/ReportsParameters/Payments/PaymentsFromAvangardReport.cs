@@ -2,14 +2,18 @@
 using QSReport;
 using QS.Report;
 using System.Collections.Generic;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Payments
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class PaymentsFromAvangardReport : Gtk.Bin, IParametersWidget
 	{
-		public PaymentsFromAvangardReport()
+		private readonly ReportFactory _reportFactory;
+
+		public PaymentsFromAvangardReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			Build();
 			Configure();
 		}
@@ -45,16 +49,17 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		private ReportInfo GetReportInfo()
 		{
-			var info = new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Payments.PaymentsFromAvangardReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", dateperiodpicker.StartDate },
-					{ "endDate", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-				}
+				{ "startDate", dateperiodpicker.StartDate },
+				{ "endDate", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
 			};
-			return info;
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Payments.PaymentsFromAvangardReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void OnRbtnLast3DaysToggled(object sender, EventArgs e)

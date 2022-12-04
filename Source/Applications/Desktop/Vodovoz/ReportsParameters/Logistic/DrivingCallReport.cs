@@ -5,14 +5,18 @@ using QS.Dialog;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DrivingCallReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public DrivingCallReport()
+		private readonly ReportFactory _reportFactory;
+
+		public DrivingCallReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 		}
 
@@ -33,11 +37,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 			parameters.Add("startDate", dateperiodpicker.StartDateOrNull);
 			parameters.Add("endDate", dateperiodpicker.EndDateOrNull);
 
-			return new ReportInfo {
-				Identifier = "Logistic.DrivingCall",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.DrivingCall";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

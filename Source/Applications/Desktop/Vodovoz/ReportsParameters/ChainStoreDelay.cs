@@ -10,6 +10,9 @@ using Autofac;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Settings.Counterparty;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
@@ -17,6 +20,7 @@ namespace Vodovoz.ReportsParameters
 	[ToolboxItem(true)]
 	public partial class ChainStoreDelayReport : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly ICounterpartySettings _counterpartySettings;
@@ -112,7 +116,7 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			. return new ReportInfo
 			{
 				Identifier = "Payments.PaymentsDelayNetwork",
 				Parameters = new Dictionary<string, object> {
@@ -124,6 +128,12 @@ namespace Vodovoz.ReportsParameters
 					{ "counterparty_from_tender_id", _counterpartySettings.CounterpartyFromTenderId }
 				}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Payments.PaymentsDelayNetwork";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));

@@ -10,6 +10,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Orders;
+using QS.DomainModel.UoW;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
+using Vodovoz.Parameters;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -18,9 +23,10 @@ namespace Vodovoz.ReportsParameters
 	{
 		IEnumerable<PromosetReportNode> _promotionalSets;
 
-		public PotentialFreePromosetsReport()
+		public PotentialFreePromosetsReport(ReportFactory reportFactory)
 		{
 			Build();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(false);
@@ -69,12 +75,12 @@ namespace Vodovoz.ReportsParameters
 			parameters.Add("end_date", dateperiodpicker.EndDate);
 			parameters.Add("promosets", GetSelectedPromotionalSets());
 
-			return new ReportInfo
-			{
-				Identifier = "Client.PotentialFreePromosets",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Client.PotentialFreePromosets";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

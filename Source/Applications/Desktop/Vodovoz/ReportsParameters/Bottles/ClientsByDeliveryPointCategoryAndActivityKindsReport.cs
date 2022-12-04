@@ -12,6 +12,7 @@ using QSReport;
 using Vodovoz.Domain.Client;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -22,8 +23,9 @@ namespace Vodovoz.ReportsParameters.Bottles
 		CounterpartyActivityKind activityKind;
 		GenericObservableList<SubstringToSearch> substringsToSearch;
 
-		public ClientsByDeliveryPointCategoryAndActivityKindsReport()
+		public ClientsByDeliveryPointCategoryAndActivityKindsReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
@@ -69,6 +71,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 														   .AddColumn("Название")
 																.AddTextRenderer(n => n.Substring)
 														   .Finish();
+		private readonly ReportFactory _reportFactory;
 
 
 		#region IParametersWidget implementation
@@ -95,18 +98,21 @@ namespace Vodovoz.ReportsParameters.Bottles
 				substrings = new[] { yEntSubstring.Text };
 			if(activityKind != null)
 				substrings = GetSubstrings(substringsToSearch.Where(s => s.Selected).Select(s => s.Substring));
-			var repInfo = new ReportInfo {
-				Identifier = "Bottles.ClientsByDeliveryPointCategoryAndActivityKindsReport",
-				Parameters = new Dictionary<string, object> {
-					{ "start_date", dtrngPeriod.StartDate },
-					{ "end_date", dtrngPeriod.EndDate },
-					{ "category_id", category?.Id ?? 0},
-					{ "payment_type", paymentType?.ToString() ?? "ALL" },
-					{ "substrings", substrings}
-				}
+
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dtrngPeriod.StartDate },
+				{ "end_date", dtrngPeriod.EndDate },
+				{ "category_id", category?.Id ?? 0},
+				{ "payment_type", paymentType?.ToString() ?? "ALL" },
+				{ "substrings", substrings}
 			};
 
-			return repInfo;
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.ClientsByDeliveryPointCategoryAndActivityKindsReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 	}
 }

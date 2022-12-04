@@ -5,15 +5,19 @@ using QS.Dialog;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderIncorrectPrices : SingleUoWWidgetBase, IParametersWidget
 	{
-		public OrderIncorrectPrices()
+		private readonly ReportFactory _reportFactory;
+
+		public OrderIncorrectPrices(ReportFactory reportFactory)
 		{
 			this.Build();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			dateperiodpicker.StartDate = DateTime.Now.Date;
 			dateperiodpicker.EndDate = DateTime.Now.Date;
 		}
@@ -42,11 +46,12 @@ namespace Vodovoz.ReportsParameters
 			parameters.Add("dateFrom", dateFrom);
 			parameters.Add("dateTo", dateTo);
 
-			return new ReportInfo {
-				Identifier = "Orders.OrdersIncorrectPrices",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Orders.OrdersIncorrectPrices";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

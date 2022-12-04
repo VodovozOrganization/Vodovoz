@@ -22,6 +22,7 @@ namespace Vodovoz.ReportsParameters.Retail
 		private readonly ISalesChannelJournalFactory _salesChannelJournalFactory;
 		private readonly IInteractiveService _interactiveService;
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private readonly ReportFactory _reportFactory;
         
         public QualityReport(
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -30,6 +31,7 @@ namespace Vodovoz.ReportsParameters.Retail
             IUnitOfWorkFactory unitOfWorkFactory,
             IInteractiveService interactiveService)
         {
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_salesChannelJournalFactory = salesChannelJournalFactory ?? throw new ArgumentNullException(nameof(salesChannelJournalFactory));
@@ -66,11 +68,11 @@ namespace Vodovoz.ReportsParameters.Retail
                 { "main_contact_id", ((Employee)yEntityMainContact.Subject)?.Id ?? 0}
             };
 
-            return new ReportInfo
-            {
-                Identifier = "Retail.QualityReport",
-                Parameters = parameters
-            };
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Retail.QualityReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
         }
 
         public string Title => $"Качественный отчет";

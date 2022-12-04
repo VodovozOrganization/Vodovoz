@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -13,9 +14,11 @@ namespace Vodovoz.ReportsParameters.Logistic
 	public partial class AnalyticsForUndeliveryReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private string titleDate;
+		private readonly ReportFactory _reportFactory;
 
-		public AnalyticsForUndeliveryReport()
+		public AnalyticsForUndeliveryReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
@@ -51,17 +54,20 @@ namespace Vodovoz.ReportsParameters.Logistic
 		private ReportInfo GetReportInfo()
 		{
 			int[] geoparts = { 1, 2, 3 };
-			return new ReportInfo
+
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.AnalyticsForUndelivery",
-				Parameters = new Dictionary<string, object> 
-				{
-					{ "first_date", dateperiodpicker.StartDate },
-					{ "second_date", dateperiodpicker.EndDate },
-					{ "title_date", titleDate },
-					{ "geoparts", geoparts }
-				}
+				{ "first_date", dateperiodpicker.StartDate },
+				{ "second_date", dateperiodpicker.EndDate },
+				{ "title_date", titleDate },
+				{ "geoparts", geoparts }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.AnalyticsForUndelivery";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		public void GetGuilty()

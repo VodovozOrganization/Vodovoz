@@ -15,6 +15,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.Reports;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters
@@ -22,10 +23,12 @@ namespace Vodovoz.ReportsParameters
 	public partial class PlanImplementationReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly SelectableParametersReportFilter _filter;
+		private readonly ReportFactory _reportFactory;
 		private const string _orderAuthorIncludeParameter = "order_author_include";
 		
-		public PlanImplementationReport(bool orderById = false)
+		public PlanImplementationReport(ReportFactory reportFactory, bool orderById = false)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
@@ -181,12 +184,12 @@ namespace Vodovoz.ReportsParameters
 			{
 				identifier = "Sales.PlanImplementationByEmployeeReport";
 			}
-			
-			return new ReportInfo
-			{
-				Identifier = identifier,
-				Parameters = parameters
-			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = identifier;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

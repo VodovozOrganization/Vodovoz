@@ -12,6 +12,7 @@ using QS.Report;
 using QS.Services;
 using QSReport;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Reports;
 using Vodovoz.Services;
 
 namespace Vodovoz.ReportsParameters.Sales
@@ -19,13 +20,16 @@ namespace Vodovoz.ReportsParameters.Sales
 	public partial class SalaryRatesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IWageSettings _wageSettings;
+		private readonly ReportFactory _reportFactory;
+		private readonly IWageParametersProvider _wageParametersProvider;
 		private readonly ICommonServices _commonServices;
 
 		private readonly GenericObservableList<SalaryRateFilterNode> _salaryRateFilterNodes;
 
-		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, IWageSettings wageSettings,
+		public SalaryRatesReport(ReportFactory reportFactory, IUnitOfWorkFactory unitOfWorkFactory, IWageSettings wageSettings,
 			ICommonServices commonServices)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
@@ -52,7 +56,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
 				Identifier = "Sales.SalaryRatesReport",
 				Parameters = new Dictionary<string, object>
@@ -62,6 +66,12 @@ namespace Vodovoz.ReportsParameters.Sales
 					{ "suburbId", _wageSettings.SuburbWageDistrictId },
 				}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Sales.SalaryRatesReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;

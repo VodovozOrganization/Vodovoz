@@ -13,6 +13,7 @@ using System.Linq;
 using NHibernate.Criterion;
 using Vodovoz.ViewModels.Reports;
 using QS.Project.Services;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -20,10 +21,12 @@ namespace Vodovoz.ReportsParameters
 	public partial class OnecCommentsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		SelectableParametersReportFilter _filter;
+		private readonly ReportFactory _reportFactory;
 
-		public OnecCommentsReport ()
+		public OnecCommentsReport(ReportFactory reportFactory)
 		{
 			this.Build ();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
 			_filter = new SelectableParametersReportFilter(UoW);
 			ConfigureReport();
@@ -134,11 +137,12 @@ namespace Vodovoz.ReportsParameters
 				parameters.Add(item.Key, item.Value);
 			}
 
-			return new ReportInfo {
-				Identifier = "Orders.OnecComments",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Orders.OnecComments";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)

@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Settings.Car;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Cars.CarModelSelection;
 using Vodovoz.ViewWidgets.Reports;
@@ -26,13 +27,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 	public partial class GeneralSalaryInfoReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly ReportFactory _reportFactory;
 		private readonly IInteractiveService _interactiveService;
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
 
 		public GeneralSalaryInfoReport(
+			ReportFactory reportFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
 				?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -124,7 +128,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 				? new DateTime(creationDate.Year, creationDate.Month, creationDate.Day, 23, 59, 59)
 				: new DateTime(selectedYear, selectedMonth, DateTime.DaysInMonth(selectedYear, selectedMonth), 23, 59, 59);
 
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
 				Identifier = "Logistic.GeneralSalaryInfoReport",
 				Parameters = new Dictionary<string, object>
@@ -142,6 +146,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{ "exclude_car_models", _carModelSelectionFilterViewModel.ExcludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.ExcludedCarModelIds : new int[] { 0 } }
 				}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.GeneralSalaryInfoReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private string GetSelectedFilters()

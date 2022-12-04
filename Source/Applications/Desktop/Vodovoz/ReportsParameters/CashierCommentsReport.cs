@@ -12,8 +12,11 @@ namespace Vodovoz.Reports
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CashierCommentsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public CashierCommentsReport()
+		private readonly ReportFactory _reportFactory;
+
+		public CashierCommentsReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
 		}
@@ -31,17 +34,19 @@ namespace Vodovoz.Reports
 		#endregion
 
 		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
+		{
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "RouteList.CashierComments",
-				UseUserVariables = true,
-				Parameters = new Dictionary<string, object>
-				{ 
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) }
-				}
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "RouteList.CashierComments";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 		
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)

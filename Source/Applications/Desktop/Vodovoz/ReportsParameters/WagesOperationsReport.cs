@@ -12,13 +12,16 @@ namespace Vodovoz.Reports
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class WagesOperationsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public WagesOperationsReport(IEmployeeJournalFactory employeeJournalFactory)
+		private readonly ReportFactory _reportFactory;
+
+		public WagesOperationsReport(IEmployeeJournalFactory employeeJournalFactory, ReportFactory reportFactory)
 		{
 			if(employeeJournalFactory is null)
 			{
 				throw new ArgumentNullException(nameof(employeeJournalFactory));
 			}
 			
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			
@@ -32,18 +35,20 @@ namespace Vodovoz.Reports
 		public string Title => "Отчет по зарплатным операциям";
 
 		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
+		{
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Employees.WagesOperations",
-				UseUserVariables = true,
-				Parameters = new Dictionary<string, object>
-				{ 
-					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "employee_id", evmeEmployee.SubjectId }
-				}
+				{ "start_date", dateperiodpicker.StartDate },
+				{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
+				{ "employee_id", evmeEmployee.SubjectId }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Employees.WagesOperations";
+			reportInfo.Parameters = parameters;
+			reportInfo.UseUserVariables = true;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

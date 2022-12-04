@@ -9,6 +9,7 @@ using QSReport;
 using Vodovoz.Domain.Sale;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -16,12 +17,14 @@ namespace Vodovoz.ReportsParameters
 	public partial class OrderRegistryReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		GenericObservableList<GeoGroup> geographicGroups;
+		private readonly ReportFactory _reportFactory;
 
-		public OrderRegistryReport()
+		public OrderRegistryReport(ReportFactory reportFactory)
 		{
 			this.Build();
 			ydatepicker.Date = DateTime.Now.Date;
 			ConfigureDlg();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		void ConfigureDlg()
@@ -50,15 +53,17 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			var repInfo = new ReportInfo {
-				Identifier = "Orders.OrderRegistryReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", ydatepicker.Date },
-					{ "geographic_groups", GetResultIds(geographicGroups.Select(g => g.Id)) }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "date", ydatepicker.Date },
+				{ "geographic_groups", GetResultIds(geographicGroups.Select(g => g.Id)) }
 			};
-			return repInfo;
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Orders.OrderRegistryReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

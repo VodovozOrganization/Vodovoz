@@ -77,6 +77,11 @@ namespace Vodovoz.ReportsParameters.Store
 					{ "warehouse_id", Warehouse?.Id ?? 0}
 				}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Store.NotFullyLoadedRouteLists";
+			reportInfo.Parameters = parameters;
+
 			return reportInfo;
 		}
 

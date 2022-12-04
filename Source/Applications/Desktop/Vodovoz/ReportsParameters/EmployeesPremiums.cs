@@ -7,6 +7,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
@@ -14,8 +15,11 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EmployeesPremiums : SingleUoWWidgetBase, IParametersWidget
 	{
-		public EmployeesPremiums()
+		private readonly ReportFactory _reportFactory;
+
+		public EmployeesPremiums(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
@@ -61,10 +65,11 @@ namespace Vodovoz.ReportsParameters
 			parameters.Add("showbottom", false);
 			parameters.Add("category", GetCategory());
 
-			return new ReportInfo {
-				Identifier = "Employees.Premiums",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Employees.Premiums";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)

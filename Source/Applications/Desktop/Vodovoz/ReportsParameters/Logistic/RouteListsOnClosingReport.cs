@@ -9,13 +9,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class RouteListsOnClosingReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public RouteListsOnClosingReport()
+		private readonly ReportFactory _reportFactory;
+
+		public RouteListsOnClosingReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -48,7 +52,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			var carTypesOfUse = enumcheckCarTypeOfUse.SelectedValues.ToArray();
 			var carOwnTypes = enumcheckCarOwnType.SelectedValues.ToArray();
 
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
 				Identifier = "Logistic.RouteListOnClosing",
 				Parameters = new Dictionary<string, object>
@@ -61,6 +65,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{ "end_date", dateEnd.DateOrNull.Value }
 				}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.RouteListOnClosing";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void OnButtonCreateReportClicked(object sender, EventArgs e)

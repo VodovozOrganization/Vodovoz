@@ -6,13 +6,17 @@ using QS.Report;
 using QSReport;
 using QSWidgetLib;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class LastOrderByDeliveryPointReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public LastOrderByDeliveryPointReport()
+		private readonly ReportFactory _reportFactory;
+
+		public LastOrderByDeliveryPointReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			ydatepicker.Date = DateTime.Now.Date;
 			BottleDeptEntry.ValidationMode = ValidationType.numeric;
@@ -42,16 +46,18 @@ namespace Vodovoz.ReportsParameters
 				isSortByBottles = false;
 				deptCount = 0;
 			}
-
-			return new ReportInfo {
-				Identifier = buttonSanitary.Active?"Orders.SanitaryReport":"Orders.OrdersByDeliveryPoint",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", ydatepicker.Date },
-					{ "bottles_count", deptCount},
-					{ "is_sort_bottles", isSortByBottles }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "date", ydatepicker.Date },
+				{ "bottles_count", deptCount},
+				{ "is_sort_bottles", isSortByBottles }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = buttonSanitary.Active ? "Orders.SanitaryReport" : "Orders.OrdersByDeliveryPoint";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

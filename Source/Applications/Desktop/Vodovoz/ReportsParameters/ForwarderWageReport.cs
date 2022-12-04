@@ -18,14 +18,16 @@ namespace Vodovoz.Reports
 	public partial class ForwarderWageReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private const bool _showFinesOutsidePeriodDefault = false;
+		private readonly ReportFactory _reportFactory;
 
-		public ForwarderWageReport(INavigationManager navigationManager)
+		public ForwarderWageReport(INavigationManager navigationManager, ReportFactory reportFactory)
 		{
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			Build();
@@ -73,11 +75,11 @@ namespace Vodovoz.Reports
 				parameters.Add("showbalance", "0");
 			}
 
-			return new ReportInfo
-			{
-				Identifier = "Employees.ForwarderWage",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Employees.ForwarderWage";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void OnUpdate(bool hide = false)

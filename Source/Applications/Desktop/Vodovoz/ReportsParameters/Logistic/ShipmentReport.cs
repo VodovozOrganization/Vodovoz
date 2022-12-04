@@ -8,14 +8,18 @@ using Vodovoz.Domain.Store;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using Vodovoz.Tools.Store;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShipmentReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ShipmentReport()
+		private readonly ReportFactory _reportFactory;
+
+		public ShipmentReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			ydatepicker.Date = DateTime.Now.Date;
@@ -33,14 +37,17 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Logistic.ShipmentReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", ydatepicker.Date },
-					{ "department", GetDepartment()}
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", ydatepicker.Date },
+				{ "department", GetDepartment()}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.ShipmentReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		string GetDepartment()

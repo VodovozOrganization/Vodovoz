@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -12,10 +13,12 @@ namespace Vodovoz.ReportsParameters
 	public partial class SelfDeliveryReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private const int REPORT_MAX_PERIOD = 62;
+		private readonly ReportFactory _reportFactory;
 
-		public SelfDeliveryReport()
+		public SelfDeliveryReport(ReportFactory reportFactory)
 		{
 			this.Build();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			dateperiodpicker.StartDate = DateTime.Now.Date;
 			dateperiodpicker.EndDate = DateTime.Now.Date;
 			dateperiodpicker.PeriodChanged += DateperiodpickerPeriodChanged;
@@ -51,7 +54,7 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
+			. return new ReportInfo {
 				Identifier = "Orders.SelfDeliveryReport",
 				Parameters = new Dictionary<string, object>
 				{
@@ -60,6 +63,12 @@ namespace Vodovoz.ReportsParameters
 					{ "isOneDayReport", dateperiodpicker.StartDate.Date == dateperiodpicker.EndDate.Date }
 				}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Orders.SelfDeliveryReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

@@ -8,15 +8,18 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class DriverRoutesListRegisterReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		GenericObservableList<GeoGroup> geographicGroups;
+		private readonly ReportFactory _reportFactory;
 
-		public DriverRoutesListRegisterReport()
+		public DriverRoutesListRegisterReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			ConfigureDlg();
 
@@ -54,16 +57,19 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Logistic.DriverRoutesListRegister",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "is_driver_master", chkMasters.Active ? 1 : 0 },
-					{ "geographic_groups", GetResultIds(geographicGroups.Select(g => g.Id)) }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull },
+				{ "is_driver_master", chkMasters.Active ? 1 : 0 },
+				{ "geographic_groups", GetResultIds(geographicGroups.Select(g => g.Id)) }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.DriverRoutesListRegister";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

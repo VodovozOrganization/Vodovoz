@@ -7,6 +7,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
@@ -15,12 +16,15 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MastersVisitReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public MastersVisitReport(IEmployeeJournalFactory employeeJournalFactory)
+		private readonly ReportFactory _reportFactory;
+
+		public MastersVisitReport(ReportFactory reportFactory, IEmployeeJournalFactory employeeJournalFactory)
 		{
 			if(employeeJournalFactory == null)
 			{
 				throw new ArgumentNullException(nameof(employeeJournalFactory));
 			}
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -42,16 +46,18 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "ServiceCenter.MastersVisitReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "master", evmeEmployee.SubjectId }
-				}
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull },
+				{ "master", evmeEmployee.SubjectId }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "ServiceCenter.MastersVisitReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

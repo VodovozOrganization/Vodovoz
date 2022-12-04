@@ -22,6 +22,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class MileageReport : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 
@@ -29,9 +30,11 @@ namespace Vodovoz.ReportsParameters.Logistic
 		private Car _car;
 
 		public MileageReport(
+			ReportFactory reportFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ILifetimeScope lifetimeScope)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			Build();
@@ -132,12 +135,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 				{ "difference_km", validatedentryDifference.Text }
 			};
 
-			return new ReportInfo
-			{
-				Identifier = "Logistic.MileageReport",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.MileageReport";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void OnButtonCreateReportClicked(object sender, EventArgs e)

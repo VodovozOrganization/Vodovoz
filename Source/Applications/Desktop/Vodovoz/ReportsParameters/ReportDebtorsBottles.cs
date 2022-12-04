@@ -6,15 +6,19 @@ using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ReportDebtorsBottles : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ReportDebtorsBottles()
+		private readonly ReportFactory _reportFactory;
+
+		public ReportDebtorsBottles(ReportFactory reportFactory)
 		{
 			this.Build();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
@@ -62,11 +66,12 @@ namespace Vodovoz.ReportsParameters
 				parameters.Add("allshow", "0");
 				parameters.Add("withresidue", "1");
 			}
-			
-			return new ReportInfo {
-				Identifier = "Client.DebtorsBottles",
-				Parameters = parameters
-			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Client.DebtorsBottles";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
  
 

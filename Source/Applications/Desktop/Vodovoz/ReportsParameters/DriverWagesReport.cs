@@ -22,10 +22,12 @@ namespace Vodovoz.Reports
 		private const bool _showFinesOutsidePeriodDefault = false;
 
 		private readonly INavigationManager _navigationManager;
+		private readonly ReportFactory _reportFactory;
 
-		public DriverWagesReport(INavigationManager navigationManager)
+		public DriverWagesReport(INavigationManager navigationManager, ReportFactory reportFactory)
 		{
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot(Title);
 
 			Build();
@@ -106,12 +108,12 @@ namespace Vodovoz.Reports
 				parameters.Add("showbalance", "0");
 			}
 
-			return new ReportInfo
-			{
-				Identifier = "Wages.DriverWage",
-				Parameters = parameters
-			};
-		}
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Wages.DriverWage";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
+		}	
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{

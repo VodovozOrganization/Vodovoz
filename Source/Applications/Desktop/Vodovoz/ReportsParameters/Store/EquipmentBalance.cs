@@ -13,15 +13,19 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Store
 {
 	public partial class EquipmentBalance : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
+
 		GenericObservableList<SelectableNomenclatureTypeNode> observableItems { get; set; }
 
-		public EquipmentBalance()
+		public EquipmentBalance(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -149,15 +153,18 @@ namespace Vodovoz.ReportsParameters.Store
 				additional = new string[] { "0" };
 			}
 
-			return new ReportInfo {
-				Identifier = "Store.EquipmentBalance",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "categories", categories }, //все выбранные категории номенклатур без подтипов
-					{ "equipments", equipments }, //все выбранные подтипы категории оборудования
-					{ "additional", additional } //все выбранные подтипы категории товаров
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "categories", categories }, //все выбранные категории номенклатур без подтипов
+				{ "equipments", equipments }, //все выбранные подтипы категории оборудования
+				{ "additional", additional } //все выбранные подтипы категории товаров
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Store.EquipmentBalance";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 	}
 

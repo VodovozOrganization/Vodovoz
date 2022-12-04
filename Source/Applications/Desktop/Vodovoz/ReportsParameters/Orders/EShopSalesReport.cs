@@ -8,18 +8,22 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
     [System.ComponentModel.ToolboxItem(true)]
     public partial class EShopSalesReport : SingleUoWWidgetBase, IParametersWidget
     {
-        public EShopSalesReport()
+		private readonly ReportFactory _reportFactory;
+
+		public EShopSalesReport(ReportFactory reportFactory)
         {
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
             this.Build();
             UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
             Configure();
-        }
+		}
 
         private void Configure()
         {
@@ -73,11 +77,11 @@ namespace Vodovoz.ReportsParameters.Orders
                 {"order_statuses_rus", string.Join(", ", enumchecklistOrderStatus.SelectedValuesList.Select(x => x.GetEnumTitle()))}
             };
 
-            return new ReportInfo
-            {
-                Identifier = "Orders.EShopSalesReport",
-                Parameters = parameters
-            };
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Orders.EShopSalesReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
         }
 
         void OnUpdate(bool hide = false) {

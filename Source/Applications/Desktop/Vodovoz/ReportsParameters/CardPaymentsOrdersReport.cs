@@ -7,14 +7,23 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using System.ComponentModel;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	[ToolboxItem(true)]
 	public partial class CardPaymentsOrdersReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public CardPaymentsOrdersReport(IUnitOfWorkFactory unitOfWorkFactory)
+		private readonly ReportFactory _reportFactory;
+
+		public CardPaymentsOrdersReport(ReportFactory reportFactory, IUnitOfWorkFactory unitOfWorkFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
 			Build();
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			ydateperiodpicker.StartDate = DateTime.Now.Date;
@@ -42,10 +51,10 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Orders.CardPaymentsOrdersReport",
-				Parameters = new Dictionary<string, object>
+				{ "start_date", ydateperiodpicker.StartDate },
+				{ "end_date", ydateperiodpicker.EndDate },
 				{
 					{ "start_date", ydateperiodpicker.StartDate },
 					{ "end_date", ydateperiodpicker.EndDate },
@@ -60,6 +69,12 @@ namespace Vodovoz.ReportsParameters
 					{ "ShowArchived", !ycheckbuttonShowArchive.Sensitive || ycheckbuttonShowArchive.Active }
 				}
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Orders.CardPaymentsOrdersReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 

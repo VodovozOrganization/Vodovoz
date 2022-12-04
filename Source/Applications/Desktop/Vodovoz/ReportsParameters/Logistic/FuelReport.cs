@@ -32,11 +32,13 @@ namespace Vodovoz.Reports
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly INavigationManager _navigationManager;
 		private Car _car;
+		private readonly ReportFactory _reportFactory;
 
 		public FuelReport(
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
@@ -165,6 +167,8 @@ namespace Vodovoz.Reports
 				parameters.Add("exclude_car_models", new int[] { 0 });
 			}
 
+			string reportName = "Logistic.FuelReport";
+
 			if(radioSumm.Active) {
 				parameters.Add("author", (evmeAuthor.Subject as Employee)?.Id ?? -1);
 				parameters.Add("include_car_models", _carModelSelectionFilterViewModel.IncludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.IncludedCarModelIds : new int[] { 0 });
@@ -174,14 +178,14 @@ namespace Vodovoz.Reports
 					Identifier = yCheckButtonDatailedSummary.Active?"Logistic.FuelReportSummaryDetailed":"Logistic.FuelReportSummaryBasic",
 					UseUserVariables = true,
 					Parameters = parameters
-				};
 			}
-			 
-			return new ReportInfo {
-				Identifier = "Logistic.FuelReport",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = reportName;
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

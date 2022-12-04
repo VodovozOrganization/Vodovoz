@@ -50,6 +50,7 @@ namespace Vodovoz.ReportsParameters.Orders
 			datePeriodPicker.StartDate = datePeriodPicker.EndDate = DateTime.Today;
 			entryDistrict.SetEntityAutocompleteSelectorFactory(districtSelector);
 			entryDistrict.CanEditReference = false;
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		#region IParametersWidget implementation
@@ -72,20 +73,21 @@ namespace Vodovoz.ReportsParameters.Orders
 
 		private ReportInfo GetReportInfo()
 		{
-			var reportInfo = new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Orders.FirstClients",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", datePeriodPicker.StartDateOrNull.Value },
-					{ "end_date", datePeriodPicker.EndDateOrNull.Value },
-					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0 },
-					{ "order_status", yChooseOrderStatus.SelectedItem.ToString() },
-					{ "payment_type", yChooseThePaymentTypeForTheOrder.SelectedItem.ToString() },
-					{ "district_id", entryDistrict.Subject?.GetIdOrNull() },
-					{ "has_promotional_sets", chkBtnWithPromotionalSets.Active }
-				}
+				{ "start_date", datePeriodPicker.StartDateOrNull.Value },
+				{ "end_date", datePeriodPicker.EndDateOrNull.Value },
+				{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0 },
+				{ "order_status", yChooseOrderStatus.SelectedItem.ToString() },
+				{ "payment_type", yChooseThePaymentTypeForTheOrder.SelectedItem.ToString() },
+				{ "district_id", entryDistrict.Subject?.GetIdOrNull() },
+				{ "has_promotional_sets", chkBtnWithPromotionalSets.Active }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Orders.FirstClients";
+			reportInfo.Parameters = parameters;
+
 			return reportInfo;
 		}
 

@@ -11,6 +11,7 @@ using QSReport;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Reports;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ReportsParameters.Store
@@ -19,11 +20,14 @@ namespace Vodovoz.ReportsParameters.Store
 	public partial class ProductionRequestReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
+
+		private readonly ReportFactory _reportFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly int _defaultStockRate = 20;
 
-		public ProductionRequestReport(IEmployeeRepository employeeRepository)
+		public ProductionRequestReport(ReportFactory reportFactory, IEmployeeRepository employeeRepository)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -123,10 +127,11 @@ namespace Vodovoz.ReportsParameters.Store
 				}
 			};
 
-			return new ReportInfo {
-				Identifier = "Store.ProductionRequestReport",
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Store.ProductionRequestReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false) =>

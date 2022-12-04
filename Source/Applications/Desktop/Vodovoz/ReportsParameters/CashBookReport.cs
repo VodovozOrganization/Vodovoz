@@ -10,6 +10,7 @@ using QSReport;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -19,12 +20,15 @@ namespace Vodovoz.ReportsParameters
 		private string reportPath;
 		private List<Subdivision> UserSubdivisions { get; }
 		private IEnumerable<Organization> Organizations { get; }
+
+		private readonly ReportFactory _reportFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 
-		public CashBookReport(ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
+		public CashBookReport(ReportFactory reportFactory, ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
 		{
 			this.Build();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
@@ -111,11 +115,12 @@ namespace Vodovoz.ReportsParameters
 				parameters.Add("Cash", allCashes ? -1 : ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem)?.Id);
 			}
 
-			return new ReportInfo {
-				Identifier = reportPath,
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = reportPath;
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false) => 

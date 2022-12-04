@@ -12,6 +12,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using QS.Navigation;
 using Vodovoz.Core.Domain.Employees;
 using QS.Project.Services;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -19,9 +20,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 	public partial class ShortfallBattlesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly INavigationManager _navigationManager;
+		private readonly ReportFactory _reportFactory;
 
-		public ShortfallBattlesReport(INavigationManager navigationManager)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			ydatepicker.Date = DateTime.Now.Date;
@@ -56,11 +58,12 @@ namespace Vodovoz.ReportsParameters.Bottles
 				{ "date", ydatepicker.Date }
 			};
 
-			return new ReportInfo {
-				Identifier = "Bottles.ShortfallBattlesReport",
-				ParameterDatesWithTime = false,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.ShortfallBattlesReport";
+			reportInfo.ParameterDatesWithTime = false;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

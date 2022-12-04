@@ -10,12 +10,15 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class OrdersByDistrictReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public OrdersByDistrictReport()
+		private readonly ReportFactory _reportFactory;
+
+		public OrdersByDistrictReport(ReportFactory reportFactory)
 		{
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -28,6 +31,7 @@ namespace Vodovoz.ReportsParameters
 					EnableEditButton = false
 				};
 			}));
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 		}
 
 		#region IParametersWidget implementation
@@ -53,11 +57,12 @@ namespace Vodovoz.ReportsParameters
 				parameters.Add("id_district", ((District)entryDistrict.Subject).Id);
 			}
 
-			return new ReportInfo {
-				Identifier = ReportName,
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = ReportName;
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

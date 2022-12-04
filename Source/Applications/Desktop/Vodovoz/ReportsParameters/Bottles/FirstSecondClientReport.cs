@@ -9,6 +9,7 @@ using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -16,7 +17,11 @@ namespace Vodovoz.ReportsParameters.Bottles
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FirstSecondClientReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public FirstSecondClientReport(INavigationManager navigationManager, IDiscountReasonRepository discountReasonRepository)
+		private readonly ReportFactory _reportFactory;
+
+		public FirstSecondClientReport(INavigationManager navigationManager,
+		IDiscountReasonRepository discountReasonRepository,
+		ReportFactory reportFactory)
 		{
 			if(navigationManager is null)
 			{
@@ -28,6 +33,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 				throw new ArgumentNullException(nameof(discountReasonRepository));
 			}
 			
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			var reasons = discountReasonRepository.GetDiscountReasons(UoW);
@@ -55,18 +62,21 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Bottles.FirstSecondClients",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", daterangepicker.StartDateOrNull },
-					{ "end_date", daterangepicker.EndDateOrNull },
-					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0 },
-					{ "show_only_client_with_one_order", ycheckbutton1.Active },
-					{ "author_employer_id", (evmeAuthor.Subject as Employee)?.Id ?? 0 },
-					{ "has_promo_set", chkHasPromoSet.Active }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "start_date", daterangepicker.StartDateOrNull },
+				{ "end_date", daterangepicker.EndDateOrNull },
+				{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0 },
+				{ "show_only_client_with_one_order", ycheckbutton1.Active },
+				{ "author_employer_id", (evmeAuthor.Subject as Employee)?.Id ?? 0 },
+				{ "has_promo_set", chkHasPromoSet.Active }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.FirstSecondClients";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 	}
 }

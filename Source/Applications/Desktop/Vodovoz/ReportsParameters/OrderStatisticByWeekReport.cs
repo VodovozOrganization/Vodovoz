@@ -15,6 +15,7 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ReportsParameters
@@ -25,9 +26,11 @@ namespace Vodovoz.ReportsParameters
 		private readonly GenericObservableList<GeographicGroupNode> _geographicGroupNodes;
 		private bool _showPotentialOrders;
 		private OrderStatisticsByWeekReportType _reportType;
+		private readonly ReportFactory _reportFactory;
 
-		public OrderStatisticByWeekReport()
+		public OrderStatisticByWeekReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -120,7 +123,7 @@ namespace Vodovoz.ReportsParameters
 				? _geographicGroupNodes.Where(ggn => ggn.Selected).Select(ggn => ggn.GeographicGroup.Id)
 				: _geographicGroupNodes.Select(ggn => ggn.GeographicGroup.Id);
 
-			var reportInfo = new ReportInfo
+			. var reportInfo = new ReportInfo
 			{
 				
 				Parameters = new Dictionary<string, object>
@@ -133,6 +136,8 @@ namespace Vodovoz.ReportsParameters
 				}
 			};
 
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Parameters = parameters;
 			if(ShowPotentialOrders)
 			{
 				reportInfo.Identifier = "Logistic.OrderStatisticByWeekWithPotentialOrders";

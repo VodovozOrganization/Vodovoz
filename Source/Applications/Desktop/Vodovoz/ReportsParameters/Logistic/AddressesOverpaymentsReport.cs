@@ -12,17 +12,20 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class AddressesOverpaymentsReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly IEntityAutocompleteSelectorFactory _driverSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory _officeSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IInteractiveService _interactiveService;
 
 		public AddressesOverpaymentsReport(
+			ReportFactory reportFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService)
 		{
@@ -31,6 +34,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_driverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_officeSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
@@ -66,21 +70,23 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.AddressesOverpaymentsReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", datePicker.StartDateOrNull },
-					{ "end_date", datePicker.EndDateOrNull?.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "creation_date", DateTime.Now },
-					{ "driver_of_car_type_of_use", comboDriverOfCarTypeOfUse.SelectedItemOrNull },
-					{ "driver_of_car_own_type", comboDriverOfCarOwnType.SelectedItemOrNull },
-					{ "employee_id", entryDriver.Subject?.GetIdOrNull() },
-					{ "logistician_id", entryLogistician.Subject?.GetIdOrNull() },
-					{ "filters", GetSelectedFilters() }
-				}
+				{ "start_date", datePicker.StartDateOrNull },
+				{ "end_date", datePicker.EndDateOrNull?.AddHours(23).AddMinutes(59).AddSeconds(59) },
+				{ "creation_date", DateTime.Now },
+				{ "driver_of_car_type_of_use", comboDriverOfCarTypeOfUse.SelectedItemOrNull },
+				{ "driver_of_car_own_type", comboDriverOfCarOwnType.SelectedItemOrNull },
+				{ "employee_id", entryDriver.Subject?.GetIdOrNull() },
+				{ "logistician_id", entryLogistician.Subject?.GetIdOrNull() },
+				{ "filters", GetSelectedFilters() }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.AddressesOverpaymentsReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private string GetSelectedFilters()

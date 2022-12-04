@@ -8,13 +8,17 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	public partial class ScheduleOnLinePerShiftReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public ScheduleOnLinePerShiftReport()
+		private readonly ReportFactory _reportFactory;
+
+		public ScheduleOnLinePerShiftReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			Build();
 			ConfigureDlg();
 		}
@@ -45,18 +49,20 @@ namespace Vodovoz.ReportsParameters.Logistic
 			var carTypesOfUse = enumcheckCarTypeOfUse.SelectedValues.ToArray();
 			var carOwnTypes = enumcheckCarOwnType.SelectedValues.ToArray();
 
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.ScheduleOnLinePerShiftReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "geo_group_ids", geoGroupsIds.Any() ? geoGroupsIds : new[] { 0 } },
-					{ "car_types_of_use", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
-					{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } }
-				}
+				{ "start_date", dateperiodpicker.StartDateOrNull },
+				{ "end_date", dateperiodpicker.EndDateOrNull },
+				{ "geo_group_ids", geoGroupsIds.Any() ? geoGroupsIds : new[] { 0 } },
+				{ "car_types_of_use", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
+				{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Logistic.ScheduleOnLinePerShiftReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		private void OnButtonCreateReportClicked(object sender, EventArgs e)

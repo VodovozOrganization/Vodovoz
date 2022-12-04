@@ -34,6 +34,7 @@ namespace Vodovoz.Reports
 {
 	public partial class CashFlow : SingleUowTabBase, IParametersWidget, INotifyPropertyChanged
 	{
+		private readonly ReportFactory _reportFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -55,12 +56,13 @@ namespace Vodovoz.Reports
 
 		public CashFlow(
 			IUnitOfWorkFactory unitOfWorkFactory,
+			ReportFactory reportFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			IFileDialogService fileDialogService)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
@@ -320,22 +322,26 @@ namespace Vodovoz.Reports
 
 			if(checkOrganisations.Active)
 			{
-				reportInfo.Parameters.Add("organisations", organisations);
-				reportInfo.Parameters.Add("organisation_name",
+				parameters.Add("organisations", organisations);
+				parameters.Add("organisation_name",
 					(specialListCmbOrganisations.SelectedItem as Organization) != null
 						? (specialListCmbOrganisations.SelectedItem as Organization).Name
 						: "Все организации");
 			}
 			else
 			{
-				reportInfo.Parameters.Add("cash_subdivisions", cashSubdivisions);
-				reportInfo.Parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
+				parameters.Add("cash_subdivisions", cashSubdivisions);
+				parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
 			}
 
 			var cashCategorySettings = ScopeProvider.Scope.Resolve<IOrganizationCashTransferDocumentSettings>();
 			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategorySettings.CashIncomeCategoryTransferId);
 			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategorySettings.CashExpenseCategoryTransferId);
-
+.
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = ReportName;
+			reportInfo.Parameters = parameters;
+			
 			return reportInfo;
 		}
 

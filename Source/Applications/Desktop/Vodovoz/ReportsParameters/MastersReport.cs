@@ -8,6 +8,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 
@@ -16,12 +17,14 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MastersReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public MastersReport(INavigationManager navigationManager)
+		private readonly ReportFactory _reportFactory;
+		public MastersReport(INavigationManager navigationManager, ReportFactory reportFactory)
 		{
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
@@ -52,11 +55,12 @@ namespace Vodovoz.ReportsParameters
 			parameters.Add("end_date", dateperiodpicker.EndDateOrNull);
 			parameters.Add("driver_id", evmeDriver.SubjectId);
 
-			return new ReportInfo {
-				Identifier = "ServiceCenter.MastersReport",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "ServiceCenter.MastersReport";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

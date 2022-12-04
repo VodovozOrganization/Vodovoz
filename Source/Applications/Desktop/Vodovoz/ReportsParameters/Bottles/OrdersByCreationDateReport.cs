@@ -6,14 +6,18 @@ using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersByCreationDateReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public OrdersByCreationDateReport()
+		private readonly ReportFactory _reportFactory;
+
+		public OrdersByCreationDateReport(ReportFactory reportFactory)
 		{
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
 			this.Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
@@ -45,12 +49,16 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
-				Identifier = "Bottles.OrdersByCreationDate",
-				Parameters = new Dictionary<string, object> {
-					{ "date", pkrDate.Date.ToString("yyyy-MM-dd") }
-				}
+			var parameters = new Dictionary<string, object>
+			{
+				{ "date", pkrDate.Date.ToString("yyyy-MM-dd") }
 			};
+
+			var reportInfo = _reportFactory.CreateReport();
+			reportInfo.Identifier = "Bottles.OrdersByCreationDate";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
 		}
 	}
 }
