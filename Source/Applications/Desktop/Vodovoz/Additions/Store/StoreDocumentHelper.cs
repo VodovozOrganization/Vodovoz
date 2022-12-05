@@ -135,7 +135,7 @@ namespace Vodovoz.Additions.Store
 			{
 				foreach(var warehouse in warehouses)
 				{
-					var warehousePermission = WarehousePermissions.WarehousePermissions.SingleOrDefault(
+					var warehousePermission = WarehousePermissions.WarehousePermissions.FirstOrDefault(
 						x => x.WarehousePermissionType == edit && x.Warehouse.Id == warehouse.Id);
 
 					if(warehousePermission?.PermissionValue != null && warehousePermission.PermissionValue.Value)
