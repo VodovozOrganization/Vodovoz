@@ -1217,7 +1217,9 @@ namespace Vodovoz.Views.Employees
 			w75.XOptions = ((global::Gtk.AttachOptions)(4));
 			w75.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.phonesView = null;
+			this.phonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
+			this.phonesView.Events = ((global::Gdk.EventMask)(256));
+			this.phonesView.Name = "phonesView";
 			this.datatableMain.Add(this.phonesView);
 			global::Gtk.Table.TableChild w76 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.phonesView]));
 			w76.TopAttach = ((uint)(14));
@@ -1522,7 +1524,9 @@ namespace Vodovoz.Views.Employees
 			w102.XOptions = ((global::Gtk.AttachOptions)(4));
 			w102.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.terminalmanagementview1 = null;
+			this.terminalmanagementview1 = new global::Vodovoz.Views.Employees.TerminalManagementView();
+			this.terminalmanagementview1.Events = ((global::Gdk.EventMask)(256));
+			this.terminalmanagementview1.Name = "terminalmanagementview1";
 			this.table1.Add(this.terminalmanagementview1);
 			global::Gtk.Table.TableChild w103 = ((global::Gtk.Table.TableChild)(this.table1[this.terminalmanagementview1]));
 			w103.TopAttach = ((uint)(2));
@@ -2124,7 +2128,9 @@ namespace Vodovoz.Views.Employees
 			w170.Expand = false;
 			w170.Fill = false;
 			// Container child vbox9.Gtk.Box+BoxChild
-			this.wageParametersView = null;
+			this.wageParametersView = new global::Vodovoz.Views.WageCalculation.EmployeeWageParametersView();
+			this.wageParametersView.Events = ((global::Gdk.EventMask)(256));
+			this.wageParametersView.Name = "wageParametersView";
 			this.vbox9.Add(this.wageParametersView);
 			global::Gtk.Box.BoxChild w171 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.wageParametersView]));
 			w171.Position = 1;
