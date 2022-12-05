@@ -201,7 +201,7 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child hboxAdditionalFilters.Gtk.Box+BoxChild
 			this.lblentryCounteragentNameLike = new global::Gtk.Label();
 			this.lblentryCounteragentNameLike.Name = "lblentryCounteragentNameLike";
-			this.lblentryCounteragentNameLike.LabelProp = global::Mono.Unix.Catalog.GetString("Название контрагента");
+			this.lblentryCounteragentNameLike.LabelProp = global::Mono.Unix.Catalog.GetString("Название контрагента:");
 			this.hboxAdditionalFilters.Add(this.lblentryCounteragentNameLike);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxAdditionalFilters[this.lblentryCounteragentNameLike]));
 			w7.Position = 0;
@@ -219,7 +219,7 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child hboxAdditionalFilters.Gtk.Box+BoxChild
 			this.lblDeliveryPointAddressLike = new global::Gtk.Label();
 			this.lblDeliveryPointAddressLike.Name = "lblDeliveryPointAddressLike";
-			this.lblDeliveryPointAddressLike.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес точки доставки");
+			this.lblDeliveryPointAddressLike.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес точки доставки:");
 			this.hboxAdditionalFilters.Add(this.lblDeliveryPointAddressLike);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxAdditionalFilters[this.lblDeliveryPointAddressLike]));
 			w9.Position = 2;
