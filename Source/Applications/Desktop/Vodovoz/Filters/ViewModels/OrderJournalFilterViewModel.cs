@@ -63,10 +63,10 @@ namespace Vodovoz.Filters.ViewModels
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			deliveryPointJournalFactory?.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
 			DeliveryPointSelectorFactory = deliveryPointJournalFactory?.CreateDeliveryPointByClientAutocompleteSelectorFactory()
-			                               ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+										   ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory()
-			                              ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+										  ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 
 			AuthorSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
 									?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -335,11 +335,11 @@ namespace Vodovoz.Filters.ViewModels
 		public bool CanChangeOnlyService { get; private set; } = true;
 
 		#endregion
-		
+
 		#region Sorting
 
 		private bool? _sortDeliveryDate;
-		public virtual bool? SortDeliveryDate 
+		public virtual bool? SortDeliveryDate
 		{
 			get => _sortDeliveryDate;
 			set => UpdateFilterField(ref _sortDeliveryDate, value);
@@ -353,18 +353,21 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		#endregion
-		
+
 		private List<GeoGroup> _geographicGroups;
 		/// <summary>
 		/// Части города для отображения в фильтре
 		/// </summary>
 		public List<GeoGroup> GeographicGroups
 		{
-			get => _geographicGroups; 
+			get => _geographicGroups;
 			set => _geographicGroups = value;
 		}
-		
+
 		private GeoGroup _geographicGroup;
+		private string _counterpartyNameLike;
+		private string _deliveryPointAddressLike;
+
 		/// <summary>
 		/// Часть города
 		/// </summary>
@@ -462,6 +465,17 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _deliveryPointPhone, value);
 		}
 
+		public virtual string CounterpartyNameLike
+		{
+			get => _counterpartyNameLike;
+			set => SetField(ref _counterpartyNameLike, value);
+		}
+
+		public virtual string DeliveryPointAddressLike
+		{
+			get => _deliveryPointAddressLike;
+			set => SetField(ref _deliveryPointAddressLike, value);
+		}
 	}
 
 	public enum PaymentOrder

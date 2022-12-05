@@ -44,6 +44,8 @@ namespace Vodovoz.JournalViewModels
 {
 	public class RetailOrderJournalViewModel : FilterableMultipleEntityJournalViewModelBase<RetailOrderJournalNode, OrderJournalFilterViewModel>
 	{
+		private const int _minLengthLikeSearch = 3;
+
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -303,6 +305,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.PaymentByCardFrom.Id == FilterViewModel.PaymentByCardFrom.Id);
 			}
 
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike) && FilterViewModel.DeliveryPointAddressLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => deliveryPointAlias.CompiledAddress), FilterViewModel.DeliveryPointAddressLike, MatchMode.Anywhere));
+			}
+
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -421,7 +433,8 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.RestrictLessThreeHours == true
 				|| FilterViewModel.OrderPaymentStatus != null
 				|| FilterViewModel.Organisation != null
-				|| FilterViewModel.PaymentByCardFrom != null) 
+				|| FilterViewModel.PaymentByCardFrom != null
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)) 
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -454,6 +467,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.Author != null)
 			{
 				query.Where(o => o.Author == FilterViewModel.Author);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 
 			query.Left.JoinAlias(o => o.Author, () => authorAlias);
@@ -536,7 +554,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.RestrictLessThreeHours == true
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
-			    || FilterViewModel.PaymentByCardFrom != null)
+			    || FilterViewModel.PaymentByCardFrom != null
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -569,6 +588,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.Author != null)
 			{
 				query.Where(o => o.Author == FilterViewModel.Author);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 
 			var bottleCountSubquery = QueryOver.Of(() => orderWSPItemAlias)
@@ -673,7 +697,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.RestrictLessThreeHours == true
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
-			    || FilterViewModel.PaymentByCardFrom != null)
+			    || FilterViewModel.PaymentByCardFrom != null
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -706,6 +731,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.Author != null)
 			{
 				query.Where(o => o.Author == FilterViewModel.Author);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
+			{
+				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 
 			var bottleCountSubquery = QueryOver.Of(() => orderWSAPItemAlias)
