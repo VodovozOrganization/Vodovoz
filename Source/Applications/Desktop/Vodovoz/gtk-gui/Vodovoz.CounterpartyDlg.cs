@@ -3192,6 +3192,7 @@ namespace Vodovoz
 			this.enumcomboCargoReceiverSource.ChangedByUser += new global::System.EventHandler(this.OnEnumcomboCargoReceiverSourceChangedByUser);
 			this.ybuttonSubscribe.Clicked += new global::System.EventHandler(this.OnButtonSubscribeClicked);
 			this.ybuttonUnsubscribe.Clicked += new global::System.EventHandler(this.OnButtonUnsubscribeClicked);
+			this.ybuttonSendManualInvite.Clicked += new global::System.EventHandler(this.OnYbuttonSendManualInviteClicked);
 			this.ybuttonSendInviteByTaxcom.Clicked += new global::System.EventHandler(this.OnYbuttonSendInviteByTaxcomClicked);
 			this.ybuttonRegistrationInChestnyZnak.Clicked += new global::System.EventHandler(this.OnYbuttonRegistrationInChestnyZnakClicked);
 			this.ybuttonCheckConsentForEdo.Clicked += new global::System.EventHandler(this.OnYbuttonCheckConsentForEdoClicked);
