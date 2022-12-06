@@ -1,22 +1,13 @@
-﻿using System.Collections.Generic;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz.ViewModels.Infrastructure.Services
 {
 	public class WarehousePermissionValidatorFactory : IWarehousePermissionValidatorFactory
 	{
-		public IWarehousePermissionValidator CreateValidator(Subdivision subdivision)
-		{
-			List<SubdivisionWarehousePermission> warehousePermission = new List<SubdivisionWarehousePermission>();
-			do
-			{
-				using (var uow = UnitOfWorkFactory.CreateForRoot<Subdivision>(subdivision.Id))
-					warehousePermission.AddRange(uow.Session.QueryOver<SubdivisionWarehousePermission>()
-						.Where(x => x.Subdivision.Id == subdivision.Id).List());
-				subdivision = subdivision.ParentSubdivision;
-			} while (subdivision != null);
-			return new WarehousePermissionValidator(warehousePermission);
-		}
+		public IWarehousePermissionValidator CreateValidator(
+			IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository)
+			=> new WarehousePermissionValidator(unitOfWorkFactory, permissionRepository);
 	}
 }

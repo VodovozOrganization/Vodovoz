@@ -84,6 +84,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
+		private readonly Employee _currentEmployee;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
 
@@ -149,9 +150,9 @@ namespace Vodovoz.JournalViewModels
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			_warehousePermissionValidator =
-				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService)))
-				.GetValidator(UoW, commonServices.UserService.CurrentUserId);
+				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
 
 			TabName = "Журнал МЛ";
 
@@ -424,8 +425,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(defaultWarehouse != null
 			   && !cashWarehouseIds.Contains(defaultWarehouse.Id)
-			   && _warehousePermissionValidator.Validate(
-					WarehousePermissionsType.CarLoadEdit, defaultWarehouse, _employeeRepository.GetEmployeeForCurrentUser(UoW).User))
+			   && _warehousePermissionValidator.Validate(WarehousePermissionsType.CarLoadEdit, defaultWarehouse, _currentEmployee))
 			{
 				return new JournalAction(
 					$"Отправить МЛ на погрузку со скалада\n'{defaultWarehouse.Name}' и распечатать",
@@ -809,11 +809,9 @@ namespace Vodovoz.JournalViewModels
 
 		private void FillCarLoadDocument(CarLoadDocument document, IUnitOfWork uow, int routeListId, int warehouseId)
 		{
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-
 			document.RouteList = uow.GetById<RouteList>(routeListId);
-			document.Author = currentEmployee;
-			document.LastEditor = currentEmployee;
+			document.Author = _currentEmployee;
+			document.LastEditor = _currentEmployee;
 			document.LastEditedTime = DateTime.Now;
 			document.Warehouse = uow.GetById<Warehouse>(warehouseId);
 
