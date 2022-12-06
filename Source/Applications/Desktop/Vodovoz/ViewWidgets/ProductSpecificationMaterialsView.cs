@@ -48,6 +48,7 @@ namespace Vodovoz
 					.AddSetter((c, p) => c.Digits = (uint)p.Material.Unit.Digits)
 					.Adjustment (new Adjustment(0, 0, 1000000, 1, 100,0))
 					.AddTextRenderer (p => p.Material.Unit.Name, false)
+					.AddColumn("")
 					.Finish();
 				
 				treeMaterialsList.ItemsDataSource = items;
