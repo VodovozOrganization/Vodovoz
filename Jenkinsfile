@@ -211,5 +211,5 @@ def DeployWebService(serviceName) {
 	def SERVICE_PATH = "E:\\CD\\${serviceName}\\${BRANCH_NAME}"
 	
     echo "Deploy ${serviceName} to CD folder"
-	unzip zipFile: "${serviceName}.zip", charset: "UTF-8", dir: SERVICE_PATH
+	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH
 }
