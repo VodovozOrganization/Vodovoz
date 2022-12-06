@@ -16,7 +16,7 @@ stage('Restore'){
 	parallel (
 		"Desktop" : {
 			node('DESKTOP_BUILD'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86'
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86 -maxcpucount:2'
 			}
 		},
 		"WCF" : {
@@ -32,7 +32,7 @@ parallel (
 	"Desktop" : {
 		node('DESKTOP_BUILD'){
 			stage('Build Desktop'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86'
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
 
 				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
 				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin'
@@ -40,7 +40,7 @@ parallel (
 			}
 
 			stage('Build WEB'){
-				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/ || env.BRANCH_NAME ==~ /^[Hh]otfix(.*?)/)
 				{				
 					PublishBuildWebService('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0_publish')
@@ -69,7 +69,7 @@ parallel (
 				else
 				{
 					//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86'
+					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86 -maxcpucount:2'
 				}
 			}
 			
@@ -78,7 +78,7 @@ parallel (
 	"WCF" : {
 		node('WCF_BUILD'){
 			stage('Build WCF'){
-				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:4'
+				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
 
 				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozInstantSmsService/', 'InstantSmsService')
 				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSalesReceiptsService/', 'SalesReceiptsService')
@@ -101,7 +101,8 @@ parallel (
 						env.BRANCH_NAME == 'master'
 						|| env.BRANCH_NAME == 'develop'
 						|| env.BRANCH_NAME == 'Beta'
-						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+						|| env.BRANCH_NAME ==~ /^[Hh]otfix(.*?)/)
 					{
 						def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
 						echo "Deploy branch " + env.BRANCH_NAME
@@ -141,7 +142,7 @@ parallel (
 	"WEB" : {
 		node('WIN_WEB_RUNTIME'){
 			stage('Deploy WEB'){
-				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/ || env.BRANCH_NAME ==~ /^[Hh]otfix(.*?)/)
 				{
 					copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
@@ -191,7 +192,7 @@ def PublishBuildWebService(serviceName, csprojPath, outputPath) {
 	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
 	
 	echo "Publish ${serviceName} to folder (${env.BRANCH_NAME})"
-	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=FolderProfile -maxcpucount:2'
 
 	
 	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
