@@ -84,6 +84,6 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
-		public virtual string Title => $"{GetType().GetSubjectName()} подразделения \"{Subdivision.Name}\"";
+		public virtual string Title => $"{typeof(ComplaintDiscussion).GetSubjectName()} подразделения \"{Subdivision.Name}\"";
 	}
 }
