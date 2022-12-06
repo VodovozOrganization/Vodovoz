@@ -1,10 +1,10 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -16,62 +16,73 @@ namespace Vodovoz.Domain.Complaints
 	[EntityPermission]
 	public class ComplaintDiscussion : PropertyChangedBase, IDomainObject
 	{
+		private Complaint _complaint;
+		private Subdivision _subdivision;
+		private DateTime _startSubdivisionDate;
+		private DateTime _plannedCompletionDate;
+		private ComplaintStatuses _status;
+		private IList<ComplaintDiscussionComment> _comments = new List<ComplaintDiscussionComment>();
+		private GenericObservableList<ComplaintDiscussionComment> _observableComments;
+
+		public ComplaintDiscussion() { }
+
 		public virtual int Id { get; set; }
 
-		private Complaint complaint;
 		[Display(Name = "Рекламация")]
-		public virtual Complaint Complaint {
-			get => complaint;
-			set => SetField(ref complaint, value, () => Complaint);
+		public virtual Complaint Complaint
+		{
+			get => _complaint;
+			set => SetField(ref _complaint, value);
 		}
 
-		private Subdivision subdivision;
 		[Display(Name = "Подразделение")]
-		public virtual Subdivision Subdivision {
-			get => subdivision;
-			set => SetField(ref subdivision, value, () => Subdivision);
+		public virtual Subdivision Subdivision
+		{
+			get => _subdivision;
+			set => SetField(ref _subdivision, value);
 		}
 
-		private DateTime startSubdivisionDate;
 		[Display(Name = "Дата подключения подразделения")]
 		public virtual DateTime StartSubdivisionDate
 		{
-			get => startSubdivisionDate;
-			set => SetField(ref startSubdivisionDate, value);
+			get => _startSubdivisionDate;
+			set => SetField(ref _startSubdivisionDate, value);
 		}
 
-		private DateTime plannedCompletionDate;
 		[Display(Name = "Предполагаемая дата завершения")]
-		public virtual DateTime PlannedCompletionDate {
-			get => plannedCompletionDate;
-			set => SetField(ref plannedCompletionDate, value, () => PlannedCompletionDate);
+		public virtual DateTime PlannedCompletionDate
+		{
+			get => _plannedCompletionDate;
+			set => SetField(ref _plannedCompletionDate, value);
 		}
 
-		private ComplaintStatuses status;
 		[Display(Name = "Статус")]
-		public virtual ComplaintStatuses Status {
-			get => status;
-			set => SetField(ref status, value, () => Status);
+		public virtual ComplaintStatuses Status
+		{
+			get => _status;
+			set => SetField(ref _status, value);
 		}
 
-		IList<ComplaintDiscussionComment> comments = new List<ComplaintDiscussionComment>();
 		[Display(Name = "Комментарии")]
-		public virtual IList<ComplaintDiscussionComment> Comments {
-			get => comments;
-			set => SetField(ref comments, value, () => Comments);
+		public virtual IList<ComplaintDiscussionComment> Comments
+		{
+			get => _comments;
+			set => SetField(ref _comments, value);
 		}
 
-		GenericObservableList<ComplaintDiscussionComment> observableComments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintDiscussionComment> ObservableComments {
-			get {
-				if(observableComments == null)
-					observableComments = new GenericObservableList<ComplaintDiscussionComment>(Comments);
-				return observableComments;
+		public virtual GenericObservableList<ComplaintDiscussionComment> ObservableComments
+		{
+			get
+			{
+				if(_observableComments == null)
+				{
+					_observableComments = new GenericObservableList<ComplaintDiscussionComment>(Comments);
+				}
+
+				return _observableComments;
 			}
 		}
-
-		public ComplaintDiscussion() { }
 
 		public virtual string Title => $"{GetType().GetSubjectName()} подразделения \"{Subdivision.Name}\"";
 	}
