@@ -1761,6 +1761,10 @@
     <Compile Include="Filters\Views\UsersJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.UsersJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Users.UserRoleView.cs" />
+    <Compile Include="Views\Employees\EmployeeRegistrationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeeRegistrationView.cs" />
+    <Compile Include="ReportsParameters\Employees\EmployeesTaxesSumReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Employees.EmployeesTaxesSumReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

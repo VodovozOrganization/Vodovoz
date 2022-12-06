@@ -284,7 +284,7 @@ namespace Vodovoz.Views.Employees
 
 		private global::QS.Widgets.GtkUI.DatePicker pickerVersionStartDate;
 
-		private global::Gamma.GtkWidgets.yButton btnNewRegistartionVersion;
+		private global::Gamma.GtkWidgets.yButton btnNewRegistrationVersion;
 
 		private global::Gamma.GtkWidgets.yButton btnChangeVersionStartDate;
 
@@ -1895,13 +1895,13 @@ namespace Vodovoz.Views.Employees
 			w144.Position = 1;
 			w144.Expand = false;
 			// Container child yhbox2.Gtk.Box+BoxChild
-			this.btnNewRegistartionVersion = new global::Gamma.GtkWidgets.yButton();
-			this.btnNewRegistartionVersion.CanFocus = true;
-			this.btnNewRegistartionVersion.Name = "btnNewRegistartionVersion";
-			this.btnNewRegistartionVersion.UseUnderline = true;
-			this.btnNewRegistartionVersion.Label = global::Mono.Unix.Catalog.GetString("Новая версия");
-			this.yhbox2.Add(this.btnNewRegistartionVersion);
-			global::Gtk.Box.BoxChild w145 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.btnNewRegistartionVersion]));
+			this.btnNewRegistrationVersion = new global::Gamma.GtkWidgets.yButton();
+			this.btnNewRegistrationVersion.CanFocus = true;
+			this.btnNewRegistrationVersion.Name = "btnNewRegistrationVersion";
+			this.btnNewRegistrationVersion.UseUnderline = true;
+			this.btnNewRegistrationVersion.Label = global::Mono.Unix.Catalog.GetString("Новая версия");
+			this.yhbox2.Add(this.btnNewRegistrationVersion);
+			global::Gtk.Box.BoxChild w145 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.btnNewRegistrationVersion]));
 			w145.Position = 2;
 			w145.Expand = false;
 			w145.Fill = false;

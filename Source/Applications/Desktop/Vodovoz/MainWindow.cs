@@ -2749,4 +2749,17 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<UserRolesJournalViewModel>(null);
 	}
+
+	protected void OnEmployeeRegistrationsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EmployeeRegistrationsJournalViewModel>(null);
+	}
+
+	protected void OnEmployeesTaxesActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
+			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory))
+		);
+	}
 }

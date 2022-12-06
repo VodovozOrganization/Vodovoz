@@ -1,11 +1,17 @@
-﻿using QS.Navigation;
-using QS.ViewModels.Dialog;
+﻿using QS.ViewModels;
+using Vodovoz.Domain.Employees;
+using QS.Project.Domain;
+using QS.DomainModel.UoW;
+using QS.Services;
 
 namespace Vodovoz.ViewModels.Employees
 {
-	public class EmployeeRegistrationViewModel : DialogViewModelBase
+	public class EmployeeRegistrationViewModel : EntityTabViewModelBase<EmployeeRegistration>
 	{
-		public EmployeeRegistrationViewModel(INavigationManager navigation) : base(navigation)
+		public EmployeeRegistrationViewModel(
+			IEntityUoWBuilder entityUoWBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices) : base(entityUoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			
 		}

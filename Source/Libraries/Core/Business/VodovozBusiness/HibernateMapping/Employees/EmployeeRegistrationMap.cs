@@ -11,12 +11,9 @@ namespace Vodovoz.HibernateMapping.Employees
 
 			Id(x => x.Id).GeneratedBy.Native();
 
+			Map(x => x.RegistrationType).Column("registration_type");
 			Map(x => x.PaymentForm).Column("payment_form");
 			Map(x => x.TaxRate).Column("tax_rate");
-
-			References(x => x.RegistrationType)
-				.Column("registration_type_id")
-				.Cascade.AllDeleteOrphan();
 		}
 	}
 }
