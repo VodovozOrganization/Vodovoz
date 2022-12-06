@@ -11,10 +11,10 @@ using Vodovoz.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
-	public class RegistrationTypesJournalViewModel
-		: EntityJournalViewModelBase<RegistrationType, RegistrationTypeViewModel, RegistrationTypeJournalNode>
+	public class EmployeeRegistrationsJournalViewModel
+		: EntityJournalViewModelBase<EmployeeRegistration, EmployeeRegistrationViewModel, EmployeeRegistrationsJournalNode>
 	{
-		public RegistrationTypesJournalViewModel(
+		public EmployeeRegistrationsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
@@ -25,16 +25,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			TabName = "Журнал видов оформлений сотрудников";
 		}
 
-		protected override IQueryOver<RegistrationType> ItemsQuery(IUnitOfWork uow)
+		protected override IQueryOver<EmployeeRegistration> ItemsQuery(IUnitOfWork uow)
 		{
-			RegistrationType registrationTypeAlias = null;
-			RegistrationTypeJournalNode resultAlias = null;
+			EmployeeRegistration employeeRegistrationAlias = null;
+			EmployeeRegistrationsJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver(() => registrationTypeAlias)
+			var query = uow.Session.QueryOver(() => employeeRegistrationAlias)
 				.SelectList(list => list
 					.Select(er => er.Id).WithAlias(() => resultAlias.Id)
-					.Select(er => er.Name).WithAlias(() => resultAlias.Name))
-				.TransformUsing(Transformers.AliasToBean<RegistrationTypeJournalNode>());
+					.Select(er => er.RegistrationType).WithAlias(() => resultAlias.RegistrationType)
+					.Select(er => er.PaymentForm).WithAlias(() => resultAlias.PaymentForm)
+					.Select(er => er.TaxRate).WithAlias(() => resultAlias.TaxRate))
+				.TransformUsing(Transformers.AliasToBean<EmployeeRegistrationsJournalNode>());
 
 			return query;
 		}

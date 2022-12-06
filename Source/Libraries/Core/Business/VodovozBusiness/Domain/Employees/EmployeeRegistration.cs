@@ -5,8 +5,8 @@ using QS.DomainModel.Entity;
 namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		Nominative = "оформление сотрудника",
-		NominativePlural = "оформления сотрудников")]
+		Nominative = "вид оформления сотрудника",
+		NominativePlural = "виды оформлений сотрудников")]
 	public class EmployeeRegistration : PropertyChangedBase, IDomainObject, IEmployeeRegistration
 	{
 		private RegistrationType _registrationType;
@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual int Id { get; set; }
 
-		[Display(Name = "Вид оформления")]
+		[Display(Name = "Оформление")]
 		public virtual RegistrationType RegistrationType
 		{
 			get => _registrationType;
@@ -37,7 +37,7 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		public override string ToString() =>
-			$"Вид оформления: {RegistrationType}, форма оплаты: {PaymentForm.GetEnumTitle()} ставка налога: {TaxRate}";
+			$"Оформление: {RegistrationType.GetEnumTitle()}, форма оплаты: {PaymentForm.GetEnumTitle()} ставка налога: {TaxRate}";
 	}
 
 	public enum PaymentForm
@@ -48,15 +48,15 @@ namespace Vodovoz.Domain.Employees
 		Cashless
 	}
 	
-	/*public enum RegistrationType
+	public enum RegistrationType
 	{
 		[Display(Name = "Самозанятый")]
 		SelfEmployed,
 		[Display(Name = "ИП")]
 		PrivateBusinessman,
-		[Display(Name = "ГПК")]
+		[Display(Name = "ГПХ")]
 		Contract,
 		[Display(Name = "ТК РФ")]
 		LaborCode
-	}*/
+	}
 }
