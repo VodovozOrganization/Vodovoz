@@ -49,7 +49,7 @@ namespace PayPageAPI.Models
 		public string PaymentAttemptMessage => IsOnlineOrder
 			? $"{_paymentAttemptMessage} вернитесь в свой заказ и попробуйте снова"
 			: $"{_paymentAttemptMessage} перезвоните нам для получения новой ссылки";
-		public string OfertaUrl { get; private set; } 
+		public string OfertaUrl { get; private set; }
 		
 		private void Initialize(FastPayment fastPayment)
 		{
@@ -74,17 +74,21 @@ namespace PayPageAPI.Models
 			{
 				OfertaUrl = "pdf/Оферта_ВВ_Север.pdf";
 			}
-			else
+			else if(organization.Id == _organizationParametersProvider.VodovozSouthOrganizationId)
 			{
 				OfertaUrl = "pdf/Оферта_ВВ_Юг.pdf";
 			}
+			else
+			{
+				OfertaUrl = "pdf/Оферта_Мир_напитков.pdf";
+			}
 		}
 
-		private void FillOrderData(int orderId, DateTime? orderDate, decimal ordersum)
+		private void FillOrderData(int orderId, DateTime? orderDate, decimal orderSum)
 		{
 			OrderNum = orderId;
 			OrderDate = orderDate;
-			_orderSum = ordersum;
+			_orderSum = orderSum;
 		}
 	}
 }
