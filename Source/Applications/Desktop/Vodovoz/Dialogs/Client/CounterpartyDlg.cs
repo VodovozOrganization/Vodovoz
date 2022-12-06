@@ -444,7 +444,9 @@ namespace Vodovoz
 			DelayDaysForBuyerValue.Binding
 				.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt)
 				.InitializeFromSource();
-			lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = Entity?.IsChainStore ?? false;
+			DelayDaysForBuyerValue.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+						"can_change_delay_days_for_buyers_and_chain_store");
 
 			yspinDelayDaysForTechProcessing.Binding
 				.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
@@ -1127,6 +1129,10 @@ namespace Vodovoz
 					Entity.PersonalAccountIdInEdo = counterpartyEdoOperator.PersonalAccountIdInEdo;
 				}
 			};
+			
+			yChkBtnDoNotMixMarkedAndUnmarkedGoodsInOrder.Binding
+				.AddBinding(Entity, e => e.DoNotMixMarkedAndUnmarkedGoodsInOrder, w => w.Active)
+				.InitializeFromSource();
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
@@ -1136,7 +1142,6 @@ namespace Vodovoz
 
 			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
 		}
-	
 
 		private void RefreshBulkEmailEventStatus()
 		{
@@ -1180,15 +1185,6 @@ namespace Vodovoz
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
-			if(Entity.IsChainStore)
-			{
-				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = true;
-			}
-			else
-			{
-				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
-				Entity.DelayDaysForBuyers = 0;
-			}
 		}
 
 		private void OnButtonLoadFromDeliveryPointClicked(object sender, EventArgs e)
@@ -1243,7 +1239,8 @@ namespace Vodovoz
 
 			var orderJournalFilter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory()) { RestrictCounterparty = Entity };
+				new DeliveryPointJournalFactory(),
+				new EmployeeJournalFactory()) { RestrictCounterparty = Entity };
 			var orderJournalViewModel = new OrderJournalViewModel(
 				orderJournalFilter,
 				UnitOfWorkFactory.GetDefaultFactory,

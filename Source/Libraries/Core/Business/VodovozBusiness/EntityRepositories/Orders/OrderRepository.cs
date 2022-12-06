@@ -940,6 +940,13 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault();
 		}
 
+		public IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.QueryOver<EdoContainer>()
+				.Where(x => x.Order.Id == orderId)
+				.List();
+		}
+		
 		public IList<VodovozOrder> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
@@ -988,6 +995,7 @@ namespace Vodovoz.EntityRepositories.Orders
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
 					)
 				)
+				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc)
 				.TransformUsing(Transformers.RootEntity) 
 				.List();
 

@@ -16,6 +16,8 @@ namespace Vodovoz.Reports.Logistic
 			this.Build ();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeoGroup>();
+
+			ycheckWithoutFastSelect.Toggled += (s, e) => SetIntervalAvailability();
 		}
 
 		#region IParametersWidget implementation
@@ -25,6 +27,11 @@ namespace Vodovoz.Reports.Logistic
 		public string Title => "Отчет по опозданиям";
 
 		#endregion
+
+		private void SetIntervalAvailability()
+		{
+			yhboxInterval.Visible = ycheckOnlyFastSelect.Active || ycheckAllSelect.Active;
+		}
 
 		private void OnUpdate (bool hide = false)
 		{
@@ -43,7 +50,8 @@ namespace Vodovoz.Reports.Logistic
 					{ "geographic_group_id", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Id ?? 0 },
 					{ "geographic_group_name", (ySpecCmbGeographicGroup.SelectedItem as GeoGroup)?.Name ?? "Все" },
 					{ "exclude_truck_drivers_office_employees", ycheckExcludeTruckAndOfficeEmployees.Active },
-					{ "select_mode", GetSelectMode().ToString() }
+					{ "order_select_mode", GetOrderSelectMode().ToString() },
+					{ "interval_select_mode", GetIntervalSelectMode().ToString() },
 				}
 			};
 		}
@@ -57,24 +65,45 @@ namespace Vodovoz.Reports.Logistic
 			OnUpdate (true);
 		}
 
-		private SelectMode GetSelectMode()
+		private OrderSelectMode GetOrderSelectMode()
 		{
 			if (ycheckOnlyFastSelect.Active)
 			{
-				return SelectMode.DeliveryInAnHour;
+				return OrderSelectMode.DeliveryInAnHour;
 			}
 			if (ycheckWithoutFastSelect.Active)
 			{
-				return SelectMode.WithoutDeliveryInAnHour;
+				return OrderSelectMode.WithoutDeliveryInAnHour;
 			}
-			return SelectMode.All;
+			return OrderSelectMode.All;
 		}
 
-		private enum SelectMode
+		private enum OrderSelectMode
 		{
 			All,
 			DeliveryInAnHour,
 			WithoutDeliveryInAnHour
+		}
+
+		private IntervalSelectMode GetIntervalSelectMode()
+		{
+			if(ycheckIntervalFromFirstAddress.Active)
+			{
+				return IntervalSelectMode.FirstAddress;
+			}
+			if(ycheckIntervalFromTransferTime.Active)
+			{
+				return IntervalSelectMode.Transfer;
+			}
+
+			return IntervalSelectMode.Create;
+		}
+
+		private enum IntervalSelectMode
+		{
+			Create,
+			Transfer,
+			FirstAddress
 		}
 	}
 }

@@ -145,6 +145,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
+		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 		IList<Order> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 	}
 

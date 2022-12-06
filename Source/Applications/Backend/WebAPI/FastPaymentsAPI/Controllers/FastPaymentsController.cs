@@ -104,9 +104,15 @@ namespace FastPaymentsAPI.Controllers
 						}
 						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
 						{
-							response.QRCode = fastPayment.QRPngBase64;
-							response.FastPaymentStatus = fastPayment.FastPaymentStatus;
-							return response;
+							if(!string.IsNullOrWhiteSpace(fastPayment.QRPngBase64))
+							{
+								response.QRCode = fastPayment.QRPngBase64;
+								response.FastPaymentStatus = fastPayment.FastPaymentStatus;
+								return response;
+							}
+							
+							_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
+							_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 						}
 					}
 				}
