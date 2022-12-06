@@ -65,6 +65,9 @@ parallel (
 
 					PublishBuildWebService('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
+
+					PublishBuildWebService('TaxcomEdoApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\bin\\Release\\net5.0_publish')
 				}
 				else
 				{
@@ -153,6 +156,8 @@ parallel (
 					DeployWebService('DeliveryRulesService')
 					DeployWebService('RoboAtsService')
 					DeployWebService('TrueMarkAPI')
+					DeployWebService('PayPageAPI')
+					DeployWebService('TaxcomEdoApi')
 				}
 				else
 				{
