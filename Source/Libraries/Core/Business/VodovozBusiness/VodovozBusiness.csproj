@@ -140,7 +140,6 @@
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\Employees\EmployeeRegistration.cs" />
     <Compile Include="Domain\Employees\EmployeeRegistrationVersion.cs" />
-    <Compile Include="Domain\Employees\RegistrationType.cs" />
     <Compile Include="Domain\FastPayments\FastPayment.cs" />
     <Compile Include="Domain\FastPayments\FastPaymentPayType.cs" />
     <Compile Include="Domain\FastPayments\FastPaymentStatus.cs" />
@@ -445,7 +444,6 @@
     <Compile Include="HibernateMapping\Employees\CashSubdivisionSortingSettingsMap.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeRegistrationMap.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeRegistrationVersionMap.cs" />
-    <Compile Include="HibernateMapping\Employees\RegistrationTypeMap.cs" />
     <Compile Include="HibernateMapping\FastPayments\FastPaymentMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
