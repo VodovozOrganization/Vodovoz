@@ -37,8 +37,11 @@ parallel (
 				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
 				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin'
 				archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true			
-			}
-
+			}			
+		}
+	},
+	"Web" : {
+		node('DESKTOP_BUILD'){
 			stage('Build WEB'){
 				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/ || env.BRANCH_NAME ==~ /^[Hh]otfix(.*?)/)
 				{				
@@ -211,5 +214,5 @@ def DeployWebService(serviceName) {
 	def SERVICE_PATH = "E:\\CD\\${serviceName}\\${BRANCH_NAME}"
 	
     echo "Deploy ${serviceName} to CD folder"
-	unzip zipFile: "${serviceName}.zip", charset: "UTF-8", dir: SERVICE_PATH
+	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH
 }
