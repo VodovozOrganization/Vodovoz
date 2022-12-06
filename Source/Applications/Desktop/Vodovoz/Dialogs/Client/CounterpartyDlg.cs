@@ -128,6 +128,7 @@ namespace Vodovoz
 		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings;
+		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -2025,7 +2026,9 @@ namespace Vodovoz
 				if(isManual)
 				{
 					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
-					resultMessage = _contactListService.SendContactsForManualInvitationAsync(Entity.INN, Entity.KPP, Entity.EdoOperator.Code, email.Address, document.FileName, document.ByteFile).Result;
+					var organization = UoW.GetById <Organization> (_organizationParametersProvider.VodovozOrganizationId);
+
+					resultMessage = _contactListService.SendContactsForManualInvitationAsync(Entity.INN, Entity.KPP, organization.Name, Entity.EdoOperator.Code, email.Address, document.FileName, document.ByteFile).Result;
 				}
 				else
 				{

@@ -13,7 +13,8 @@ namespace EdoService.Services
 		Task<ResultDto> SendContactsAsync(string inn, string kpp, string email, string edxClientId);
 		Task<ResultDto> SendContactsAsync(ContactList invitationsList);
 		ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode);
-		Task<ResultDto> SendContactsForManualInvitationAsync(string inn, string kpp, string operatorId, string email, string scanFileName,
+		Task<ResultDto> SendContactsForManualInvitationAsync(string inn, string kpp, string organizationName, string operatorId,
+			string email, string scanFileName,
 			byte[] scanFile);
 	}
 }
