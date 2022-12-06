@@ -155,9 +155,10 @@ parallel (
 					DeployWebService('UnsubscribePage')
 					DeployWebService('DeliveryRulesService')
 					DeployWebService('RoboAtsService')
+					DeployWebService('TaxcomEdoApi')
 					DeployWebService('TrueMarkAPI')
 					DeployWebService('PayPageAPI')
-					DeployWebService('TaxcomEdoApi')
+					
 				}
 				else
 				{
