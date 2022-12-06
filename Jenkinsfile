@@ -192,7 +192,7 @@ def PublishBuildWebService(serviceName, csprojPath, outputPath) {
 	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
 	
 	echo "Publish ${serviceName} to folder (${env.BRANCH_NAME})"
-	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=FolderProfile -maxcpucount:2'
+	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile -maxcpucount:2'
 
 	
 	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
