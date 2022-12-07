@@ -72,15 +72,15 @@ namespace PayPageAPI.Models
 		{
 			if(organization == null || organization.Id == _organizationParametersProvider.VodovozNorthOrganizationId)
 			{
-				OfertaUrl = "pdf/Оферта_ВВ_Север.pdf";
+				OfertaUrl = "pdf/offer_vv_north.pdf";
 			}
 			else if(organization.Id == _organizationParametersProvider.VodovozSouthOrganizationId)
 			{
-				OfertaUrl = "pdf/Оферта_ВВ_Юг.pdf";
+				OfertaUrl = "pdf/offer_vv_south.pdf";
 			}
 			else
 			{
-				OfertaUrl = "pdf/Оферта_Мир_напитков.pdf";
+				OfertaUrl = "pdf/offer_world_of_drinks.pdf";
 			}
 		}
 
