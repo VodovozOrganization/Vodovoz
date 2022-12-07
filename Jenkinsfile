@@ -40,7 +40,7 @@ parallel (
 			}
 
 			stage('Build WEB'){
-				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/ || env.BRANCH_NAME ==~ /^[Hh]otfix(.*?)/)
+				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{				
 					PublishBuildWebService('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0_publish')
@@ -104,8 +104,7 @@ parallel (
 						env.BRANCH_NAME == 'master'
 						|| env.BRANCH_NAME == 'develop'
 						|| env.BRANCH_NAME == 'Beta'
-						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
-						|| env.BRANCH_NAME ==~ /^[Hh]otfix(.*?)/)
+						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 					{
 						def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
 						echo "Deploy branch " + env.BRANCH_NAME
@@ -145,7 +144,7 @@ parallel (
 	"WEB" : {
 		node('WIN_WEB_RUNTIME'){
 			stage('Deploy WEB'){
-				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/ || env.BRANCH_NAME ==~ /^[Hh]otfix(.*?)/)
+				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{
 					copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
