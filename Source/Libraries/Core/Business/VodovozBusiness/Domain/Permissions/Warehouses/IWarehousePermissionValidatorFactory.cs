@@ -1,7 +1,10 @@
-﻿namespace Vodovoz.Domain.Permissions.Warehouses
+﻿using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories.Permissions;
+
+namespace Vodovoz.Domain.Permissions.Warehouses
 {
 	public interface IWarehousePermissionValidatorFactory
 	{
-		IWarehousePermissionValidator CreateValidator(Subdivision subdivision);
+		IWarehousePermissionValidator CreateValidator(IUnitOfWorkFactory unitOfWorkFactory, IPermissionRepository permissionRepository);
 	}
 }

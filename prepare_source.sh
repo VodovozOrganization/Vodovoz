@@ -18,18 +18,7 @@ rm -v -f -R ./Source/Libraries/External/QSProjects/packages/*
 rm -v -f -R ./Source/Libraries/External/My-FyiReporting/packages/*
 ;;&
     *1*)
-git pull --autostash
-cd /Source/Libraries/External/GammaBinding
-git pull --autostash
-cd /Source/Libraries/External/GMap.NET
-git pull --autostash
-cd /Source/Libraries/External/Gtk.DataBindings
-git pull --autostash
-cd /Source/Libraries/External/My-FyiReporting
-git pull --autostash
-cd /Source/Libraries/External/QSProjects
-git pull --autostash
-cd /Source/Vodovoz
+git pull --autostash --recurse-submodules -j8
 ;;&
     *2*)
 nuget restore ./Source/Vodovoz.sln;

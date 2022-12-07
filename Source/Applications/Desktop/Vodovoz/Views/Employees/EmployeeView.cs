@@ -103,6 +103,13 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
+			
+			comboDriverOfCarOwnType.ShowSpecialStateNot = true;
+			comboDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);
+			comboDriverOfCarOwnType.Binding
+				.AddBinding(ViewModel.Entity, e => e.DriverOfCarOwnType, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
+				.InitializeFromSource();
 
 			checkVisitingMaster.Binding
 				.AddBinding(ViewModel.Entity, e => e.VisitingMaster, w => w.Active)

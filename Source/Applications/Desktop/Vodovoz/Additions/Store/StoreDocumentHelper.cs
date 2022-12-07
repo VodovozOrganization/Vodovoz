@@ -34,7 +34,10 @@ namespace Vodovoz.Additions.Store
 
 			if(WarehousePermissions.WarehousePermissions.Count(x => x.WarehousePermissionType == edit) == 1)
 			{
-				return WarehousePermissions.WarehousePermissions.First(x => x.WarehousePermissionType == edit).Warehouse;
+				var warehouse =
+					WarehousePermissions.WarehousePermissions.First(x => x.WarehousePermissionType == edit).Warehouse;
+				
+				return uow.GetById<Warehouse>(warehouse.Id);
 			}
 
 			return null;
@@ -130,9 +133,18 @@ namespace Vodovoz.Additions.Store
 			warehouses = warehouses.Where(x => x != null).ToArray();
 			if(warehouses.Any())
 			{
-				return warehouses.Any(
-					x => WarehousePermissions.WarehousePermissions.SingleOrDefault(
-						y=>y.WarehousePermissionType == edit && y.Warehouse.Id == x.Id).PermissionValue.Value);
+				foreach(var warehouse in warehouses)
+				{
+					var warehousePermission = WarehousePermissions.WarehousePermissions.FirstOrDefault(
+						x => x.WarehousePermissionType == edit && x.Warehouse.Id == warehouse.Id);
+
+					if(warehousePermission?.PermissionValue != null && warehousePermission.PermissionValue.Value)
+					{
+						return warehousePermission.PermissionValue.Value;
+					}
+				}
+				
+				return false;
 			}
 
 			return WarehousePermissions.WarehousePermissions.Any(x => x.WarehousePermissionType == edit);
