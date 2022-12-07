@@ -356,14 +356,18 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual void UpdateComplaintStatus()
 		{
-			if(ObservableComplaintDiscussions.Any(x => x.Status == ComplaintDiscussionStatuses.InProcess))
+			if(ObservableComplaintDiscussions.Any(x => x.Status == ComplaintDiscussionStatuses.Checking))
 			{
-				SetStatus(ComplaintStatuses.InProcess);
+				SetStatus(ComplaintStatuses.WaitingForReaction);
+				return;
 			}
-			else
+
+			if(ObservableComplaintDiscussions.All(x => x.Status == ComplaintDiscussionStatuses.Closed))
 			{
 				SetStatus(ComplaintStatuses.Checking);
+				return;
 			}
+			SetStatus(ComplaintStatuses.InProcess);
 		}
 
 		public virtual IList<string> SetStatus(ComplaintStatuses newStatus)
