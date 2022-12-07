@@ -2,19 +2,21 @@
 
 namespace Vodovoz.Domain.Complaints
 {
-	public enum ComplaintDiscussionStatuses
+	public enum ComplaintStatuses
 	{
 		[Display(Name = "В работе")]
 		InProcess,
 		[Display(Name = "На проверке")]
 		Checking,
+		[Display(Name = "Ожидает реакции")]
+		WaitingForReaction,
 		[Display(Name = "Закрыт")]
 		Closed
 	}
 
-	public class ComplaintDiscussionStatusesStringType : NHibernate.Type.EnumStringType
+	public class ComplaintStatusesStringType : NHibernate.Type.EnumStringType
 	{
-		public ComplaintDiscussionStatusesStringType() : base(typeof(ComplaintDiscussionStatuses))
+		public ComplaintStatusesStringType() : base(typeof(ComplaintStatuses))
 		{
 		}
 	}

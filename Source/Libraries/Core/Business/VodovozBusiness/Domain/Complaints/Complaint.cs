@@ -356,7 +356,7 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual void UpdateComplaintStatus()
 		{
-			if(ObservableComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess))
+			if(ObservableComplaintDiscussions.Any(x => x.Status == ComplaintDiscussionStatuses.InProcess))
 			{
 				SetStatus(ComplaintStatuses.InProcess);
 			}

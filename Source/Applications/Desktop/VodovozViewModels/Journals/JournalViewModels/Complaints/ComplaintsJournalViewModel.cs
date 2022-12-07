@@ -198,7 +198,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			var workInSubdivisionsSubQuery = QueryOver.Of<Subdivision>(() => subdivisionAlias)
 				.Where(() => subdivisionAlias.Id == discussionAlias.Subdivision.Id)
-				.Where(() => discussionAlias.Status == ComplaintStatuses.InProcess)
+				.Where(() => discussionAlias.Status == ComplaintDiscussionStatuses.InProcess)
 				.Select(Projections.Conditional(
 					Restrictions.IsNotNull(Projections.Property(() => subdivisionAlias.ShortName)),
 					Projections.Property(() => subdivisionAlias.ShortName),
