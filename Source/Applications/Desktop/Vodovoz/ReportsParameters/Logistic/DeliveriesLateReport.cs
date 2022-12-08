@@ -17,8 +17,7 @@ namespace Vodovoz.Reports.Logistic
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ySpecCmbGeographicGroup.ItemsList = UoW.GetAll<GeoGroup>();
 
-			ycheckAllSelect.Toggled += (s, e) => SetIntervalAvailability();
-			ycheckOnlyFastSelect.Toggled += (s, e) => SetIntervalAvailability();
+			ycheckWithoutFastSelect.Toggled += (s, e) => SetIntervalAvailability();
 		}
 
 		#region IParametersWidget implementation
@@ -86,12 +85,25 @@ namespace Vodovoz.Reports.Logistic
 			WithoutDeliveryInAnHour
 		}
 
-		private IntervalSelectMode GetIntervalSelectMode() => ycheckIntervalFromCreateTime.Active ? IntervalSelectMode.Create : IntervalSelectMode.Transfer;
-		
+		private IntervalSelectMode GetIntervalSelectMode()
+		{
+			if(ycheckIntervalFromFirstAddress.Active)
+			{
+				return IntervalSelectMode.FirstAddress;
+			}
+			if(ycheckIntervalFromTransferTime.Active)
+			{
+				return IntervalSelectMode.Transfer;
+			}
+
+			return IntervalSelectMode.Create;
+		}
+
 		private enum IntervalSelectMode
 		{
 			Create,
-			Transfer
+			Transfer,
+			FirstAddress
 		}
 	}
 }

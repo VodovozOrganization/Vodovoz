@@ -13,5 +13,6 @@
 		string TrueMarkApiParticipantRegistrationForWaterUri { get; }
 		string TrueMarkApiToken { get; }
 		int EdoCheckPeriodDays { get; }
+		int TaxcomManualInvitationFileId { get; }
 	}
 }

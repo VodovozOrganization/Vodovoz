@@ -388,6 +388,17 @@ namespace Vodovoz
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard
 				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
 			{
+				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
+
+				var copiedPaymentByCardFrom = copying.GetCopiedOrder.PaymentByCardFrom;
+
+				if(!currentPaymentFromTypes
+					.Contains(copiedPaymentByCardFrom))
+				{
+					currentPaymentFromTypes.Add(copiedPaymentByCardFrom);
+					ySpecPaymentFrom.ItemsList = currentPaymentFromTypes;
+				}
+				
 				copying.CopyPaymentByCardDataIfPossible();
 			}
 
@@ -458,10 +469,15 @@ namespace Vodovoz
 
 			spinDiscount.Adjustment.Upper = 100;
 
-			if(Entity.PreviousOrder != null) {
+			if(Entity.PreviousOrder != null)
+			{
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
-			} else
+			}
+			else
+			{
 				labelPreviousOrder.Visible = false;
+			}
+
 			hboxStatusButtons.Visible = _orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
 				|| Entity.OrderStatus == OrderStatus.Canceled
 				|| Entity.OrderStatus == OrderStatus.Closed
@@ -700,7 +716,9 @@ namespace Vodovoz
 			if(Entity.DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c)) {
 				var deliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c);
 				if(deliveryPoint != null)
+				{
 					Entity.DeliveryPoint = deliveryPoint;
+				}
 			}
 
 			OrderItemEquipmentCountHasChanges = false;
@@ -721,7 +739,9 @@ namespace Vodovoz
 			yCmbReturnTareReasons.SetRenderTextFunc<ReturnTareReason>(x => x.Name);
 
 			if(Entity.ReturnTareReasonCategory != null)
+			{
 				ChangeHboxReasonsVisibility();
+			}
 
 			yCmbReturnTareReasons.Binding.AddBinding(Entity, e => e.ReturnTareReason, w => w.SelectedItem).InitializeFromSource();
 

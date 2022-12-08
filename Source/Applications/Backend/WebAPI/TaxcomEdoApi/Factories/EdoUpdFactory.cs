@@ -139,7 +139,7 @@ namespace TaxcomEdoApi.Factories
 			{
 				new FajlDokumentPodpisant
 				{
-					OblPoln = FajlDokumentPodpisantOblPoln.Item0,
+					OblPoln = FajlDokumentPodpisantOblPoln.Item5,
 					Status = FajlDokumentPodpisantStatus.Item1,
 					OsnPoln = "Должностные обязанности",
 					Item = new FajlDokumentPodpisantJuL

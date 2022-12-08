@@ -72,7 +72,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatable5 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.datatable5 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
 			this.datatable5.Name = "datatable5";
 			this.datatable5.RowSpacing = ((uint)(6));
 			this.datatable5.ColumnSpacing = ((uint)(6));
@@ -122,20 +122,17 @@ namespace Vodovoz
 			w9.BottomAttach = ((uint)(2));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable5.Gtk.Table+TableChild
+			this.vbox1.Add(this.datatable5);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.datatable5]));
+			w10.Position = 1;
+			w10.Expand = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.productspecificationmaterialsview1 = new global::Vodovoz.ProductSpecificationMaterialsView();
 			this.productspecificationmaterialsview1.Events = ((global::Gdk.EventMask)(256));
 			this.productspecificationmaterialsview1.Name = "productspecificationmaterialsview1";
-			this.datatable5.Add(this.productspecificationmaterialsview1);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable5[this.productspecificationmaterialsview1]));
-			w10.TopAttach = ((uint)(2));
-			w10.BottomAttach = ((uint)(3));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox1.Add(this.datatable5);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.datatable5]));
-			w11.Position = 1;
+			this.vbox1.Add(this.productspecificationmaterialsview1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.productspecificationmaterialsview1]));
+			w11.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
