@@ -1,15 +1,13 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Complaints
@@ -25,236 +23,283 @@ namespace Vodovoz.Domain.Complaints
 	public class Complaint : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject
 	{
 		private const int _phoneLimit = 45;
+		private DateTime _version;
+		private Employee _createdBy;
+		private DateTime _creationDate;
+		private Employee _changedBy;
+		private DateTime _changedDate;
+		private ComplaintType _complaintType;
+		private Counterparty _counterparty;
+		private DeliveryPoint _deliveryPoint;
+		private string _complainantName;
+		private string _complaintText;
+		private Order _order;
+		private string _phone;
+		private ComplaintSource _complaintSource;
+		private ComplaintStatuses _status;
+		private DateTime _plannedCompletionDate;
+		private string _resultText;
+		private ComplaintResultOfCounterparty _complaintResultOfCounterparty;
+		private ComplaintResultOfEmployees _complaintResultOfEmployees;
+		private DateTime? _actualCompletionDate;
+		private ComplaintKind _complaintKind;
+		private string _arrangement;
+		private int _driverRating;
+		private IList<Fine> _fines = new List<Fine>();
+		private GenericObservableList<Fine> _observableFines;
+		private IList<ComplaintDiscussion> _complaintDiscussions = new List<ComplaintDiscussion>();
+		private GenericObservableList<ComplaintDiscussion> _observableComplaintDiscussions;
+		private IList<ComplaintGuiltyItem> _guilties = new List<ComplaintGuiltyItem>();
+		private GenericObservableList<ComplaintGuiltyItem> _observableGuilties;
+		private IList<ComplaintFile> _files = new List<ComplaintFile>();
+		private GenericObservableList<ComplaintFile> _observableFiles;
 
 		public virtual int Id { get; set; }
 
-		DateTime version;
 		[Display(Name = "Версия")]
-		public virtual DateTime Version {
-			get => version;
-			set => SetField(ref version, value, () => Version);
+		public virtual DateTime Version
+		{
+			get => _version;
+			set => SetField(ref _version, value);
 		}
 
-		private Employee createdBy;
 		[Display(Name = "Кем создан")]
-		public virtual Employee CreatedBy {
-			get => createdBy;
-			set => SetField(ref createdBy, value, () => CreatedBy);
+		public virtual Employee CreatedBy
+		{
+			get => _createdBy;
+			set => SetField(ref _createdBy, value);
 		}
 
-		private DateTime creationDate;
 		[Display(Name = "Дата создания")]
-		public virtual DateTime CreationDate {
-			get => creationDate;
-			set => SetField(ref creationDate, value, () => CreationDate);
+		public virtual DateTime CreationDate
+		{
+			get => _creationDate;
+			set => SetField(ref _creationDate, value);
 		}
 
-		private Employee changedBy;
 		[Display(Name = "Кем изменен")]
-		public virtual Employee ChangedBy {
-			get => changedBy;
-			set => SetField(ref changedBy, value, () => ChangedBy);
+		public virtual Employee ChangedBy
+		{
+			get => _changedBy;
+			set => SetField(ref _changedBy, value);
 		}
 
-		private DateTime changedDate;
 		[Display(Name = "Дата изменения")]
-		public virtual DateTime ChangedDate {
-			get => changedDate;
-			set => SetField(ref changedDate, value, () => ChangedDate);
+		public virtual DateTime ChangedDate
+		{
+			get => _changedDate;
+			set => SetField(ref _changedDate, value);
 		}
 
-		private ComplaintType complaintType;
 		[Display(Name = "Тип рекламации")]
-		public virtual ComplaintType ComplaintType {
-			get => complaintType;
-			set => SetField(ref complaintType, value, () => ComplaintType);
+		public virtual ComplaintType ComplaintType
+		{
+			get => _complaintType;
+			set => SetField(ref _complaintType, value);
 		}
 
-		private Counterparty counterparty;
 		[Display(Name = "Клиент")]
-		public virtual Counterparty Counterparty {
-			get => counterparty;
-			set => SetField(ref counterparty, value, () => Counterparty);
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
-		DeliveryPoint deliveryPoint;
 		[Display(Name = "Точка доставки")]
-		public virtual DeliveryPoint DeliveryPoint {
-			get => deliveryPoint;
-			set => SetField(ref deliveryPoint, value);
+		public virtual DeliveryPoint DeliveryPoint
+		{
+			get => _deliveryPoint;
+			set => SetField(ref _deliveryPoint, value);
 		}
 
-		private string complainantName;
 		[Display(Name = "Имя заявителя рекламации")]
-		public virtual string ComplainantName {
-			get => complainantName;
-			set => SetField(ref complainantName, value, () => ComplainantName);
+		public virtual string ComplainantName
+		{
+			get => _complainantName;
+			set => SetField(ref _complainantName, value);
 		}
 
-		private string complaintText;
 		[Display(Name = "Текст рекламации")]
-		public virtual string ComplaintText {
-			get => complaintText;
-			set => SetField(ref complaintText, value, () => ComplaintText);
+		public virtual string ComplaintText
+		{
+			get => _complaintText;
+			set => SetField(ref _complaintText, value);
 		}
 
-		private Order order;
 		[Display(Name = "Заказ")]
-		public virtual Order Order {
-			get => order;
-			set => SetField(ref order, value);
+		public virtual Order Order
+		{
+			get => _order;
+			set => SetField(ref _order, value);
 		}
 
-		private string phone;
 		[Display(Name = "Телефон")]
-		public virtual string Phone {
-			get => phone;
-			set => SetField(ref phone, value, () => Phone);
+		public virtual string Phone
+		{
+			get => _phone;
+			set => SetField(ref _phone, value);
 		}
 
-		private ComplaintSource complaintSource;
 		[Display(Name = "Источник")]
-		public virtual ComplaintSource ComplaintSource {
-			get => complaintSource;
-			set => SetField(ref complaintSource, value, () => ComplaintSource);
+		public virtual ComplaintSource ComplaintSource
+		{
+			get => _complaintSource;
+			set => SetField(ref _complaintSource, value);
 		}
 
-		private ComplaintStatuses status;
 		[Display(Name = "Статус")]
-		public virtual ComplaintStatuses Status {
-			get => status;
-			protected set => SetField(ref status, value, () => Status);
+		public virtual ComplaintStatuses Status
+		{
+			get => _status;
+			protected set => SetField(ref _status, value);
 		}
 
-		private DateTime plannedCompletionDate;
 		[Display(Name = "Дата планируемого завершения")]
-		public virtual DateTime PlannedCompletionDate {
-			get => plannedCompletionDate;
-			set => SetField(ref plannedCompletionDate, value, () => PlannedCompletionDate);
+		public virtual DateTime PlannedCompletionDate
+		{
+			get => _plannedCompletionDate;
+			set => SetField(ref _plannedCompletionDate, value);
 		}
 
-		private string resultText;
 		[Display(Name = "Описание результата")]
-		public virtual string ResultText {
-			get => resultText;
-			set => SetField(ref resultText, value, () => ResultText);
+		public virtual string ResultText
+		{
+			get => _resultText;
+			set => SetField(ref _resultText, value);
 		}
 
-		private ComplaintResultOfCounterparty _complaintResultOfCounterparty;
 		[Display(Name = "Результат по клиенту")]
-		public virtual ComplaintResultOfCounterparty ComplaintResultOfCounterparty {
+		public virtual ComplaintResultOfCounterparty ComplaintResultOfCounterparty
+		{
 			get => _complaintResultOfCounterparty;
-			set => SetField(ref _complaintResultOfCounterparty, value, () => ComplaintResultOfCounterparty);
+			set => SetField(ref _complaintResultOfCounterparty, value);
 		}
-		
-		private ComplaintResultOfEmployees _complaintResultOfEmployees;
+
 		[Display(Name = "Результат по сотрудникам")]
-		public virtual ComplaintResultOfEmployees ComplaintResultOfEmployees {
+		public virtual ComplaintResultOfEmployees ComplaintResultOfEmployees
+		{
 			get => _complaintResultOfEmployees;
 			set => SetField(ref _complaintResultOfEmployees, value);
 		}
 
-		private DateTime? actualCompletionDate;
 		[Display(Name = "Дата фактического завершения")]
-		public virtual DateTime? ActualCompletionDate {
-			get => actualCompletionDate;
-			set => SetField(ref actualCompletionDate, value, () => ActualCompletionDate);
+		public virtual DateTime? ActualCompletionDate
+		{
+			get => _actualCompletionDate;
+			set => SetField(ref _actualCompletionDate, value);
 		}
 
-		ComplaintKind complaintKind;
 		[Display(Name = "Вид рекламации")]
-		public virtual ComplaintKind ComplaintKind {
-			get => complaintKind;
-			set => SetField(ref complaintKind, value);
+		public virtual ComplaintKind ComplaintKind
+		{
+			get => _complaintKind;
+			set => SetField(ref _complaintKind, value);
 		}
 
-		string arrangement;
 		[Display(Name = "Мероприятия")]
-		public virtual string Arrangement {
-			get => arrangement;
-			set => SetField(ref arrangement, value);
+		public virtual string Arrangement
+		{
+			get => _arrangement;
+			set => SetField(ref _arrangement, value);
 		}
 
-		int driverRating;
 		[Display(Name = "Оценка водителя")]
 		public virtual int DriverRating
 		{
-			get => driverRating;
-			set => SetField(ref driverRating, value);
+			get => _driverRating;
+			set => SetField(ref _driverRating, value);
 		}
 
-		IList<Fine> fines = new List<Fine>();
 		[Display(Name = "Штрафы")]
-		public virtual IList<Fine> Fines {
-			get => fines;
-			set => SetField(ref fines, value, () => Fines);
+		public virtual IList<Fine> Fines
+		{
+			get => _fines;
+			set => SetField(ref _fines, value);
 		}
 
-		GenericObservableList<Fine> observableFines;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Fine> ObservableFines {
-			get {
-				if(observableFines == null)
-					observableFines = new GenericObservableList<Fine>(Fines);
-				return observableFines;
+		public virtual GenericObservableList<Fine> ObservableFines
+		{
+			get
+			{
+				if(_observableFines == null)
+				{
+					_observableFines = new GenericObservableList<Fine>(Fines);
+				}
+
+				return _observableFines;
 			}
 		}
 
-		IList<ComplaintDiscussion> complaintDiscussions = new List<ComplaintDiscussion>();
 		[Display(Name = "Обсуждения")]
-		public virtual IList<ComplaintDiscussion> ComplaintDiscussions {
-			get => complaintDiscussions;
-			set => SetField(ref complaintDiscussions, value, () => ComplaintDiscussions);
+		public virtual IList<ComplaintDiscussion> ComplaintDiscussions
+		{
+			get => _complaintDiscussions;
+			set => SetField(ref _complaintDiscussions, value);
 		}
 
-		GenericObservableList<ComplaintDiscussion> observableComplaintDiscussions;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintDiscussion> ObservableComplaintDiscussions {
-			get {
-				if(observableComplaintDiscussions == null)
-					observableComplaintDiscussions = new GenericObservableList<ComplaintDiscussion>(ComplaintDiscussions);
-				return observableComplaintDiscussions;
+		public virtual GenericObservableList<ComplaintDiscussion> ObservableComplaintDiscussions
+		{
+			get
+			{
+				if(_observableComplaintDiscussions == null)
+				{
+					_observableComplaintDiscussions = new GenericObservableList<ComplaintDiscussion>(ComplaintDiscussions);
+				}
+
+				return _observableComplaintDiscussions;
 			}
 		}
 
-		IList<ComplaintGuiltyItem> guilties = new List<ComplaintGuiltyItem>();
 		[Display(Name = "Ответственные в рекламации")]
-		public virtual IList<ComplaintGuiltyItem> Guilties {
-			get => guilties;
-			set => SetField(ref guilties, value, () => Guilties);
+		public virtual IList<ComplaintGuiltyItem> Guilties
+		{
+			get => _guilties;
+			set => SetField(ref _guilties, value);
 		}
 
-		GenericObservableList<ComplaintGuiltyItem> observableGuilties;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintGuiltyItem> ObservableGuilties {
-			get {
-				if(observableGuilties == null)
-					observableGuilties = new GenericObservableList<ComplaintGuiltyItem>(Guilties);
-				return observableGuilties;
+		public virtual GenericObservableList<ComplaintGuiltyItem> ObservableGuilties
+		{
+			get
+			{
+				if(_observableGuilties == null)
+				{
+					_observableGuilties = new GenericObservableList<ComplaintGuiltyItem>(Guilties);
+				}
+
+				return _observableGuilties;
 			}
 		}
 
-		IList<ComplaintFile> files = new List<ComplaintFile>();
 		[Display(Name = "Файлы")]
-		public virtual IList<ComplaintFile> Files {
-			get => files;
-			set => SetField(ref files, value, () => Files);
+		public virtual IList<ComplaintFile> Files
+		{
+			get => _files;
+			set => SetField(ref _files, value);
 		}
 
-		GenericObservableList<ComplaintFile> observableFiles;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintFile> ObservableFiles {
-			get {
-				if(observableFiles == null)
-					observableFiles = new GenericObservableList<ComplaintFile>(Files);
-				return observableFiles;
+		public virtual GenericObservableList<ComplaintFile> ObservableFiles
+		{
+			get
+			{
+				if(_observableFiles == null)
+				{
+					_observableFiles = new GenericObservableList<ComplaintFile>(Files);
+				}
+
+				return _observableFiles;
 			}
 		}
 
+		public virtual string Title => string.Format("Рекламация №{0}", Id);
 
 		public virtual void AddFine(Fine fine)
 		{
-			if(ObservableFines.Contains(fine)) {
+			if(ObservableFines.Contains(fine))
+			{
 				return;
 			}
 			ObservableFines.Add(fine);
@@ -262,14 +307,16 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual void RemoveFine(Fine fine)
 		{
-			if(ObservableFines.Contains(fine)) {
+			if(ObservableFines.Contains(fine))
+			{
 				ObservableFines.Remove(fine);
 			}
 		}
 
 		public virtual void AddFile(ComplaintFile file)
 		{
-			if(ObservableFiles.Contains(file)) {
+			if(ObservableFiles.Contains(file))
+			{
 				return;
 			}
 			file.Complaint = this;
@@ -278,26 +325,31 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual void RemoveFile(ComplaintFile file)
 		{
-			if(ObservableFiles.Contains(file)) {
+			if(ObservableFiles.Contains(file))
+			{
 				ObservableFiles.Remove(file);
 			}
 		}
 
 		public virtual void AttachSubdivisionToDiscussions(Subdivision subdivision)
 		{
-			if(subdivision == null) {
+			if(subdivision == null)
+			{
 				throw new ArgumentNullException(nameof(subdivision));
 			}
 
-			if(ObservableComplaintDiscussions.Any(x => x.Subdivision.Id == subdivision.Id)) {
+			if(ObservableComplaintDiscussions.Any(x => x.Subdivision.Id == subdivision.Id))
+			{
 				return;
 			}
 
-			ComplaintDiscussion newDiscussion = new ComplaintDiscussion();
-			newDiscussion.StartSubdivisionDate = DateTime.Now;
-			newDiscussion.PlannedCompletionDate = DateTime.Today;
-			newDiscussion.Complaint = this;
-			newDiscussion.Subdivision = subdivision;
+			ComplaintDiscussion newDiscussion = new ComplaintDiscussion
+			{
+				StartSubdivisionDate = DateTime.Now,
+				PlannedCompletionDate = DateTime.Today,
+				Complaint = this,
+				Subdivision = subdivision
+			};
 			ObservableComplaintDiscussions.Add(newDiscussion);
 			SetStatus(ComplaintStatuses.InProcess);
 		}
@@ -305,21 +357,25 @@ namespace Vodovoz.Domain.Complaints
 		public virtual void UpdateComplaintStatus()
 		{
 			if(ObservableComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess))
+			{
 				SetStatus(ComplaintStatuses.InProcess);
+			}
 			else
+			{
 				SetStatus(ComplaintStatuses.Checking);
+			}
 		}
 
 		public virtual IList<string> SetStatus(ComplaintStatuses newStatus)
 		{
-			IList<string> result = new List<string>();
+			List<string> result = new List<string>();
 			if(newStatus == ComplaintStatuses.Closed)
 			{
 				if(ComplaintResultOfCounterparty == null)
 				{
 					result.Add("Заполните поле \"Итог работы по клиенту\".");
 				}
-				
+
 				if(ComplaintResultOfEmployees == null)
 				{
 					result.Add("Заполните поле \"Итог работы по сотрудникам\".");
@@ -339,12 +395,12 @@ namespace Vodovoz.Domain.Complaints
 			return result;
 		}
 
-		public virtual string Title => string.Format("Рекламация №{0}", Id);
 
 		public virtual string GetFineReason()
 		{
 			string result = $"Рекламация №{Id} от {CreationDate.ToShortDateString()}";
-			if(Counterparty == null && Order == null) {
+			if(Counterparty == null && Order == null)
+			{
 				return result;
 			}
 			string clientName = Counterparty == null ? Order.Client.Name : Counterparty.Name;
@@ -354,8 +410,9 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual bool Close(ref string message)
 		{
-			var res = SetStatus(ComplaintStatuses.Closed);
-			if(!res.Any()) {
+			IList<string> res = SetStatus(ComplaintStatuses.Closed);
+			if(!res.Any())
+			{
 				ActualCompletionDate = DateTime.Now;
 				return true;
 			}
@@ -367,30 +424,33 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(string.IsNullOrWhiteSpace(ComplaintText)) {
+			if(string.IsNullOrWhiteSpace(ComplaintText))
+			{
 				yield return new ValidationResult("Необходимо ввести текст рекламации");
 			}
 
-			if(ComplaintType == ComplaintType.Client) {
-				if(ComplaintSource == null) {
+			if(ComplaintType == ComplaintType.Client)
+			{
+				if(ComplaintSource == null)
+				{
 					yield return new ValidationResult("Необходимо выбрать источник");
 				}
 			}
-			
+
 			if(Phone != null && Phone.Length > _phoneLimit)
 			{
 				yield return new ValidationResult($"Длина поля телефон превышена на {Phone.Length - _phoneLimit}",
 					new[] { nameof(Phone) });
 			}
 
-			if(Status == ComplaintStatuses.Closed) 
+			if(Status == ComplaintStatuses.Closed)
 			{
 				if(ComplaintResultOfCounterparty == null)
 				{
 					yield return new ValidationResult(
 						"Заполните поле \"Итог работы по клиенту\".", new[] { nameof(ComplaintResultOfCounterparty) });
 				}
-				
+
 				if(ComplaintResultOfEmployees == null)
 				{
 					yield return new ValidationResult(
