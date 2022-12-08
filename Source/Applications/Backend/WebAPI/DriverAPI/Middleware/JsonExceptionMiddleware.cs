@@ -19,32 +19,47 @@ namespace DriverAPI.Middleware
 			_next = next ?? throw new ArgumentNullException(nameof(next));
 		}
 
+		// TODO: Убрать эти костыли и переработать API
 		public async Task Invoke(HttpContext context)
 		{
 			try
 			{
 				await _next(context);
 			}
+			catch(UnauthorizedAccessException exception)
+			{
+				await MapException(context, exception, StatusCodes.Status401Unauthorized);
+			}
+			catch(ArgumentOutOfRangeException exception) when (exception.ParamName == "orderId" && exception.Message.StartsWith("Нельзя завершить заказ"))
+			{
+				await MapException(context, exception, StatusCodes.Status202Accepted);
+			}
+			catch(InvalidOperationException exception) when (exception.Message == "Таймаут запроса операции")
+			{
+				await MapException(context, exception, StatusCodes.Status202Accepted);
+			}
+			catch(InvalidTimeZoneException exception)
+			{
+				await MapException(context, exception, StatusCodes.Status202Accepted);
+			}
 			catch(Exception exception)
 			{
-				var code = StatusCodes.Status500InternalServerError;
-
-				_logger.LogError(exception, exception.Message);
-
-				if(exception is UnauthorizedAccessException)
-				{
-					code = StatusCodes.Status401Unauthorized;
-				}
-
-				context.Response.StatusCode = code;
-				context.Response.ContentType = "application/json; charset=utf-8";
-
-				await context.Response.Body.FlushAsync();
-
-				await context.Response.Body
-					.WriteAsync(Encoding.UTF8.GetBytes(JsonSerializer
-						.Serialize(new ErrorResponseDto(exception.Message))));
+				await MapException(context, exception, StatusCodes.Status500InternalServerError);
 			}
+		}
+
+		private async Task MapException(HttpContext context, Exception exception, int code)
+		{
+			_logger.LogError(exception, exception.Message);
+
+			context.Response.StatusCode = code;
+			context.Response.ContentType = "application/json; charset=utf-8";
+
+			await context.Response.Body.FlushAsync();
+
+			await context.Response.Body
+				.WriteAsync(Encoding.UTF8.GetBytes(JsonSerializer
+					.Serialize(new ErrorResponseDto(exception.Message))));
 		}
 	}
 }
