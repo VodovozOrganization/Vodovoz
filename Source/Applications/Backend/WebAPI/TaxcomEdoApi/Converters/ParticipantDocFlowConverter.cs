@@ -40,7 +40,7 @@ namespace TaxcomEdoApi.Converters
 						},
 						Adres = new AdresTip
 						{
-							Item = GetCustomAddress(deliveryPoint != null ? deliveryPoint.CompiledAddress : client.JurAddress)
+							Item = GetCustomAddress(deliveryPoint != null ? deliveryPoint.ShortAddress : client.JurAddress)
 						}
 					};
 				case CargoReceiverSource.Special:
