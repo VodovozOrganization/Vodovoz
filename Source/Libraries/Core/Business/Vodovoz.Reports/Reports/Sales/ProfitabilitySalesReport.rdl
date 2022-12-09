@@ -1469,7 +1469,7 @@ FROM
     LEFT JOIN
     orders o ON order_id = o.id
  	LEFT JOIN
- 	route_list_addresses rla ON rla.order_id = o.id AND rla.status != 'Transfered'
+ 	route_list_addresses rla ON rla.order_id = o.id AND rla.status  not in ('Transfered', 'Canceled', 'Overdue')
     LEFT JOIN
     nomenclature n ON oi.nomenclature_id = n.id
     LEFT JOIN 
