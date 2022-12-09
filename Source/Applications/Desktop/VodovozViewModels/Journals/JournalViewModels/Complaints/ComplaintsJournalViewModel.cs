@@ -212,15 +212,32 @@ namespace Vodovoz.Journals.JournalViewModels
 				Projections.SubQuery(workInSubdivisionsSubQuery),
 				Projections.Constant(", "));
 
-			string okkSubdivision = uow.GetById<Subdivision>(_subdivisionParametersProvider.GetOkkId()).ShortName ?? "?";
+			string subdivisionQualityServiceId = uow.GetById<Subdivision>(_subdivisionParametersProvider.QualityServiceSubdivisionId).ShortName ?? "?"; // СК
+			string subdivisionAuditDepartmentId = uow.GetById<Subdivision>(_subdivisionParametersProvider.AuditDepartmentSubdivisionId).ShortName ?? "?"; // КРО
 
-			var workInSubdivisionsProjection = Projections.SqlFunction(
+			var workInSubdivisionsCheckingProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(',', ?1, IF(?2 = 'Checking',?3, ''))"),
 				NHibernateUtil.String,
 				subdivisionsSubqueryProjection,
 				Projections.Property(() => complaintAlias.Status),
-				Projections.Constant(okkSubdivision)
+				Projections.Constant(subdivisionQualityServiceId)
 			);
+
+			var workInSubdivisionsWaitingForReactionProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(',', ?1, IF(?2 = 'WaitingForReaction',?3, ''))"),
+				NHibernateUtil.String,
+				subdivisionsSubqueryProjection,
+				Projections.Property(() => complaintAlias.Status),
+				Projections.Constant(subdivisionAuditDepartmentId)
+			);
+
+			var workInSubdivisionProjection = Projections.Conditional(
+				Restrictions.Eq(Projections.Property(() => complaintAlias.Status), ComplaintStatuses.Checking),
+				workInSubdivisionsCheckingProjection,
+				Projections.Conditional(
+					Restrictions.Eq(Projections.Property(() => complaintAlias.Status), ComplaintStatuses.WaitingForReaction),
+					workInSubdivisionsWaitingForReactionProjection,
+					subdivisionsSubqueryProjection));
 
 			var plannedCompletionDateProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT DATE_FORMAT(?1, \"%d.%m.%Y\") SEPARATOR ?2)"),
@@ -402,7 +419,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintAlias.CreationDate).WithAlias(() => resultAlias.Date)
 				.Select(() => complaintAlias.ComplaintType).WithAlias(() => resultAlias.Type)
 				.Select(() => complaintAlias.Status).WithAlias(() => resultAlias.Status)
-				.Select(workInSubdivisionsProjection).WithAlias(() => resultAlias.WorkInSubdivision)
+				.Select(workInSubdivisionProjection).WithAlias(() => resultAlias.WorkInSubdivision)
 				.Select(plannedCompletionDateProjection).WithAlias(() => resultAlias.PlannedCompletionDate)
 				.Select(lastPlannedCompletionDateProjection).WithAlias(() => resultAlias.LastPlannedCompletionDate)
 				.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
