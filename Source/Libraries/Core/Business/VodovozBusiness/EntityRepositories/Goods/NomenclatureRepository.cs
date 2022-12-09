@@ -401,7 +401,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(rla => rla.RouteList.Id == routeListId)
-				.And(rla => rla.Status != RouteListItemStatus.Transfered)
+				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
 				.Select(
 					Projections.Sum(
 						Projections.Conditional(
@@ -440,7 +440,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.JoinEntityAlias(() => warehouseAlias,
 					() => carLoadDocumentAlias.Warehouse.Id == warehouseAlias.Id, JoinType.LeftOuterJoin)
 				.Where(rla => rla.RouteList.Id == routeListId)
-				.And(rla => rla.Status != RouteListItemStatus.Transfered)
+				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
 				.And(() => innerDeliveryPriceAlias.StartDate <= date)
 				.And(() => innerDeliveryPriceAlias.EndDate == null || innerDeliveryPriceAlias.EndDate > date)
 				.SelectList(list => list
@@ -470,7 +470,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(rla => rla.RouteList.Id == routeListId)
-				.And(rla => rla.Status != RouteListItemStatus.Transfered)
+				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
 				.SelectList(list => list
 					.Select(Projections.Sum(
 						Projections.SqlFunction(
@@ -524,7 +524,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.JoinEntityAlias(() => warehouseAlias,
 					() => carLoadDocumentAlias.Warehouse.Id == warehouseAlias.Id, JoinType.LeftOuterJoin)
 				.Where(rla => rla.RouteList.Id == routeListId)
-				.And(rla => rla.Status != RouteListItemStatus.Transfered)
+				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
 				.SelectList(list => list
 					.SelectGroup(() => orderItemAlias.Id))
 					.Select(Projections.Sum(

@@ -1185,7 +1185,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			
 			return uow.Session.QueryOver<RouteListItem>()
 				.Where(rla => rla.RouteList.Id == routeListId)
-				.And(rla => rla.Status != RouteListItemStatus.Transfered)
+				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
 				.JoinAlias(rla => rla.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))

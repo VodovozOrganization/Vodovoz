@@ -149,6 +149,17 @@ namespace Vodovoz.Controllers
 			CalculateRouteListProfitabilityGrossMargin(uow, routeList, routeListProfitability, nearestProfitabilityConstants);
 		}
 
+		
+		/// <summary>
+		/// Считаем сумму продаж в МЛ, расходы и валовую маржу с показателем в процентах
+		///
+		/// !!!Важно!!! Если поменяется расчет в отчете <see cref="ProfitabilitySalesReportViewModel"/>, то нужно менять и здесь
+		/// логику расчета и наоборот, при смене алгоритма в контроллере менять его механизм в отчете
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="routeList">МЛ</param>
+		/// <param name="routeListProfitability">Рентабельность МЛ</param>
+		/// <param name="nearestProfitabilityConstants">Ближайшие контсанты рентабельности</param>
 		private void CalculateRouteListProfitabilityGrossMargin(
 			IUnitOfWork uow,
 			RouteList routeList,
