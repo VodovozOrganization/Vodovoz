@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -55,7 +57,8 @@
           </TableColumn>
           <TableColumn>
             <Width>31.5pt</Width>
-            <Visibility></Visibility>
+            <Visibility>
+            </Visibility>
           </TableColumn>
           <TableColumn>
             <Width>32.4pt</Width>
@@ -140,7 +143,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -184,7 +188,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -250,7 +255,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -272,7 +278,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -294,7 +301,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox45">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -316,7 +324,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -338,7 +347,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -360,7 +370,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -455,7 +466,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox139">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -477,7 +489,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox140">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -499,7 +512,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox141">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -521,7 +535,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox142">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -543,7 +558,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox143">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -565,7 +581,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox144">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -587,7 +604,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox145">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -609,7 +627,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox146">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -624,7 +643,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>5pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -655,7 +674,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox148">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -670,7 +690,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>5pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -724,7 +744,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox151">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -739,7 +760,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>5pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -747,7 +768,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox152">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -762,7 +784,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>5pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -770,7 +792,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox153">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -785,7 +808,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>5pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -793,7 +816,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox154">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -808,7 +832,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>5pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -816,7 +840,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox155">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -831,7 +856,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>5pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -839,7 +864,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox156">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -854,7 +880,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>5pt</FontSize>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -936,7 +962,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox72">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -958,7 +985,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox77">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -980,7 +1008,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox82">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1002,7 +1031,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1024,7 +1054,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox92">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1046,7 +1077,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox97">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1068,7 +1100,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox102">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1090,7 +1123,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1112,7 +1146,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox112">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1134,7 +1169,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox117">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1156,7 +1192,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox122">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1178,7 +1215,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox129">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1200,7 +1238,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox130">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1222,7 +1261,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox131">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1244,7 +1284,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox132">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1266,7 +1307,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox133">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1288,7 +1330,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox134">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1310,7 +1353,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox135">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1332,7 +1376,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox136">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1354,7 +1399,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox137">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1376,7 +1422,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox138">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1415,7 +1462,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>6pt</FontSize>
                       </Style>
-                      <Visibility></Visibility>
+                      <Visibility>
+                      </Visibility>
                       <DataElementOutput>NoOutput</DataElementOutput>
                     </Textbox>
                   </ReportItems>
@@ -1810,7 +1858,8 @@
                         <TextAlign>Left</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
-                      <Visibility></Visibility>
+                      <Visibility>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2218,7 +2267,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2240,7 +2290,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2262,7 +2313,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2284,7 +2336,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2306,7 +2359,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2328,7 +2382,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox66">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2502,7 +2557,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>6pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2525,7 +2580,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>6pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2548,7 +2603,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>6pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2571,7 +2626,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>6pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2594,7 +2649,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>6pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2617,7 +2672,7 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>6pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2957,7 +3012,7 @@ Iif(
         <Left>1.9pt</Left>
         <Top>51.5pt</Top>
       </fyi:Grid>
-      <Textbox Name="Textbox7" >
+      <Textbox Name="Textbox7">
         <Height>47.27pt</Height>
         <Width>261.85pt</Width>
         <Value>= 'Внимание! В отчете неверный расчет:\n'
@@ -3036,8 +3091,9 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
     n.id AS nomenclature_id,
     n.official_name AS nomenclature_name,
     n.weight AS weight,
-    IFNULL(oi.actual_count, oi.count) AS count,
-    oi.price - oi.discount_money AS price,        
+    IFNULL(oi.actual_count, oi.count) AS items_count,
+    (SELECT ((items_count * oi.price) - oi.discount_money)) AS total_price,
+    (SELECT ((items_count * oi.price) - oi.discount_money) / items_count) AS order_item_price,
     #Пр-во/закупка - если групповая себестоимость то себестоимость, иначе цена закупки
     (
     	IF(n.using_in_group_price_set,
@@ -3135,8 +3191,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
     IFNULL(group_levels.level_2_name, 'Без группы') as nomen_group_level_2_name,
     IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
     IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
-    (SELECT weight * count) AS total_weight,
-	(SELECT price * count) AS total_price,
+    (SELECT weight * items_count) AS total_weight,
 	(SELECT IF(warehouse_expenses_per_kg = '-', '-', CAST(weight * warehouse_expenses_per_kg AS DECIMAL(12,2)))) AS warehouse_spending,
 	(SELECT IF(administrative_expenses_per_kg = '-', '-', CAST(weight * administrative_expenses_per_kg AS DECIMAL(12,2)))) AS administrative_spending,
 	(SELECT IF(route_list_expenses_per_kg = '-', '-', CAST(weight * route_list_expenses_per_kg AS DECIMAL(12,2)))) AS delivery_spending,
@@ -3147,7 +3202,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
 		IF(administrative_spending = '-', 0, administrative_spending) + 
 		IF(delivery_spending = '-', 0, delivery_spending)
 	) AS spending_per_item,
-	(SELECT CAST((spending_per_item * count) AS DECIMAL(12,2))) AS total_spending,
+	(SELECT CAST((spending_per_item * items_count) AS DECIMAL(12,2))) AS total_spending,
 	(SELECT CAST((total_price - total_spending)  AS DECIMAL(12,2))) AS profitability,
 	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent
 FROM
@@ -3155,7 +3210,7 @@ FROM
     LEFT JOIN
     orders o ON order_id = o.id
  	LEFT JOIN
- 	route_list_addresses rla ON rla.order_id = o.id
+ 	route_list_addresses rla ON rla.order_id = o.id AND rla.status  not in ('Transfered', 'Canceled', 'Overdue')
     LEFT JOIN
     nomenclature n ON oi.nomenclature_id = n.id
     LEFT JOIN 
@@ -3432,11 +3487,11 @@ WHERE
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="count">
-          <DataField>count</DataField>
+          <DataField>items_count</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="price">
-          <DataField>price</DataField>
+          <DataField>order_item_price</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="cost_purchase_price">
@@ -3859,230 +3914,262 @@ FROM
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString></ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_type_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_type_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="counterparty_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="counterparty_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_reason_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_reason_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="order_author_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="order_author_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="subdivision_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="subdivision_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="geographic_group_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="geographic_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_type_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_type_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="promotional_set_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="promotional_set_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="group1">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="group2">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="group3">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="groups_count">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="order_status_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="order_status_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
