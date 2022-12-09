@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -74,6 +74,7 @@ namespace Vodovoz.Domain.Orders
 
 		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
 			new OrderItemComparerForCopyingFromUndelivery();
+		private readonly double _futureDeliveryDaysLimit = 30;
 
 		#region Платная доставка
 
@@ -1238,6 +1239,14 @@ namespace Vodovoz.Domain.Orders
 			   && OrderStatus <= OrderStatus.Accepted) {
 				yield return new ValidationResult(
 					"Указана дата заказа более ранняя чем сегодняшняя. Укажите правильную дату доставки.",
+					new[] { this.GetPropertyName(o => o.DeliveryDate) }
+				);
+			}
+
+			if(DeliveryDate > DateTime.Now.AddDays(_futureDeliveryDaysLimit))
+			{
+				yield return new ValidationResult(
+					$"Дата доставки заказа должна быть не более {_futureDeliveryDaysLimit} дней вперед. Измените, пожалуйста, дату доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) }
 				);
 			}
