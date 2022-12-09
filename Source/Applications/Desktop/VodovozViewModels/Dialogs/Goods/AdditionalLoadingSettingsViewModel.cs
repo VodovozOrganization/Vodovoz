@@ -33,6 +33,7 @@ namespace Vodovoz.ViewModels.Goods
 		private int _bottlesCount;
 		private double _fastDeliveryMaxDistance;
 		private bool _flyerAdditionEnabled;
+		private bool _flyerAdditionForNewClientsEnabled;
 
 		public AdditionalLoadingSettingsViewModel(
 			ILifetimeScope scope,
@@ -62,6 +63,8 @@ namespace Vodovoz.ViewModels.Goods
 			FastDeliveryMaxDistance = _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
 			FlyerAdditionEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
 
+
+
 			Initialize();
 		}
 
@@ -89,6 +92,12 @@ namespace Vodovoz.ViewModels.Goods
 		{
 			get => _flyerAdditionEnabled;
 			set => SetField(ref _flyerAdditionEnabled, value);
+		}
+
+		public bool FlyerAdditionForNewClientsEnabled
+		{
+			get => _flyerAdditionForNewClientsEnabled;
+			set => SetField(ref _flyerAdditionForNewClientsEnabled, value);
 		}
 
 		public DelegateCommand<IList<AdditionalLoadingNomenclatureDistribution>> RemoveNomenclatureDistributionCommand =>
