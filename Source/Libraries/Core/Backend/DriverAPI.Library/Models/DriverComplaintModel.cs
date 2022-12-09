@@ -1,6 +1,5 @@
 ﻿using DriverAPI.Library.Converters;
 using DriverAPI.Library.DTOs;
-using DriverAPI.Library.Models;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -20,9 +19,9 @@ namespace DriverAPI.Library.Models
 			DriverComplaintReasonConverter driverComplaintReasonConverter,
 			IUnitOfWork unitOfWork)
 		{
-			this._complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
-			this._driverComplaintReasonConverter = driverComplaintReasonConverter ?? throw new ArgumentNullException(nameof(driverComplaintReasonConverter));
-			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
+			_driverComplaintReasonConverter = driverComplaintReasonConverter ?? throw new ArgumentNullException(nameof(driverComplaintReasonConverter));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		/// <summary>

@@ -55,6 +55,11 @@ namespace Vodovoz.Domain.Client
 		private ConsentForEdoStatus _consentForEdoStatus;
 		private string _personalAccountIdInEdo;
 		private EdoOperator _edoOperator;
+		private string _specialContractName;
+		private string _specialContractNumber;
+		private DateTime? _specialContractDate;
+		private bool _doNotMixMarkedAndUnmarkedGoodsInOrder;
+
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
 		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
 
@@ -509,13 +514,23 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion Особое требование срок годности
-
-
-		string contractNumber;
-		[Display(Name = "Особый номер договора")]
+		
+		[Display(Name = "Название особого договора")]
+		public virtual string SpecialContractName {
+			get => _specialContractName;
+			set => SetField(ref _specialContractName, value);
+		}
+		
+		[Display(Name = "Номер особого договора")]
 		public virtual string SpecialContractNumber {
-			get => contractNumber;
-			set => SetField(ref contractNumber, value, () => SpecialContractNumber);
+			get => _specialContractNumber;
+			set => SetField(ref _specialContractNumber, value);
+		}
+		
+		[Display(Name = "Дата особого договора")]
+		public virtual DateTime? SpecialContractDate {
+			get => _specialContractDate;
+			set => SetField(ref _specialContractDate, value);
 		}
 
 		string payerSpecialKPP;
@@ -712,6 +727,13 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _edoOperator, value);
 		}
 		
+		[Display(Name = "Не смешивать в одном заказе маркированные и немаркированные товары")]
+		public virtual bool DoNotMixMarkedAndUnmarkedGoodsInOrder
+		{
+			get => _doNotMixMarkedAndUnmarkedGoodsInOrder;
+			set => SetField(ref _doNotMixMarkedAndUnmarkedGoodsInOrder, value);
+		}
+		
 		#endregion
 
 		#endregion
@@ -892,7 +914,7 @@ namespace Vodovoz.Domain.Client
 		public virtual bool IsNotEmpty {
 			get {
 				bool result = false;
-				CheckSpecialField(ref result, SpecialContractNumber);
+				CheckSpecialField(ref result, SpecialContractName);
 				CheckSpecialField(ref result, PayerSpecialKPP);
 				CheckSpecialField(ref result, CargoReceiver);
 				CheckSpecialField(ref result, SpecialCustomer);
@@ -1051,6 +1073,26 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion цены поставщика
+
+		public virtual string GetSpecialContractString()
+		{
+			if(!string.IsNullOrWhiteSpace(SpecialContractName)
+				&& string.IsNullOrWhiteSpace(SpecialContractNumber)
+				&& !SpecialContractDate.HasValue)
+			{
+				return SpecialContractName;
+			}
+
+			var contractNumber = !string.IsNullOrWhiteSpace(SpecialContractNumber)
+				? $"№ {SpecialContractNumber}"
+				: string.Empty;
+
+			var contractDate = SpecialContractDate.HasValue
+				? $"от {SpecialContractDate.Value.ToShortDateString()}"
+				: string.Empty;
+
+			return $"{SpecialContractName} {contractNumber} {contractDate}";
+		}
 
 		public Counterparty()
 		{
@@ -1211,6 +1253,27 @@ namespace Vodovoz.Domain.Client
 				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
 				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
 					yield return fixedPriceValidationResult;
+				}
+			}
+
+			if(Id == 0 && UseSpecialDocFields)
+			{
+				if(!string.IsNullOrWhiteSpace(SpecialContractName)
+					&& (string.IsNullOrWhiteSpace(SpecialContractNumber) || !SpecialContractDate.HasValue))
+				{
+					yield return new ValidationResult("Помимо специального названия договора надо заполнить его номер и дату");
+				}
+				
+				if(!string.IsNullOrWhiteSpace(SpecialContractNumber)
+					&& (string.IsNullOrWhiteSpace(SpecialContractName) || !SpecialContractDate.HasValue))
+				{
+					yield return new ValidationResult("Помимо специального номера договора надо заполнить его название и дату");
+				}
+				
+				if(SpecialContractDate.HasValue
+					&& (string.IsNullOrWhiteSpace(SpecialContractNumber) || string.IsNullOrWhiteSpace(SpecialContractName)))
+				{
+					yield return new ValidationResult("Помимо специальной даты договора надо заполнить его название и номер");
 				}
 			}
 

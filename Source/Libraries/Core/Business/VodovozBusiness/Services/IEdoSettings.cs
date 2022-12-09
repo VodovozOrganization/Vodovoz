@@ -9,8 +9,10 @@
 		string TaxcomCheckContragentUri { get;}
 		string TaxcomSendContactsUri { get; }
 		string TaxcomGetContactListUpdatesUri { get; }
-		string TrueApiBaseAddressUri { get; }
-		string TrueApiParticipantsUri { get; }
-		int TaxcomCheckConsentDays { get; }
+		string TrueMarkApiBaseUrl { get; }
+		string TrueMarkApiParticipantRegistrationForWaterUri { get; }
+		string TrueMarkApiToken { get; }
+		int EdoCheckPeriodDays { get; }
+		int TaxcomManualInvitationFileId { get; }
 	}
 }

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Utilities.Extensions;
 using QS.ViewModels.Extension;
@@ -98,6 +99,7 @@ using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
 namespace Vodovoz
 {
@@ -134,6 +136,7 @@ namespace Vodovoz
 		private IOrderParametersProvider _orderParametersProvider;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 
+		private readonly IRouteListParametersProvider _routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = new EntityDocumentsPrinterFactory();
 		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
@@ -176,13 +179,14 @@ namespace Vodovoz
 		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
 		private PhonesJournalFilterViewModel _contactPhoneFilter;
+		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
-		private  INomenclatureRepository nomenclatureRepository;
+		private INomenclatureRepository nomenclatureRepository;
 		public virtual INomenclatureRepository NomenclatureRepository {
 			get {
-				if (nomenclatureRepository == null) {
+				if(nomenclatureRepository == null) {
 					nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider));
 				}
 				return nomenclatureRepository;
@@ -207,7 +211,7 @@ namespace Vodovoz
 				return _driverApiHelper;
 			}
 		}
-		
+
 		private ICounterpartyJournalFactory counterpartySelectorFactory;
 		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
 			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory());
@@ -349,7 +353,7 @@ namespace Vodovoz
 			if(NeedCopy) {
 				Entity.Client = UoW.GetById<Counterparty>(copiedOrder.Client.Id);
 
-				if (copiedOrder.DeliveryPoint != null) {
+				if(copiedOrder.DeliveryPoint != null) {
 					Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id);
 				}
 
@@ -379,11 +383,22 @@ namespace Vodovoz
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
-			
+
 			Entity.IsCopiedFromUndelivery = true;
 			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard
 				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
 			{
+				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
+
+				var copiedPaymentByCardFrom = copying.GetCopiedOrder.PaymentByCardFrom;
+
+				if(!currentPaymentFromTypes
+					.Contains(copiedPaymentByCardFrom))
+				{
+					currentPaymentFromTypes.Add(copiedPaymentByCardFrom);
+					ySpecPaymentFrom.ItemsList = currentPaymentFromTypes;
+				}
+				
 				copying.CopyPaymentByCardDataIfPossible();
 			}
 
@@ -427,7 +442,7 @@ namespace Vodovoz
 			_previousDeliveryDate = Entity.DeliveryDate;
 			_canChangeDiscountValue = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
-			_nomenclatureFixedPriceProvider	=
+			_nomenclatureFixedPriceProvider =
 				new NomenclatureFixedPriceController(
 					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
@@ -454,10 +469,15 @@ namespace Vodovoz
 
 			spinDiscount.Adjustment.Upper = 100;
 
-			if(Entity.PreviousOrder != null) {
+			if(Entity.PreviousOrder != null)
+			{
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
-			} else
+			}
+			else
+			{
 				labelPreviousOrder.Visible = false;
+			}
+
 			hboxStatusButtons.Visible = _orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
 				|| Entity.OrderStatus == OrderStatus.Canceled
 				|| Entity.OrderStatus == OrderStatus.Closed
@@ -549,7 +569,7 @@ namespace Vodovoz
 
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
-			
+
 			var excludedPaymentFromIds = new[]
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
@@ -696,7 +716,9 @@ namespace Vodovoz
 			if(Entity.DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c)) {
 				var deliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c);
 				if(deliveryPoint != null)
+				{
 					Entity.DeliveryPoint = deliveryPoint;
+				}
 			}
 
 			OrderItemEquipmentCountHasChanges = false;
@@ -717,7 +739,9 @@ namespace Vodovoz
 			yCmbReturnTareReasons.SetRenderTextFunc<ReturnTareReason>(x => x.Name);
 
 			if(Entity.ReturnTareReasonCategory != null)
+			{
 				ChangeHboxReasonsVisibility();
+			}
 
 			yCmbReturnTareReasons.Binding.AddBinding(Entity, e => e.ReturnTareReason, w => w.SelectedItem).InitializeFromSource();
 
@@ -751,10 +775,10 @@ namespace Vodovoz
 				SetDiscountEditable();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
-			
+
 			ycheckPaymentBySms.Toggled += OnCheckPaymentBySmsToggled;
 			chkPaymentByQr.Toggled += OnCheckPaymentByQrToggled;
-			
+
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
 			chkPaymentByQr.Binding.AddBinding(Entity, e => e.PaymentByQr, w => w.Active).InitializeFromSource();
 
@@ -799,6 +823,8 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
 
 			UpdateAvailableEnumSignatureTypes();
+
+			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
@@ -812,7 +838,7 @@ namespace Vodovoz
 				chkPaymentByQr.Visible = true;
 			}
 		}
-		
+
 		private void OnCheckPaymentByQrToggled(object sender, EventArgs e)
 		{
 			if(Entity.PaymentByQr)
@@ -988,16 +1014,22 @@ namespace Vodovoz
 
 			foreach(var flyer in activeFlyers)
 			{
-				if(!_orderRepository.CanAddFlyerToOrder(
-					UoW,
-					new RouteListParametersProvider(_parametersProvider),
-					flyer.FlyerNomenclature.Id,
-					geographicGroupId))
+				if(!_orderRepository.HasFlyersOnStock(UoW, _routeListParametersProvider, flyer.FlyerNomenclature.Id, geographicGroupId))
 				{
 					continue;
 				}
 
-				Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
+				if(!flyer.IsForFirstOrder)
+				{
+					Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
+				}
+				else
+				{
+					if((Entity.Id == 0 && Entity.Client != null && Entity.Client.FirstOrder == null) || Entity.IsFirstOrder)
+					{
+						Entity.AddFlyerNomenclature(flyer.FlyerNomenclature);
+					}
+				}
 			}
 			orderEquipmentItemsView.UpdateActiveFlyersNomenclaturesIds();
 			_previousDeliveryDate = Entity.DeliveryDate;
@@ -1060,7 +1092,7 @@ namespace Vodovoz
 		private void OnNomenclatureFixedPriceChanged(EntityChangeEvent[] changeevents)
 		{
 			var changedEntities = changeevents.Select(x => x.Entity).OfType<NomenclatureFixedPrice>();
-			if (changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id))
+			if(changedEntities.Any(x => x.DeliveryPoint != null && DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id))
 			{
 				DeliveryPoint.ReloadChildCollection(x => x.NomenclatureFixedPrices, x => x.DeliveryPoint, UoW.Session);
 				RefreshEntity(DeliveryPoint);
@@ -1159,7 +1191,7 @@ namespace Vodovoz
 					.AddSetter((c, n) => {
 						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
 							c.Text = CurrencyWorks.GetShortCurrencyString(n.OriginalSum);
-						}
+					}
 					)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
@@ -1233,7 +1265,7 @@ namespace Vodovoz
 				.AddSetter((c, n) => c.Visible = n is ISignableDocument)
 				.AddSetter((toggle, document) =>
 				{
-					if (document.Type == OrderDocumentType.UPD)
+					if(document.Type == OrderDocumentType.UPD)
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureUpd;
 					}
@@ -1255,6 +1287,29 @@ namespace Vodovoz
 			treeDocuments.Selection.Changed += Selection_Changed;
 
 			treeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
+
+			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
+				.AddColumn("Код документооборота")
+					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
+				.AddColumn("Отправленные\nдокументы")
+					.AddTextRenderer(x => x.SentDocuments)
+				.AddColumn("Статус\nдокументооборота")
+					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+				.AddColumn("Доставлено\nклиенту?")
+					.AddToggleRenderer(x => x.Received)
+					.Editing(false)
+				.AddColumn("Описание ошибки")
+					.AddTextRenderer(x => x.ErrorDescription)
+					.WrapWidth(500)
+				.AddColumn("")
+				.Finish();
+
+			if(Entity.Id != 0)
+			{
+				UpdateEdoContainers();
+			}
+
+			treeViewEdoContainers.ItemsDataSource = _edoContainers;
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
 				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
@@ -1308,6 +1363,16 @@ namespace Vodovoz
 			});
 		}
 
+		private void UpdateEdoContainers()
+		{
+			_edoContainers.Clear();
+
+			foreach(var item in _orderRepository.GetEdoContainersByOrderId(UoW, Entity.Id))
+			{
+				_edoContainers.Add(item);
+			}
+		}
+
 		private void ConfigureAcceptButtons()
 		{
 			buttonAcceptOrderWithClose.Clicked += OnButtonAcceptOrderWithCloseClicked;
@@ -1354,7 +1419,7 @@ namespace Vodovoz
 			SendDocumentByEmailViewModel =
 				new SendDocumentByEmailViewModel(_emailRepository,  new EmailParametersProvider(new ParametersProvider()), _currentEmployee, ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
-			hbox19.Add(sendEmailView);
+			hbox20.Add(sendEmailView);
 			sendEmailView.Show();
 		}
 
@@ -1628,14 +1693,34 @@ namespace Vodovoz
 				}
 			}
 
+			var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
+			var edoLightsMatrixViewModel = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel;
+			edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
+
+			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.cashless
+				? EdoLightsMatrixPaymentType.Cashless
+				: EdoLightsMatrixPaymentType.Receipt;
+
+			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInChestniyZnak);
+
+			if(isAccountableInChestniyZnak
+			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
+			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType))
+			{
+				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
+				                                              $"Оставить черновик заказа в статусе \"Новый\"?"))
+				{
+					return Save(); 
+				}
+
+				return false;
+			}
+
 			if(Entity.PaymentType == PaymentType.cashless)
 			{
-				var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
-				edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
-				var hasUnknownEdoLightsType = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel.HasUnknown();
+				var hasUnknownEdoLightsType = edoLightsMatrixViewModel.HasUnknown();
 
-				if(hasUnknownEdoLightsType.HasValue
-				   && hasUnknownEdoLightsType.Value
+				if(hasUnknownEdoLightsType
 				   && !ServicesConfig.InteractiveService.Question(
 					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
 				{
@@ -3296,10 +3381,10 @@ namespace Vodovoz
 		{
 			treeItems.Sensitive = sensitive;
 			hbox12.Sensitive = sensitive;
-			hbox10.Sensitive = sensitive;
+			hbox11.Sensitive = sensitive;
 			hboxReturnTareReason.Sensitive = sensitive;
 			orderEquipmentItemsView.Sensitive = sensitive;
-			hbox11.Sensitive = sensitive;
+			hbox13.Sensitive = sensitive;
 			depositrefunditemsview.Sensitive = sensitive;
 			table2.Sensitive = sensitive;
 		}
@@ -3603,6 +3688,12 @@ namespace Vodovoz
 
 		protected void OnBtnFormClicked(object sender, EventArgs e)
 		{
+			if(Entity.Client is null)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
+				return;
+			}
+			
 			ylblCounterpartyFIO.Text = Entity.Client.FullName;
 			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
 

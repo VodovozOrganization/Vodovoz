@@ -5,7 +5,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
-using QS.Banks.Domain;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -18,6 +17,7 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.TempAdapters;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
@@ -97,17 +97,17 @@ namespace Vodovoz.Views.Employees
 
 			ConfigureCategory();
 
-			comboDriverOfCarOwnType.ShowSpecialStateNot = true;
-			comboDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);
-			comboDriverOfCarOwnType.Binding
-				.AddBinding(ViewModel.Entity, e => e.DriverOfCarOwnType, w => w.SelectedItemOrNull)
-				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
-				.InitializeFromSource();
-
 			comboDriverOfCarTypeOfUse.ShowSpecialStateNot = true;
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboDriverOfCarTypeOfUse.Binding
 				.AddBinding(ViewModel.Entity, e => e.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			comboDriverOfCarOwnType.ShowSpecialStateNot = true;
+			comboDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);
+			comboDriverOfCarOwnType.Binding
+				.AddBinding(ViewModel.Entity, e => e.DriverOfCarOwnType, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -138,10 +138,10 @@ namespace Vodovoz.Views.Employees
 
 			ConfigureSubdivision();
 
-			referenceUser.SubjectType = typeof(User);
-			referenceUser.CanEditReference = false;
-			referenceUser.Binding.AddBinding(ViewModel.Entity, e => e.User, w => w.Subject).InitializeFromSource();
-			referenceUser.Sensitive = ViewModel.CanManageUsers && ViewModel.CanEditEmployee;
+			var usersJournalFactory = new UserJournalFactory();
+			entityviewmodelUser.SetEntityAutocompleteSelectorFactory(usersJournalFactory.CreateSelectUserAutocompleteSelectorFactory());
+			entityviewmodelUser.Binding.AddBinding(ViewModel.Entity, e => e.User, w => w.Subject).InitializeFromSource();
+			entityviewmodelUser.Sensitive = ViewModel.CanManageUsers && ViewModel.CanEditEmployee;
 
 			ylblUserLogin.TooltipText =
 				"При сохранении сотрудника создаёт нового пользователя с введённым логином " +

@@ -162,7 +162,7 @@ namespace DeliveryRulesService.Controllers
 
 			if(deliveryInfo.StatusEnum != DeliveryRulesResponseStatus.Ok)
 			{
-				return deliveryInfo;
+				return await ValueTask.FromResult(deliveryInfo);
 			}
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка на доставку за час"))
 			{
@@ -178,7 +178,7 @@ namespace DeliveryRulesService.Controllers
 					todayInfo.ScheduleRestrictions.Insert(0, _fastDeliverySchedule.Name);
 				}
 			}
-			return deliveryInfo;
+			return await ValueTask.FromResult(deliveryInfo);
 		}
 
 		[HttpGet]
@@ -292,22 +292,11 @@ namespace DeliveryRulesService.Controllers
 		//3. Интервалы менее 5 часов, начинающиеся до 18:00
 		//4. Интервалы менее 5 часов, начинающиеся после 18:00 или ровно в 18:00
 		//Также сортировка в каждой группе по величине интервала и если она совпадает, по первому времени интервала
-		private IEnumerable<DeliverySchedule> ReorderScheduleRestrictions(IList<DeliverySchedule> deliverySchedules)
+		private static IEnumerable<DeliverySchedule> ReorderScheduleRestrictions(IList<DeliverySchedule> deliverySchedules)
 		{
-			var schedulesGroup1 = deliverySchedules
-				.Where(x => x.From < new TimeSpan(18, 0, 0) && x.To - x.From >= new TimeSpan(5, 0, 0))
-				.OrderByDescending(x => x.To - x.From).ThenBy(x => x.From);
-			var schedulesGroup2 = deliverySchedules
-				.Where(x => x.From >= new TimeSpan(18, 0, 0) && x.To - x.From >= new TimeSpan(5, 0, 0))
-				.OrderByDescending(x => x.To - x.From).ThenBy(x => x.From);
-			var schedulesGroup3 = deliverySchedules
-				.Where(x => x.From < new TimeSpan(18, 0, 0) && x.To - x.From < new TimeSpan(5, 0, 0))
-				.OrderByDescending(x => x.To - x.From).ThenBy(x => x.From);
-			var schedulesGroup4 = deliverySchedules
-				.Where(x => x.From >= new TimeSpan(18, 0, 0) && x.To - x.From < new TimeSpan(5, 0, 0))
-				.OrderByDescending(x => x.To - x.From).ThenBy(x => x.From);
-
-			return schedulesGroup1.Concat(schedulesGroup2).Concat(schedulesGroup3).Concat(schedulesGroup4);
+			return deliverySchedules
+				.OrderBy(ds => ds.From)
+				.ThenBy(ds => ds.To);
 		}
 
 		private IList<DeliveryRuleDTO> FillDeliveryRuleDTO<T>(IList<T> rules)
@@ -333,7 +322,10 @@ namespace DeliveryRulesService.Controllers
 			{
 				return isStoppedOnlineDeliveriesToday
 					? new List<DeliverySchedule>()
-					: GetScheduleRestrictionsForWeekDay(district, weekDay);
+					: district.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+						.Where(x => x.AcceptBefore.Time > currentDate.TimeOfDay)
+						.Select(x => x.DeliverySchedule)
+						.ToList();
 			}
 
 			return GetScheduleRestrictionsByDate(district, weekDay, currentDate);
@@ -383,7 +375,7 @@ namespace DeliveryRulesService.Controllers
 		{
 			if(siteNomenclatures == null || siteNomenclatures.Any(x => x.ERPId == null || x.ERPId < 1))
 			{
-				return false;
+				return await ValueTask.FromResult(false);
 			}
 
 			var nomenclatureNodes = siteNomenclatures
@@ -411,7 +403,8 @@ namespace DeliveryRulesService.Controllers
 			_fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 			var allowedRouteLists = fastDeliveryAvailabilityHistory.Items;
-			return allowedRouteLists != null && allowedRouteLists.Any(x => x.IsValidToFastDelivery);
+			return await ValueTask.FromResult(
+				allowedRouteLists != null && allowedRouteLists.Any(x => x.IsValidToFastDelivery));
 		}
 	}
 }

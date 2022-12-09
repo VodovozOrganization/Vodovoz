@@ -12,10 +12,10 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
@@ -30,10 +30,8 @@ namespace Vodovoz.ViewModels.Warehouses
     public class IncomingInvoiceViewModel: EntityTabViewModelBase<IncomingInvoice>
     {
         private readonly IEmployeeService employeeService;
-        private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
         private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
         private readonly IOrderSelectorFactory orderSelectorFactory;
-        private readonly IWarehouseRepository warehouseRepository;
         private readonly IRDLPreviewOpener rdlPreviewOpener;
 		private readonly NomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
 		private readonly IWarehousePermissionValidator warehousePermissionValidator;
@@ -56,16 +54,22 @@ namespace Vodovoz.ViewModels.Warehouses
             : base(uowBuilder, unitOfWorkFactory, commonServices)
         {
             this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-            this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
             this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
             this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-            this.warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
-            this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			
+			if(warehouseRepository == null)
+			{
+				throw new ArgumentNullException(nameof(warehouseRepository));
+			}
+
+			this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_nomenclaturePurchasePriceModel = nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
-            warehousePermissionValidator = warehousePermissionService.GetValidator(CommonServices.UserService.CurrentUserId);
+            warehousePermissionValidator = warehousePermissionService.GetValidator();
 
-            canEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+            canEditRectroactively =
+				(entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator)))
+				.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
             ConfigureEntityChangingRelations();
             
             ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
@@ -88,7 +92,9 @@ namespace Vodovoz.ViewModels.Warehouses
         
         private void ReloadAllowedWarehousesFrom()
         {
-            var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(isNew? WarehousePermissions.IncomingInvoiceCreate: WarehousePermissions.IncomingInvoiceEdit);
+			var allowedWarehouses =
+				warehousePermissionValidator.GetAllowedWarehouses(
+					isNew ? WarehousePermissionsType.IncomingInvoiceCreate : WarehousePermissionsType.IncomingInvoiceEdit, CurrentEmployee);
             allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
                 .Where(x => !x.IsArchive)
                 .WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())

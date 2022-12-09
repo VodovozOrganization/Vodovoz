@@ -18,6 +18,10 @@ namespace Vodovoz.Views.Profitability
 		private void Configure()
 		{
 			btnRecalculateAndSave.Clicked += (sender, args) => ViewModel.RecalculateAndSaveCommand.Execute();
+
+			btnRecalculateAndSave.Binding
+				.AddBinding(ViewModel, vm => vm.IsIdleState, w => w.Sensitive)
+				.InitializeFromSource();
 			
 			var monthPicker = new MonthPickerView(ViewModel.MonthPickerViewModel);
 			monthPicker.Show();

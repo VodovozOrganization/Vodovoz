@@ -30,6 +30,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using EdoService;
+using EdoService.Converters;
 using EdoService.Services;
 using QS.Dialog;
 using TISystems.TTC.CRM.BE.Serialization;
@@ -78,6 +79,11 @@ using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using EdoService.Dto;
+using System.Threading;
+using TrueMarkApi.Library.Converters;
+using TrueMarkApi.Library.Dto;
+using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
+using QS.Attachments.Domain;
 
 namespace Vodovoz
 {
@@ -119,8 +125,10 @@ namespace Vodovoz
 		private double _emailLastScrollPosition;
 		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 		private IContactListService _contactListService;
-		private ITrueApiService _trueApiService;
-		private EdoSettings _edoSettings;
+		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private IEdoSettings _edoSettings = new EdoSettings(new ParametersProvider());
+		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -437,7 +445,9 @@ namespace Vodovoz
 			DelayDaysForBuyerValue.Binding
 				.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt)
 				.InitializeFromSource();
-			lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = Entity?.IsChainStore ?? false;
+			DelayDaysForBuyerValue.Sensitive =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+						"can_change_delay_days_for_buyers_and_chain_store");
 
 			yspinDelayDaysForTechProcessing.Binding
 				.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
@@ -774,10 +784,26 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
 				.InitializeFromSource();
 			yentryCustomer.IsEditable = CanEdit;
-			yentrySpecialContract.Binding
+
+			#region Особый договор
+
+			entrySpecialContractName.Binding
+				.AddBinding(Entity, e => e.SpecialContractName, w => w.Text)
+				.InitializeFromSource();
+			entrySpecialContractName.IsEditable = CanEdit;
+
+			entrySpecialContractNumber.Binding
 				.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text)
 				.InitializeFromSource();
-			yentrySpecialContract.IsEditable = CanEdit;
+			entrySpecialContractNumber.IsEditable = CanEdit;
+
+			datePickerSpecialContractDate.Binding
+				.AddBinding(Entity, e => e.SpecialContractDate, w => w.DateOrNull)
+				.InitializeFromSource();
+			datePickerSpecialContractDate.IsEditable = CanEdit;
+
+			#endregion
+
 			yentrySpecialKPP.Binding
 				.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text)
 				.InitializeFromSource();
@@ -1052,6 +1078,13 @@ namespace Vodovoz
 					w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybuttonSendManualInvite.Binding
+				.AddFuncBinding(Entity,
+					e => e.EdoOperator != null
+					     && e.ConsentForEdoStatus == ConsentForEdoStatus.Unknown,
+					w => w.Sensitive)
+				.InitializeFromSource();
+
 			yEnumCmbConsentForEdo.ItemsEnum = typeof(ConsentForEdoStatus);
 			yEnumCmbConsentForEdo.Binding
 				.AddBinding(Entity, e => e.ConsentForEdoStatus, w => w.SelectedItem)
@@ -1104,16 +1137,18 @@ namespace Vodovoz
 					Entity.PersonalAccountIdInEdo = counterpartyEdoOperator.PersonalAccountIdInEdo;
 				}
 			};
+			
+			yChkBtnDoNotMixMarkedAndUnmarkedGoodsInOrder.Binding
+				.AddBinding(Entity, e => e.DoNotMixMarkedAndUnmarkedGoodsInOrder, w => w.Active)
+				.InitializeFromSource();
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
-			_edoSettings = new EdoSettings(new ParametersProvider());
 			IAuthorizationService taxcomAuthorizationService = new TaxcomAuthorizationService(_edoSettings);
-			IAuthorizationService trueApiAuthorizationService = new TrueApiAuthorizationService(_edoSettings);
-			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings);
-			_trueApiService = new TrueApiService(trueApiAuthorizationService, _edoSettings);
+			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings, new ContactStateConverter());
+
+			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
 		}
-	
 
 		private void RefreshBulkEmailEventStatus()
 		{
@@ -1157,15 +1192,6 @@ namespace Vodovoz
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{
-			if(Entity.IsChainStore)
-			{
-				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = true;
-			}
-			else
-			{
-				lblDelayDaysForBuyer.Visible = DelayDaysForBuyerValue.Visible = false;
-				Entity.DelayDaysForBuyers = 0;
-			}
 		}
 
 		private void OnButtonLoadFromDeliveryPointClicked(object sender, EventArgs e)
@@ -1220,7 +1246,8 @@ namespace Vodovoz
 
 			var orderJournalFilter = new OrderJournalFilterViewModel(
 				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory()) { RestrictCounterparty = Entity };
+				new DeliveryPointJournalFactory(),
+				new EmployeeJournalFactory()) { RestrictCounterparty = Entity };
 			var orderJournalViewModel = new OrderJournalViewModel(
 				orderJournalFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
@@ -1871,11 +1898,13 @@ namespace Vodovoz
 				return;
 			}
 
-			bool isRegistered;
+			TrueMarkResponseResultDto trueMarkResponse;
 
 			try
 			{
-				isRegistered = _trueApiService.ParticipantsAsync(Entity.INN, "water").Result;
+				trueMarkResponse = _trueMarkApiClient.GetParticipantRegistrationForWaterStatusAsync(
+					_edoSettings.TrueMarkApiParticipantRegistrationForWaterUri, Entity.INN,_cancellationTokenSource.Token)
+					.Result;
 			}
 			catch(Exception ex)
 			{
@@ -1887,19 +1916,35 @@ namespace Vodovoz
 				return;
 			}
 
-			if(isRegistered)
+			if(!string.IsNullOrWhiteSpace(trueMarkResponse.ErrorMessage))
 			{
-				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
-			}
-			else
-			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Результат проверки в Честном Знаке:\n{trueMarkResponse.ErrorMessage}");
+
 				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
+
+				return;
 			}
+
+			var statusConverter = new TrueMarkApiRegistrationStatusConverter();
+			var status = statusConverter.ConvertToChestnyZnakStatus(trueMarkResponse.RegistrationStatusString);
+
+			if(status == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Такой статус участника в Честном Знаке у нас не используется:\n{trueMarkResponse.RegistrationStatusString}");
+
+				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
+
+				return;
+			}
+
+			Entity.RegistrationInChestnyZnakStatus = status.Value;
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-				"Регистрация в Честном Знаке проверена.");
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, 
+				$"Статус регистрации в Честном Знаке:\n{trueMarkResponse.RegistrationStatusString}");
 		}
 
 		protected void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
@@ -1922,7 +1967,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var checkDate = DateTime.Now.AddDays(-_edoSettings.TaxcomCheckConsentDays);
+			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays);
 			var contactListParser = new ContactListParser();
 
 			ContactListItem contactListItem = null;
@@ -1958,7 +2003,17 @@ namespace Vodovoz
 
 		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
 		{
-			var email = Entity.Emails.LastOrDefault (em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
+			SendContact(); 
+		}
+
+		protected void OnYbuttonSendManualInviteClicked(object sender, EventArgs e)
+		{
+			SendContact(true);
+		}
+
+		private void SendContact(bool isManual = false)
+		{
+			var email = Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
 			            ?? Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.Work)
 			            ?? Entity.Emails.LastOrDefault();
 
@@ -1967,7 +2022,7 @@ namespace Vodovoz
 			if(email == null)
 			{
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Не удалось отправить приглашение. Заполните Email у контрагента");
+					"Не удалось отправить приглашение. Заполните Email у контрагента");
 
 				return;
 			}
@@ -1979,7 +2034,23 @@ namespace Vodovoz
 
 			try
 			{
-				resultMessage = _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo).Result;
+				if(isManual)
+				{
+					if(!_commonServices.InteractiveService.Question("Время обработки заявки без кода личного кабинета может составлять до 10 дней.\nПродолжить отправку?"))
+					{
+						return;
+					}
+
+					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
+					var organization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
+
+					resultMessage = _contactListService.SendContactsForManualInvitationAsync(Entity.INN, Entity.KPP, organization.Name, Entity.EdoOperator.Code,
+						email.Address, document.FileName, document.ByteFile).Result;
+				}
+				else
+				{
+					resultMessage = _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo).Result;
+				}
 			}
 			catch(Exception ex)
 			{
@@ -2008,7 +2079,12 @@ namespace Vodovoz
 		}
 
 		private EdoOperator GetEdoOperatorByEdoAccountId(string id) => UoW.GetAll<EdoOperator>().SingleOrDefault(eo => eo.Code == id.Substring(0, 3));
-		
+
+		public override void Dispose()
+		{
+			_cancellationTokenSource.Cancel();
+			base.Dispose();
+		}
 	}
 
 	public class SalesChannelSelectableNode : PropertyChangedBase

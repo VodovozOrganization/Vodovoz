@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -47,14 +47,12 @@ using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Factories;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Filters.Views;
@@ -66,13 +64,11 @@ using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
 using Vodovoz.Infrastructure.Mango;
-using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
-using Vodovoz.Journals.FilterViewModels.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Models;
@@ -99,7 +95,6 @@ using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.ViewModels.Employees;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
@@ -114,7 +109,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Orders;
@@ -122,7 +116,6 @@ using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels.ViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -181,14 +174,16 @@ using Vodovoz.ViewWidgets;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
+using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.Views.Permissions;
+using UserView = Vodovoz.Views.Users.UserView;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using Vodovoz.ReportsParameters.Orders;
 using QS.DomainModel.NotifyChange;
+using QS.Project.Domain;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
-using Vodovoz.ViewModels.ViewModels.Profitability;
-using Vodovoz.Views.Profitability;
 using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.Views.Sale;
 using Vodovoz.Models;
@@ -198,6 +193,10 @@ using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.ViewModels.Infrastructure.Services;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 
 namespace Vodovoz
 {
@@ -218,10 +217,13 @@ namespace Vodovoz
 			UserDialog.PermissionViewsCreator = () => new List<IPermissionsView>
 			{
 				new PermissionMatrixView(
-					new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access")
+					new PermissionMatrix<WarehousePermissionsType, Warehouse>(), "Доступ к складам", "warehouse_access")
 			};
 
-			WarehousePermissionService.WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
+			WarehousePermissionService warehousePermissionService = new WarehousePermissionService
+			{
+				WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory()
+			};
 		}
 
 		static void ConfigureViewModelWidgetResolver()
@@ -363,6 +365,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
 				.RegisterWidgetForWidgetViewModel<AddFixPriceActionViewModel, AddFixPriceActionView>()
 				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
+				.RegisterWidgetForWidgetViewModel<PresetUserPermissionsViewModel, PresetPermissionsView>()
 				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryPointJournalFilterViewModel, DeliveryPointJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<PaymentsJournalFilterViewModel, PaymentsJournalFilterView>()
@@ -373,7 +376,6 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<FinancialDistrictsSetsJournalFilterViewModel, FinancialDistrictsSetsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<FixedPricesViewModel, FixedPricesView>()
 				.RegisterWidgetForWidgetViewModel<MovementWagonJournalFilterViewModel, MovementWagonJournalFilterView>()
-				.RegisterWidgetForWidgetViewModel<UserJournalFilterViewModel, UserJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<ApplicationDevelopmentProposalsJournalFilterViewModel, ApplicationDevelopmentProposalsJournalFilterView>()
                 .RegisterWidgetForWidgetViewModel<RouteListJournalFilterViewModel, RouteListJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<RegisteredRMJournalFilterViewModel, RegisteredRMJournalFilterView>()
@@ -399,6 +401,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ProductGroupJournalFilterViewModel, ProductGroupJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryTransferAbsenceReasonJournalFilterViewModel, UndeliveryTransferAbsenceReasonJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ProductionWarehouseMovementReportViewModel, ProductionWarehouseMovementReportView>()
+				.RegisterWidgetForWidgetViewModel<WarehousePermissionsViewModel, WarehousePermissionView>()
 				.RegisterWidgetForWidgetViewModel<TrackPointJournalFilterViewModel, TrackPointJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryAvailabilityFilterViewModel, FastDeliveryAvailabilityFilterView>()
 				.RegisterWidgetForWidgetViewModel<CostCarExploitationReportViewModel, CostCarExploitationReportView>()
@@ -407,8 +410,10 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<RoboatsCallsFilterViewModel, RoboatsCallsFilterView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryScheduleFilterViewModel, DeliveryScheduleFilterView>()
 				.RegisterWidgetForWidgetViewModel<BulkEmailEventReportViewModel, BulkEmailEventReportView>()
+				.RegisterWidgetForWidgetViewModel<EdoUpdReportViewModel, EdoUpdReportView>()
 				.RegisterWidgetForWidgetViewModel<ProfitabilitySalesReportViewModel, ProfitabilitySalesReportView>()
 				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -535,8 +540,8 @@ namespace Vodovoz
 			builder.Register(x => new AutofacViewModelResolver(AppDIContainer)).As<IViewModelResolver>();
 			builder.Register(с => NotifyConfiguration.Instance).As<IEntityChangeWatcher>();
 			builder.RegisterAssemblyTypes(
-					System.Reflection.Assembly.GetAssembly(typeof(InternalTalkViewModel)),
-					System.Reflection.Assembly.GetAssembly(typeof(ComplaintViewModel)))
+					Assembly.GetAssembly(typeof(InternalTalkViewModel)),
+					Assembly.GetAssembly(typeof(ComplaintViewModel)))
 				.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
 				.AsSelf();
 			builder.RegisterType<PrepareDeletionViewModel>().As<IOnCloseActionViewModel>().AsSelf();
@@ -566,26 +571,6 @@ namespace Vodovoz
 				.AsImplementedInterfaces()
 				.SingleInstance();
 
-			builder.RegisterType<NomenclatureJournalFactory>().As<INomenclatureJournalFactory>();
-			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
-			builder.RegisterType<DeliveryPointJournalFactory>().As<IDeliveryPointJournalFactory>();
-			builder.RegisterType<EmployeeJournalFactory>().As<IEmployeeJournalFactory>();
-			builder.RegisterType<CounterpartyJournalFactory>().As<ICounterpartyJournalFactory>();
-			builder.RegisterType<SubdivisionJournalFactory>().As<ISubdivisionJournalFactory>();
-			builder.RegisterType<SalesPlanJournalFactory>().As<ISalesPlanJournalFactory>();
-			builder.RegisterType<ExpenseCategorySelectorFactory>().As<IExpenseCategorySelectorFactory>();
-			builder.RegisterType<CarJournalFactory>().As<ICarJournalFactory>();
-			builder.RegisterType<CarEventTypeJournalFactory>().As<ICarEventTypeJournalFactory>();
-			builder.RegisterType<CarModelJournalFactory>().As<ICarModelJournalFactory>();
-			builder.RegisterType<CarManufacturerJournalFactory>().As<ICarManufacturerJournalFactory>();
-			builder.RegisterType<NomenclatureFixedPriceFactory>().AsSelf();
-
-			builder.RegisterType<DialogsFactory>().As<IDialogsFactory>();
-			builder.RegisterType<CarVersionsViewModelFactory>().As<ICarVersionsViewModelFactory>();
-			builder.RegisterType<RoboatsFileStorageFactory>().AsSelf();
-			builder.RegisterType<DeliveryScheduleJournalFactory>().AsImplementedInterfaces().AsSelf();
-			builder.RegisterType<GtkValidationViewFactory>().AsImplementedInterfaces().AsSelf();
-
 			builder.RegisterAssemblyTypes(
 					Assembly.GetExecutingAssembly(),
 					Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)),
@@ -594,19 +579,15 @@ namespace Vodovoz
 				.AsSelf()
 				.AsImplementedInterfaces()
 				.SingleInstance();
-				
-			builder.RegisterType<PaymentFromAvangardFactory>().As<IPaymentFromAvangardFactory>();
-			builder.RegisterType<OrganizationJournalFactory>().As<IOrganizationJournalFactory>();
 
 			#endregion
 
 			#region Controllers
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))
-				.Where(t => t.Name.EndsWith("Controller"))
+				.Where(t => t.Name.EndsWith("Controller") || t.Name.EndsWith("Handler"))
+				.AsSelf()
 				.AsImplementedInterfaces();
-			
-			builder.RegisterType<ProfitabilityConstantsViewModelHandler>().AsSelf();
 
 			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf().AsImplementedInterfaces();
 
@@ -622,6 +603,7 @@ namespace Vodovoz
 			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
 			builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
 			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
+			builder.RegisterType<WarehousePermissionService>().AsImplementedInterfaces().AsSelf();
 
 			#endregion
 
@@ -632,6 +614,9 @@ namespace Vodovoz
 				.AsImplementedInterfaces()
 				.AsSelf();
 			builder.RegisterType<WageParameterService>().AsSelf();
+			builder.RegisterType<UserWarehousePermissionModel>()
+				.As<WarehousePermissionModelBase>()
+				.AsSelf();
 
 			#endregion
 
@@ -708,6 +693,21 @@ namespace Vodovoz
 
 			builder.RegisterType<PaymentsJournalFilterViewModel>().AsSelf();
 			builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
+
+			#endregion
+
+			#region Классы
+
+			builder.RegisterType<Domain.Employees.User>().AsSelf();
+			builder.RegisterType<EntitySubdivisionForUserPermission>().AsSelf();
+			builder.RegisterType<EntityUserPermissionExtended>().AsSelf();
+			builder.RegisterType<EntityUserPermission>().AsSelf();
+			builder.RegisterType<HierarchicalPresetUserPermission>().AsSelf();
+			builder.RegisterType<UserWarehousePermission>().AsSelf();
+			builder.RegisterType<EntityUserPermissionExtended>().AsSelf();
+			builder.RegisterType<UserPermissionNode>()
+				.AsSelf()
+				.AsImplementedInterfaces();
 
 			#endregion
 		}

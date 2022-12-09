@@ -9,53 +9,67 @@ using QS.ViewModels;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Security;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Journals;
-using Vodovoz.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 
 namespace Vodovoz.ViewModels.ViewModels.Security
 {
-    public class RegisteredRMViewModel : EntityTabViewModelBase<RegisteredRM>
-    {
-        public RegisteredRMViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigation = null)
-            : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
-        {
-        }
+	public class RegisteredRMViewModel : EntityTabViewModelBase<RegisteredRM>
+	{
+		public RegisteredRMViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IPermissionRepository permissionRepository,
+			INavigationManager navigation = null)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
+		{
+			_permissionRepository = permissionRepository ?? throw new System.ArgumentNullException(nameof(permissionRepository));
+		}
 
-        private DelegateCommand addUserCommand;
-        public DelegateCommand AddUserCommand => addUserCommand ?? (addUserCommand = new DelegateCommand(
-            () => {
-                var userFilterViewModel = new UserJournalFilterViewModel();
-                var userJournalViewModel = new UserJournalViewModel(
-                        userFilterViewModel,
-                        UnitOfWorkFactory,
-                        ServicesConfig.CommonServices)
-                {
-                    SelectionMode = JournalSelectionMode.Single,
-                };
+		private DelegateCommand _addUserCommand;
 
-                userJournalViewModel.OnEntitySelectedResult += (s, ea) =>
-                {
-                    var selectedNode = ea.SelectedNodes.FirstOrDefault();
-                    if (selectedNode == null)
-                        return;
+		public DelegateCommand AddUserCommand => _addUserCommand ?? (_addUserCommand = new DelegateCommand(
+			() =>
+			{
+				var userFilterViewModel = new UsersJournalFilterViewModel();
+				var userJournalViewModel = new SelectUserJournalViewModel(
+					userFilterViewModel,
+					UnitOfWorkFactory,
+					ServicesConfig.CommonServices)
+				{
+					SelectionMode = JournalSelectionMode.Single,
+				};
 
-                    var user = UoWGeneric.Session.Get<User>(selectedNode.Id);
+				userJournalViewModel.OnEntitySelectedResult += (s, ea) =>
+				{
+					var selectedNode = ea.SelectedNodes.FirstOrDefault();
+					if(selectedNode == null)
+					{
+						return;
+					}
 
-                    Entity.ObservableUsers.Add(user);
-                };
+					var user = UoWGeneric.Session.Get<User>(selectedNode.Id);
 
-                TabParent.AddSlaveTab(this, userJournalViewModel);
-            }, () => true
-        ));
+					Entity.ObservableUsers.Add(user);
+				};
 
-        private DelegateCommand<User> removeUserCommand;
-        public DelegateCommand<User> RemoveUserCommand => removeUserCommand ?? (removeUserCommand = new DelegateCommand<User>(
-            (user) => {
-                if (user != null)
-                {
-                    Entity.ObservableUsers.Remove(user);
-                }
-            }, (user) => true
-        ));
-    }
+				TabParent.AddSlaveTab(this, userJournalViewModel);
+			}, () => true
+		));
+
+		private DelegateCommand<User> _removeUserCommand;
+		private readonly IPermissionRepository _permissionRepository;
+
+		public DelegateCommand<User> RemoveUserCommand => _removeUserCommand ?? (_removeUserCommand = new DelegateCommand<User>(
+			(user) =>
+			{
+				if(user != null)
+				{
+					Entity.ObservableUsers.Remove(user);
+				}
+			}, (user) => true
+		));
+	}
 }

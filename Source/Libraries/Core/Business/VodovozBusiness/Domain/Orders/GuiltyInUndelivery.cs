@@ -108,6 +108,8 @@ namespace Vodovoz.Domain.Orders
 		ForceMajor,
 		[Display(Name = "Директор ЛО (Доставка за час)")]
 		DirectorLO,
+		[Display(Name = "Директор ЛО (Доставка в тот же день)")]
+		DirectorLOCurrentDayDelivery,
 		[Display(Name = "Нет (не недовоз)")]
 		None
 	}

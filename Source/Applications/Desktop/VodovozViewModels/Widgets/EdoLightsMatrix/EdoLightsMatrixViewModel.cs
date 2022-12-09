@@ -146,5 +146,34 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 
 			return false;
 		}
+
+		public bool IsPaymentAllowed(Counterparty counterparty, EdoLightsMatrixPaymentType paymentKind)
+		{
+			var row = ObservableLightsMatrixRows.FirstOrDefault(c => c.ReasonForLeaving == counterparty.ReasonForLeaving);
+			var column = row?.Columns?.FirstOrDefault(r => r.PaymentKind == paymentKind);
+
+			if(column != null)
+			{
+				return column.EdoLightsColorizeType == EdoLightsColorizeType.Allowed
+					|| column.EdoLightsColorizeType == EdoLightsColorizeType.Unknown;
+			}
+
+			if(counterparty.ReasonForLeaving == ReasonForLeaving.Unknown)
+			{
+				return false;
+			}
+
+			if(counterparty.ReasonForLeaving == ReasonForLeaving.Other)
+			{
+				if(counterparty.PersonType == PersonType.legal)
+				{
+					return true;
+				}
+
+				return paymentKind == EdoLightsMatrixPaymentType.Receipt;
+			}
+
+			return false;
+		}
 	}
 }

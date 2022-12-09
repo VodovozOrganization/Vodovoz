@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using EdoService.Converters;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Services;
@@ -15,14 +16,17 @@ namespace EdoService.Services
 	{
 		private readonly IAuthorizationService _authorizationService;
 		private readonly IEdoSettings _edoSettings;
+		private readonly IContactStateConverter _contactStateConverter;
 		private static HttpClient _httpClient;
 		private readonly IEdoLogger _edoLogger;
 
 		public ContactListService(
 			IAuthorizationService authorizationService,
-			IEdoSettings edoSettings)
+			IEdoSettings edoSettings,
+			IContactStateConverter contactStateConverter)
 		{
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
+			_contactStateConverter = contactStateConverter ?? throw new ArgumentNullException(nameof(contactStateConverter));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 
 			var logger = LogManager.GetCurrentClassLogger();
@@ -109,6 +113,30 @@ namespace EdoService.Services
 			return await SendContactsAsync(invitationsList);
 		}
 
+		public async Task<ResultDto> SendContactsForManualInvitationAsync(string inn, string kpp, string organizationName,
+			string operatorId, string email, string scanFileName, byte[] scanFile)
+		{
+			var invitationsList = new ContactList
+			{
+				Contacts = new[]
+				{
+					new ContactListItem
+					{
+						Inn = inn,
+						Kpp = kpp,
+						Name = organizationName,
+						Email = email,
+						OperatorId = operatorId,
+						ScanFilename = scanFileName,
+						Scan = Convert.ToBase64String(scanFile),
+						Comment = $"Компания {organizationName} приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
+					}
+				}
+			};
+
+			return await SendContactsAsync(invitationsList);
+		}
+
 		public async Task<ResultDto> SendContactsAsync(ContactList invitationsList)
 		{
 			var key = await Login();
@@ -142,20 +170,8 @@ namespace EdoService.Services
 			};
 		}
 
-		public ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode)
-		{
-			switch(stateCode)
-			{
-				case ContactStateCode.Accepted:
-					return ConsentForEdoStatus.Agree;
-				case ContactStateCode.Sent:
-					return ConsentForEdoStatus.Sent;
-				case ContactStateCode.Rejected:
-					return ConsentForEdoStatus.Rejected;
-				default:
-					return ConsentForEdoStatus.Unknown;
-			}
-		}
+		public ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode) =>
+			_contactStateConverter.ConvertStateToConsentForEdoStatus(stateCode);
 
 		public async Task<ContactList> GetContactListUpdatesAsync(DateTime dateLastRequest, ContactStateCode? status = null)
 		{
