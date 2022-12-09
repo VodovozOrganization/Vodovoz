@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -1219,7 +1219,7 @@ namespace Vodovoz.Domain.Orders
 			if(DeliveryDate > DateTime.Now.AddDays(_futureDeliveryDaysLimit))
 			{
 				yield return new ValidationResult(
-					$"Указана дата заказа больше чем на {_futureDeliveryDaysLimit} дней вперед. Укажите правильную дату доставки.",
+					$"Дата доставки заказа должна быть не более {_futureDeliveryDaysLimit} дней вперед. Измените, пожалуйста, дату доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) }
 				);
 			}
