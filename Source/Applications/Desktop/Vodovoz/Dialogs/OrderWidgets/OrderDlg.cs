@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
@@ -4036,6 +4036,14 @@ namespace Vodovoz
 			var selectedNode = e.GetSelectedObjects<NomenclatureForRentNode>().FirstOrDefault();
 
 			return selectedNode == null ? null : UoW.GetById<Nomenclature>(selectedNode.Id);
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+			}
 		}
 
 		#endregion
