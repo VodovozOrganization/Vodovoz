@@ -160,8 +160,11 @@ namespace Vodovoz.Models
 
 		private void AddFlyers(IList<AdditionalLoadingDocumentItem> items, IUnitOfWork uow, DateTime routelistDate)
 		{
-			if(!_deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled
-			&& !_deliveryRulesParametersProvider.FlyerForNewCounterpartyEnabled)
+			var additionalFlyersEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
+			var additionalFlyersForNewCounterpartiesEnabled = _deliveryRulesParametersProvider.FlyerForNewCounterpartyEnabled;
+
+			if(!additionalFlyersEnabled
+			&& !additionalFlyersForNewCounterpartiesEnabled)
 			{
 				return;
 			}
@@ -188,8 +191,15 @@ namespace Vodovoz.Models
 				_flyersInStock = _stockRepository.NomenclatureInStock(uow, _activeFlyers.Select(x => x.FlyerNomenclature.Id).ToArray());
 			}
 
-			AddFlyers(items, flyerAmount);
-			AddFlyersForNewCounterparties(items, flyerForNewCounterpartiesAmount);
+			if(additionalFlyersEnabled)
+			{
+				AddFlyers(items, flyerAmount);
+			}
+
+			if(additionalFlyersForNewCounterpartiesEnabled)
+			{
+				AddFlyersForNewCounterparties(items, flyerForNewCounterpartiesAmount);
+			}
 		}
 
 		private void AddFlyersForNewCounterparties(IList<AdditionalLoadingDocumentItem> items, int flyerForNewCounterpartiesAmount)
