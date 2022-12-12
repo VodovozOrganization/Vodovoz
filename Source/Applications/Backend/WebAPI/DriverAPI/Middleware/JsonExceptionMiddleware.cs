@@ -32,11 +32,11 @@ namespace DriverAPI.Middleware
 			}
 			catch(ArgumentOutOfRangeException exception) when (exception.ParamName == "orderId" && exception.Message.StartsWith("Нельзя завершить заказ"))
 			{
-				await MapException(context, exception, StatusCodes.Status202Accepted);
+				await MapException(context, exception, StatusCodes.Status200OK);
 			}
 			catch(InvalidOperationException exception) when (exception.Message == "Таймаут запроса операции")
 			{
-				await MapException(context, exception, StatusCodes.Status202Accepted);
+				await MapException(context, exception, StatusCodes.Status200OK);
 			}
 			catch(InvalidTimeZoneException exception)
 			{
