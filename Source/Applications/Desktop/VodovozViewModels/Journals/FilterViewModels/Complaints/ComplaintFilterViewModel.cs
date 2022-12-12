@@ -1,16 +1,14 @@
-﻿using System;
+﻿using QS.Project.Filter;
+using QS.Project.Journal.EntitySelector;
+using QS.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using QS.Project.Filter;
-using QS.Project.Journal.EntitySelector;
-using QS.Report;
-using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -160,8 +158,8 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref complaintStatus, value);
 		}
 
-		private ComplaintStatuses? complaintDiscussionStatus;
-		public virtual ComplaintStatuses? ComplaintDiscussionStatus
+		private ComplaintDiscussionStatuses? complaintDiscussionStatus;
+		public virtual ComplaintDiscussionStatuses? ComplaintDiscussionStatus
 		{
 			get => complaintDiscussionStatus;
 			set => SetField(ref complaintDiscussionStatus, value);

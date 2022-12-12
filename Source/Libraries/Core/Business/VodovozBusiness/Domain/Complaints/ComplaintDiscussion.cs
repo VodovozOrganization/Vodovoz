@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Complaints
 		private Subdivision _subdivision;
 		private DateTime _startSubdivisionDate;
 		private DateTime _plannedCompletionDate;
-		private ComplaintStatuses _status;
+		private ComplaintDiscussionStatuses _status;
 		private IList<ComplaintDiscussionComment> _comments = new List<ComplaintDiscussionComment>();
 		private GenericObservableList<ComplaintDiscussionComment> _observableComments;
 
@@ -57,7 +57,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		[Display(Name = "Статус")]
-		public virtual ComplaintStatuses Status
+		public virtual ComplaintDiscussionStatuses Status
 		{
 			get => _status;
 			set => SetField(ref _status, value);
