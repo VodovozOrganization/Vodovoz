@@ -4,6 +4,6 @@ namespace Vodovoz.Factories
 {
 	public interface IEmployeeRegistrationVersionFactory
 	{
-		EmployeeRegistrationVersion CreateEmployeeRegistrationVersion(Employee employee);
+		EmployeeRegistrationVersion CreateEmployeeRegistrationVersion(Employee employee, EmployeeRegistration employeeRegistration);
 	}
 }

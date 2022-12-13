@@ -232,6 +232,7 @@ public partial class MainWindow : Gtk.Window
 		ActionWagesOperations.Sensitive = hasAccessToSalaries; //Зарплаты сотрудников
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries; //Зарплаты экспедиторов
 		ActionDriversWageBalance.Visible = hasAccessToSalaries; //Баланс водителей
+		EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
 		ActionCRM.Sensitive = hasAccessToCRM;
 
 		bool canEditWage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");

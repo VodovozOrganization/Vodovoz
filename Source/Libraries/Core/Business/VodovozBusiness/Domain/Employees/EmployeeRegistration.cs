@@ -1,13 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		Nominative = "вид оформления сотрудника",
 		NominativePlural = "виды оформлений сотрудников")]
-	public class EmployeeRegistration : PropertyChangedBase, IDomainObject, IEmployeeRegistration
+	[HistoryTrace]
+	[EntityPermission]
+	public class EmployeeRegistration : PropertyChangedBase, IDomainObject, IEmployeeRegistration, IValidatableObject
 	{
 		private RegistrationType _registrationType;
 		private PaymentForm _paymentForm;
@@ -37,7 +44,23 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		public override string ToString() =>
-			$"Оформление: {RegistrationType.GetEnumTitle()}, форма оплаты: {PaymentForm.GetEnumTitle()} ставка налога: {TaxRate}";
+			$"Оформление: {RegistrationType.GetEnumTitle()}, форма оплаты: {PaymentForm.GetEnumTitle()}, ставка налога: {TaxRate}%";
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий { nameof(employeeRepository) }");
+			}
+
+			var duplicate = employeeRepository.EmployeeRegistrationDuplicateExists(this);
+			if(duplicate != null)
+			{
+				yield return new ValidationResult(
+					$"Вид оформления с такими параметрами уже существует(Код {duplicate.Id}).\n" +
+					"Выберите сохраненный или смените параметры");
+			}
+		}
 	}
 
 	public enum PaymentForm

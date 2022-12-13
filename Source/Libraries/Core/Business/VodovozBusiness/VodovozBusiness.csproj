@@ -54,8 +54,10 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
+    <Compile Include="Controllers\EmployeeRegistrationController.cs" />
     <Compile Include="Controllers\FuelPriceVersionsController.cs" />
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
+    <Compile Include="Controllers\IEmployeeRegistrationController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
     <Compile Include="Controllers\IRouteListProfitabilityController.cs" />
     <Compile Include="Controllers\IUserPermissionsController.cs" />
@@ -573,11 +575,9 @@
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
-    <Compile Include="Parameters\IRegistrationTypeSettings.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
     <Compile Include="Parameters\PhoneTypeSettings.cs" />
-    <Compile Include="Parameters\RegistrationTypeSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\IEdoSettings.cs" />

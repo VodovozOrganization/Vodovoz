@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.HibernateMapping.Employees
@@ -74,6 +73,7 @@ namespace Vodovoz.HibernateMapping.Employees
 
                 HasMany(x => x.Contracts).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 				HasMany(x => x.WageParameters).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
+				HasMany(x => x.EmployeeRegistrationVersions).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 				
 				HasMany(x => x.DriverWorkScheduleSets)
 					.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("driver_id")

@@ -14,8 +14,8 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
 
-			References(x =>x.Employee).Column("employee_id");
-			References(x =>x.EmployeeRegistration)
+			References(x => x.Employee).Column("employee_id");
+			References(x => x.EmployeeRegistration)
 				.Column("employee_registration_id")
 				.Cascade.AllDeleteOrphan();
 		}

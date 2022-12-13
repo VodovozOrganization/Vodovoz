@@ -14,11 +14,15 @@ using QS.Report;
 using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using System.Data.Bindings.Collections.Generic;
+using System.Text;
+using Gamma.Utilities;
 
 namespace Vodovoz.ReportsParameters.Employees
 {
 	public partial class EmployeesTaxesSumReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private const string _employeesParameterSet = "employees";
+		private const string _subdivisionsParameterSet = "subdivisions";
 		private readonly SelectableParametersReportFilter _filter;
 		private GenericObservableList<SelectableRegistrationTypeNode> _selectableRegistrationTypes;
 		private GenericObservableList<SelectablePaymentFormNode> _selectablePaymentForms;
@@ -123,9 +127,9 @@ namespace Vodovoz.ReportsParameters.Employees
 
 		private void SetupFilter()
 		{
-			_filter.CreateParameterSet(
+			var subdivisionsFilter = _filter.CreateParameterSet(
 				"Подразделения",
-				"subdivisions",
+				_subdivisionsParameterSet,
 				new ParametersFactory(UoW, (filters) =>
 				{
 					SelectableEntityParameter<Subdivision> resultAlias = null;
@@ -147,9 +151,9 @@ namespace Vodovoz.ReportsParameters.Employees
 				})
 			);
 
-			_filter.CreateParameterSet(
+			var employeesFilter = _filter.CreateParameterSet(
 				"Сотрудники",
-				"employees",
+				_employeesParameterSet,
 				new ParametersFactory(UoW, (filters) =>
 				{
 					SelectableEntityParameter<Employee> resultAlias = null;
@@ -180,6 +184,19 @@ namespace Vodovoz.ReportsParameters.Employees
 					return paremetersSet;
 				})
 			);
+			
+			employeesFilter.AddFilterOnSourceSelectionChanged(subdivisionsFilter,
+				() =>
+				{
+					var selectedValues = subdivisionsFilter.GetSelectedValues().ToArray();
+
+					return !selectedValues.Any()
+						? Restrictions.Gt(Projections.Property<Employee>(e => e.Id), 0)
+						: subdivisionsFilter.FilterType == SelectableFilterType.Include
+							? Restrictions.On<Employee>(x => x.Subdivision).IsIn(selectedValues)
+							: Restrictions.On<Employee>(x => x.Subdivision).Not.IsIn(selectedValues);
+				}
+			);
 
 			var viewModel = new SelectableParameterReportFilterViewModel(_filter);
 			var filterWidget = new SelectableParameterReportFilterView(viewModel);
@@ -194,24 +211,101 @@ namespace Vodovoz.ReportsParameters.Employees
 
 		private ReportInfo GetReportInfo()
 		{
+			var sb = new StringBuilder();
+			GetSelectedRegistrationTypes(out var selectedRegistrationTypes, out var selectedRegistrationTypesString, sb);
+			GetSelectedPaymentForms(out var selectedPaymentForms, out var selectedPaymentFormsString, sb);
+			
+			var filterParameters = _filter.GetParameters();
+
 			var parameters = new Dictionary<string, object>
 			{
 				{ "start_date", dateperiodpicker.StartDateOrNull },
 				{ "end_date", dateperiodpicker.EndDateOrNull },
-				{ "registration_types", _selectableRegistrationTypes.Where(x => x.IsSelected).Select(x => x.RegistrationType)},
-				{ "payment_forms", _selectablePaymentForms.Where(x => x.IsSelected).Select(x => x.PaymentForm)},
+				{ "registration_types", selectedRegistrationTypes },
+				{ "registration_types_string", selectedRegistrationTypesString },
+				{ "payment_forms", selectedPaymentForms },
+				{ "payment_forms_string", selectedPaymentFormsString },
+				{ "selected_employees",
+					GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(_employeesParameterSet), sb) },
+				{ "selected_subdivisions",
+					GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(_subdivisionsParameterSet), sb) }
 			};
 
-			foreach(var item in _filter.GetParameters())
+			foreach(var item in filterParameters)
 			{
 				parameters.Add(item.Key, item.Value);
 			}
 
 			return new ReportInfo
 			{
-				Identifier = "Employee.EmployeesTaxesSumReport",
+				Identifier = "Employees.EmployeesTaxesSumReport",
 				Parameters = parameters
 			};
+		}
+
+		private void GetSelectedRegistrationTypes(out IList<string> selectedNodes, out string selectedNodesString, StringBuilder sb)
+		{
+			selectedNodes = new List<string>();
+			selectedNodesString = string.Empty;
+			sb.Clear();
+			if(_selectableRegistrationTypes.Any(x => x.IsSelected))
+			{
+				foreach(var node in _selectableRegistrationTypes.Where(x => x.IsSelected))
+				{
+					FillSelectedValues(selectedNodes, sb, node.RegistrationType);
+				}
+				selectedNodesString = sb.ToString().TrimEnd(' ', ',');
+			}
+			else
+			{
+				FillEmptyValues(selectedNodes, out selectedNodesString);
+			}
+		}
+
+		private void GetSelectedPaymentForms(out IList<string> selectedNodes, out string selectedNodesString, StringBuilder sb)
+		{
+			selectedNodes = new List<string>();
+			selectedNodesString = string.Empty;
+			sb.Clear();
+			if(_selectablePaymentForms.Any(x => x.IsSelected))
+			{
+				foreach(var node in _selectablePaymentForms.Where(x => x.IsSelected))
+				{
+					FillSelectedValues(selectedNodes, sb, node.PaymentForm);
+				}
+				selectedNodesString = sb.ToString().TrimEnd(' ', ',');
+			}
+			else
+			{
+				FillEmptyValues(selectedNodes, out selectedNodesString);
+			}
+		}
+		
+		private void FillSelectedValues(IList<string> selectedNodes, StringBuilder stringBuilder, Enum node)
+		{
+			selectedNodes.Add(node.ToString());
+			stringBuilder.Append($"{node.GetEnumTitle()}, ");
+		}
+		
+		private void FillEmptyValues(IList<string> selectedNodes, out string selectedNodesString)
+		{
+			selectedNodes.Add("Empty");
+			selectedNodesString = "Нет";
+		}
+
+		private string GetSelectedParametersTitles(IDictionary<string, string> selectedParametersTitles, StringBuilder sb)
+		{
+			sb.Clear();
+			
+			if(selectedParametersTitles.Any())
+			{
+				foreach(var item in selectedParametersTitles)
+				{
+					sb.AppendLine($"{item.Key}{item.Value}");
+				}
+			}
+
+			return sb.ToString().TrimEnd('\n');
 		}
 	}
 
