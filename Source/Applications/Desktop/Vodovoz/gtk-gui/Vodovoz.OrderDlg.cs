@@ -14,8 +14,6 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Gtk.Button btnCopyEntityId;
-
 		private global::Gtk.VSeparator vseparator1;
 
 		private global::Gtk.RadioButton toggleInformation;
@@ -29,6 +27,8 @@ namespace Vodovoz
 		private global::Gtk.RadioButton toggleDocuments;
 
 		private global::Gtk.RadioButton toggleTareControl;
+
+		private global::Gtk.Button btnCopyEntityId;
 
 		private global::Gtk.Notebook ntbOrderEdit;
 
@@ -557,27 +557,13 @@ namespace Vodovoz
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.btnCopyEntityId = new global::Gtk.Button();
-			this.btnCopyEntityId.CanFocus = true;
-			this.btnCopyEntityId.Name = "btnCopyEntityId";
-			this.btnCopyEntityId.UseUnderline = true;
-			this.btnCopyEntityId.Label = global::Mono.Unix.Catalog.GetString("Копировать №");
-			global::Gtk.Image w5 = new global::Gtk.Image();
-			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Menu);
-			this.btnCopyEntityId.Image = w5;
-			this.hbox1.Add(this.btnCopyEntityId);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnCopyEntityId]));
-			w6.Position = 2;
-			w6.Expand = false;
-			w6.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
 			this.vseparator1 = new global::Gtk.VSeparator();
 			this.vseparator1.Name = "vseparator1";
 			this.hbox1.Add(this.vseparator1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vseparator1]));
-			w7.Position = 3;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vseparator1]));
+			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleInformation = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Информация"));
 			this.toggleInformation.CanFocus = true;
@@ -586,9 +572,9 @@ namespace Vodovoz
 			this.toggleInformation.UseUnderline = true;
 			this.toggleInformation.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.hbox1.Add(this.toggleInformation);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleInformation]));
-			w8.Position = 4;
-			w8.Expand = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleInformation]));
+			w6.Position = 3;
+			w6.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleGoods = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Товары"));
 			this.toggleGoods.CanFocus = true;
@@ -597,9 +583,9 @@ namespace Vodovoz
 			this.toggleGoods.UseUnderline = true;
 			this.toggleGoods.Group = this.toggleInformation.Group;
 			this.hbox1.Add(this.toggleGoods);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleGoods]));
-			w9.Position = 5;
-			w9.Expand = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleGoods]));
+			w7.Position = 4;
+			w7.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleEquipment = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Оборудование"));
 			this.toggleEquipment.CanFocus = true;
@@ -608,9 +594,9 @@ namespace Vodovoz
 			this.toggleEquipment.UseUnderline = true;
 			this.toggleEquipment.Group = this.toggleInformation.Group;
 			this.hbox1.Add(this.toggleEquipment);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleEquipment]));
-			w10.Position = 6;
-			w10.Expand = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleEquipment]));
+			w8.Position = 5;
+			w8.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleService = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Сервис"));
 			this.toggleService.CanFocus = true;
@@ -619,9 +605,9 @@ namespace Vodovoz
 			this.toggleService.UseUnderline = true;
 			this.toggleService.Group = this.toggleInformation.Group;
 			this.hbox1.Add(this.toggleService);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleService]));
-			w11.Position = 7;
-			w11.Expand = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleService]));
+			w9.Position = 6;
+			w9.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleDocuments = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Документы"));
 			this.toggleDocuments.CanFocus = true;
@@ -630,9 +616,9 @@ namespace Vodovoz
 			this.toggleDocuments.UseUnderline = true;
 			this.toggleDocuments.Group = this.toggleInformation.Group;
 			this.hbox1.Add(this.toggleDocuments);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleDocuments]));
-			w12.Position = 8;
-			w12.Expand = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleDocuments]));
+			w10.Position = 7;
+			w10.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.toggleTareControl = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Работа над заказом"));
 			this.toggleTareControl.CanFocus = true;
@@ -641,9 +627,23 @@ namespace Vodovoz
 			this.toggleTareControl.UseUnderline = true;
 			this.toggleTareControl.Group = this.toggleInformation.Group;
 			this.hbox1.Add(this.toggleTareControl);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleTareControl]));
-			w13.Position = 9;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.toggleTareControl]));
+			w11.Position = 8;
+			w11.Expand = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.btnCopyEntityId = new global::Gtk.Button();
+			this.btnCopyEntityId.CanFocus = true;
+			this.btnCopyEntityId.Name = "btnCopyEntityId";
+			this.btnCopyEntityId.UseUnderline = true;
+			this.btnCopyEntityId.Label = global::Mono.Unix.Catalog.GetString("Копировать №");
+			global::Gtk.Image w12 = new global::Gtk.Image();
+			w12.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Menu);
+			this.btnCopyEntityId.Image = w12;
+			this.hbox1.Add(this.btnCopyEntityId);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnCopyEntityId]));
+			w13.Position = 10;
 			w13.Expand = false;
+			w13.Fill = false;
 			this.vbox2.Add(this.hbox1);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
 			w14.Position = 0;
@@ -3254,13 +3254,13 @@ namespace Vodovoz
 			this.depositrefunditemsview.Hide();
 			this.Hide();
 			this.Shown += new global::System.EventHandler(this.OnShown);
-			this.btnCopyEntityId.Clicked += new global::System.EventHandler(this.OnBtnCopyEntityIdClicked);
 			this.toggleInformation.Toggled += new global::System.EventHandler(this.OnToggleInformationToggled);
 			this.toggleGoods.Toggled += new global::System.EventHandler(this.OnToggleGoodsToggled);
 			this.toggleEquipment.Toggled += new global::System.EventHandler(this.OnToggleEquipmentToggled);
 			this.toggleService.Toggled += new global::System.EventHandler(this.OnToggleServiceToggled);
 			this.toggleDocuments.Toggled += new global::System.EventHandler(this.OnToggleDocumentsToggled);
 			this.toggleTareControl.Toggled += new global::System.EventHandler(this.OnToggleTareControlToggled);
+			this.btnCopyEntityId.Clicked += new global::System.EventHandler(this.OnBtnCopyEntityIdClicked);
 			this.ybuttonToDeliveryAddressType.Clicked += new global::System.EventHandler(this.OnYbuttonToDeliveryAddressTypeClicked);
 			this.ybuttonToStorageLogicAddressType.Clicked += new global::System.EventHandler(this.OnYbuttonToStorageLogicAddressTypeClicked);
 			this.btnSaveComment.Clicked += new global::System.EventHandler(this.OnBtnSaveCommentClicked);
