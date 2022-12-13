@@ -41,7 +41,8 @@ namespace DriverAPI.Library.Helpers
 			var request = new
 			{
 				to = pushNotificationClientToken,
-				priority = "high"
+				priority = "high",
+				content_available = true
 			};
 
 			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request);
