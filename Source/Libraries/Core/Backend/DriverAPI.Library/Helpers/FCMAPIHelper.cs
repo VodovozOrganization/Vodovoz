@@ -28,12 +28,11 @@ namespace DriverAPI.Library.Helpers
 				}
 			};
 
-			using (HttpResponseMessage response = await _httpClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request))
+			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request);
+
+			if(!response.IsSuccessStatusCode)
 			{
-				if(!response.IsSuccessStatusCode)
-				{
-					throw new FCMException(response.ReasonPhrase);
-				}
+				throw new FCMException(response.ReasonPhrase);
 			}
 		}
 
@@ -45,44 +44,12 @@ namespace DriverAPI.Library.Helpers
 				priority = "high"
 			};
 
-			//using HttpResponseMessage response = await _apiClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request);
-			//"message": {
+			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request);
 
-			//					"token": recieverFcm,
-			//			   "data": {
-			//						"title": senderName,
-			//   				   "body": message,
-			//   				   "chatRoomId": chatRoomId,
-			//   				   "sender_profile_pic": senderProfilePic,
-			//   				   "senderUid": senderUid,
-			//   				   "data_type": messageType,
-			//   				   "click_action": "OPEN_CHAT_ROOM"
-
-			// },
-			//			   "android": {
-			//						"priority": "high"
-
-			// },
-			//			   "apns": {
-			//						"payload": {
-			//							"aps": {
-			//								"category": "OPEN_CHAT_ROOM",
-			//           				   "sound": "enable",
-			//           				   "content-available": 1,
-			//       				   },
-			//       				   "data": {
-			//								"title": senderName,
-			//           				   "body": message,
-			//           				   "chatRoomId": chatRoomId,
-			//           				   "sender_profile_pic": senderProfilePic,
-			//           				   "senderUid": senderUid,
-			//           				   "data_type": messageType,
-			//           				   "click_action": "OPEN_CHAT_ROOM"
-
-			//	 },
-			//   				   }
-			//					}
-			//				}
+			if(!response.IsSuccessStatusCode)
+			{
+				throw new FCMException(response.ReasonPhrase);
+			}
 		}
 	}
 }
