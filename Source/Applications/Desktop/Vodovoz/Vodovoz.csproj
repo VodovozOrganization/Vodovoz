@@ -1761,6 +1761,8 @@
     <Compile Include="Filters\Views\UsersJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.UsersJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Users.UserRoleView.cs" />
+    <Compile Include="Filters\GtkViews\DriverMessageFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DriverMessageFilterView.cs" />
     <Compile Include="Views\Employees\EmployeeRegistrationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeeRegistrationView.cs" />
     <Compile Include="ReportsParameters\Employees\EmployeesTaxesSumReport.cs" />

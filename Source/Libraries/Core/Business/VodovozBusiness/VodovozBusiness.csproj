@@ -97,6 +97,7 @@
     <Compile Include="Domain\Complaints\ComplaintResultType.cs" />
     <Compile Include="Domain\Client\RoboAtsCounterpartyName.cs" />
     <Compile Include="Domain\Client\RoboAtsCounterpartyPatronymic.cs" />
+    <Compile Include="Domain\Complaints\ComplaintDiscussionStatuses.cs" />
     <Compile Include="Domain\Complaints\Responsible.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />

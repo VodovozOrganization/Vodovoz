@@ -181,12 +181,12 @@ namespace Vodovoz.ViewModels.Complaints
 			);
 		}
 
-		void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
+		private void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
 		{
 			OnDiscussionsChanged();
 		}
 
-		void ObservableComplaintDiscussions_ListContentChanged(object sender, EventArgs e)
+		private void ObservableComplaintDiscussions_ListContentChanged(object sender, EventArgs e)
 		{
 			OnDiscussionsChanged();
 		}
@@ -197,7 +197,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.UpdateComplaintStatus();
 		}
 
-		void ObservableFines_ListContentChanged(object sender, EventArgs e)
+		private void ObservableFines_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(() => FineItems);
 		}
@@ -271,10 +271,10 @@ namespace Vodovoz.ViewModels.Complaints
 		public string SubdivisionsInWork {
 			get {
 				string inWork = string.Join(", ", Entity.ComplaintDiscussions
-					.Where(x => x.Status == ComplaintStatuses.InProcess)
+					.Where(x => x.Status == ComplaintDiscussionStatuses.InProcess)
 					.Where(x => !string.IsNullOrWhiteSpace(x.Subdivision?.ShortName))
 					.Select(x => x.Subdivision.ShortName));
-				string okk = (!Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess)
+				string okk = (!Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintDiscussionStatuses.InProcess)
 							&& Status != ComplaintStatuses.Closed) ? "OKK" : null;
 				string result;
 				if(!string.IsNullOrWhiteSpace(inWork) && !string.IsNullOrWhiteSpace(okk)) {
@@ -327,7 +327,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public IEnumerable<ComplaintResultOfEmployees> ComplaintResultsOfEmployees { get; }
 
-		IList<ComplaintKind> complaintKindSource;
+		private IList<ComplaintKind> complaintKindSource;
 
 		public IList<ComplaintKind> ComplaintKindSource {
 			get {

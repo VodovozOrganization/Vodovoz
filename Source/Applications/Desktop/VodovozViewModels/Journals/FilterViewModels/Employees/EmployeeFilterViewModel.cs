@@ -2,6 +2,7 @@
 using QS.Project.Filter;
 using QS.Project.Services;
 using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
@@ -11,7 +12,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 	public class EmployeeFilterViewModel : FilterViewModelBase<EmployeeFilterViewModel>
 	{
 		private bool _sortByPriority;
-		private bool _canSortByPriotity;
+		private bool _canSortByPriority;
 		private bool _canChangeStatus = true;
 		private bool _canChangeCategory = true;
 		private bool _hasAccessToDriverTerminal;
@@ -37,12 +38,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		private bool _isChainStoreDriver;
 		private bool _isRFCitizen;
 
-		public EmployeeFilterViewModel()
+		public EmployeeFilterViewModel(params EmployeeCategory[] hideEmployeeCategories)
 		{
 			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			HasAccessToDriverTerminal = cashier || logistician;
 			CanSortByPriority = cashier;
+			HideEmployeeCategories = hideEmployeeCategories;
 
 			CreateCommands();
 		}
@@ -50,6 +52,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		#region Свойства
 
 		public DelegateCommand UpdateRestrictions { get; private set; }
+		
+		public IEnumerable<EmployeeCategory> HideEmployeeCategories { get; }
 
 		public bool CanChangeCategory
 		{
@@ -102,8 +106,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 
 		public bool CanSortByPriority
 		{
-			get => _canSortByPriotity;
-			set => UpdateFilterField(ref _canSortByPriotity, value);
+			get => _canSortByPriority;
+			set => UpdateFilterField(ref _canSortByPriority, value);
 		}
 
 		public bool SortByPriority

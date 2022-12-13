@@ -8,6 +8,8 @@ namespace Vodovoz.Domain.Complaints
 		InProcess,
 		[Display(Name = "На проверке")]
 		Checking,
+		[Display(Name = "Ожидает реакции")]
+		WaitingForReaction,
 		[Display(Name = "Закрыт")]
 		Closed
 	}

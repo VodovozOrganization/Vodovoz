@@ -162,7 +162,6 @@ using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 
 public partial class MainWindow : Gtk.Window
@@ -174,7 +173,8 @@ public partial class MainWindow : Gtk.Window
 	private readonly IPasswordValidator passwordValidator;
 	private readonly IApplicationConfigurator applicationConfigurator;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
-
+	private readonly bool _hasAccessToSalariesForLogistics;
+	
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
 
@@ -213,48 +213,54 @@ public partial class MainWindow : Gtk.Window
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
-		var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		var commonServices = ServicesConfig.CommonServices;
+		var cashier = commonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 		ActionCash.Sensitive = ActionIncomeBalanceReport.Sensitive = ActionCashBook.Sensitive = cashier;
-		ActionAccounting.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
+		ActionAccounting.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
+			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 		var currentWarehousePermissions = new CurrentWarehousePermissions();
 		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
-		bool hasAccessToCRM = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
-		bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
-		bool hasAccessToWagesAndBonuses = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
+		bool hasAccessToCRM = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
+		bool hasAccessToSalaries = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
+		_hasAccessToSalariesForLogistics =
+			commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
+		bool hasAccessToWagesAndBonuses = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
 		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses; //Премии сотрудников
 		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses; //Штрафы сотрудников
 		ActionDriverWages.Sensitive = hasAccessToSalaries; //Зарплаты водителей
-		ActionWagesOperations.Sensitive = hasAccessToSalaries; //Зарплаты сотрудников
+		ActionWagesOperations.Sensitive = hasAccessToSalaries || _hasAccessToSalariesForLogistics; //Зарплаты сотрудников
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries; //Зарплаты экспедиторов
 		ActionDriversWageBalance.Visible = hasAccessToSalaries; //Баланс водителей
 		EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
 		ActionCRM.Sensitive = hasAccessToCRM;
 
-		bool canEditWage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
+		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
 		ActionWageDistrict.Sensitive = canEditWage;
 		ActionRates.Sensitive = canEditWage;
 
-		bool canEditWageBySelfSubdivision = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
+		bool canEditWageBySelfSubdivision =
+			commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
 		ActionSalesPlans.Sensitive = canEditWageBySelfSubdivision;
 
-		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
+		ActionFinesJournal.Visible = ActionPremiumJournal.Visible =
+			commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
 		ActionReports.Sensitive = false;
 		//ActionServices.Visible = false;
 		ActionDocTemplates.Visible = QSMain.User.Admin;
-		ActionService.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
+		ActionService.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
 		ActionEmployeeWorkChart.Sensitive = false;
 
 		//Скрываем справочник стажеров
 		ActionTrainee.Visible = false;
 
-		ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
-		ActionExportImportNomenclatureCatalog.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
-		ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
+		ActionAddOrder.Sensitive = commonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
+		ActionExportImportNomenclatureCatalog.Sensitive =
+			commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
+		ActionDistricts.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
 
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle)
@@ -292,7 +298,7 @@ public partial class MainWindow : Gtk.Window
 
 		// Отдел продаж
 
-		ActionSalesDepartment.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
+		ActionSalesDepartment.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
 
 		#region Пользователь с правом работы только со складом и рекламациями
 
@@ -301,8 +307,8 @@ public partial class MainWindow : Gtk.Window
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			accessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
+				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				&& !commonServices.UserService.GetCurrentUser(uow).IsAdmin;
 		}
 
 		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
@@ -341,8 +347,8 @@ public partial class MainWindow : Gtk.Window
 
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			userIsSalesRepresentative = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
-			&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
+			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
+				&& !commonServices.UserService.GetCurrentUser(uow).IsAdmin;
 		}
 
 		// Основные разделы отчетов
@@ -368,24 +374,24 @@ public partial class MainWindow : Gtk.Window
 
 		// Управление ограничением доступа через зарегистрированные RM
 
-		var userCanManageRegisteredRMs = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
+		var userCanManageRegisteredRMs = commonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
 
 		registeredRMAction.Visible = userCanManageRegisteredRMs;
 
 		// Настройки розницы
 
-		var userHaveAccessToRetail = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+		var userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 
 		ActionRetail.Sensitive = userHaveAccessToRetail;
 
 		ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
 
-		ActionAdditionalLoadSettings.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
+		ActionAdditionalLoadSettings.Sensitive = commonServices.CurrentPermissionService
 			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 
 		//Доступ к константам рентабельности (Справочники - Финансы - Константы рентабельности)
 		ProfitabilityConstantsAction.Sensitive =
-			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
+			commonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
 
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
@@ -1170,9 +1176,26 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
 	{
+		EmployeeFilterViewModel employeeFilter;
+		if(_hasAccessToSalariesForLogistics)
+		{
+			employeeFilter = new EmployeeFilterViewModel(EmployeeCategory.office);
+			employeeFilter.SetAndRefilterAtOnce(
+				x => x.Category = EmployeeCategory.driver,
+				x => x.Status = EmployeeStatus.IsWorking);
+		}
+		else
+		{
+			employeeFilter = new EmployeeFilterViewModel();
+			employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
+		}
+
+		employeeFilter.HidenByDefault = true;
+		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+		
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport())
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport(employeeJournalFactory))
 		);
 	}
 
