@@ -45,7 +45,7 @@ namespace Vodovoz.Views.Goods
 
 			ycheckFlyerAdditionForNewCounterpartyEnabled.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
-				.AddBinding(vm => vm.FlyerAdditionForNewClientsEnabled, w => w.Active)
+				.AddBinding(vm => vm.FlyerForNewCounterpartyEnabled, w => w.Active)
 				.InitializeFromSource();
 
 			entryBottlesForNewCounterpartyCount.ValidationMode = ValidationType.Numeric;

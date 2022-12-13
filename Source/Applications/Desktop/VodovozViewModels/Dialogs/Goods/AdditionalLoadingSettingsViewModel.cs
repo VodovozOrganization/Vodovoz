@@ -98,12 +98,6 @@ namespace Vodovoz.ViewModels.Goods
 			set => SetField(ref _flyerAdditionEnabled, value);
 		}
 
-		public bool FlyerAdditionForNewClientsEnabled
-		{
-			get => _flyerAdditionForNewClientsEnabled;
-			set => SetField(ref _flyerAdditionForNewClientsEnabled, value);
-		}
-
 		public bool FlyerForNewCounterpartyEnabled
 		{ 
 			get => _flyerForNewCounterpartyEnabled; 
