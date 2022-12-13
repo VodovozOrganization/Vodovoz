@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,16 +18,6 @@ namespace Vodovoz.Infrastructure
 				await DoWork(stoppingToken);
 				await Task.Delay(Interval, stoppingToken);
 			}
-		}
-
-		public override async Task StartAsync(CancellationToken cancellationToken)
-		{
-			await base.StartAsync(cancellationToken);
-		}
-
-		public override async Task StopAsync(CancellationToken cancellationToken)
-		{
-			await base.StopAsync(cancellationToken);
 		}
 	}
 }
