@@ -809,10 +809,12 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
 		var parametersProvider = new ParametersProvider();
+		var nomenclatureParametersProvider = new NomenclatureParametersProvider(parametersProvider);
 		var routeListProfitabilityController = new RouteListProfitabilityController(
-			new RouteListProfitabilityFactory(), new NomenclatureParametersProvider(parametersProvider),
+			new RouteListProfitabilityFactory(), nomenclatureParametersProvider,
 			new ProfitabilityConstantsRepository(), new RouteListProfitabilityRepository(),
-			new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider)));
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider)),
+			new NomenclatureRepository(nomenclatureParametersProvider));
 		var commonServices = ServicesConfig.CommonServices;
 		var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
 

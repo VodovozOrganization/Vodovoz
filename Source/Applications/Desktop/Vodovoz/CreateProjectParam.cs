@@ -347,6 +347,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DebtorsJournalFilterViewModel, DebtorsFilterView>()
 				.RegisterWidgetForWidgetViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
 				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
+				.RegisterWidgetForWidgetViewModel<DriverMessageFilterViewModel, DriverMessageFilterView>()
 				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
 				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
 				.RegisterWidgetForWidgetViewModel<IncomeCategoryJournalFilterViewModel, IncomeCategoryJournalFilterView>()

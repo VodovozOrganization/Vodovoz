@@ -554,6 +554,7 @@
     <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
     <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
     <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\DriverMessageFilterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
