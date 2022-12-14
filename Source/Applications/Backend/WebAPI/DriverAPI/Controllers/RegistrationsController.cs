@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers
@@ -56,15 +57,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterDriverActions")]
 		public async Task RegisterDriverActionsAsync([FromBody] IEnumerable<DriverActionDto> driverActionModels)
 		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"User token: {tokenStr}");
 
-			_logger.LogInformation($"Регистрация действий в мобильном приложении пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
-
-			var user = await _userManager.GetUserAsync(User);
-			var driver = _employeeData.GetByAPILogin(user.UserName);
-
-			_driverMobileAppActionRecordModel.RegisterActionsRangeForDriver(driver, driverActionModels);
 		}
 
 		// POST: RegisterRouteListAddressCoordinates
