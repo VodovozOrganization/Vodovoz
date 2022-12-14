@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
@@ -833,6 +833,8 @@ namespace Vodovoz
 			UpdateAvailableEnumSignatureTypes();
 
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
+
+			btnCopyEntityId.Sensitive = Entity.Id > 0;
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
@@ -1556,6 +1558,7 @@ namespace Vodovoz
 
 				logger.Info("Ok.");
 				UpdateUIState();
+				btnCopyEntityId.Sensitive = true;
 				return true;
 			} finally {
 				SetSensitivity(true);
