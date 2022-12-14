@@ -641,6 +641,7 @@ namespace Vodovoz
 			this.btnCopyEntityId.Image = w12;
 			this.hbox1.Add(this.btnCopyEntityId);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnCopyEntityId]));
+			w13.PackType = ((global::Gtk.PackType)(1));
 			w13.Position = 10;
 			w13.Expand = false;
 			w13.Fill = false;
