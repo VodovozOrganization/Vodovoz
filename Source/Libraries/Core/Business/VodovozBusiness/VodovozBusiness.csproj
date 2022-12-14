@@ -95,6 +95,7 @@
     <Compile Include="Domain\Complaints\ComplaintResultType.cs" />
     <Compile Include="Domain\Client\RoboAtsCounterpartyName.cs" />
     <Compile Include="Domain\Client\RoboAtsCounterpartyPatronymic.cs" />
+    <Compile Include="Domain\Complaints\ComplaintDiscussionStatuses.cs" />
     <Compile Include="Domain\Complaints\Responsible.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
@@ -564,9 +565,11 @@
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
+    <Compile Include="Parameters\IRouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
     <Compile Include="Parameters\ComplaintParameterProvider.cs" />
     <Compile Include="Parameters\PhoneTypeSettings.cs" />
+    <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\IEdoSettings.cs" />

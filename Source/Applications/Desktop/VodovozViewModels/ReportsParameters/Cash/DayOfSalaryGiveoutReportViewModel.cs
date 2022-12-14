@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Cash
 			Identifier = "Cash.DayOfSalaryGiveout";
 
 			_interactiveService = (commonServices ?? throw new ArgumentNullException(nameof(commonServices))).InteractiveService;
-			var hasAccess = commonServices.CurrentPermissionService.ValidatePresetPermission("has_access_to_next_salary_day_report");
+			var hasAccess = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
 
 			if(!hasAccess)
 			{

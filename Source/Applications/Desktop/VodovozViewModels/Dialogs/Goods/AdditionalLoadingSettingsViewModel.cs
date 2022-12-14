@@ -33,6 +33,9 @@ namespace Vodovoz.ViewModels.Goods
 		private int _bottlesCount;
 		private double _fastDeliveryMaxDistance;
 		private bool _flyerAdditionEnabled;
+		private bool _flyerAdditionForNewClientsEnabled;
+		private bool _flyerForNewCounterpartyEnabled;
+		private int _flyerForNewCounterpartyBottlesCount;
 
 		public AdditionalLoadingSettingsViewModel(
 			ILifetimeScope scope,
@@ -57,10 +60,14 @@ namespace Vodovoz.ViewModels.Goods
 
 			CanEdit = commonServices.CurrentPermissionService
 				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanUpdate;
-
-			BottlesCount = _deliveryRulesParametersProvider.BottlesCountForFlyer;
+			
 			FastDeliveryMaxDistance = _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
+
 			FlyerAdditionEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
+			BottlesCount = _deliveryRulesParametersProvider.BottlesCountForFlyer;
+
+			FlyerForNewCounterpartyEnabled = _deliveryRulesParametersProvider.FlyerForNewCounterpartyEnabled;
+			FlyerForNewCounterpartyBottlesCount = _deliveryRulesParametersProvider.FlyerForNewCounterpartyBottlesCount;
 
 			Initialize();
 		}
@@ -89,6 +96,18 @@ namespace Vodovoz.ViewModels.Goods
 		{
 			get => _flyerAdditionEnabled;
 			set => SetField(ref _flyerAdditionEnabled, value);
+		}
+
+		public bool FlyerForNewCounterpartyEnabled
+		{ 
+			get => _flyerForNewCounterpartyEnabled; 
+			set => SetField(ref _flyerForNewCounterpartyEnabled, value);
+		}
+
+		public int FlyerForNewCounterpartyBottlesCount
+		{
+			get => _flyerForNewCounterpartyBottlesCount;
+			set => SetField(ref _flyerForNewCounterpartyBottlesCount, value);
 		}
 
 		public DelegateCommand<IList<AdditionalLoadingNomenclatureDistribution>> RemoveNomenclatureDistributionCommand =>
@@ -235,9 +254,15 @@ namespace Vodovoz.ViewModels.Goods
 			{
 				UoW.Save(priority);
 			}
-			_deliveryRulesParametersProvider.UpdateBottlesCountForFlyerParameter(BottlesCount.ToString());
+
 			_deliveryRulesParametersProvider.UpdateFastDeliveryMaxDistanceParameter(FastDeliveryMaxDistance.ToString());
+			
 			_deliveryRulesParametersProvider.UpdateAdditionalLoadingFlyerAdditionEnabledParameter(FlyerAdditionEnabled.ToString());
+			_deliveryRulesParametersProvider.UpdateBottlesCountForFlyerParameter(BottlesCount.ToString());
+
+			_deliveryRulesParametersProvider.UpdateFlyerForNewCounterpartyEnabledParameter(FlyerForNewCounterpartyEnabled.ToString());
+			_deliveryRulesParametersProvider.UpdateFlyerForNewCounterpartyBottlesCountParameter(FlyerForNewCounterpartyBottlesCount.ToString());
+
 			UoW.Commit();
 			return true;
 		}

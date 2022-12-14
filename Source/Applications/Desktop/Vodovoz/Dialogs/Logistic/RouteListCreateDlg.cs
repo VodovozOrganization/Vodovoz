@@ -51,6 +51,8 @@ using Vodovoz.Factories;
 using Gamma.ColumnConfig;
 using Vodovoz.Domain.Profitability;
 using System.Data.Bindings.Collections.Generic;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {
@@ -63,6 +65,8 @@ namespace Vodovoz
 			new FlyerRepository(), new DeliveryRulesParametersProvider(_parametersProvider), new StockRepository());
 		private static readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider =
+			new NomenclatureParametersProvider(_parametersProvider);
 
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory =
 			new EntityDocumentsPrinterFactory();
@@ -76,10 +80,11 @@ namespace Vodovoz
 		private readonly RouteListProfitabilityController _routeListProfitabilityController = 
 			new RouteListProfitabilityController(
 				new RouteListProfitabilityFactory(),
-				new NomenclatureParametersProvider(_parametersProvider),
+				_nomenclatureParametersProvider,
 				new ProfitabilityConstantsRepository(),
 				new RouteListProfitabilityRepository(),
-				_routeListRepository);
+				_routeListRepository,
+				new NomenclatureRepository(_nomenclatureParametersProvider));
 
 		private AdditionalLoadingItemsView _additionalLoadingItemsView;
 
@@ -327,15 +332,15 @@ namespace Vodovoz
 			treeRouteListProfitability.ColumnsConfig = FluentColumnsConfig<RouteListProfitability>.Create()
 				.AddColumn("№ МЛ")
 					.AddNumericRenderer(x => Entity.Id)
-				.AddColumn("Фактический пробег, км")
+				.AddColumn("Фактический пробег,\nкм")
 					.AddNumericRenderer(x => x.Mileage)
-				.AddColumn("Амортизация, руб")
+				.AddColumn("Амортизация,\nруб")
 					.AddNumericRenderer(x => x.Amortisation)
 					.Digits(2)
-				.AddColumn("Ремонт, руб")
+				.AddColumn("Ремонт,\nруб")
 					.AddNumericRenderer(x => x.RepairCosts)
 					.Digits(2)
-				.AddColumn("Топливо, руб")
+				.AddColumn("Топливо,\nруб")
 					.AddNumericRenderer(x => x.FuelCosts)
 					.Digits(2)
 				.AddColumn("Затраты ЗП\nвод + эксп, руб")
@@ -344,14 +349,26 @@ namespace Vodovoz
 				.AddColumn("Оплата доставки\nклиентом: Доставка за\nчас, платная доставка, руб")
 					.AddNumericRenderer(x => x.PaidDelivery)
 					.Digits(2)
-				.AddColumn("Затраты на МЛ, руб")
+				.AddColumn("Затраты на МЛ,\nруб")
 					.AddNumericRenderer(x => x.RouteListExpenses)
 					.Digits(2)
-				.AddColumn("Вывезено, кг")
+				.AddColumn("Вывезено,\nкг")
 					.AddNumericRenderer(x => x.TotalGoodsWeight)
 					.Digits(2)
-				.AddColumn("Затраты на кг")
+				.AddColumn("Затраты\nна кг")
 					.AddNumericRenderer(x => x.RouteListExpensesPerKg)
+					.Digits(2)
+				.AddColumn("Сумма\nпродаж,\nруб")
+					.AddNumericRenderer(x => x.SalesSum)
+					.Digits(2)
+				.AddColumn("Сумма затрат,\nруб")
+					.AddNumericRenderer(x => x.ExpensesSum)
+					.Digits(2)
+				.AddColumn("Валовая\nмаржа,\nруб")
+					.AddNumericRenderer(x => x.GrossMarginSum)
+					.Digits(2)
+				.AddColumn("Валовая маржа, %")
+					.AddNumericRenderer(x => x.GrossMarginPercents)
 					.Digits(2)
 				.AddColumn("")
 				.Finish();
@@ -523,9 +540,7 @@ namespace Vodovoz
 			}
 
 			Entity.CalculateWages(_wageParameterService);
-			_logger.Debug("Пересчитываем рентабельность МЛ");
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-			_logger.Debug("Закончили пересчет рентабельности МЛ");
+			
 
 			if(_oldDriver != Entity.Driver)
 			{
@@ -545,6 +560,13 @@ namespace Vodovoz
 			_logger.Info("Сохраняем маршрутный лист...");
 			UoWGeneric.Save();
 			_logger.Info("Ok");
+			
+			_logger.Debug("Пересчитываем рентабельность МЛ");
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			_logger.Debug("Закончили пересчет рентабельности МЛ");
+			UoW.Save(Entity.RouteListProfitability);
+			UoW.Commit();
+			
 			return true;
 		}
 

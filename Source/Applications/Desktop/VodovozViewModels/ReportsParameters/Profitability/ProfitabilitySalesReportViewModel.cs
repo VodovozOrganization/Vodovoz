@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -30,6 +31,11 @@ using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 {
+	/// <summary>
+	/// !!!Важно!!! Если поменяется расчет в отчете, то нужно менять и в контроллере
+	/// <see cref="RouteListProfitabilityController.CalculateRouteListProfitabilityGrossMargin"/>
+	/// логику расчета и наоборот, при смене алгоритма в контроллере менять его механизм в отчете
+	/// </summary>
 	public class ProfitabilitySalesReportViewModel : ReportParametersViewModelBase
 	{
 		private Dictionary<string, object> _parameters = new Dictionary<string, object>();
