@@ -61,6 +61,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PaymentByQr)                       .Column("payment_by_qr");
 			Map(x => x.ODZComment)                        .Column("odz_comment");
 			Map(x => x.OPComment)                         .Column("op_comment");
+			Map(x => x.CommentOPManagerUpdatedAt)         .Column("comment_opmanager_updated_at");
 			Map(x => x.IsFastDelivery)                    .Column("is_fast_delivery");
 			Map(x => x.IsCopiedFromUndelivery)            .Column("is_copied_from_undelivery");
 			Map(x => x.DriverMobileAppComment)            .Column("driver_app_comment");
@@ -101,6 +102,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ReturnTareReasonCategory)   .Column("return_tare_reason_category_id");
 			References(x => x.OurOrganization)            .Column("our_organization_id");
 			References(x => x.ContactPhone)               .Column("contact_phone_id");
+			References(x => x.CommentOPManagerChangedBy)  .Column("comment_opmanager_changed_by");
 
 			HasMany(x => x.OrderDocuments)                .KeyColumn("attached_to_order_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();

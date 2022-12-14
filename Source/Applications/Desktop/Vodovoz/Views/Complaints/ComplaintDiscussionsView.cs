@@ -44,10 +44,10 @@ namespace Vodovoz.Views.Complaints
 		{
 			string tabColor;
 			switch(discussionVM.Entity.Status) {
-				case Domain.Complaints.ComplaintStatuses.Checking:
+				case Domain.Complaints.ComplaintDiscussionStatuses.Checking:
 					tabColor = "green";
 					break;
-				case Domain.Complaints.ComplaintStatuses.Closed:
+				case Domain.Complaints.ComplaintDiscussionStatuses.Closed:
 					tabColor = "black";
 					break;
 				default:

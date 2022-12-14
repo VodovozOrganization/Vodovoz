@@ -801,6 +801,7 @@
     CASE
         WHEN complaints.status = 'InProcess' THEN 'В работе'
         WHEN complaints.status = 'Checking' THEN 'На проверке'
+        WHEN complaints.status = 'WaitingForReaction' THEN 'Ожидает реакции'
         WHEN complaints.status = 'Closed' THEN 'Закрыт'
         END AS complaint_status,
     GROUP_CONCAT(DISTINCT subdivisions.name SEPARATOR ' ') AS subdivisions,

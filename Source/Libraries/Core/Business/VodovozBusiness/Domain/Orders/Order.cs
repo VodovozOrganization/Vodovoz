@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -74,6 +74,7 @@ namespace Vodovoz.Domain.Orders
 
 		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
 			new OrderItemComparerForCopyingFromUndelivery();
+		private readonly double _futureDeliveryDaysLimit = 30;
 
 		#region Платная доставка
 
@@ -82,7 +83,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			get
 			{
-				if (paidDeliveryNomenclatureId == default(int))
+				if(paidDeliveryNomenclatureId == default(int))
 				{
 					paidDeliveryNomenclatureId = new NomenclatureParametersProvider(new ParametersProvider()).PaidDeliveryNomenclatureId;
 				}
@@ -94,7 +95,9 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		private Phone _contactPhone;
-
+		private DateTime _commentOPManagerUpdatedAt;
+		private Employee _commentOPManagerChangedBy;
+		
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -176,14 +179,14 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				if (_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+				if(_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
 					OnPropertyChanged(nameof(Client));
 					if(InteractiveService == null)
 						throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
 
-					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
+					InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя изменить клиента для заполненного заказа.");
 					return;
 				}
 				var oldClient = client;
@@ -193,9 +196,9 @@ namespace Vodovoz.Domain.Orders
 						logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
 						DeliveryPoint = null;
 					}
-                    if(oldClient != null) {
+					if(oldClient != null) {
 						UpdateContract();
-                    }
+					}
 				}
 			}
 		}
@@ -213,11 +216,11 @@ namespace Vodovoz.Domain.Orders
 
 					if(Id == 0)
 					{
-						AddCertificates = DeliveryPoint.Category?.Id == EducationalInstitutionDeliveryPointCategoryId 
-						                  && (DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null);
+						AddCertificates = DeliveryPoint.Category?.Id == EducationalInstitutionDeliveryPointCategoryId
+										  && (DeliveryPoint.AddCertificatesAlways || Client.FirstOrder == null);
 					}
 
-					if (oldDeliveryPoint != null) {
+					if(oldDeliveryPoint != null) {
 						UpdateContract();
 					}
 				}
@@ -330,12 +333,37 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref odzComment, value);
 		}
 
+		#region OPComment
+
 		private string opComment;
 		[Display(Name = "Комментарий ОП")]
 		public virtual string OPComment {
 			get => opComment;
 			set => SetField(ref opComment, value);
 		}
+
+		[Display(Name = "Последнее изменение комментария менеджера")]
+		public virtual DateTime CommentOPManagerUpdatedAt
+		{
+			get => _commentOPManagerUpdatedAt;
+			set => SetField(ref _commentOPManagerUpdatedAt, value);
+		}
+
+		[Display(Name = "Последний редактировал комментарий менеджера")]
+		public virtual Employee CommentOPManagerChangedBy
+		{
+			get => _commentOPManagerChangedBy;
+			set => SetField(ref _commentOPManagerChangedBy, value);
+		}
+		
+		public virtual string LastOPCommentUpdate
+		{
+			get => CommentOPManagerChangedBy != null && CommentOPManagerUpdatedAt != null
+				? $"Последнее изменение вносил(а) {CommentOPManagerChangedBy.FullName} в {CommentOPManagerUpdatedAt:HH:mm dd.MM.yy}"
+				: string.Empty;
+		}
+
+		#endregion
 
 		int? bottlesReturn;
 
@@ -409,7 +437,7 @@ namespace Vodovoz.Domain.Orders
 			get => _paymentType;
 			set {
 				if(value != _paymentType && SetField(ref _paymentType, value, () => PaymentType)) {
-					switch (PaymentType) {
+					switch(PaymentType) {
 						case PaymentType.cash:
 						case PaymentType.barter:
 						case PaymentType.cashless:
@@ -1211,6 +1239,14 @@ namespace Vodovoz.Domain.Orders
 			   && OrderStatus <= OrderStatus.Accepted) {
 				yield return new ValidationResult(
 					"Указана дата заказа более ранняя чем сегодняшняя. Укажите правильную дату доставки.",
+					new[] { this.GetPropertyName(o => o.DeliveryDate) }
+				);
+			}
+
+			if(DeliveryDate > DateTime.Now.AddDays(_futureDeliveryDaysLimit))
+			{
+				yield return new ValidationResult(
+					$"Дата доставки заказа должна быть не более {_futureDeliveryDaysLimit} дней вперед. Измените, пожалуйста, дату доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) }
 				);
 			}
@@ -4133,6 +4169,12 @@ namespace Vodovoz.Domain.Orders
 		{
 			OnPropertyChanged(nameof(OrderSum));
 			UpdateDocuments();
+		}
+
+		public virtual void UpdateCommentManagerInfo(Employee editor)
+		{
+			CommentOPManagerUpdatedAt = DateTime.Now;
+			CommentOPManagerChangedBy = editor;
 		}
 
 		#endregion

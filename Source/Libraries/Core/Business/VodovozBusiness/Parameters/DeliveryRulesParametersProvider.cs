@@ -9,6 +9,12 @@ namespace Vodovoz.Parameters
 		private const string _onlineDeliveriesTodayParameter = "is_stopped_online_deliveries_today";
 		private const string _bottlesCountForFlyerParameter = "bottles_count_for_flyer";
 		private const string _additionalLoadingFlyerAdditionEnabledParameter = "additional_loading_flyer_addition_enabled";
+
+		private const string _additionalLoadingFlyerForNewCounterpartyBottlesCountParameter =
+			"additional_loading_flyer_for_new_counterparty_bottles_count";
+		private const string _additionalLoadingFlyerForNewCounterpartyEnabledParameter =
+			"additional_loading_flyer_for_new_counterparty_enabled";
+
 		private const string _maxDistanceToLatestTrackPointKm = "fast_delivery_max_distance_km";
 
 		public DeliveryRulesParametersProvider(IParametersProvider parametersProvider)
@@ -21,6 +27,12 @@ namespace Vodovoz.Parameters
 		public bool AdditionalLoadingFlyerAdditionEnabled =>
 			_parametersProvider.GetValue<bool>(_additionalLoadingFlyerAdditionEnabledParameter);
 
+		public int FlyerForNewCounterpartyBottlesCount =>
+			_parametersProvider.GetValue<int>(_additionalLoadingFlyerForNewCounterpartyBottlesCountParameter);
+
+		public bool FlyerForNewCounterpartyEnabled =>
+			_parametersProvider.GetValue<bool>(_additionalLoadingFlyerForNewCounterpartyEnabledParameter);
+
 		public void UpdateOnlineDeliveriesTodayParameter(string value) =>
 			_parametersProvider.CreateOrUpdateParameter(_onlineDeliveriesTodayParameter, value);
 
@@ -29,6 +41,12 @@ namespace Vodovoz.Parameters
 
 		public void UpdateAdditionalLoadingFlyerAdditionEnabledParameter(string value) =>
 			_parametersProvider.CreateOrUpdateParameter(_additionalLoadingFlyerAdditionEnabledParameter, value);
+
+		public void UpdateFlyerForNewCounterpartyBottlesCountParameter(string value) =>
+			_parametersProvider.CreateOrUpdateParameter(_additionalLoadingFlyerForNewCounterpartyBottlesCountParameter, value);
+
+		public void UpdateFlyerForNewCounterpartyEnabledParameter(string value) =>
+			_parametersProvider.CreateOrUpdateParameter(_additionalLoadingFlyerForNewCounterpartyEnabledParameter, value);
 
 		#region FastDelivery
 

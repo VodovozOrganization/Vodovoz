@@ -66,6 +66,8 @@ namespace Vodovoz.JournalViewers
 				ViewModel.SelectAllRouteListStatuses();
 				ytreeviewRouteListStatuses.YTreeModel.EmitModelChanged();
 			};
+
+			ybuttonInfo.Clicked += (sender, args) => ViewModel.InfoCommand.Execute();
 		}
 	}
 }
