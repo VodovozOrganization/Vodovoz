@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -95,7 +95,7 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		private Phone _contactPhone;
-		private DateTime _commentOPManagerUpdatedAt;
+		private DateTime? _commentOPManagerUpdatedAt;
 		private Employee _commentOPManagerChangedBy;
 		
 		#region Cвойства
@@ -343,7 +343,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Последнее изменение комментария менеджера")]
-		public virtual DateTime CommentOPManagerUpdatedAt
+		public virtual DateTime? CommentOPManagerUpdatedAt
 		{
 			get => _commentOPManagerUpdatedAt;
 			set => SetField(ref _commentOPManagerUpdatedAt, value);
