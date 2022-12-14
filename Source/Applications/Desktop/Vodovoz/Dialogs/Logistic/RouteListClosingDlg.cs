@@ -69,6 +69,8 @@ namespace Vodovoz
 			new NomenclatureParametersProvider(_parametersProvider);
 		private static readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private static readonly INomenclatureRepository _nomenclatureRepository =
+			new NomenclatureRepository(_nomenclatureParametersProvider);
 
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
@@ -79,7 +81,6 @@ namespace Vodovoz
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
 		private readonly IFuelRepository _fuelRepository = new FuelRepository();
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository = new NomenclatureRepository(_nomenclatureParametersProvider);
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
 			new RouteListProfitabilityController(
@@ -87,7 +88,8 @@ namespace Vodovoz
 				_nomenclatureParametersProvider,
 				new ProfitabilityConstantsRepository(),
 				new RouteListProfitabilityRepository(),
-				_routeListRepository);
+				_routeListRepository,
+				_nomenclatureRepository);
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 
@@ -812,11 +814,13 @@ namespace Vodovoz
 				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
 				_paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, address.Order);
 			}
-			
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-			
+
 			UoW.Save();
 
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			UoW.Save(Entity.RouteListProfitability);
+			UoW.Commit();
+			
 			return true;
 		}
 

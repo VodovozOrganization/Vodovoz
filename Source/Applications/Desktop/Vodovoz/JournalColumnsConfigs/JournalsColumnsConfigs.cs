@@ -73,6 +73,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		private static readonly Color _colorLightGreen = new Color(0xc0, 0xff, 0xc0);
 		private static readonly Color _colorBlue = new Color(0x00, 0x18, 0xf9);
 		private static readonly Color _colorBabyBlue = new Color(0x89, 0xcf, 0xef);
+		private static readonly Color _colorOrange = new Color(0xfc, 0x66, 0x00);
 
 		public static void RegisterColumns()
 		{
@@ -1133,7 +1134,22 @@ namespace Vodovoz.JournalColumnsConfigs
 						.WrapWidth(300)
 						.WrapMode(WrapMode.WordChar)
 					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.NotFullyLoaded ? _colorOrange : _colorBlack)
+					.AddSetter<CellRenderer>(
+						(c, n) =>
+						{
+							var color = _colorWhite;
+								
+							if(n.StatusEnum != RouteListStatus.New
+								&& n.GrossMarginPercents.HasValue
+								&& n.GrossMarginPercents.Value != 0
+								&& n.GrossMarginPercents.Value < n.RouteListProfitabilityIndicator)
+							{
+								color = _colorLightGrey;
+							}
+
+							c.CellBackgroundGdk = color;
+						})
 					.Finish()
 			);
 
@@ -1165,7 +1181,22 @@ namespace Vodovoz.JournalColumnsConfigs
 						.WrapWidth(300)
 						.WrapMode(WrapMode.WordChar)
 					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.NotFullyLoaded ? _colorOrange : _colorBlack)
+						.AddSetter<CellRenderer>(
+							(c, n) =>
+							{
+								var color = _colorWhite;
+								
+								if(n.StatusEnum != RouteListStatus.New
+									&& n.GrossMarginPercents.HasValue
+									&& n.GrossMarginPercents.Value != 0
+									&& n.GrossMarginPercents.Value < n.RouteListProfitabilityIndicator)
+								{
+									color = _colorLightGrey;
+								}
+
+								c.CellBackgroundGdk = color;
+							})
 					.Finish()
 			);
 

@@ -231,9 +231,15 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			Entity.CalculateWages(_wageParameterService);
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-				
 			return base.BeforeSave();
+		}
+
+		protected override void AfterSave()
+		{
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			UoW.Save(Entity.RouteListProfitability);
+			UoW.Commit();
+			base.AfterSave();
 		}
 
 		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }

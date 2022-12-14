@@ -15,7 +15,7 @@ namespace Vodovoz.EntityRepositories.Profitability
 
 			var query = uow.Session.QueryOver(() => resultAlias)
 				.JoinAlias(() => resultAlias.RouteListProfitability, () => routeListProfitabilityAlias)
-				.Where(() => resultAlias.Date.Month == date.Month
+				.Where(() => resultAlias.Date.Month == date.Month && resultAlias.Date.Year == date.Year
 					|| routeListProfitabilityAlias.ProfitabilityConstantsCalculatedMonth == date)
 				.List();
 

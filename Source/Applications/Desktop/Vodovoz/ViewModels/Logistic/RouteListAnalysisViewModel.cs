@@ -356,10 +356,17 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			SetLogisticianCommentAuthor();
 			Entity.CalculateWages(_wageParameterService);
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 			return true;
 		}
-		
+
+		protected override void AfterSave()
+		{
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			UoW.Save(Entity.RouteListProfitability);
+			UoW.Commit();
+			base.AfterSave();
+		}
+
 		private void SetLogisticianCommentAuthor()
 		{
 			if(!string.IsNullOrEmpty(Entity.LogisticiansComment))
