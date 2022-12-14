@@ -32,7 +32,7 @@ parallel (
 	"Desktop" : {
 		node('DESKTOP_BUILD'){
 			stage('Build Desktop'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=DebugWin -p:Platform=x86 -maxcpucount:2'
+				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
 
 				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
 				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin'
