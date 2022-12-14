@@ -21,16 +21,7 @@ namespace DriverAPI.Library.Models
 
 		public void RegisterAction(Employee driver, DriverActionDto driverAction)
 		{
-			var record = new DriverMobileAppActionRecord()
-			{
-				Driver = driver,
-				Action = _actionTypeConverter.ConvertToDriverMobileAppActionType(driverAction.ActionType),
-				ActionDatetime = driverAction.ActionTime,
-				RecievedDatetime = DateTime.Now
-			};
-
-			_unitOfWork.Save(record);
-			_unitOfWork.Commit();
+			
 		}
 
 		public void RegisterAction(int driverId, DriverMobileAppActionType actionType, DateTime actionTime, DateTime recievedTime, string result)
@@ -38,35 +29,12 @@ namespace DriverAPI.Library.Models
 
 		public void RegisterAction(Employee driver, DriverMobileAppActionType actionType, DateTime actionTime, DateTime recievedTime, string result)
 		{
-			var record = new DriverMobileAppActionRecord()
-			{
-				Driver = driver,
-				Action = actionType,
-				ActionDatetime = actionTime,
-				Result = result,
-				RecievedDatetime = recievedTime
-			};
-
-			_unitOfWork.Save(record);
-			_unitOfWork.Commit();
+			
 		}
 
 		public void RegisterActionsRangeForDriver(Employee driver, IEnumerable<DriverActionDto> driverActions)
 		{
-			foreach (var action in driverActions)
-			{
-				var record = new DriverMobileAppActionRecord()
-				{
-					Driver = driver,
-					Action = _actionTypeConverter.ConvertToDriverMobileAppActionType(action.ActionType),
-					ActionDatetime = action.ActionTime,
-					RecievedDatetime = DateTime.Now
-				};
-
-				_unitOfWork.Save(record);
-			}
-
-			_unitOfWork.Commit();
+			
 		}
 	}
 }
