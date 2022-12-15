@@ -72,5 +72,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IList<Employee> GetDriversWithAdditionalLoading(IUnitOfWork uow, params int[] routeListIds);
 		decimal GetRouteListTotalWeight(IUnitOfWork uow, int routeListId);
 		decimal GetRouteListPaidDeliveriesSum(IUnitOfWork uow, int routeListId, IEnumerable<int> paidDeliveriesNomenclaturesIds);
+		decimal GetRouteListSalesSum(IUnitOfWork uow, int routeListId);
 	}
 }

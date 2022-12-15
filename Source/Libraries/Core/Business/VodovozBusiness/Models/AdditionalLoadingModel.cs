@@ -160,7 +160,11 @@ namespace Vodovoz.Models
 
 		private void AddFlyers(IList<AdditionalLoadingDocumentItem> items, IUnitOfWork uow, DateTime routelistDate)
 		{
-			if(!_deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled)
+			var additionalFlyersEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
+			var additionalFlyersForNewCounterpartiesEnabled = _deliveryRulesParametersProvider.FlyerForNewCounterpartyEnabled;
+
+			if(!additionalFlyersEnabled
+			&& !additionalFlyersForNewCounterpartiesEnabled)
 			{
 				return;
 			}
@@ -170,7 +174,10 @@ namespace Vodovoz.Models
 				.Sum(x => x.Amount);
 
 			var flyerAmount = (int)water19LCount / _deliveryRulesParametersProvider.BottlesCountForFlyer;
-			if(flyerAmount == 0)
+
+			var flyerForNewCounterpartiesAmount = (int)water19LCount / _deliveryRulesParametersProvider.FlyerForNewCounterpartyBottlesCount;
+
+			if(flyerAmount == 0 && flyerForNewCounterpartiesAmount == 0)
 			{
 				return;
 			}
@@ -184,6 +191,44 @@ namespace Vodovoz.Models
 				_flyersInStock = _stockRepository.NomenclatureInStock(uow, _activeFlyers.Select(x => x.FlyerNomenclature.Id).ToArray());
 			}
 
+			if(additionalFlyersEnabled)
+			{
+				AddFlyers(items, flyerAmount);
+			}
+
+			if(additionalFlyersForNewCounterpartiesEnabled)
+			{
+				AddFlyersForNewCounterparties(items, flyerForNewCounterpartiesAmount);
+			}
+		}
+
+		private void AddFlyersForNewCounterparties(IList<AdditionalLoadingDocumentItem> items, int flyerForNewCounterpartiesAmount)
+		{
+			foreach(var flyer in _activeFlyers)
+			{
+				if(!flyer.IsForFirstOrder)
+				{
+					continue;
+				}
+				if(items.Any(x => x.Nomenclature.Id == flyer.FlyerNomenclature.Id))
+				{
+					continue;
+				}
+				var amount = Math.Min(_flyersInStock[flyer.FlyerNomenclature.Id], flyerForNewCounterpartiesAmount);
+				if(amount == 0)
+				{
+					continue;
+				}
+				items.Add(new AdditionalLoadingDocumentItem
+				{
+					Nomenclature = flyer.FlyerNomenclature,
+					Amount = amount
+				});
+			}
+		}
+
+		private void AddFlyers(IList<AdditionalLoadingDocumentItem> items, int flyerAmount)
+		{
 			foreach(var flyer in _activeFlyers)
 			{
 				if(flyer.IsForFirstOrder)

@@ -113,6 +113,30 @@ namespace EdoService.Services
 			return await SendContactsAsync(invitationsList);
 		}
 
+		public async Task<ResultDto> SendContactsForManualInvitationAsync(string inn, string kpp, string organizationName,
+			string operatorId, string email, string scanFileName, byte[] scanFile)
+		{
+			var invitationsList = new ContactList
+			{
+				Contacts = new[]
+				{
+					new ContactListItem
+					{
+						Inn = inn,
+						Kpp = kpp,
+						Name = organizationName,
+						Email = email,
+						OperatorId = operatorId,
+						ScanFilename = scanFileName,
+						Scan = Convert.ToBase64String(scanFile),
+						Comment = $"Компания {organizationName} приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
+					}
+				}
+			};
+
+			return await SendContactsAsync(invitationsList);
+		}
+
 		public async Task<ResultDto> SendContactsAsync(ContactList invitationsList)
 		{
 			var key = await Login();

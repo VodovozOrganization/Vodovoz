@@ -129,6 +129,16 @@ namespace Vodovoz.Filters.GtkViews
 			
 			ySpecCmbGeographicGroup.ItemsList = ViewModel.GeographicGroups;
 			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
+
+			entryCounteragentNameLike.Binding
+				.AddBinding(ViewModel, vm => vm.CounterpartyNameLike, w => w.Text)
+				.InitializeFromSource();
+			entryCounteragentNameLike.KeyReleaseEvent += OnKeyReleased;
+
+			entryDeliveryPointAddressLike.Binding
+				.AddBinding(ViewModel, vm => vm.DeliveryPointAddressLike, w => w.Text)
+				.InitializeFromSource();
+			entryDeliveryPointAddressLike.KeyReleaseEvent += OnKeyReleased;
 		}
 
 		private void InitializeRestrictions()

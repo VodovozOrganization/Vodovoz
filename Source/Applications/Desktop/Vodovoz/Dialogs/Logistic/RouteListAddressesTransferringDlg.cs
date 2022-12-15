@@ -24,6 +24,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Profitability;
@@ -127,9 +128,11 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			var nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
+			
 			_routeListProfitabilityController = new RouteListProfitabilityController(new RouteListProfitabilityFactory(),
-				new NomenclatureParametersProvider(_parametersProvider), new ProfitabilityConstantsRepository(),
-				new RouteListProfitabilityRepository(), _routeListRepository);
+				nomenclatureParametersProvider, new ProfitabilityConstantsRepository(),
+				new RouteListProfitabilityRepository(), _routeListRepository, new NomenclatureRepository(nomenclatureParametersProvider));
 			
 			var filterFrom = new RouteListsFilter(UoW);
 			filterFrom.SetAndRefilterAtOnce(

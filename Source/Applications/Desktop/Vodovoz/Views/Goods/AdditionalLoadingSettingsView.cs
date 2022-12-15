@@ -26,12 +26,6 @@ namespace Vodovoz.Views.Goods
 			ybuttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryBottlesCount.ValidationMode = ValidationType.Numeric;
-			entryBottlesCount.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
-				.AddBinding(vm => vm.BottlesCount, w => w.Text, new IntToStringConverter())
-				.InitializeFromSource();
-
 			entryFastDeliveryMaxDistance.ValidationMode = ValidationType.Numeric;
 			entryFastDeliveryMaxDistance.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
@@ -41,6 +35,23 @@ namespace Vodovoz.Views.Goods
 			ycheckFlyerAdditionEnabled.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(vm => vm.FlyerAdditionEnabled, w => w.Active)
+				.InitializeFromSource();
+
+			entryBottlesCount.ValidationMode = ValidationType.Numeric;
+			entryBottlesCount.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(vm => vm.BottlesCount, w => w.Text, new IntToStringConverter())
+				.InitializeFromSource();
+
+			ycheckFlyerAdditionForNewCounterpartyEnabled.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(vm => vm.FlyerForNewCounterpartyEnabled, w => w.Active)
+				.InitializeFromSource();
+
+			entryBottlesForNewCounterpartyCount.ValidationMode = ValidationType.Numeric;
+			entryBottlesForNewCounterpartyCount.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(vm => vm.FlyerForNewCounterpartyBottlesCount, w => w.Text, new IntToStringConverter())
 				.InitializeFromSource();
 
 			ybuttonAddNomenclature.Clicked += (sender, args) => ViewModel.AddNomenclatureDistributionCommand.Execute();
