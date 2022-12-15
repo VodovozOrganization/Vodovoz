@@ -190,6 +190,8 @@ namespace Vodovoz.Views.Complaints
 
 		void EntryCounterparty_Changed(object sender, System.EventArgs e)
 		{
+			spLstAddress.Binding.CleanSources();
+			
 			if(ViewModel.Entity.Counterparty != null) {
 				spLstAddress.NameForSpecialStateNot = "Самовывоз";
 				spLstAddress.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));
