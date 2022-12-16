@@ -134,7 +134,7 @@ namespace TrueMarkApi.Services
 
 			var orders = _orderRepository.GetOrdersForTrueMarkApi(uow, startDate, organization.Id);
 
-			_logger.LogInformation($"Всего заказов для формирования выводов из оборота и отправки: {orders.Count}");
+			_logger.LogInformation("Всего заказов для формирования выводов из оборота и отправки: {OrdersCount}", orders.Count);
 
 			if(!orders.Any())
 			{
@@ -143,7 +143,7 @@ namespace TrueMarkApi.Services
 
 			foreach(var order in orders)
 			{
-				_logger.LogInformation($"Создаем вывод из оборота по заказу №{order.Id}");
+				_logger.LogInformation("Создаем вывод из оборота по заказу №{OrderId}", order.Id);
 
 				try
 				{
@@ -157,12 +157,12 @@ namespace TrueMarkApi.Services
 
 					if(!trueMarkApiDocument.IsSuccess)
 					{
-						_logger.LogError(trueMarkApiDocument.ErrorMessage);
+						_logger.LogError("{ErrorMessage}", trueMarkApiDocument.ErrorMessage);
 					}
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(e, $"Ошибка в процессе формирования документа вывода из оборота для заказа №{order.Id} и его отправки");
+					_logger.LogError(e, "Ошибка в процессе формирования документа вывода из оборота для заказа №{OrderId} и его отправки", order.Id);
 				}
 			}
 		}
@@ -174,7 +174,7 @@ namespace TrueMarkApi.Services
 
 			var errorOrders = _orderRepository.GetOrdersWithSendErrorsForTrueMarkApi(uow, startDate, organization.Id);
 
-			_logger.LogInformation($"Всего заказов с ошибками вывода из оборота: {errorOrders.Count}");
+			_logger.LogInformation("Всего заказов с ошибками вывода из оборота: {ErrorOrdersCount}", errorOrders.Count);
 
 			if(!errorOrders.Any())
 			{
@@ -183,7 +183,7 @@ namespace TrueMarkApi.Services
 
 			foreach(var order in errorOrders)
 			{
-				_logger.LogInformation($"Обработка ошибки по заказу №{order.Id}");
+				_logger.LogInformation("Обработка ошибки по заказу №{OrderId}", order.Id);
 
 				try
 				{
@@ -218,12 +218,12 @@ namespace TrueMarkApi.Services
 
 					if(!savedDocument.IsSuccess)
 					{
-						_logger.LogError(savedDocument.ErrorMessage);
+						_logger.LogError("{ErrorMessage}", savedDocument.ErrorMessage);
 					}
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(e, $"Ошибка в процессе обновления информации/отправки документа вывода из оборота для заказа №{order.Id}");
+					_logger.LogError(e, "Ошибка в процессе обновления информации/отправки документа вывода из оборота для заказа №{OrderId}", order.Id);
 				}
 			}
 		}
@@ -280,7 +280,7 @@ namespace TrueMarkApi.Services
 				// Производим ещё несколько попыток получения информации по созданному документу
 				for(int i = 0; i < 5; i++)
 				{
-					_logger.LogWarning($"Повторный запрос результатов создания документа {documentId}");
+					_logger.LogWarning("Повторный запрос результатов создания документа{DocumentId}", documentId);
 					await Task.Delay(_createDocumentDelaySec * 1000);
 					resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
 
