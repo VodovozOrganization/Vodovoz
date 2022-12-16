@@ -956,7 +956,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			Nomenclature nomenclatureAlias = null;
 			TrueMarkApiDocument trueMarkApiDocument = null;
 
-			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
@@ -1011,7 +1011,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			Nomenclature nomenclatureAlias = null;
 			TrueMarkApiDocument trueMarkApiDocument = null;
 
-			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)

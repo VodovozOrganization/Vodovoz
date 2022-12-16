@@ -132,7 +132,7 @@ namespace TrueMarkApi.Services
 		{
 			_logger.LogInformation("Получаем заказы, по которым надо осуществить вывод из оборота");
 
-			var orders = new List<Order>{uow.GetById<Order>(2583797)};// _orderRepository.GetOrdersForTrueMarkApi(uow, startDate, organization.Id);
+			var orders = _orderRepository.GetOrdersForTrueMarkApi(uow, startDate, organization.Id);
 
 			_logger.LogInformation($"Всего заказов для формирования выводов из оборота и отправки: {orders.Count}");
 
