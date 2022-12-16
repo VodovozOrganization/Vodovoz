@@ -11,6 +11,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using QS.Commands;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
@@ -357,6 +358,13 @@ namespace Vodovoz.ViewModels.Logistic
 			SetLogisticianCommentAuthor();
 			Entity.CalculateWages(_wageParameterService);
 			return true;
+		}
+
+		public override bool Save(bool close)
+		{
+			var result = base.Save(close);
+			Close(false, CloseSource.Save);
+			return result;
 		}
 
 		protected override void AfterSave()
