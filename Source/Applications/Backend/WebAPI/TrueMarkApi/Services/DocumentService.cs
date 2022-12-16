@@ -18,6 +18,7 @@ using TrueMarkApi.Factories;
 using TrueMarkApi.Models;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Services;
@@ -83,7 +84,8 @@ namespace TrueMarkApi.Services
 					{
 						foreach(var organizationCertificate in organizationsCertificates)
 						{
-							await WithdrawFromCirculation(uow, startDate, organizationCertificate);
+							var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, organizationCertificate.EdxClientId);
+							await ProcessOrganizationDocuments(uow, startDate, organization, organizationCertificate);
 						}
 					}
 				}
@@ -94,57 +96,30 @@ namespace TrueMarkApi.Services
 			}
 		}
 
-		private async Task WithdrawFromCirculation(IUnitOfWork uow, DateTime startDate, OrganizationCertificate organizationCertificate)
+		private async Task ProcessOrganizationDocuments(IUnitOfWork uow, DateTime startDate, Organization organization, OrganizationCertificate organizationCertificate)
 		{
 			try
 			{
-				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, organizationCertificate.EdxClientId);
-				_logger.LogInformation("Организация получена");
-
 				if(organization is null)
 				{
 					_logger.LogError($"Не найдена организация по edxClientId {organizationCertificate.EdxClientId}");
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
 
-				_logger.LogInformation("Получаем заказы, по которым надо осуществить вывод из оборота");
-				var orders = _orderRepository.GetOrdersForTrueMarkApi(uow, startDate, organization.Id);
-
-				_logger.LogInformation($"Всего заказов для формирования выводов из оборота и отправки: {orders.Count}");
-
-				if(!orders.Any())
-				{
-					return;
-				}
-
 				// На данный момент не проверяем в ЧЗ и не сохраняем в контрагенте
 				// await CheckAndSaveRegistrationInTrueApi(orders, uow);
 
-				foreach(var order in orders)
-				{
-					_logger.LogInformation($"Создаем вывод из оборота по заказу №{order.Id}");
+				var token = await _authorizationService.Login(organizationCertificate.CertificateThumbPrint);
 
-					try
-					{
-						IProductDocumentFactory productDocumentFactory = order.PaymentType == PaymentType.barter
-							? new ProductDocumentForDonationFactory(organization.INN, order)
-							: new ProductDocumentForOwnUseFactory(organization.INN, order);
+				var httpClient = _httpClientClientFactory.CreateClient();
+				httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+				httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
 
-						var trueMarkApiDocument = await CreateAndSendDocument(productDocumentFactory, organizationCertificate.CertificateThumbPrint);
-						trueMarkApiDocument.Order = order;
-						uow.Save(trueMarkApiDocument);
-						uow.Commit();
+				await ProcessNewOrders(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint);
 
-						if(!trueMarkApiDocument.IsSuccess)
-						{
-							_logger.LogError(trueMarkApiDocument.ErrorMessage);
-						}
-					}
-					catch(Exception e)
-					{
-						_logger.LogError(e, $"Ошибка в процессе формирования документа вывода из оборота для заказа №{order.Id} и его отправки");
-					}
-				}
+				await ProcessOldOrdersWithErrors(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint);
+
 			}
 			catch(Exception e)
 			{
@@ -152,16 +127,114 @@ namespace TrueMarkApi.Services
 			}
 		}
 
-		private async Task<TrueMarkApiDocument> CreateAndSendDocument(IProductDocumentFactory productDocumentFactory, string certificateThumbPrint)
+		private async Task ProcessNewOrders(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
+			string organizationCertificateThumbPrint)
+		{
+			_logger.LogInformation("Получаем заказы, по которым надо осуществить вывод из оборота");
+
+			var orders = _orderRepository.GetOrdersForTrueMarkApi(uow, startDate, organization.Id);
+
+			_logger.LogInformation("Всего заказов для формирования выводов из оборота и отправки: {OrdersCount}", orders.Count);
+
+			if(!orders.Any())
+			{
+				return;
+			}
+
+			foreach(var order in orders)
+			{
+				_logger.LogInformation("Создаем вывод из оборота по заказу №{OrderId}", order.Id);
+
+				try
+				{
+					var productDocumentFactory = CreateProductDocumentFactory(organization.INN, order);
+
+					var trueMarkApiDocument = await CreateAndSendDocument(httpClient, productDocumentFactory, organizationCertificateThumbPrint);
+					trueMarkApiDocument.Order = order;
+
+					uow.Save(trueMarkApiDocument);
+					uow.Commit();
+
+					if(!trueMarkApiDocument.IsSuccess)
+					{
+						_logger.LogError("{ErrorMessage}", trueMarkApiDocument.ErrorMessage);
+					}
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Ошибка в процессе формирования документа вывода из оборота для заказа №{OrderId} и его отправки", order.Id);
+				}
+			}
+		}
+
+		private async Task ProcessOldOrdersWithErrors(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
+			string certificateThumbPrint)
+		{
+			_logger.LogInformation("Получаем заказы с ошибками вывода из оборота");
+
+			var errorOrders = _orderRepository.GetOrdersWithSendErrorsForTrueMarkApi(uow, startDate, organization.Id);
+
+			_logger.LogInformation("Всего заказов с ошибками вывода из оборота: {ErrorOrdersCount}", errorOrders.Count);
+
+			if(!errorOrders.Any())
+			{
+				return;
+			}
+
+			foreach(var order in errorOrders)
+			{
+				_logger.LogInformation("Обработка ошибки по заказу №{OrderId}", order.Id);
+
+				try
+				{
+					var savedDocument = uow.GetAll<TrueMarkApiDocument>().SingleOrDefault(d => d.Order.Id == order.Id);
+
+					TrueMarkApiDocument recievedDocument;
+
+					if(savedDocument.Guid != null)
+					{
+						recievedDocument = await RecieveDocument(httpClient, savedDocument.Guid.ToString());
+
+						savedDocument.IsSuccess = recievedDocument.IsSuccess;
+						savedDocument.ErrorMessage = recievedDocument.ErrorMessage;
+
+						uow.Save(savedDocument);
+						uow.Commit();
+						
+						continue;
+					}
+
+					IProductDocumentFactory productDocumentFactory = order.PaymentType == PaymentType.barter
+						? new ProductDocumentForDonationFactory(organization.INN, order)
+						: new ProductDocumentForOwnUseFactory(organization.INN, order);
+
+					recievedDocument = await CreateAndSendDocument(httpClient, productDocumentFactory, certificateThumbPrint);
+					savedDocument.IsSuccess = recievedDocument.IsSuccess;
+					savedDocument.ErrorMessage = recievedDocument.ErrorMessage;
+					savedDocument.Guid = recievedDocument.Guid;
+
+					uow.Save(savedDocument);
+					uow.Commit();
+
+					if(!savedDocument.IsSuccess)
+					{
+						_logger.LogError("{ErrorMessage}", savedDocument.ErrorMessage);
+					}
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Ошибка в процессе обновления информации/отправки документа вывода из оборота для заказа №{OrderId}", order.Id);
+				}
+			}
+		}
+
+		private IProductDocumentFactory CreateProductDocumentFactory(string inn, Order order) => order.PaymentType == PaymentType.barter 
+			? new ProductDocumentForDonationFactory(inn, order) 
+			: new ProductDocumentForOwnUseFactory(inn, order);
+
+		private async Task<TrueMarkApiDocument> CreateAndSendDocument(HttpClient httpClient, IProductDocumentFactory productDocumentFactory, string certificateThumbPrint)
 		{
 			var documentCreateUrl = "lk/documents/create?pg=water";
-
-			var token = await _authorizationService.Login(certificateThumbPrint);
-
-			var httpClient = _httpClientClientFactory.CreateClient();
-			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
 
 			var productDocument = productDocumentFactory.CreateProductDocument();
 
@@ -184,12 +257,17 @@ namespace TrueMarkApi.Services
 				return new TrueMarkApiDocument
 				{
 					IsSuccess = false,
-					ErrorMessage = $"Error status code: {documentResponse.StatusCode}. Response phrase: {documentResponse.ReasonPhrase}"
+					ErrorMessage = $"Ошибка при создании документа. Error status code: {documentResponse.StatusCode}. Response phrase: {documentResponse.ReasonPhrase}"
 				};
 			}
 
 			var documentId = await documentResponse.Content.ReadAsStringAsync();
 
+			return await RecieveDocument(httpClient, documentId);
+		}
+
+		private async Task<TrueMarkApiDocument> RecieveDocument(HttpClient httpClient, string documentId)
+		{
 			var resultInfoUrl = $"doc/{documentId}/info";
 
 			// Делаем паузу перед получением информации по созданному документу
@@ -202,7 +280,7 @@ namespace TrueMarkApi.Services
 				// Производим ещё несколько попыток получения информации по созданному документу
 				for(int i = 0; i < 5; i++)
 				{
-					_logger.LogWarning($"Повторный запрос результатов создания документа {documentId}");
+					_logger.LogWarning("Повторный запрос результатов создания документа{DocumentId}", documentId);
 					await Task.Delay(_createDocumentDelaySec * 1000);
 					resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
 
