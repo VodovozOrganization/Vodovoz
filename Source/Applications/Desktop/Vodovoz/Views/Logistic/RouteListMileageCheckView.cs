@@ -84,7 +84,7 @@ namespace Vodovoz.Views.Logistic
 			buttonAcceptFine.Clicked += (sender, e) => ViewModel.AcceptFineCommand.Execute();
 			buttonMileageDistribution.Clicked += (sender, e) => ViewModel.DistributeMiliageCommand.Execute();
 
-			ybuttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			ybuttonSave.Clicked += (sender, e) => ViewModel.Save();
 			ybuttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 

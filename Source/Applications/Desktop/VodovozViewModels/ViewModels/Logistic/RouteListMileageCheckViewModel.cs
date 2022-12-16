@@ -21,7 +21,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -232,6 +231,13 @@ namespace Vodovoz.ViewModels.Logistic
 
 			Entity.CalculateWages(_wageParameterService);
 			return base.BeforeSave();
+		}
+		
+		public override bool Save(bool close)
+		{
+			var result = base.Save(close);
+			Close(false, CloseSource.Save);
+			return result;
 		}
 
 		protected override void AfterSave()
