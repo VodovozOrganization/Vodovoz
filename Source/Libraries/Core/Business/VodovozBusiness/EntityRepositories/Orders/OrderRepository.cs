@@ -979,8 +979,6 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(Restrictions.IsNull(Projections.Property(() => trueMarkApiDocument.Id)))
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
-				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
-						   || orderAlias.OrderStatus != OrderStatus.OnTheWay)
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
@@ -1034,8 +1032,6 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => trueMarkApiDocument.IsSuccess == false)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
-				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
-						   || orderAlias.OrderStatus != OrderStatus.OnTheWay)
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
