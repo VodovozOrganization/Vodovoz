@@ -31,7 +31,7 @@
     counterparty.payer_special_kpp,
     counterparty.special_gov_contract,
     counterparty.special_delivery_address,
-    GROUP_CONCAT(
+    GROUP_CONCAT(DISTINCT
             CONCAT(
                     '+7 ',
                     delivery_points_phones.number,
@@ -43,7 +43,7 @@
                 )
             SEPARATOR '; '
         ) AS delivery_point_contact,
-    GROUP_CONCAT(
+    GROUP_CONCAT(DISTINCT
             CONCAT(
                     '+7 ',
                     counterparty_phones.number,
