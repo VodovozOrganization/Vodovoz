@@ -130,7 +130,7 @@ namespace TrueMarkApi.Services
 		private async Task ProcessNewOrders(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
 			string organizationCertificateThumbPrint)
 		{
-			_logger.LogInformation("Получаем заказы, по которым надо осуществить вывод из оборота");
+			_logger.LogInformation("Получаем заказы для организации {OrganizationId}, по которым надо осуществить вывод из оборота", organization.Id);
 
 			var orders = _orderRepository.GetOrdersForTrueMarkApi(uow, startDate, organization.Id);
 
@@ -170,7 +170,7 @@ namespace TrueMarkApi.Services
 		private async Task ProcessOldOrdersWithErrors(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
 			string certificateThumbPrint)
 		{
-			_logger.LogInformation("Получаем заказы с ошибками вывода из оборота");
+			_logger.LogInformation("Получаем заказы с ошибками вывода из оборота для организации {OrganizationId}", organization.Id);
 
 			var errorOrders = _orderRepository.GetOrdersWithSendErrorsForTrueMarkApi(uow, startDate, organization.Id);
 
