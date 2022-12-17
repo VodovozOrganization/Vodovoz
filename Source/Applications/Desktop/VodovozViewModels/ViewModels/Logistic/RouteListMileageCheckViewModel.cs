@@ -296,7 +296,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					Entity.AcceptMileage(CallTaskWorker);
 
-					SaveAndClose();
+					Save();
 				}
 			));
 
