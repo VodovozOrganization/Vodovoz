@@ -538,6 +538,7 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\EdoSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
