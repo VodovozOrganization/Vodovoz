@@ -360,11 +360,10 @@ namespace Vodovoz.ViewModels.Logistic
 			return true;
 		}
 
-		public override bool Save(bool close)
+		public void SaveWithClose()
 		{
-			var result = base.Save(close);
+			Save();
 			Close(false, CloseSource.Save);
-			return result;
 		}
 
 		protected override void AfterSave()

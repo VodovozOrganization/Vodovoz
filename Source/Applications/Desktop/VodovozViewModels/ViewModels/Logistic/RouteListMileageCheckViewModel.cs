@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand _acceptFineCommand;
 		private DelegateCommand _openMapCommand;
 		private DelegateCommand _fromTrackCommand;
-		private DelegateCommand _distributeMiliageCommand;
+		private DelegateCommand _distributeMileageCommand;
 		private readonly IValidationContextFactory _validationContextFactory;
 
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
@@ -233,11 +233,10 @@ namespace Vodovoz.ViewModels.Logistic
 			return base.BeforeSave();
 		}
 		
-		public override bool Save(bool close)
+		public void SaveWithClose()
 		{
-			var result = base.Save(close);
+			Save();
 			Close(false, CloseSource.Save);
-			return result;
 		}
 
 		protected override void AfterSave()
@@ -296,7 +295,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					Entity.AcceptMileage(CallTaskWorker);
 
-					Save();
+					SaveWithClose();
 				}
 			));
 
@@ -342,15 +341,16 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 			));
 
-		public DelegateCommand DistributeMiliageCommand =>
-			_distributeMiliageCommand ?? (_distributeMiliageCommand = new DelegateCommand(() =>
+		public DelegateCommand DistributeMileageCommand =>
+			_distributeMileageCommand ?? (_distributeMileageCommand = new DelegateCommand(() =>
 				{
 					if(HasChanges && !SaveBeforeContinue())
 					{
 						return;
 					}
 
-					NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
+					NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(
+						this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
 				}
 			));
 	}
