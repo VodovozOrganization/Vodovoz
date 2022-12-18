@@ -642,7 +642,8 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+						MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 					}
 				}
 			);
