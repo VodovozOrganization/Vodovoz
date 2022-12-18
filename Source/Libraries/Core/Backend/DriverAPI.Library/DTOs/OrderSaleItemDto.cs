@@ -6,5 +6,6 @@
 		public string Name { get; set; }
 		public decimal Quantity { get; set; }
 		public decimal TotalOrderItemPrice { get; set; }
+		public bool NeedScanCode { get; set; }
 	}
 }
