@@ -12,7 +12,7 @@ namespace DriverAPI.DTOs
 		public string OtherDriverComplaintReasonComment { get; set; }
 		public DateTime ActionTime { get; set; }
 		public string DriverComment { get; set; }
-		public IEnumerable<string> ScannedBottles { get; set; }
+		public IEnumerable<OrderScannedItemDto> ScannedBottles { get; set; }
 		public string UnscannedBottlesReason { get; set; }
 	}
 }

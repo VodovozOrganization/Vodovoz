@@ -966,7 +966,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var hasGtinNomenclaturesSubQuery = QueryOver.Of(() => orderItemAlias)
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-					.And(() => nomenclatureAlias.IsAccountableInChestniyZnak)
+					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
 					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 
@@ -1019,7 +1019,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var hasGtinNomenclaturesSubQuery = QueryOver.Of(() => orderItemAlias)
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-					.And(() => nomenclatureAlias.IsAccountableInChestniyZnak)
+					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
 					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 

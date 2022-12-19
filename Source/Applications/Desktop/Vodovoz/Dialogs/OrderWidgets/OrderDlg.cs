@@ -1715,7 +1715,7 @@ namespace Vodovoz
 				? EdoLightsMatrixPaymentType.Cashless
 				: EdoLightsMatrixPaymentType.Receipt;
 
-			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInChestniyZnak);
+			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
 
 			if(isAccountableInChestniyZnak
 			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)

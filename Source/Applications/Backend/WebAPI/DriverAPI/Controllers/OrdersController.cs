@@ -81,6 +81,8 @@ namespace DriverAPI.Controllers
 			{
 				_actionTimeHelper.ThrowIfNotValid(recievedTime, completedOrderRequestModel.ActionTime);
 
+				completedOrderRequestModel.ScannedBottles
+
 				_aPIOrderData.CompleteOrderDelivery(
 					driver,
 					completedOrderRequestModel.OrderId,

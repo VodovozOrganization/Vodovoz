@@ -37,7 +37,7 @@ namespace Vodovoz.Domain.Goods
 		private decimal _width;
 		private decimal _height;
 
-		private bool _isAccountableInChestniyZnak;
+		private bool _isAccountableInTrueMark;
 		private string _gtin;
 
 		public Nomenclature()
@@ -576,10 +576,10 @@ namespace Vodovoz.Domain.Goods
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
 
 		[Display(Name = "Подлежит учету в Честном Знаке")]
-		public virtual bool IsAccountableInChestniyZnak
+		public virtual bool IsAccountableInTrueMark
 		{
-			get => _isAccountableInChestniyZnak;
-			set => SetField(ref _isAccountableInChestniyZnak, value);
+			get => _isAccountableInTrueMark;
+			set => SetField(ref _isAccountableInTrueMark, value);
 		}
 
 		[Display(Name = "Номер товарной продукции GTIN")]
@@ -1000,7 +1000,7 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 
-			if(IsAccountableInChestniyZnak && string.IsNullOrWhiteSpace(Gtin))
+			if(IsAccountableInTrueMark && string.IsNullOrWhiteSpace(Gtin))
 			{
 				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
 					new[] { nameof(Gtin) });

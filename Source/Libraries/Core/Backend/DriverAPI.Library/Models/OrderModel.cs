@@ -16,6 +16,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
 
 namespace DriverAPI.Library.Models
@@ -79,7 +80,7 @@ namespace DriverAPI.Library.Models
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_unitOfWork, vodovozOrder);
 
-			var order = _orderConverter.convertToAPIOrder(
+			var order = _orderConverter.ConvertToAPIOrder(
 				vodovozOrder,
 				routeListItem.CreationDate,
 				_aPISmsPaymentModel.GetOrderSmsPaymentStatus(orderId),
@@ -104,7 +105,7 @@ namespace DriverAPI.Library.Models
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
 				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id);
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_unitOfWork, vodovozOrder);
-				var order = _orderConverter.convertToAPIOrder(vodovozOrder, routeListItem.CreationDate, smsPaymentStatus, qrPaymentStatus);
+				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem.CreationDate, smsPaymentStatus, qrPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 				result.Add(order);
 			}
@@ -232,6 +233,7 @@ namespace DriverAPI.Library.Models
 			int driverComplaintReasonId,
 			string otherDriverComplaintReasonComment,
 			string driverComment,
+			IEnumerable<IOrderItemScannedInfo> scannedItems,
 			DateTime actionTime)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
