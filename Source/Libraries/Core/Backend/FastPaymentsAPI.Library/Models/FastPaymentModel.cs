@@ -167,12 +167,15 @@ namespace FastPaymentsAPI.Library.Models
 			return _signatureManager.Validate(paidOrderInfoDto.Signature, signatureParameters, out paymentSignature);
 		}
 		
-		public void UpdateFastPaymentStatus(PaidOrderInfoDTO paidOrderInfoDto, FastPayment fastPayment)
+		public bool UpdateFastPaymentStatus(PaidOrderInfoDTO paidOrderInfoDto, FastPayment fastPayment)
 		{
 			if((int)paidOrderInfoDto.Status != (int)fastPayment.FastPaymentStatus)
 			{
 				UpdateFastPaymentStatus(fastPayment, paidOrderInfoDto.Status, paidOrderInfoDto.StatusDate);
+				return true;
 			}
+
+			return false;
 		}
 		
 		public void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate)
