@@ -36,7 +36,7 @@ namespace TaxcomEdoApi.Converters
 					{
 						IdSv = new UchastnikTipIdSv
 						{
-							Item = GetConcreteConsignee(client, client.PayerSpecialKPP)
+							Item = GetConcreteConsignee(client, deliveryPoint?.KPP)
 						},
 						Adres = new AdresTip
 						{
