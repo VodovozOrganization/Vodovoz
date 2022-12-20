@@ -223,7 +223,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 					if(valid.RunDlgIfNotValid()) {
 						return;
 					}
-					Entity.Send(Cashier);
+					Entity.Send(Cashier, Entity.Comment);
 				},
 				() => {
 					return Cashier != null
@@ -250,7 +250,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 			ReceiveCommand = new DelegateCommand(
 				() => {
-					Entity.Receive(Cashier);
+					Entity.Receive(Cashier, Entity.Comment);
 				},
 				() => {
 					return Cashier != null

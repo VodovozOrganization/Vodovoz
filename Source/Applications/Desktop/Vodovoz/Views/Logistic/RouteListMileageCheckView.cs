@@ -82,9 +82,9 @@ namespace Vodovoz.Views.Logistic
 			buttonOpenMap.Clicked += (sender, e) => ViewModel.OpenMapCommand.Execute();
 			buttonFromTrack.Clicked += (sender, e) => ViewModel.FromTrackCommand.Execute();
 			buttonAcceptFine.Clicked += (sender, e) => ViewModel.AcceptFineCommand.Execute();
-			buttonMileageDistribution.Clicked += (sender, e) => ViewModel.DistributeMiliageCommand.Execute();
+			buttonMileageDistribution.Clicked += (sender, e) => ViewModel.DistributeMileageCommand.Execute();
 
-			ybuttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			ybuttonSave.Clicked += (sender, e) => ViewModel.SaveWithClose();
 			ybuttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 

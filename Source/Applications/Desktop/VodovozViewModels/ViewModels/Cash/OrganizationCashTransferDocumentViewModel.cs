@@ -1,26 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+﻿using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
-    public class OrganizationCashTransferDocumentViewModel : EntityTabViewModelBase<OrganizationCashTransferDocument>
+	public class OrganizationCashTransferDocumentViewModel : EntityTabViewModelBase<OrganizationCashTransferDocument>
     {
         public IEnumerable<Organization> Organizations { get; }
         public bool CanEdit { get; }
         public bool CanEditRectroactively { get; }
-        private readonly Employee author;
+        private readonly Employee _author;
 
         public OrganizationCashTransferDocumentViewModel(
 	        IEntityUoWBuilder uowBuilder,
@@ -36,7 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	        }
 
             Organizations = UoW.GetAll<Organization>();
-            author = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+            _author = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 
             CanEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(OrganizationCashTransferDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
             CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) ||
@@ -46,13 +45,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
             if (Entity.Id == 0)
             {
                 Entity.DocumentDate = DateTime.Now;
-                Entity.Author = author;
+                Entity.Author = _author;
             }
         }
+
         protected override bool BeforeSave()
         {
 	        if (!HasChanges)
-		        return base.BeforeSave();
+			{
+				return base.BeforeSave();
+			}
 
 			var operationFrom = Entity.OrganisationCashMovementOperationFrom = Entity.OrganisationCashMovementOperationFrom ?? new OrganisationCashMovementOperation { OperationTime = DateTime.Now };
             var operationTo = Entity.OrganisationCashMovementOperationTo = Entity.OrganisationCashMovementOperationTo ?? new OrganisationCashMovementOperation { OperationTime = DateTime.Now };
@@ -74,9 +76,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
         public override bool Save(bool close)
         {
             if (!CanEdit)
-                return false;
+			{
+				return false;
+			}
 
-            return base.Save(close);
+			return base.Save(close);
         }
     }
 }
