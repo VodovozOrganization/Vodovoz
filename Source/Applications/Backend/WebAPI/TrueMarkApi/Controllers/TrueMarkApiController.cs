@@ -139,5 +139,57 @@ namespace TrueMarkApi.Controllers
 
 			return null;
 		}
+
+		[HttpPost]
+		[Route("/api/RequestProductInstanceInfo")]
+		public async Task<ProductInstancesInfo> GetProductInstanceInfo([FromBody]IEnumerable<string> identificationCodes)
+		{
+			var uri = $"cises/info";
+
+			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint);
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+			StringBuilder errorMessage = new StringBuilder();
+			errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
+
+			try
+			{
+				string content = JsonSerializer.Serialize(identificationCodes.ToArray());
+				HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+				var response = await _httpClient.PostAsync(uri, httpContent);
+				if(response.IsSuccessStatusCode)
+				{
+					string responseBody = await response.Content.ReadAsStringAsync();
+					var cisesInformation = JsonSerializer.Deserialize<IList<CisInfo>>(responseBody);
+					var productInstancesInfo = cisesInformation.Select(x => 
+						new ProductInstanceStatus { 
+							IdentificationCode = x.RequestedCis, 
+							Status = x.Status 
+						}
+					);
+
+					return new ProductInstancesInfo
+					{
+						InstanceStatuses = new List<ProductInstanceStatus>(productInstancesInfo)
+					};
+				}
+
+				return new ProductInstancesInfo
+				{
+					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
+				};
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, errorMessage.ToString());
+
+				return new ProductInstancesInfo
+				{
+					ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
+
+				};
+			}
+		}
 	}
 }
