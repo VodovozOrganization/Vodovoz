@@ -1648,7 +1648,7 @@
     <Compile Include="ReportsParameters\Sales\SalaryRatesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalaryRatesReport.cs" />
     <Compile Include="Views\Users\UserView.cs" />
-	<Compile Include="Views\Logistic\CarView.cs" />
+    <Compile Include="Views\Logistic\CarView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarView.cs" />
     <Compile Include="Views\Settings\GeneralSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.GeneralSettingsView.cs" />
@@ -1805,7 +1805,7 @@
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.19.4" />
+    <PackageReference Include="Google.Protobuf" Version="3.21.7" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.16" />
