@@ -24,6 +24,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Profitability;
@@ -31,6 +32,7 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -43,15 +45,18 @@ namespace Vodovoz
 	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider =
+			new NomenclatureParametersProvider(_parametersProvider);
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
 			new RouteListProfitabilityController(
 				new RouteListProfitabilityFactory(),
-				new NomenclatureParametersProvider(_parametersProvider),
+				_nomenclatureParametersProvider,
 				new ProfitabilityConstantsRepository(),
 				new RouteListProfitabilityRepository(),
-				new RouteListRepository(new StockRepository(), new BaseParametersProvider(_parametersProvider)));
+				new RouteListRepository(new StockRepository(), new BaseParametersProvider(_parametersProvider)),
+				new NomenclatureRepository(_nomenclatureParametersProvider));
 
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private readonly bool _allEditing;
@@ -426,10 +431,13 @@ namespace Vodovoz
 				SetSensetivity(false);
 
 				Entity.CalculateWages(wageParameterService);
-				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-				
+
 				UoWGeneric.Save();
 
+				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+				UoW.Save(Entity.RouteListProfitability);
+				UoW.Commit();
+				
 				var changedList = items.Where(item => item.ChangedDeliverySchedule || item.HasChanged).ToList();
 				if(changedList.Count == 0)
 					return true;

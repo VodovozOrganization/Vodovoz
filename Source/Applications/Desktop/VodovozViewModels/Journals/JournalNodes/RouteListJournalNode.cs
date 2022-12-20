@@ -25,5 +25,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public bool NotFullyLoaded { get; set; }
 		public CarTypeOfUse CarTypeOfUse { get; set; }
 		public CarOwnType CarOwnType { get; set; }
+		public decimal? GrossMarginPercents { get; set; }
+		public decimal RouteListProfitabilityIndicator { get; set; }
 	}
 }

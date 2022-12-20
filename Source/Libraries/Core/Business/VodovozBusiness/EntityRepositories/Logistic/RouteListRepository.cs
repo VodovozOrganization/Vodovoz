@@ -1170,9 +1170,24 @@ namespace Vodovoz.EntityRepositories.Logistic
 			
 			return uow.Session.QueryOver<RouteListItem>()
 				.Where(rla => rla.RouteList.Id == routeListId)
+				.And(rla => rla.Status != RouteListItemStatus.Transfered)
 				.JoinAlias(rla => rla.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.WhereRestrictionOn(() => orderItemAlias.Nomenclature.Id).IsInG(paidDeliveriesNomenclaturesIds)
+				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
+				.SingleOrDefault<decimal>();
+		}
+
+		public decimal GetRouteListSalesSum(IUnitOfWork uow, int routeListId)
+		{
+			OrderItem orderItemAlias = null;
+			VodovozOrder orderAlias = null;
+			
+			return uow.Session.QueryOver<RouteListItem>()
+				.Where(rla => rla.RouteList.Id == routeListId)
+				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
+				.JoinAlias(rla => rla.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
 				.SingleOrDefault<decimal>();
 		}

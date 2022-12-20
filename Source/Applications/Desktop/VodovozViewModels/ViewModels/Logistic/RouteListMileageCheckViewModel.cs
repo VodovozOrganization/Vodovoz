@@ -21,7 +21,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -52,7 +51,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand _acceptFineCommand;
 		private DelegateCommand _openMapCommand;
 		private DelegateCommand _fromTrackCommand;
-		private DelegateCommand _distributeMiliageCommand;
+		private DelegateCommand _distributeMileageCommand;
 		private readonly IValidationContextFactory _validationContextFactory;
 
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
@@ -231,9 +230,21 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			Entity.CalculateWages(_wageParameterService);
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
-				
 			return base.BeforeSave();
+		}
+		
+		public void SaveWithClose()
+		{
+			Save();
+			Close(false, CloseSource.Save);
+		}
+
+		protected override void AfterSave()
+		{
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			UoW.Save(Entity.RouteListProfitability);
+			UoW.Commit();
+			base.AfterSave();
 		}
 
 		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
@@ -284,7 +295,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					Entity.AcceptMileage(CallTaskWorker);
 
-					SaveAndClose();
+					SaveWithClose();
 				}
 			));
 
@@ -330,15 +341,16 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 			));
 
-		public DelegateCommand DistributeMiliageCommand =>
-			_distributeMiliageCommand ?? (_distributeMiliageCommand = new DelegateCommand(() =>
+		public DelegateCommand DistributeMileageCommand =>
+			_distributeMileageCommand ?? (_distributeMileageCommand = new DelegateCommand(() =>
 				{
 					if(HasChanges && !SaveBeforeContinue())
 					{
 						return;
 					}
 
-					NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
+					NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(
+						this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
 				}
 			));
 	}

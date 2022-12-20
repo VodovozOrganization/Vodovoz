@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -24,8 +25,9 @@ namespace DriverAPI.Middleware
 
 		public async Task Invoke(HttpContext context)
 		{
+			Stopwatch _watcher = Stopwatch.StartNew();
 			await LogRequest(context);
-			await LogResponse(context);
+			await LogResponse(context, _watcher);
 		}
 
 		private async Task LogRequest(HttpContext context)
@@ -33,7 +35,7 @@ namespace DriverAPI.Middleware
 			context.Request.EnableBuffering();
 			await using var requestStream = _recyclableMemoryStreamManager.GetStream();
 			await context.Request.Body.CopyToAsync(requestStream);
-			_logger.LogInformation($"Http Request Information:{Environment.NewLine}" +
+			_logger.LogInformation($"Http Request Information: " +
 								   $"Schema:{context.Request.Scheme} " +
 								   $"Host: {context.Request.Host} " +
 								   $"Path: {context.Request.Path} " +
@@ -67,7 +69,7 @@ namespace DriverAPI.Middleware
 			return textWriter.ToString();
 		}
 
-		private async Task LogResponse(HttpContext context)
+		private async Task LogResponse(HttpContext context, Stopwatch watcher)
 		{
 			var originalBodyStream = context.Response.Body;
 
@@ -80,12 +82,15 @@ namespace DriverAPI.Middleware
 			var text = await new StreamReader(context.Response.Body).ReadToEndAsync();
 			context.Response.Body.Seek(0, SeekOrigin.Begin);
 
-			_logger.LogInformation($"Http Response Information:{Environment.NewLine}" +
+			watcher.Stop();
+
+			_logger.LogInformation($"Http Response Information: " +
 								   $"Schema:{context.Request.Scheme} " +
 								   $"Host: {context.Request.Host} " +
 								   $"Path: {context.Request.Path} " +
 								   $"QueryString: {context.Request.QueryString} " +
-								   $"Response Body: {text}");
+								   $"Response Body: {text} | " +
+								   $"Elapsed: {watcher.Elapsed.TotalMilliseconds}ms");
 
 			await responseBody.CopyToAsync(originalBodyStream);
 		}
