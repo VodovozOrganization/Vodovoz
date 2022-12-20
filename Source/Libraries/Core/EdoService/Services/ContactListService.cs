@@ -9,6 +9,7 @@ using EdoService.Converters;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Services;
+using System.Text.RegularExpressions;
 
 namespace EdoService.Services
 {
@@ -104,7 +105,7 @@ namespace EdoService.Services
 						Inn = inn,
 						Kpp = kpp,
 						Email = email,
-						EdxClientId = edxClientId,
+						EdxClientId = Regex.Replace(edxClientId, @"\s+", string.Empty),
 						Comment = "Компания Весёлый водовоз приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
 					}
 				}
