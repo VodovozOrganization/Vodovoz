@@ -54,10 +54,10 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
-    <Compile Include="Controllers\EmployeeRegistrationController.cs" />
+    <Compile Include="Controllers\EmployeeRegistrationVersionController.cs" />
     <Compile Include="Controllers\FuelPriceVersionsController.cs" />
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
-    <Compile Include="Controllers\IEmployeeRegistrationController.cs" />
+    <Compile Include="Controllers\IEmployeeRegistrationVersionController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
     <Compile Include="Controllers\IRouteListProfitabilityController.cs" />
     <Compile Include="Controllers\IUserPermissionsController.cs" />

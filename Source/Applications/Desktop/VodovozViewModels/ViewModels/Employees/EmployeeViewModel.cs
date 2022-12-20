@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
-		private readonly IEmployeeRegistrationController _employeeRegistrationController;
+		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
@@ -135,7 +135,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
-			_employeeRegistrationController = new EmployeeRegistrationController(Entity, new EmployeeRegistrationVersionFactory());
+			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 
 			if(commonOrganisationProvider == null)
 			{
@@ -466,9 +466,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					{
 						if(SelectedDistrictPrioritySet.Id == 0)
 						{
-							ServicesConfig.CommonServices.InteractiveService
-								.ShowMessage(ImportanceLevel.Info,
-									"Перед копированием новой версии необходимо сохранить сотрудника");
+							_commonServices.InteractiveService.ShowMessage(
+								ImportanceLevel.Info,
+								"Перед копированием новой версии необходимо сохранить сотрудника");
 							return;
 						}
 
@@ -684,7 +684,15 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						}
 
 						var employeeRegistration = UoW.GetById<EmployeeRegistration>(selectedResult.Id);
-						_employeeRegistrationController.AddNewRegistrationVersion(SelectedRegistrationDate, employeeRegistration);
+						var error =
+							_employeeRegistrationVersionController.AddNewRegistrationVersion(SelectedRegistrationDate, employeeRegistration);
+						
+						if(!string.IsNullOrWhiteSpace(error))
+						{
+							_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, error);
+							return;
+						}
+
 						OnPropertyChanged(nameof(CanAddNewRegistrationVersion));
 						OnPropertyChanged(nameof(CanChangeRegistrationVersionDate));
 					};
@@ -699,7 +707,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						return;
 					}
 					
-					_employeeRegistrationController.ChangeVersionStartDate(SelectedRegistrationVersion, SelectedRegistrationDate.Value);
+					_employeeRegistrationVersionController.ChangeVersionStartDate(SelectedRegistrationVersion, SelectedRegistrationDate.Value);
 					OnPropertyChanged(nameof(CanAddNewRegistrationVersion));
 					OnPropertyChanged(nameof(CanChangeRegistrationVersionDate));
 				}));

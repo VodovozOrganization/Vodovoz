@@ -143,10 +143,11 @@ namespace Vodovoz.ReportsParameters.Employees
 					}
 
 					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Subdivision>>());
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle))
+						.OrderBy(x => x.Name).Asc
+						.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Subdivision>>());
+						
 					return query.List<SelectableParameter>();
 				})
 			);
@@ -175,12 +176,14 @@ namespace Vodovoz.ReportsParameters.Employees
 					);
 
 					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(employeeProjection).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(employeeProjection).WithAlias(() => resultAlias.EntityTitle))
+						.OrderBy(x => x.LastName).Asc
+						.OrderBy(x => x.Name).Asc
+						.OrderBy(x => x.Patronymic).Asc
+						.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+					
 					var paremetersSet = query.List<SelectableParameter>();
-
 					return paremetersSet;
 				})
 			);

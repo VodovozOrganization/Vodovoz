@@ -6,12 +6,12 @@ using Vodovoz.Factories;
 
 namespace Vodovoz.Controllers
 {
-	public class EmployeeRegistrationController : IEmployeeRegistrationController
+	public class EmployeeRegistrationVersionController : IEmployeeRegistrationVersionController
 	{
 		private readonly Employee _employee;
 		private readonly IEmployeeRegistrationVersionFactory _employeeRegistrationVersionFactory;
 
-		public EmployeeRegistrationController(
+		public EmployeeRegistrationVersionController(
 			Employee employee,
 			IEmployeeRegistrationVersionFactory employeeRegistrationVersionFactory)
 		{
@@ -20,7 +20,7 @@ namespace Vodovoz.Controllers
 				employeeRegistrationVersionFactory ?? throw new ArgumentNullException(nameof(employeeRegistrationVersionFactory));
 		}
 
-		public void AddNewRegistrationVersion(DateTime? startDate, EmployeeRegistration employeeRegistration)
+		public string AddNewRegistrationVersion(DateTime? startDate, EmployeeRegistration employeeRegistration)
 		{
 			if(!startDate.HasValue)
 			{
@@ -37,9 +37,8 @@ namespace Vodovoz.Controllers
 				{
 					if(startDate < lastVersion.StartDate.AddDays(1))
 					{
-						throw new ArgumentException(
-							"Дата начала действия новой версии должна быть минимум на день позже, чем дата начала действия предыдущей версии",
-							nameof(startDate));
+						return "Дата начала действия новой версии должна быть минимум на день позже," +
+							" чем дата начала действия предыдущей версии";
 					}
 					lastVersion.EndDate = startDate.Value.AddMilliseconds(-1);
 				}
@@ -47,6 +46,7 @@ namespace Vodovoz.Controllers
 
 			newVersion.StartDate = startDate.Value;
 			_employee.ObservableEmployeeRegistrationVersions.Insert(0, newVersion);
+			return null;
 		}
 		
 		public void ChangeVersionStartDate(EmployeeRegistrationVersion version, DateTime newStartDate)

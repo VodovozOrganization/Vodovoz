@@ -73,7 +73,9 @@ namespace Vodovoz.HibernateMapping.Employees
 
                 HasMany(x => x.Contracts).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 				HasMany(x => x.WageParameters).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
-				HasMany(x => x.EmployeeRegistrationVersions).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
+				HasMany(x => x.EmployeeRegistrationVersions)
+					.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id")
+					.OrderBy("start_date DESC");
 				
 				HasMany(x => x.DriverWorkScheduleSets)
 					.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("driver_id")

@@ -3,9 +3,9 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Controllers
 {
-	public interface IEmployeeRegistrationController
+	public interface IEmployeeRegistrationVersionController
 	{
-		void AddNewRegistrationVersion(DateTime? startDate, EmployeeRegistration employeeRegistration);
+		string AddNewRegistrationVersion(DateTime? startDate, EmployeeRegistration employeeRegistration);
 		void ChangeVersionStartDate(EmployeeRegistrationVersion version, DateTime newStartDate);
 	}
 }

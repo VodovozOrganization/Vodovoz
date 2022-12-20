@@ -23,6 +23,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			TabName = "Журнал видов оформлений сотрудников";
+			VisibleDeleteAction = false;
 		}
 
 		protected override IQueryOver<EmployeeRegistration> ItemsQuery(IUnitOfWork uow)

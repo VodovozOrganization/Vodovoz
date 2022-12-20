@@ -136,7 +136,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>={operation_time}</Value>
+                      <Value>={date}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -238,7 +238,7 @@
               <RepeatOnNewPage>false</RepeatOnNewPage>
               <TableRows>
                 <TableRow>
-                  <Height>5.7pt</Height>
+                  <Height>2.5pt</Height>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
@@ -334,7 +334,7 @@
                             <BackgroundColor>Azure</BackgroundColor>
                             <FontSize>11pt</FontSize>
                           </Style>
-                          <CanGrow >true</CanGrow>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                       <ColSpan>2</ColSpan>
@@ -496,7 +496,7 @@
           </TableGroup>
         </TableGroups>
       </Table>
-      <Textbox Name="Textbox6" >
+      <Textbox Name="Textbox6">
         <Height>61.52pt</Height>
         <Width>567.45pt</Width>
         <Value>="Выбранные фильтры:\n" +
@@ -553,7 +553,7 @@
 	e.id,
 	CONCAT(e.last_name, ' ', e.name, ' ', e.patronymic) as employee_name,
 	-wmo.money as amount,
-	wmo.operation_time,
+	IF(ce.id IS NOT NULL, ce.date, wmo.operation_time) AS date,
 	ce.description as description,
 	(
 		CASE wmo.operation_type
@@ -646,8 +646,8 @@ WHERE
           <DataField>amount</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="operation_time">
-          <DataField>operation_time</DataField>
+        <Field Name="date">
+          <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="description">
@@ -663,7 +663,7 @@ WHERE
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>

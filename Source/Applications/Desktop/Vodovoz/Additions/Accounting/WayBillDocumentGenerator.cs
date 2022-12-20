@@ -187,6 +187,7 @@ namespace Vodovoz.Additions.Accounting
 
 			Car carAlias = null;
 			CarVersion carVersionAlias = null;
+			CarFuelVersion carFuelVersionAlias = null;
 			CarModel carModelAlias = null;
 			CarNode resultAlias = null;
 
@@ -196,13 +197,17 @@ namespace Vodovoz.Additions.Accounting
 					() => carVersionAlias.Car.Id == carAlias.Id
 						&& carVersionAlias.StartDate <= currentDateTime &&
 						(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= currentDateTime))
+				.JoinEntityAlias(() => carFuelVersionAlias,
+					() => carFuelVersionAlias.CarModel.Id == carModelAlias.Id
+						&& carFuelVersionAlias.StartDate <= currentDateTime &&
+						(carFuelVersionAlias.EndDate == null || carFuelVersionAlias.EndDate >= currentDateTime))
 				.Where(() => carVersionAlias.CarOwnType == CarOwnType.Company)
 				.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse),
 					new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle }))
 				.SelectList(list => list
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.RegistrationNumber)
 					.Select(() => carAlias.FuelType).WithAlias(() => resultAlias.FuelType)
-					.Select(() => carAlias.FuelConsumption).WithAlias(() => resultAlias.FuelConsumption)
+					.Select(() => carFuelVersionAlias.FuelConsumption).WithAlias(() => resultAlias.FuelConsumption)
 					.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
 					.Select(() => carAlias.DocPTSSeries).WithAlias(() => resultAlias.DocPTSSeries)
 					.Select(() => carAlias.DocPTSNumber).WithAlias(() => resultAlias.DocPTSNumber))
