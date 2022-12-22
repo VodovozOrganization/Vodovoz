@@ -1,7 +1,7 @@
 ﻿using NHibernate;
 using QS.DomainModel.UoW;
 using QS.ErrorReporting;
-using RoboAtsService.Monitoring;
+using RoboatsService.Monitoring;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public class ValidOrdersProvider
 	{

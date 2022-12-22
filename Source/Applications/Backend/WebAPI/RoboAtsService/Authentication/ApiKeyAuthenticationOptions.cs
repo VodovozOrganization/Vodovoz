@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 
-namespace RoboAtsService.Authentication
+namespace RoboatsService.Authentication
 {
 	public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
 	{

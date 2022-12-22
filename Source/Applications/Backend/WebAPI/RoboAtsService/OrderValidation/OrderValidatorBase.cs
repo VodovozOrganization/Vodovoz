@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public abstract class OrderValidatorBase
 	{

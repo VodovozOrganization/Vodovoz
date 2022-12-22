@@ -9,7 +9,7 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 
-namespace RoboAtsService.Monitoring
+namespace RoboatsService.Monitoring
 {
 	public class RoboatsCallBatchRegistrator
 	{

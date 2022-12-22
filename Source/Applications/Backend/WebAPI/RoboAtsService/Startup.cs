@@ -17,9 +17,9 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using QS.Services;
-using RoboAtsService.Authentication;
-using RoboAtsService.Monitoring;
-using RoboAtsService.OrderValidation;
+using RoboatsService.Authentication;
+using RoboatsService.Monitoring;
+using RoboatsService.OrderValidation;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -32,7 +32,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
-namespace RoboAtsService
+namespace RoboatsService
 {
 	public class Startup
     {

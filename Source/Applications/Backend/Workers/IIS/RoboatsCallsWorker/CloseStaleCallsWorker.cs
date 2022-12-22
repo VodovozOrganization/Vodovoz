@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 
-namespace RoboAtsService.Workers
+namespace RoboatsService.Workers
 {
 	public class CloseStaleCallsWorker : TimerBackgroundServiceBase
 	{

@@ -4,7 +4,7 @@ using System;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.Factories;
 
-namespace RoboAtsService.Monitoring
+namespace RoboatsService.Monitoring
 {
 	public class RoboatsCallRegistrator
 	{

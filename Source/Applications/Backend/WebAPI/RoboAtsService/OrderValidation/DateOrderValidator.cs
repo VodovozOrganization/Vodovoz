@@ -4,7 +4,7 @@ using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Parameters;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public sealed class DateOrderValidator : OrderValidatorBase
 	{

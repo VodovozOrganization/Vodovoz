@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Web;
 using System.Threading.Tasks;
 
-namespace RoboAtsService
+namespace RoboatsService
 {
 	public class Program
 	{
