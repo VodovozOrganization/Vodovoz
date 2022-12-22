@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace RoboatsCallsWorker
 {
 	public class Program
-    {
+	{
 		public static async Task Main(string[] args)
 		{
 			await CreateHostBuilder(args).Build().RunAsync();
