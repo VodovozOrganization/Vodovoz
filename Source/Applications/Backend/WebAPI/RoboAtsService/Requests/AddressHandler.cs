@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
-using RoboAtsService.Monitoring;
-using RoboAtsService.OrderValidation;
+using RoboatsService.Monitoring;
+using RoboatsService.OrderValidation;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 
-namespace RoboAtsService.Requests
+namespace RoboatsService.Requests
 {
 	/// <summary>
 	/// Обработчик запросов получения данных об адресе

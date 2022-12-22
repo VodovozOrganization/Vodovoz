@@ -242,6 +242,16 @@ namespace Vodovoz.EntityRepositories.Roboats
 			}
 		}
 
+		public IEnumerable<RoboatsDeliveryIntervalRestriction> GetRoboatsDeliveryIntervalRestrictions()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var result = uow.GetAll<RoboatsDeliveryIntervalRestriction>().ToList();
+				return result;
+			}
+		}
+
+
 		public IEnumerable<Order> GetLastOrders(int clientId)
 		{
 			return GetLastOrders(clientId, null);

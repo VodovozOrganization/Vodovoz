@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		public RoboAtsCounterpartyPatronymicJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices)
 			: base(unitOfWorkFactory, commonServices)
 		{
-			TabName = "Отчества контрагентов RoboATS";
+			TabName = "Отчества контрагентов Roboats";
 
 			UpdateOnChanges(typeof(RoboAtsCounterpartyPatronymic));
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));

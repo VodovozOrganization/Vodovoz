@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping.Organizations
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			Map(x => x.RoboatsAudiofile).Column("audio_filename");
 			Map(x => x.FileId).Column("file_id");
-			Map(x => x.Order).Column("order");
+			Map(x => x.Order).Column("order_index");
 		}
 	}
 }

@@ -2,7 +2,7 @@
 using System.Linq;
 using Vodovoz.Domain.Orders;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public class OrderValidationResult
 	{
