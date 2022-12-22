@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using RoboatsCallsWorker;
 using System;
 using System.Threading;
-using Vodovoz.Domain.Roboats;
-using Vodovoz.EntityRepositories.Roboats;
+using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 
@@ -27,7 +25,7 @@ namespace RoboAtsService.Workers
 		}
 		protected override TimeSpan Interval => _interval;
 
-		protected override void DoWork(CancellationToken stoppingToken)
+		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
 			if(_isRunning)
 			{
