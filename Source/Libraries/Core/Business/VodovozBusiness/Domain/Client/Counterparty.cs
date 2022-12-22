@@ -717,7 +717,14 @@ namespace Vodovoz.Domain.Client
 		public virtual string PersonalAccountIdInEdo
 		{
 			get => _personalAccountIdInEdo;
-			set => SetField(ref _personalAccountIdInEdo, value);
+			set
+			{
+				var cleanedId = value == null
+					? null 
+					: Regex.Replace(value, @"\s+", string.Empty);
+
+				SetField(ref _personalAccountIdInEdo, cleanedId);
+			}
 		}
 
 		[Display(Name = "Оператор ЭДО")]
