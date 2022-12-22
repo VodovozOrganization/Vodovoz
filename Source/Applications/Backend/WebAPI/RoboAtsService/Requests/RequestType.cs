@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace RoboAtsService.Requests
+namespace RoboatsService.Requests
 {
 	[Serializable]
 	public enum RequestType

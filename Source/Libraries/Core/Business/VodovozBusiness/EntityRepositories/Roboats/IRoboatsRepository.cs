@@ -18,6 +18,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 		Order GetLastOrder(int clientId, int? deliveryPointId = null);
 		IEnumerable<Order> GetLastOrders(int clientId);
 		IEnumerable<DeliverySchedule> GetRoboatsAvailableDeliveryIntervals();
+		IEnumerable<RoboatsDeliveryIntervalRestriction> GetRoboatsDeliveryIntervalRestrictions();
 		int GetRoboatsCounterpartyNameId(int counterpartyId, string phone);
 		bool CounterpartyExcluded(int counterpartyId);
 		int GetRoboatsCounterpartyPatronymicId(int counterpartyId, string phone);

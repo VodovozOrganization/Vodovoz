@@ -2,15 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Parameters;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public sealed class DateOrderValidator : OrderValidatorBase
 	{
-		private int _months = 4;
+		private readonly RoboatsSettings _roboatsSettings;
+		private int _ordersInMonths => _roboatsSettings.OrdersInMonths;
+
+		public DateOrderValidator(RoboatsSettings roboatsSettings)
+		{
+			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
+		}
+
 		public override IEnumerable<string> GetProblemMessages(IEnumerable<Order> orders)
 		{
-			var result = orders.Where(x => !IsValid(x)).Select(x => $"Заказ №{x.Id} был оформлен более {_months} месяцев назад");
+			var result = orders.Where(x => !IsValid(x)).Select(x => $"Заказ №{x.Id} был оформлен более {_ordersInMonths} месяцев назад");
 			return result;
 		}
 
@@ -18,7 +26,7 @@ namespace RoboAtsService.OrderValidation
 		{
 			foreach(var order in orders)
 			{
-				if(order.DeliveryDate >= DateTime.Today.AddMonths(-_months))
+				if(order.DeliveryDate >= DateTime.Today.AddMonths(-_ordersInMonths))
 				{
 					AddValidOrder(order);
 				}
