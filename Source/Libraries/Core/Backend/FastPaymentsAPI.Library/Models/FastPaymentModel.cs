@@ -169,6 +169,8 @@ namespace FastPaymentsAPI.Library.Models
 		
 		public bool UpdateFastPaymentStatus(PaidOrderInfoDTO paidOrderInfoDto, FastPayment fastPayment)
 		{
+			_uow.Session.Refresh(fastPayment);
+			
 			if((int)paidOrderInfoDto.Status != (int)fastPayment.FastPaymentStatus)
 			{
 				UpdateFastPaymentStatus(fastPayment, paidOrderInfoDto.Status, paidOrderInfoDto.StatusDate);
