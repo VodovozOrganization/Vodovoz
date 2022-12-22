@@ -1169,8 +1169,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void InitializeData()
 		{
-			//Эта штука выключает LazyLoading у всех сущностей в сессии. Наверное с этим надо что-то делать
-			UoW.Session.Clear();
+			UoW.Dispose();
+			CreateUoW();
+
 			if(OrdersOnDay == null)
 			{
 				OrdersOnDay = new List<Order>();
