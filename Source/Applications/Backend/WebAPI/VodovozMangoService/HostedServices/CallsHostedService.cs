@@ -42,7 +42,7 @@ namespace VodovozMangoService.HostedServices
             if(!toRemove.Any())
                 return;
             
-            var noDisconnected = toRemove.Where(c => c.Events.Values.All(e => e.CallState != CallState.Disconnected)).ToList();
+            var noDisconnected = toRemove.Where(c => c.Events.Values.All(e => e.CallStateEnum != CallState.Disconnected)).ToList();
             if (noDisconnected.Count > 0)
             {
                 var text = NumberToTextRus.FormatCase(noDisconnected.Count, 
@@ -50,11 +50,11 @@ namespace VodovozMangoService.HostedServices
                     "Следующие {0} звонка не получили события Disconnected в течении 1 часа:\n",
                     "Следующие {0} звонков не получили события Disconnected в течении 1 часа:\n"
                     );
-                noDisconnected.ForEach(info => text += $"* CallInfo {info.LastEvent.call_id}:\n{info.EventsToText()}\n");
+                noDisconnected.ForEach(info => text += $"* CallInfo {info.LastEvent.CallId}:\n{info.EventsToText()}\n");
                 loggerLostEvents.Error(text);
             }
             
-            var lostIncome = toRemove.Where(c => c.Events.Values.All(e => e.CallState == CallState.Disconnected)).ToList();
+            var lostIncome = toRemove.Where(c => c.Events.Values.All(e => e.CallStateEnum == CallState.Disconnected)).ToList();
             if (lostIncome.Count > 0)
             {
                 var text = NumberToTextRus.FormatCase(lostIncome.Count, 
@@ -62,17 +62,17 @@ namespace VodovozMangoService.HostedServices
                     "У следующих {0} звонков было только событие Disconnected:\n",
                     "У следующих {0} звонков было только событие Disconnected:\n"
                 );
-                lostIncome.ForEach(info => text += $"* CallInfo {info.LastEvent.call_id}:\n{info.EventsToText()}\n");
+                lostIncome.ForEach(info => text += $"* CallInfo {info.LastEvent.CallId}:\n{info.EventsToText()}\n");
                 loggerLostEvents.Error(text);
             }
             //Удаляем
             foreach (var call in toRemove)
             {
-                Calls.TryRemove(call.LastEvent.call_id, out var callNull);
+                Calls.TryRemove(call.LastEvent.CallId, out var callNull);
             }
 
             var activeCallsCount =
-                Calls.Count(p => p.Value.Events.Values.All(e => e.CallState != CallState.Disconnected));
+                Calls.Count(p => p.Value.Events.Values.All(e => e.CallStateEnum != CallState.Disconnected));
             logger.Info($"Забыта информация о {toRemove.Count} звонках. Всего сервер знает о {Calls.Count} звонках, из них {activeCallsCount} активных.");
         }
         

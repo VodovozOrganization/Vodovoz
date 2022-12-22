@@ -29,7 +29,7 @@ namespace VodovozMangoService.HostedServices
 				if(phone.PhoneType == PhoneEntryType.Extension)
 				{
 					phone.PhoneState = _callsService.Calls.Values.Any(c =>
-						(c.LastEvent.to.Extension == phone.Extension || c.LastEvent.@from.Extension == phone.Extension) &&
+						(c.LastEvent.To.ExtensionUint == phone.Extension || c.LastEvent.From.ExtensionUint == phone.Extension) &&
 						c.IsActive)
 						? PhoneState.Busy
 						: PhoneState.Ready;
