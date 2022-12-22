@@ -3,7 +3,7 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public sealed class ApartmentOrderValidator : OrderValidatorBase
 	{

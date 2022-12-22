@@ -5,7 +5,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public sealed class OnlyWaterOrderValidator : OrderValidatorBase
 	{

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using RoboAtsService.Monitoring;
-using RoboAtsService.OrderValidation;
+using RoboatsService.Monitoring;
+using RoboatsService.OrderValidation;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,7 +10,7 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 
-namespace RoboAtsService.Requests
+namespace RoboatsService.Requests
 {
 	public partial class OrderHandler : GetRequestHandlerBase
 	{

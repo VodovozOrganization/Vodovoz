@@ -13,11 +13,26 @@ namespace Vodovoz.Infrastructure
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
+			OnStartService();
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				await DoWork(stoppingToken);
 				await Task.Delay(Interval, stoppingToken);
 			}
+		}
+
+		public override Task StopAsync(CancellationToken cancellationToken)
+		{
+			OnStopService();
+			return base.StopAsync(cancellationToken);
+		}
+
+		protected virtual void OnStartService()
+		{
+		}
+
+		protected virtual void OnStopService()
+		{
 		}
 	}
 }
