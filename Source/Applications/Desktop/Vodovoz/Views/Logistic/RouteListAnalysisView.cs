@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			table1.Sensitive = false;
 
-			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			buttonSave.Clicked += (sender, e) => ViewModel.SaveWithClose();
 			buttonSave.Sensitive = ViewModel.CanEditRouteList;
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);

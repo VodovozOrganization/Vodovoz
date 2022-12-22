@@ -40,7 +40,7 @@ namespace TaxcomEdoApi.Converters
 						},
 						Adres = new AdresTip
 						{
-							Item = GetCustomAddress(deliveryPoint != null ? deliveryPoint.CompiledAddress : client.JurAddress)
+							Item = GetCustomAddress(deliveryPoint != null ? deliveryPoint.ShortAddress : client.JurAddress)
 						}
 					};
 				case CargoReceiverSource.Special:
@@ -50,7 +50,7 @@ namespace TaxcomEdoApi.Converters
 						{
 							IdSv = new UchastnikTipIdSv
 							{
-								Item = GetSpecialConsignee(client, deliveryPoint?.KPP)
+								Item = GetSpecialConsignee(client, client.PayerSpecialKPP)
 							},
 							Adres = new AdresTip
 							{
@@ -106,7 +106,7 @@ namespace TaxcomEdoApi.Converters
 			}
 		}
 		
-		private object GetConcreteConsignee(Counterparty client, string deliveryPointKpp)
+		private object GetConcreteConsignee(Counterparty client, string specialKpp)
 		{
 			switch(client.PersonType)
 			{
@@ -120,8 +120,8 @@ namespace TaxcomEdoApi.Converters
 						};
 					}
 
-					return !string.IsNullOrWhiteSpace(deliveryPointKpp)
-						? GetUchastnikUl(client.INN, deliveryPointKpp, client.FullName)
+					return !string.IsNullOrWhiteSpace(specialKpp)
+						? GetUchastnikUl(client.INN, specialKpp, client.FullName)
 						: GetUchastnikUl(client.INN, client.KPP, client.FullName);
 				case PersonType.natural:
 				default:
@@ -129,7 +129,7 @@ namespace TaxcomEdoApi.Converters
 			}
 		}
 		
-		private object GetSpecialConsignee(Counterparty client, string deliveryPointKpp)
+		private object GetSpecialConsignee(Counterparty client, string specialKpp)
 		{
 			switch(client.PersonType)
 			{
@@ -143,8 +143,8 @@ namespace TaxcomEdoApi.Converters
 						};
 					}
 
-					return !string.IsNullOrWhiteSpace(deliveryPointKpp)
-						? GetUchastnikUl(client.INN, deliveryPointKpp, client.FullName)
+					return !string.IsNullOrWhiteSpace(specialKpp)
+						? GetUchastnikUl(client.INN, specialKpp, client.FullName)
 						: GetUchastnikUl(client.INN, client.KPP, client.FullName);
 				case PersonType.natural:
 				default:

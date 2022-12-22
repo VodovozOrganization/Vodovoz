@@ -11,13 +11,17 @@ namespace Vodovoz.Reports
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class WagesOperationsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public WagesOperationsReport()
+		public WagesOperationsReport(IEmployeeJournalFactory employeeJournalFactory)
 		{
-			this.Build();
+			if(employeeJournalFactory is null)
+			{
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
+			}
+			
+			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-
-			var employeeFactory = new EmployeeJournalFactory();
-			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 		}
 
 		#region IParametersWidget implementation

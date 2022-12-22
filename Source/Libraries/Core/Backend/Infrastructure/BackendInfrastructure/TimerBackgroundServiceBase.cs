@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,14 +9,14 @@ namespace Vodovoz.Infrastructure
 	{
 		protected abstract TimeSpan Interval { get; }
 
-		protected abstract void DoWork(CancellationToken stoppingToken);
+		protected abstract Task DoWork(CancellationToken stoppingToken);
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 			OnStartService();
 			while(!stoppingToken.IsCancellationRequested)
 			{
-				DoWork(stoppingToken);
+				await DoWork(stoppingToken);
 				await Task.Delay(Interval, stoppingToken);
 			}
 		}

@@ -9,6 +9,7 @@ using EdoService.Converters;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Services;
+using System.Text.RegularExpressions;
 
 namespace EdoService.Services
 {
@@ -104,8 +105,32 @@ namespace EdoService.Services
 						Inn = inn,
 						Kpp = kpp,
 						Email = email,
-						EdxClientId = edxClientId,
+						EdxClientId = Regex.Replace(edxClientId, @"\s+", string.Empty),
 						Comment = "Компания Весёлый водовоз приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
+					}
+				}
+			};
+
+			return await SendContactsAsync(invitationsList);
+		}
+
+		public async Task<ResultDto> SendContactsForManualInvitationAsync(string inn, string kpp, string organizationName,
+			string operatorId, string email, string scanFileName, byte[] scanFile)
+		{
+			var invitationsList = new ContactList
+			{
+				Contacts = new[]
+				{
+					new ContactListItem
+					{
+						Inn = inn,
+						Kpp = kpp,
+						Name = organizationName,
+						Email = email,
+						OperatorId = operatorId,
+						ScanFilename = scanFileName,
+						Scan = Convert.ToBase64String(scanFile),
+						Comment = $"Компания {organizationName} приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
 					}
 				}
 			};

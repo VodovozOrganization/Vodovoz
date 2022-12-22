@@ -83,6 +83,7 @@ using System.Threading;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
+using QS.Attachments.Domain;
 
 namespace Vodovoz
 {
@@ -124,10 +125,10 @@ namespace Vodovoz
 		private double _emailLastScrollPosition;
 		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 		private IContactListService _contactListService;
-		private EdoSettings _edoSettings;
 		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
-
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private IEdoSettings _edoSettings = new EdoSettings(new ParametersProvider());
+		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -1077,6 +1078,13 @@ namespace Vodovoz
 					w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybuttonSendManualInvite.Binding
+				.AddFuncBinding(Entity,
+					e => e.EdoOperator != null
+					     && e.ConsentForEdoStatus == ConsentForEdoStatus.Unknown,
+					w => w.Sensitive)
+				.InitializeFromSource();
+
 			yEnumCmbConsentForEdo.ItemsEnum = typeof(ConsentForEdoStatus);
 			yEnumCmbConsentForEdo.Binding
 				.AddBinding(Entity, e => e.ConsentForEdoStatus, w => w.SelectedItem)
@@ -1136,7 +1144,6 @@ namespace Vodovoz
 
 			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
 
-			_edoSettings = new EdoSettings(new ParametersProvider());
 			IAuthorizationService taxcomAuthorizationService = new TaxcomAuthorizationService(_edoSettings);
 			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings, new ContactStateConverter());
 
@@ -1996,7 +2003,17 @@ namespace Vodovoz
 
 		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
 		{
-			var email = Entity.Emails.LastOrDefault (em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
+			SendContact(); 
+		}
+
+		protected void OnYbuttonSendManualInviteClicked(object sender, EventArgs e)
+		{
+			SendContact(true);
+		}
+
+		private void SendContact(bool isManual = false)
+		{
+			var email = Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
 			            ?? Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.Work)
 			            ?? Entity.Emails.LastOrDefault();
 
@@ -2005,7 +2022,7 @@ namespace Vodovoz
 			if(email == null)
 			{
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Не удалось отправить приглашение. Заполните Email у контрагента");
+					"Не удалось отправить приглашение. Заполните Email у контрагента");
 
 				return;
 			}
@@ -2017,7 +2034,23 @@ namespace Vodovoz
 
 			try
 			{
-				resultMessage = _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo).Result;
+				if(isManual)
+				{
+					if(!_commonServices.InteractiveService.Question("Время обработки заявки без кода личного кабинета может составлять до 10 дней.\nПродолжить отправку?"))
+					{
+						return;
+					}
+
+					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
+					var organization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
+
+					resultMessage = _contactListService.SendContactsForManualInvitationAsync(Entity.INN, Entity.KPP, organization.Name, Entity.EdoOperator.Code,
+						email.Address, document.FileName, document.ByteFile).Result;
+				}
+				else
+				{
+					resultMessage = _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo).Result;
+				}
 			}
 			catch(Exception ex)
 			{

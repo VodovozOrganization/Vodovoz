@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public virtual ComplaintStatuses[] HiddenStatuses => new[] { ComplaintStatuses.Closed };
 
-		public bool CanEditStatus => CanEdit && Entity.Status != ComplaintStatuses.Closed || (CanEdit && _canCompleteComplaintDiscussionPermission);
+		public bool CanEditStatus => CanEdit && Entity.Status != ComplaintDiscussionStatuses.Closed || (CanEdit && _canCompleteComplaintDiscussionPermission);
 
 		//FIXME переделать репозиторий на зависимость
 		public bool CanCompleteDiscussion => CanEditStatus && _canCompleteComplaintDiscussionPermission;

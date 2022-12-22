@@ -491,6 +491,7 @@ namespace FastPaymentsAPI.Controllers
 				return StatusCode(500);
 			}
 
+			bool fastPaymentUpdated;
 			try
 			{
 				_logger.LogInformation("Проверяем подпись");
@@ -516,7 +517,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation($"Обновляем статус оплаты платежа с ticket: {ticket}");
-				_fastPaymentModel.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
+				fastPaymentUpdated = _fastPaymentModel.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
 			}
 			catch(Exception e)
 			{
@@ -526,11 +527,16 @@ namespace FastPaymentsAPI.Controllers
 			}
 
 			NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
-			_fastPaymentStatusChangeNotifier.NotifyVodovozSite(
-				fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true);
-			_fastPaymentStatusChangeNotifier.NotifyMobileApp(
-				fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true,
-				fastPayment.CallbackUrlForMobileApp);
+			
+			if(fastPaymentUpdated)
+			{
+				_fastPaymentStatusChangeNotifier.NotifyVodovozSite(
+					fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true);
+				_fastPaymentStatusChangeNotifier.NotifyMobileApp(
+					fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true,
+					fastPayment.CallbackUrlForMobileApp);
+			}
+			
 			return new AcceptedResult();
 		}
 

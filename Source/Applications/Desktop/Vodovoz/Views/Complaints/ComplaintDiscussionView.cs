@@ -32,7 +32,7 @@ namespace Vodovoz.Views.Complaints
 					UpdateStatusEnum();
 				}
 			};
-			yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
+			yenumcomboStatus.ItemsEnum = typeof(ComplaintDiscussionStatuses);
 			yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive).InitializeFromSource();
 			UpdateStatusEnum();

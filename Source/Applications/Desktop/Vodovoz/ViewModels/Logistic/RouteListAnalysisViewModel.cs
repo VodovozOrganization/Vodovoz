@@ -11,6 +11,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using QS.Commands;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
@@ -356,10 +357,23 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			SetLogisticianCommentAuthor();
 			Entity.CalculateWages(_wageParameterService);
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 			return true;
 		}
-		
+
+		public void SaveWithClose()
+		{
+			Save();
+			Close(false, CloseSource.Save);
+		}
+
+		protected override void AfterSave()
+		{
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
+			UoW.Save(Entity.RouteListProfitability);
+			UoW.Commit();
+			base.AfterSave();
+		}
+
 		private void SetLogisticianCommentAuthor()
 		{
 			if(!string.IsNullOrEmpty(Entity.LogisticiansComment))

@@ -22,9 +22,11 @@ namespace TrueMarkApi.Factories
 		}
 		public string CreateProductDocument()
 		{
-			var accountableItems = _order.OrderItems.Where(oi => oi.Nomenclature.IsAccountableInChestniyZnak)
+			var accountableItems = _order.OrderItems.Where(oi =>
+					oi.Nomenclature.IsAccountableInChestniyZnak
+					&& oi.ActualCount > 0)
 				.GroupBy(oi => oi.Nomenclature.Gtin)
-				.Select(gp => new ProductDto { Gtin = gp.Key, GtinQuantity = gp.Sum(s => (int)s.Count).ToString() })
+				.Select(gp => new ProductDto { Gtin = gp.Key, GtinQuantity = gp.Sum(s => (int)s.ActualCount).ToString() })
 				.ToList();
 
 			var productDocument = new ProductDocumentDto

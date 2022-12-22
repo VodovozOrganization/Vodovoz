@@ -2,7 +2,6 @@
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
@@ -49,6 +48,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
@@ -83,7 +83,9 @@ namespace Vodovoz.JournalViewModels
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly decimal _routeListProfitabilityIndicator;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
+		private readonly Employee _currentEmployee;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
 
@@ -116,6 +118,7 @@ namespace Vodovoz.JournalViewModels
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -149,15 +152,17 @@ namespace Vodovoz.JournalViewModels
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
+				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
+				.GetRouteListProfitabilityIndicatorInPercents;
+			
+			_currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			_warehousePermissionValidator =
-				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService)))
-				.GetValidator(UoW, commonServices.UserService.CurrentUserId);
+				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
 
 			TabName = "Журнал МЛ";
 
-			NotifyConfiguration.Enable();
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(changeEvents => Refresh());
-
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability));
 			InitPopupActions();
 		}
 
@@ -173,12 +178,13 @@ namespace Vodovoz.JournalViewModels
 			Subdivision subdivisionAlias = null;
 			GeoGroup geoGroupAlias = null;
 			GeoGroupVersion geoGroupVersionAlias = null;
+			RouteListProfitability routeListProfitabilityAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
-				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
-				.Left.JoinAlias(o => o.Car, () => carAlias)
-				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
-				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias, 
+				.Left.JoinAlias(rl => rl.Shift, () => shiftAlias)
+				.Left.JoinAlias(rl => rl.Car, () => carAlias)
+				.Left.JoinAlias(rl => rl.GeographicGroups, () => geoGroupAlias)
+				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias,
 						Restrictions.Conjunction()
 							.Add(Restrictions.Where(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date))
 							.Add(
@@ -188,7 +194,8 @@ namespace Vodovoz.JournalViewModels
 							)
 				)
 				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
-				.Left.JoinAlias(o => o.Driver, () => driverAlias)
+				.Left.JoinAlias(rl => rl.Driver, () => driverAlias)
+				.Left.JoinAlias(rl => rl.RouteListProfitability, () => routeListProfitabilityAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinEntityAlias(() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id
@@ -322,6 +329,10 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => routeListJournalNodeAlias.NotFullyLoaded)
 					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => routeListJournalNodeAlias.CarTypeOfUse)
 					.Select(() => carVersionAlias.CarOwnType).WithAlias(() => routeListJournalNodeAlias.CarOwnType)
+					.Select(() => routeListProfitabilityAlias.GrossMarginPercents)
+						.WithAlias(() => routeListJournalNodeAlias.GrossMarginPercents)
+					.Select(Projections.Constant(_routeListProfitabilityIndicator))
+						.WithAlias(() => routeListJournalNodeAlias.RouteListProfitabilityIndicator)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 
@@ -424,8 +435,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(defaultWarehouse != null
 			   && !cashWarehouseIds.Contains(defaultWarehouse.Id)
-			   && _warehousePermissionValidator.Validate(
-					WarehousePermissionsType.CarLoadEdit, defaultWarehouse, _employeeRepository.GetEmployeeForCurrentUser(UoW).User))
+			   && _warehousePermissionValidator.Validate(WarehousePermissionsType.CarLoadEdit, defaultWarehouse, _currentEmployee))
 			{
 				return new JournalAction(
 					$"Отправить МЛ на погрузку со скалада\n'{defaultWarehouse.Name}' и распечатать",
@@ -632,7 +642,8 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+						MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 					}
 				}
 			);
@@ -809,11 +820,9 @@ namespace Vodovoz.JournalViewModels
 
 		private void FillCarLoadDocument(CarLoadDocument document, IUnitOfWork uow, int routeListId, int warehouseId)
 		{
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-
 			document.RouteList = uow.GetById<RouteList>(routeListId);
-			document.Author = currentEmployee;
-			document.LastEditor = currentEmployee;
+			document.Author = _currentEmployee;
+			document.LastEditor = _currentEmployee;
 			document.LastEditedTime = DateTime.Now;
 			document.Warehouse = uow.GetById<Warehouse>(warehouseId);
 
