@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -12,50 +12,52 @@ namespace VodovozMangoService.Controllers
     [Route("mango/[controller]")]
     public class EventsController : ControllerBase
     {
-        private readonly CallsHostedService callsService;
-        private readonly NotificationHostedService notificationHostedService;
-        private readonly IConfiguration configuration;
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly CallsHostedService _callsService;
+        private readonly NotificationHostedService _notificationHostedService;
+        private readonly IConfiguration _configuration;
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         public EventsController(CallsHostedService callsService, NotificationHostedService notificationHostedService, IConfiguration configuration)
         {
-            this.callsService = callsService ?? throw new ArgumentNullException(nameof(callsService));
-            this.notificationHostedService = notificationHostedService ?? throw new ArgumentNullException(nameof(notificationHostedService));
-            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _callsService = callsService ?? throw new ArgumentNullException(nameof(callsService));
+            _notificationHostedService = notificationHostedService ?? throw new ArgumentNullException(nameof(notificationHostedService));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         [HttpPost("call")]
         public async Task Call([FromForm] EventRequest eventRequest)
         {
 #if DEBUG
-            logger.Debug($"message={eventRequest.Json}");
+            _logger.Debug($"message={eventRequest.Json}");
 #endif
-            if (!eventRequest.ValidateSign(configuration))
+            if (!eventRequest.ValidateSign(_configuration))
             {
-                logger.Warn("Запрос с некорретной подписью пропускаем...");
+                _logger.Warn("Запрос с некорретной подписью пропускаем...");
                 return;
             }
             //Обработка события.
             var message = eventRequest.CallEvent;
-            CallInfo call = callsService.Calls.GetOrAdd(message.call_id, id => new CallInfo(message));
+            CallInfo call = _callsService.Calls.GetOrAdd(message.CallId, id => new CallInfo(message));
             lock (call)
             {
-                call.Events[message.seq] = message;
-                if (call.Seq > message.seq) //Пришло старое сообщение
+                call.Events[message.Seq] = message;
+                if (call.Seq > message.Seq) //Пришло старое сообщение
                 {
-                    logger.Warn(
-                        $"Пропускаем обработку сообщения с номером {message.seq} так как уже получили сообщение с номером {call.Seq}");
+                    _logger.Warn(
+                        $"Пропускаем обработку сообщения с номером {message.Seq} так как уже получили сообщение с номером {call.Seq}");
                     return;
                 }
                 
-                if (!String.IsNullOrEmpty(message.from.taken_from_call_id))
+                if (!string.IsNullOrEmpty(message.From.TakenFromCallId))
                 {
-                    if (callsService.Calls.TryGetValue(message.from.taken_from_call_id, out var takenFrom))
+                    if (_callsService.Calls.TryGetValue(message.From.TakenFromCallId, out var takenFrom))
                     {
-                        if(takenFrom.LastEvent.CallState == CallState.OnHold)
-                            call.OnHoldCall = callsService.Calls[message.from.taken_from_call_id];
-                    }
+                        if(takenFrom.LastEvent.CallStateEnum == CallState.OnHold)
+						{
+							call.OnHoldCall = _callsService.Calls[message.From.TakenFromCallId];
+						}
+					}
                 }
-                notificationHostedService.NewEvent(call);
+                _notificationHostedService.NewEvent(call);
             }
         }
     }
