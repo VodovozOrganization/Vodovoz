@@ -1,25 +1,26 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using RoboAtsService.Monitoring;
-using RoboAtsService.Requests;
+using RoboatsService.Monitoring;
+using RoboatsService.Requests;
 using System;
 using System.Diagnostics;
 using Vodovoz.Domain.Roboats;
-using Vodovoz.Parameters;
 
-namespace RoboAtsService.Controllers
+namespace RoboatsService.Controllers
 {
 	[ApiController]
 	[Route("api")]
-	public class RoboATSController : ControllerBase
+	[Authorize]
+	public class RoboatsController : ControllerBase
 	{
-		private readonly ILogger<RoboATSController> _logger;
+		private readonly ILogger<RoboatsController> _logger;
 
 		private readonly RequestHandlerFactory _handlerFactory;
 		private readonly RoboatsCallRegistrator _roboatsCallRegistrator;
 
-		public RoboATSController(ILogger<RoboATSController> logger, RequestHandlerFactory handlerFactory, RoboatsCallRegistrator roboatsCallRegistrator)
+		public RoboatsController(ILogger<RoboatsController> logger, RequestHandlerFactory handlerFactory, RoboatsCallRegistrator roboatsCallRegistrator)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_handlerFactory = handlerFactory ?? throw new System.ArgumentNullException(nameof(handlerFactory));

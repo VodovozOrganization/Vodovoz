@@ -1,33 +1,37 @@
 ﻿using NHibernate;
 using QS.DomainModel.UoW;
 using QS.ErrorReporting;
-using RoboAtsService.Monitoring;
+using RoboatsService.Monitoring;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public class ValidOrdersProvider
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly IRoboatsRepository _roboatsRepository;
+		private readonly RoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallBatchRegistrator _roboatsCallRegistrator;
 
 		public ValidOrdersProvider(
 			IUnitOfWorkFactory uowFactory,
 			INomenclatureParametersProvider nomenclatureParametersProvider,
 			IRoboatsRepository roboatsRepository,
+			RoboatsSettings roboatsSettings,
 			RoboatsCallBatchRegistrator roboatsCallRegistrator)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
+			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
 		}
 
@@ -76,7 +80,7 @@ namespace RoboAtsService.OrderValidation
 				var multiValidator = new OrderMultiValidator();
 				multiValidator.AddValidator(new StatusOrderValidator());
 				multiValidator.AddValidator(new BottleStockOrderValidator());
-				multiValidator.AddValidator(new DateOrderValidator());
+				multiValidator.AddValidator(new DateOrderValidator(_roboatsSettings));
 				multiValidator.AddValidator(new PromosetOrderValidator());
 				multiValidator.AddValidator(new FiasStreetOrderValidator(_roboatsRepository));
 				multiValidator.AddValidator(new ApartmentOrderValidator());

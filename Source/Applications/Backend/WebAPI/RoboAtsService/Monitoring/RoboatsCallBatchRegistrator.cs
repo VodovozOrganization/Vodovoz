@@ -1,13 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
+using NHibernate.Util;
 using QS.DomainModel.UoW;
 using QS.Utilities.Numeric;
 using System;
+using System.Linq;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 
-namespace RoboAtsService.Monitoring
+namespace RoboatsService.Monitoring
 {
 	public class RoboatsCallBatchRegistrator
 	{
@@ -155,29 +157,6 @@ namespace RoboAtsService.Monitoring
 		{
 			var call = _roboatsRepository.GetCall(uow, callGuid);
 			return call;
-		}
-
-		public void CloseStaleCalls(IUnitOfWork uow)
-		{
-			var staleCalls = _roboatsRepository.GetStaleCalls(uow);
-
-			foreach(var call in staleCalls)
-			{
-				var closeDetail = new RoboatsCallDetail
-				{
-					Call = call,
-					Description = $"Закрыт по превышению таймаута ({_roboatsSettings.CallTimeout} мин)",
-					FailType = RoboatsCallFailType.TimeOut,
-					OperationTime = DateTime.Now,
-					Operation = RoboatsCallOperation.ClosingStaleCalls
-				};
-
-				call.CallDetails.Add(closeDetail);
-				call.Status = RoboatsCallStatus.Aborted;
-				call.Result = RoboatsCallResult.Nothing;
-
-				uow.Save(call);
-			}
 		}
 	}
 }

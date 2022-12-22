@@ -60,8 +60,8 @@ parallel (
 					PublishBuildWebService('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebService('RoboAtsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\RoboAtsService.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\bin\\Release\\net5.0_publish')
+					PublishBuildWebService('RoboatsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\bin\\Release\\net5.0_publish')
 
 					PublishBuildWebService('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
@@ -151,7 +151,7 @@ parallel (
 					DeployWebService('MailjetEventsDistributorAPI')
 					DeployWebService('UnsubscribePage')
 					DeployWebService('DeliveryRulesService')
-					DeployWebService('RoboAtsService')
+					DeployWebService('RoboatsService')
 					DeployWebService('TaxcomEdoApi')
 					DeployWebService('TrueMarkAPI')
 					DeployWebService('PayPageAPI')

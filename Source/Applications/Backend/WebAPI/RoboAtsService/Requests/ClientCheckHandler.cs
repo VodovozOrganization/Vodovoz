@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using RoboAtsService.Monitoring;
+using RoboatsService.Monitoring;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Parameters;
 
-namespace RoboAtsService.Requests
+namespace RoboatsService.Requests
 {
 	/// <summary>
 	/// Обработчик запроса проверки наличия клиента
