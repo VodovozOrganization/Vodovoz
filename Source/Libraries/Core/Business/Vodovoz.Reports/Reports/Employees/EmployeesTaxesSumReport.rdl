@@ -570,8 +570,8 @@ FROM
 JOIN employees e ON e.id = wmo.employee_id
 LEFT JOIN cash_expense ce ON ce.wages_movement_operations_id = wmo.id
 LEFT JOIN employees_registrations_versions erv ON erv.employee_id = e.id
-	AND erv.start_date &lt;= wmo.operation_time
-	AND (erv.end_date is null OR erv.end_date &gt;= wmo.operation_time)
+	AND erv.start_date &lt;= IF(ce.id IS NOT NULL, ce.date, wmo.operation_time)
+	AND (erv.end_date is null OR erv.end_date &gt;= IF(ce.id IS NOT NULL, ce.date, wmo.operation_time))
 LEFT JOIN employees_registrations er ON er.id = erv.employee_registration_id
 WHERE
 	wmo.operation_type in ('GivedWage', 'GivedAdvance')
