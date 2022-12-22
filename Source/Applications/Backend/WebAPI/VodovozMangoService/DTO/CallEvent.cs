@@ -1,29 +1,64 @@
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
 
 namespace VodovozMangoService.DTO
 {
     public class CallEvent
     {
-        #region From Json
-        public string entry_id { get; set; }
-        public string call_id { get; set; }
-        public long timestamp { get; set; }
-        public uint seq { get; set; }
-        public string call_state { get; set; }
-        public string location { get; set; }
-        public FromCaller from { get; set; }
-        public ToCaller to { get; set; }
-        public int disconnect_reason { get; set; }
-        public string sip_call_id { get; set; }
-        #endregion
+		#region From Json
+		[JsonPropertyName("entry_id")]
+		public string EntryId { get; set; }
 
-        #region Calculated
+		[JsonPropertyName("call_id")]
+		public string CallId { get; set; }
 
-        public CallState CallState => Enum.Parse<CallState>(call_state);
+		[JsonPropertyName("timestamp")]
+		public long Timestamp { get; set; }
+
+		[JsonPropertyName("seq")]
+		public uint Seq { get; set; }
+
+		[JsonPropertyName("call_state")]
+		public string CallState { get; set; }
+
+		[JsonPropertyName("location")]
+		public string Location { get; set; }
+
+		[JsonPropertyName("from")]
+		public FromCaller From { get; set; }
+
+		[JsonPropertyName("to")]
+		public ToCaller To { get; set; }
+
+		[JsonPropertyName("disconnect_reason")]
+		public int DisconnectReason { get; set; }
+
+		[JsonPropertyName("dct")]
+		public Dct Dct { get; set; }
+
+		[JsonPropertyName("sip_call_id")]
+		public string SipCallId { get; set; }
+
+		[JsonPropertyName("transfer")]
+		public Transfer Transfer { get; set; }
+
+		[JsonPropertyName("command_id")]
+		public string CommandId { get; set; }
+
+		[JsonPropertyName("task_id")]
+		public string TaskId { get; set; }
+
+		[JsonPropertyName("callback_initiator")]
+		public string CallbackInitiator { get; set; }
+
+		#endregion
+
+		#region Calculated
+
+		public CallState CallStateEnum => Enum.Parse<CallState>(CallState);
         
         [JsonIgnore]
-        public DateTimeOffset Time => DateTimeOffset.FromUnixTimeSeconds(timestamp);
+        public DateTimeOffset Time => DateTimeOffset.FromUnixTimeSeconds(Timestamp);
         
         [JsonIgnore]
         public TimeSpan Duration => DateTime.UtcNow - Time;

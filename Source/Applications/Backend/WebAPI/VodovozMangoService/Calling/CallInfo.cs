@@ -11,7 +11,7 @@ namespace VodovozMangoService.Calling
         private DateTime created = DateTime.Now;
         public CallInfo(CallEvent callEvent)
         {
-            Events[callEvent.seq] = callEvent;
+            Events[callEvent.Seq] = callEvent;
         }
 
         public readonly SortedDictionary<uint, CallEvent> Events = new SortedDictionary<uint, CallEvent>();
@@ -26,7 +26,7 @@ namespace VodovozMangoService.Calling
 
         public TimeSpan LiveTime => DateTime.Now - created;
 
-        public bool IsActive => Events.Values.All(e => e.CallState != CallState.Disconnected);
+        public bool IsActive => Events.Values.All(e => e.CallStateEnum != CallState.Disconnected);
         
         public string EventsToText()
         {
