@@ -1,26 +1,37 @@
 ﻿using NHibernate;
+using QS.DomainModel.UoW;
 using QS.ErrorReporting;
-using RoboAtsService.Monitoring;
+using RoboatsService.Monitoring;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public class ValidOrdersProvider
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly IRoboatsRepository _roboatsRepository;
-		private readonly RoboatsCallRegistrator _roboatsCallRegistrator;
+		private readonly RoboatsSettings _roboatsSettings;
+		private readonly RoboatsCallBatchRegistrator _roboatsCallRegistrator;
 
-		public ValidOrdersProvider(INomenclatureParametersProvider nomenclatureParametersProvider, IRoboatsRepository roboatsRepository, RoboatsCallRegistrator roboatsCallRegistrator)
+		public ValidOrdersProvider(
+			IUnitOfWorkFactory uowFactory,
+			INomenclatureParametersProvider nomenclatureParametersProvider,
+			IRoboatsRepository roboatsRepository,
+			RoboatsSettings roboatsSettings,
+			RoboatsCallBatchRegistrator roboatsCallRegistrator)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
+			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_roboatsCallRegistrator = roboatsCallRegistrator ?? throw new ArgumentNullException(nameof(roboatsCallRegistrator));
 		}
 
@@ -58,9 +69,10 @@ namespace RoboAtsService.OrderValidation
 
 		private IEnumerable<Order> InvokeGetValidLastOrders(string clientPhone, Guid callGuid, int counterpartyId, IEnumerable<Order> orders, RoboatsCallFailType roboatsCallFailType, RoboatsCallOperation roboatsCallOperation)
 		{
+			using var uow = _uowFactory.CreateWithoutRoot();
 			if(!orders.Any())
 			{
-				_roboatsCallRegistrator.RegisterFail(clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation,
+				_roboatsCallRegistrator.RegisterFail(uow, clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation,
 					$"У контрагента {counterpartyId} нет заказов");
 			}
 			else
@@ -68,14 +80,13 @@ namespace RoboAtsService.OrderValidation
 				var multiValidator = new OrderMultiValidator();
 				multiValidator.AddValidator(new StatusOrderValidator());
 				multiValidator.AddValidator(new BottleStockOrderValidator());
-				multiValidator.AddValidator(new DateOrderValidator());
+				multiValidator.AddValidator(new DateOrderValidator(_roboatsSettings));
 				multiValidator.AddValidator(new PromosetOrderValidator());
 				multiValidator.AddValidator(new FiasStreetOrderValidator(_roboatsRepository));
 				multiValidator.AddValidator(new ApartmentOrderValidator());
 				multiValidator.AddValidator(new OnlyWaterOrderValidator(_nomenclatureParametersProvider));
 				multiValidator.AddValidator(new RoboatsWaterOrderValidator(_roboatsRepository));
 				multiValidator.AddValidator(new WaterRowDuplicateOrderValidator());
-
 
 				var result = multiValidator.ValidateOrders(orders);
 				if(result.HasValidOrders)
@@ -86,12 +97,14 @@ namespace RoboAtsService.OrderValidation
 				{
 					foreach(var problemMessage in result.ProblemMessages)
 					{
-						_roboatsCallRegistrator.RegisterFail(clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation, problemMessage);
+						_roboatsCallRegistrator.RegisterFail(uow, clientPhone, callGuid, roboatsCallFailType, roboatsCallOperation, problemMessage);
 					}
 				}
 			}
 
-			_roboatsCallRegistrator.AbortCall(clientPhone, callGuid);
+			_roboatsCallRegistrator.AbortCall(uow, clientPhone, callGuid);
+			uow.Commit();
+
 			return Enumerable.Empty<Order>();
 		}
 	}

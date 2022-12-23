@@ -103,13 +103,15 @@ namespace TaxcomEdoApi.Factories
 				}
 			};
 
-			var taxesSum = order.OrderItems.Sum(x => x.IncludeNDS) ?? 0m;
+			var orderItems = order.OrderItems.Where(x => x.CurrentCount > 0).ToList();
+
+			var taxesSum = orderItems.Sum(x => x.IncludeNDS) ?? 0m;
 			upd.Dokument.TablSchFakt = new FajlDokumentTablSchFakt
 			{
-				SvedTov = _updProductConverter.ConvertOrderItemsToUpdProducts(order.OrderItems),
+				SvedTov = _updProductConverter.ConvertOrderItemsToUpdProducts(orderItems),
 				VsegoOpl = new FajlDokumentTablSchFaktVsegoOpl
 				{
-					StTovBezNDSVsego = order.OrderItems.Sum(x => x.SumWithoutVat),
+					StTovBezNDSVsego = orderItems.Sum(x => x.SumWithoutVat),
 					StTovBezNDSVsegoSpecified = true,
 					StTovUchNalVsego = order.OrderSum,
 					StTovUchNalVsegoSpecified = true,
@@ -124,7 +126,7 @@ namespace TaxcomEdoApi.Factories
 			{
 				SvPer = new FajlDokumentSvProdPerSvPer
 				{
-					SodOper = GetOperationName(order.OrderItems),
+					SodOper = GetOperationName(orderItems),
 					OsnPer = new[]
 					{
 						GetBasis(order)

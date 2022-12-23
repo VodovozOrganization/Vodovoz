@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Orders;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public class OrderMultiValidator
 	{

@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using System;
 
-namespace RoboAtsService.Requests
+namespace RoboatsService.Requests
 {
 	public class RequestHandlerFactory
 	{
