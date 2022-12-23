@@ -2242,6 +2242,7 @@
   </ItemGroup>
   <ItemGroup>
     <ContentWithTargetPath Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports\Reports\**">
+      <Visible>false</Visible>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Reports\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
     </ContentWithTargetPath>
