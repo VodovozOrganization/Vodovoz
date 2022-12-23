@@ -198,6 +198,8 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using Vodovoz.ReportsParameters.Sales;
+using Vodovoz.ViewModels.Reports.Sales;
 
 namespace Vodovoz
 {
@@ -416,6 +418,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ProfitabilitySalesReportViewModel, ProfitabilitySalesReportView>()
 				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

@@ -439,6 +439,9 @@
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNomenclature.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNode.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\Slice.cs" />
+    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Report.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\BulkEmailViewModel.cs" />
@@ -548,8 +551,8 @@
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureBalanceByStockFilterViewModel.cs" />
     <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
     <Compile Include="Dialogs\Counterparty\DeliveryPointViewModel.cs" />
-	<Compile Include="Dialogs\Users\UserViewModel.cs" />
-	<Compile Include="ViewModels\Logistic\CarModelViewModel.cs" />
+    <Compile Include="Dialogs\Users\UserViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarModelViewModel.cs" />
     <Compile Include="ViewModels\Payments\CreateManualPaymentFromBankClientViewModel.cs" />
     <Compile Include="ViewModels\Payments\AutomaticallyAllocationBalanceWindowViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
@@ -690,6 +693,12 @@
     <PackageReference Include="NLog.Extensions.Logging">
       <Version>1.7.4</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Journals\FilterViewModels\Sales\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Parameters.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
