@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Reflection;
 using NUnit.Framework;
 using QS.Project.DB;
 using Vodovoz;
+using Vodovoz.Settings.Database;
 
 namespace VodovozBusinessTests.Deletion
 {
@@ -22,14 +24,15 @@ namespace VodovozBusinessTests.Deletion
 
 			Console.WriteLine("ORM");
 			// Настройка ORM
-			OrmConfig.ConfigureOrm(db_config, new System.Reflection.Assembly[]
+			OrmConfig.ConfigureOrm(db_config, new Assembly[]
 			{
-				System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-				System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-				System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.HMap.BankMap)),
-				System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-				System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
+				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+				Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+				Assembly.GetAssembly(typeof(QS.Banks.HMap.BankMap)),
+				Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+				Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
+				Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 			});
 
 			NhConfigered = true;

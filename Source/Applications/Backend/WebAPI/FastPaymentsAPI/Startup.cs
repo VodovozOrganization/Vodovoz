@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Managers;
@@ -30,6 +31,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI
@@ -201,14 +203,15 @@ namespace FastPaymentsAPI
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
 				db_config,
-				new System.Reflection.Assembly[]
+				new Assembly[]
 				{
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
-					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
-					System.Reflection.Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Bank)),
+					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
 

@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
+using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 
@@ -276,17 +279,20 @@ namespace RoboatsService.Requests
 			}
 
 			RoboAtsOrderPayment payment;
-			switch(RequestDto.IsTerminal)
+			switch(RequestDto.PaymentType)
 			{
-				case "1":
+				case "terminal":
 					payment = RoboAtsOrderPayment.Terminal;
 					break;
-				case "0":
+				case "cash":
 					payment = RoboAtsOrderPayment.Cash;
+					break;
+				case "qrcode":
+					payment = RoboAtsOrderPayment.QrCode;
 					break;
 				default:
 					_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.UnknownIsTerminalValue, RoboatsCallOperation.CreateOrder,
-						$"Невозможно создать заказ. Не известный код определения оплаты по терминалу. Код: {RequestDto.IsTerminal}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
+						$"Невозможно создать заказ. Не известный тип оплаты. Тип оплаты: {RequestDto.PaymentType}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
 					return ErrorMessage;
 			}
 
@@ -318,23 +324,67 @@ namespace RoboatsService.Requests
 
 			try
 			{
+				if(payment == RoboAtsOrderPayment.QrCode)
+				{
+					var needAcceptOrder = isFullOrder;
+					var task = CreateOrderWithPaymentByQrCode(orderArgs, needAcceptOrder);
+					task.Wait();
+					return "1";
+				}
+
 				if(isFullOrder)
 				{
-					var orderId = _roboatsOrderModel.CreateAndAcceptOrder(orderArgs);
-					_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid, $"Звонок был успешно завершен. Cоздан и подтвержден заказ {orderId}");
+					CreateAndAcceptOrder(orderArgs);
 				}
 				else
 				{
-					var orderId = _roboatsOrderModel.CreateIncompleteOrder(orderArgs);
-					_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Звонок не был успешно завершен. Был создан черновой заказ {orderId}");
+					CreateIncompleteOrder(orderArgs);
 				}
+
 				return "1";
 			}
 			catch(Exception ex)
 			{
+				if(ex is AggregateException aggregateException && aggregateException.InnerException != null)
+				{
+					ex = aggregateException.InnerException;
+				}
 				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.Exception, RoboatsCallOperation.CreateOrder,
 					$"Произошла ошибка при создании заказа. Ошибка: {ex.Message}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
+			}
+		}
+
+		private void CreateAndAcceptOrder(RoboatsOrderArgs orderArgs)
+		{
+			var orderId = _roboatsOrderModel.CreateAndAcceptOrder(orderArgs);
+			_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid, $"Звонок был успешно завершен. Cоздан и подтвержден заказ {orderId}");
+		}
+
+		private void CreateIncompleteOrder(RoboatsOrderArgs orderArgs)
+		{
+			var orderId = _roboatsOrderModel.CreateIncompleteOrder(orderArgs);
+			_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Звонок не был успешно завершен. Был создан черновой заказ {orderId}");
+		}
+
+		private async Task CreateOrderWithPaymentByQrCode(RoboatsOrderArgs orderArgs, bool needAcceptOrder)
+		{
+			var order = await _roboatsOrderModel.CreateOrderWithPaymentByQrCode(ClientPhone, orderArgs, needAcceptOrder);
+			if(order.OrderStatus == OrderStatus.NewOrder)
+			{
+				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Был создан черновой заказ {order.Id} с оплатой по QR коду." +
+					$" Оплату не удалось сформировать и отправить автоматически." +
+					$" Повторите оплату в ручном режиме или свяжитесь с клиентом для выбора другого способа оплаты.");
+			}
+			else if(order.OrderStatus == OrderStatus.Accepted)
+			{
+				_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid, $"Был подтвержден заказ {order.Id} с оплатой по QR коду." +
+					$" Оплата сформирована и отправлена автоматически.");
+			}
+			else
+			{
+				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, $"Был создан заказ в некорректном статусе {order.OrderStatus}." +
+					$" Обратитесь в отдел разработки.");
 			}
 		}
 

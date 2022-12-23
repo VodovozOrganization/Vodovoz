@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
@@ -9,6 +10,7 @@ using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using NLog;
 using QS.Project.DB;
+using Vodovoz.Settings.Database;
 using VodovozSalesReceiptsService.DTO;
 
 namespace VodovozSalesReceiptsService
@@ -128,12 +130,13 @@ namespace VodovozSalesReceiptsService
 					dbConfig,
 					new[]
 					{
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
+						Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+						Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+						Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+						Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+						Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
+						Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 					}
 				);
 				

@@ -19,6 +19,7 @@ using Vodovoz.HibernateMapping.Organizations;
 using Vodovoz.Tools;
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
+using Vodovoz.Settings.Database;
 
 namespace MonitoringArchivingWorker
 {
@@ -85,7 +86,8 @@ namespace MonitoringArchivingWorker
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
 		}
