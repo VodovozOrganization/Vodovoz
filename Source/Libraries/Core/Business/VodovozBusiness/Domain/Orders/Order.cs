@@ -199,6 +199,8 @@ namespace Vodovoz.Domain.Orders
 					if(oldClient != null) {
 						UpdateContract();
 					}
+
+					RefreshContactPhone();
 				}
 			}
 		}
@@ -222,6 +224,7 @@ namespace Vodovoz.Domain.Orders
 
 					if(oldDeliveryPoint != null) {
 						UpdateContract();
+						RefreshContactPhone();
 					}
 				}
 			}
@@ -1334,25 +1337,10 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			if(ContactPhone != null)
+			if(ContactPhone != null && ContactPhone.Counterparty?.Id != Client?.Id && ContactPhone.DeliveryPoint?.Id != DeliveryPoint?.Id)
 			{
-				var phones = new List<string>();
-
-				if(Client != null && Client.Phones.Any())
-				{
-					phones.AddRange(Client.Phones.Select(x => x.DigitsNumber));
-				}
-
-				if(DeliveryPoint != null && DeliveryPoint.Phones.Any())
-				{
-					phones.AddRange(DeliveryPoint.Phones.Select(x => x.DigitsNumber));
-				}
-
-				if(!phones.Contains(ContactPhone.DigitsNumber))
-				{
-					yield return new ValidationResult("Номер для связи не найден в списке телефонных номеров ни контрагента, ни точки доставки.",
-						new[] { nameof(ContactPhone) });
-				}
+				yield return new ValidationResult($"Номер для связи с Id {ContactPhone.Id} : {ContactPhone.Number} не найден в списке телефонных номеров ни контрагента, ни точки доставки.",
+					new[] { nameof(ContactPhone) });
 			}
 		}
 
@@ -1489,6 +1477,14 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.cashless
 			&& (Contract?.Organization?.WithoutVAT ?? false);
+
+		public virtual void RefreshContactPhone()
+		{
+			if(ContactPhone?.Counterparty?.Id != Client?.Id && ContactPhone?.DeliveryPoint?.Id != DeliveryPoint?.Id)
+			{
+				ContactPhone = null;
+			}
+		}
 
 		#endregion
 
