@@ -512,6 +512,10 @@ ORDER BY docs.doc_date;
           <DataField>empty_bottles_count</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
+        <Field Name="doc_status">
+          <DataField>doc_status</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Client">
@@ -1815,7 +1819,9 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="returned">
-                      <Value>=Iif({returned} = null and {forfeitCount} = null, "", {returned} - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount}))</Value>
+                      <Value>=Iif({doc_status} = "Closed",
+Iif({returned} = null and {forfeitCount} = null, "", Iif( Fields!returned.IsMissing , 0 ,  {returned})
+ - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount})), "")</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>

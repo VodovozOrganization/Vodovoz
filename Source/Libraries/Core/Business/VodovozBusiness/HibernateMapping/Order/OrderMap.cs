@@ -109,9 +109,9 @@ namespace Vodovoz.HibernateMapping
 			HasMany(x => x.OrderDepositItems)             .KeyColumn("order_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
 			HasMany(x => x.OrderItems)                    .KeyColumn("order_id")
-				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
+				.Cascade.AllDeleteOrphan().Inverse().Not.LazyLoad();
 			HasMany(x => x.OrderEquipments)               .KeyColumn("order_id")
-				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
+				.Cascade.AllDeleteOrphan().Inverse().Not.LazyLoad();
 			HasMany(x => x.InitialOrderService)           .KeyColumn("initial_order_id").
 				Cascade.None().Inverse().LazyLoad();
 			HasMany(x => x.FinalOrderService)             .KeyColumn("final_order_id")
