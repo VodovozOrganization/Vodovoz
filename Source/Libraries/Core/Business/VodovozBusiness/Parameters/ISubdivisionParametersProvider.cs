@@ -3,6 +3,7 @@
 	public interface ISubdivisionParametersProvider
 	{
 		int GetDevelopersSubdivisionId { get; }
+		int GetHumanResourcesSubdivisionId { get; }
 		int QualityServiceSubdivisionId { get; }
 		int AuditDepartmentSubdivisionId { get; }
 

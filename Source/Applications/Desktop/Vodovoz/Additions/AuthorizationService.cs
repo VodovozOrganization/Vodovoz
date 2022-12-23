@@ -24,12 +24,14 @@ namespace Vodovoz.Additions
 {
 	public class AuthorizationService : IAuthorizationService
 	{
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IPasswordGenerator _passwordGenerator;
 		private readonly IUserRoleSettings _userRoleSettings;
 		private readonly IUserRoleRepository _userRoleRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmailParametersProvider _emailParametersProvider;
-		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly int _humanResourcesSubdivisionId;
+		private readonly int _developersSubdivisionId;
 
 		private const int _passwordLength = 8;
 
@@ -37,13 +39,21 @@ namespace Vodovoz.Additions
 			IUserRoleSettings userRoleSettings,
 			IUserRoleRepository userRoleRepository,
 			IUserRepository userRepository,
-			IEmailParametersProvider emailParametersProvider)
+			IEmailParametersProvider emailParametersProvider,
+			ISubdivisionParametersProvider subdivisionParametersProvider)
 		{
 			_passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
 			_userRoleSettings = userRoleSettings ?? throw new ArgumentNullException(nameof(userRoleSettings));
 			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+
+			if(subdivisionParametersProvider is null)
+			{
+				throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			}
+			_humanResourcesSubdivisionId = subdivisionParametersProvider.GetHumanResourcesSubdivisionId;
+			_developersSubdivisionId = subdivisionParametersProvider.GetDevelopersSubdivisionId;
 		}
 
 		public bool ResetPassword(string userLogin, string password, string email, string fullName)
@@ -112,7 +122,15 @@ namespace Vodovoz.Additions
 				var userRole = _userRoleSettings.GetDefaultUserRoleName;
 				
 				_logger.Info("Выдаем роль пользователю");
-				_userRoleRepository.GrantRoleToUser(uow, userRole, user.Login);
+				if(employee.Subdivision != null
+					&& (employee.Subdivision.Id == _humanResourcesSubdivisionId || employee.Subdivision.Id == _developersSubdivisionId))
+				{
+					_userRoleRepository.GrantRoleToUser(uow, userRole, user.Login, true);
+				}
+				else
+				{
+					_userRoleRepository.GrantRoleToUser(uow, userRole, user.Login);
+				}
 				_logger.Info("Назначаем ее по умолчанию для него");
 				_userRoleRepository.SetDefaultRoleToUser(uow, userRole, user.Login);
 				_logger.Info("Сохраняем пользователя");
