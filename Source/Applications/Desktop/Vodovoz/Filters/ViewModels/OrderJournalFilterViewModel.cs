@@ -17,6 +17,7 @@ namespace Vodovoz.Filters.ViewModels
 	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>
 	{
 		#region Поля
+		
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private PaymentType[] _allowPaymentTypes;
 		private OrderStatus[] _allowStatuses;
@@ -50,6 +51,10 @@ namespace Vodovoz.Filters.ViewModels
 		private DateTime? _startDate;
 		private OrdersDateFilterType? _restrictFilterDateType;
 		private OrdersDateFilterType _filterDateType = OrdersDateFilterType.DeliveryDate;
+		private IEnumerable<Organization> _organisations;
+		private IEnumerable<PaymentFrom> _paymentsFrom;
+		private IEnumerable<GeoGroup> _geographicGroups;
+		private bool _excludeClosingDocumentDeliverySchedule;
 
 		#endregion
 
@@ -58,8 +63,6 @@ namespace Vodovoz.Filters.ViewModels
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			IEmployeeJournalFactory employeeJournalFactory)
 		{
-			Organisations = UoW.GetAll<Organization>();
-			PaymentsFrom = UoW.GetAll<PaymentFrom>();
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			deliveryPointJournalFactory?.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
 			DeliveryPointSelectorFactory = deliveryPointJournalFactory?.CreateDeliveryPointByClientAutocompleteSelectorFactory()
@@ -70,15 +73,13 @@ namespace Vodovoz.Filters.ViewModels
 
 			AuthorSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
 									?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-
-			GeographicGroups = UoW.Session.QueryOver<GeoGroup>().List<GeoGroup>().ToList();
 		}
 
 		#region Автосвойства
 		public int[] IncludeDistrictsIds { get; set; }
 		public int[] ExceptIds { get; set; }
-		public IEnumerable<Organization> Organisations { get; }
-		public IEnumerable<PaymentFrom> PaymentsFrom { get; }
+		public IEnumerable<Organization> Organisations => _organisations ?? (_organisations = UoW.GetAll<Organization>().ToList());
+		public IEnumerable<PaymentFrom> PaymentsFrom => _paymentsFrom ?? (_paymentsFrom = UoW.GetAll<PaymentFrom>().ToList());
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory { get; }
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public virtual IEntityAutocompleteSelectorFactory AuthorSelectorFactory { get; }
@@ -354,15 +355,10 @@ namespace Vodovoz.Filters.ViewModels
 
 		#endregion
 
-		private List<GeoGroup> _geographicGroups;
 		/// <summary>
 		/// Части города для отображения в фильтре
 		/// </summary>
-		public List<GeoGroup> GeographicGroups
-		{
-			get => _geographicGroups;
-			set => _geographicGroups = value;
-		}
+		public IEnumerable<GeoGroup> GeographicGroups => _geographicGroups ?? (_geographicGroups = UoW.GetAll<GeoGroup>().ToList());
 
 		private GeoGroup _geographicGroup;
 		private string _counterpartyNameLike;
@@ -475,6 +471,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _deliveryPointAddressLike;
 			set => SetField(ref _deliveryPointAddressLike, value);
+		}
+
+		public bool ExcludeClosingDocumentDeliverySchedule
+		{
+			get => _excludeClosingDocumentDeliverySchedule;
+			set => UpdateFilterField(ref _excludeClosingDocumentDeliverySchedule, value);
 		}
 	}
 
