@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using TrueMarkApi.Dto.Participants;
 using TrueMarkApi.Library.Dto;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using IAuthorizationService = TrueMarkApi.Services.IAuthorizationService;
+using IAuthorizationService = TrueMarkApi.Services.Authorization.IAuthorizationService;
 using TrueMarkApi.Dto;
 
 namespace TrueMarkApi.Controllers
