@@ -6,8 +6,8 @@ using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Fias.Client.Loaders;
 using Fias.Search.DTO;
-using Fias.Service.Loaders;
 using Key = Gdk.Key;
 
 namespace VodovozFiasWidgets

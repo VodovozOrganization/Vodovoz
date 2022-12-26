@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Fias.Service.Loaders;
+using Fias.Client.Loaders;
 using Key = Gdk.Key;
 
 namespace VodovozFiasWidgets
