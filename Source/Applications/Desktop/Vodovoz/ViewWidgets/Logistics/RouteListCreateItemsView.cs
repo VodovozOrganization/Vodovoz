@@ -49,7 +49,6 @@ namespace Vodovoz
 		private bool _isEditable = true;
 		private bool _canOpenOrder = true;
 		private bool _isLogistician;
-		private int _closingDocumentDeliveryScheduleId;
 
 		private IPermissionResult _permissionResult;
 		private RouteListItem _selectedRouteListItem;
@@ -252,7 +251,6 @@ namespace Vodovoz
 			Build();
 			enumbuttonAddOrder.ItemsEnum = typeof(AddOrderEnum);
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
-			_closingDocumentDeliveryScheduleId = _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
 		}
 		
 		public void SetPermissionParameters(IPermissionResult permissionResult, bool isLogistician)
@@ -380,8 +378,7 @@ namespace Vodovoz
 				var selectedDistrict = args.SelectedNodes.FirstOrDefault();
 				if(selectedDistrict != null)
 				{
-					var orders = _orderRepository.GetAcceptedOrdersForRegion(
-						RouteListUoW, RouteListUoW.Root.Date, selectedDistrict.Id, _closingDocumentDeliveryScheduleId);
+					var orders = _orderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, selectedDistrict.Id);
 					
 					foreach(var order in orders)
 					{

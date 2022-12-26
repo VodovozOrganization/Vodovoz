@@ -46,8 +46,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query;
 		}
 
-		public IList<VodovozOrder> GetAcceptedOrdersForRegion(
-			IUnitOfWork uow, DateTime date, int districtId, int closingDocumentDeliveryScheduleId)
+		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, int districtId)
 		{
 			DeliveryPoint deliveryPointAlias = null;
 			
@@ -57,8 +56,6 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => deliveryPointAlias.District.Id == districtId)
 				.And(o => !o.SelfDelivery)
 				.And(o => o.OrderStatus == OrderStatus.Accepted)
-				.And(o => o.OrderAddressType != OrderAddressType.Service)
-				.And(o => o.DeliverySchedule.Id != closingDocumentDeliveryScheduleId)
 				.List<VodovozOrder>();
 		}
 

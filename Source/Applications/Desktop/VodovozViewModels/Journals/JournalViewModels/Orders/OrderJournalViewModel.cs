@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.Dialog.Gtk;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
@@ -23,17 +22,13 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Services;
-using QS.Tdi;
 using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
@@ -44,6 +39,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using QS.Project.Services.FileDialog;
+using Vodovoz.Infrastructure.Print;
 using Vodovoz.Services;
 
 namespace Vodovoz.JournalViewModels
@@ -71,6 +67,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public OrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -90,7 +88,9 @@ namespace Vodovoz.JournalViewModels
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IFileDialogService fileDialogService,
-			ISubdivisionParametersProvider subdivisionParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IRDLPreviewOpener rdlPreviewOpener) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -113,6 +113,10 @@ namespace Vodovoz.JournalViewModels
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_closingDocumentDeliveryScheduleId =
+				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+				.ClosingDocumentDeliveryScheduleId;
 			TabName = "Журнал заказов";
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
@@ -401,6 +405,11 @@ namespace Vodovoz.JournalViewModels
 			{
 				query.Where(Restrictions.Like(Projections.Property(() => deliveryPointAlias.CompiledAddress), FilterViewModel.DeliveryPointAddressLike, MatchMode.Anywhere));
 			}
+			
+			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+			{
+				query.Where(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
@@ -496,9 +505,9 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<VodovozOrder>(GetOrdersQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new OrderDlg() { IsForRetail = FilterViewModel.IsForRetail, IsForSalesDepartment = FilterViewModel.IsForSalesDepartment},
+					() =>_gtkDialogsOpener.CreateOrderDlg(FilterViewModel.IsForRetail, FilterViewModel.IsForSalesDepartment),
 					//функция диалога открытия документа
-					(OrderJournalNode node) => new OrderDlg(node.Id),
+					(OrderJournalNode node) => _gtkDialogsOpener.CreateOrderDlg(node.Id),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(VodovozOrder),
 					"Заказ",
@@ -530,7 +539,8 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.Organisation != null
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
-				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
+				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -632,16 +642,16 @@ namespace Vodovoz.JournalViewModels
 						UnitOfWorkFactory,
 						_commonServices,
 						_employeeService,
-						new ParametersProvider()
-					),
+						new CommonMessages(_commonServices.InteractiveService),
+						_rdlPreviewOpener),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
 						_commonServices,
 						_employeeService,
-						new ParametersProvider()
-					),
+						new CommonMessages(_commonServices.InteractiveService),
+						_rdlPreviewOpener),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
 					"Счет без отгрузки на долг",
@@ -679,7 +689,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
 			    || FilterViewModel.SortDeliveryDate == true
-				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
+				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -804,16 +815,18 @@ namespace Vodovoz.JournalViewModels
 						UnitOfWorkFactory,
 						_commonServices,
 						_employeeService,
-						new ParametersProvider()
-					),
+						new ParametersProvider(),
+						new CommonMessages(_commonServices.InteractiveService),
+						_rdlPreviewOpener),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
 						_commonServices,
 						_employeeService,
-						new ParametersProvider()
-					),
+						new ParametersProvider(),
+						new CommonMessages(_commonServices.InteractiveService),
+						_rdlPreviewOpener),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
 					"Счет без отгрузки на постоплату",
@@ -849,7 +862,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
 			    || FilterViewModel.SortDeliveryDate == true
-				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
+				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -973,8 +987,9 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						new ParametersProvider(),
 						new OrderDiscountsController(new NomenclatureFixedPriceController(
-							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository)))
-					),
+							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository))),
+						new CommonMessages(_commonServices.InteractiveService),
+						_rdlPreviewOpener),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -988,8 +1003,9 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						new ParametersProvider(),
 						new OrderDiscountsController(new NomenclatureFixedPriceController(
-							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository)))
-					),
+							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository))),
+						new CommonMessages(_commonServices.InteractiveService),
+						_rdlPreviewOpener),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
 					"Счет без отгрузки на предоплату",
@@ -1031,13 +1047,10 @@ namespace Vodovoz.JournalViewModels
 
 						var routes = addresses.GroupBy(x => x.RouteList.Id);
 
-						var tdiMain = MainClass.MainWin.TdiMain;
-
-						foreach(var route in routes) {
-							tdiMain.OpenTab(
-								DialogHelper.GenerateDialogHashName<RouteList>(route.Key),
-								() => new RouteListKeepingDlg(route.Key, route.Select(x => x.Order.Id).ToArray())
-							);
+						foreach(var route in routes)
+						{
+							_gtkDialogsOpener.OpenRouteListKeepingDlg(this, route.Key, route.Select(x => x.Order.Id)
+								.ToArray());
 						}
 					}
 				)
@@ -1082,7 +1095,7 @@ namespace Vodovoz.JournalViewModels
 							_subdivisionParametersProvider
 						);
 
-						MainClass.MainWin.TdiMain.AddTab(dlg);
+						TabParent.AddTab(this, dlg, false);
 					}
 				)
 			);
@@ -1099,13 +1112,10 @@ namespace Vodovoz.JournalViewModels
 							.Where(x => x.Order.Id.IsIn(routeListIds)).List();
 
 						var routes = addresses.GroupBy(x => x.RouteList.Id);
-						var tdiMain = MainClass.MainWin.TdiMain;
 
-						foreach(var rl in routes) {
-							tdiMain.OpenTab(
-								DialogHelper.GenerateDialogHashName<RouteList>(rl.Key),
-								() => new RouteListClosingDlg(rl.Key)
-							);
+						foreach(var rl in routes)
+						{
+							_gtkDialogsOpener.OpenRouteListClosingDlg(this, rl.Key);
 						}
 					}
 				)
@@ -1181,17 +1191,11 @@ namespace Vodovoz.JournalViewModels
 					"Повторить заказ",
 					selectedItems => CanCreateOrder(selectedItems) && !_userHasOnlyAccessToWarehouseAndComplaints,
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
-					(selectedItems) => {
+					(selectedItems) =>
+					{
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
-					
-						var dlg = new OrderDlg();
-						dlg.CopyLesserOrderFrom(order.Id);
-						var tdiMain = MainClass.MainWin.TdiMain;
-						tdiMain.OpenTab(
-							DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(65656),
-							() => dlg
-						);
+						_gtkDialogsOpener.OpenCopyOrderDlg(this, order.Id);
 					}
 				)
 			);
@@ -1215,18 +1219,12 @@ namespace Vodovoz.JournalViewModels
 							_employeeService,
 							_subdivisionRepository,
 							_commonServices,
-							_nomenclatureRepository,
 							_userRepository,
 							_fileDialogService,
 							_orderSelectorFactory,
 							_employeeJournalFactory,
 							_counterpartyJournalFactory,
 							_deliveryPointJournalFactory,
-							_subdivisionJournalFactory,
-							_gtkDialogsOpener,
-							_undeliveredOrdersJournalOpener,
-							_nomenclatureSelectorFactory,
-							_undeliveredOrdersRepository,
 							_subdivisionParametersProvider
 						);
 						var order = complaintViewModel.UoW.GetById<VodovozOrder>(selectedOrder.Id);

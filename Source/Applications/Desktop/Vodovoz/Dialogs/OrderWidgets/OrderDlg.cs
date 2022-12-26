@@ -96,9 +96,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
 using QS.Dialog.GtkUI.FileDialog;
 using Vodovoz.SidePanel.InfoViews;
+using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
 namespace Vodovoz

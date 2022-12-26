@@ -181,6 +181,7 @@ using Vodovoz.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 
@@ -494,6 +495,7 @@ namespace Vodovoz
 			builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
 
 			builder.RegisterType<EntityDeleteWorker>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<CommonMessages>().AsSelf();
 
 			#endregion
 
