@@ -493,6 +493,12 @@
                 </TableRow>
               </TableRows>
             </Header>
+            <Sorting >
+              <SortBy>
+                <SortExpression>={employee_name}</SortExpression>
+                <Direction>Ascending</Direction>
+              </SortBy>
+            </Sorting>
           </TableGroup>
         </TableGroups>
       </Table>
@@ -547,7 +553,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	e.id,
@@ -629,7 +635,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.Int32</TypeName>

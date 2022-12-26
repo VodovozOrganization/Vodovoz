@@ -53,17 +53,7 @@ namespace Vodovoz.ReportsParameters.Employees
 		private void ConfigureDatePicker()
 		{
 			var previousMonth = DateTime.Today.AddMonths(-1).Month;
-			int year;
-
-			if(DateTime.Today.Month == 1)
-			{
-				year = DateTime.Today.AddYears(-1).Year;
-			}
-			else
-			{
-				year = DateTime.Today.Year;
-			}
-
+			var year = DateTime.Today.Month == 1 ? DateTime.Today.AddYears(-1).Year : DateTime.Today.Year;
 			var endDay = DateTime.Today.AddDays(-DateTime.Today.Day).Day;
 
 			dateperiodpicker.StartDate = new DateTime(year, previousMonth, 1);
@@ -242,7 +232,8 @@ namespace Vodovoz.ReportsParameters.Employees
 			return new ReportInfo
 			{
 				Identifier = "Employees.EmployeesTaxesSumReport",
-				Parameters = parameters
+				Parameters = parameters,
+				Title = $"{Title} с {dateperiodpicker.StartDate:dd-MM-yyyy} по {dateperiodpicker.EndDate:dd-MM-yyyy}"
 			};
 		}
 
