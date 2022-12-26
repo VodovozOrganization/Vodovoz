@@ -129,24 +129,24 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			FilterViewModel.EmployeeService = employeeService;
 
-            var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
-            var defaultSubdivision = currentUserSettings.DefaultSubdivision;
-            var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
+			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
+			var defaultSubdivision = currentUserSettings.DefaultSubdivision;
+			var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 
-            FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
+			FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
 
-            if (currentUserSettings.UseEmployeeSubdivision)
-            {
-                FilterViewModel.Subdivision = currentEmployeeSubdivision;
-            }
-            else
-            {
-                FilterViewModel.Subdivision = defaultSubdivision;
-            }
+			if (currentUserSettings.UseEmployeeSubdivision)
+			{
+				FilterViewModel.Subdivision = currentEmployeeSubdivision;
+			}
+			else
+			{
+				FilterViewModel.Subdivision = defaultSubdivision;
+			}
 
-            FilterViewModel.ComplaintStatus = currentUserSettings.DefaultComplaintStatus;
+			FilterViewModel.ComplaintStatus = currentUserSettings.DefaultComplaintStatus;
 
-            UpdateOnChanges(
+			UpdateOnChanges(
 				typeof(Complaint),
 				typeof(ComplaintGuiltyItem),
 				typeof(ComplaintResultOfCounterparty),
@@ -368,9 +368,8 @@ namespace Vodovoz.Journals.JournalViewModels
 					query = query.Where(() => complaintAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
 				}
 
-				if (FilterViewModel.CurrentUserSubdivision != null
-					&& FilterViewModel.ComplaintDiscussionStatus != null)
-                {
+				if(FilterViewModel.CurrentUserSubdivision != null && FilterViewModel.ComplaintDiscussionStatus != null)
+				{
 					query = query.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.CurrentUserSubdivision.Id)
 						.And(() => discussionAlias.Status == FilterViewModel.ComplaintDiscussionStatus);
 				}
@@ -578,7 +577,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionRepository,
 						_commonServices,
 						_userRepository,
-                        _fileDialogService,
+						_fileDialogService,
 						_orderSelectorFactory,
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
@@ -622,7 +621,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionRepository,
 						_commonServices,
 						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-                        _fileDialogService,
+						_fileDialogService,
 						new UserRepository(),
 						_subdivisionParametersProvider
 					),
