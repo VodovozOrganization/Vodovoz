@@ -1,22 +1,23 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using TrueMarkApi.Dto.Auth;
 using TrueMarkApi.Models;
 
-namespace TrueMarkApi.Services
+namespace TrueMarkApi.Services.Authorization
 {
 	public class AuthorizationService:IAuthorizationService
 	{
 		private static HttpClient _httpClient;
-		private string _cachedToken;
-		private DateTime _tokenTime;
 		private readonly ILogger<AuthorizationService> _logger;
+		private readonly List<AuthorizationTokenCache> _tokenCacheList = new();
 
 		public AuthorizationService(IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<AuthorizationService> logger)
 		{
@@ -28,27 +29,28 @@ namespace TrueMarkApi.Services
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public async Task<string> Login(string _сertificateThumbPrint)
+		public async Task<string> Login(string сertificateThumbPrint)
 		{
 			var authUrn = "auth/key";
 			var signInUrn = "auth/simpleSignIn";
 
-			// Срок действия полученного токена не более 10 часов с момента получения.
-			var isTokenFresh = (DateTime.Now - _tokenTime).TotalHours < 10;
+			var cachedToken = _tokenCacheList.SingleOrDefault(tc => tc.CertificateThumbPrint == сertificateThumbPrint);
 
-			if(isTokenFresh && !string.IsNullOrWhiteSpace(_cachedToken))
+			if(cachedToken is { IsTokenFresh: true } && !string.IsNullOrWhiteSpace(cachedToken.Token))
 			{
-				return _cachedToken;
+				return cachedToken.Token;
 			}
 
-			_logger.LogInformation($"Токен авторизации устарел, получаем новый...");
+			_tokenCacheList.Remove(cachedToken);
+
+			_logger.LogInformation("Токен авторизации устарел, получаем новый...");
 
 			var authKeyResponse = await _httpClient.GetAsync(authUrn);
 			var authKeyStream = await authKeyResponse.Content.ReadAsStreamAsync();
 			var authKey = await JsonSerializer.DeserializeAsync<AuthKeyResponseDto>(authKeyStream);
 			var authKeyDataInBase64String = Convert.ToBase64String(Encoding.UTF8.GetBytes(authKey.Data));
 
-			var signModel = new SignModel(_сertificateThumbPrint, authKeyDataInBase64String, true);
+			var signModel = new SignModel(сertificateThumbPrint, authKeyDataInBase64String, true);
 
 			var tokenRequest = new TokenRequestDto
 			{
@@ -64,9 +66,20 @@ namespace TrueMarkApi.Services
 			{
 				var responseContent = await tokenResponseBody.Content.ReadAsStreamAsync();
 				var tokenResponse = await JsonSerializer.DeserializeAsync<TokenResponseDto>(responseContent);
-				_tokenTime = DateTime.Now;
 
-				return _cachedToken = tokenResponse?.Token;
+				if (tokenResponse != null)
+				{
+					var tokenCache = new AuthorizationTokenCache
+					{
+						CertificateThumbPrint = сertificateThumbPrint,
+						TokenCreateTime = DateTime.Now,
+						Token = tokenResponse.Token
+					};
+
+					_tokenCacheList.Add(tokenCache);
+
+					return tokenCache.Token;
+				}
 			}
 
 			_logger.LogError($"Ошибка при получении токена авторизации в ЧЗ: Http code {tokenResponseBody.StatusCode}, причина {tokenResponseBody.ReasonPhrase}");
