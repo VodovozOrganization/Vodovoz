@@ -111,7 +111,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DriverAPI.Library", "Librar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastPaymentsAPI.Library", "Libraries\Core\Backend\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj", "{B9E1A1D0-B0B0-4DDE-B8E9-991456B8EF37}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fias.Service", "Libraries\Core\Backend\FiasService\Fias.Service.csproj", "{CC518C77-1610-4017-8C77-E56C509C5BF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fias.Client", "Libraries\Core\Backend\FiasService\Fias.Client.csproj", "{CC518C77-1610-4017-8C77-E56C509C5BF9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Business", "Business", "{5EC9456D-B8A6-4F42-9E8F-986C72904161}"
 EndProject

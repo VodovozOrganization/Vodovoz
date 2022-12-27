@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Fias.Search.DTO;
 using NLog;
 
-namespace Fias.Service.Loaders
+namespace Fias.Client.Loaders
 {
 	public interface ICitiesDataLoader
 	{

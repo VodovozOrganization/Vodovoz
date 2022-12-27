@@ -1,7 +1,4 @@
-﻿using Fias.Search.DTO;
-using Fias.Service.Cache;
-using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
@@ -10,9 +7,12 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Fias.Client.Cache;
+using Fias.Search.DTO;
+using NLog;
 using Vodovoz.Domain.Geocoder;
 
-namespace Fias.Service
+namespace Fias.Client
 {
 	public class FiasApiClient : IFiasApiClient
 	{

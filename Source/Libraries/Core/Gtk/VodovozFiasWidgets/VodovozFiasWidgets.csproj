@@ -101,9 +101,9 @@
       <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
       <Name>Gamma.Binding</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Backend\FiasService\Fias.Service.csproj">
+    <ProjectReference Include="..\..\Backend\FiasService\Fias.Client.csproj">
       <Project>{CC518C77-1610-4017-8C77-E56C509C5BF9}</Project>
-      <Name>Fias.Service</Name>
+      <Name>Fias.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
