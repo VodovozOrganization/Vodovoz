@@ -592,7 +592,8 @@ namespace Vodovoz.Dialogs.Logistic
 					CurrentUserSettings.Settings,
 					_userRepository,
 					_baseParametersProvider,
-					_attachmentsViewModelFactory);
+					_attachmentsViewModelFactory,
+					MainClass.MainWin.NavigationManager);
 				
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),

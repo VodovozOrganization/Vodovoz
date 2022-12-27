@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
@@ -16,6 +17,7 @@ using SmsPaymentService.PaymentControllers;
 using SmsPaymentService.Workers;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 
 namespace VodovozSmsPaymentService
 {
@@ -93,12 +95,13 @@ namespace VodovozSmsPaymentService
 				OrmConfig.ConfigureOrm(dbConfig,
 					new[]
 					{
-						System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-						System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment))
+						Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+						Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+						Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+						Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+						Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+						Assembly.GetAssembly(typeof(QS.Attachments.Domain.Attachment)),
+						Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 					});
 
 				QS.HistoryLog.HistoryMain.Enable();

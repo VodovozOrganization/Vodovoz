@@ -115,5 +115,18 @@ namespace Vodovoz.EntityRepositories.Employees
 				.Select(Projections.Property(() => employee.AndroidToken))
 				.SingleOrDefault<string>();
 		}
+
+		public EmployeeRegistration EmployeeRegistrationDuplicateExists(EmployeeRegistration registration)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				return uow.Session.QueryOver<EmployeeRegistration>()
+					.Where(er => er.PaymentForm == registration.PaymentForm)
+					.And(er => er.RegistrationType == registration.RegistrationType)
+					.And(er => er.TaxRate == registration.TaxRate)
+					.And(er => er.Id != registration.Id)
+					.SingleOrDefault();
+			}
+		}
 	}
 }

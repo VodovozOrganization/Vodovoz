@@ -26,6 +26,8 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
+using System.Reflection;
+using Vodovoz.Settings.Database;
 
 namespace EmailPrepareWorker
 {
@@ -82,13 +84,14 @@ namespace EmailPrepareWorker
 			OrmMain.ClassMappingList = new List<IOrmObjectMapping> (); // Нужно, чтобы запустился конструктор OrmMain
 
 			OrmConfig.ConfigureOrm(db_config,
-				new System.Reflection.Assembly[] {
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap))
+				new Assembly[] {
+					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+					Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 			});
 
 			QS.HistoryLog.HistoryMain.Enable();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Fias.Service;
+using Fias.Client;
+using Fias.Client.Cache;
 using Gamma.ColumnConfig;
 using Gtk;
 using QSOrmProject;
@@ -11,7 +12,6 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Fias.Service.Cache;
 using QS.DomainModel.UoW;
 
 namespace Vodovoz

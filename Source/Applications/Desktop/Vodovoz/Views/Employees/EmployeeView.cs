@@ -187,12 +187,6 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			registrationTypeCmb.ItemsEnum = typeof(RegistrationType);
-			registrationTypeCmb.Binding
-				.AddBinding(ViewModel.Entity, e => e.Registration, w => w.SelectedItemOrNull)
-				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
-				.InitializeFromSource();
-
 			phonesView.ViewModel = ViewModel.PhonesViewModel;
 			phonesView.ViewModel.PhonesList = new GenericObservableList<Phone>(ViewModel.Entity.Phones);
 			phonesView.Sensitive = ViewModel.CanEditEmployee;
@@ -300,6 +294,46 @@ namespace Vodovoz.Views.Employees
 			accountsView.SetAccountOwner(UoW, ViewModel.Entity);
 			accountsView.SetTitle("Банковские счета сотрудника");
 			accountsView.Sensitive = ViewModel.CanEditEmployee;
+
+			treeRegistrationVersions.ColumnsConfig = FluentColumnsConfig<EmployeeRegistrationVersion>.Create()
+				.AddColumn("Код")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Id == 0 ? "Новая" : x.Id.ToString())
+					.XAlign(0.5f)
+				.AddColumn("Вид оформления")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(n => n.EmployeeRegistration.ToString())
+					.XAlign(0.5f)
+				.AddColumn("Начало действия")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(n => n.StartDate.ToString("g"))
+					.XAlign(0.5f)
+				.AddColumn("Окончание действия")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToString("g") : "")
+					.XAlign(0.5f)
+				.AddColumn("")
+				.Finish();
+
+			treeRegistrationVersions.ItemsDataSource = ViewModel.Entity.ObservableEmployeeRegistrationVersions;
+			treeRegistrationVersions.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedRegistrationVersion, w => w.SelectedRow)
+				.InitializeFromSource();
+
+			pickerVersionStartDate.IsEditable = ViewModel.CanEditEmployee;
+			pickerVersionStartDate.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedRegistrationDate, w => w.DateOrNull)
+				.InitializeFromSource();
+			
+			btnNewRegistrationVersion.Clicked += (sender, args) => ViewModel.CreateNewEmployeeRegistrationVersionCommand.Execute();
+			btnNewRegistrationVersion.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddNewRegistrationVersion, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			btnChangeVersionStartDate.Clicked += (sender, args) => ViewModel.ChangeEmployeeRegistrationVersionStartDateCommand.Execute();
+			btnChangeVersionStartDate.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeRegistrationVersionDate, w => w.Sensitive)
+				.InitializeFromSource();
 
 			#endregion
 
@@ -479,9 +513,10 @@ namespace Vodovoz.Views.Employees
 				return;
 			}
 
-			if(ViewModel.Entity.Registration != RegistrationType.Contract)
+			var activeRegistration = ViewModel.Entity.EmployeeRegistrationVersions.SingleOrDefault(x => x.EndDate == null);
+			if(activeRegistration == null || activeRegistration.EmployeeRegistration.RegistrationType != RegistrationType.Contract)
 			{
-				MessageDialogHelper.RunInfoDialog("Должен быть указан тип регистрации: 'ГПК' ");
+				MessageDialogHelper.RunInfoDialog("Должна быть активная версия с видом регистрации: 'ГПХ'(вкладка Реквизиты)");
 				return;
 			}
 

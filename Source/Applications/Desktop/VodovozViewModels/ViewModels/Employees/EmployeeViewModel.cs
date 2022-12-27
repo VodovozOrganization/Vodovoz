@@ -16,7 +16,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using QS.Attachments.ViewModels.Widgets;
+using QS.Project.Journal;
 using QS.ViewModels.Extension;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -34,6 +36,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
@@ -55,6 +58,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
 		private bool _canActivateDriverDistrictPrioritySetPermission;
@@ -67,6 +71,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private IEnumerable<EmployeeContract> _selectedEmployeeContracts = new EmployeeContract[0];
 		private ValidationContext _validationContext;
 		private TerminalManagementViewModel _terminalManagementViewModel;
+		private DateTime? _selectedRegistrationDate;
+		private EmployeeRegistrationVersion _selectedRegistrationVersion;
 
 		private DelegateCommand _openDistrictPrioritySetCreateWindowCommand;
 		private DelegateCommand _openDistrictPrioritySetEditWindowCommand;
@@ -78,6 +84,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private DelegateCommand _removeEmployeeDocumentsCommand;
 		private DelegateCommand _removeEmployeeContractsCommand;
 		private DelegateCommand _registerDriverModuleUserCommand;
+		private DelegateCommand _createNewEmployeeRegistrationVersionCommand;
+		private DelegateCommand _changeEmployeeRegistrationVersionStartDateCommand;
 
 		public IReadOnlyList<Organization> organizations;
 
@@ -104,27 +112,30 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IUserRepository userRepository,
 			BaseParametersProvider baseParametersProvider,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
-			bool traineeToEmployee = false,
-			INavigationManager navigationManager = null
-			) : base(commonServices?.InteractiveService, navigationManager)
+			INavigationManager navigationManager,
+			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			EmployeeWageParametersFactory =
 				employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			EmployeePostsJournalFactory = employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
+			EmployeePostsJournalFactory =
+				employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory)); 
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)); 
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionParametersProvider =
+				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
+			_driverApiUserRegisterEndpoint =
+				driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
+			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 
 			if(commonOrganisationProvider == null)
 			{
@@ -352,11 +363,49 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public bool CanRemoveEmployeeContract => SelectedEmployeeContracts.Any() && CanEditEmployee;
 		
 		public bool CanCopyDriverScheduleSet => SelectedDriverScheduleSet != null && DriverWorkScheduleSetPermission.CanCreate && CanEditEmployee;
+		
 		public bool CanEditDriverScheduleSet => 
 			SelectedDriverScheduleSet != null
 			&& (DriverWorkScheduleSetPermission.CanUpdate || DriverWorkScheduleSetPermission.CanRead)
 			&& CanEditEmployee;
+		
+		public DateTime? SelectedRegistrationDate
+		{
+			get => _selectedRegistrationDate;
+			set
+			{
+				if(!SetField(ref _selectedRegistrationDate, value))
+				{
+					return;
+				}
 
+				OnPropertyChanged(nameof(CanAddNewRegistrationVersion));
+				OnPropertyChanged(nameof(CanChangeRegistrationVersionDate));
+			}
+		}
+		
+		public EmployeeRegistrationVersion SelectedRegistrationVersion
+		{
+			get => _selectedRegistrationVersion;
+			set
+			{
+				if(SetField(ref _selectedRegistrationVersion, value))
+				{
+					OnPropertyChanged(nameof(CanChangeRegistrationVersionDate));
+				}
+			}
+		}
+		
+		public bool CanAddNewRegistrationVersion =>
+			CanEditEmployee
+			&& SelectedRegistrationDate.HasValue
+			&& Entity.ObservableEmployeeRegistrationVersions.All(x => x.Id != 0);
+
+		public bool CanChangeRegistrationVersionDate =>
+			CanEditEmployee
+			&& SelectedRegistrationDate.HasValue
+			&& SelectedRegistrationVersion != null;
+		
 		public DelegateCommand OpenDistrictPrioritySetCreateWindowCommand =>
 			_openDistrictPrioritySetCreateWindowCommand ?? (_openDistrictPrioritySetCreateWindowCommand = new DelegateCommand(
 					() =>
@@ -417,9 +466,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					{
 						if(SelectedDistrictPrioritySet.Id == 0)
 						{
-							ServicesConfig.CommonServices.InteractiveService
-								.ShowMessage(ImportanceLevel.Info,
-									"Перед копированием новой версии необходимо сохранить сотрудника");
+							_commonServices.InteractiveService.ShowMessage(
+								ImportanceLevel.Info,
+								"Перед копированием новой версии необходимо сохранить сотрудника");
 							return;
 						}
 
@@ -613,6 +662,55 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					}
 				)
 			);
+		
+		public DelegateCommand CreateNewEmployeeRegistrationVersionCommand =>
+			_createNewEmployeeRegistrationVersionCommand ?? (_createNewEmployeeRegistrationVersionCommand = new DelegateCommand(
+				() =>
+				{
+					var journal = NavigationManager.OpenViewModel<EmployeeRegistrationsJournalViewModel>(null);
+					journal.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					journal.ViewModel.OnSelectResult += (sender, args) =>
+					{
+						if(!UoW.Session.IsOpen)
+						{
+							return;
+						}
+						
+						var selectedResult = args.GetSelectedObjects<EmployeeRegistrationsJournalNode>().SingleOrDefault();
+
+						if(selectedResult is null)
+						{
+							return;
+						}
+
+						var employeeRegistration = UoW.GetById<EmployeeRegistration>(selectedResult.Id);
+						var error =
+							_employeeRegistrationVersionController.AddNewRegistrationVersion(SelectedRegistrationDate, employeeRegistration);
+						
+						if(!string.IsNullOrWhiteSpace(error))
+						{
+							_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, error);
+							return;
+						}
+
+						OnPropertyChanged(nameof(CanAddNewRegistrationVersion));
+						OnPropertyChanged(nameof(CanChangeRegistrationVersionDate));
+					};
+				}));
+		
+		public DelegateCommand ChangeEmployeeRegistrationVersionStartDateCommand =>
+			_changeEmployeeRegistrationVersionStartDateCommand ?? (_changeEmployeeRegistrationVersionStartDateCommand = new DelegateCommand(
+				() =>
+				{
+					if(!SelectedRegistrationDate.HasValue || SelectedRegistrationVersion is null)
+					{
+						return;
+					}
+					
+					_employeeRegistrationVersionController.ChangeVersionStartDate(SelectedRegistrationVersion, SelectedRegistrationDate.Value);
+					OnPropertyChanged(nameof(CanAddNewRegistrationVersion));
+					OnPropertyChanged(nameof(CanChangeRegistrationVersionDate));
+				}));
 		
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{

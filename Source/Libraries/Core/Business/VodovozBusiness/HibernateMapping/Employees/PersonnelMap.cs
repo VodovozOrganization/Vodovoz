@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.HibernateMapping.Employees
@@ -60,7 +59,6 @@ namespace Vodovoz.HibernateMapping.Employees
 				Map(x => x.DriverOfCarTypeOfUse)   .Column("driver_of_car_type_of_use").CustomType<CarTypeOfUseStringType>();
 				Map(x => x.DriverOfCarOwnType)     .Column("driver_of_car_own_type").CustomType<CarOwnTypeStringType>();
 				Map(x => x.Gender)                 .Column("gender").CustomType<GenderStringType>();
-				Map(x => x.Registration)           .Column("registration_type").CustomType<RegistrationTypeStringType>();
 				Map(x => x.MinRouteAddresses)      .Column("min_route_addresses");
 				Map(x => x.MaxRouteAddresses)      .Column("max_route_addresses");
 				Map(x => x.DriverType)             .Column("driver_type").CustomType<DriverTypeStringType>();
@@ -75,6 +73,9 @@ namespace Vodovoz.HibernateMapping.Employees
 
                 HasMany(x => x.Contracts).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 				HasMany(x => x.WageParameters).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
+				HasMany(x => x.EmployeeRegistrationVersions)
+					.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id")
+					.OrderBy("start_date DESC");
 				
 				HasMany(x => x.DriverWorkScheduleSets)
 					.Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("driver_id")

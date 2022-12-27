@@ -1,6 +1,5 @@
 ﻿using DiffPlex;
 using DiffPlex.DiffBuilder;
-using Fias.Service;
 using Gamma.ColumnConfig;
 using NHibernate.Criterion;
 using QS.Deletion;
@@ -14,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Fias.Client;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
 

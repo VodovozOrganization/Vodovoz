@@ -35,8 +35,8 @@ namespace Vodovoz.Domain.Cash
 
 		[Display (Name = "Дата")]
 		public virtual DateTime Date {
-			get { return date; }
-			set { SetField (ref date, value, () => Date); }
+			get => date;
+			set => SetField (ref date, value);
 		}
 
 		private Subdivision relatedToSubdivision;
@@ -106,9 +106,10 @@ namespace Vodovoz.Domain.Cash
 		string description;
 
 		[Display (Name = "Основание")]
-		public virtual string Description {
-			get { return description; }
-			set { SetField (ref description, value, () => Description); }
+		public virtual string Description
+		{
+			get => description;
+			set => SetField (ref description, value);
 		}
 
 		decimal money;

@@ -16,6 +16,7 @@ using TrueMarkApi.Dto.Documents;
 using TrueMarkApi.Dto.Participants;
 using TrueMarkApi.Factories;
 using TrueMarkApi.Models;
+using TrueMarkApi.Services.Authorization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -36,6 +37,7 @@ namespace TrueMarkApi.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
+		private readonly OrganizationCertificate[] _organizationsCertificates;
 		private const int _workerDelaySec = 300;
 		private const int _createDocumentDelaySec = 5;
 
@@ -57,6 +59,9 @@ namespace TrueMarkApi.Services
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
 			_httpClientClientFactory = httpClientFactory;
+
+			var organizationsCertificateSection = _apiSection.GetSection("OrganizationCertificates");
+			_organizationsCertificates = organizationsCertificateSection.Get<OrganizationCertificate[]>();
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -71,23 +76,24 @@ namespace TrueMarkApi.Services
 			{
 				try
 				{
-					_logger.LogInformation($"Пауза перед запуском транзакций {_workerDelaySec} сек");
-					await Task.Delay(_workerDelaySec * 1000, stoppingToken);
-					_logger.LogInformation("Запускаем необходимые транзакции");
-
 					var startDate = DateTime.Today.AddDays(-_edoSettings.EdoCheckPeriodDays);
-
-					var organizationsCertificateSection = _apiSection.GetSection("OrganizationCertificates");
-					var organizationsCertificates = organizationsCertificateSection.Get<OrganizationCertificate[]>().ToArray();
 
 					using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 					{
-						foreach(var organizationCertificate in organizationsCertificates)
+						foreach(var organizationCertificate in _organizationsCertificates)
 						{
 							var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, organizationCertificate.EdxClientId);
+							_logger.LogInformation("Запускаем необходимые транзакции для организации {OrganizationId}. " + 
+							                       "Отпечаток сертификата {organizationCertificate.CertificateThumbPrint}, " +
+							                       "Id кабинета ЭДО {OrganizationCertificateEdxClientId}", 
+								organization.Id, organizationCertificate.CertificateThumbPrint, organizationCertificate.EdxClientId);
+
 							await ProcessOrganizationDocuments(uow, startDate, organization, organizationCertificate);
 						}
 					}
+
+					_logger.LogInformation($"Пауза перед запуском следующих транзакций {_workerDelaySec} сек");
+					await Task.Delay(_workerDelaySec * 1000, stoppingToken);
 				}
 				catch(Exception e)
 				{
@@ -102,7 +108,7 @@ namespace TrueMarkApi.Services
 			{
 				if(organization is null)
 				{
-					_logger.LogError($"Не найдена организация по edxClientId {organizationCertificate.EdxClientId}");
+					_logger.LogError("Не найдена организация по edxClientId {OrganizationCertificateEdxClientId}", organizationCertificate.EdxClientId);
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
 
@@ -110,6 +116,8 @@ namespace TrueMarkApi.Services
 				// await CheckAndSaveRegistrationInTrueApi(orders, uow);
 
 				var token = await _authorizationService.Login(organizationCertificate.CertificateThumbPrint);
+
+				_logger.LogInformation("Получили токен авторизации: {AuthorizationToken} ", token);
 
 				var httpClient = _httpClientClientFactory.CreateClient();
 				httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -130,7 +138,10 @@ namespace TrueMarkApi.Services
 		private async Task ProcessNewOrders(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
 			string organizationCertificateThumbPrint)
 		{
-			_logger.LogInformation("Получаем заказы для организации {OrganizationId}, по которым надо осуществить вывод из оборота", organization.Id);
+			_logger.LogInformation("Получаем заказы для организации {OrganizationId}, " +
+			                       "отпечаток сертификата {OrganizationCertificateThumbPrint}, " +
+			                       "код личного кабинета {OrganizationTaxcomEdoAccountId}, по которым надо осуществить вывод из оборота", 
+				organization.Id, organizationCertificateThumbPrint, organization.TaxcomEdoAccountId);
 
 			var orders = _orderRepository.GetOrdersForTrueMarkApi(uow, startDate, organization.Id);
 
@@ -143,7 +154,10 @@ namespace TrueMarkApi.Services
 
 			foreach(var order in orders)
 			{
-				_logger.LogInformation("Создаем вывод из оборота по заказу №{OrderId}", order.Id);
+				_logger.LogInformation("Создаем вывод из оборота по заказу №{OrderId} для организации {OrganizationId}, " +
+				                       "отпечаток сертификата {OrganizationCertificateThumbPrint}," +
+				                       "код личного кабинета {OrganizationTaxcomEdoAccountId}", 
+					order.Id, organization.Id, organizationCertificateThumbPrint, organization.TaxcomEdoAccountId);
 
 				try
 				{
@@ -250,10 +264,17 @@ namespace TrueMarkApi.Services
 
 			var serializedDocument = JsonSerializer.Serialize(gtinReceiptDocument);
 			var documentContent = new StringContent(serializedDocument, Encoding.UTF8, "application/json");
+
+			_logger.LogInformation("Отправка: сертификат {OrganizationCertificateThumbPrint}, токен авторизации {AuthorizationToken}", 
+				certificateThumbPrint, httpClient.DefaultRequestHeaders.Authorization);
+
 			var documentResponse = await httpClient.PostAsync(documentCreateUrl, documentContent);
 
 			if(!documentResponse.IsSuccessStatusCode)
 			{
+				_logger.LogError("Ошибка: сертификат {OrganizationCertificateThumbPrint}, токен авторизации {AuthorizationToken}", 
+					certificateThumbPrint, httpClient.DefaultRequestHeaders.Authorization);
+
 				return new TrueMarkApiDocument
 				{
 					IsSuccess = false,
@@ -280,7 +301,7 @@ namespace TrueMarkApi.Services
 				// Производим ещё несколько попыток получения информации по созданному документу
 				for(int i = 0; i < 5; i++)
 				{
-					_logger.LogWarning("Повторный запрос результатов создания документа{DocumentId}", documentId);
+					_logger.LogWarning("Повторный запрос результатов создания документа {DocumentId}", documentId);
 					await Task.Delay(_createDocumentDelaySec * 1000);
 					resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
 

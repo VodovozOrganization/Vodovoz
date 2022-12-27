@@ -3,10 +3,12 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -56,6 +58,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly UserSettings _userSettings;
 		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
+		private readonly INavigationManager _navigationManager;
 
 		//Новые зависимости создаем в журнале, скоро внедрим autofac
 		private readonly IUserRepository _userRepository = new UserRepository();
@@ -80,7 +83,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IAttachmentsViewModelFactory attachmentsViewModelFactory) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IAttachmentsViewModelFactory attachmentsViewModelFactory,
+			INavigationManager navigationManager) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал сотрудников";
 
@@ -103,6 +107,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_phonesViewModelFactory = phonesViewModelFactory ?? throw new ArgumentNullException(nameof(phonesViewModelFactory));
 			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
@@ -114,7 +119,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		{
 			EmployeeJournalNode resultAlias = null;
 			Employee employeeAlias = null;
-
+			EmployeeRegistrationVersion employeeRegistrationVersionAlias = null;
+			EmployeeRegistration employeeRegistrationAlias = null;
+			var currentDateTime = DateTime.Now;
+				
 			var query = uow.Session.QueryOver(() => employeeAlias);
 
 			if(FilterViewModel?.Status != null)
@@ -176,7 +184,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 			if(FilterViewModel?.RegistrationType != null)
 			{
-				query.Where(e => e.Registration == FilterViewModel.RegistrationType);
+				query.JoinAlias(e => e.EmployeeRegistrationVersions, () => employeeRegistrationVersionAlias, JoinType.InnerJoin,
+					Restrictions.Where(() => employeeRegistrationVersionAlias.StartDate <= currentDateTime
+						&& (employeeRegistrationVersionAlias.EndDate == null || employeeRegistrationVersionAlias.EndDate >= currentDateTime)))
+					.JoinAlias(() => employeeRegistrationVersionAlias.EmployeeRegistration, () => employeeRegistrationAlias)
+					.Where(() => employeeRegistrationAlias.RegistrationType == FilterViewModel.RegistrationType);
 			}
 
 			if(FilterViewModel?.HiredDatePeriodStart != null)
@@ -500,7 +512,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_userSettings,
 			_userRepository,
 			_baseParametersProvider,
-			_attachmentsViewModelFactory);
+			_attachmentsViewModelFactory,
+			_navigationManager);
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
 			n => new EmployeeViewModel(
@@ -523,6 +536,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_userSettings,
 				_userRepository,
 				_baseParametersProvider,
-				_attachmentsViewModelFactory);
+				_attachmentsViewModelFactory,
+				_navigationManager);
 	}
 }
