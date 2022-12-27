@@ -1765,10 +1765,13 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeeRegistrationView.cs" />
     <Compile Include="ReportsParameters\Employees\EmployeesTaxesSumReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Employees.EmployeesTaxesSumReport.cs" />
+    <Compile Include="Views\ProductGroups\EditParentProductGroupWindowView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ProductGroups.EditParentProductGroupWindowView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\ProductGroups\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
