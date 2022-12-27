@@ -17,6 +17,7 @@ namespace Vodovoz.Factories
 				new UserRoleSettings(_parametersProvider),
 				new UserRoleRepository(),
 				new EntityRepositories.UserRepository(),
-				new EmailParametersProvider(_parametersProvider));
+				new EmailParametersProvider(_parametersProvider),
+				new SubdivisionParametersProvider(_parametersProvider));
 	}
 }
