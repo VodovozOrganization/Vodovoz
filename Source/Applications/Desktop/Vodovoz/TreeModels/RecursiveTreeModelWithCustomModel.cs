@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Gtk;
+using Vodovoz.TreeModels;
 
 namespace Gamma.Binding
 {

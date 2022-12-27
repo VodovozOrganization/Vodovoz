@@ -5,9 +5,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Gamma.Utilities;
 
-namespace Gamma.Binding
+namespace Vodovoz.TreeModels
 {
-	public class ModelConfig<TNode, TParent> : IModelConfig {
+	public class ModelConfig<TNode, TParent> : IModelConfig
+	{
 		public Type Type { get; }
 		public PropertyInfo ParentProperty { get; }
 		public ModelConfig(Expression<Func<TNode, TParent>> parentPropertyExpr)
@@ -43,26 +44,33 @@ namespace Gamma.Binding
 			Child2Property = child2PropertyExpr;
 		}
 
-		public override IList GetChilds(object node) {
+		public override IList GetChilds(object node)
+		{
 			var list = new List<object>();
 
-			if(ChildsCollection1Property != null) {
+			if(ChildsCollection1Property != null)
+			{
 				var childs1 = ChildsCollection1Property.Compile().Invoke((TNode)node);
-				foreach(var child in childs1) {
+				foreach(var child in childs1)
+				{
 					list.Add(child);
 				}
 			}
 
-			if(ChildsCollection2Property != null) {
+			if(ChildsCollection2Property != null)
+			{
 				var childs2 = ChildsCollection2Property.Compile().Invoke((TNode)node);
-				foreach(var child in childs2) {
+				foreach(var child in childs2)
+				{
 					list.Add(child);
 				}
 			}
 
-			if(Child2Property != null) {
+			if(Child2Property != null)
+			{
 				var child2 = Child2Property.Compile().Invoke((TNode)node);
-				if(child2 != null) {
+				if(child2 != null)
+				{
 					list.Add(child2);
 				}
 			}

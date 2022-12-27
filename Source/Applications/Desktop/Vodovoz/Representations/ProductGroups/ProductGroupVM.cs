@@ -16,6 +16,7 @@ using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
+using Vodovoz.TreeModels;
 using UseForSearchAttribute = QSOrmProject.RepresentationModel.UseForSearchAttribute;
 
 namespace Vodovoz.Representations.ProductGroups
