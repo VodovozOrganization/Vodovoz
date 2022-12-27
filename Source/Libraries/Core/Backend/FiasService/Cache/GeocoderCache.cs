@@ -1,8 +1,8 @@
-﻿using QS.DomainModel.UoW;
-using System;
+﻿using System;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Geocoder;
 
-namespace Fias.Service.Cache
+namespace Fias.Client.Cache
 {
 	public class GeocoderCache
 	{

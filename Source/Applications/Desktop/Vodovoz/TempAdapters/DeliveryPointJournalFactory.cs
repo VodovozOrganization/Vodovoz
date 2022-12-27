@@ -1,6 +1,6 @@
 ﻿using System;
-using Fias.Service;
-using Fias.Service.Cache;
+using Fias.Client;
+using Fias.Client.Cache;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;

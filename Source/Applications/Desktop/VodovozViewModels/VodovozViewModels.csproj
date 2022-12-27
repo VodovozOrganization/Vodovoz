@@ -568,9 +568,9 @@
       <Project>{ffe6853d-cc4a-4510-a3a3-92f55b9c0eda}</Project>
       <Name>RabbitMQ.EmailSending</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\FiasService\Fias.Service.csproj">
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\FiasService\Fias.Client.csproj">
       <Project>{CC518C77-1610-4017-8C77-E56C509C5BF9}</Project>
-      <Name>Fias.Service</Name>
+      <Name>Fias.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj">
       <Project>{3032f22e-2c78-4fad-9936-552fd7de8d7f}</Project>

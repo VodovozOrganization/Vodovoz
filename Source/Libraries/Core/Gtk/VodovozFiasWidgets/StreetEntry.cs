@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using Fias.Service.Loaders;
+using Fias.Client.Loaders;
 using Gamma.Binding.Core;
 using Gdk;
 using GLib;
