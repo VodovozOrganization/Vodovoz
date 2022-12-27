@@ -60,6 +60,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public RetailOrderJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel,
@@ -79,6 +80,7 @@ namespace Vodovoz.JournalViewModels
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IOrderDiscountsController discountsController,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
@@ -102,6 +104,9 @@ namespace Vodovoz.JournalViewModels
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_closingDocumentDeliveryScheduleId =
+				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+				.ClosingDocumentDeliveryScheduleId;
 
 			TabName = "Журнал заказов";
 
@@ -340,6 +345,11 @@ namespace Vodovoz.JournalViewModels
 													)
 												)
 											);
+			
+			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+			{
+				query.Where(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+			}
 
 			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
@@ -434,7 +444,8 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.OrderPaymentStatus != null
 				|| FilterViewModel.Organisation != null
 				|| FilterViewModel.PaymentByCardFrom != null
-				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)) 
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
+				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -555,7 +566,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
-				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
+				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -700,7 +712,8 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.OrderPaymentStatus != null
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
-				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike))
+				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
+				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
 				query.Where(o => o.Id == -1);
 			}
