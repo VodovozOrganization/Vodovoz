@@ -1,22 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QS.ViewModels;
-using RabbitMQ.Client;
-using RabbitMQ.Infrastructure;
-using RabbitMQ.MailSending;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -24,9 +17,8 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
-using VodovozInfrastructure.Configuration;
 
-namespace Vodovoz.Dialogs.Email
+namespace Vodovoz.ViewModels.Dialogs.Email
 {
 	public class SendDocumentByEmailViewModel : UoWWidgetViewModelBase
 	{
@@ -239,7 +231,7 @@ namespace Vodovoz.Dialogs.Email
 			}
 		}
 
-		private bool CanSendDocument(Counterparty client)
+		private bool CanSendDocument(Domain.Client.Counterparty client)
 		{
 			var rdlDoc = Document as IPrintableRDLDocument;
 

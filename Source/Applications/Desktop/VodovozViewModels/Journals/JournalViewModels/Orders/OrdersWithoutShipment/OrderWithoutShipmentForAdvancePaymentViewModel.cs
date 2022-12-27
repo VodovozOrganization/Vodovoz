@@ -1,7 +1,6 @@
 ﻿using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -10,25 +9,25 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
-using QSOrmProject;
-using QSReport;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Dialogs.Email;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Infrastructure.Print;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -39,6 +38,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly CommonMessages _commonMessages;
+		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private UserSettings _currentUserSettings;
 
 		private object selectedItem;
 		public object SelectedItem {
@@ -64,11 +66,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUserRepository userRepository,
 			IDiscountReasonRepository discountReasonRepository,
 			IParametersProvider parametersProvider,
-			IOrderDiscountsController discountsController) : base(uowBuilder, uowFactory, commonServices)
+			IOrderDiscountsController discountsController,
+			CommonMessages commonMessages,
+			IRDLPreviewOpener rdlPreviewOpener) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
+			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			if(parametersProvider == null)
 			{
 				throw new ArgumentNullException(nameof(parametersProvider));
@@ -110,11 +116,19 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			EntityUoWBuilder = uowBuilder;
 
 			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(), new EmailParametersProvider(parametersProvider), currentEmployee, commonServices.InteractiveService, UoW);
+				new EmailRepository(),
+				new EmailParametersProvider(parametersProvider),
+				currentEmployee,
+				commonServices.InteractiveService,
+				UoW);
 
 
 			FillDiscountReasons(discountReasonRepository);
 		}
+		
+		private UserSettings CurrentUserSettings =>
+			_currentUserSettings ??
+			(_currentUserSettings = _userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId));
 
 		public IList<DiscountReason> DiscountReasons { get; private set; }
 		public IOrderDiscountsController DiscountsController { get; }
@@ -124,14 +138,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private DelegateCommand addForSaleCommand;
 		public DelegateCommand AddForSaleCommand => addForSaleCommand ?? (addForSaleCommand = new DelegateCommand(
-			() => {
-
+			() =>
+			{
 				if(!CanAddNomenclaturesToOrder())
+				{
 					return;
+				}
 
 				var defaultCategory = NomenclatureCategory.water;
-				if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
-					defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
+				if(CurrentUserSettings.DefaultSaleCategory.HasValue)
+				{
+					defaultCategory = CurrentUserSettings.DefaultSaleCategory.Value;
+				}
 
 				var nomenclatureFilter = new NomenclatureFilterViewModel();
 				nomenclatureFilter.SetAndRefilterAtOnce(
@@ -188,15 +206,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			{
 				string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 				
-				if (UoWGeneric.HasChanges &&
-				    CommonDialogs.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
+				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
 				{
-					if (Save(false))
-						TabParent.AddTab(DocumentPrinter.GetPreviewTab(Entity), this, false);
+					if(Save(false))
+					{
+						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
+					}
 				}
 
 				if(!UoWGeneric.HasChanges && Entity.Id > 0)
-					TabParent.AddTab(DocumentPrinter.GetPreviewTab(Entity), this, false);
+				{
+					_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
+				}
 			},
 			() => true
 		));
@@ -230,8 +251,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
 			if(nomenclature.OnlineStore != null && !ServicesConfig.CommonServices.CurrentPermissionService
-				.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
-				MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
+				.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order"))
+			{
+				ShowWarningMessage("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
 				return;
 			}
 

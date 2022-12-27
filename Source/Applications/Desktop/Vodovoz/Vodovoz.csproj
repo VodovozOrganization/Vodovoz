@@ -1100,12 +1100,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.FuelConsumptionReport.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCloseDeliveryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCloseDeliveryReport.cs" />
-    <Compile Include="JournalViewModels\OrderJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\OrderFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderFilterView.cs" />
     <Compile Include="Infrastructure\Converters\NullToBooleanConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullableBooleanToBooleanConverter.cs" />
-    <Compile Include="JournalNodes\OrderJournalNode.cs" />
     <Compile Include="JournalColumnsConfigs\JournalsColumnsConfigs.cs" />
     <Compile Include="ViewWidgets\PermissionCommentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PermissionCommentView.cs" />
@@ -1195,7 +1193,6 @@
     <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
     <Compile Include="Views\Client\SupplierPricesWidgetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.SupplierPricesWidgetView.cs" />
-    <Compile Include="Filters\ViewModels\OrderJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\NomenclaturesFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclaturesFilterView.cs" />
     <Compile Include="ViewModels\Client\SupplierPricesWidgetViewModel.cs" />
@@ -1240,7 +1237,6 @@
     <Compile Include="Additions\Logistic\PointMarkerType.cs" />
     <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
     <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
-    <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\BottlesCountAdvancedWageParameterWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.BottlesCountAdvancedWageParameterWidget.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\DeliveryTimeAdvancedWagePrameterView.cs" />
@@ -1395,15 +1391,11 @@
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtView.cs" />
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentView.cs" />
     <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentView.cs" />
-    <Compile Include="ViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentViewModel.cs" />
-    <Compile Include="ViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentViewModel.cs" />
-    <Compile Include="ViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForPaymentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForDebtView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForAdvancePaymentView.cs" />
     <Compile Include="Dialogs\Email\SendDocumentByEmailView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Email.SendDocumentByEmailView.cs" />
-    <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Filters\GtkViews\DistrictJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DistrictView.cs" />

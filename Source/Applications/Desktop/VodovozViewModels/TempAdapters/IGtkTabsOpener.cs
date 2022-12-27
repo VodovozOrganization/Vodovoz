@@ -9,8 +9,12 @@ namespace Vodovoz.TempAdapters
 {
 	public interface IGtkTabsOpener
 	{
+		ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment);
+		ITdiTab CreateOrderDlg(int? orderId);
 		void OpenOrderDlg(ITdiTab tab, int id);
+		void OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);
 		void OpenRouteListCreateDlg(ITdiTab tab, int id);
+		void OpenRouteListKeepingDlg(ITdiTab tab, int routeListId, int[] selectedOrdersIds);
 		ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId);
 		ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false);
 		ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter);

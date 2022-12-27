@@ -11,26 +11,26 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
-using QSOrmProject;
-using QSReport;
 using System;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Dialogs.Email;
+using QS.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Infrastructure.Services;
+using Vodovoz.Infrastructure.Print;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Dialogs.Email;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForPaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForPayment>, ITdiTabAddedNotifier
 	{
-		private readonly IParametersProvider _parametersProvider;
+		private readonly CommonMessages _commonMessages;
+		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private DateTime? startDate = DateTime.Now.AddMonths(-1);
 		public DateTime? StartDate {
 			get => startDate;
@@ -57,9 +57,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			IParametersProvider parametersProvider) : base(uowBuilder, uowFactory, commonServices)
+			IParametersProvider parametersProvider,
+			CommonMessages commonMessages,
+			IRDLPreviewOpener rdlPreviewOpener) : base(uowBuilder, uowFactory, commonServices)
 		{
-			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+			if(parametersProvider == null)
+			{
+				throw new ArgumentNullException(nameof(parametersProvider));
+			}
+
+			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
+			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+
 			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 			
@@ -86,7 +95,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			EntityUoWBuilder = uowBuilder;
 			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(), new EmailParametersProvider(new ParametersProvider()), currentEmployee, commonServices.InteractiveService, UoW);
+				new EmailRepository(),
+				new EmailParametersProvider(parametersProvider),
+				currentEmployee,
+				commonServices.InteractiveService,
+				UoW);
 			
 			ObservableNodes = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 		}
@@ -105,15 +118,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			{
 				string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 				
-				if (UoWGeneric.HasChanges &&
-				    CommonDialogs.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
+				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
 				{
-					if (Save(false))
-						TabParent.AddTab(DocumentPrinter.GetPreviewTab(Entity), this, false);
+					if(Save(false))
+					{
+						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForPayment), Entity);
+					}
 				}
 				
 				if(!UoWGeneric.HasChanges && Entity.Id > 0)
-					TabParent.AddTab(DocumentPrinter.GetPreviewTab(Entity), this, false);
+				{
+					_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForPayment), Entity);
+				}
 			},
 			() => true
 		));

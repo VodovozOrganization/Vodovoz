@@ -4,6 +4,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System.Collections.Generic;
+using Vodovoz.Core;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -44,11 +45,11 @@ namespace Vodovoz.TempAdapters
 			return vm;
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory(OrderJournalFilterViewModel filterViewModel = null)
 		{
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
-				CreateOrderJournalViewModel
+				() => CreateOrderJournalViewModel(filterViewModel)
 			);
 		}
 
@@ -92,7 +93,9 @@ namespace Vodovoz.TempAdapters
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
 						new FileDialogService(),
-						new SubdivisionParametersProvider(new ParametersProvider()));
+						new SubdivisionParametersProvider(new ParametersProvider()),
+						new DeliveryScheduleParametersProvider(new ParametersProvider()),
+						new RdlPreviewOpener());
 				});
 		}
 
@@ -134,11 +137,13 @@ namespace Vodovoz.TempAdapters
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
 						new FileDialogService(),
-						new SubdivisionParametersProvider(new ParametersProvider()));
+						new SubdivisionParametersProvider(new ParametersProvider()),
+						new DeliveryScheduleParametersProvider(new ParametersProvider()),
+						new RdlPreviewOpener());
 				});
 		}
 
-		public OrderJournalViewModel CreateOrderJournalViewModel()
+		public OrderJournalViewModel CreateOrderJournalViewModel(OrderJournalFilterViewModel filterViewModel = null)
 		{
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
@@ -148,7 +153,9 @@ namespace Vodovoz.TempAdapters
 			var employeeJournalFactory = new EmployeeJournalFactory();
 
 			return new OrderJournalViewModel(
-				_orderJournalFilter ?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
+				_orderJournalFilter
+					?? filterViewModel
+					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
@@ -165,8 +172,9 @@ namespace Vodovoz.TempAdapters
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),
 				new FileDialogService(),
-				new SubdivisionParametersProvider(new ParametersProvider())
-			);
+				new SubdivisionParametersProvider(new ParametersProvider()),
+				new DeliveryScheduleParametersProvider(new ParametersProvider()),
+				new RdlPreviewOpener());
 		}
 	}
 }

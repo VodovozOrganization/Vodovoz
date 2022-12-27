@@ -5,7 +5,7 @@ using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Infrastructure;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 {
 	public class NomenclaturesForOrderJournalRestriction : IAdditionalJournalRestriction<Nomenclature>
 	{
