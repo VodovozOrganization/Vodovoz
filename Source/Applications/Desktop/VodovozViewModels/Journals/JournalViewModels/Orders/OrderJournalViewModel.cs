@@ -1095,7 +1095,7 @@ namespace Vodovoz.JournalViewModels
 							_subdivisionParametersProvider
 						);
 
-						TabParent.AddTab(this, dlg, false);
+						TabParent.AddTab(dlg, this, false);
 					}
 				)
 			);
