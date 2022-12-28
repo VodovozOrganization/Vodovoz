@@ -194,7 +194,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
-				query.Where(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
