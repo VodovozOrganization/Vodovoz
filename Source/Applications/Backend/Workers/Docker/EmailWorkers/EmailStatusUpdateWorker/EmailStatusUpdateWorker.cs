@@ -10,11 +10,13 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.MailSending;
 using System;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Settings.Database;
 
 namespace EmailStatusUpdateWorker
 {
@@ -65,13 +67,14 @@ namespace EmailStatusUpdateWorker
 										 .ConnectionString(QSMain.ConnectionString);
 
 				OrmConfig.ConfigureOrm(db_config,
-					new System.Reflection.Assembly[] {
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap))
+					new Assembly[] {
+					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
+					Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
+					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				});
 
 				QS.HistoryLog.HistoryMain.Enable();

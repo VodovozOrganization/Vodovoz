@@ -1805,6 +1805,22 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+
+			//EmployeeRegistrationsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<EmployeeRegistrationsJournalViewModel>(
+				() => FluentColumnsConfig<EmployeeRegistrationsJournalNode>.Create()
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id)
+					.AddColumn("Оформление")
+						.AddEnumRenderer(node => node.RegistrationType)
+					.AddColumn("Форма оплаты")
+						.AddEnumRenderer(node => node.PaymentForm)
+					.AddColumn("Ставка налога")
+						.AddNumericRenderer(node => node.TaxRate)
+						.Digits(2)
+					.AddColumn("")
+					.Finish()
+			);
 		}
 	}
 }

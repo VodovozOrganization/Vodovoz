@@ -72,19 +72,5 @@
       <Version>1.0.0.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\InstantSmsService\InstantSmsService.csproj">
-      <Project>{b1ab54eb-59c6-486b-a0c8-01ed960f1fa0}</Project>
-      <Name>InstantSmsService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\SmsRuSendService\SmsRuSendService.csproj">
-      <Project>{26f787d2-818a-4009-843a-76bc535699e1}</Project>
-      <Name>SmsRuSendService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\SmsSendInterface\SmsSendInterface.csproj">
-      <Project>{2f7f7e4f-5a79-44b5-a877-c22e315adf43}</Project>
-      <Name>SmsSendInterface</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

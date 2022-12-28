@@ -60,8 +60,17 @@ namespace Vodovoz.ViewModels.Accounting
 			get => _mechanic;
 			set
 			{
-				Entity.MechanicFIO = value.FullName;
-				Entity.MechanicLastName = value.LastName;
+				if(value == null)
+				{
+					Entity.MechanicFIO = null;
+					Entity.MechanicLastName = null;
+				}
+				else
+				{
+					Entity.MechanicFIO = value.FullName;
+					Entity.MechanicLastName = value.LastName;
+				}
+				
 				_mechanic = value;
 			}
 		}
