@@ -8,6 +8,7 @@ using QS.Navigation;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QSOrmProject.RepresentationModel;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.GtkViews;
@@ -36,7 +37,11 @@ namespace Vodovoz.JournalViewers
 		private void ConfigureWidget()
 		{
 			vm = new ProductGroupVM {
-				Filter = new ProductGroupFilterViewModel()
+				Filter = new ProductGroupFilterViewModel
+				{
+					HidenByDefault = false,
+					HideArchive = true
+				}
 			};
 
 			productGroupFilterView = new ProductGroupFilterView(vm.Filter);
@@ -69,6 +74,7 @@ namespace Vodovoz.JournalViewers
 
 			#endregion
 			OnSelectionChanged(null, EventArgs.Empty);
+			buttonFilter.Click();
 		}
 
 		private void CreateBtnGroupEditing()
@@ -93,10 +99,15 @@ namespace Vodovoz.JournalViewers
 
 			if(firstSelectedItem.GetType() != typeof(NomenclatureGroupNode))
 			{
-				var selectDialog = new PermissionControlledRepresentationJournal(
-					new ProductGroupVM(vm.UoW, new ProductGroupFilterViewModel()), Buttons.None);
+				var viewModel = new ProductGroupVM(vm.UoW, new ProductGroupFilterViewModel
+				{
+					HideArchive = true,
+					HidenByDefault = false
+				});
+				var selectDialog = new PermissionControlledRepresentationJournal(viewModel, Buttons.None);
 				selectDialog.Name = "Выбор группы товаров, куда будут переноситься позиции";
 				selectDialog.Mode = JournalSelectMode.Single;
+				selectDialog.ShowFilter = true;
 				selectDialog.ObjectSelected += OnSelectDialogObjectSelected;
 				TabParent.AddSlaveTab(this, selectDialog);
 			}

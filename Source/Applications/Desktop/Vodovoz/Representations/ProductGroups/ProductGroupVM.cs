@@ -30,7 +30,7 @@ namespace Vodovoz.Representations.ProductGroups
 		{
 			UoW = uow;
 			CreateRepresentationFilter = () => {
-				filter = new ProductGroupFilterViewModel();
+				var filter = new ProductGroupFilterViewModel();
 				return filter;
 			};
 			
@@ -53,16 +53,9 @@ namespace Vodovoz.Representations.ProductGroups
 
 		private IList _filteredItemsList;
 		
-		private ProductGroupFilterViewModel filter;
 		public ProductGroupFilterViewModel Filter {
-			get => filter;
-			set 
-			{
-				if(filter != value) {
-					filter = value;
-					filter.OnFiltered += (sender, e) => UpdateNodes();
-				}
-			}
+			get => RepresentationFilter as ProductGroupFilterViewModel;
+			set => RepresentationFilter = value;
 		}
 
 		private IyTreeModel iyTreeModel;
