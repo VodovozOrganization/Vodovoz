@@ -24,6 +24,7 @@ using QSDocTemplates;
 using QS.DocTemplates;
 using System.IO;
 using NHibernate;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using Vodovoz.Domain.Logistic.Cars;
@@ -170,18 +171,25 @@ namespace Vodovoz.Additions.Accounting
 		public void GenerateDocuments()
 		{
 			WayBillSelectableDocuments.Clear();
+			var currentDateTime = DateTime.Now;
+			EmployeeRegistrationVersion employeeRegistrationVersionAlias = null;
+			EmployeeRegistration employeeRegistrationAlias = null;
 
-			var manOfficialWithCarEmployeers = _uow.Session.QueryOver<Employee>()
+			var manOfficialWithCarEmployees = _uow.Session.QueryOver<Employee>()
+				.JoinAlias(e => e.EmployeeRegistrationVersions, () => employeeRegistrationVersionAlias, JoinType.InnerJoin,
+					Restrictions.Where(() => employeeRegistrationVersionAlias.StartDate <= currentDateTime
+						&& (employeeRegistrationVersionAlias.EndDate == null || employeeRegistrationVersionAlias.EndDate >= currentDateTime)))
+				.JoinAlias(() => employeeRegistrationVersionAlias.EmployeeRegistration, () => employeeRegistrationAlias)
 				.Where(x => x.Gender == Gender.male)
 				.WhereStringIsNotNullOrEmpty(x => x.DrivingLicense)
-				.And(x => x.Registration == RegistrationType.LaborCode)
+				.And(() => employeeRegistrationAlias.RegistrationType == RegistrationType.LaborCode)
 				.List();
 
 			Car carAlias = null;
 			CarVersion carVersionAlias = null;
+			CarFuelVersion carFuelVersionAlias = null;
 			CarModel carModelAlias = null;
 			CarNode resultAlias = null;
-			var currentDateTime = DateTime.Now;
 
 			var carNodes = _uow.Session.QueryOver<Car>(() => carAlias)
 				.Inner.JoinAlias(c => c.CarModel, () => carModelAlias)
@@ -189,13 +197,17 @@ namespace Vodovoz.Additions.Accounting
 					() => carVersionAlias.Car.Id == carAlias.Id
 						&& carVersionAlias.StartDate <= currentDateTime &&
 						(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= currentDateTime))
+				.JoinEntityAlias(() => carFuelVersionAlias,
+					() => carFuelVersionAlias.CarModel.Id == carModelAlias.Id
+						&& carFuelVersionAlias.StartDate <= currentDateTime &&
+						(carFuelVersionAlias.EndDate == null || carFuelVersionAlias.EndDate >= currentDateTime))
 				.Where(() => carVersionAlias.CarOwnType == CarOwnType.Company)
 				.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse),
 					new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle }))
 				.SelectList(list => list
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.RegistrationNumber)
 					.Select(() => carAlias.FuelType).WithAlias(() => resultAlias.FuelType)
-					.Select(() => carAlias.FuelConsumption).WithAlias(() => resultAlias.FuelConsumption)
+					.Select(() => carFuelVersionAlias.FuelConsumption).WithAlias(() => resultAlias.FuelConsumption)
 					.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
 					.Select(() => carAlias.DocPTSSeries).WithAlias(() => resultAlias.DocPTSSeries)
 					.Select(() => carAlias.DocPTSNumber).WithAlias(() => resultAlias.DocPTSNumber))
@@ -206,13 +218,13 @@ namespace Vodovoz.Additions.Accounting
 			var employeeToCars = new Dictionary<Employee, CarNode>();
 			Stack<CarNode> carsStack = new Stack<CarNode>(carNodes);
 
-			if(carNodes.Count < manOfficialWithCarEmployeers.Count)
+			if(carNodes.Count < manOfficialWithCarEmployees.Count)
 			{
 				MessageDialogHelper.RunWarningDialog("Количество водителей больше количества автомобилей");
 				return;
 			}
 
-			foreach(var employee in manOfficialWithCarEmployeers)
+			foreach(var employee in manOfficialWithCarEmployees)
 			{
 				employeeToCars[employee] = carsStack.Pop();
 			}

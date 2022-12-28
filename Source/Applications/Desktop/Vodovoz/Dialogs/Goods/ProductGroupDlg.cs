@@ -8,6 +8,7 @@ using QS.Project.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Representations;
+using Vodovoz.Representations.ProductGroups;
 
 namespace Vodovoz.Dialogs.Goods
 {
@@ -50,7 +51,11 @@ namespace Vodovoz.Dialogs.Goods
 			};
 			
 			entryParent.JournalButtons = Buttons.None;
-			entryParent.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel());
+			entryParent.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel
+			{
+				HidenByDefault = false,
+				HideArchive = true
+			});
 			entryParent.Binding.AddBinding(Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
 
 			checklistCharacteristics.EnumType = typeof(NomenclatureProperties);

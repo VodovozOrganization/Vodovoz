@@ -1,12 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using Gamma.GtkWidgets;
-using InstantSmsService;
+﻿using Gamma.GtkWidgets;
 using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Services;
 using QS.Utilities.Numeric;
+using Sms.Internal;
+using Sms.Internal.Client;
 using SmsPaymentService;
+using System;
+using System.Linq;
+using System.Text;
+using InstantSmsService;
 using Vodovoz.Additions;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -14,8 +17,13 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Sms;
+using Vodovoz.Settings.Sms;
 using Vodovoz.SidePanel.InfoProviders;
+using SmsSender = Vodovoz.Additions.SmsSender;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -27,6 +35,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
 		private readonly IPermissionResult _orderPermissionResult;
 		private readonly IInteractiveService _interactiveService;
+		private readonly ISmsSettings _smsSettings;
+		private readonly SmsClientChannelFactory _smsClientChannelFactory;
 		private readonly PhoneFormatter _phoneFormatter;
 		private static readonly SmsPaymentStatus[] _excludeSmsPaymentStatuses =
 			{ SmsPaymentStatus.ReadyToSend, SmsPaymentStatus.Cancelled };
@@ -64,6 +74,10 @@ namespace Vodovoz.SidePanel.InfoViews
 				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 			_canSendSmsForPayFromYookassa = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_yookassa");
 			_canSendSmsForPayFromSbpByCard = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_sbp_by_card");
+			var settingsController = new SettingsController(UnitOfWorkFactory.GetDefaultFactory);
+			_smsSettings = new SmsSettings(settingsController, MainClass.DataBaseInfo);
+			_smsClientChannelFactory = new SmsClientChannelFactory(_smsSettings);
+
 			Configure();
 		}
 

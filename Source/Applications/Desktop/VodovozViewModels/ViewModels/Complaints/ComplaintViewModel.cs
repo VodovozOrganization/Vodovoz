@@ -10,7 +10,6 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
@@ -20,11 +19,9 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -47,16 +44,15 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly IEmployeeService _employeeService;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IFileDialogService _fileDialogService;
 
 		private readonly bool _canAddGuiltyInComplaintsPermissionResult;
 		private readonly bool _canCloseComplaintsPermissionResult;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-		public IFileDialogService FileDialogService { get; }
-		public ISubdivisionRepository SubdivisionRepository { get; }
-		public IEmployeeService EmployeeService { get; }
-		public INomenclatureRepository NomenclatureRepository { get; }
-		public IUserRepository UserRepository { get; }
 
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -67,44 +63,37 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
-			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory driverJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IGtkTabsOpener gtkDialogsOpener,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelector,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider) : base(uowBuilder, uowFactory, commonServices)
 		{
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			FileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			EmployeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
-			UndeliveredOrdersRepository =
-				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
 			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			GtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			UndeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			
+			if(orderSelectorFactory == null)
+			{
+				throw new ArgumentNullException(nameof(orderSelectorFactory));
+			}
 
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
@@ -140,6 +129,23 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				ComplaintResultsOfEmployees = _complaintResultsRepository.GetActiveResultsOfEmployees(UoW);
 			}
+			
+			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
+		}
+
+		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
+		{
+			var orderFilter =
+				new OrderJournalFilterViewModel(CounterpartyJournalFactory, DeliveryPointJournalFactory, EmployeeJournalFactory);
+			
+			if(Entity.Counterparty != null)
+			{
+				orderFilter.RestrictCounterparty = Entity.Counterparty;
+			}
+			
+			OrderAutocompleteSelectorFactory =
+				(orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
+				.CreateOrderAutocompleteSelectorFactory(orderFilter);
 		}
 
 		public bool AskSaveOnClose => CanEdit;
@@ -206,7 +212,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null) {
-					currentEmployee = EmployeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId);
+					currentEmployee = _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId);
 				}
 				return currentEmployee;
 			}
@@ -226,13 +232,13 @@ namespace Vodovoz.ViewModels.Complaints
 						Entity,
 						this,
 						UoW,
-						FileDialogService,
-						EmployeeService,
+						_fileDialogService,
+						_employeeService,
 						CommonServices,
 						_employeeSelectorFactory,
 						_salesPlanJournalFactory,
 						NomenclatureSelector,
-						UserRepository
+						_userRepository
 					);
 				}
 				return discussionsViewModel;
@@ -247,7 +253,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, SubdivisionRepository, _employeeSelectorFactory, SubdivisionParametersProvider);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory, SubdivisionParametersProvider);
 				}
 
 				return guiltyItemsViewModel;
@@ -262,7 +268,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				if(filesViewModel == null)
 				{
-					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, FileDialogService, CommonServices, UserRepository);
+					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, _userRepository);
 				}
 				return filesViewModel;
 			}
@@ -391,7 +397,7 @@ namespace Vodovoz.ViewModels.Complaints
 					var fineJournalViewModel = new FinesJournalViewModel(
 						fineFilter,
 						_undeliveryViewOpener,
-						EmployeeService,
+						_employeeService,
 						_employeeSelectorFactory,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						_employeeSettings,
@@ -426,7 +432,7 @@ namespace Vodovoz.ViewModels.Complaints
 						EntityUoWBuilder.ForCreate(),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						_undeliveryViewOpener,
-						EmployeeService,
+						_employeeService,
 						_employeeSelectorFactory,
 						_employeeSettings,
 						CommonServices
@@ -461,16 +467,12 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#endregion Commands
 
-		public IOrderSelectorFactory OrderSelectorFactory { get; }
-		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
-		public IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
-		public ISubdivisionJournalFactory SubdivisionJournalFactory { get; }
-		public IGtkTabsOpener GtkDialogsOpener { get; }
-		public IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener { get; }
-		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
-		public INomenclatureJournalFactory NomenclatureSelector { get; }
-		public ISubdivisionParametersProvider SubdivisionParametersProvider { get; set; }
+		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
+		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		private ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
+		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
+		private INomenclatureJournalFactory NomenclatureSelector { get; }
+		private ISubdivisionParametersProvider SubdivisionParametersProvider { get; }
 
 		public void CloseComplaint(ComplaintStatuses status)
 		{

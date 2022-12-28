@@ -24,7 +24,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="order">Заказ</param>
 		int Get19LWatterQtyForOrder(IUnitOfWork uow, Order order);
 
-		IList<Order> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district);
+		IList<Order> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, int districtId);
 
 		/// <summary>
 		/// Список МЛ для заказа, отсортированный в порядке владения этим заказом, в случае переносов

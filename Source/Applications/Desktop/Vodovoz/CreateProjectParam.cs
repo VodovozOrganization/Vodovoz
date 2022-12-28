@@ -1,7 +1,3 @@
-﻿using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
-using System.Reflection;
 using Autofac;
 using QS.Deletion;
 using QS.Deletion.Configuration;
@@ -13,9 +9,11 @@ using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Dialog.ViewModels;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Permissions;
+using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
@@ -26,6 +24,7 @@ using QS.Report.ViewModels;
 using QS.Report.Views;
 using QS.Services;
 using QS.Tdi;
+using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using QS.ViewModels.Resolve;
@@ -33,6 +32,12 @@ using QS.Views.Resolve;
 using QS.Widgets.GtkUI;
 using QSProjectsLib;
 using QSReport;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
@@ -43,6 +48,7 @@ using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
@@ -65,10 +71,12 @@ using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
+using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.Services;
 using Vodovoz.Services.Permissions;
 using Vodovoz.TempAdapters;
@@ -78,12 +86,14 @@ using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Dialogs.Roboats;
+using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Goods;
@@ -110,6 +120,7 @@ using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels.ViewModels;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Complaints;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Flyers;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -120,6 +131,7 @@ using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.ViewModels.ViewModels.Rent;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Retail;
 using Vodovoz.ViewModels.ViewModels.Security;
@@ -150,6 +162,7 @@ using Vodovoz.Views.Rent;
 using Vodovoz.Views.Reports;
 using Vodovoz.Views.Retail;
 using Vodovoz.Views.Roboats;
+using Vodovoz.Views.Sale;
 using Vodovoz.Views.Security;
 using Vodovoz.Views.Settings;
 using Vodovoz.Views.Store;
@@ -157,6 +170,7 @@ using Vodovoz.Views.Suppliers;
 using Vodovoz.Views.Users;
 using Vodovoz.Views.WageCalculation;
 using Vodovoz.Views.Warehouse;
+using Vodovoz.ViewWidgets;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
@@ -181,6 +195,7 @@ using Vodovoz.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 
@@ -188,6 +203,8 @@ namespace Vodovoz
 {
 	partial class MainClass
 	{
+		internal static IDataBaseInfo DataBaseInfo;
+
 		static void CreateProjectParam()
 		{
 			UserDialog.RequestWidth = 900;
@@ -470,6 +487,7 @@ namespace Vodovoz
 			#region База
 
 			builder.Register(c => UnitOfWorkFactory.GetDefaultFactory).As<IUnitOfWorkFactory>();
+			builder.RegisterInstance(DataBaseInfo).As<IDataBaseInfo>();
 
 			#endregion
 
@@ -494,6 +512,7 @@ namespace Vodovoz
 			builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
 
 			builder.RegisterType<EntityDeleteWorker>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<CommonMessages>().AsSelf();
 
 			#endregion
 

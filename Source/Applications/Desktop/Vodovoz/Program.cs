@@ -9,7 +9,6 @@ using QS.Utilities.Text;
 using QS.Widgets.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
-using InstantSmsService;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using QS.ErrorReporting;
@@ -23,6 +22,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using GMap.NET.MapProviders;
+using InstantSmsService;
 using MySql.Data.MySqlClient;
 using QS.BaseParameters;
 using QS.ChangePassword.Views;
@@ -93,6 +93,8 @@ namespace Vodovoz
 			LoginResult = (ResponseType)LoginDialog.Run ();
 			if (LoginResult == ResponseType.DeleteEvent || LoginResult == ResponseType.Cancel)
 				return;
+
+			DataBaseInfo = new Vodovoz.Infrastructure.Database.DatabaseInfo(LoginDialog.BaseName, false);
 
 			LoginDialog.Destroy ();
 
@@ -282,7 +284,6 @@ namespace Vodovoz
 					InstantSmsServiceSetting.Init(parametersProvider.GetParameterValue("sms_service_address"));
 				}
 			}
-			
 			if(parametersProvider.ContainsParameter("sms_payment_send_enabled_database") && parametersProvider.ContainsParameter("sms_payment_send_service_address")) {
 				if(parametersProvider.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName) {
 					SmsPaymentServiceSetting.Init(parametersProvider.GetParameterValue("sms_payment_send_service_address"));

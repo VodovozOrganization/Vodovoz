@@ -1,16 +1,10 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Widgets;
-using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -20,7 +14,7 @@ namespace Vodovoz.Views.Complaints
 	{
 		public ComplaintView(ComplaintViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
@@ -62,34 +56,7 @@ namespace Vodovoz.Views.Complaints
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			lblAddress.Binding.AddBinding(ViewModel, s => s.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
-			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
-				var filter = new OrderJournalFilterViewModel(ViewModel.CounterpartyJournalFactory, ViewModel.DeliveryPointJournalFactory, ViewModel.EmployeeJournalFactory);
-				
-				if(ViewModel.Entity.Counterparty != null) {
-					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
-				}
-				
-				return new OrderJournalViewModel(filter, 
-												UnitOfWorkFactory.GetDefaultFactory, 
-												ServicesConfig.CommonServices,
-												ViewModel.EmployeeService,
-												ViewModel.NomenclatureRepository,
-												ViewModel.UserRepository,
-												ViewModel.OrderSelectorFactory,
-												ViewModel.EmployeeJournalFactory,
-												ViewModel.CounterpartyJournalFactory,
-												ViewModel.DeliveryPointJournalFactory,
-												ViewModel.SubdivisionJournalFactory,
-												ViewModel.GtkDialogsOpener,
-												ViewModel.UndeliveredOrdersJournalOpener,
-												ViewModel.NomenclatureSelector,
-												ViewModel.UndeliveredOrdersRepository,
-												ViewModel.SubdivisionRepository,
-												ViewModel.FileDialogService,
-												ViewModel.SubdivisionParametersProvider);
-			});
-
-			entryOrder.SetEntityAutocompleteSelectorFactory(orderSelectorFactory);
+			entryOrder.SetEntityAutocompleteSelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
 			entryOrder.Binding.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();

@@ -5,6 +5,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using System.Collections.Generic;
+using QS.Navigation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -21,13 +22,13 @@ using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Endpoints;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.TempAdapters
 {
 	public class EmployeeJournalFactory : IEmployeeJournalFactory
 	{
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
+		private readonly INavigationManager _navigationManager;
 		private EmployeeFilterViewModel _employeeJournalFilter;
 		private IAuthorizationServiceFactory _authorizationServiceFactory;
 		private IEmployeeWageParametersFactory _employeeWageParametersFactory;
@@ -44,8 +45,7 @@ namespace Vodovoz.TempAdapters
 		private IRouteListRepository _routeListRepository;
 		private IAttachmentsViewModelFactory _attachmentsViewModelFactory;
 
-		public EmployeeJournalFactory(
-			EmployeeFilterViewModel employeeJournalFilter = null)
+		public EmployeeJournalFactory(EmployeeFilterViewModel employeeJournalFilter = null)
 		{
 			var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
 
@@ -66,6 +66,7 @@ namespace Vodovoz.TempAdapters
 			_validationContextFactory = new ValidationContextFactory();
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 			_attachmentsViewModelFactory = new AttachmentsViewModelFactory();
+			_navigationManager = MainClass.MainWin.NavigationManager;
 		}
 
 		private void CreateNewDependencies()
@@ -103,7 +104,8 @@ namespace Vodovoz.TempAdapters
 				_driverApiUserRegisterEndpoint,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory,
-				_attachmentsViewModelFactory
+				_attachmentsViewModelFactory,
+				_navigationManager
 			);
 		}
 
@@ -201,7 +203,8 @@ namespace Vodovoz.TempAdapters
 						_driverApiUserRegisterEndpoint,
 						ServicesConfig.CommonServices,
 						UnitOfWorkFactory.GetDefaultFactory,
-						_attachmentsViewModelFactory
+						_attachmentsViewModelFactory,
+						_navigationManager
 					);
 				}
 			);

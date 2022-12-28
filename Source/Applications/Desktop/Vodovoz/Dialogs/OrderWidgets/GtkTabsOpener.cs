@@ -15,11 +15,27 @@ namespace Vodovoz.Dialogs.OrderWidgets
 {
 	public class GtkTabsOpener : IGtkTabsOpener
 	{
+		public ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment) =>
+			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment};
+		
+		public ITdiTab CreateOrderDlg(int? orderId) => orderId.HasValue ? new OrderDlg(orderId.Value) : new OrderDlg();
+
 		public void OpenOrderDlg(ITdiTab tab, int id)
 		{
 			tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Order>(id),
-				() => new OrderDlg(id)
+				() => CreateOrderDlg(id)
+			);
+		}
+		
+		public void OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		{
+			var dlg = new OrderDlg();
+			dlg.CopyLesserOrderFrom(copiedOrderId);
+			
+			tab.TabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<Order>(65656),
+				() => dlg
 			);
 		}
 
@@ -28,6 +44,14 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(id),
 				() => new RouteListCreateDlg(id)
+			);
+		}
+		
+		public void OpenRouteListKeepingDlg(ITdiTab tab, int routeListId, int[] selectedOrdersIds)
+		{
+			tab.TabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
+				() => new RouteListKeepingDlg(routeListId, selectedOrdersIds)
 			);
 		}
 
