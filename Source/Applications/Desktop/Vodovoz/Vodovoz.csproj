@@ -465,8 +465,16 @@
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
+    <Compile Include="Representations\ProductGroups\INameNode.cs" />
+    <Compile Include="Representations\ProductGroups\NomenclatureGroupNode.cs" />
+    <Compile Include="Representations\ProductGroups\NomenclatureNode.cs" />
+    <Compile Include="Representations\ProductGroups\ProductGroupVM.cs" />
+    <Compile Include="Representations\ProductGroups\ProductGroupVMNode.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
+    <Compile Include="TreeModels\IModelConfig.cs" />
+    <Compile Include="TreeModels\ModelConfig.cs" />
+    <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
     <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
@@ -478,7 +486,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CashBookReport.cs" />
     <Compile Include="ReportsParameters\Orders\OrderChangesReport.cs" />
     <Compile Include="ReportsParameters\Sales\SalesReport.cs" />
-    <Compile Include="Representations\ProductGroupVM.cs" />
     <Compile Include="ServiceDialogs\CastomInteractiveService.cs" />
     <Compile Include="ServiceDialogs\CastomMessageDialogHelper.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Catalogs\AccountCatalog.cs" />

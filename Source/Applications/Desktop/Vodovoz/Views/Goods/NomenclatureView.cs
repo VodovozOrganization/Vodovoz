@@ -16,6 +16,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Representations;
+using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 

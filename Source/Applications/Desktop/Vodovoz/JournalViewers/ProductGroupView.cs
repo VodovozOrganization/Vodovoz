@@ -1,22 +1,32 @@
 ﻿using System;
 using System.Linq;
-using QS.Deletion;
+using Gtk;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
+using QS.Navigation;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
+using QS.Project.Domain;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Representations;
+using Vodovoz.Representations.ProductGroups;
+using Vodovoz.ViewModels.Dialogs.Goods;
 
 namespace Vodovoz.JournalViewers
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ProductGroupView : TdiTabBase
 	{
+		private Button _btnGroupEditing;
+		private object[] _selectedItems;
+
 		public ProductGroupView()
 		{
-			this.Build();
-			this.TabName = "Группы товаров";
+			Build();
+			TabName = "Группы товаров";
 			ConfigureWidget();
 		}
 
@@ -38,15 +48,16 @@ namespace Vodovoz.JournalViewers
 			vm.UpdateNodes();
 			tableProductGroup.ColumnsConfig = vm.ColumnsConfig;
 			tableProductGroup.YTreeModel = vm.YTreeModel;
+			tableProductGroup.Selection.Mode = SelectionMode.Multiple;
+			buttonDelete.Visible = false;
+			CreateBtnGroupEditing();
 			
 			#region SignalsConnect
 			
 			btnAdd.Clicked += OnButtonAddClicked;
-			buttonDelete.Clicked += OnButtonDeleteClicked;
-			buttonRefresh.Clicked += (sender, args) => { vm.UpdateNodes(); tableProductGroup.YTreeModel = vm.YTreeModel; };
+			buttonRefresh.Clicked += (sender, args) => UpdateData();
 			buttonFilter.Clicked += OnButtonFilterClicked;
 			tableProductGroup.Selection.Changed += OnSelectionChanged;
-			
 			buttonEdit.Clicked += OnButtonEditClicked;
 			searchentity.TextChanged += OnSearchEntryTextChanged;
 			tableProductGroup.RowActivated += (o, args) => { buttonEdit.Click(); };
@@ -57,6 +68,92 @@ namespace Vodovoz.JournalViewers
 			};
 
 			#endregion
+			OnSelectionChanged(null, EventArgs.Empty);
+		}
+
+		private void CreateBtnGroupEditing()
+		{
+			_btnGroupEditing = new Button("Перенос в другую группу");
+			_btnGroupEditing.Clicked += OnBtnGroupEditingClicked;
+			hbox1.Add(_btnGroupEditing);
+			var box = (Box.BoxChild)hbox1[_btnGroupEditing];
+			box.Position = 3;
+			box.Expand = false;
+			_btnGroupEditing.Show();
+		}
+
+		private void OnBtnGroupEditingClicked(object sender, EventArgs e)
+		{
+			var firstSelectedItem = _selectedItems.FirstOrDefault();
+
+			if(firstSelectedItem == null)
+			{
+				return;
+			}
+
+			if(firstSelectedItem.GetType() != typeof(NomenclatureGroupNode))
+			{
+				var selectDialog = new PermissionControlledRepresentationJournal(
+					new ProductGroupVM(vm.UoW, new ProductGroupFilterViewModel()), Buttons.None);
+				selectDialog.Name = "Выбор группы товаров, куда будут переноситься позиции";
+				selectDialog.Mode = JournalSelectMode.Single;
+				selectDialog.ObjectSelected += OnSelectDialogObjectSelected;
+				TabParent.AddSlaveTab(this, selectDialog);
+			}
+		}
+
+		private void OnSelectDialogObjectSelected(object sender, JournalObjectSelectedEventArgs e)
+		{
+			var selectedProductGroup = e.Selected.FirstOrDefault();
+
+			if(selectedProductGroup == null)
+			{
+				return;
+			}
+			if(!(selectedProductGroup is ProductGroupVMNode productGroupNode))
+			{
+				MessageDialogHelper.RunWarningDialog("Выбрана не товарная группа!");
+				return;
+			}
+
+			var productGroup = vm.UoW.GetById<ProductGroup>(productGroupNode.Id);
+
+			if(_selectedItems.FirstOrDefault() is ProductGroupVMNode)
+			{
+				var productGroups = vm.UoW.Session.QueryOver<ProductGroup>()
+					.WhereRestrictionOn(pg => pg.Id)
+					.IsInG(_selectedItems.Select(x => x.GetId()))
+					.List();
+
+				foreach(var item in productGroups)
+				{
+					item.Parent = productGroup;
+					vm.UoW.Save(item);
+				}
+				vm.UoW.Commit();
+			}
+			else if(_selectedItems.FirstOrDefault() is NomenclatureNode)
+			{
+				var productGroups = vm.UoW.Session.QueryOver<Nomenclature>()
+					.WhereRestrictionOn(n => n.Id)
+					.IsInG(_selectedItems.Select(x => x.GetId()))
+					.List();
+
+				foreach(var item in productGroups)
+				{
+					item.ProductGroup = productGroup;
+					vm.UoW.Save(item);
+				}
+				vm.UoW.Commit();
+			}
+			
+			UpdateData();
+		}
+
+		private void UpdateData()
+		{
+			vm.UpdateNodes();
+			tableProductGroup.YTreeModel = vm.YTreeModel;
 		}
 
 		private void OnButtonAddClicked(object sender, EventArgs e)
@@ -66,24 +163,11 @@ namespace Vodovoz.JournalViewers
 				() =>
 				{
 					var productGroupDlg = new ProductGroupDlg();
-					productGroupDlg.EntitySaved += (o, args) => {
-						vm.UpdateNodes();
-						tableProductGroup.YTreeModel = vm.YTreeModel;
-					};
+					productGroupDlg.EntitySaved += (o, args) => UpdateData();
 					return productGroupDlg;
 				}, 
 				this
 			);
-		}
-
-		private void OnButtonDeleteClicked(object sender, EventArgs e)
-        {
-        	var selected = tableProductGroup.GetSelectedObjects().OfType<ProductGroupVMNode>();
-        	foreach(var item in selected)
-        		DeleteHelper.DeleteEntity(typeof(ProductGroup), item.Id);
-
-        	vm.UpdateNodes();
-            tableProductGroup.YTreeModel = vm.YTreeModel;
 		}
 
 		private void OnButtonFilterClicked(object sender, EventArgs e)
@@ -93,20 +177,26 @@ namespace Vodovoz.JournalViewers
 
 		private void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			var selectedNode = tableProductGroup.GetSelectedObjects().OfType<ProductGroupVMNode>().FirstOrDefault();
-			if(selectedNode != null) {
-				TabParent.OpenTab(
-					DialogHelper.GenerateDialogHashName<ProductGroup>(selectedNode.Id),
-					() => {
-						var dlg = new ProductGroupDlg(selectedNode.Id);
-						dlg.EntitySaved += (s, ea) => {
-							vm.UpdateNodes();
-							tableProductGroup.YTreeModel = vm.YTreeModel;
-						};
-						return dlg;
-					},
-					this
-				);
+			var selectedNode = _selectedItems.FirstOrDefault();
+
+			switch(selectedNode)
+			{
+				case ProductGroupVMNode productGroupNode:
+					var pageProductGroup = MainClass.MainWin.NavigationManager.OpenTdiTabOnTdi<ProductGroupDlg, int>(
+						this, productGroupNode.Id, OpenPageOptions.AsSlave);
+					
+					if(pageProductGroup.TdiTab is ProductGroupDlg dlg)
+					{
+						dlg.EntitySaved += (o, args) => UpdateData();
+					}
+					break;
+				case NomenclatureNode nomenclatureNode:
+					var pageNomenclature = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclatureViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForOpen(nomenclatureNode.Id), OpenPageOptions.AsSlave);
+					pageNomenclature.ViewModel.EntitySaved += (o, args) => UpdateData();
+					break;
+				default:
+					return;
 			}
 		}
 
@@ -123,10 +213,22 @@ namespace Vodovoz.JournalViewers
 
 		private void OnSelectionChanged(object sender, EventArgs e)
 		{
-			bool isSensitive = tableProductGroup.Selection.CountSelectedRows() > 0;
+			_selectedItems = tableProductGroup.GetSelectedObjects();
+			var isSelected = _selectedItems.Length > 0;
+			buttonEdit.Sensitive = isSelected;
+			buttonDelete.Sensitive = isSelected;
+			_btnGroupEditing.Sensitive = isSelected && SelectedItemsHasSameType();
+		}
 
-			buttonEdit.Sensitive = isSensitive;
-			buttonDelete.Sensitive = isSensitive;
+		private bool SelectedItemsHasSameType()
+		{
+			var firstItemType = _selectedItems.First().GetType();
+
+			if(firstItemType == typeof(ProductGroupVMNode))
+			{
+				return _selectedItems.All(x => x.GetType() == typeof(ProductGroupVMNode));
+			}
+			return firstItemType == typeof(NomenclatureNode) && _selectedItems.All(x => x.GetType() == typeof(NomenclatureNode));
 		}
 	}
 }

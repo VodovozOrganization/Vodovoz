@@ -8,6 +8,7 @@ using QS.Project.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Representations;
+using Vodovoz.Representations.ProductGroups;
 
 namespace Vodovoz.Dialogs.Goods
 {
