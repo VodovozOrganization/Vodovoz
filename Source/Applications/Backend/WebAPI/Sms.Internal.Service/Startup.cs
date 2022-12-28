@@ -56,13 +56,11 @@ namespace Sms.Internal.Service
 
 			app.UseRouting();
 
-			app.UseGrpcWeb();
-
 			app.UseMiddleware<ApiKeyMiddleware>();
 
 			app.UseEndpoints(endpoints =>
 			{
-				endpoints.MapGrpcService<SmsService>().EnableGrpcWeb();
+				endpoints.MapGrpcService<SmsService>();
 			});
 		}
 
