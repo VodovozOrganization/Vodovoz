@@ -9,6 +9,7 @@ using SmsPaymentService;
 using System;
 using System.Linq;
 using System.Text;
+using InstantSmsService;
 using Vodovoz.Additions;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -22,6 +23,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Sms;
 using Vodovoz.Settings.Sms;
 using Vodovoz.SidePanel.InfoProviders;
+using SmsSender = Vodovoz.Additions.SmsSender;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -226,7 +228,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			if(!_smsSettings.SmsSendingAllowed)
+			if(!InstantSmsServiceSetting.SendingAllowed)
 			{
 				return;
 			}
@@ -257,23 +259,23 @@ namespace Vodovoz.SidePanel.InfoViews
 			});
 
 			var isQr = (btn as yButton)?.Name == nameof(btnSendFastPaymentPayByQrUrlBySms);
-			var fastPaymentSender = new FastPaymentSender(_fastPaymentParametersProvider, _smsClientChannelFactory, _smsSettings);
-			var resultTask = fastPaymentSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text, isQr);
+			var smsSender = new SmsSender(_fastPaymentParametersProvider, InstantSmsServiceSetting.GetInstantSmsService());
+			var resultTask = smsSender.SendFastPaymentUrlAsync(_order, validatedPhoneEntry.Text, isQr);
 			resultTask.Wait();
 			var result = resultTask.Result;
 
-			switch(result.Status)
+			switch(result.MessageStatus)
 			{
-				case ResultStatus.Ok:
+				case SmsMessageStatus.Ok:
 					_interactiveService.ShowMessage(ImportanceLevel.Info, "SMS отправлена успешно");
 					break;
-				case ResultStatus.Error:
-					if(result.OrderAlreadyPaied)
+				case SmsMessageStatus.Error:
+					if(result.IsPaidStatus)
 					{
 						_isPaidOrder = true;
 						ySendSmsButton.Sensitive = false;
 					}
-					_interactiveService.ShowMessage(ImportanceLevel.Error, result.ErrorMessage, "Не удалось отправить SMS");
+					_interactiveService.ShowMessage(ImportanceLevel.Error, result.ErrorDescription, "Не удалось отправить SMS");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
