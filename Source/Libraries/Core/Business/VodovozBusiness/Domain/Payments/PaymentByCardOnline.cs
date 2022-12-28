@@ -208,6 +208,9 @@ namespace Vodovoz.Domain.Payments
 				case PaymentByCardOnlineFrom.FromVodovozWebSite:
 					matches = Regex.Matches(description, pattern3);
 					return matches[0].Groups[1].Value;
+				case PaymentByCardOnlineFrom.FromMobileApp:
+					matches = Regex.Matches(description, pattern2);
+					return matches[0].Groups[1].Value;
 				case PaymentByCardOnlineFrom.FromSMS:
 					matches = Regex.Matches(description, pattern2); // Проверяем по паттерну (№ заказа)
 
@@ -306,6 +309,7 @@ namespace Vodovoz.Domain.Payments
 		FromVodovozWebSite,
 		FromEShop,
 		FromSMS,
-		FromTinkoff
+		FromTinkoff,
+		FromMobileApp
 	}
 }
