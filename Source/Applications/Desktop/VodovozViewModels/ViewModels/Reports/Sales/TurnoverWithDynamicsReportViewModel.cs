@@ -55,6 +55,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private DynamicsInEnum _dynamicsIn;
 		private bool _showLastSale;
 		private TurnoverWithDynamicsReport _report;
+		private bool _isSaving;
 
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -140,6 +141,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			get => _report;
 			private set => SetField(ref _report, value);
+		}
+
+		public bool IsSaving
+		{
+			get => _isSaving;
+			set => SetField(ref _isSaving, value);
 		}
 
 		public DelegateCommand LoadReportCommand

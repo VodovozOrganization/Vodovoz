@@ -1,10 +1,11 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using Gtk;
 using QS.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.ViewModels.Reports.Sales;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel;
 
@@ -169,6 +170,63 @@ namespace Vodovoz.ReportsParameters.Sales
 			_filterView = new SelectableParameterReportFilterView(ViewModel.FilterViewModel);
 			vboxParameters.Add(_filterView);
 			_filterView.Show();
+		}
+
+		protected async void OnYbuttonSaveClicked(object sender, EventArgs e)
+		{
+			var extension = ".xlsx";
+
+			var filechooser = new FileChooserDialog("Сохранить отчет...",
+				null,
+				FileChooserAction.Save,
+				"Отменить", ResponseType.Cancel,
+				"Сохранить", ResponseType.Accept)
+			{
+				DoOverwriteConfirmation = true,
+				CurrentName = $"{Tab.TabName} {ViewModel.Report.CreatedAt:yyyy-MM-dd-HH-mm}{extension}"
+			};
+
+			var excelFilter = new FileFilter
+			{
+				Name = $"Документ Microsoft Excel ({extension})"
+			};
+
+			excelFilter.AddMimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			excelFilter.AddPattern($"*{extension}");
+			filechooser.AddFilter(excelFilter);
+
+			if(filechooser.Run() == (int)ResponseType.Accept)
+			{
+				var path = filechooser.Filename;
+
+				if(!path.Contains(extension))
+				{
+					path += extension;
+				}
+
+				filechooser.Hide();
+
+				ViewModel.IsSaving = true;
+
+				await Task.Run(() =>
+				{
+					try
+					{
+						ybuttonSave.Label = "Отчет сохраняется...";
+						ViewModel.ExportReport(path);
+					}
+					finally
+					{
+						Application.Invoke((s, eventArgs) =>
+						{
+							ViewModel.IsSaving = false;
+							ybuttonSave.Label = "Сохранить";
+						});
+					}
+				});
+			}
+
+			filechooser.Destroy();
 		}
 	}
 }
