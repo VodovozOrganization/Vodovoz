@@ -3709,13 +3709,13 @@ namespace Vodovoz
 				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
 				return;
 			}
-			
+
 			ylblCounterpartyFIO.Text = Entity.Client.FullName;
 			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
 
 			ylblPhoneNumber.Text = Entity.DeliveryPoint?.Phones.Count > 0
-				? string.Join(", ", Entity.DeliveryPoint.Phones.Where(p => !p.IsArchive).Select(p => p.DigitsNumber))
-				: string.Join(", ", Entity.Client.Phones.Where(p => !p.IsArchive).Select(p => p.DigitsNumber));
+				? string.Join(", ", Entity.DeliveryPoint.Phones.Where(p => !p.IsArchive).Select(p => $"+7 {p.Number}"))
+				: string.Join(", ", Entity.Client.Phones.Where(p => !p.IsArchive).Select(p => $"+7 {p.Number}"));
 
 			ylblDeliveryDate.Text = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
 			ylblDeliveryInterval.Text = Entity.DeliverySchedule?.DeliveryTime;
@@ -3764,6 +3764,12 @@ namespace Vodovoz
 
 			ylblBottlesPlannedToReturn.Text = $"{ Entity.BottlesReturn ?? 0 } бут.";
 
+			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
+			var paymentType = !isPaymentTypeCash
+				? Entity.PaymentType.GetEnumTitle()
+				: Entity.PaymentByQr
+					? "Оплата по QR"
+					: Entity.PaymentType.GetEnumTitle();
 			var isIncorrectLegalClientPaymentType = Entity.Client.PersonType == PersonType.legal && Entity.PaymentType != Entity.Client.PaymentMethod;
 			ylblPaymentType.LabelProp = isIncorrectLegalClientPaymentType
 				? $"<span foreground='red'>{ Entity.PaymentType.GetEnumTitle() }</span>"
@@ -3771,12 +3777,13 @@ namespace Vodovoz
 
 			ylblPlannedSum.Text = $"{ Entity.OrderPositiveSum } руб.";
 
-			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
 			ylblTrifleFrom.Visible = isPaymentTypeCash;
 			lblTrifleFrom.Visible = isPaymentTypeCash;
 			ylblTrifleFrom.Text = isPaymentTypeCash
 								? $"{ Entity.Trifle ?? 0 } руб."
 								: "";
+
+			lblContactlessDeliveryText.Text = Entity.ContactlessDelivery ? "Да" : "Нет";
 
 			ylblCommentForDriver.Text = Entity.HasCommentForDriver ? Entity.Comment : "";
 
