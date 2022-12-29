@@ -3710,8 +3710,8 @@ namespace Vodovoz
 				return;
 			}
 
-			ylblCounterpartyFIO.Text = Entity.Client.FullName;
-			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
+			ylblCounterpartyFIO.Text = Entity.Client.FullName.ToUpper();
+			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress.ToUpper() ?? "";
 
 			ylblPhoneNumber.Text = Entity.DeliveryPoint?.Phones.Count > 0
 				? string.Join(", ", Entity.DeliveryPoint.Phones.Where(p => !p.IsArchive).Select(p => $"+7 {p.Number}"))
@@ -3724,7 +3724,7 @@ namespace Vodovoz
 			ylblDocumentSigning.Visible = isPaymentTypeCashless;
 			lblDocumentSigning.Visible = isPaymentTypeCashless;
 			ylblDocumentSigning.Text = isPaymentTypeCashless
-				? Entity.SignatureType?.GetEnumTitle() ?? ""
+				? Entity.SignatureType?.GetEnumTitle().ToUpper() ?? ""
 				: "";
 
 			var hasOrderItems = Entity.OrderItems.Count > 0;
@@ -3732,7 +3732,7 @@ namespace Vodovoz
 			lblGoods.Visible = hasOrderItems;
 			ylblGoods.Text = hasOrderItems
 				? string.Join("\n",
-					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name } - { oi.Count.ToString("F" + (oi.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oi.Nomenclature.Unit?.Name }"))
+					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name.ToUpper() } - { oi.Count.ToString("F" + (oi.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oi.Nomenclature.Unit?.Name }"))
 				: "";
 
 			var hasOrderEquipments = Entity.OrderEquipments.Count > 0;
@@ -3740,7 +3740,7 @@ namespace Vodovoz
 			lblEquipment1.Visible = hasOrderEquipments;
 			ylblEquipment.Text = hasOrderEquipments
 				? string.Join("\n",
-					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name } - { oe.Count.ToString("F" + (oe.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oe.Nomenclature.Unit?.Name ?? "шт" }"))
+					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name.ToUpper() } - { oe.Count.ToString("F" + (oe.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oe.Nomenclature.Unit?.Name ?? "шт" }"))
 				: "";
 
 			var hasDepositItems = Entity.OrderDepositItems.Count > 0;
@@ -3753,11 +3753,11 @@ namespace Vodovoz
 					{
 						if(odi.EquipmentNomenclature != null)
 						{
-							return $"{ odi.EquipmentNomenclature.Name } - { odi.Count }{ odi.EquipmentNomenclature.Unit.Name }";
+							return $"{ odi.EquipmentNomenclature.Name.ToUpper() } - { odi.Count }{ odi.EquipmentNomenclature.Unit.Name }";
 						}
 						else
 						{
-							return $"{ odi.DepositTypeString } - { odi.Count }";
+							return $"{ odi.DepositTypeString.ToUpper() } - { odi.Count }";
 						}
 					}))
 				: "";
@@ -3766,14 +3766,14 @@ namespace Vodovoz
 
 			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
 			var paymentType = !isPaymentTypeCash
-				? Entity.PaymentType.GetEnumTitle()
+				? Entity.PaymentType.GetEnumTitle().ToUpper()
 				: Entity.PaymentByQr
 					? "Оплата по QR"
-					: Entity.PaymentType.GetEnumTitle();
+					: Entity.PaymentType.GetEnumTitle().ToUpper();
 			var isIncorrectLegalClientPaymentType = Entity.Client.PersonType == PersonType.legal && Entity.PaymentType != Entity.Client.PaymentMethod;
 			ylblPaymentType.LabelProp = isIncorrectLegalClientPaymentType
-				? $"<span foreground='red'>{ Entity.PaymentType.GetEnumTitle() }</span>"
-				: Entity.PaymentType.GetEnumTitle();
+				? $"<span foreground='red'>{ Entity.PaymentType.GetEnumTitle().ToUpper() }</span>"
+				: Entity.PaymentType.GetEnumTitle().ToUpper();
 
 			ylblPlannedSum.Text = $"{ Entity.OrderPositiveSum } руб.";
 
@@ -3783,11 +3783,11 @@ namespace Vodovoz
 								? $"{ Entity.Trifle ?? 0 } руб."
 								: "";
 
-			lblContactlessDeliveryText.Text = Entity.ContactlessDelivery ? "Да" : "Нет";
+			lblContactlessDeliveryText.Text = Entity.ContactlessDelivery ? "Да".ToUpper() : "Нет".ToUpper();
 
-			ylblCommentForDriver.Text = Entity.HasCommentForDriver ? Entity.Comment : "";
+			ylblCommentForDriver.Text = Entity.HasCommentForDriver ? Entity.Comment?.ToUpper() : "";
 
-			ylblCommentForLogist.Text = Entity.CommentLogist;
+			ylblCommentForLogist.Text = Entity.CommentLogist?.ToUpper();
 
 			ntbOrder.GetNthPage(1).Hide();
 			ntbOrder.GetNthPage(1).Show();
