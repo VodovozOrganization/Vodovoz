@@ -439,9 +439,10 @@
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNomenclature.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNode.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
-    <Compile Include="ViewModels\Reports\Sales\Slice.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.MeasurementUnit.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Report.cs" />
+    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.DynamicsInEnum.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\BulkEmailViewModel.cs" />
@@ -599,6 +600,10 @@
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\DateTime\DateTimeHelpers\DateTimeHelpers.csproj">
+      <Project>{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}</Project>
+      <Name>DateTimeHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
       <Name>GMap.NET.Core</Name>
@@ -696,9 +701,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Parameters.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1766,7 +1766,7 @@
     <Compile Include="ReportsParameters\Employees\EmployeesTaxesSumReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Employees.EmployeesTaxesSumReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.cs" />
-    <Compile Include="ReportsParameters\Sales\TurnoverWithDynamicsReportView.cs" />
+    <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2110,6 +2110,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\DateTime\DateTimeHelpers\DateTimeHelpers.csproj">
+      <Project>{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}</Project>
+      <Name>DateTimeHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
