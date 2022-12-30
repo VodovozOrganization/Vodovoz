@@ -144,7 +144,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public TurnoverWithDynamicsReport Report
 		{
 			get => _report;
-			set => SetField(ref _report, value);
+			set
+			{
+				SetField(ref _report, value);
+				CanSave = _report != null;
+			}
 		}
 
 		public bool CanSave
