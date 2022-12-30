@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Report;
-using ClosedXML.Report.Utils;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -23,7 +22,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;

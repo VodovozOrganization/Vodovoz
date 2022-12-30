@@ -39,9 +39,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				var columns = new List<string> { "#", "Периоды продаж" };
 				columns.AddRange(DynamicColumns);
 				columns.Add("Всего за период");
+				var createDate = DateTime.Now;
 				if(ShowLastSale)
 				{
-					var createDate = DateTime.Now;
 					columns.Add("Дата последней продажи");
 					columns.Add("Кол-во дней с момента\n" +
 						" последней отгрузки");
@@ -54,6 +54,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				header2[0] = "№";
 				header2[1] = "Номенклатура";
 				Rows.Insert(1, header2);
+				CreatedAt = createDate;
 			}
 
 			#region Parameters
@@ -85,7 +86,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			public IList<IList<string>> Rows { get; }
 
-			public string SlicingType => Enum.GetName(typeof(DateTimeSliceType), SliceType);
+			public string SliceTypeString => Enum.GetName(typeof(DateTimeSliceType), SliceType);
+
+			public string MeasurementUnitString => Enum.GetName(typeof(MeasurementUnitEnum), MeasurementUnit);
 
 			/// <summary>
 			/// Зависит от текущего значения <see cref="MeasurementUnit"/>
@@ -207,7 +210,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					return productGroup?.Name ?? "Без группы";
 				}
 
-				return GetProductGroupFullName(productGroup.Parent) + " \\ " + productGroup.Name;
+				return GetProductGroupFullName(productGroup.Parent) + " / " + productGroup.Name;
 			}
 
 			private IList<string> AddGroupTotals(string title, IList<IList<string>> nomenclatureGroupRows)
