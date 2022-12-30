@@ -36,6 +36,8 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.CanSave, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ybuttonSave.Clicked += OnYbuttonSaveClicked;
+
 			ybuttonCreateReport.Binding.AddSource(ViewModel)
 				.AddFuncBinding(vm => !vm.IsGenerating, w => w.Visible)
 				.AddBinding(vm => vm.CanGenerate, w => w.Sensitive)

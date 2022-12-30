@@ -48,7 +48,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
-		private DelegateCommand _loadReportCommand;
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
