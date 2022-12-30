@@ -56,7 +56,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private global::Gtk.VBox vboxParameters;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton ybuttonCreateReport;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAbortCreateReport;
 
@@ -343,13 +343,13 @@ namespace Vodovoz.ReportsParameters.Sales
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.vboxParameters]));
 			w25.Position = 2;
 			// Container child vboxTurnoverWithDynamicsReportFilterContainer.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
-			this.buttonCreateReport.CanFocus = true;
-			this.buttonCreateReport.Name = "buttonCreateReport";
-			this.buttonCreateReport.UseUnderline = true;
-			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
-			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.buttonCreateReport]));
+			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonCreateReport.CanFocus = true;
+			this.ybuttonCreateReport.Name = "ybuttonCreateReport";
+			this.ybuttonCreateReport.UseUnderline = true;
+			this.ybuttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
+			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.ybuttonCreateReport);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.ybuttonCreateReport]));
 			w26.Position = 3;
 			w26.Expand = false;
 			w26.Fill = false;
