@@ -46,6 +46,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
@@ -1818,6 +1819,21 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Ставка налога")
 						.AddNumericRenderer(node => node.TaxRate)
 						.Digits(2)
+					.AddColumn("")
+					.Finish()
+			);
+			
+			//InventoryInstancesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<InventoryInstancesJournalViewModel>(
+				() => FluentColumnsConfig<InventoryInstancesJournalNode>.Create()
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id)
+					.AddColumn("Инвентарный номер")
+						.AddTextRenderer(node => node.InventoryNumber)
+					.AddColumn("Код номенклатуры")
+						.AddNumericRenderer(node => node.NomenclatureId)
+					.AddColumn("Номенклатура")
+						.AddTextRenderer(node => node.NomenclatureName)
 					.AddColumn("")
 					.Finish()
 			);

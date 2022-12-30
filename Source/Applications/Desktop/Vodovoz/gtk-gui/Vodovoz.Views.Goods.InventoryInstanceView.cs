@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.yTable tableData;
 
-		private global::QS.Views.Control.EntityEntry entityentry1;
+		private global::QS.Views.Control.EntityEntry entryNomenclature;
 
 		private global::Gamma.GtkWidgets.yLabel lblCostPrice;
 
@@ -89,11 +89,11 @@ namespace Vodovoz.Views.Goods
 			this.tableData.RowSpacing = ((uint)(6));
 			this.tableData.ColumnSpacing = ((uint)(6));
 			// Container child tableData.Gtk.Table+TableChild
-			this.entityentry1 = new global::QS.Views.Control.EntityEntry();
-			this.entityentry1.Events = ((global::Gdk.EventMask)(256));
-			this.entityentry1.Name = "entityentry1";
-			this.tableData.Add(this.entityentry1);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tableData[this.entityentry1]));
+			this.entryNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryNomenclature.Name = "entityentry1";
+			this.tableData.Add(this.entryNomenclature);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tableData[this.entryNomenclature]));
 			w5.LeftAttach = ((uint)(1));
 			w5.RightAttach = ((uint)(3));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));

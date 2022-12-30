@@ -152,8 +152,10 @@
     <Compile Include="Domain\Geocoder\GeocoderAddressCache.cs" />
     <Compile Include="Domain\Geocoder\GeocoderCoordinatesCache.cs" />
     <Compile Include="Domain\Goods\AdditionalLoadingNomenclatureDistribution.cs" />
+    <Compile Include="Domain\Goods\InventoryNomenclatureInstance.cs" />
     <Compile Include="Domain\Goods\NomenclatureCostPrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureInnerDeliveryPrice.cs" />
+    <Compile Include="Domain\Goods\NomenclatureInstance.cs" />
     <Compile Include="Domain\Goods\OrderItemComparerForCopyingFromUndelivery.cs" />
     <Compile Include="Domain\Goods\NomenclaturePurchasePrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureFixedPrice.cs" />
@@ -454,10 +456,12 @@
     <Compile Include="HibernateMapping\Geocoder\GeocoderCoordinatesCacheMap.cs" />
     <Compile Include="HibernateMapping\Geocoder\GeocoderAddressCacheMap.cs" />
     <Compile Include="HibernateMapping\Goods\AdditionalLoadingNomenclatureDistributionMap.cs" />
+    <Compile Include="HibernateMapping\Goods\InventoryNomenclatureInstanceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureCostPriceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
     <Compile Include="HibernateMapping\FlyerMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureInstanceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureInnerDeliveryPriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />

@@ -336,6 +336,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
+				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
 				;
 
 			//Регистрация виджетов
