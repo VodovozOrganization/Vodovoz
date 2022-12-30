@@ -1,23 +1,24 @@
 ﻿using DateTimeHelpers;
 using Gtk;
-using QS.Views;
+using QS.Views.GtkUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.Reports.Sales;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
-	public partial class TurnoverWithDynamicsReportView : ViewBase<TurnoverWithDynamicsReportViewModel>
+	public partial class TurnoverWithDynamicsReportView : TabViewBase<TurnoverWithDynamicsReportViewModel>
 	{
 		private SelectableParameterReportFilterView _filterView;
 		private const string _radioButtonPrefix = "yrbtn";
 		private const string _sliceRadioButtonGroupPrefix = "Slice";
 		private const string _measurementUnitRadioButtonGroupPrefix = "MeasurementUnit";
 		private const string _dynamicsInRadioButtonGroupPrefix = "DynamicsIn";
+		private Task _generationTask;
 
 		public TurnoverWithDynamicsReportView(TurnoverWithDynamicsReportViewModel viewModel) : base(viewModel)
 		{
@@ -31,8 +32,23 @@ namespace Vodovoz.ReportsParameters.Sales
 			btnReportInfo.Clicked += (s, e) => ViewModel.ShowInfoCommand.Execute();
 			ViewModel.ShowInfoCommand.CanExecuteChanged += (s, e) => btnReportInfo.Sensitive = ViewModel.ShowInfoCommand.CanExecute();
 
-			buttonCreateReport.Clicked += (s, e) => ViewModel.LoadReportCommand.Execute();
-			ViewModel.LoadReportCommand.CanExecuteChanged += (s, e) => buttonCreateReport.Sensitive = ViewModel.LoadReportCommand.CanExecute();
+			ybuttonSave.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanSave, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonCreateReport.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => !vm.IsGenerating, w => w.Visible)
+				.AddBinding(vm => vm.CanGenerate, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonCreateReport.Clicked += OnButtonCreateReportClicked;
+
+			ybuttonAbortCreateReport.Clicked += OnButtonAbortCreateReportClicked;
+
+			ybuttonAbortCreateReport.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsGenerating, w => w.Visible)
+				.AddBinding(vm => vm.CanCancelGenerate, w => w.Sensitive)
+				.InitializeFromSource();
 
 			datePeriodPicker.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
@@ -79,6 +95,13 @@ namespace Vodovoz.ReportsParameters.Sales
 				.InitializeFromSource();
 
 			ShowFilter();
+
+			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+		}
+
+		private void OnButtonAbortCreateReportClicked(object sender, EventArgs e)
+		{
+			throw new NotImplementedException();
 		}
 
 		private void DynamicsInGroupSelectionChanged(object s, EventArgs e)
@@ -170,6 +193,37 @@ namespace Vodovoz.ReportsParameters.Sales
 			_filterView = new SelectableParameterReportFilterView(ViewModel.FilterViewModel);
 			vboxParameters.Add(_filterView);
 			_filterView.Show();
+		}
+
+		protected async void OnButtonCreateReportClicked(object sender, EventArgs e)
+		{
+			ViewModel.ReportGenerationCancelationTokenSource = new CancellationTokenSource();
+
+			ViewModel.IsGenerating = true;
+
+			_generationTask = Task.Run(async () =>
+			{
+				try
+				{
+					var report = await ViewModel.ActionGenerateReport(ViewModel.ReportGenerationCancelationTokenSource.Token);
+
+					Application.Invoke((s, eventArgs) => { ViewModel.Report = report; });
+				}
+				catch(OperationCanceledException)
+				{
+					Application.Invoke((s, eventArgs) => { ViewModel.ShowWarning("Формирование отчета было прервано"); });
+				}
+				catch(Exception ex)
+				{
+					Application.Invoke((s, eventArgs) => { throw ex; });
+				}
+				finally
+				{
+					Application.Invoke((s, eventArgs) => { ViewModel.IsGenerating = false; });
+				}
+			}, ViewModel.ReportGenerationCancelationTokenSource.Token);
+
+			await _generationTask;
 		}
 
 		protected async void OnYbuttonSaveClicked(object sender, EventArgs e)

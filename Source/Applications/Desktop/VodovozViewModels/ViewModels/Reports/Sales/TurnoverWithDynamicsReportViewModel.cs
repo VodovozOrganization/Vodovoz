@@ -1,4 +1,5 @@
-﻿using ClosedXML.Report.Utils;
+﻿using ClosedXML.Report;
+using ClosedXML.Report.Utils;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -16,10 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -46,7 +50,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private DelegateCommand _loadReportCommand;
 		private DelegateCommand _showInfoCommand;
-		private readonly Dictionary<string, object> _parameters = new Dictionary<string, object>();
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private bool _showDynamics;
@@ -56,6 +59,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private bool _showLastSale;
 		private TurnoverWithDynamicsReport _report;
 		private bool _isSaving;
+		private bool _canSave;
+		private bool _isGenerating;
+		private bool _canCancelGenerate;
 
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -73,8 +79,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
 
-			//_unitOfWork.Session.DefaultReadOnly = true;
-
 			_filter = new SelectableParametersReportFilter(_unitOfWork);
 
 			_userIsSalesRepresentative =
@@ -87,13 +91,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			ConfigureFilter();
 		}
 
+		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
+
 		public virtual SelectableParameterReportFilterViewModel FilterViewModel
 		{
 			get => _filterViewModel;
 			set => SetField(ref _filterViewModel, value);
 		}
-
-		protected Dictionary<string, object> Parameters => _parameters;
 
 		public virtual DateTime? StartDate
 		{
@@ -140,24 +144,41 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public TurnoverWithDynamicsReport Report
 		{
 			get => _report;
-			private set => SetField(ref _report, value);
+			set => SetField(ref _report, value);
+		}
+
+		public bool CanSave
+		{
+			get => _canSave;
+			set => SetField(ref _canSave, value);
 		}
 
 		public bool IsSaving
 		{
 			get => _isSaving;
-			set => SetField(ref _isSaving, value);
+			set
+			{
+				SetField(ref _isSaving, value);
+				CanSave = !IsSaving;
+			}
 		}
 
-		public DelegateCommand LoadReportCommand
+		public bool CanGenerate => !IsGenerating;
+
+		public bool CanCancelGenerate
 		{
-			get
+			get => _canCancelGenerate;
+			set => SetField(ref _canCancelGenerate, value);
+		}
+
+		public bool IsGenerating
+		{
+			get => _isGenerating;
+			set
 			{
-				if(_loadReportCommand is null)
-				{
-					_loadReportCommand = new DelegateCommand(GenerateReport);
-				}
-				return _loadReportCommand;
+				SetField(ref _isGenerating, value);
+				OnPropertyChanged(nameof(CanGenerate));
+				CanCancelGenerate = IsGenerating;
 			}
 		}
 
@@ -170,6 +191,19 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					_showInfoCommand = new DelegateCommand(ShowInfo);
 				}
 				return _showInfoCommand;
+			}
+		}
+
+		public async Task<TurnoverWithDynamicsReport> ActionGenerateReport(CancellationToken cancellationToken)
+		{
+			try
+			{
+				var report = await Generate(cancellationToken);
+				return report;
+			}
+			finally
+			{
+				UoW.Session.Clear();
 			}
 		}
 
@@ -433,28 +467,48 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void ShowInfo()
 		{
-			throw new NotImplementedException();
+			var info = "";
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
 		}
 
-		private void GenerateReport()
+		public void ShowWarning(string message)
+		{
+			_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
+		}
+
+		public async Task<TurnoverWithDynamicsReport> Generate(CancellationToken cancellationToken)
 		{
 			if(!ValidateParameters())
 			{
-				return;
+				throw new InvalidOperationException("Заданы некорректные значения параметров отчета");
 			}
 
-			var report = TurnoverWithDynamicsReport.Create(
-				StartDate.Value,
-				EndDate.Value,
-				SlicingType,
-				MeasurementUnit,
-				ShowDynamics,
-				DynamicsIn,
-				ShowLastSale,
-				GetWarhouseBalance,
-				GetData);
+			return await Task.Run(() =>
+			{
+				return TurnoverWithDynamicsReport.Create(
+					StartDate.Value,
+					EndDate.Value,
+					SlicingType,
+					MeasurementUnit,
+					ShowDynamics,
+					DynamicsIn,
+					ShowLastSale,
+					GetWarhouseBalance,
+					GetData);
+			}, cancellationToken);
+		}
 
-			Report = report;
+		public void ExportReport(string path)
+		{
+			string templatePath = _templatePath;
+
+			var template = new XLTemplate(templatePath);
+
+			template.AddVariable(Report);
+			template.Generate();
+
+			template.SaveAs(path);
 		}
 
 		private decimal GetWarhouseBalance(Nomenclature nomenclature)
