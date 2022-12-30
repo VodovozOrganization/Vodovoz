@@ -3719,34 +3719,32 @@ namespace Vodovoz
 			ylblCounterpartyFIO.Text = clientFIO;
 
 			_summaryInfoBuilder.AppendLine($"{lblCounterpartyFIO.Text} {clientFIO}").AppendLine();
-			
+
 			var deliveryAddress = Entity.DeliveryPoint?.CompiledAddress.ToUpper() ?? "";
 			ylblDeliveryAddress.Text = deliveryAddress;
 
 			_summaryInfoBuilder.AppendLine($"{lblDeliveryAddress.Text} {deliveryAddress}").AppendLine();
 
-			var phones = Entity.DeliveryPoint?.Phones.Count > 0
-				? string.Join(", ", Entity.DeliveryPoint.Phones.Where(p => !p.IsArchive).Select(p => $"+7 {p.Number}"))
-				: string.Join(", ", Entity.Client.Phones.Where(p => !p.IsArchive).Select(p => $"+7 {p.Number}"));
-			ylblPhoneNumber.Text = phones;
+			var phone = Entity.ContactPhone != null ? $"+7 {Entity.ContactPhone.Number}" : "";
+			ylblPhoneNumber.Text = phone;
 
-			_summaryInfoBuilder.AppendLine($"{lblPhoneNumber.Text} {phones}").AppendLine();
+			_summaryInfoBuilder.AppendLine($"{lblPhoneNumber.Text} {phone}").AppendLine();
 
 			var deliveryDate = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
 			ylblDeliveryDate.Text = deliveryDate;
-			
+
 			_summaryInfoBuilder.AppendLine($"{lblDeliveryDate.Text} {deliveryDate}").AppendLine();
 
 			var deliveryTime = Entity.DeliverySchedule?.DeliveryTime;
 			ylblDeliveryInterval.Text = deliveryTime;
 
 			_summaryInfoBuilder.AppendLine($"{lblDeliveryInterval.Text} {deliveryTime}").AppendLine();
-			
+
 			var isPaymentTypeCashless = Entity.PaymentType == PaymentType.cashless;
 			var documentSigning = isPaymentTypeCashless
 				? Entity.SignatureType?.GetEnumTitle().ToUpper() ?? ""
 				: "";
-			lblDocumentSigning.Visible = ylblDocumentSigning.Visible =isPaymentTypeCashless;
+			lblDocumentSigning.Visible = ylblDocumentSigning.Visible = isPaymentTypeCashless;
 			ylblDocumentSigning.Text = documentSigning;
 
 			if(lblDocumentSigning.Visible)
@@ -3755,9 +3753,10 @@ namespace Vodovoz
 			}
 
 			var hasOrderItems = Entity.OrderItems.Count > 0;
-			var goods =  hasOrderItems
+			var goods = hasOrderItems
 				? string.Join("\n",
-					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name.ToUpper() } - { oi.Count.ToString("F" + (oi.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oi.Nomenclature.Unit?.Name }"))
+					Entity.OrderItems.Select(oi =>
+						$"{oi.Nomenclature.Name.ToUpper()} - {oi.Count.ToString("F" + (oi.Nomenclature.Unit?.Digits ?? 0).ToString())}{oi.Nomenclature.Unit?.Name}"))
 				: "";
 			lblGoods.Visible = ylblGoods.Visible = hasOrderItems;
 			ylblGoods.Text = goods;
@@ -3766,20 +3765,21 @@ namespace Vodovoz
 			{
 				_summaryInfoBuilder.AppendLine($"{lblGoods.Text} {goods}").AppendLine();
 			}
-			
+
 			var hasOrderEquipments = Entity.OrderEquipments.Count > 0;
 			var equipments = hasOrderEquipments
 				? string.Join("\n",
-					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name.ToUpper() } - { oe.Count.ToString("F" + (oe.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oe.Nomenclature.Unit?.Name ?? "шт" }"))
+					Entity.OrderEquipments.Select(oe =>
+						$"{oe.Nomenclature.Name.ToUpper()} - {oe.Count.ToString("F" + (oe.Nomenclature.Unit?.Digits ?? 0).ToString())}{oe.Nomenclature.Unit?.Name ?? "шт"}"))
 				: "";
 			lblEquipment1.Visible = ylblEquipment.Visible = hasOrderEquipments;
 			ylblEquipment.Text = equipments;
 
 			if(lblEquipment1.Visible)
 			{
-				_summaryInfoBuilder.AppendLine($"{lblEquipment1.Text} {goods}").AppendLine();
+				_summaryInfoBuilder.AppendLine($"{lblEquipment1.Text} {equipments}").AppendLine();
 			}
-			
+
 			var hasDepositItems = Entity.OrderDepositItems.Count > 0;
 			var deposits = hasDepositItems
 				? string.Join("\n",
@@ -3787,11 +3787,11 @@ namespace Vodovoz
 					{
 						if(odi.EquipmentNomenclature != null)
 						{
-							return $"{ odi.EquipmentNomenclature.Name.ToUpper() } - { odi.Count }{ odi.EquipmentNomenclature.Unit.Name }";
+							return $"{odi.EquipmentNomenclature.Name.ToUpper()} - {odi.Count}{odi.EquipmentNomenclature.Unit.Name}";
 						}
 						else
 						{
-							return $"{ odi.DepositTypeString.ToUpper() } - { odi.Count }";
+							return $"{odi.DepositTypeString.ToUpper()} - {odi.Count}";
 						}
 					}))
 				: "";
@@ -3803,9 +3803,9 @@ namespace Vodovoz
 				_summaryInfoBuilder.AppendLine($"{lblReturns.Text} {deposits}").AppendLine();
 			}
 
-			var bottlesToReturn = $"{ Entity.BottlesReturn ?? 0 } бут.";
+			var bottlesToReturn = $"{Entity.BottlesReturn ?? 0} бут.";
 			ylblBottlesPlannedToReturn.Text = bottlesToReturn;
-			
+
 			_summaryInfoBuilder.AppendLine($"{lblBottlesPlannedToReturn.Text} {bottlesToReturn}").AppendLine();
 
 			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
@@ -3814,21 +3814,22 @@ namespace Vodovoz
 				: Entity.PaymentByQr
 					? "Оплата по QR"
 					: Entity.PaymentType.GetEnumTitle().ToUpper();
-			var isIncorrectLegalClientPaymentType = Entity.Client.PersonType == PersonType.legal && Entity.PaymentType != Entity.Client.PaymentMethod;
-			var paymentTypeText = isIncorrectLegalClientPaymentType
-				? $"<span foreground='red'>{ paymentType }</span>"
+			var isIncorrectLegalClientPaymentType =
+				Entity.Client.PersonType == PersonType.legal && Entity.PaymentType != Entity.Client.PaymentMethod;
+			ylblPaymentType.LabelProp = isIncorrectLegalClientPaymentType
+				? $"<span foreground='red'>{paymentType}</span>"
 				: paymentType;
-			ylblPaymentType.LabelProp = paymentTypeText;
-			
-			_summaryInfoBuilder.AppendLine($"{lblPaymentType.Text} {paymentTypeText}").AppendLine();
+			;
 
-			var plannedSum = $"{ Entity.OrderPositiveSum } руб.";
+			_summaryInfoBuilder.AppendLine($"{lblPaymentType.Text} {paymentType}").AppendLine();
+
+			var plannedSum = $"{Entity.OrderPositiveSum} руб.";
 			ylblPlannedSum.Text = plannedSum;
-			
+
 			_summaryInfoBuilder.AppendLine($"{lblPlannedSum.Text} {plannedSum}").AppendLine();
 
 			var trifle = isPaymentTypeCash
-				? $"{ Entity.Trifle ?? 0 } руб."
+				? $"{Entity.Trifle ?? 0} руб."
 				: "";
 			lblTrifleFrom.Visible = ylblTrifleFrom.Visible = isPaymentTypeCash;
 			ylblTrifleFrom.Text = trifle;
@@ -3838,10 +3839,14 @@ namespace Vodovoz
 				_summaryInfoBuilder.AppendLine($"{lblTrifleFrom.Text} {trifle}").AppendLine();
 			}
 
-			var contactlessDelivery =  Entity.ContactlessDelivery ? "Да".ToUpper() : "Нет".ToUpper();
+			var contactlessDelivery = Entity.ContactlessDelivery ? "Да".ToUpper() : "Нет".ToUpper();
+			lblContactlessDelivery.Visible = lblContactlessDeliveryText.Visible = Entity.ContactlessDelivery;
 			lblContactlessDeliveryText.Text = contactlessDelivery;
 
-			_summaryInfoBuilder.AppendLine($"{lblContactlessDelivery.Text} {contactlessDelivery}").AppendLine();
+			if(Entity.ContactlessDelivery)
+			{
+				_summaryInfoBuilder.AppendLine($"{lblContactlessDelivery.Text} {contactlessDelivery}").AppendLine();
+			}
 			
 			var commentForDriver = Entity.HasCommentForDriver ? Entity.Comment?.ToUpper() : "";
 			ylblCommentForDriver.Text = commentForDriver;
