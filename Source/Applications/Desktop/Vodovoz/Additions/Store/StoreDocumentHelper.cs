@@ -79,11 +79,15 @@ namespace Vodovoz.Additions.Store
 			warehouses = warehouses.Where(x => x != null).ToArray();
 			if(warehouses.Any())
 			{
-				if(warehouses.Any(
-						x => WarehousePermissions.WarehousePermissions.SingleOrDefault(
-							y=>y.WarehousePermissionType == edit && y.Warehouse.Id == x.Id).PermissionValue.Value))
+				foreach(var warehouse in warehouses)
 				{
-					return false;
+					var warehousePermission = WarehousePermissions.WarehousePermissions.FirstOrDefault(
+						x => x.WarehousePermissionType == edit && x.Warehouse.Id == warehouse.Id);
+
+					if(warehousePermission?.PermissionValue != null && warehousePermission.PermissionValue.Value)
+					{
+						return false;
+					}
 				}
 
 				MessageDialogHelper.RunErrorDialog(
