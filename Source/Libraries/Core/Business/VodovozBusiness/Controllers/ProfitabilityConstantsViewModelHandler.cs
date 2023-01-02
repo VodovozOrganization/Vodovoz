@@ -27,7 +27,7 @@ namespace Vodovoz.Controllers
 
 				return lastProfitabilityContants != null
 					? CreateNewUoW(lastProfitabilityContants.Id)
-					: CreateNewUoW(new DateTime(DateTime.Today.Year, DateTime.Today.Month - 1, 1));
+					: CreateNewUoW(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-1));
 			}
 		}
 

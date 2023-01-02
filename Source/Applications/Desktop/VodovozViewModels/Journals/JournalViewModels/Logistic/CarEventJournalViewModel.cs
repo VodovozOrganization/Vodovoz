@@ -291,7 +291,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			var today = DateTime.Now;
 			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
-			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
+			DateTime startPreviousMonth = startCurrentMonth.AddMonths(-1);
 			if(today.Day <= _startNewPeriodDay && endDate > startPreviousMonth)
 			{
 				return true;
