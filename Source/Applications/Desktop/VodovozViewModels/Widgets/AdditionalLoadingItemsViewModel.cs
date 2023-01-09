@@ -73,7 +73,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public void AddItem()
 		{
-			var journal = _nomenclatureSelectorFactory.CreateNomenclaturesJournalViewModel(true);
+			var journal = _nomenclatureSelectorFactory.CreateNomenclaturesJournalViewModel(null, true);
 			journal.OnEntitySelectedResult += OnNomenclaturesSelected;
 			_master?.TabParent.AddSlaveTab(_master, journal);
 		}

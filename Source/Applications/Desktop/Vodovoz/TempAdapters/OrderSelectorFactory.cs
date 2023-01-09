@@ -30,12 +30,12 @@ namespace Vodovoz.TempAdapters
 
 		public IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
 		{
-			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel();
-			orderFilterVM.IsOnlineStoreOrders = IsOnlineStoreOrders;
-			orderFilterVM.OrderStatuses = orderStatuses;
+			var orderFilter = new OrderForMovDocJournalFilterViewModel();
+			orderFilter.IsOnlineStoreOrders = IsOnlineStoreOrders;
+			orderFilter.OrderStatuses = orderStatuses;
 
-			OrderForMovDocJournalViewModel vm = new OrderForMovDocJournalViewModel(
-				orderFilterVM,
+			var vm = new OrderForMovDocJournalViewModel(
+				orderFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			) {
@@ -101,7 +101,6 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
 		{
-
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
