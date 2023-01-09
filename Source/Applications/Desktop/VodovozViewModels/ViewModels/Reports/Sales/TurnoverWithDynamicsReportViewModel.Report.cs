@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Gamma.Utilities;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -65,9 +66,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			public IList<TurnoverWithDynamicsReportRow> Rows { get; }
 
-			public string SliceTypeString => Enum.GetName(typeof(DateTimeSliceType), SliceType);
+			public string SliceTypeString => SliceType.GetEnumTitle();
 
-			public string MeasurementUnitString => Enum.GetName(typeof(MeasurementUnitEnum), MeasurementUnit);
+			public string MeasurementUnitString => MeasurementUnit.GetEnumTitle();
 
 			/// <summary>
 			/// Зависит от текущего значения <see cref="MeasurementUnit"/>
