@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
@@ -479,6 +480,21 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
 		}
 
+		private string GetSelectedParametersTitles(IDictionary<string, string> selectedParametersTitles, StringBuilder sb)
+		{
+			sb.Clear();
+
+			if(selectedParametersTitles.Any())
+			{
+				foreach(var item in selectedParametersTitles)
+				{
+					sb.AppendLine($"{item.Key}{item.Value}");
+				}
+			}
+
+			return sb.ToString().TrimEnd('\n');
+		}
+
 		public async Task<TurnoverWithDynamicsReport> Generate(CancellationToken cancellationToken)
 		{
 			if(!ValidateParameters())
@@ -486,11 +502,32 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				throw new InvalidOperationException("Заданы некорректные значения параметров отчета");
 			}
 
+			var filters = string.Empty;
+
+			var sb2 = new StringBuilder();
+
+			var sb = new StringBuilder();
+
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(NomenclatureCategory)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Nomenclature)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(ProductGroup)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(VodovozCounterparty)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Organization)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(DiscountReason)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Subdivision)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Employee)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(GeoGroup)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(PaymentType)), sb));
+			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(PromotionalSet)), sb));
+
+			filters = sb2.ToString().Trim('\n');
+
 			return await Task.Run(() =>
 			{
 				return TurnoverWithDynamicsReport.Create(
 					StartDate.Value,
 					EndDate.Value,
+					filters,
 					SlicingType,
 					MeasurementUnit,
 					ShowDynamics,

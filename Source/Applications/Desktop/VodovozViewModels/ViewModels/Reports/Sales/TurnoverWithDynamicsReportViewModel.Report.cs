@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			private TurnoverWithDynamicsReport(
 				DateTime startDate,
 				DateTime endDate,
+				string filters,
 				DateTimeSliceType slicingType,
 				MeasurementUnitEnum measurementUnit,
 				bool showDynamics,
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				StartDate = startDate;
 				EndDate = endDate;
+				Filters = filters;
 				SliceType = slicingType;
 				MeasurementUnit = measurementUnit;
 				ShowDynamics = showDynamics;
@@ -44,6 +46,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public DateTime StartDate { get; }
 
 			public DateTime EndDate { get; }
+
+			public string Filters { get; }
 
 			public DateTimeSliceType SliceType { get; }
 
@@ -289,6 +293,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public static TurnoverWithDynamicsReport Create(
 				DateTime startDate,
 				DateTime endDate,
+				string filters,
 				DateTimeSliceType slicingType,
 				MeasurementUnitEnum measurementUnit,
 				bool showDynamics,
@@ -300,6 +305,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return new TurnoverWithDynamicsReport(
 							startDate,
 							endDate,
+							filters,
 							slicingType,
 							measurementUnit,
 							showDynamics,
