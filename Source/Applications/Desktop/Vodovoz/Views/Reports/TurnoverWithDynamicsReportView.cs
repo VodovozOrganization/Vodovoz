@@ -162,7 +162,7 @@ namespace Vodovoz.ReportsParameters.Sales
 		private void ShowReport()
 		{
 			ConfigureTreeView();
-			ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report.Rows;
+			ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report.DisplayRows;
 			ytreeReportIndicatorsRows.YTreeModel.EmitModelChanged();
 		}
 

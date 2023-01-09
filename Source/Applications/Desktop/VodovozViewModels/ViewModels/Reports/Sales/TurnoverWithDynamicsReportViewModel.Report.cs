@@ -65,6 +65,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			public IList<TurnoverWithDynamicsReportRow> Rows { get; }
 
+			public IList<TurnoverWithDynamicsReportRow> DisplayRows => new List<TurnoverWithDynamicsReportRow>
+				{ ReportTotal }.Union(Rows).ToList();
+
+			public TurnoverWithDynamicsReportRow ReportTotal { get; private set; }
+
 			public string SliceTypeString => SliceType.GetEnumTitle();
 
 			public string MeasurementUnitString => MeasurementUnit.GetEnumTitle();
@@ -154,7 +159,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					rows = rows.Union(productGroupRows).ToList();
 				}
 
-				rows.Insert(0, AddGroupTotals("Сводные данные по отчету", totalsRows.Select(r => r.SliceColumnValues)));
+				ReportTotal = AddGroupTotals("Сводные данные по отчету", totalsRows.Select(r => r.SliceColumnValues));
 
 				return rows;
 			}
@@ -169,7 +174,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{
 					if(i % 2 == 0)
 					{
-						output[i] = sliceColumnValues[i / 2].ToString();
+						output[i] = sliceColumnValues[i / 2].ToString(MeasurementUnitFormat);
 					}
 					else
 					{
@@ -185,7 +190,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							}
 							else
 							{
-								output[i] = (sliceColumnValues[i / 2 - 1] - sliceColumnValues[i / 2]).ToString();
+								output[i] = (sliceColumnValues[i / 2 - 1] - sliceColumnValues[i / 2]).ToString(MeasurementUnitFormat);
 							}
 						}
 					}
@@ -230,7 +235,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					row.DynamicColumns = CalculateDynamics(row.SliceColumnValues);
 				}
 
-				row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails();
+				if(ShowLastSale)
+				{
+					row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails();
+				}
 
 				return row;
 			}
