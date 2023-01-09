@@ -253,6 +253,9 @@
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForPaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForAdvancePaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForDebtEmail.cs" />
+    <Compile Include="Domain\TrueMark\TrueMarkCashReceiptOrder.cs" />
+    <Compile Include="Domain\TrueMark\TrueMarkCashReceiptOrderStatus.cs" />
+    <Compile Include="Domain\TrueMark\TrueMarkCashReceiptProductCode.cs" />
     <Compile Include="Domain\Versions\VersionEntityBase.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
@@ -541,7 +544,6 @@
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
-    <Compile Include="Models\TrueMark\TrueMarkDriverAppModel.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\EdoSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />

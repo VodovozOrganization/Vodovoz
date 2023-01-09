@@ -17,8 +17,27 @@ namespace DriverAPI.Library.Models
 		void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver);
 		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order);
 		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId);
-		void CompleteOrderDelivery(Employee driver, int orderId, int bottlesReturnCount, int rating, int driverComplaintReasonId, string otherDriverComplaintReasonComment, string driverComment, IEnumerable<IOrderItemScannedInfo> scannedItems, DateTime actionTime);
+		void CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverCompleteOrderInfo completeOrderInfo);
 		void SendSmsPaymentRequest(int orderId, string phoneNumber, int driverId);
 		Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId);
+	}
+
+	public interface IDriverCompleteOrderInfo
+	{
+		int OrderId { get; }
+		int BottlesReturnCount { get; }
+		int Rating { get; }
+		int DriverComplaintReasonId { get; }
+		string OtherDriverComplaintReasonComment { get; }
+		string DriverComment { get; }
+		IEnumerable<IOrderItemScannedInfo> ScannedItems { get; }
+		string UnscannedCodesReason { get; }
+	}
+
+	public interface IOrderItemScannedInfo
+	{
+		IEnumerable<string> BottleCodes { get; set; }
+		IEnumerable<string> DefectiveBottleCodes { get; set; }
+		int OrderSaleItemId { get; set; }
 	}
 }

@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
+﻿using Vodovoz.Models.TrueMark;
 
-namespace Vodovoz.Models.TrueMark
+namespace TrueMarkCodesWorker
 {
-	public class TrueMarkDriverAppModel
+	public class TrueMarkCodesHandler
 	{
 		private readonly TrueMarkCodesPool _codePool;
 
-		public TrueMarkDriverAppModel(TrueMarkCodesPool codePool)
+		public TrueMarkCodesHandler(TrueMarkCodesPool codePool)
 		{
 			_codePool = codePool ?? throw new ArgumentNullException(nameof(codePool));
 		}
@@ -87,12 +81,5 @@ namespace Vodovoz.Models.TrueMark
 
 			//Добавляем код к заказу для чека
 		}
-	}
-
-	public interface IOrderItemScannedInfo
-	{
-		IEnumerable<string> BottleCodes { get; set; }
-		IEnumerable<string> DefectiveBottleCodes { get; set; }
-		int OrderSaleItemId { get; set; }
 	}
 }

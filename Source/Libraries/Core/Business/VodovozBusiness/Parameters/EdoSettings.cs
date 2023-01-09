@@ -23,5 +23,6 @@ namespace Vodovoz.Parameters
 		public string TrueMarkApiToken => _parametersProvider.GetStringValue("TrueMarkApiToken"); 
 		public int EdoCheckPeriodDays => _parametersProvider.GetIntValue("EdoCheckPeriodDays");
 		public int TaxcomManualInvitationFileId => _parametersProvider.GetIntValue("TaxcomManualInvitationFileId");
+		public int TrueMarkCodesHandleInterval => _parametersProvider.GetIntValue("TrueMarkCodesHandleInterval");
 	}
 }

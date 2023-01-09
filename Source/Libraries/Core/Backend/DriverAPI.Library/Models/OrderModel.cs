@@ -225,17 +225,9 @@ namespace DriverAPI.Library.Models
 			_unitOfWork.Commit();
 		}
 
-		public void CompleteOrderDelivery(
-			Employee driver,
-			int orderId,
-			int bottlesReturnCount,
-			int rating,
-			int driverComplaintReasonId,
-			string otherDriverComplaintReasonComment,
-			string driverComment,
-			IEnumerable<IOrderItemScannedInfo> scannedItems,
-			DateTime actionTime)
+		public void CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverCompleteOrderInfo completeOrderInfo)
 		{
+			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
 			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
 			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
@@ -282,22 +274,22 @@ namespace DriverAPI.Library.Models
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
 
-			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
+			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
 
 			routeList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.Completed);
 
-			if (rating < _maxClosingRating)
+			if (completeOrderInfo.Rating < _maxClosingRating)
 			{
-				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_unitOfWork, driverComplaintReasonId);
+				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_unitOfWork, completeOrderInfo.DriverComplaintReasonId);
 				var complaintSource = _complaintsRepository.GetComplaintSourceById(_unitOfWork, _webApiParametersProvider.ComplaintSourceId);
-				var reason = complaintReason?.Name ?? otherDriverComplaintReasonComment;
+				var reason = complaintReason?.Name ?? completeOrderInfo.OtherDriverComplaintReasonComment;
 
 				var complaint = new Complaint
 				{
 					ComplaintSource = complaintSource,
 					ComplaintType = ComplaintType.Driver,
 					Order = vodovozOrder,
-					DriverRating = rating,
+					DriverRating = completeOrderInfo.Rating,
 					DeliveryPoint = vodovozOrder.DeliveryPoint,
 					CreationDate = actionTime,
 					ChangedDate = actionTime,
@@ -310,11 +302,11 @@ namespace DriverAPI.Library.Models
 				_unitOfWork.Save(complaint);
 			}
 
-			if(bottlesReturnCount != vodovozOrder.BottlesReturn)
+			if(completeOrderInfo.BottlesReturnCount != vodovozOrder.BottlesReturn)
 			{
-				if(!string.IsNullOrWhiteSpace(driverComment))
+				if(!string.IsNullOrWhiteSpace(completeOrderInfo.DriverComment))
 				{
-					vodovozOrder.DriverMobileAppComment = driverComment;
+					vodovozOrder.DriverMobileAppComment = completeOrderInfo.DriverComment;
 					vodovozOrder.DriverMobileAppCommentTime = actionTime;
 				}
 
@@ -327,6 +319,11 @@ namespace DriverAPI.Library.Models
 			_unitOfWork.Save(routeList);
 
 			_unitOfWork.Commit();
+		}
+
+		private void SaveScannedCodes(IDriverCompleteOrderInfo completeOrderInfo)
+		{
+			
 		}
 
 		public void SendSmsPaymentRequest(

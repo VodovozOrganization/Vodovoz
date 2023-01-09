@@ -14,5 +14,7 @@
 		string TrueMarkApiToken { get; }
 		int EdoCheckPeriodDays { get; }
 		int TaxcomManualInvitationFileId { get; }
+		int TrueMarkCodesHandleInterval { get; }
+
 	}
 }
