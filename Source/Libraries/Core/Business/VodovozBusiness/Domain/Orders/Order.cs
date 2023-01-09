@@ -1348,6 +1348,18 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult($"Номер для связи с Id {ContactPhone.Id} : {ContactPhone.Number} не найден в списке телефонных номеров ни контрагента, ни точки доставки.",
 					new[] { nameof(ContactPhone) });
 			}
+
+			if(OPComment?.Length > 255)
+			{
+				yield return new ValidationResult($"Значение поля \"Комментарий ОП/ОСК\" не должно превышать 255 символов",
+					new[] { nameof(OPComment) });
+			}
+
+			if(ODZComment?.Length > 255)
+			{
+				yield return new ValidationResult($"Значение поля \"Комментарий ОДЗ\" не должно превышать 255 символов",
+					new[] { nameof(OPComment) });
+			}
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
