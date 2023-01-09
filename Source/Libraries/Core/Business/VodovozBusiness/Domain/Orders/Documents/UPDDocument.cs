@@ -15,6 +15,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
 		private static readonly IOrganizationParametersProvider _organizationParametersProvider =
 			new OrganizationParametersProvider(new ParametersProvider());
+		private int? _beveragesWorldOrganizationId;
+
 
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.UPD;
@@ -55,10 +57,14 @@ namespace Vodovoz.Domain.Orders.Documents
 			{
 				if(copiesToPrint < 0)
 				{
-					var beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
-					if(((Order.OurOrganization != null && Order.OurOrganization.Id == beveragesWorldOrganizationId)
+					if(!_beveragesWorldOrganizationId.HasValue)
+					{
+						_beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
+					}
+					
+					if(((Order.OurOrganization != null && Order.OurOrganization.Id == _beveragesWorldOrganizationId)
 						|| (Order.Client?.WorksThroughOrganization != null
-							&& Order.Client.WorksThroughOrganization.Id == beveragesWorldOrganizationId))
+							&& Order.Client.WorksThroughOrganization.Id == _beveragesWorldOrganizationId))
 						&& Order.Client.UPDCount.HasValue)
 					{
 						return Order.Client.UPDCount.Value;
