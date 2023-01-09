@@ -4,10 +4,13 @@ using QS.Views.GtkUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.Reports.Sales;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel;
+using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
+using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportRow;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
@@ -161,27 +164,35 @@ namespace Vodovoz.ReportsParameters.Sales
 		private void ShowReport()
 		{
 			ConfigureTreeView();
-
 			ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report.Rows;
 			ytreeReportIndicatorsRows.YTreeModel.EmitModelChanged();
 		}
 
 		private void ConfigureTreeView()
 		{
-			var columnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<IList<string>>.Create();
+			var columnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<TurnoverWithDynamicsReportRow>.Create();
 
-			for(int i = 0; i < ViewModel.Report.Columns.Count; i++)
+			columnsConfig.AddColumn("Периоды продаж").AddTextRenderer(row =>
+				row.RowType == RowTypes.Totals ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true).XAlign(1);
+
+			for(var i = 0; i < ViewModel.Report.Slices.Count; i++)
 			{
 				var index = i;
-				columnsConfig.AddColumn(ViewModel.Report.Columns[i])
+				columnsConfig.AddColumn(ViewModel.Report.Slices[index].ToString())
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(row => row[0] == "Group" || row[0] == "№"
-						? index == 0 && row[0] == "Group" ? "" : $"<b>{row[index]}</b>" // Жирные заголовки и пропуск служебного значения
-						: row[index],
-						useMarkup: true)
+					.AddNumericRenderer(row => row.SliceColumnValues[index])
 					.XAlign(1);
 			}
 
+			columnsConfig.AddColumn("Всего за период").AddNumericRenderer(row => row.RowTotal);
+
+			if(ViewModel.Report.ShowLastSale)
+			{
+				columnsConfig.AddColumn("Дата последней продажи").AddTextRenderer(row => row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
+				columnsConfig.AddColumn("Дней с последней продажи").AddTextRenderer(row => row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
+				columnsConfig.AddColumn($"Остатки на складе на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm:ss}").AddTextRenderer(row => row.LastSaleDetails.WarhouseResidue.ToString("0.000"));
+			}
+			
 			columnsConfig.AddColumn("");
 
 			ytreeReportIndicatorsRows.ColumnsConfig = columnsConfig.Finish();
