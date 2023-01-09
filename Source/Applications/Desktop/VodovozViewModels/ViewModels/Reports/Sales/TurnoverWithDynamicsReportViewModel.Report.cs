@@ -1,5 +1,6 @@
 ﻿using DateTimeHelpers;
 using Gamma.Utilities;
+using MoreLinq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	{
 		public partial class TurnoverWithDynamicsReport
 		{
-			private readonly string _dynamicsInPercentageColumnTitle = "Изменение в %";
-			private readonly string _dynamicsInMeasurementUnitColumnTitle = "Изменение в еденицах измерения";
 			private readonly Func<Nomenclature, decimal> _warehouseNomenclatureBalanceCallback;
 
 			private TurnoverWithDynamicsReport(
@@ -88,9 +87,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return rows;
 			}
 
-			private IList<decimal> CreateInitializedBy(int length, decimal initializer = 0)
+			private IList<T> CreateInitializedBy<T>(int length, T initializer)
 			{
-				var result = new List<decimal>(length);
+				var result = new List<T>(length);
 
 				for(var i = 0; i < length; i++)
 				{
@@ -120,10 +119,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						{
 							Title = nomenclatureGroup.Key.OfficialName,
 							RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
-							SliceColumnValues = CreateInitializedBy(Slices.Count),
+							SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
 						};
 
 						row.SliceColumnValues = CalculateNomenclatureValuesRow(nomenclatureGroup);
+
+						if(ShowDynamics)
+						{
+							row.DynamicColumns = CalculateDynamics(row.SliceColumnValues);
+						}
+
 						row.Index = index.ToString();
 						index++;
 
@@ -154,6 +159,41 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return rows;
 			}
 
+			private IList<string> CalculateDynamics(IList<decimal> sliceColumnValues)
+			{
+				var columnsCount = Slices.Count * 2;
+
+				IList<string> output = CreateInitializedBy(columnsCount, "");
+
+				for(var i = 0; i < columnsCount; i++)
+				{
+					if(i % 2 == 0)
+					{
+						output[i] = sliceColumnValues[i / 2].ToString();
+					}
+					else
+					{
+						if(i == 1)
+						{
+							output[i] = "-";
+						}
+						else
+						{
+							if(DynamicsIn == DynamicsInEnum.Percents)
+							{
+								output[i] = CalculatePercentDynamic(sliceColumnValues[i / 2 - 1], sliceColumnValues[i / 2]);
+							}
+							else
+							{
+								output[i] = (sliceColumnValues[i / 2 - 1] - sliceColumnValues[i / 2]).ToString();
+							}
+						}
+					}
+				}
+
+				return output;
+			}
+
 			private static string GetProductGroupFullName(ProductGroup productGroup)
 			{
 				if(productGroup == null)
@@ -175,7 +215,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{
 					Title = title,
 					RowType = TurnoverWithDynamicsReportRow.RowTypes.Totals,
-					SliceColumnValues = CreateInitializedBy(Slices.Count),
+					SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
 				};
 
 				for(var i = 0; i < Slices.Count; i++)
@@ -185,6 +225,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						ngvr => ngvr[index]);
 				}
 
+				if(ShowDynamics)
+				{
+					row.DynamicColumns = CalculateDynamics(row.SliceColumnValues);
+				}
+
 				row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails();
 
 				return row;
@@ -192,7 +237,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			private IList<decimal> CalculateNomenclatureValuesRow(IGrouping<Nomenclature, OrderItem> ordersItemsGroup)
 			{
-				IList<decimal> result = CreateInitializedBy(Slices.Count);
+				IList<decimal> result = CreateInitializedBy(Slices.Count, 0m);
 
 				Nomenclature nomenclature = ordersItemsGroup.Key;
 
@@ -207,42 +252,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				return result;
 			}
-
-			//private string CalculateCellValue(IGrouping<Nomenclature, OrderItem> ordersItemsGroup, int i)
-			//{
-			//	var slice = Slices.First(sl => sl.ToString() == Columns[i]);
-
-			//	var value = ordersItemsGroup.Where(oi => oi.Order.DeliveryDate >= slice.StartDate)
-			//		.Where(oi => oi.Order.DeliveryDate <= slice.EndDate)
-			//		.Sum(MeasurementUnitSelector);
-
-			//	return value?.ToString(MeasurementUnitFormat) ?? "0";
-			//}
-
-			//private string CalculateDynamicsValue(List<string> columnsValues, int i)
-			//{
-			//	string dynamicValue;
-			//	if(i > HeadColumnsCount + 2)
-			//	{
-			//		var firstValue = decimal.Parse(columnsValues[i - 3]);
-			//		var secondValue = decimal.Parse(columnsValues[i - 1]);
-
-			//		if(DynamicsIn == DynamicsInEnum.Percents)
-			//		{
-			//			dynamicValue = CalculatePercentDynamic(firstValue, secondValue);
-			//		}
-			//		else
-			//		{
-			//			dynamicValue = (secondValue - firstValue).ToString();
-			//		}
-			//	}
-			//	else
-			//	{
-			//		dynamicValue = "-";
-			//	}
-
-			//	return dynamicValue;
-			//}
 
 			private static string CalculatePercentDynamic(decimal firstValue, decimal secondValue)
 			{
@@ -302,7 +311,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				public IList<decimal> SliceColumnValues { get; set; }
 
-				public IList<decimal> SliceColumnValuesWithDynamics { get; set; }
+				public IList<string> DynamicColumns { get; set; }
 
 				public decimal RowTotal => SliceColumnValues.Sum();
 

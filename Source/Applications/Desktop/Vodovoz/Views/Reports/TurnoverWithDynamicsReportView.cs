@@ -173,13 +173,40 @@ namespace Vodovoz.ReportsParameters.Sales
 			columnsConfig.AddColumn("Периоды продаж").AddTextRenderer(row =>
 				row.RowType == RowTypes.Totals ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true).XAlign(1);
 
-			for(var i = 0; i < ViewModel.Report.Slices.Count; i++)
+			if(ViewModel.Report.ShowDynamics)
 			{
-				var index = i;
-				columnsConfig.AddColumn(ViewModel.Report.Slices[index].ToString())
-					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(row => row.SliceColumnValues[index])
-					.XAlign(1);
+				var columnsCount = ViewModel.Report.Slices.Count * 2;
+				for(var i = 0; i < columnsCount; i++)
+				{
+					if(i % 2 == 0)
+					{
+						var index = i;
+						var sliceIndex = i / 2;
+						columnsConfig.AddColumn(ViewModel.Report.Slices[sliceIndex].ToString())
+							.HeaderAlignment(0.5f)
+							.AddNumericRenderer(row => row.DynamicColumns[index])
+							.XAlign(1);
+					}
+					else
+					{
+						var index = i;
+						columnsConfig.AddColumn(ViewModel.Report.DynamicsIn == DynamicsInEnum.Percents ? "%" : "Шт")
+							.HeaderAlignment(0.5f)
+							.AddNumericRenderer(row => row.DynamicColumns[index])
+							.XAlign(1);
+					}
+				}
+			}
+			else
+			{
+				for(var i = 0; i < ViewModel.Report.Slices.Count; i++)
+				{
+					var index = i;
+					columnsConfig.AddColumn(ViewModel.Report.Slices[index].ToString())
+						.HeaderAlignment(0.5f)
+						.AddNumericRenderer(row => row.SliceColumnValues[index])
+						.XAlign(1);
+				}
 			}
 
 			columnsConfig.AddColumn("Всего за период").AddNumericRenderer(row => row.RowTotal);
