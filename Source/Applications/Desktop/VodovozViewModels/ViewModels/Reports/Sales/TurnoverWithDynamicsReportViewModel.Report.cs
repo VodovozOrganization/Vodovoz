@@ -1,10 +1,10 @@
 ﻿using DateTimeHelpers;
+using Gamma.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Gamma.Utilities;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -301,6 +301,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public bool IsTotalsRow => RowType == RowTypes.Totals;
 
 				public IList<decimal> SliceColumnValues { get; set; }
+
+				public IList<decimal> SliceColumnValuesWithDynamics { get; set; }
 
 				public decimal RowTotal => SliceColumnValues.Sum();
 
