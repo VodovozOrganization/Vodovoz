@@ -42,7 +42,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
-		private readonly string _templatePath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
+		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
+		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
@@ -502,7 +503,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public void ExportReport(string path)
 		{
-			string templatePath = _templatePath;
+			string templatePath;
+
+			if(ShowDynamics)
+			{
+				templatePath = _templateWithDynamicsPath;
+			}
+			else
+			{
+				templatePath = _templatePath;
+			}
 
 			var template = new XLTemplate(templatePath);
 
