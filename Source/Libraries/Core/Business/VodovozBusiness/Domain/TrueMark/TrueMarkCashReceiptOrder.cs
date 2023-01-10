@@ -1,6 +1,8 @@
 ﻿using QS.DomainModel.Entity;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.TrueMark
@@ -19,6 +21,8 @@ namespace Vodovoz.Domain.TrueMark
 		private TrueMarkCashReceiptOrderStatus _status;
 		private string _unscannedCodesReason;
 		private string _errorDescription;
+		private IList<TrueMarkCashReceiptProductCode> _scannedCodes = new List<TrueMarkCashReceiptProductCode>();
+		private GenericObservableList<TrueMarkCashReceiptProductCode> _observableScannedCodes;
 
 		public int Id { get; set; }
 
@@ -55,6 +59,27 @@ namespace Vodovoz.Domain.TrueMark
 		{
 			get => _errorDescription;
 			set => SetField(ref _errorDescription, value);
+		}
+
+		[Display(Name = "Отсканированные коды")]
+		public virtual IList<TrueMarkCashReceiptProductCode> ScannedCodes
+		{
+			get => _scannedCodes;
+			set => SetField(ref _scannedCodes, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<TrueMarkCashReceiptProductCode> ObservableScannedCodes
+		{
+			get
+			{
+				if(_observableScannedCodes == null)
+				{
+					_observableScannedCodes = new GenericObservableList<TrueMarkCashReceiptProductCode>(ScannedCodes);
+				}
+
+				return _observableScannedCodes;
+			}
 		}
 	}
 }

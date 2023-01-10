@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMarkApi.Library.Dto;
-using Vodovoz.Domain.Client;
 
 namespace TrueMarkApi.Library
 {

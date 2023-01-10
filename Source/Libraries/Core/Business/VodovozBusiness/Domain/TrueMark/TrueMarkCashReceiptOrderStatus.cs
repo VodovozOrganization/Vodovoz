@@ -2,6 +2,7 @@
 {
 	public enum TrueMarkCashReceiptOrderStatus
 	{
+		New,
 		ReadyToSend,
 		Error,
 		Sended

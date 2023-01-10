@@ -13,10 +13,10 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
 
 namespace DriverAPI.Library.Models
@@ -33,7 +33,7 @@ namespace DriverAPI.Library.Models
 		private readonly ISmsPaymentModel _aPISmsPaymentModel;
 		private readonly ISmsPaymentServiceAPIHelper _smsPaymentServiceAPIHelper;
 		private readonly IFastPaymentsServiceAPIHelper _fastPaymentsServiceApiHelper;
-		private readonly IUnitOfWork _unitOfWork;
+		private readonly IUnitOfWork _uow;
 		private readonly QRPaymentConverter _qrPaymentConverter;
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
@@ -64,7 +64,7 @@ namespace DriverAPI.Library.Models
 			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
 			_smsPaymentServiceAPIHelper = smsPaymentServiceAPIHelper ?? throw new ArgumentNullException(nameof(smsPaymentServiceAPIHelper));
 			_fastPaymentsServiceApiHelper = fastPaymentsServiceApiHelper ?? throw new ArgumentNullException(nameof(fastPaymentsServiceApiHelper));
-			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_uow = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 		}
@@ -76,9 +76,9 @@ namespace DriverAPI.Library.Models
 		/// <returns>APIOrder</returns>
 		public OrderDto Get(int orderId)
 		{
-			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_unitOfWork, vodovozOrder);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
 
 			var order = _orderConverter.ConvertToAPIOrder(
 				vodovozOrder,
@@ -98,13 +98,13 @@ namespace DriverAPI.Library.Models
 		public IEnumerable<OrderDto> Get(int[] orderIds)
 		{
 			var result = new List<OrderDto>();
-			var vodovozOrders = _orderRepository.GetOrders(_unitOfWork, orderIds);
+			var vodovozOrders = _orderRepository.GetOrders(_uow, orderIds);
 
 			foreach(var vodovozOrder in vodovozOrders)
 			{
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
 				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id);
-				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_unitOfWork, vodovozOrder);
+				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
 				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem.CreationDate, smsPaymentStatus, qrPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 				result.Add(order);
@@ -120,7 +120,7 @@ namespace DriverAPI.Library.Models
 		/// <returns>IEnumerable APIPaymentType</returns>
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
 		{
-			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			return GetAvailableToChangePaymentTypes(vodovozOrder);
@@ -155,7 +155,7 @@ namespace DriverAPI.Library.Models
 		/// <returns>APIOrderAdditionalInfo</returns>
 		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
 		{
-			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			return GetAdditionalInfo(vodovozOrder);
@@ -204,7 +204,7 @@ namespace DriverAPI.Library.Models
 				throw new ArgumentNullException(nameof(driver));
 			}
 
-			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId)
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
 				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
@@ -212,7 +212,7 @@ namespace DriverAPI.Library.Models
 				throw new InvalidOperationException($"Нельзя изменить тип оплаты для заказа: { orderId }, заказ не в пути.");
 			}
 
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
 
 			if(routeList.Driver.Id != driver.Id)
 			{
@@ -221,15 +221,15 @@ namespace DriverAPI.Library.Models
 			}
 
 			vodovozOrder.PaymentType = paymentType;
-			_unitOfWork.Save(vodovozOrder);
-			_unitOfWork.Commit();
+			_uow.Save(vodovozOrder);
+			_uow.Commit();
 		}
 
 		public void CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverCompleteOrderInfo completeOrderInfo)
 		{
 			var orderId = completeOrderInfo.OrderId;
-			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
 			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null)
@@ -274,14 +274,16 @@ namespace DriverAPI.Library.Models
 				throw new ArgumentOutOfRangeException(nameof(orderId), error);
 			}
 
+			SaveScannedCodes(completeOrderInfo);
+
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
 
-			routeList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.Completed);
+			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
 
 			if (completeOrderInfo.Rating < _maxClosingRating)
 			{
-				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_unitOfWork, completeOrderInfo.DriverComplaintReasonId);
-				var complaintSource = _complaintsRepository.GetComplaintSourceById(_unitOfWork, _webApiParametersProvider.ComplaintSourceId);
+				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, completeOrderInfo.DriverComplaintReasonId);
+				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
 				var reason = complaintReason?.Name ?? completeOrderInfo.OtherDriverComplaintReasonComment;
 
 				var complaint = new Complaint
@@ -299,7 +301,7 @@ namespace DriverAPI.Library.Models
 						$"По причине { reason }"
 				};
 
-				_unitOfWork.Save(complaint);
+				_uow.Save(complaint);
 			}
 
 			if(completeOrderInfo.BottlesReturnCount != vodovozOrder.BottlesReturn)
@@ -312,18 +314,50 @@ namespace DriverAPI.Library.Models
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
 
-				_unitOfWork.Save(vodovozOrder);
+				_uow.Save(vodovozOrder);
 			}
 
-			_unitOfWork.Save(routeListAddress);
-			_unitOfWork.Save(routeList);
+			_uow.Save(routeListAddress);
+			_uow.Save(routeList);
 
-			_unitOfWork.Commit();
+			_uow.Commit();
 		}
 
 		private void SaveScannedCodes(IDriverCompleteOrderInfo completeOrderInfo)
 		{
-			
+			var trueMarkCashReceiptOrder = new TrueMarkCashReceiptOrder();
+			trueMarkCashReceiptOrder.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
+			trueMarkCashReceiptOrder.Order = new Order { Id = completeOrderInfo.OrderId };
+
+			foreach(var scannedItem in completeOrderInfo.ScannedItems)
+			{
+				var orderItem = new OrderItem { Id = scannedItem.OrderSaleItemId };
+
+				foreach(var defectiveCode in scannedItem.DefectiveBottleCodes)
+				{
+					var orderCode = CreateTrueMarkCodeEntity(trueMarkCashReceiptOrder, orderItem);
+					orderCode.IsDefectiveSourceCode = true;
+					orderCode.CodeSource = defectiveCode;
+					trueMarkCashReceiptOrder.ScannedCodes.Add(orderCode);
+				}
+
+				foreach(var code in scannedItem.BottleCodes)
+				{
+					var orderCode = CreateTrueMarkCodeEntity(trueMarkCashReceiptOrder, orderItem);
+					orderCode.CodeSource = code;
+					trueMarkCashReceiptOrder.ScannedCodes.Add(orderCode);
+				}
+			}
+
+			_uow.Save(trueMarkCashReceiptOrder);
+		}
+
+		private TrueMarkCashReceiptProductCode CreateTrueMarkCodeEntity(TrueMarkCashReceiptOrder trueMarkCashReceiptOrder, OrderItem orderItem)
+		{
+			var orderCode = new TrueMarkCashReceiptProductCode();
+			orderCode.TrueMarkCashReceiptOrder = trueMarkCashReceiptOrder;
+			orderCode.OrderItem = orderItem;
+			return orderCode;
 		}
 
 		public void SendSmsPaymentRequest(
@@ -331,8 +365,8 @@ namespace DriverAPI.Library.Models
 			string phoneNumber,
 			int driverId)
 		{
-			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
 			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null
@@ -360,8 +394,8 @@ namespace DriverAPI.Library.Models
 		
 		public async Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId)
 		{
-			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
-			var routeList = _routeListRepository.GetActualRouteListByOrder(_unitOfWork, vodovozOrder);
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
 			var routeListAddress = routeList.Addresses.FirstOrDefault(x => x.Order.Id == orderId);
 
 			if(vodovozOrder is null || routeList is null || routeListAddress is null)

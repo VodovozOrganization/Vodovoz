@@ -386,6 +386,8 @@
     <Compile Include="EntityRepositories\Stock\StockRepository.cs" />
     <Compile Include="EntityRepositories\StoredResource\IStoredResourceRepository.cs" />
     <Compile Include="EntityRepositories\StoredResource\StoredResourceRepository.cs" />
+    <Compile Include="EntityRepositories\TrueMark\ITrueMarkRepository.cs" />
+    <Compile Include="EntityRepositories\TrueMark\TrueMarkRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsNode.cs" />
@@ -508,6 +510,8 @@
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
+    <Compile Include="HibernateMapping\TrueMark\TrueMarkCashReceiptOrderMap.cs" />
+    <Compile Include="HibernateMapping\TrueMark\TrueMarkCashReceiptProductCodeMap.cs" />
     <Compile Include="HibernateMapping\Users\AvailableDatabaseMap.cs" />
     <Compile Include="HibernateMapping\Users\DatabasePrivilegeMap.cs" />
     <Compile Include="HibernateMapping\Users\GlobalPrivilegeMap.cs" />
@@ -543,7 +547,12 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="Models\TrueMark\ITrueMarkCodesPool.cs" />
+    <Compile Include="Models\TrueMark\ITrueMarkOrderItemScannedInfo.cs" />
+    <Compile Include="Models\TrueMark\ITrueMarkOrderScannedInfo.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkCodesHandler.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkException.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\EdoSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />

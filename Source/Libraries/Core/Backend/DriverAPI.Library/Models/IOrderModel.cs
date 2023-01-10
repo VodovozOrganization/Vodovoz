@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Models.TrueMark;
 
 namespace DriverAPI.Library.Models
 {
@@ -20,24 +19,5 @@ namespace DriverAPI.Library.Models
 		void CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverCompleteOrderInfo completeOrderInfo);
 		void SendSmsPaymentRequest(int orderId, string phoneNumber, int driverId);
 		Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId);
-	}
-
-	public interface IDriverCompleteOrderInfo
-	{
-		int OrderId { get; }
-		int BottlesReturnCount { get; }
-		int Rating { get; }
-		int DriverComplaintReasonId { get; }
-		string OtherDriverComplaintReasonComment { get; }
-		string DriverComment { get; }
-		IEnumerable<IOrderItemScannedInfo> ScannedItems { get; }
-		string UnscannedCodesReason { get; }
-	}
-
-	public interface IOrderItemScannedInfo
-	{
-		IEnumerable<string> BottleCodes { get; set; }
-		IEnumerable<string> DefectiveBottleCodes { get; set; }
-		int OrderSaleItemId { get; set; }
 	}
 }

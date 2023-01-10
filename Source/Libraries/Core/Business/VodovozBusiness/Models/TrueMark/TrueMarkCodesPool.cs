@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Vodovoz.Models.TrueMark
 {
-	public class TrueMarkCodesPool
+	public class TrueMarkCodesPool : ITrueMarkCodesPool
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 

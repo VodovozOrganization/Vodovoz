@@ -14,6 +14,10 @@ namespace Vodovoz.Domain.TrueMark
 	public class TrueMarkCashReceiptProductCode : PropertyChangedBase, IDomainObject
 	{
 		private TrueMarkCashReceiptOrder _trueMarkCashReceiptOrder;
+		private OrderItem _orderItem;
+		private bool _isDefectiveSourceCode;
+		private string _codeSource;
+		private string _codeResult;
 
 		public int Id { get; set; }
 
@@ -24,7 +28,6 @@ namespace Vodovoz.Domain.TrueMark
 			set => SetField(ref _trueMarkCashReceiptOrder, value);
 		}
 
-		private OrderItem _orderItem;
 		[Display(Name = "Строка заказа")]
 		public virtual OrderItem OrderItem
 		{
@@ -32,5 +35,25 @@ namespace Vodovoz.Domain.TrueMark
 			set => SetField(ref _orderItem, value);
 		}
 
+		[Display(Name = "Код источник бракованный")]
+		public virtual bool IsDefectiveSourceCode
+		{
+			get => _isDefectiveSourceCode;
+			set => SetField(ref _isDefectiveSourceCode, value);
+		}
+
+		[Display(Name = "Код источник")]
+		public virtual string CodeSource
+		{
+			get => _codeSource;
+			set => SetField(ref _codeSource, value);
+		}
+
+		[Display(Name = "Код результат")]
+		public virtual string CodeResult
+		{
+			get => _codeResult;
+			set => SetField(ref _codeResult, value);
+		}
 	}
 }
