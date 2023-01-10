@@ -398,9 +398,11 @@
     <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReportRow.cs" />
     <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReportType.cs" />
     <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryFailsReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAvailabilityHistoryReport.cs" />
     <Compile Include="ViewModels\Reports\CostCarExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAdditionalLoadingReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryFailsReportRow.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />
@@ -537,8 +539,8 @@
     <Compile Include="Journals\FilterViewModels\Goods\NomenclatureBalanceByStockFilterViewModel.cs" />
     <Compile Include="ViewModels\Employees\DriverAttachedTerminalViewModel.cs" />
     <Compile Include="Dialogs\Counterparty\DeliveryPointViewModel.cs" />
-	<Compile Include="Dialogs\Users\UserViewModel.cs" />
-	<Compile Include="ViewModels\Logistic\CarModelViewModel.cs" />
+    <Compile Include="Dialogs\Users\UserViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarModelViewModel.cs" />
     <Compile Include="ViewModels\Payments\CreateManualPaymentFromBankClientViewModel.cs" />
     <Compile Include="ViewModels\Payments\AutomaticallyAllocationBalanceWindowViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\UnallocatedBalancesJournalFilterViewModel.cs" />
