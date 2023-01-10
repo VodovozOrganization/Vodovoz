@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>8.27in</PageHeight>
   <PageWidth>11.69in</PageWidth>
   <Width>7.5in</Width>
@@ -512,6 +510,10 @@ ORDER BY docs.doc_date;
           <DataField>empty_bottles_count</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
+        <Field Name="doc_status">
+          <DataField>doc_status</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Client">
@@ -830,7 +832,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Signatures">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	(SELECT binary_file FROM stored_resource WHERE id = 15) as print,
@@ -840,7 +842,7 @@ WHERE
 	) as chief
 ;</CommandText>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="chief">
           <DataField>chief</DataField>
           <TypeName>System.String</TypeName>
@@ -1208,8 +1210,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox12">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1226,8 +1227,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox13">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1399,8 +1399,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox25">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1421,8 +1420,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox55">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1471,8 +1469,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox38">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1484,8 +1481,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox39">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1535,8 +1531,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox46">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1553,8 +1548,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox47">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1571,8 +1565,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox48">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1589,8 +1582,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox62">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1607,8 +1599,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox49">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1625,8 +1616,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox50">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1642,8 +1632,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox56">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1659,8 +1648,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox51">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1815,7 +1803,9 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="returned">
-                      <Value>=Iif({returned} = null and {forfeitCount} = null, "", {returned} - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount}))</Value>
+                      <Value>=Iif({doc_status} = "Closed" or {doc_status} = "",
+Iif({returned} = null and {forfeitCount} = null, "", Iif( Fields!returned.IsMissing , 0 ,  {returned})
+ - Iif( Fields!forfeitCount.IsMissing , 0 , {forfeitCount})), "")</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1956,8 +1946,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1969,8 +1958,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2118,8 +2106,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2135,8 +2122,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2523,8 +2509,7 @@ ___________(                   )
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="delivery_point_id">
       <DataType>Integer</DataType>
@@ -2536,8 +2521,7 @@ ___________(                   )
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
@@ -2549,8 +2533,7 @@ ___________(                   )
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
@@ -2562,8 +2545,7 @@ ___________(                   )
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="show_stock_bottle">
       <DataType>Boolean</DataType>

@@ -42,7 +42,7 @@ namespace RoboatsService.Controllers
 			[FromQuery(Name = "show")] string checkType,
 			[FromQuery(Name = "waterquantity")] string waterQuantity,
 			[FromQuery(Name = "bill")] string banknoteForReturn,
-			[FromQuery(Name = "terminal")] string isTerminal
+			[FromQuery(Name = "payment_type")] string paymentType
 			)
 		{
 			var stopWatch = new Stopwatch();
@@ -65,7 +65,7 @@ namespace RoboatsService.Controllers
 				ReturnBottlesCount = returnBottlesCount,
 				WaterQuantity = waterQuantity,
 				BanknoteForReturn = banknoteForReturn,
-				IsTerminal = isTerminal,
+				PaymentType = paymentType,
 				IsFullOrder = fullOrder,
 				RequestSubType = checkType,
 				OrderId = orderId

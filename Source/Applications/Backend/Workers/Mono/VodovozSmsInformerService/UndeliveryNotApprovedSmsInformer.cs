@@ -1,5 +1,4 @@
 ﻿using System;
-using SmsSendInterface;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sms;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Timers;
 using NLog;
 using Vodovoz.EntityRepositories.SmsNotifications;
-using SmsRuSendService;
+using Sms.External.Interface;
 
 namespace VodovozSmsInformerService
 {

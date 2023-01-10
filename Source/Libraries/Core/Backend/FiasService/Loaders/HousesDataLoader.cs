@@ -7,7 +7,7 @@ using Fias.Search.DTO;
 using NLog;
 using QS.Utilities.Text;
 
-namespace Fias.Service.Loaders
+namespace Fias.Client.Loaders
 {
 	public interface IHousesDataLoader
 	{

@@ -177,7 +177,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var today = DateTime.Now;
 			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
-			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
+			DateTime startPreviousMonth = startCurrentMonth.AddMonths(-1);
 			if(today.Day <= _startNewPeriodDay && Entity.EndDate < startPreviousMonth)
 			{
 				ShowWarningMessage($"С 1 по {_startNewPeriodDay} текущего месяца можно создать/изменить событие ТС с датой завершения равной или более 1 числа прошлого месяца.");
@@ -197,7 +197,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			var today = DateTime.Now;
 			DateTime startCurrentMonth = new DateTime(today.Year, today.Month, 1);
-			DateTime startPreviousMonth = new DateTime(today.Year, today.Month - 1, 1);
+			DateTime startPreviousMonth = startCurrentMonth.AddMonths(-1);
 			if(today.Day <= _startNewPeriodDay && endDate > startPreviousMonth)
 			{
 				return true;

@@ -3,6 +3,7 @@
 	public enum RoboAtsOrderPayment
 	{
 		Cash,
-		Terminal
+		Terminal,
+		QrCode
 	}
 }

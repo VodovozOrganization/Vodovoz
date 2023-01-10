@@ -1011,6 +1011,12 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
 					new[] { nameof(Gtin) });
 			}
+
+			if(ProductGroup == null)
+			{
+				yield return new ValidationResult("Должна быть выбрана принадлежность номенклатуры к группе товаров",
+					new[] { nameof(ProductGroup) });
+			}
 		}
 
 		#endregion

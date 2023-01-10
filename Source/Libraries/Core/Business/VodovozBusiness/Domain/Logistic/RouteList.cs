@@ -1155,11 +1155,18 @@ namespace Vodovoz.Domain.Logistic
 					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
 					|| Status == RouteListStatus.Delivered) {
 						if(Status != RouteListStatus.Delivered) {
-							foreach(var item in Addresses) {
-								bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+							foreach(var address in Addresses) {
+								if(address.Status == RouteListItemStatus.Transfered)
+								{
+									continue;
+								}
+
+								bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(address.Order.OrderStatus);
 
 								if(!isInvalidStatus)
-									item.Order.OrderStatus = OrderStatus.OnTheWay;
+								{
+									address.Order.OrderStatus = OrderStatus.OnTheWay;
+								}
 							}
 						}
 						Status = RouteListStatus.EnRoute;

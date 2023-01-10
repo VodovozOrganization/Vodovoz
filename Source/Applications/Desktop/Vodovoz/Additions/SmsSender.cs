@@ -10,9 +10,9 @@ using VodovozInfrastructure.Utils;
 
 namespace Vodovoz.Additions
 {
-    public class SmsSender
-    {
-        private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
+	public class SmsSender
+	{
+		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
         private readonly IInstantSmsService _instantSmsService;
 		private HttpClient _httpClient;
 		

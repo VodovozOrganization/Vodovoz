@@ -30,15 +30,11 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 			ICarEventTypeJournalFactory carEventTypeJournalFactory = new CarEventTypeJournalFactory();
 			ICarEventJournalFactory carEventJournalFactory = new CarEventJournalFactory(_navigationManager);
 
-			var carEventFilter = new CarEventFilterViewModel(
-				carJournalFactory,
-				carEventTypeJournalFactory,
-				new EmployeeJournalFactory());
-
-			return new EntityAutocompleteSelectorFactory<CarEventJournalViewModel>(typeof(CarEvent), () =>
-			{
-				return new CarEventJournalViewModel(
-					carEventFilter,
+			return new EntityAutocompleteSelectorFactory<CarEventJournalViewModel>(typeof(CarEvent), () => new CarEventJournalViewModel(
+				new CarEventFilterViewModel(
+					carJournalFactory,
+					carEventTypeJournalFactory,
+					new EmployeeJournalFactory()),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				carJournalFactory,
@@ -48,8 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 				employeeFactory,
 				new UndeliveredOrdersJournalOpener(),
 				new EmployeeSettings(new ParametersProvider()),
-				new CarEventSettings(new ParametersProvider()));
-			});
+				new CarEventSettings(new ParametersProvider())));
 		}
 	}
 }

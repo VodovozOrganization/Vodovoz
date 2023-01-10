@@ -71,7 +71,7 @@
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.19.4" />
+    <PackageReference Include="Google.Protobuf" Version="3.21.7" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.16" />
@@ -99,6 +99,10 @@
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
+      <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>
+      <Name>Vodovoz.Settings.Database</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>

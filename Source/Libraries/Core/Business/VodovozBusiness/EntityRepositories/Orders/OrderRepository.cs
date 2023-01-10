@@ -46,19 +46,17 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query;
 		}
 
-		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district)
+		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, int districtId)
 		{
-			DeliveryPoint point = null;
+			DeliveryPoint deliveryPointAlias = null;
+			
 			return uow.Session.QueryOver<VodovozOrder>()
-							  .JoinAlias(o => o.DeliveryPoint, () => point)
-							  .Where(
-							  		o => o.DeliveryDate == date.Date
-									&& point.District.Id == district.Id
-									&& !o.SelfDelivery
-									&& o.OrderStatus == OrderStatus.Accepted
-							  )
-							  .List<VodovozOrder>()
-							  ;
+				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
+				.Where(o => o.DeliveryDate == date.Date)
+				.And(() => deliveryPointAlias.District.Id == districtId)
+				.And(o => !o.SelfDelivery)
+				.And(o => o.OrderStatus == OrderStatus.Accepted)
+				.List<VodovozOrder>();
 		}
 
 		public VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)

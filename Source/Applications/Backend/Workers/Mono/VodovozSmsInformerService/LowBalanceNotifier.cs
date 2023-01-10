@@ -1,11 +1,10 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using SmsSendInterface;
 using Vodovoz.Services;
 using Vodovoz.Domain.Sms;
 using System.Linq;
 using NLog;
-using SmsRuSendService;
+using Sms.External.Interface;
 
 namespace VodovozSmsInformerService
 {

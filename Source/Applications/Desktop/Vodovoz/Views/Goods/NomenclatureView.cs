@@ -16,6 +16,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Representations;
+using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
 
@@ -254,7 +255,10 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			
 			yentryProductGroup.JournalButtons = Buttons.Add | Buttons.Edit;
-			yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel());
+			yentryProductGroup.RepresentationModel = new ProductGroupVM(ViewModel.UoW, new ProductGroupFilterViewModel{
+				HidenByDefault = false,
+				HideArchive = true
+			});
 			yentryProductGroup.Binding
 				.AddBinding(ViewModel.Entity, e => e.ProductGroup, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)

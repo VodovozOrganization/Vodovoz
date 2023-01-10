@@ -2,7 +2,7 @@
 using System.Threading;
 using NLog;
 
-namespace Fias.Service.Loaders
+namespace Fias.Client.Loaders
 {
 	public abstract class FiasDataLoader
 	{

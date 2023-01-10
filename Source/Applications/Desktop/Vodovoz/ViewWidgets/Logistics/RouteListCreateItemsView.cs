@@ -29,6 +29,7 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -38,8 +39,11 @@ namespace Vodovoz
 	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly static IParametersProvider _parametersProvider = new ParametersProvider();
 		private readonly IRouteColumnRepository _routeColumnRepository = new RouteColumnRepository();
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
+			new DeliveryScheduleParametersProvider(_parametersProvider);
 
 		private int goodsColumnsCount = -1;
 		private bool _isEditable = true;
@@ -244,7 +248,7 @@ namespace Vodovoz
 
 		public RouteListCreateItemsView()
 		{
-			this.Build();
+			Build();
 			enumbuttonAddOrder.ItemsEnum = typeof(AddOrderEnum);
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
 		}
@@ -331,14 +335,15 @@ namespace Vodovoz
 				x => x.RestrictStatus = OrderStatus.Accepted,
 				x => x.RestrictWithoutSelfDelivery = true,
 				x => x.RestrictOnlySelfDelivery = false,
-				x => x.RestrictHideService = true
+				x => x.RestrictHideService = true,
+				x => x.ExcludeClosingDocumentDeliverySchedule = true
 			);
 
 			var orderSelectDialog = new OrderForRouteListJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices, new OrderSelectorFactory(), new EmployeeJournalFactory(), new CounterpartyJournalFactory(),
 				new DeliveryPointJournalFactory(), new SubdivisionJournalFactory(), new GtkTabsOpener(),
 				new UndeliveredOrdersJournalOpener(), new EmployeeService(), new UndeliveredOrdersRepository(),
-				new SubdivisionParametersProvider(new ParametersProvider()))
+				new SubdivisionParametersProvider(_parametersProvider), _deliveryScheduleParametersProvider)
 			{
 				SelectionMode = JournalSelectionMode.Multiple
 			};
@@ -373,8 +378,7 @@ namespace Vodovoz
 				var selectedDistrict = args.SelectedNodes.FirstOrDefault();
 				if(selectedDistrict != null)
 				{
-					var orders = _orderRepository.GetAcceptedOrdersForRegion(
-						RouteListUoW, RouteListUoW.Root.Date, RouteListUoW.GetById<District>(selectedDistrict.Id));
+					var orders = _orderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, selectedDistrict.Id);
 					
 					foreach(var order in orders)
 					{

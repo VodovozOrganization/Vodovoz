@@ -327,11 +327,13 @@ namespace Vodovoz
 		protected void OnButtonAddNomenclatureClicked(object sender, EventArgs e)
 		{
 			var filter = new NomenclatureFilterViewModel();
-			filter.AvailableCategories = Nomenclature.GetCategoriesForGoods().Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment).ToArray();
+			filter.AvailableCategories =
+				Nomenclature.GetCategoriesForGoods()
+					.Where(c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment)
+					.ToArray();
 
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(true);
-			journal.FilterViewModel = filter;
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 
 			if(_userHasOnlyAccessToWarehouseAndComplaints == null)

@@ -21,7 +21,6 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -44,6 +43,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public OrderForRouteListJournalViewModel(
 			OrderJournalFilterViewModel filterViewModel, 
@@ -58,7 +58,8 @@ namespace Vodovoz.JournalViewModels
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -72,7 +73,10 @@ namespace Vodovoz.JournalViewModels
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-
+			_closingDocumentDeliveryScheduleId =
+				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+				.ClosingDocumentDeliveryScheduleId;
+				
 			TabName = "Журнал заказов";
 
 			var threadLoader = DataLoader as ThreadDataLoader<OrderForRouteListJournalNode>;
@@ -186,6 +190,11 @@ namespace Vodovoz.JournalViewModels
 			
 			if(FilterViewModel.OrderPaymentStatus != null) {
 				query.Where(o => o.OrderPaymentStatus == FilterViewModel.OrderPaymentStatus);
+			}
+
+			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+			{
+				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
