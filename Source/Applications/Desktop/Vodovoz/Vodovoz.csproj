@@ -1765,6 +1765,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeeRegistrationView.cs" />
     <Compile Include="ReportsParameters\Employees\EmployeesTaxesSumReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Employees.EmployeesTaxesSumReport.cs" />
+    <Compile Include="Views\Logistic\CarsMonitoringView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarsMonitoringView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.cs" />
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
   </ItemGroup>
