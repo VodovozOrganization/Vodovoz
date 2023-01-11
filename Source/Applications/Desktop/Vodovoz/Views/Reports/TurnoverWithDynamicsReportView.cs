@@ -106,7 +106,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private void OnButtonAbortCreateReportClicked(object sender, EventArgs e)
 		{
-			throw new NotImplementedException();
+			ViewModel.ReportGenerationCancelationTokenSource.Cancel();
 		}
 
 		private void DynamicsInGroupSelectionChanged(object s, EventArgs e)

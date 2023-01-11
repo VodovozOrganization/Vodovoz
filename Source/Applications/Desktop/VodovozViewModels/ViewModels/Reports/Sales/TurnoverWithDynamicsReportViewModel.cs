@@ -889,8 +889,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				monthBetweenDates++;
 			}
 
-			if(SlicingType == DateTimeSliceType.Month
-			&& StartDate?.Day == 1 ? monthBetweenDates >= 60 : monthBetweenDates > 60)
+			if((SlicingType == DateTimeSliceType.Month)
+			&& (StartDate?.Day == 1 ? monthBetweenDates >= 60 : monthBetweenDates > 60))
 			{
 				yield return "Для разреза месяц нельзя выбрать интервал более 60х месяцев";
 			}
