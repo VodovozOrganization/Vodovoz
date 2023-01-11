@@ -38,9 +38,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				ShowLastSale = showLastSale;
 				_warehouseNomenclatureBalanceCallback = warehouseNomenclatureBalanceCallback;
 				Slices = DateTimeSliceFactory.CreateSlices(slicingType, startDate, endDate).ToList();
-				var createDate = DateTime.Now;
+				CreatedAt = DateTime.Now;
 				Rows = ProcessData(dataFetchCallback(this));
-				CreatedAt = createDate;
 			}
 
 			#region Parameters
@@ -153,6 +152,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
 							{
 								LastSaleDate = lastDelivery,
+								DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
 								WarhouseResidue = _warehouseNomenclatureBalanceCallback(nomenclatureGroup.Key)
 							};
 						}
@@ -160,13 +160,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						productGroupRows.Add(row);
 					}
 
-					var groupTotal = AddGroupTotals(productGroupTitle, productGroupRows.Select(r => r.SliceColumnValues));
+					var groupTotal = AddGroupTotals(productGroupTitle, productGroupRows);
 					totalsRows.Add(groupTotal);
 					productGroupRows.Insert(0, groupTotal);
 					rows = rows.Union(productGroupRows).ToList();
 				}
 
-				ReportTotal = AddGroupTotals("Сводные данные по отчету", totalsRows.Select(r => r.SliceColumnValues));
+				ReportTotal = AddGroupTotals("Сводные данные по отчету", totalsRows);
 
 				return rows;
 			}
@@ -221,7 +221,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return GetProductGroupFullName(productGroup.Parent) + " / " + productGroup.Name;
 			}
 
-			private TurnoverWithDynamicsReportRow AddGroupTotals(string title, IEnumerable<IList<decimal>> nomenclatureGroupValuesRows)
+			private TurnoverWithDynamicsReportRow AddGroupTotals(string title, IList<TurnoverWithDynamicsReportRow> nomenclatureGroupRows)
 			{
 				var row = new TurnoverWithDynamicsReportRow
 				{
@@ -233,8 +233,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				for(var i = 0; i < Slices.Count; i++)
 				{
 					var index = i;
-					row.SliceColumnValues[index] = nomenclatureGroupValuesRows.Sum(
-						ngvr => ngvr[index]);
+					row.SliceColumnValues[index] = nomenclatureGroupRows
+						.Select(ngr => ngr.SliceColumnValues)
+						.Sum(ngvr => ngvr[index]);
 				}
 
 				if(ShowDynamics)
@@ -244,10 +245,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				if(ShowLastSale)
 				{
-					row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails()
+					row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
 					{
-
+						DaysFromLastShipment = nomenclatureGroupRows.Sum(ngr => ngr.LastSaleDetails.DaysFromLastShipment),
+						WarhouseResidue = nomenclatureGroupRows.Sum(nrg => nrg.LastSaleDetails.WarhouseResidue)
 					};
+
+					if(nomenclatureGroupRows.First().RowType == TurnoverWithDynamicsReportRow.RowTypes.Values)
+					{
+						row.LastSaleDetails.LastSaleDate = nomenclatureGroupRows.Max(nrg => nrg.LastSaleDetails.LastSaleDate);
+					}
 				}
 
 				return row;
@@ -348,7 +355,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				public DateTime LastSaleDate { get; set; }
 
-				public double DaysFromLastShipment => (DateTime.Now - LastSaleDate).TotalDays;
+				public double DaysFromLastShipment { get; set; }
 
 				public decimal WarhouseResidue { get; set; }
 			}
