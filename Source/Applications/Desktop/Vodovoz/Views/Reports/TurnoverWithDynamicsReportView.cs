@@ -28,6 +28,8 @@ namespace Vodovoz.ReportsParameters.Sales
 			Build();
 			ConfigureDlg();
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
+			UpdateSliderArrow();
 		}
 
 		private void ConfigureDlg()
@@ -336,6 +338,17 @@ namespace Vodovoz.ReportsParameters.Sales
 			}
 
 			filechooser.Destroy();
+		}
+
+		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			this.vboxTurnoverWithDynamicsReportFilterContainer.Visible = !vboxTurnoverWithDynamicsReportFilterContainer.Visible;
+			UpdateSliderArrow();
+		}
+
+		private void UpdateSliderArrow()
+		{
+			arrowSlider.ArrowType = vboxTurnoverWithDynamicsReportFilterContainer.Visible ? ArrowType.Left : ArrowType.Right;
 		}
 	}
 }
