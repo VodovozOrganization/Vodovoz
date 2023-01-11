@@ -600,13 +600,18 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private IList<OrderItem> GetData(TurnoverWithDynamicsReport report)
 		{
-			var filterRouteListAddressStatusExclude = new RouteListItemStatus[] {
-				RouteListItemStatus.Transfered,
-				RouteListItemStatus.Canceled,
-				RouteListItemStatus.Overdue
+			var filterOrderStatusInclude = new OrderStatus[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed,
+				OrderStatus.WaitForPayment
 			};
 
-			RouteListItem routeListItemAlias = null;
 			Order orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -620,14 +625,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.PromoSet, () => promotionalSetAlias)
 				.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
-				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
-				.Where(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
+				.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), filterOrderStatusInclude))
+				.And(Restrictions.NotEqProperty(Projections.Property(() => orderAlias.IsContractCloser), Projections.Constant(true)))
 				.And(Restrictions.Between(Projections.Property(() => orderAlias.DeliveryDate), StartDate, EndDate));
 
 			var parameters = _filter.GetParameters();
