@@ -202,6 +202,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.frame1 = new global::Gtk.Frame();
 			this.frame1.Name = "frame1";
 			this.frame1.ShadowType = ((global::Gtk.ShadowType)(0));
+			this.frame1.BorderWidth = ((uint)(1));
 			// Container child frame1.Gtk.Container+ContainerChild
 			this.GtkAlignment2 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment2.Name = "GtkAlignment2";
@@ -291,6 +292,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.frame2 = new global::Gtk.Frame();
 			this.frame2.Name = "frame2";
 			this.frame2.ShadowType = ((global::Gtk.ShadowType)(0));
+			this.frame2.BorderWidth = ((uint)(1));
 			// Container child frame2.Gtk.Container+ContainerChild
 			this.GtkAlignment3 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment3.Name = "GtkAlignment3";
