@@ -197,7 +197,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							}
 							else
 							{
-								output[i] = (sliceColumnValues[i / 2 - 1] - sliceColumnValues[i / 2]).ToString(MeasurementUnitFormat);
+								output[i] = (sliceColumnValues[i / 2] - sliceColumnValues[i / 2 - 1]).ToString(MeasurementUnitFormat);
 							}
 						}
 					}
@@ -244,7 +244,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				if(ShowLastSale)
 				{
-					row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails();
+					row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails()
+					{
+
+					};
 				}
 
 				return row;

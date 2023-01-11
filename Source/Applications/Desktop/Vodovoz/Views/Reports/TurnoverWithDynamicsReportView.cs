@@ -213,9 +213,9 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			if(ViewModel.Report.ShowLastSale)
 			{
-				columnsConfig.AddColumn("Дата последней продажи").AddTextRenderer(row => row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
-				columnsConfig.AddColumn("Дней с последней продажи").AddTextRenderer(row => row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
-				columnsConfig.AddColumn($"Остатки на складе на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm:ss}").AddTextRenderer(row => row.LastSaleDetails.WarhouseResidue.ToString("0.000"));
+				columnsConfig.AddColumn("Дата последней продажи").AddTextRenderer(row => row.IsTotalsRow ? "" : row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
+				columnsConfig.AddColumn("Кол-во дней с момента последней отгрузки").AddTextRenderer(row => row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
+				columnsConfig.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}").AddTextRenderer(row => row.LastSaleDetails.WarhouseResidue.ToString("0.000"));
 			}
 			
 			columnsConfig.AddColumn("");
