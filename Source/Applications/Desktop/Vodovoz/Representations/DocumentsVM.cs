@@ -303,7 +303,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => inventoryAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => inventoryAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => inventoryAlias.Comment).WithAlias(() => resultAlias.Comment))
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 
