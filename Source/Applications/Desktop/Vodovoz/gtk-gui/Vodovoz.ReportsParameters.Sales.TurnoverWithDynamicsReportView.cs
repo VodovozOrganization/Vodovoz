@@ -201,7 +201,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			// Container child hboxSecondFiltersGroup.Gtk.Box+BoxChild
 			this.frame1 = new global::Gtk.Frame();
 			this.frame1.Name = "frame1";
-			this.frame1.ShadowType = ((global::Gtk.ShadowType)(0));
+			this.frame1.ShadowType = ((global::Gtk.ShadowType)(4));
 			this.frame1.BorderWidth = ((uint)(1));
 			// Container child frame1.Gtk.Container+ContainerChild
 			this.GtkAlignment2 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
@@ -291,7 +291,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			// Container child hboxSecondFiltersGroup.Gtk.Box+BoxChild
 			this.frame2 = new global::Gtk.Frame();
 			this.frame2.Name = "frame2";
-			this.frame2.ShadowType = ((global::Gtk.ShadowType)(0));
+			this.frame2.ShadowType = ((global::Gtk.ShadowType)(4));
 			this.frame2.BorderWidth = ((uint)(1));
 			// Container child frame2.Gtk.Container+ContainerChild
 			this.GtkAlignment3 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
@@ -378,6 +378,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.frame2.LabelWidget = this.GtkLabel17;
 			this.hboxSecondFiltersGroup.Add(this.frame2);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hboxSecondFiltersGroup[this.frame2]));
+			w26.PackType = ((global::Gtk.PackType)(1));
 			w26.Position = 2;
 			w26.Expand = false;
 			w26.Fill = false;
