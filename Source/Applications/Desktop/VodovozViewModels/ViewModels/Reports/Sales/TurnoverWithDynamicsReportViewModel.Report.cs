@@ -272,7 +272,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				return secondValue != 0
 					? ((secondValue - firstValue) / secondValue).ToString("P2")
-					: (firstValue == 0) ? "0,00%" : "100,00%";
+					: (firstValue == 0) ? "0,00%" : "-100,00%";
 			}
 
 			private decimal? MeasurementUnitSelector(OrderItem oi)
