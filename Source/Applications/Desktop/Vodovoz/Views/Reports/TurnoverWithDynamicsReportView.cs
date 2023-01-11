@@ -211,13 +211,18 @@ namespace Vodovoz.ReportsParameters.Sales
 				}
 			}
 
-			columnsConfig.AddColumn("Всего за период").AddNumericRenderer(row => row.RowTotal);
+			columnsConfig.AddColumn("Всего за период")
+				.AddNumericRenderer(row => row.RowTotal)
+				.XAlign(1);
 
 			if(ViewModel.Report.ShowLastSale)
 			{
-				columnsConfig.AddColumn("Дата последней продажи").AddTextRenderer(row => row.IsTotalsRow && row.LastSaleDetails.LastSaleDate == DateTime.MinValue ? "" : row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
-				columnsConfig.AddColumn("Кол-во дней с момента последней отгрузки").AddTextRenderer(row => row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
-				columnsConfig.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}").AddTextRenderer(row => row.LastSaleDetails.WarhouseResidue.ToString("0.000"));
+				columnsConfig.AddColumn("Дата последней продажи")
+					.AddTextRenderer(row => row.IsTotalsRow && row.LastSaleDetails.LastSaleDate == DateTime.MinValue ? "" : row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
+				columnsConfig.AddColumn("Кол-во дней с момента последней отгрузки")
+					.AddTextRenderer(row => row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
+				columnsConfig
+					.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}").AddTextRenderer(row => row.LastSaleDetails.WarhouseResidue.ToString("0.000"));
 			}
 			
 			columnsConfig.AddColumn("");
