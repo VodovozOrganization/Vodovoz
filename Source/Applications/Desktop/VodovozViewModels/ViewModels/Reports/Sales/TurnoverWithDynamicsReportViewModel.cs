@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Report;
 using DateTimeHelpers;
+using DocumentFormat.OpenXml.VariantTypes;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -60,6 +61,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private bool _canSave;
 		private bool _isGenerating;
 		private bool _canCancelGenerate;
+		private IEnumerable<string> _lastGenerationErrors;
 
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -85,6 +87,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
+
+			_lastGenerationErrors = Enumerable.Empty<string>();
 
 			ConfigureFilter();
 		}
@@ -184,6 +188,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 		}
 
+		public IEnumerable<string> LastGenerationErrors
+		{
+			get => _lastGenerationErrors;
+			set => SetField(ref _lastGenerationErrors, value);
+		}
+
 		public DelegateCommand ShowInfoCommand
 		{
 			get
@@ -195,6 +205,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return _showInfoCommand;
 			}
 		}
+
 
 		public async Task<TurnoverWithDynamicsReport> ActionGenerateReport(CancellationToken cancellationToken)
 		{
@@ -496,9 +507,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public async Task<TurnoverWithDynamicsReport> Generate(CancellationToken cancellationToken)
 		{
-			if(!ValidateParameters())
+			var errors = ValidateParameters();
+			if(errors.Any())
 			{
-				throw new InvalidOperationException("Заданы некорректные значения параметров отчета");
+				LastGenerationErrors = errors;
+				IsGenerating = false;
+				ReportGenerationCancelationTokenSource.Cancel();
 			}
 
 			var filters = string.Empty;
@@ -848,28 +862,25 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			return result;
 		}
 
-		private bool ValidateParameters()
+		private IEnumerable<string> ValidateParameters()
 		{
 			if(StartDate == null || StartDate == default(DateTime)
 			|| EndDate == null || EndDate == default(DateTime))
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
-				return false;
+				yield return "Заполните дату.";
 			}
 
 			var deltaTime = EndDate - StartDate;
 
 			if(SlicingType == DateTimeSliceType.Day && deltaTime?.TotalDays >= 62)
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Для разреза день нельзя выбрать интервал более 62х дней");
-				return false;
+				yield return "Для разреза день нельзя выбрать интервал более 62х дней";
 			}
 
 			if((SlicingType == DateTimeSliceType.Week)
 			&& (StartDate?.DayOfWeek == DayOfWeek.Monday ? deltaTime?.TotalDays / 7 >= 54 : deltaTime?.TotalDays / 7 > 54))
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Для разреза неделя нельзя выбрать интервал более 54х недель");
-				return false;
+				yield return "Для разреза неделя нельзя выбрать интервал более 54х недель";
 			}
 
 			var monthBetweenDates = 0;
@@ -881,11 +892,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			if(SlicingType == DateTimeSliceType.Month
 			&& StartDate?.Day == 1 ? monthBetweenDates >= 60 : monthBetweenDates > 60)
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Для разреза месяц нельзя выбрать интервал более 60х месяцев");
-				return false;
+				yield return "Для разреза месяц нельзя выбрать интервал более 60х месяцев";
 			}
-
-			return true;
 		}
 	}
 }

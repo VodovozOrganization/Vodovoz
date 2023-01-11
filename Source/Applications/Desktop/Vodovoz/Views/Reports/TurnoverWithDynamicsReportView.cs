@@ -1,8 +1,10 @@
 ﻿using DateTimeHelpers;
 using Gtk;
+using NHibernate.Util;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.Reports.Sales;
@@ -249,7 +251,17 @@ namespace Vodovoz.ReportsParameters.Sales
 				}
 				catch(OperationCanceledException)
 				{
-					Application.Invoke((s, eventArgs) => { ViewModel.ShowWarning("Формирование отчета было прервано"); });
+					Application.Invoke((s, eventArgs) => {
+						if(ViewModel.LastGenerationErrors.Any())
+						{
+							ViewModel.ShowWarning(string.Join("\n", ViewModel.LastGenerationErrors));
+							ViewModel.LastGenerationErrors = Enumerable.Empty<string>();
+						}
+						else
+						{
+							ViewModel.ShowWarning("Формирование отчета было прервано");
+						}
+					});
 				}
 				catch(Exception ex)
 				{
