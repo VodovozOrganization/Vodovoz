@@ -494,11 +494,19 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			sb.Clear();
 
+			var notSetValues = new string[]{
+				"Все",
+				"Нет"
+			};
+
 			if(selectedParametersTitles.Any())
 			{
 				foreach(var item in selectedParametersTitles)
 				{
-					sb.AppendLine($"{item.Key}{item.Value}");
+					if(!notSetValues.Contains(item.Value))
+					{
+						sb.AppendLine($"{item.Key}{item.Value}");
+					}
 				}
 			}
 
