@@ -206,13 +206,13 @@ namespace Vodovoz.ReportsParameters.Sales
 					var index = i;
 					columnsConfig.AddColumn(ViewModel.Report.Slices[index].ToString())
 						.HeaderAlignment(0.5f)
-						.AddNumericRenderer(row => row.SliceColumnValues[index])
+						.AddNumericRenderer(row => row.SliceColumnValues[index].ToString(ViewModel.Report.MeasurementUnitFormat))
 						.XAlign(1);
 				}
 			}
 
 			columnsConfig.AddColumn("Всего за период")
-				.AddNumericRenderer(row => row.RowTotal)
+				.AddNumericRenderer(row => row.RowTotal.ToString(ViewModel.Report.MeasurementUnitFormat))
 				.XAlign(1);
 
 			if(ViewModel.Report.ShowLastSale)
