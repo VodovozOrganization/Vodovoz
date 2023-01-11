@@ -111,12 +111,16 @@ namespace DateTimeHelpers
 
 			while(date <= endDate)
 			{
+				var sliceEnd = date.AddMonths(1).AddDays(-1);
+
 				slices.Add(new DateTimeMonthSlice
 				{
 					StartDate = date.Date,
-					EndDate = date.AddMonths(1).AddDays(-1).LatestDayTime(),
+					EndDate = sliceEnd.LatestDayTime(),
 					SliceType = DateTimeSliceType.Month
 				});
+
+				date = sliceEnd.AddDays(1);
 			}
 
 			return slices;
