@@ -64,7 +64,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			btnReportInfo.Clicked += (s, e) => ViewModel.ShowInfoCommand.Execute();
 
-			foreach(Gtk.RadioButton radioButton in yrbtnSliceDay.Group)
+			foreach(RadioButton radioButton in yrbtnSliceDay.Group)
 			{
 				if(radioButton.Active)
 				{
@@ -74,7 +74,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				radioButton.Toggled += SliceGroupSelectionChanged;
 			}
 
-			foreach(Gtk.RadioButton radioButton in yrbtnMeasurementUnitAmount.Group)
+			foreach(RadioButton radioButton in yrbtnMeasurementUnitAmount.Group)
 			{
 				if(radioButton.Active)
 				{
@@ -84,7 +84,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				radioButton.Toggled += MeasurementUnitGroupSelectionChanged;
 			}
 
-			foreach(Gtk.RadioButton radioButton in yrbtnDynamicsInPercents.Group)
+			foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
 			{
 				if(radioButton.Active)
 				{
@@ -113,7 +113,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private void DynamicsInGroupSelectionChanged(object s, EventArgs e)
 		{
-			if(s is Gtk.RadioButton rbtn && rbtn.Active)
+			if(s is RadioButton rbtn && rbtn.Active)
 			{
 				var trimmedName = rbtn.Name
 					.Replace(_radioButtonPrefix, string.Empty)
@@ -126,7 +126,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private void MeasurementUnitGroupSelectionChanged(object s, EventArgs e)
 		{
-			if(s is Gtk.RadioButton rbtn && rbtn.Active)
+			if(s is RadioButton rbtn && rbtn.Active)
 			{
 				var trimmedName = rbtn.Name
 					.Replace(_radioButtonPrefix, string.Empty)
@@ -138,7 +138,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private void SliceGroupSelectionChanged(object s, EventArgs e)
 		{
-			if(s is Gtk.RadioButton rbtn && rbtn.Active)
+			if(s is RadioButton rbtn && rbtn.Active)
 			{
 				var trimmedName = rbtn.Name
 					.Replace(_radioButtonPrefix, string.Empty)
@@ -342,7 +342,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
-			this.vboxTurnoverWithDynamicsReportFilterContainer.Visible = !vboxTurnoverWithDynamicsReportFilterContainer.Visible;
+			vboxTurnoverWithDynamicsReportFilterContainer.Visible = !vboxTurnoverWithDynamicsReportFilterContainer.Visible;
 			UpdateSliderArrow();
 		}
 

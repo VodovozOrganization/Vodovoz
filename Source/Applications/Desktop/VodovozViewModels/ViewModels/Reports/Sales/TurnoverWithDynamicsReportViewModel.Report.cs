@@ -280,9 +280,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			private static string CalculatePercentDynamic(decimal firstValue, decimal secondValue)
 			{
-				return secondValue != 0
-					? ((secondValue - firstValue) / secondValue).ToString("P2")
-					: (firstValue == 0) ? "0,00%" : "-100,00%";
+				return firstValue != 0
+					? ((secondValue - firstValue) / firstValue).ToString("P2")
+					: "-";
 			}
 
 			private decimal? MeasurementUnitSelector(OrderItem oi)
