@@ -642,11 +642,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			PromotionalSet promotionalSetAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
+			VodovozCounterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
 
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.PromoSet, () => promotionalSetAlias)
 				.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => counterpartyAlias.CounterpartyContracts, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
@@ -737,7 +741,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				&& organizationsInclude[0] != "0")
 			{
 				query.Where(Restrictions.In(
-					Projections.Property(() => orderAlias.Client.Contacts),
+					Projections.Property(() => counterpartyContractAlias.Organization.Id),
 					organizationsInclude));
 			}
 
@@ -746,7 +750,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				&& organizationsExclude[0] != "0")
 			{
 				query.Where(Restrictions.Not(Restrictions.In(
-					Projections.Property(() => orderAlias.Client.Contacts),
+					Projections.Property(() => counterpartyContractAlias.Organization.Id),
 					organizationsExclude)));
 			}
 
