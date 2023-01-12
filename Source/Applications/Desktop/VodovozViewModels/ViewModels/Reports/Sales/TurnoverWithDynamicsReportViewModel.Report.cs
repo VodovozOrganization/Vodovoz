@@ -91,7 +91,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			public string MeasurementUnitString => MeasurementUnit.GetEnumTitle();
 
-			public string DynamicsInStringShort => DynamicsIn == DynamicsInEnum.Percents ? "%" : "Ед. Изм.";
+			public string DynamicsInStringShort => DynamicsIn == DynamicsInEnum.Percents ? "%" :
+				MeasurementUnit == MeasurementUnitEnum.Price ? "Руб." : "Шт.";
 
 			/// <summary>
 			/// Зависит от текущего значения <see cref="MeasurementUnit"/>

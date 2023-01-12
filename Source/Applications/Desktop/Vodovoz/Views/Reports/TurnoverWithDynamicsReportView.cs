@@ -175,7 +175,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			var columnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<TurnoverWithDynamicsReportRow>.Create();
 
 			columnsConfig.AddColumn("")
-				.AddNumericRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index);
+				.AddTextRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index, useMarkup: true);
 
 			columnsConfig.AddColumn("Периоды продаж").AddTextRenderer(row =>
 				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true).XAlign(1);
@@ -198,7 +198,7 @@ namespace Vodovoz.ReportsParameters.Sales
 					else
 					{
 						var index = i;
-						columnsConfig.AddColumn(ViewModel.Report.DynamicsIn == DynamicsInEnum.Percents ? "%" : "Ед. Изм.")
+						columnsConfig.AddColumn(ViewModel.Report.DynamicsInStringShort)
 							.HeaderAlignment(0.5f)
 							.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
 								row.DynamicColumns[index])
