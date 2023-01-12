@@ -286,8 +286,6 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.hboxSecondFiltersGroup.Add(this.frame1);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxSecondFiltersGroup[this.frame1]));
 			w17.Position = 0;
-			w17.Expand = false;
-			w17.Fill = false;
 			// Container child hboxSecondFiltersGroup.Gtk.Box+BoxChild
 			this.frame2 = new global::Gtk.Frame();
 			this.frame2.Name = "frame2";
@@ -379,9 +377,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.hboxSecondFiltersGroup.Add(this.frame2);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hboxSecondFiltersGroup[this.frame2]));
 			w26.PackType = ((global::Gtk.PackType)(1));
-			w26.Position = 2;
-			w26.Expand = false;
-			w26.Fill = false;
+			w26.Position = 1;
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.hboxSecondFiltersGroup);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.hboxSecondFiltersGroup]));
 			w27.Position = 1;

@@ -194,7 +194,7 @@ namespace Vodovoz.ReportsParameters.Sales
 					else
 					{
 						var index = i;
-						columnsConfig.AddColumn(ViewModel.Report.DynamicsIn == DynamicsInEnum.Percents ? "%" : "Шт")
+						columnsConfig.AddColumn(ViewModel.Report.DynamicsIn == DynamicsInEnum.Percents ? "%" : "Ед. Изм.")
 							.HeaderAlignment(0.5f)
 							.AddNumericRenderer(row => row.DynamicColumns[index])
 							.XAlign(1);
