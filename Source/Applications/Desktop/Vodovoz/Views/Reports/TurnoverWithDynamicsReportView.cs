@@ -174,8 +174,11 @@ namespace Vodovoz.ReportsParameters.Sales
 		{
 			var columnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<TurnoverWithDynamicsReportRow>.Create();
 
+			columnsConfig.AddColumn("")
+				.AddNumericRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index);
+
 			columnsConfig.AddColumn("Периоды продаж").AddTextRenderer(row =>
-				row.RowType == RowTypes.Totals ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true).XAlign(1);
+				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true).XAlign(1);
 
 			if(ViewModel.Report.ShowDynamics)
 			{
@@ -188,7 +191,8 @@ namespace Vodovoz.ReportsParameters.Sales
 						var sliceIndex = i / 2;
 						columnsConfig.AddColumn(ViewModel.Report.Slices[sliceIndex].ToString())
 							.HeaderAlignment(0.5f)
-							.AddNumericRenderer(row => row.DynamicColumns[index])
+							.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+								row.DynamicColumns[index])
 							.XAlign(1);
 					}
 					else
@@ -196,7 +200,8 @@ namespace Vodovoz.ReportsParameters.Sales
 						var index = i;
 						columnsConfig.AddColumn(ViewModel.Report.DynamicsIn == DynamicsInEnum.Percents ? "%" : "Ед. Изм.")
 							.HeaderAlignment(0.5f)
-							.AddNumericRenderer(row => row.DynamicColumns[index])
+							.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+								row.DynamicColumns[index])
 							.XAlign(1);
 					}
 				}
@@ -208,23 +213,30 @@ namespace Vodovoz.ReportsParameters.Sales
 					var index = i;
 					columnsConfig.AddColumn(ViewModel.Report.Slices[index].ToString())
 						.HeaderAlignment(0.5f)
-						.AddNumericRenderer(row => row.SliceColumnValues[index].ToString(ViewModel.Report.MeasurementUnitFormat))
+						.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+							row.SliceColumnValues[index].ToString(ViewModel.Report.MeasurementUnitFormat))
 						.XAlign(1);
 				}
 			}
 
 			columnsConfig.AddColumn("Всего за период")
-				.AddNumericRenderer(row => row.RowTotal.ToString(ViewModel.Report.MeasurementUnitFormat))
+				.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+					row.RowTotal.ToString(ViewModel.Report.MeasurementUnitFormat))
 				.XAlign(1);
 
 			if(ViewModel.Report.ShowLastSale)
 			{
 				columnsConfig.AddColumn("Дата последней продажи")
-					.AddTextRenderer(row => row.IsTotalsRow && row.LastSaleDetails.LastSaleDate == DateTime.MinValue ? "" : row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
+					.AddTextRenderer(row =>
+						row.IsSubheaderRow ? "" :
+						row.IsTotalsRow && row.LastSaleDetails.LastSaleDate == DateTime.MinValue ? "" : row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
 				columnsConfig.AddColumn("Кол-во дней с момента последней отгрузки")
-					.AddTextRenderer(row => row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
+					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
+						row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
 				columnsConfig
-					.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}").AddTextRenderer(row => row.LastSaleDetails.WarhouseResidue.ToString("0.000"));
+					.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")
+					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
+						row.LastSaleDetails.WarhouseResidue.ToString("0.000"));
 			}
 			
 			columnsConfig.AddColumn("");

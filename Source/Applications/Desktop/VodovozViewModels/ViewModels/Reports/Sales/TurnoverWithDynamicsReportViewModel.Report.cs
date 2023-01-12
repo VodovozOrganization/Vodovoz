@@ -70,7 +70,20 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public IList<TurnoverWithDynamicsReportRow> Rows { get; }
 
 			public IList<TurnoverWithDynamicsReportRow> DisplayRows => new List<TurnoverWithDynamicsReportRow>
-				{ ReportTotal }.Union(Rows).ToList();
+				{
+					ReportTotal,
+					new TurnoverWithDynamicsReportRow
+					{
+						Title = "Номенклатура",
+						RowType = TurnoverWithDynamicsReportRow.RowTypes.Subheader,
+						SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
+						DynamicColumns = CreateInitializedBy(ShowDynamics ? Slices.Count * 2 : Slices.Count, ""),
+						LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
+						{
+
+						}
+					}
+				}.Union(Rows).ToList();
 
 			public TurnoverWithDynamicsReportRow ReportTotal { get; private set; }
 
@@ -336,6 +349,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				public bool IsTotalsRow => RowType == RowTypes.Totals;
 
+				public bool IsSubheaderRow => RowType == RowTypes.Subheader;
+
 				public IList<decimal> SliceColumnValues { get; set; }
 
 				public IList<string> DynamicColumns { get; set; }
@@ -347,7 +362,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public enum RowTypes
 				{
 					Values,
-					Totals
+					Totals,
+					Subheader
 				}
 			}
 
