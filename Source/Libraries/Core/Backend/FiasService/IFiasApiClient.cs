@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fias.Search.DTO;
 
-namespace Fias.Service
+namespace Fias.Client
 {
 	public interface IFiasApiClient
 	{

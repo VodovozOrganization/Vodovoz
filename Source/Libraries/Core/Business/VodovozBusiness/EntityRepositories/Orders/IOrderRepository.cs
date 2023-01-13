@@ -24,7 +24,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="order">Заказ</param>
 		int Get19LWatterQtyForOrder(IUnitOfWork uow, Order order);
 
-		IList<Order> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district);
+		IList<Order> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, int districtId);
 
 		/// <summary>
 		/// Список МЛ для заказа, отсортированный в порядке владения этим заказом, в случае переносов
@@ -147,6 +147,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 		IList<Order> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
+		IList<Order> GetOrdersWithSendErrorsForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 	}
 
 	public class ClientEquipmentNode

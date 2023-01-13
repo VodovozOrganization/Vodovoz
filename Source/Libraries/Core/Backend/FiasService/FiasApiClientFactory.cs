@@ -1,8 +1,8 @@
-﻿using Fias.Service.Cache;
-using System;
+﻿using System;
+using Fias.Client.Cache;
 using Vodovoz.Services;
 
-namespace Fias.Service
+namespace Fias.Client
 {
 	public class FiasApiClientFactory
 	{

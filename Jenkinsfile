@@ -60,8 +60,8 @@ parallel (
 					PublishBuildWebService('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebService('RoboAtsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\RoboAtsService.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboAtsService\\bin\\Release\\net5.0_publish')
+					PublishBuildWebService('RoboatsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj', 
+						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\bin\\Release\\net5.0_publish')
 
 					PublishBuildWebService('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
@@ -83,7 +83,6 @@ parallel (
 			stage('Build WCF'){
 				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
 
-				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozInstantSmsService/', 'InstantSmsService')
 				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSalesReceiptsService/', 'SalesReceiptsService')
 				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/', 'SmsInformerService')
 				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/', 'SmsPaymentService')
@@ -130,7 +129,6 @@ parallel (
 					{					
 						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
-						UnzipArtifact('InstantSmsService')
 						UnzipArtifact('SalesReceiptsService')
 						UnzipArtifact('SmsInformerService')
 						UnzipArtifact('SmsPaymentService')
@@ -153,7 +151,7 @@ parallel (
 					DeployWebService('MailjetEventsDistributorAPI')
 					DeployWebService('UnsubscribePage')
 					DeployWebService('DeliveryRulesService')
-					DeployWebService('RoboAtsService')
+					DeployWebService('RoboatsService')
 					DeployWebService('TaxcomEdoApi')
 					DeployWebService('TrueMarkAPI')
 					DeployWebService('PayPageAPI')

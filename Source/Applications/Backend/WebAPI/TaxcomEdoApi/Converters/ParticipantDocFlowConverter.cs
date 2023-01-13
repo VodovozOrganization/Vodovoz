@@ -50,7 +50,7 @@ namespace TaxcomEdoApi.Converters
 						{
 							IdSv = new UchastnikTipIdSv
 							{
-								Item = GetSpecialConsignee(client, deliveryPoint?.KPP)
+								Item = GetSpecialConsignee(client, client.PayerSpecialKPP)
 							},
 							Adres = new AdresTip
 							{
@@ -74,7 +74,7 @@ namespace TaxcomEdoApi.Converters
 			{
 				IdSv = new UchastnikTipIdSv
 				{
-					Item = GetUchastnikUl(org.INN, org.KPP, org.Name)
+					Item = GetLegalCounterpartyInfo(org.INN, org.KPP, org.Name)
 				},
 				Adres = new AdresTip
 				{
@@ -85,6 +85,21 @@ namespace TaxcomEdoApi.Converters
 
 		private object GetConcreteBuyer(Counterparty client)
 		{
+			var clientName = client.FullName;
+			var clientKpp = client.KPP;
+
+			if(client.UseSpecialDocFields)
+			{
+				if(!string.IsNullOrWhiteSpace(client.SpecialCustomer))
+				{
+					clientName = client.SpecialCustomer;
+				}
+				if(!string.IsNullOrWhiteSpace(client.PayerSpecialKPP))
+				{
+					clientKpp = client.PayerSpecialKPP;
+				}
+			}
+
 			switch(client.PersonType)
 			{
 				case PersonType.legal:
@@ -92,21 +107,19 @@ namespace TaxcomEdoApi.Converters
 					{
 						return new SvIPTip
 						{
-							FIO = FillFIOTip(client.FullName),
+							FIO = FillFIOTip(clientName),
 							INNFL = client.INN
 						};
 					}
 
-					return client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(client.PayerSpecialKPP)
-						? GetUchastnikUl(client.INN, client.PayerSpecialKPP, client.FullName)
-						: GetUchastnikUl(client.INN, client.KPP, client.FullName);
+					return GetLegalCounterpartyInfo(client.INN, clientKpp, clientName);
 				case PersonType.natural:
 				default:
 					throw new InvalidOperationException("Нельзя сделать УПД для физического лица");
 			}
 		}
 		
-		private object GetConcreteConsignee(Counterparty client, string deliveryPointKpp)
+		private object GetConcreteConsignee(Counterparty client, string specialKpp)
 		{
 			switch(client.PersonType)
 			{
@@ -120,16 +133,16 @@ namespace TaxcomEdoApi.Converters
 						};
 					}
 
-					return !string.IsNullOrWhiteSpace(deliveryPointKpp)
-						? GetUchastnikUl(client.INN, deliveryPointKpp, client.FullName)
-						: GetUchastnikUl(client.INN, client.KPP, client.FullName);
+					return !string.IsNullOrWhiteSpace(specialKpp)
+						? GetLegalCounterpartyInfo(client.INN, specialKpp, client.FullName)
+						: GetLegalCounterpartyInfo(client.INN, client.KPP, client.FullName);
 				case PersonType.natural:
 				default:
 					throw new InvalidOperationException("Нельзя сделать УПД для физического лица");
 			}
 		}
 		
-		private object GetSpecialConsignee(Counterparty client, string deliveryPointKpp)
+		private object GetSpecialConsignee(Counterparty client, string specialKpp)
 		{
 			switch(client.PersonType)
 			{
@@ -143,9 +156,9 @@ namespace TaxcomEdoApi.Converters
 						};
 					}
 
-					return !string.IsNullOrWhiteSpace(deliveryPointKpp)
-						? GetUchastnikUl(client.INN, deliveryPointKpp, client.FullName)
-						: GetUchastnikUl(client.INN, client.KPP, client.FullName);
+					return !string.IsNullOrWhiteSpace(specialKpp)
+						? GetLegalCounterpartyInfo(client.INN, specialKpp, client.FullName)
+						: GetLegalCounterpartyInfo(client.INN, client.KPP, client.FullName);
 				case PersonType.natural:
 				default:
 					throw new InvalidOperationException("Нельзя сделать УПД для физического лица");
@@ -161,7 +174,7 @@ namespace TaxcomEdoApi.Converters
 			};
 		}
 
-		private object GetUchastnikUl(string inn, string kpp, string name)
+		private object GetLegalCounterpartyInfo(string inn, string kpp, string name)
 		{
 			return new UchastnikTipIdSvSvJuLUch
 			{

@@ -128,7 +128,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 			{
 				RoboatsWaterType roboatsWaterTypeAlias = null;
 				var waters = uow.Session.QueryOver(() => roboatsWaterTypeAlias)
-					.OrderBy(x => x.Order).Asc()
+					.OrderBy(() => roboatsWaterTypeAlias.Order).Asc()
 					.List();
 				_roboatsWatersCache = waters;
 				return _roboatsWatersCache;
@@ -241,6 +241,16 @@ namespace Vodovoz.EntityRepositories.Roboats
 				return result;
 			}
 		}
+
+		public IEnumerable<RoboatsDeliveryIntervalRestriction> GetRoboatsDeliveryIntervalRestrictions()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var result = uow.GetAll<RoboatsDeliveryIntervalRestriction>().ToList();
+				return result;
+			}
+		}
+
 
 		public IEnumerable<Order> GetLastOrders(int clientId)
 		{

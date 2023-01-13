@@ -12,7 +12,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
@@ -34,21 +34,22 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateSimpleExpenseCategoryAutocompleteSelectorFactory()
 		{
-			var expenceCategoryfilterViewModel = new ExpenseCategoryJournalFilterViewModel();
-			expenceCategoryfilterViewModel.ExcludedIds = _excludedIds;
-			expenceCategoryfilterViewModel.HidenByDefault = true;
-
-			var employeeFilter = new EmployeeFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking
-			};
-
-			var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var expenseFactory = new ExpenseCategorySelectorFactory();
 
 			return new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(() =>
 			{
+				var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
+				expenseCategoryFilter.ExcludedIds = _excludedIds;
+				expenseCategoryFilter.HidenByDefault = true;
+
+				var employeeFilter = new EmployeeFilterViewModel
+				{
+					Status = EmployeeStatus.IsWorking
+				};
+
+				var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+				
 				var journal = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
 					x => x.Name,
 					() => new ExpenseCategoryViewModel(
@@ -71,7 +72,7 @@ namespace Vodovoz.TempAdapters
 					ServicesConfig.CommonServices
 					);
 				journal.SelectionMode = JournalSelectionMode.Single;
-				journal.SetFilter(expenceCategoryfilterViewModel,
+				journal.SetFilter(expenseCategoryFilter,
 					filter =>
 					{
 						if(filter.ShowArchive)
@@ -90,28 +91,37 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateDefaultExpenseCategoryAutocompleteSelectorFactory()
 		{
-			var expenceCategoryfilterViewModel = new ExpenseCategoryJournalFilterViewModel();
-			expenceCategoryfilterViewModel.ExcludedIds = _excludedIds;
-			expenceCategoryfilterViewModel.HidenByDefault = true;
-
 			IFileChooserProvider chooserProvider = new FileChooser();
-			var employeeFilter = new EmployeeFilterViewModel
-			{
-				Status = EmployeeStatus.IsWorking
-			};
-			var commonServices = ServicesConfig.CommonServices;
-
-			var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var expenseFactory = new ExpenseCategorySelectorFactory();
 
-			return new ExpenseCategoryAutoCompleteSelectorFactory(
-				commonServices,
-				expenceCategoryfilterViewModel,
-				chooserProvider,
-				employeeJournalFactory,
-				subdivisionJournalFactory,
-				expenseFactory);
+			return new EntityAutocompleteSelectorFactory<ExpenseCategoryJournalViewModel>(
+				typeof(ExpenseCategory),
+				() =>
+				{
+					var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
+					expenseCategoryFilter.ExcludedIds = _excludedIds;
+					expenseCategoryFilter.HidenByDefault = true;
+
+					var employeeFilter = new EmployeeFilterViewModel
+					{
+						Status = EmployeeStatus.IsWorking
+					};
+					
+					var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+
+					return new ExpenseCategoryJournalViewModel(
+						expenseCategoryFilter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices,
+						chooserProvider,
+						employeeJournalFactory,
+						subdivisionJournalFactory,
+						expenseFactory)
+					{
+						SelectionMode = JournalSelectionMode.Single
+					};
+				});
 		}
 	}
 }

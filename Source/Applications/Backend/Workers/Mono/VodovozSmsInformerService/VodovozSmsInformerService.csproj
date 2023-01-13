@@ -80,7 +80,7 @@
       <Version>3.1.0</Version>
     </PackageReference>
     <PackageReference Include="Google.Protobuf">
-      <Version>3.19.4</Version>
+      <Version>3.21.7</Version>
     </PackageReference>
     <PackageReference Include="K4os.Compression.LZ4.Streams">
       <Version>1.2.16</Version>
@@ -117,13 +117,17 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Sms\SmsRuSendService\SmsRuSendService.csproj">
-      <Project>{26f787d2-818a-4009-843a-76bc535699e1}</Project>
-      <Name>SmsRuSendService</Name>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.Interface\Sms.External.Interface.csproj">
+      <Project>{8955A646-0DBD-4B1A-B0C4-E929BC1B092E}</Project>
+      <Name>Sms.External.Interface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Sms\SmsSendInterface\SmsSendInterface.csproj">
-      <Project>{2f7f7e4f-5a79-44b5-a877-c22e315adf43}</Project>
-      <Name>SmsSendInterface</Name>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.SmsRu\Sms.External.SmsRu.csproj">
+      <Project>{023DBDAF-5FB8-466C-B9E3-AB96CBB4E4F1}</Project>
+      <Name>Sms.External.SmsRu</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
+      <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>
+      <Name>Vodovoz.Settings.Database</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>

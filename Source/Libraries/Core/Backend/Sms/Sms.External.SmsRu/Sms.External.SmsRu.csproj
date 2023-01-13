@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Autofac" Version="6.4.0" />
+	  <PackageReference Include="SmsRu_Unofficial_API_Client" Version="1.0.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sms.External.Interface\Sms.External.Interface.csproj" />
+  </ItemGroup>
+
+</Project>

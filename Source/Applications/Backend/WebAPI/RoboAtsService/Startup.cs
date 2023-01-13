@@ -17,9 +17,11 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using QS.Services;
-using RoboAtsService.Middleware;
-using RoboAtsService.Monitoring;
-using RoboAtsService.OrderValidation;
+using Sms.External.SmsRu;
+using Sms.Internal.Client;
+using RoboatsService.Authentication;
+using RoboatsService.Monitoring;
+using RoboatsService.OrderValidation;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -27,15 +29,19 @@ using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
+using Vodovoz.Infrastructure.Database;
+using Vodovoz.Models;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 
-namespace RoboAtsService
+namespace RoboatsService
 {
 	public class Startup
     {
+		private IDataBaseInfo _dataBaseInfo;
 		private ILogger<Startup> _logger;
 
         public Startup(IConfiguration configuration)
@@ -48,14 +54,17 @@ namespace RoboAtsService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-			services.AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
-                .AddAzureADBearer(options => Configuration.Bind("AzureAd", options));
-            services.AddMvc().AddControllersAsServices();
+			services.AddAuthentication()
+				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
+			services.AddAuthentication(ApiKeyAuthenticationOptions.DefaultScheme);
+			services.AddMvc().AddControllersAsServices();
 
 			NLogBuilder.ConfigureNLog("NLog.config");
 
 			CreateBaseConfig();
+			SettingsController settingsController = new SettingsController(UnitOfWorkFactory.GetDefaultFactory);
+			settingsController.RefreshSettings();
+
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -69,8 +78,22 @@ namespace RoboAtsService
 			builder.RegisterType<RoboatsCallFactory>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsSettings>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<RoboatsCallBatchRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ValidOrdersProvider>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<ApiKeyAuthenticationOptions>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<FastPaymentSender>().AsSelf().AsImplementedInterfaces();
+
+			builder.RegisterInstance(_dataBaseInfo)
+				.AsSelf()
+				.AsImplementedInterfaces()
+				.SingleInstance();
+			
+			builder.RegisterModule<DatabaseSettingsModule>();
+			builder.RegisterModule<SmsExternalSmsRuModule>();
+			builder.RegisterModule<SmsInternalClientModule>();
+			
 			builder.RegisterType<CallTaskWorker>()
 				.AsSelf()
 				.AsImplementedInterfaces();
@@ -82,7 +105,6 @@ namespace RoboAtsService
 			builder.RegisterType<UserService>()
 				.AsSelf()
 				.AsImplementedInterfaces();
-
 
 			builder.RegisterInstance(ErrorReporter.Instance).AsImplementedInterfaces();
 
@@ -128,10 +150,12 @@ namespace RoboAtsService
 
             app.UseRouting();
 
+			app.UseAuthentication();
             app.UseAuthorization();
-			app.UseMiddleware<ApiKeyMiddleware>();
 
-            app.UseEndpoints(endpoints =>
+
+
+			app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
@@ -169,9 +193,12 @@ namespace RoboAtsService
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
+
+			_dataBaseInfo = new DatabaseInfo(conStrBuilder.Database);
 
 			string userLogin = domainDBConfig.GetValue<string>("UserID");
 			int serviceUserId = 0;

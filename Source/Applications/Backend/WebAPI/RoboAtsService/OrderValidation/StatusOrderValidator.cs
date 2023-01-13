@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 
-namespace RoboAtsService.OrderValidation
+namespace RoboatsService.OrderValidation
 {
 	public sealed class StatusOrderValidator : OrderValidatorBase
 	{

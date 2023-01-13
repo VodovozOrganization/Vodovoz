@@ -1,6 +1,9 @@
-﻿namespace Vodovoz.Parameters
+﻿using System;
+
+namespace Vodovoz.Parameters
 {
-    public interface IParametersProvider
+	[Obsolete("Вместо него необходимо использовать класс Vodovoz.Settings.Database.SettingsController")]
+	public interface IParametersProvider
     {
         bool ContainsParameter(string parameterName);
         void CreateOrUpdateParameter(string name, string value);

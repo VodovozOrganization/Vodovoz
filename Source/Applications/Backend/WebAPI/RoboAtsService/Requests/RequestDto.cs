@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RoboAtsService.Requests
+namespace RoboatsService.Requests
 {
 	public class RequestDto
 	{
@@ -60,9 +60,9 @@ namespace RoboAtsService.Requests
 		public string IsFullOrder { get; set; }
 
 		/// <summary>
-		/// terminal
+		/// payment type
 		/// </summary>
-		public string IsTerminal { get; set; }
+		public string PaymentType { get; set; }
 
 		/// <summary>
 		/// bill

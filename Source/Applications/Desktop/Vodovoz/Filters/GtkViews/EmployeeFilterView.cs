@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using System.Linq;
+using QS.Views.GtkUI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
@@ -18,8 +19,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
 			enumcomboCategory.ShowSpecialStateNot = false;
-
-			if(ViewModel.HideEmployeeCategories != null)
+			
+			if(ViewModel.HideEmployeeCategories != null && ViewModel.HideEmployeeCategories.Any())
 			{
 				enumcomboCategory.ShowSpecialStateAll = false;
 				enumcomboCategory.AddEnumerableToHideList(ViewModel.HideEmployeeCategories);

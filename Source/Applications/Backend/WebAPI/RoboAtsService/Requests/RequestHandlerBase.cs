@@ -1,7 +1,7 @@
 ﻿using QS.Utilities.Numeric;
 using System;
 
-namespace RoboAtsService.Requests
+namespace RoboatsService.Requests
 {
 	public abstract class RequestHandlerBase
 	{

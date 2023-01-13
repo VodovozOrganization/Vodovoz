@@ -46,19 +46,17 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query;
 		}
 
-		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district)
+		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, int districtId)
 		{
-			DeliveryPoint point = null;
+			DeliveryPoint deliveryPointAlias = null;
+			
 			return uow.Session.QueryOver<VodovozOrder>()
-							  .JoinAlias(o => o.DeliveryPoint, () => point)
-							  .Where(
-							  		o => o.DeliveryDate == date.Date
-									&& point.District.Id == district.Id
-									&& !o.SelfDelivery
-									&& o.OrderStatus == OrderStatus.Accepted
-							  )
-							  .List<VodovozOrder>()
-							  ;
+				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
+				.Where(o => o.DeliveryDate == date.Date)
+				.And(() => deliveryPointAlias.District.Id == districtId)
+				.And(o => !o.SelfDelivery)
+				.And(o => o.OrderStatus == OrderStatus.Accepted)
+				.List<VodovozOrder>();
 		}
 
 		public VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
@@ -956,7 +954,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			Nomenclature nomenclatureAlias = null;
 			TrueMarkApiDocument trueMarkApiDocument = null;
 
-			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
@@ -979,8 +977,6 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(Restrictions.IsNull(Projections.Property(() => trueMarkApiDocument.Id)))
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
-				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered
-						   || orderAlias.OrderStatus != OrderStatus.OnTheWay)
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
@@ -997,6 +993,59 @@ namespace Vodovoz.EntityRepositories.Orders
 				)
 				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc)
 				.TransformUsing(Transformers.RootEntity) 
+				.List();
+
+			return result;
+		}
+
+		public IList<VodovozOrder> GetOrdersWithSendErrorsForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId)
+		{
+			Counterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			TrueMarkApiDocument trueMarkApiDocument = null;
+
+			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.JoinEntityAlias(() => trueMarkApiDocument, () => orderAlias.Id == trueMarkApiDocument.Order.Id);
+
+			var hasGtinNomenclaturesSubQuery = QueryOver.Of(() => orderItemAlias)
+					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+					.And(() => nomenclatureAlias.IsAccountableInChestniyZnak)
+					.And(() => nomenclatureAlias.Gtin != null)
+					.Select(Projections.Id());
+
+			if(startDate.HasValue)
+			{
+				query.Where(() => orderAlias.DeliveryDate > startDate);
+			}
+
+			var result = query.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.And(() => trueMarkApiDocument.IsSuccess == false)
+				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
+				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
+				.And(Restrictions.Disjunction()
+					.Add(Restrictions.Conjunction()
+						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
+						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+						.Add(Restrictions.Disjunction()
+							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
+					.Add(Restrictions.Conjunction()
+						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
+					)
+				)
+				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc)
+				.TransformUsing(Transformers.RootEntity)
 				.List();
 
 			return result;

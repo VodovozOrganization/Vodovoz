@@ -1,13 +1,26 @@
+﻿using System.Text.Json.Serialization;
+
 namespace VodovozMangoService.DTO
 {
     public class FromCaller
     {
-        public string extension { get; set; }
-        public string number { get; set; }
-        public string taken_from_call_id { get; set; }
-        
-        #region Calculated
-        public uint? Extension => uint.TryParse (extension, out var i) ? (uint?) i : null;
+		[JsonPropertyName("extension")]
+		public string Extension { get; set; }
+
+		[JsonPropertyName("number")]
+		public string Number { get; set; }
+
+		[JsonPropertyName("taken_from_call_id")]
+		public string TakenFromCallId { get; set; }
+
+		[JsonPropertyName("was_transfered")]
+		public bool WasTransfered { get; set; } = false;
+
+		[JsonPropertyName("hold_initiator")]
+		public string HoldInitiator { get; set; }
+
+		#region Calculated
+		public uint? ExtensionUint => uint.TryParse (Extension, out var i) ? (uint?) i : null;
         #endregion
     }
 }

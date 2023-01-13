@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 
@@ -12,6 +13,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		private readonly IParametersFactory parametersFactory;
 		private readonly string includeSuffix;
 		private readonly string excludeSuffix;
+		private const string _emptyIncludeParameter = "Все";
+		private const string _emptyExcludeParameter = "Нет";
 
 		protected List<Func<ICriterion>> FilterRelations { get; } = new List<Func<ICriterion>>();
 
@@ -204,6 +207,59 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		void MasterParameterSet_SelectionChanged(object sender, EventArgs e)
 		{
 			Parameters = new GenericObservableList<SelectableParameter>(parametersFactory.GetParameters(FilterRelations));
+		}
+		
+		public Dictionary<string, string> GetSelectedParametersTitles()
+		{
+			var result = new Dictionary<string, string>();
+			var sb = new StringBuilder();
+			var selectedValuesTitles = GetSelectedValuesTitles();
+
+			result.Add($"{Name} включая: ",
+				FilterType == SelectableFilterType.Include
+					? GetValidSelectedValuesTitles(sb, selectedValuesTitles, true)
+					: _emptyIncludeParameter);
+			result.Add($"{Name} исключая: ",
+				FilterType == SelectableFilterType.Exclude
+					? GetValidSelectedValuesTitles(sb, selectedValuesTitles, false)
+					: _emptyExcludeParameter);
+
+			return result;
+		}
+		
+		private IEnumerable<string> GetSelectedValuesTitles()
+		{
+			var selectedValues =
+				OutputParameters.SelectMany(x => x.GetAllSelected().Select(y => y.Title)).ToArray();
+			return selectedValues;
+		}
+
+		private string GetValidSelectedValuesTitles(StringBuilder sb, IEnumerable<string> selectedValuesTitles, bool include)
+		{
+			sb.Clear();
+			if(!selectedValuesTitles.Any())
+			{
+				if(include)
+				{
+					return _emptyIncludeParameter;
+				}
+				return _emptyExcludeParameter;
+			}
+
+			var count = selectedValuesTitles.Count();
+			if(count < 5)
+			{
+				foreach(var item in selectedValuesTitles)
+				{
+					sb.Append($"{item}, ");
+				}
+			}
+			else
+			{
+				sb.Append($"{count}");
+			}
+
+			return sb.ToString().Trim(' ', ',');
 		}
 	}
 }

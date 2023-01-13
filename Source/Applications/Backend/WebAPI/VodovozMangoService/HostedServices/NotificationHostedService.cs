@@ -73,16 +73,16 @@ namespace VodovozMangoService.HostedServices
 		#region Отправка уведомления
 		public void NewEvent(CallInfo info)
 		{
-			if (!String.IsNullOrEmpty(info.LastEvent.to.extension))
+			if (!String.IsNullOrEmpty(info.LastEvent.To.Extension))
 				SendIncome(info);
 			
-			if (!String.IsNullOrEmpty(info.LastEvent.from.extension))
+			if (!String.IsNullOrEmpty(info.LastEvent.From.Extension))
 				SendOutgoing(info);
 			
 			//В случае если разговор передан на другой внутренний адрес, в разговоре будут уже другие Extension, поэтому события закрытия разговора клиенту не придет....
 			//Здесь мы вручную отправляем удедомления тем Extension которые получили событие Connect, но уже не получат Disconnect обычным путем.
 			var toDisconnet = info.ConnectedExtensions
-					.Where(x => x != info.LastEvent.to.Extension && x != info.LastEvent.from.Extension).ToList();
+					.Where(x => x != info.LastEvent.To.ExtensionUint && x != info.LastEvent.From.ExtensionUint).ToList();
 
 			if (toDisconnet.Any())
 			{
@@ -102,7 +102,7 @@ namespace VodovozMangoService.HostedServices
 				{
 					var message = new NotificationMessage
 					{
-						CallId = info.LastEvent.call_id,
+						CallId = info.LastEvent.CallId,
 						Timestamp = Timestamp.FromDateTimeOffset(info.LastEvent.Time),
 						State = CallState.Disconnected,
 					};
@@ -123,24 +123,24 @@ namespace VodovozMangoService.HostedServices
 					return;
 
 				subscriptions = Subscribers
-					.Where(x => x.Extension == info.LastEvent.to.Extension)
+					.Where(x => x.Extension == info.LastEvent.To.ExtensionUint)
 					.ToList();
 			}
 			
 			#if DEBUG
-			logger.Debug($"Для звонка на {info.LastEvent.to.Extension} подходит {subscriptions.Count} из {Subscribers.Count} подписчиков.");
+			logger.Debug($"Для звонка на {info.LastEvent.To.ExtensionUint} подходит {subscriptions.Count} из {Subscribers.Count} подписчиков.");
 			#endif
 			
 			if(subscriptions.Count == 0)
 				return; //Не кого уведомлять.
 			
 			//Подготавливаем сообщение
-			var from = info.LastEvent.from;
+			var from = info.LastEvent.From;
 			Caller caller;
-			if (String.IsNullOrEmpty(from.extension))
+			if (String.IsNullOrEmpty(from.Extension))
 			{
-				if(!String.IsNullOrEmpty(from.number))
-					caller = GetExternalCaller(from.number);
+				if(!String.IsNullOrEmpty(from.Number))
+					caller = GetExternalCaller(from.Number);
 				else
 				{
 					caller = new Caller();
@@ -148,10 +148,10 @@ namespace VodovozMangoService.HostedServices
 				}
 			}
 			else
-				caller = GetInternalCaller(from.extension);
+				caller = GetInternalCaller(from.Extension);
 
 			logger.Debug($"Caller:{caller}");
-			var message = MakeMessage(info, caller, info.LastEvent.from.extension);
+			var message = MakeMessage(info, caller, info.LastEvent.From.Extension);
 			message.Direction = CallDirection.Incoming;
 			SendNotification(subscriptions, message, info);
 		}
@@ -167,24 +167,24 @@ namespace VodovozMangoService.HostedServices
 					return;
 
 				subscriptions = Subscribers
-					.Where(x => x.Extension == info.LastEvent.from.Extension)
+					.Where(x => x.Extension == info.LastEvent.From.ExtensionUint)
 					.ToList();
 			}
 			
 #if DEBUG
-			logger.Debug($"Для исходящего с {info.LastEvent.from.Extension} подходит {subscriptions.Count} из {Subscribers.Count} подписчиков.");
+			logger.Debug($"Для исходящего с {info.LastEvent.From.ExtensionUint} подходит {subscriptions.Count} из {Subscribers.Count} подписчиков.");
 #endif
 			
 			if(subscriptions.Count == 0)
 				return; //Не кого уведомлять.
 			
 			//Подготавливаем сообщение
-			var to = info.LastEvent.to;
+			var to = info.LastEvent.To;
 			Caller caller;
-			if (String.IsNullOrEmpty(to.extension))
+			if (String.IsNullOrEmpty(to.Extension))
 			{
-				if(!String.IsNullOrEmpty(to.number))
-					caller = GetExternalCaller(to.number);
+				if(!String.IsNullOrEmpty(to.Number))
+					caller = GetExternalCaller(to.Number);
 				else
 				{
 					caller = new Caller();
@@ -192,10 +192,10 @@ namespace VodovozMangoService.HostedServices
 				}
 			}
 			else
-				caller = GetInternalCaller(to.extension);
+				caller = GetInternalCaller(to.Extension);
 
 			logger.Debug($"Caller:{caller}");
-			var message = MakeMessage(info, caller, info.LastEvent.from.extension);
+			var message = MakeMessage(info, caller, info.LastEvent.From.Extension);
 			message.Direction = CallDirection.Outgoing;
 			SendNotification(subscriptions, message, info);
 		}
@@ -204,38 +204,38 @@ namespace VodovozMangoService.HostedServices
 		{ 
 			var message = new NotificationMessage
 			{
-				CallId = info.LastEvent.call_id,
+				CallId = info.LastEvent.CallId,
 				Timestamp = Timestamp.FromDateTimeOffset(info.LastEvent.Time),
-				State = info.LastEvent.CallState,
+				State = info.LastEvent.CallStateEnum,
 				CallFrom = caller
 			};
 			if (info.OnHoldCall != null)
 			{
 				message.IsTransfer = true;
-				if (info.OnHoldCall.LastEvent.from.extension == transferInitiator)
+				if (info.OnHoldCall.LastEvent.From.Extension == transferInitiator)
 				{
-					if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.to.extension))
+					if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.To.Extension))
 					{
-						if(!String.IsNullOrWhiteSpace(info.OnHoldCall.LastEvent.to.number))
-							message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.to.number);
+						if(!String.IsNullOrWhiteSpace(info.OnHoldCall.LastEvent.To.Number))
+							message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.To.Number);
 						else
 							logger.Error($"Не можем определить кто на удержании to.extension и to.number пустые. Событие: {info.OnHoldCall.LastEvent}");
 					}
 					else
-						message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.to.extension);
+						message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.To.Extension);
 				}
 				else
 				{
-					if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.from.extension))
+					if (String.IsNullOrEmpty(info.OnHoldCall.LastEvent.From.Extension))
 					{
-						if(!String.IsNullOrWhiteSpace(info.OnHoldCall.LastEvent.from.number))
-							message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.from.number);
+						if(!String.IsNullOrWhiteSpace(info.OnHoldCall.LastEvent.From.Number))
+							message.PrimaryCaller = GetExternalCaller(info.OnHoldCall.LastEvent.From.Number);
 						else
 							logger.Error(
 								$"Не можем определить кто на удержании from.extension и from.number пустые. Событие: {info.OnHoldCall.LastEvent}");
 					}
 					else
-						message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.from.extension);	
+						message.PrimaryCaller = GetInternalCaller(info.OnHoldCall.LastEvent.From.Extension);	
 				}
 			}
 			return message;

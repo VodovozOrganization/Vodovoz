@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\FiasService\Fias.Service.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\FiasService\Fias.Client.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />

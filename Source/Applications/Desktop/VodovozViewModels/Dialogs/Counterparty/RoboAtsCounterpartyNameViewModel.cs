@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 			}
 
-			TabName = "Имя контрагента RoboATS";
+			TabName = "Имя контрагента Roboats";
 
 			RoboatsEntityViewModel = roboatsViewModelFactory.CreateViewModel(Entity);
 

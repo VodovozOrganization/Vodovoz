@@ -1,0 +1,29 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Sms.Internal";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+package sms.internal.grpc;
+
+service SmsSender {
+  rpc Send (SmsMessage) returns (ResultMessage);
+}
+
+message SmsMessage {
+  string ServerMessageId = 1;
+  string MobilePhone = 2;
+  string MessageText = 3;
+  google.protobuf.Timestamp ExpiredTime = 4;
+}
+
+message ResultMessage {
+  ResultStatus Status = 1;
+  string ErrorDescription = 2;
+}
+
+enum ResultStatus {
+  Ok = 0;
+  Error = 1;
+}

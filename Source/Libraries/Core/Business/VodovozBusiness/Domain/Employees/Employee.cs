@@ -34,6 +34,9 @@ namespace Vodovoz.Domain.Employees
 	{
 		private const int _commentLimit = 255;
 		private string _comment;
+		
+		private IList<EmployeeRegistrationVersion> _employeeRegistrationVersions = new List<EmployeeRegistrationVersion>();
+		private GenericObservableList<EmployeeRegistrationVersion> _observableEmployeeRegistrationVersions;
 
 		#region Свойства
 
@@ -49,14 +52,7 @@ namespace Vodovoz.Domain.Employees
 			get => category;
 			set => SetField(ref category, value);
 		}
-
-		RegistrationType? registration;
-
-		[Display(Name = "Оформление")]
-		public virtual RegistrationType? Registration {
-			get { return registration; }
-			set { SetField(ref registration, value, () => Registration); }
-		}
+		
 		uint? innerPhone;
 
 		[Display(Name = "Внутренний номер")]
@@ -328,7 +324,8 @@ namespace Vodovoz.Domain.Employees
 		}
 
         private string email;
-        [Display(Name = "Электронная почта пользователя")]
+
+		[Display(Name = "Электронная почта пользователя")]
         public virtual string Email
         {
             get => email;
@@ -340,6 +337,19 @@ namespace Vodovoz.Domain.Employees
 			get => _comment;
 			set => SetField(ref _comment, value);
 		}
+		
+		//TODO добавить в маппинг
+		[Display(Name = "Версии видов оформлений")]
+		public virtual IList<EmployeeRegistrationVersion> EmployeeRegistrationVersions
+		{
+			get => _employeeRegistrationVersions;
+			set => SetField(ref _employeeRegistrationVersions, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeRegistrationVersion> ObservableEmployeeRegistrationVersions =>
+			_observableEmployeeRegistrationVersions ?? (_observableEmployeeRegistrationVersions =
+				new GenericObservableList<EmployeeRegistrationVersion>(EmployeeRegistrationVersions));
 
         #endregion
 
@@ -738,14 +748,6 @@ namespace Vodovoz.Domain.Employees
 		raskat,
 		[Display(Name = "Управляет ТС личным")]
 		hireddriver
-	}
-
-	public enum RegistrationType
-	{
-		[Display(Name = "ТК РФ")]
-		LaborCode,
-		[Display(Name = "ГПК")]
-		Contract,
 	}
 
 	public enum EmployeeType

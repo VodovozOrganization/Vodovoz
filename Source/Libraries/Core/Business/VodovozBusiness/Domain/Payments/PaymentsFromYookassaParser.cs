@@ -8,11 +8,12 @@ namespace Vodovoz.Domain.Payments
     public class PaymentsFromYookassaParser
     {
 	    private readonly string docPath;
-	    private const string ShopVodovozString = "https://shop.vodovoz-spb.ru";
-	    private const string VodovozString = "https://vodovoz-spb.ru";
-	    private const string VodovozString2 = "https://www.vodovoz-spb.ru";
-	    private const string VodovozPromoString = "promo2.vodovoz-spb.ru";
-	    private const string ShopVodovozUberserverString = "https://shopvodovoz.uberserver.ru";
+	    private const string _shopVodovozString = "https://shop.vodovoz-spb.ru";
+	    private const string _vodovozString = "https://vodovoz-spb.ru";
+	    private const string _vodovozString2 = "https://www.vodovoz-spb.ru";
+	    private const string _vodovozString3 = "vodovoz-spb.ru";
+	    private const string _vodovozPromoString = "promo2.vodovoz-spb.ru";
+	    private const string _shopVodovozUberserverString = "https://shopvodovoz.uberserver.ru";
 	    
         public List<PaymentByCardOnline> PaymentsFromYookassa { get; set; } = new List<PaymentByCardOnline>();
 
@@ -50,19 +51,26 @@ namespace Vodovoz.Domain.Payments
         }
 
         private void TryMatchPaymentFrom(string data, ref PaymentByCardOnlineFrom paymentByCardFrom)
-        {
-	        if (data == VodovozString || data == VodovozString2 || data == VodovozPromoString) {
-		        paymentByCardFrom = PaymentByCardOnlineFrom.FromSMS;
-	        }
-	        else if (data == ShopVodovozString) {
-		        paymentByCardFrom = PaymentByCardOnlineFrom.FromEShop;
-	        }
-	        else if (data == ShopVodovozUberserverString) {
-		        paymentByCardFrom = PaymentByCardOnlineFrom.FromVodovozWebSite;
-	        }
-	        else {
-		        throw new ArgumentException("Невозможно определить откуда оплата.");
-	        }
-        }
+		{
+			switch(data)
+			{
+				case _vodovozString:
+				case _vodovozString2:
+				case _vodovozPromoString:
+					paymentByCardFrom = PaymentByCardOnlineFrom.FromSMS;
+					break;
+				case _shopVodovozString:
+					paymentByCardFrom = PaymentByCardOnlineFrom.FromEShop;
+					break;
+				case _shopVodovozUberserverString:
+					paymentByCardFrom = PaymentByCardOnlineFrom.FromVodovozWebSite;
+					break;
+				case _vodovozString3:
+					paymentByCardFrom = PaymentByCardOnlineFrom.FromMobileApp;
+					break;
+				default:
+					throw new ArgumentException("Невозможно определить откуда оплата.");
+			}
+		}
     }
 }

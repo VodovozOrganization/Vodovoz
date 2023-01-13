@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using RoboAtsService.Monitoring;
+using RoboatsService.Monitoring;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Parameters;
 
-namespace RoboAtsService.Requests
+namespace RoboatsService.Requests
 {
 	/// <summary>
 	/// Обработчик запроса проверки наличия клиента
@@ -71,6 +71,8 @@ namespace RoboAtsService.Requests
 					return GetCounterpartyNameId(counterpartyId);
 				case "patronymic":
 					return GetCounterpartyPatronymicId(counterpartyId);
+				case "qrcode_payment_availability":
+					return CheckPaymentByQrCodeAvailability();
 				default:
 					return GetCounterpartyAvailability(counterpartyId);
 			}
@@ -141,6 +143,22 @@ namespace RoboAtsService.Requests
 				return "NO DATA";
 			}
 			return $"{patronymicId}";
+		}
+
+		private string CheckPaymentByQrCodeAvailability()
+		{
+			string phone = ClientPhone;
+			if(phone.Length > 10)
+			{
+				phone = string.Concat(ClientPhone.Reverse().Take(10).Reverse());
+			}
+
+			if(phone.StartsWith('9'))
+			{
+				return "1";
+			}
+
+			return $"0";
 		}
 	}
 }

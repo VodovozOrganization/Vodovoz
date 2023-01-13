@@ -1,11 +1,12 @@
-﻿using Fias.Service;
-using Fias.Service.Loaders;
+﻿
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using System;
+using Fias.Client;
+using Fias.Client.Loaders;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;

@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Fias.Service;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -40,6 +39,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Fias.Client;
+using Fias.Client.Cache;
 using Vodovoz;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
@@ -153,7 +154,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.Controllers;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.ViewModels.Profitability;
-using Fias.Service.Cache;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Goods;
@@ -235,6 +235,7 @@ public partial class MainWindow : Gtk.Window
 		ActionWagesOperations.Sensitive = hasAccessToSalaries || _hasAccessToSalariesForLogistics; //Зарплаты сотрудников
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries; //Зарплаты экспедиторов
 		ActionDriversWageBalance.Visible = hasAccessToSalaries; //Баланс водителей
+		EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
 		ActionCRM.Sensitive = hasAccessToCRM;
 
 		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
@@ -2796,5 +2797,18 @@ public partial class MainWindow : Gtk.Window
 	protected void OnUsersRolesActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<UserRolesJournalViewModel>(null);
+	}
+
+	protected void OnEmployeeRegistrationsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EmployeeRegistrationsJournalViewModel>(null);
+	}
+
+	protected void OnEmployeesTaxesActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
+			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory))
+		);
 	}
 }

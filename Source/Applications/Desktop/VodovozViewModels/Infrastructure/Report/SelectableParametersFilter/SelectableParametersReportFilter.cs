@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 
 namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
@@ -54,6 +55,14 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			}
 
 			return result;
+		}
+		
+		public IDictionary<string, string> GetSelectedParametersTitlesFromParameterSet(string parameterSet)
+		{
+			var result = new Dictionary<string, string>();
+			var paramSet = ParameterSets.SingleOrDefault(x => x.ParameterName == parameterSet);
+			
+			return paramSet != null ? paramSet.GetSelectedParametersTitles() : result;
 		}
 	}
 }

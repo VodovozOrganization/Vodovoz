@@ -230,6 +230,7 @@ namespace Vodovoz.Dialogs.Employees
 				_userRepository,
 				_baseParametersProvider,
 				_attachmentsViewModelFactory,
+				MainClass.MainWin.NavigationManager,
 				true);
 
 			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
