@@ -92,12 +92,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			);
 
 			var isValidSubquery = QueryOver.Of(() => fastDeliveryAvailabilityHistoryItemAlias)
-				.Where(() => fastDeliveryAvailabilityHistoryItemAlias.FastDeliveryAvailabilityHistory.Id ==
-							 fastDeliveryAvailabilityHistoryAlias.Id)
+				.Where(() => fastDeliveryAvailabilityHistoryItemAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
 				.And(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidToFastDelivery)
-				.Select(Projections.Conditional(Restrictions.Gt(Projections.RowCount(), 0),
-					Projections.Constant(true),
-					Projections.Constant(false)));
+				.Select(Projections.Property(() => fastDeliveryAvailabilityHistoryItemAlias.Id));
 
 			var nomenclatureDistributionSubquery = QueryOver.Of(() => fastDeliveryNomenclatureDistributionHistoryAlias)
 				.Where(() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id ==
@@ -108,15 +105,20 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			var nomenclatureNotInStockSubquery = QueryOver.Of(() => fastDeliveryOrderItemHistoryAlias)
 				.JoinAlias(() => fastDeliveryOrderItemHistoryAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id ==
-							 fastDeliveryAvailabilityHistoryAlias.Id)
-				.Where(() => nomenclatureAlias.ProductGroup.Id != _nomenclatureParametersProvider.PromotionalNomenclatureGroupId)
+				.Where(() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
+				.And(() => nomenclatureAlias.ProductGroup.Id != _nomenclatureParametersProvider.PromotionalNomenclatureGroupId)
 				.WithSubquery.WhereNotExists(nomenclatureDistributionSubquery)
 				.Select(Projections.Conditional(
 					Restrictions.Gt(
 						Projections.Max(Projections.Property(() => fastDeliveryOrderItemHistoryAlias.Nomenclature.Id)), 0),
 					Projections.Constant(true),
 					Projections.Constant(false)));
+
+			var orderSubquery = QueryOver.Of(() => orderAlias)
+				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.And(() => orderAlias.CreateDate.Value.Date == fastDeliveryAvailabilityHistoryAlias.VerificationDate.Date)
+				.And(() => orderAlias.IsFastDelivery == false)
+				.Select(Projections.Property(() => orderAlias.Id));
 
 			var timesDiffInMinutesTemplate = new SQLFunctionTemplate(NHibernateUtil.Int32, "TIMESTAMPDIFF(MINUTE, ?1, ?2)");
 
@@ -126,14 +128,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Logistician, () => logisticianAlias)
-				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Counterparty, () => counterpartyAlias)
-				.JoinEntityAlias(() => orderAlias,
-					Restrictions.Conjunction()
-						.Add(Restrictions.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-						.Add(Restrictions.Where(() =>
-							orderAlias.CreateDate.Value.Date == fastDeliveryAvailabilityHistoryAlias.VerificationDate.Date))
-						.Add(Restrictions.Where(() => orderAlias.IsFastDelivery == false))
-				);
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Counterparty, () => counterpartyAlias);
+
+			itemsQuery.WithSubquery.WhereExists(orderSubquery);
+
+			itemsQuery.WithSubquery.WhereNotExists(isValidSubquery);
 
 			if(_filterViewModel.VerificationDateFrom != null && _filterViewModel.VerificationDateTo != null)
 			{
@@ -154,11 +153,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			if(_filterViewModel.Logistician != null)
 			{
 				itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.Logistician.Id == _filterViewModel.Logistician.Id);
-			}
-
-			if(_filterViewModel.IsValid != null)
-			{
-				itemsQuery.Where(Restrictions.Eq(Projections.SubQuery(isValidSubquery), _filterViewModel.IsValid));
 			}
 
 			if(_filterViewModel.IsVerificationFromSite != null)
@@ -208,17 +202,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				.SelectList(list => list
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate).WithAlias(() => resultAlias.VerificationDate)
-					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.DeliveryPointId)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.District)
-					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidDistanceByLineToClient)
-					.WithAlias(() => resultAlias.IsValidDistanceByLine)
-					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidIsGoodsEnough)
-					.WithAlias(() => resultAlias.IsValidIsGoodsEnough)
-					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidLastCoordinateTime)
-					.WithAlias(() => resultAlias.IsValidLastCoordinateTime)
-					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidUnclosedFastDeliveries)
-					.WithAlias(() => resultAlias.IsValidUnclosedFastDeliveries)
-					.SelectSubQuery(isValidSubquery).WithAlias(() => resultAlias.IsValid)
+					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidDistanceByLineToClient).WithAlias(() => resultAlias.IsValidDistanceByLine)
+					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidIsGoodsEnough).WithAlias(() => resultAlias.IsValidIsGoodsEnough)
+					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidLastCoordinateTime).WithAlias(() => resultAlias.IsValidLastCoordinateTime)
+					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidUnclosedFastDeliveries).WithAlias(() => resultAlias.IsValidUnclosedFastDeliveries)
 				)
 				.TransformUsing(Transformers.AliasToBean<FastDeliveryFailsReportRow>())
 				.List<FastDeliveryFailsReportRow>();
@@ -253,7 +242,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				worksheet.Cell(5, 1).Value = "Суммарные значения за период отчета";
 				worksheet.Row(5).Style.Font.SetBold(true);
 
-				worksheet.Cell(5, 2).Value = "Не доставлено заказов";
+				worksheet.Cell(5, 2).Value = "Не доставлено заказов (ТД)";
 				worksheet.Cell(5, 3).Value = "Не хватило остатков";
 				worksheet.Cell(5, 4).Value = "Много заказов в работе";
 				worksheet.Cell(5, 5).Value = "Не приходят координаты";
@@ -313,7 +302,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		private void GenerateRows(IXLWorksheet worksheet, int rowIndex, string title, IList<FastDeliveryFailsReportRow> rows)
 		{
 			worksheet.Cell(rowIndex, 1).Value = title;
-			worksheet.Cell(rowIndex, 2).Value = rows.GroupBy(x => x.OrderId).Count();
+			worksheet.Cell(rowIndex, 2).Value = rows.GroupBy(x => x.DeliveryPointId).Count();
 
 			var groupedByFastDelivery = rows.GroupBy(x => x.Id);
 
