@@ -286,6 +286,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					result[i] = ordersItemsGroup.Where(oi => oi.Order.DeliveryDate >= slice.StartDate)
 						.Where(oi => oi.Order.DeliveryDate <= slice.EndDate)
+						.Distinct()
 						.Sum(MeasurementUnitSelector) ?? 0;
 				}
 
