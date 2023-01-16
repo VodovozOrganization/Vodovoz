@@ -22,6 +22,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {

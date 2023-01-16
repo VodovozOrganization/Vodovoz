@@ -31,6 +31,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz

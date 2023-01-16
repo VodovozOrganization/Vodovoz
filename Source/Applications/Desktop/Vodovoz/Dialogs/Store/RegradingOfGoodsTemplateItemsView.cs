@@ -8,6 +8,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {

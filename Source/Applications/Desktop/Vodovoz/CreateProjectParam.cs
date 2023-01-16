@@ -195,6 +195,7 @@ using Vodovoz.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
@@ -337,6 +338,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
+				.RegisterWidgetForTabViewModel<WriteOffDocumentViewModel, WriteoffDocumentView>()
 				;
 
 			//Регистрация виджетов
@@ -608,6 +610,8 @@ namespace Vodovoz
 			builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
 			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
 			builder.RegisterType<WarehousePermissionService>().AsImplementedInterfaces().AsSelf();
+			builder.RegisterType<UserSettingsGetter>().AsImplementedInterfaces();
+			builder.RegisterType<StoreDocumentHelper>().AsSelf();
 
 			#endregion
 

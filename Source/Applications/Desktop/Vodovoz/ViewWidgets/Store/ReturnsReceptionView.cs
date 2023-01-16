@@ -29,6 +29,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz

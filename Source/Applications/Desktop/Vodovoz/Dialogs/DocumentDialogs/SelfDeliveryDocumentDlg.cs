@@ -9,7 +9,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
-using Vodovoz.Additions.Store;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -30,6 +29,8 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
@@ -40,7 +41,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
 		private readonly BottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper();
+		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsGetter());
 
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));

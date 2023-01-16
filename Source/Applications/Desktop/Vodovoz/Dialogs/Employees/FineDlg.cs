@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {

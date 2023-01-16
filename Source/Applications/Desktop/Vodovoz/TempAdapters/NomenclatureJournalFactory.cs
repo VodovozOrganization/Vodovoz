@@ -1,8 +1,8 @@
-﻿using QS.DomainModel.UoW;
+﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using System.Collections.Generic;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;

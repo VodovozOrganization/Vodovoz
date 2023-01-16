@@ -7,6 +7,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Organizations;

@@ -21,6 +21,7 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -61,7 +62,7 @@ namespace Vodovoz
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
 					.AddColumn ("Причина выбраковки").AddComboRenderer (i => i.CullingCategory)
 					.SetDisplayFunc (DomainHelper.GetTitle).Editing ()
-					.FillItems (_cullingCategoryRepository.All(DocumentUoW))
+					.FillItems (_cullingCategoryRepository.GetAllCullingCategories(DocumentUoW))
 					.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 					.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
 					.AddColumn("Выявлено в процессе").AddTextRenderer(i => i.Comment).Editable()
@@ -100,7 +101,7 @@ namespace Vodovoz
 			}
 
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
-			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
+			filter.RestrictWarehouse = DocumentUoW.Root.WriteOffFromWarehouse;
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				filter,

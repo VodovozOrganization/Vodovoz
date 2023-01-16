@@ -1,5 +1,3 @@
-using QS.DomainModel.UoW;
-using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Client;

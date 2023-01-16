@@ -227,7 +227,7 @@ namespace Vodovoz.ViewModel
 				var writeoffQuery = UoW.Session.QueryOver<WriteoffDocument>(() => writeoffAlias);
 				if(Filter.RestrictWarehouse != null)
 				{
-					writeoffQuery.Where(x => x.WriteoffWarehouse.Id == Filter.RestrictWarehouse.Id);
+					writeoffQuery.Where(x => x.WriteOffFromWarehouse.Id == Filter.RestrictWarehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -240,7 +240,7 @@ namespace Vodovoz.ViewModel
 
 				var writeoffList = writeoffQuery
 					.JoinQueryOver(() => writeoffAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => writeoffAlias.WriteoffWarehouse, () => warehouseAlias,
+					.JoinQueryOver(() => writeoffAlias.WriteOffFromWarehouse, () => warehouseAlias,
 						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias(() => writeoffAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias(() => writeoffAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)

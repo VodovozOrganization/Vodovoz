@@ -5,7 +5,6 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
-using QS.Attachments.ViewModels.Widgets;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -13,7 +12,6 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using QS.Tdi;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
@@ -35,7 +33,6 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Endpoints;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
@@ -53,7 +50,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IValidationContextFactory _validationContextFactory;
 		private readonly IPhonesViewModelFactory _phonesViewModelFactory;
-		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly UserSettings _userSettings;
@@ -80,7 +76,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			UserSettings userSettings,
 			IValidationContextFactory validationContextFactory,
 			IPhonesViewModelFactory phonesViewModelFactory,
-			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
@@ -105,7 +100,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_phonesViewModelFactory = phonesViewModelFactory ?? throw new ArgumentNullException(nameof(phonesViewModelFactory));
-			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
@@ -508,7 +502,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_phonesViewModelFactory,
 			_warehouseRepository,
 			_routeListRepository,
-			_driverApiUserRegisterEndpoint,
 			_userSettings,
 			_userRepository,
 			_baseParametersProvider,
@@ -532,7 +525,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				_phonesViewModelFactory,
 				_warehouseRepository,
 				_routeListRepository,
-				_driverApiUserRegisterEndpoint,
 				_userSettings,
 				_userRepository,
 				_baseParametersProvider,

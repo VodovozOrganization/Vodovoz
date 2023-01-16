@@ -12,6 +12,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalFilters;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets

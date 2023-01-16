@@ -184,10 +184,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_nomenclatures_with_inventory_accounting");
 		}
 
-		protected override void BeforeValidation() {
-			if(string.IsNullOrWhiteSpace(Entity.Code1c)) {
+		protected override bool BeforeValidation()
+		{
+			if(string.IsNullOrWhiteSpace(Entity.Code1c))
+			{
 				Entity.Code1c = _nomenclatureRepository.GetNextCode1c(UoW);
 			}
+			return true;
 		}
 
 		protected override bool BeforeSave() {

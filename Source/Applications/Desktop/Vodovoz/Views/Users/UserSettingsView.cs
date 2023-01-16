@@ -6,10 +6,10 @@ using Gamma.ColumnConfig;
 using Gtk;
 using QS.Dialog;
 using QS.Views.GtkUI;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Users;
 
 namespace Vodovoz.Views.Users

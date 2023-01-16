@@ -7,7 +7,6 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
-using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Domain.Documents;
@@ -27,6 +26,9 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Models;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.Views.Warehouse;
 
 namespace Vodovoz
 {
@@ -73,7 +75,7 @@ namespace Vodovoz
 			buttonDelete.Sensitive = false;
 
 			bool isSelected = tableDocuments.Selection.CountSelectedRows() > 0;
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			if(isSelected) {
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
@@ -139,8 +141,11 @@ namespace Vodovoz
 						this
 					);
 					break;
-				case DocumentType.IncomingWater:
 				case DocumentType.WriteoffDocument:
+					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate());
+					break;
+				case DocumentType.IncomingWater:
 				case DocumentType.SelfDeliveryDocument:
 				case DocumentType.CarLoadDocument:
 				case DocumentType.CarUnloadDocument:
@@ -246,10 +251,12 @@ namespace Vodovoz
 						);
 						break;
 					case DocumentType.WriteoffDocument:
-						TabParent.OpenTab(
+						/*TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<WriteoffDocument>(id),
-							() => new WriteoffDocumentDlg (id),
-							this);
+							() => new WriteoffDocumentView(id),
+							this);*/
+						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.InventoryDocument:
 						TabParent.OpenTab(

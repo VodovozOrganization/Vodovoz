@@ -9,6 +9,7 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
@@ -22,6 +23,10 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class WriteoffDocument : Document, IValidatableObject
 	{
+		private Employee _writeOffFromEmployee;
+		private Car _writeOffFromCar;
+		private WriteOffType _writeOffType;
+
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
 			set {
@@ -60,7 +65,7 @@ namespace Vodovoz.Domain.Documents
 			set {
 				client = value;
 				if(Client != null)
-					WriteoffWarehouse = null;
+					WriteOffFromWarehouse = null;
 				if(Client == null || !Client.DeliveryPoints.Contains(DeliveryPoint))
 					DeliveryPoint = null;
 				foreach(var item in Items) {
@@ -84,21 +89,79 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		Warehouse writeoffWarehouse;
+		Warehouse _writeOffFromWarehouse;
 
 		[Display (Name = "Склад списания")]
-		public virtual Warehouse WriteoffWarehouse {
-			get => writeoffWarehouse;
-			set {
-				writeoffWarehouse = value;
-				if(WriteoffWarehouse != null)
-					Client = null;
+		public virtual Warehouse WriteOffFromWarehouse {
+			get => _writeOffFromWarehouse;
+			set
+			{
+				if(!SetField(ref _writeOffFromWarehouse, value))
+				{
+					return;
+				}
+
+				if(value == null)
+				{
+					return;
+				}
+				
+				WriteOffFromEmployee = null;
+				WriteOffFromCar = null;
 
 				foreach(var item in Items) {
-					if(item.WarehouseWriteoffOperation != null && item.WarehouseWriteoffOperation.WriteoffWarehouse != writeoffWarehouse)
-						item.WarehouseWriteoffOperation.WriteoffWarehouse = writeoffWarehouse;
+					if(item.WarehouseWriteoffOperation != null && item.WarehouseWriteoffOperation.WriteoffWarehouse != _writeOffFromWarehouse)
+						item.WarehouseWriteoffOperation.WriteoffWarehouse = _writeOffFromWarehouse;
 				}
 			}
+		}
+		
+		[Display (Name = "Сотрудник, с которого происходит списание")]
+		public virtual Employee WriteOffFromEmployee
+		{
+			get => _writeOffFromEmployee;
+			set
+			{
+				if(!SetField(ref _writeOffFromEmployee, value))
+				{
+					return;
+				}
+
+				if(value == null)
+				{
+					return;
+				}
+
+				WriteOffFromWarehouse = null;
+				WriteOffFromCar = null;
+			}
+		}
+
+		[Display (Name = "Автомобиль с которого происходит списание")]
+		public virtual Car WriteOffFromCar
+		{
+			get => _writeOffFromCar;
+			set
+			{
+				if(!SetField(ref _writeOffFromCar, value))
+				{
+					return;
+				}
+
+				if(value == null)
+				{
+					return;
+				}
+
+				WriteOffFromWarehouse = null;
+				WriteOffFromEmployee = null;
+			}
+		}
+
+		public virtual WriteOffType WriteOffType
+		{
+			get => _writeOffType;
+			set => SetField(ref _writeOffType, value);
 		}
 
 		IList<WriteoffDocumentItem> items = new List<WriteoffDocumentItem> ();
@@ -113,6 +176,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		GenericObservableList<WriteoffDocumentItem> observableItems;
+
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WriteoffDocumentItem> ObservableItems {
 			get {
@@ -133,8 +197,8 @@ namespace Vodovoz.Domain.Documents
 				Amount = amount,
 				Document = this
 			};
-			if (WriteoffWarehouse != null)
-				item.CreateOperation(WriteoffWarehouse, TimeStamp);
+			if (WriteOffFromWarehouse != null)
+				item.CreateOperation(WriteOffFromWarehouse, TimeStamp);
 			else
 				item.CreateOperation(Client, DeliveryPoint, TimeStamp);
 			ObservableItems.Add (item);
@@ -142,7 +206,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (WriteoffWarehouse == null && Client == null)
+			if (WriteOffFromWarehouse == null && Client == null)
 				yield return new ValidationResult ("Склад списания или контрагент должны быть заполнены.");
 			if (Client != null && DeliveryPoint == null)
 				yield return new ValidationResult ("Точка доставки должна быть указана.");
@@ -162,22 +226,23 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public WriteoffDocument() => Comment = String.Empty;
+		public WriteoffDocument()
+		{
+			Comment = String.Empty;
+			WriteOffType = WriteOffType.warehouse;
+		}
 	}
 
-	public enum WriteoffType
+	public enum WriteOffType
 	{
 		[Display(Name = "Со склада")]
 		warehouse,
 		[Display(Name = "От клиента")]
-		counterparty
-	}
-
-	public class WriteoffStringType : NHibernate.Type.EnumStringType
-	{
-		public WriteoffStringType () : base (typeof(WriteoffType))
-		{
-		}
+		counterparty,
+		[Display(Name = "С сотрудника")]
+		Employee,
+		[Display(Name = "С автомобиля")]
+		Car
 	}
 }
 

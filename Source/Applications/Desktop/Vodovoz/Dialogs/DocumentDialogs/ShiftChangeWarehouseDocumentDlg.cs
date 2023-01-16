@@ -4,7 +4,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
@@ -26,6 +25,8 @@ using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.TempAdapters;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -52,7 +53,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			if(UoW.IsNew)
 				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			if(!UoW.IsNew)
@@ -66,7 +67,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
 			
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			ConfigureDlg(storeDocument);
 		}
 

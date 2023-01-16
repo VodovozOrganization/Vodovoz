@@ -7,7 +7,6 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QSOrmProject;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -31,6 +30,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Parameters;
+using Vodovoz.Tools.Store;
 
 namespace Vodovoz
 {
@@ -98,13 +98,13 @@ namespace Vodovoz
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarUnloadEdit);
 		}
 
 		void ConfigureDlg()
 		{
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			callTaskWorker = new CallTaskWorker(
 				CallTaskSingletonFactory.GetInstance(),
 				new CallTaskRepository(),

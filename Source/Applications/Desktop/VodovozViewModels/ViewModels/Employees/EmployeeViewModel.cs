@@ -5,7 +5,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Permissions;
-using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -14,6 +13,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Project.Journal;
@@ -54,7 +55,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly ICommonServices _commonServices;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
@@ -107,7 +107,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IPhonesViewModelFactory phonesViewModelFactory,
 			IWarehouseRepository warehouseRepository,
 			IRouteListRepository routeListRepository,
-			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			UserSettings userSettings,
 			IUserRepository userRepository,
 			BaseParametersProvider baseParametersProvider,
@@ -128,8 +127,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_driverApiUserRegisterEndpoint =
-				driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -643,7 +640,17 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 								CanRegisterMobileUser = false;
 								Save();
 								UoW.Commit();
-								_driverApiUserRegisterEndpoint.Register(Entity.AndroidLogin, Entity.AndroidPassword).GetAwaiter().GetResult();
+
+								using(var httpClient = new HttpClient())
+								{
+									httpClient.BaseAddress = new Uri("https://driverapi.vod.qsolution.ru:7090/api/");
+									httpClient.DefaultRequestHeaders.Accept.Clear();
+									httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+									new DriverApiUserRegisterEndpoint(httpClient)
+										.Register(Entity.AndroidLogin, Entity.AndroidPassword)
+										.GetAwaiter()
+										.GetResult();
+								}
 							}
 						}
 						catch(Exception e)

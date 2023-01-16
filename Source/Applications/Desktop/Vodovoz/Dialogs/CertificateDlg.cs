@@ -11,6 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.Dialogs

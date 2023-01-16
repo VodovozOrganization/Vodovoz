@@ -1,7 +1,5 @@
 ﻿using Dialogs.Employees;
 using Gtk;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -12,7 +10,6 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
-using System.Collections.Generic;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
 using Vodovoz;
@@ -68,6 +65,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -86,7 +84,6 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
-using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 
@@ -637,21 +634,11 @@ public partial class MainWindow : Window
 	void ActionAtWorks_Activated(object sender, EventArgs e)
 	{
 		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
-
-		cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
-
-		var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
-		var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
 		var parametersProvider = new ParametersProvider();
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg(
-				new BaseParametersProvider(parametersProvider),
-				employeeJournalFactory,
-				driverApiRegisterEndpoint)
+			() => new AtWorksDlg(new BaseParametersProvider(parametersProvider), employeeJournalFactory)
 		);
 	}
 

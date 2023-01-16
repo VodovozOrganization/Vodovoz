@@ -7,6 +7,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {

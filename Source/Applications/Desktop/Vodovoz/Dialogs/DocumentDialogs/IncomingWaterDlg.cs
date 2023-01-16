@@ -3,7 +3,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -17,6 +16,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.JournalSelector;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
@@ -29,7 +29,7 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper();
+		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsGetter());
 
 		public IncomingWaterDlg()
 		{

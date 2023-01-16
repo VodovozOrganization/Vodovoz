@@ -4,10 +4,10 @@ using QS.DomainModel.UoW;
 using QS.Dialog;
 using QS.Report;
 using QSReport;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Store;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
+using Vodovoz.Tools.Store;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {

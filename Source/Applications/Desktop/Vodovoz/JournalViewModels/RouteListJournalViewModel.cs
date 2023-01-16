@@ -16,7 +16,6 @@ using QS.Dialog.Gtk;
 using QS.Project.Domain;
 using QS.Report;
 using QS.Tdi;
-using Vodovoz.Additions.Store;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -52,6 +51,7 @@ using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
+using Vodovoz.Tools.Store;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -453,7 +453,7 @@ namespace Vodovoz.JournalViewModels
 			}
 
 			var warehousesAvailableForUser =
-				new StoreDocumentHelper().GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit)
+				new StoreDocumentHelper(new UserSettingsGetter()).GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit)
 					.Where(x => !cashWarehouseIds.Contains(x.Id))
 					.ToList();
 

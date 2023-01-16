@@ -17,6 +17,7 @@ using Gdk;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {

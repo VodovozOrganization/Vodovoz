@@ -3,6 +3,7 @@ using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 
 namespace Vodovoz.Filters.GtkViews
 {

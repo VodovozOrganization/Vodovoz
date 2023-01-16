@@ -537,6 +537,8 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			return query.Sum(x => x.WarehouseExpensesSum);
 		}
+
+		public Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId) => uow.GetById<Nomenclature>(nomenclatureId);
 	}
 
 	public class NomenclatureAmountNode

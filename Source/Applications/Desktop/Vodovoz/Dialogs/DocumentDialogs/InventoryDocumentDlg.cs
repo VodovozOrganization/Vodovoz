@@ -4,7 +4,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Employees;
@@ -31,6 +30,8 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
@@ -56,7 +57,7 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.InventoryEdit);
 
 			ConfigureDlg (storeDocument);
@@ -66,7 +67,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<InventoryDocument> (id);
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			ConfigureDlg (storeDocument);
 		}
 

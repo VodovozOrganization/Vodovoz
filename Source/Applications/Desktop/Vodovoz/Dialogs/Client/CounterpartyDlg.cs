@@ -85,6 +85,7 @@ using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using QS.Attachments.Domain;
 using Vodovoz.Core;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {

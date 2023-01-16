@@ -7,6 +7,9 @@ using QS.Project.Services;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.TempAdapters
@@ -27,7 +30,11 @@ namespace Vodovoz.TempAdapters
 				{
 					var filter = new CarJournalFilterViewModel(new CarModelJournalFactory());
 					var journalViewModel =
-						new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+						new CarJournalViewModel(
+							filter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices,
+							MainClass.AppDIContainer.BeginLifetimeScope());
 					journalViewModel.NavigationManager = _navigationManager;
 					journalViewModel.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
 					return journalViewModel;

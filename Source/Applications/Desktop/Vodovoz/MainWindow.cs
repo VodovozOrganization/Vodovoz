@@ -162,6 +162,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 
@@ -2347,8 +2348,11 @@ public partial class MainWindow : Gtk.Window
 					};
 					filter.SetFilterSensitivity(false);
 					filter.CanChangeRestrictedCarOwnTypes = true;
-					return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices);
+					return new CarJournalViewModel(
+						filter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						ServicesConfig.CommonServices,
+						autofacScope.BeginLifetimeScope());
 				}
 			);
 

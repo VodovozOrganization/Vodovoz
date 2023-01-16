@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.Complaints
             }
         }
 
-        protected override void BeforeValidation()
+        protected override bool BeforeValidation()
 		{
 			if(UoW.IsNew) {
 				Entity.CreatedBy = CurrentEmployee;
@@ -128,7 +128,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ChangedBy = CurrentEmployee;
 			Entity.ChangedDate = DateTime.Now;
 
-			base.BeforeValidation();
+			return base.BeforeValidation();
 		}
 	}
 }

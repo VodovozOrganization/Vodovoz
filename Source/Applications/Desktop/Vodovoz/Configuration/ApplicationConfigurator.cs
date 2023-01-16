@@ -53,6 +53,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Users;
+using Vodovoz.Views.Warehouse;
 using VodovozInfrastructure.Configuration;
 
 namespace Vodovoz.Configuration
@@ -218,7 +219,7 @@ namespace Vodovoz.Configuration
 			#region Складские документы
 
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
-            OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
+            OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentView>();
             OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
             OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
             OrmMain.AddObjectDescription<RegradingOfGoodsDocument>().Dialog<RegradingOfGoodsDocumentDlg>();
