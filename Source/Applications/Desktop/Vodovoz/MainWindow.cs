@@ -2352,7 +2352,7 @@ public partial class MainWindow : Gtk.Window
 			);
 
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+		var interactiveService = new CastomInteractiveService();
 
 		var viewModel = new CarsExploitationReportViewModel(
 			uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(new ParametersProvider()),
