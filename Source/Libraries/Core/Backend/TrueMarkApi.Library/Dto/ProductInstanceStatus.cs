@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace TrueMarkApi.Library.Dto
 {
@@ -8,8 +9,6 @@ namespace TrueMarkApi.Library.Dto
 		public string IdentificationCode { get; set; }
 
 		[JsonPropertyName("status")]
-		public string Status { get; set; }
+		public ProductInstanceStatusEnum Status { get; set; }
 	}
-
-	
 }

@@ -27,6 +27,8 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database.Edo;
+using Vodovoz.Settings.Edo;
 
 namespace TrueMarkApi
 {

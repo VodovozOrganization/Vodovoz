@@ -3,33 +3,99 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.TrueMark;
+using Vodovoz.Models.TrueMark;
 
 namespace VodovozSalesReceiptsService.DTO
 {
 	[DataContract]
 	public class SalesDocumentDTO
 	{
-		public SalesDocumentDTO(Order order, string cashier)
+		public SalesDocumentDTO(Order order, TrueMarkCashReceiptOrder trueMarkOrder, string cashier)
 		{
 			CheckoutDateTime = (order.TimeDelivered ?? DateTime.Now).ToString("O");
 			DocNum = Id = string.Concat("vod_", order.Id);
 			Email = order.GetContact();
 			CashierName = cashier;
 			InventPositions = new List<InventPositionDTO>();
-			foreach(var item in order.OrderItems) {
-				InventPositions.Add(
-					new InventPositionDTO {
-						Name = item.Nomenclature.OfficialName,
-						PriceWithoutDiscount = Math.Round(item.Price, 2),
-						Quantity = item.Count,
-						DiscSum = item.DiscountMoney,
-						VatTag = (int)VatTag.VatFree
-					}
-				);
+
+			foreach(var orderItem in order.OrderItems) 
+			{
+				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
+				{
+					var inventPosition = CreateInventPosition(orderItem);
+					InventPositions.Add(inventPosition);
+					continue;
+				}
+
+				var orderItemsCodes = trueMarkOrder.ScannedCodes
+					.Where(x => !x.IsDefectiveSourceCode)
+					.Where(x => x.OrderItem.Id == orderItem.Id)
+					.ToList();
+
+				if(orderItemsCodes.Any(x => string.IsNullOrWhiteSpace(x.CodeResult)))
+				{
+					throw new TrueMarkException("У одного из кодов не заполнен итоговый код который должен быть использован для записи в чек. " +
+						"Возможно он оказался не обработанным службной обработки кодов честного знака");
+				}
+
+				if(orderItem.Nomenclature.IsAccountableInTrueMark && orderItemsCodes.Count != orderItem.Count)
+				{
+					throw new TrueMarkException($"Невозможно сформировать строку в чеке. У номенклатуры Id {orderItem.Nomenclature.Id} " +
+						$"включена обязательная маркировка, но для строки заказа Id {orderItem.Id} количество кодов ({orderItemsCodes.Count}) не " +
+						$"совпадает с количеством товара ({orderItem.Count})");
+				}
+
+				if(orderItem.Count == 1)
+				{
+					var inventPosition = CreateInventPosition(orderItem);
+					inventPosition.ProductMark = orderItemsCodes.First().CodeResult;
+					InventPositions.Add(inventPosition);
+					continue;
+				}
+
+				decimal wholeDiscount= 0;
+
+				//-2 чтобы пропутить последний элемент,  у него расчет происходит из остатков
+				for(int i = 0; i < orderItemsCodes.Count - 2; i++)
+				{
+					decimal partDiscount = Math.Floor(orderItem.DiscountMoney / orderItem.Count);
+					wholeDiscount += partDiscount;
+
+					var inventPosition = CreateInventPosition(orderItem);
+					inventPosition.Quantity = 1;
+					inventPosition.DiscSum = partDiscount;
+					inventPosition.ProductMark = orderItemsCodes[0].CodeResult;
+					InventPositions.Add(inventPosition);
+				}
+
+				//добавление последнего элемента с остатками от целой скидки
+				var orderItemCode = orderItemsCodes[orderItemsCodes.Count - 1];
+
+				var residueDiscount = orderItem.DiscountMoney - wholeDiscount;
+				var lastInventPosition = CreateInventPosition(orderItem);
+				lastInventPosition.Quantity = 1;
+				lastInventPosition.DiscSum = residueDiscount;
+				lastInventPosition.ProductMark = orderItemCode.CodeResult;
+				InventPositions.Add(lastInventPosition);
 			}
+
 			MoneyPositions = new List<MoneyPositionDTO> {
 				new MoneyPositionDTO(order, order.OrderItems.Sum(i => Math.Round(i.Price * i.Count - i.DiscountMoney, 2)))
 			};
+		}
+
+		private InventPositionDTO CreateInventPosition(OrderItem orderItem)
+		{
+			var inventPosition = new InventPositionDTO
+			{
+				Name = orderItem.Nomenclature.OfficialName,
+				PriceWithoutDiscount = Math.Round(orderItem.Price, 2),
+				Quantity = orderItem.Count,
+				DiscSum = orderItem.DiscountMoney,
+				VatTag = (int)VatTag.VatFree
+			};
+			return inventPosition;
 		}
 
 		[DataMember(IsRequired = true)]

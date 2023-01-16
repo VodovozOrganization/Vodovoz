@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Services
+﻿namespace Vodovoz.Settings.Edo
 {
 	public interface IEdoSettings
 	{

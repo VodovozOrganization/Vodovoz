@@ -4,7 +4,7 @@ using Vodovoz.Models.TrueMark;
 namespace DriverAPI.DTOs
 {
 
-	public class OrderScannedItemDto : IOrderItemScannedInfo
+	public class OrderScannedItemDto : ITrueMarkOrderItemScannedInfo
 	{
 		public int OrderSaleItemId { get; set; }
 		public IEnumerable<string> BottleCodes { get; set; }

@@ -2,6 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using TrueMarkApi.Library;
+using TrueMarkApi.Library.Dto;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.TrueMark;
@@ -12,17 +16,25 @@ namespace Vodovoz.Models.TrueMark
 	public class TrueMarkCodesHandler
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly ITrueMarkCodesPool _codePool;
+		private readonly TrueMarkTransactionalCodesPool _codePool;
 		private readonly ITrueMarkRepository _trueMarkRepository;
+		private readonly TrueMarkApiClient _trueMarkApiClient;
 
-		public TrueMarkCodesHandler(IUnitOfWorkFactory uowFactory, TrueMarkApiClientFactory trueMarkApiClientFactory, ITrueMarkCodesPool codePool, ITrueMarkRepository trueMarkRepository)
+		public TrueMarkCodesHandler(IUnitOfWorkFactory uowFactory, TrueMarkApiClientFactory trueMarkApiClientFactory, TrueMarkTransactionalCodesPool codePool, ITrueMarkRepository trueMarkRepository)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_codePool = codePool ?? throw new ArgumentNullException(nameof(codePool));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+
+			if(trueMarkApiClientFactory is null)
+			{
+				throw new ArgumentNullException(nameof(trueMarkApiClientFactory));
+			}
+
+			_trueMarkApiClient = trueMarkApiClientFactory.GetClient();
 		}
 
-		public void ProcessCodes()
+		public async Task HandleOrders(CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
@@ -30,12 +42,43 @@ namespace Vodovoz.Models.TrueMark
 
 				foreach(TrueMarkCashReceiptOrder newCashReceiptOrder in newCashReceiptOrders)
 				{
-					ProcessOrder(newCashReceiptOrder);
+					if(cancellationToken.IsCancellationRequested)
+					{
+						_codePool.Rollback();
+						return;
+					}
+
+					await ProcessOrder(newCashReceiptOrder, cancellationToken);
+					try
+					{
+						uow.Save(newCashReceiptOrder);
+						uow.Commit();
+						_codePool.Commit();
+					}
+					catch(Exception)
+					{
+						_codePool.Rollback();
+					}
 				}
 			}
 		}
 
-		private void ProcessOrder(TrueMarkCashReceiptOrder trueMarkCashReceiptOrder)
+		private async Task ProcessOrder(TrueMarkCashReceiptOrder trueMarkCashReceiptOrder, CancellationToken cancellationToken)
+		{
+			try
+			{
+				await ProcessOrderCodes(trueMarkCashReceiptOrder, cancellationToken);
+				trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.ReadyToSend;
+			}
+			catch(Exception ex)
+			{
+				trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.Error;
+				trueMarkCashReceiptOrder.ErrorDescription = ex.Message;
+				throw;
+			}
+		}
+
+		private async Task ProcessOrderCodes(TrueMarkCashReceiptOrder trueMarkCashReceiptOrder, CancellationToken cancellationToken)
 		{
 			var defectiveCodes = trueMarkCashReceiptOrder.ScannedCodes.Where(x => x.IsDefectiveSourceCode);
 			ProcessDefectiveCodes(defectiveCodes);
@@ -49,7 +92,7 @@ namespace Vodovoz.Models.TrueMark
 			}
 			else
 			{
-				ProcessNaturalCounterparty(order, goodCodes);
+				await ProcessNaturalCounterparty(order, goodCodes, cancellationToken);
 			}
 		}
 
@@ -60,39 +103,6 @@ namespace Vodovoz.Models.TrueMark
 				_codePool.PutDefectiveCode(codeEntity.CodeSource);
 				var newCode = _codePool.TakeCode();
 				codeEntity.CodeResult = newCode;
-			}
-		}
-
-		private void ProcessGoodCode(Order order, TrueMarkCashReceiptProductCode codeEntity)
-		{
-			if(order.Client.PersonType == PersonType.legal)
-			{
-				ProcessLegalCounterparty(order, codeEntity);
-			}
-			else
-			{
-				ProcessNaturalCounterparty(order, codeEntity);
-			}
-
-			_codePool.PutDefectiveCode(codeEntity.CodeSource);
-
-			var goodCode = _codePool.TakeCode();
-			codeEntity.CodeResult = goodCode;
-		}
-
-		private void AddDefectiveCodesToPool(IEnumerable<string> defectiveCodes)
-		{
-			foreach(var defectiveCode in defectiveCodes)
-			{
-				_codePool.PutDefectiveCode(defectiveCode);
-			}
-		}
-
-		private void AddCodesToPool(IEnumerable<string> codes)
-		{
-			foreach(var code in codes)
-			{
-				_codePool.PutCode(code);
 			}
 		}
 
@@ -109,19 +119,35 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		private void ProcessNaturalCounterparty(Order order, IEnumerable<TrueMarkCashReceiptProductCode> goodCodeEntities)
+		private async Task ProcessNaturalCounterparty(Order order, IEnumerable<TrueMarkCashReceiptProductCode> goodCodeEntities, CancellationToken cancellationToken)
 		{
+
 			if(order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 			{
-				//проверяем в честном знаке
-				//Надо создавать систему параллельной регистрации и проверки кодов, не мешающей вызовам апи
-				bool vivedenIzOborota = false;
-				if(vivedenIzOborota)
+				var productCodes = goodCodeEntities.Select(x => x.CodeSource);
+				var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(productCodes, cancellationToken);
+				if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
 				{
-
+					throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
 				}
 
+				foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
+				{
+					var goodCodeEntity = goodCodeEntities.SingleOrDefault(x => x.CodeSource == instanceStatus.IdentificationCode);
+					if(goodCodeEntity == null)
+					{
+						throw new TrueMarkException("Проверенный в системе Честный знак, код не был найден среди отправленных на проверку.");
+					}
 
+					if(instanceStatus.Status != ProductInstanceStatusEnum.Introduced)
+					{
+						goodCodeEntity.CodeResult = _codePool.TakeCode();
+					}
+					else
+					{
+						goodCodeEntity.CodeResult = goodCodeEntity.CodeSource;
+					}
+				}
 			}
 			else
 			{
@@ -130,19 +156,6 @@ namespace Vodovoz.Models.TrueMark
 					codeEntity.CodeResult = codeEntity.CodeSource;
 				}
 			}
-
-			foreach(var scannedItem in scannedItems)
-			{
-				string code = scannedItem.BottleCodes
-				
-
-				AddDefectiveCodesToPool(scannedItem.DefectiveBottleCodes);
-				AddCodesToPool(scannedItem.BottleCodes);
-			}
-
-			//Выбираем 
-
-			//Добавляем код к заказу для чека
 		}
 	}
 }

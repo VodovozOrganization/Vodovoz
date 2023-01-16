@@ -1,6 +1,7 @@
-using System.Net;
+﻿using System.Net;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.TrueMark;
 
 namespace VodovozSalesReceiptsService.DTO
 {
@@ -10,11 +11,16 @@ namespace VodovozSalesReceiptsService.DTO
         /// Чек на отправку
         /// </summary>
         public CashReceipt CashReceipt { get; set; }
-        
-        /// <summary>
-        /// Валидный документ на отправку
-        /// </summary>
-        public SalesDocumentDTO SalesDocumentDTO { get; set; }
+
+		/// <summary>
+		/// Данные кодов честного знака заказа
+		/// </summary>
+		public TrueMarkCashReceiptOrder TrueMarkCashReceiptOrder { get; set; }
+
+		/// <summary>
+		/// Валидный документ на отправку
+		/// </summary>
+		public SalesDocumentDTO SalesDocumentDTO { get; set; }
         
         /// <summary>
         /// Кассовый аппарат, на который будет отправлен документ

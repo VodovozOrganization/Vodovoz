@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Services;
+using Vodovoz.Settings.Edo;
 
 namespace TrueMarkApi.Library
 {

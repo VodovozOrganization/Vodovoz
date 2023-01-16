@@ -21,10 +21,11 @@ namespace Vodovoz.Domain.TrueMark
 		private TrueMarkCashReceiptOrderStatus _status;
 		private string _unscannedCodesReason;
 		private string _errorDescription;
+		private CashReceipt _cashReceipt;
 		private IList<TrueMarkCashReceiptProductCode> _scannedCodes = new List<TrueMarkCashReceiptProductCode>();
 		private GenericObservableList<TrueMarkCashReceiptProductCode> _observableScannedCodes;
 
-		public int Id { get; set; }
+		public virtual int Id { get; set; }
 
 		[Display(Name = "Заказ")]
 		public virtual Order Order
@@ -60,6 +61,14 @@ namespace Vodovoz.Domain.TrueMark
 			get => _errorDescription;
 			set => SetField(ref _errorDescription, value);
 		}
+
+		[Display(Name = "Кассовый чек")]
+		public virtual CashReceipt CashReceipt
+		{
+			get => _cashReceipt;
+			set => SetField(ref _cashReceipt, value);
+		}
+
 
 		[Display(Name = "Отсканированные коды")]
 		public virtual IList<TrueMarkCashReceiptProductCode> ScannedCodes

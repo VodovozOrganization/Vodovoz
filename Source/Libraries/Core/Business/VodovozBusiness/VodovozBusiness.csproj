@@ -559,14 +559,14 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
-    <Compile Include="Models\TrueMark\ITrueMarkCodesPool.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderItemScannedInfo.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderScannedInfo.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkApiRegistrationStatusConverter.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesHandler.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
     <Compile Include="Models\TrueMark\TrueMarkException.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkTransactionalCodesPool.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
-    <Compile Include="Parameters\EdoSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
     <Compile Include="Models\OrderOrganizationProviderFactory.cs" />
@@ -601,7 +601,6 @@
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
-    <Compile Include="Services\IEdoSettings.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\CarEventSettings.cs" />
@@ -1424,6 +1423,10 @@
     <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client\Sms.Internal.Client.csproj">
       <Project>{293D7B89-C070-422E-89B5-88650DBB48B0}</Project>
       <Name>Sms.Internal.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Backend\TrueMarkApi.Library\TrueMarkApi.Library.csproj">
+      <Project>{D8D2EC1E-5F3B-4699-87E7-C85274A2BE66}</Project>
+      <Name>TrueMarkApi.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>

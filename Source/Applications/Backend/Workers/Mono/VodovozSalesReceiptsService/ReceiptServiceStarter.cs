@@ -30,7 +30,7 @@ namespace VodovozSalesReceiptsService
 
 			_logger.Info("Служба фискализации запущена");
 
-			var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
+			/*var salesReceiptsInstanceProvider = new SalesReceiptsInstanceProvider(
 				new BaseParametersProvider(parametersProvider),
 				new OrderRepository(),
 				new OrderParametersProvider(parametersProvider)
@@ -42,7 +42,7 @@ namespace VodovozSalesReceiptsService
 				$"http://{serviceHostName}:{servicePort}/SalesReceipts"
 			);
 			salesReceiptsHost.Open();
-			_logger.Info("Запущена служба мониторинга отправки чеков");
+			_logger.Info("Запущена служба мониторинга отправки чеков");*/
 		}
 	}
 }

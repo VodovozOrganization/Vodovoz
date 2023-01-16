@@ -29,6 +29,14 @@ namespace VodovozSalesReceiptsService.DTO
 		}
 
 		[DataMember(IsRequired = true)]
+		string productMark;
+		public string ProductMark
+		{
+			get => productMark;
+			set => productMark = value;
+		}
+
+		[DataMember(IsRequired = true)]
 		int vatTag;
 		public int VatTag {
 			get => vatTag;

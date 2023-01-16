@@ -23,6 +23,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Services;
+using Vodovoz.Settings.Edo;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace TrueMarkApi.Services

@@ -3,7 +3,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
+using Vodovoz.Settings.Edo;
 
 namespace TrueMarkCodesWorker
 {
@@ -36,7 +38,7 @@ namespace TrueMarkCodesWorker
 			try
 			{
 				_logger.LogInformation("Вызов обработки кодов честного знака");
-				_trueMarkCodesHandler.HandleCodes();
+				await _trueMarkCodesHandler.HandleOrders(stoppingToken);
 			}
 			finally
 			{

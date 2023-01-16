@@ -17,6 +17,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database.Edo;
 using Vodovoz.Tools;
 
 namespace TrueMarkCodesWorker

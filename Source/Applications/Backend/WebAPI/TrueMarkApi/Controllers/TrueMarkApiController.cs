@@ -165,7 +165,7 @@ namespace TrueMarkApi.Controllers
 					var productInstancesInfo = cisesInformation.Select(x => 
 						new ProductInstanceStatus { 
 							IdentificationCode = x.RequestedCis, 
-							Status = x.Status 
+							Status = GetStatus(x.Status) 
 						}
 					);
 
@@ -189,6 +189,35 @@ namespace TrueMarkApi.Controllers
 					ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
 
 				};
+			}
+		}
+
+		private ProductInstanceStatusEnum GetStatus(string statusName)
+		{
+			switch(statusName)
+			{
+				case "EMITTED":
+					return ProductInstanceStatusEnum.Emitted;
+				case "APPLIED":
+					return ProductInstanceStatusEnum.Applied;
+				case "APPLIED_PAID":
+					return ProductInstanceStatusEnum.AppliedPaid;
+				case "INTRODUCED":
+					return ProductInstanceStatusEnum.Introduced;
+				case "WRITTEN_OFF":
+					return ProductInstanceStatusEnum.WrittenOff;
+				case "RETIRED":
+					return ProductInstanceStatusEnum.Retired;
+				case "WITHDRAWN":
+					return ProductInstanceStatusEnum.Withdrawn;
+				case "DISAGGREGATION":
+					return ProductInstanceStatusEnum.Disaggregation;
+				case "DISAGGREGATED":
+					return ProductInstanceStatusEnum.Disaggregated;
+				case "APPLIED_NOT_PAID":
+					return ProductInstanceStatusEnum.AppliedNotPaid;
+				default:
+					throw new InvalidOperationException($"Не известный статус экземпляра продукта: {statusName}");
 			}
 		}
 	}

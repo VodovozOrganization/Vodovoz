@@ -85,6 +85,9 @@ using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using QS.Attachments.Domain;
 using Vodovoz.Core;
+using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Database.Edo;
+using Vodovoz.Settings.Database;
 
 namespace Vodovoz
 {
@@ -128,7 +131,7 @@ namespace Vodovoz
 		private IContactListService _contactListService;
 		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-		private IEdoSettings _edoSettings = new EdoSettings(new ParametersProvider());
+		private IEdoSettings _edoSettings = new EdoSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 
 		private bool _currentUserCanEditCounterpartyDetails = false;

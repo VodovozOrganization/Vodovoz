@@ -5,6 +5,7 @@
 		New,
 		ReadyToSend,
 		Error,
+		ReceiptNotNeeded,
 		Sended
 	}
 }

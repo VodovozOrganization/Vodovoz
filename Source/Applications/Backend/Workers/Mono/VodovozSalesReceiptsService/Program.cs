@@ -18,7 +18,8 @@ namespace VodovozSalesReceiptsService
 	class Service
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		private const string configFile = "/etc/vodovoz-sales-receipts-service.json";
+		//private const string configFile = "/etc/vodovoz-sales-receipts-service-test.json";
+		private const string configFile = @"E:\Repositories\Vodovoz\TestConfigs\vodovoz-sales-receipts-service-test.json";
 
 		//Mysql
 		private static string mysqlServerHostName;
@@ -58,8 +59,8 @@ namespace VodovozSalesReceiptsService
 					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "service_port"));
 
 				var modulKassaConfig = configuration.GetSection("ModulKassa");
-				modulKassaBaseAddress = modulKassaConfig["base_address"]
-					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "base_address"));
+				modulKassaBaseAddress = modulKassaConfig["test_base_address"]
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "test_base_address"));
 
 				var mysqlConfig = configuration.GetSection("MySql");
 				mysqlServerHostName = mysqlConfig["mysql_server_host_name"]
@@ -74,8 +75,8 @@ namespace VodovozSalesReceiptsService
 					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "mysql_database"));
 
 				cashboxes = new List<CashBox>();
-				var cashboxesConfig = configuration.GetSection("Cashboxes")?.GetChildren()
-					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "Cashboxes"));
+				var cashboxesConfig = configuration.GetSection("TestCashboxes")?.GetChildren()
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "TestCashboxes"));
 				foreach(var cashboxConfig in cashboxesConfig)
 				{
 					string stringId = cashboxConfig["id"];

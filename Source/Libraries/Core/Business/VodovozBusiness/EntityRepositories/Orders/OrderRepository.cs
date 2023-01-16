@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.TrueMark;
 using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -584,6 +585,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			CashReceipt cashReceiptAlias = null;
 			Counterparty counterpartyAlias = null;
+			TrueMarkCashReceiptOrder trueMarkCashReceiptOrder = null;
 
 			var orderSumProjection = Projections.Sum(
 				Projections.SqlFunction(
@@ -624,9 +626,11 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var ordersToSendQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityQueryOver(() => trueMarkCashReceiptOrder, Restrictions.Where(() => orderAlias.Id == trueMarkCashReceiptOrder.Order.Id))
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(paymentTypeRestriction)
+				.Where(Restrictions.In(Projections.Property(() => trueMarkCashReceiptOrder.Status), new[] { TrueMarkCashReceiptOrderStatus.ReadyToSend, TrueMarkCashReceiptOrderStatus.Error } ))
 				.And(statusRestriction)
 				.And(positiveSumRestriction)
 				.And(notSentRestriction);

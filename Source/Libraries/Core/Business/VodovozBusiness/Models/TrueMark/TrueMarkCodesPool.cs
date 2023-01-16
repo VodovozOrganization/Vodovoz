@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Vodovoz.Models.TrueMark
 {
-	public class TrueMarkCodesPool : ITrueMarkCodesPool
+	public class TrueMarkCodesPool
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 
@@ -13,7 +13,7 @@ namespace Vodovoz.Models.TrueMark
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		public void PutCode(string code)
+		public virtual void PutCode(string code)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))
@@ -26,7 +26,7 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		public string TakeCode()
+		public virtual string TakeCode()
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))
@@ -44,7 +44,7 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		public void PutDefectiveCode(string code)
+		public virtual void PutDefectiveCode(string code)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))
@@ -57,7 +57,7 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		public string TakeDefectiveCode()
+		public virtual string TakeDefectiveCode()
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))

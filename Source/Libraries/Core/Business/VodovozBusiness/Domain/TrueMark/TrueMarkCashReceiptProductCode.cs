@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.TrueMark
 		private string _codeSource;
 		private string _codeResult;
 
-		public int Id { get; set; }
+		public virtual int Id { get; set; }
 
 		[Display(Name = "Заказ с честным знаком для отправки чека")]
 		public virtual TrueMarkCashReceiptOrder TrueMarkCashReceiptOrder
