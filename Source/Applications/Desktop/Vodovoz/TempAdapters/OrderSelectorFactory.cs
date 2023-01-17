@@ -4,6 +4,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System.Collections.Generic;
+using Vodovoz.Core;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -29,12 +30,12 @@ namespace Vodovoz.TempAdapters
 
 		public IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
 		{
-			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel();
-			orderFilterVM.IsOnlineStoreOrders = IsOnlineStoreOrders;
-			orderFilterVM.OrderStatuses = orderStatuses;
+			var orderFilter = new OrderForMovDocJournalFilterViewModel();
+			orderFilter.IsOnlineStoreOrders = IsOnlineStoreOrders;
+			orderFilter.OrderStatuses = orderStatuses;
 
-			OrderForMovDocJournalViewModel vm = new OrderForMovDocJournalViewModel(
-				orderFilterVM,
+			var vm = new OrderForMovDocJournalViewModel(
+				orderFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			) {
@@ -44,11 +45,11 @@ namespace Vodovoz.TempAdapters
 			return vm;
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateOrderAutocompleteSelectorFactory(OrderJournalFilterViewModel filterViewModel = null)
 		{
 			return new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(
 				typeof(Order),
-				CreateOrderJournalViewModel
+				() => CreateOrderJournalViewModel(filterViewModel)
 			);
 		}
 
@@ -92,13 +93,14 @@ namespace Vodovoz.TempAdapters
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
 						new FileDialogService(),
-						new SubdivisionParametersProvider(new ParametersProvider()));
+						new SubdivisionParametersProvider(new ParametersProvider()),
+						new DeliveryScheduleParametersProvider(new ParametersProvider()),
+						new RdlPreviewOpener());
 				});
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
 		{
-
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
@@ -134,11 +136,13 @@ namespace Vodovoz.TempAdapters
 						new UndeliveredOrdersRepository(),
 						new SubdivisionRepository(new ParametersProvider()),
 						new FileDialogService(),
-						new SubdivisionParametersProvider(new ParametersProvider()));
+						new SubdivisionParametersProvider(new ParametersProvider()),
+						new DeliveryScheduleParametersProvider(new ParametersProvider()),
+						new RdlPreviewOpener());
 				});
 		}
 
-		public OrderJournalViewModel CreateOrderJournalViewModel()
+		public OrderJournalViewModel CreateOrderJournalViewModel(OrderJournalFilterViewModel filterViewModel = null)
 		{
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
@@ -148,7 +152,9 @@ namespace Vodovoz.TempAdapters
 			var employeeJournalFactory = new EmployeeJournalFactory();
 
 			return new OrderJournalViewModel(
-				_orderJournalFilter ?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
+				_orderJournalFilter
+					?? filterViewModel
+					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
@@ -165,8 +171,9 @@ namespace Vodovoz.TempAdapters
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),
 				new FileDialogService(),
-				new SubdivisionParametersProvider(new ParametersProvider())
-			);
+				new SubdivisionParametersProvider(new ParametersProvider()),
+				new DeliveryScheduleParametersProvider(new ParametersProvider()),
+				new RdlPreviewOpener());
 		}
 	}
 }

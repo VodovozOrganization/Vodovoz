@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Utilities.Extensions;
@@ -96,9 +97,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
 using QS.Dialog.GtkUI.FileDialog;
 using Vodovoz.SidePanel.InfoViews;
+using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
 namespace Vodovoz
@@ -166,6 +169,8 @@ namespace Vodovoz
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_seal_and_signature_UPD");
 		private readonly bool _canEditDeliveryDateAfterOrderConfirmation =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_deliverydate_after_order_confirmation");
+		private readonly bool _canCreateOrderInAdvance = 
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance");
 		private bool isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
@@ -181,6 +186,7 @@ namespace Vodovoz
 		private PhonesJournalFilterViewModel _contactPhoneFilter;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private string _commentManager;
+		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
@@ -835,6 +841,7 @@ namespace Vodovoz
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
+			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
@@ -2565,7 +2572,7 @@ namespace Vodovoz
 
 		void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
 		{
-			if(pickerDeliveryDate.Date < DateTime.Today && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance"))
+			if(pickerDeliveryDate.Date < DateTime.Today && !_canCreateOrderInAdvance)
 			{
 				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 0, 0));
 			}
@@ -3707,79 +3714,152 @@ namespace Vodovoz
 				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
 				return;
 			}
-			
-			ylblCounterpartyFIO.Text = Entity.Client.FullName;
-			ylblDeliveryAddress.Text = Entity.DeliveryPoint?.CompiledAddress ?? "";
 
-			ylblPhoneNumber.Text = Entity.DeliveryPoint?.Phones.Count > 0
-				? string.Join(", ", Entity.DeliveryPoint.Phones.Where(p => !p.IsArchive).Select(p => p.DigitsNumber))
-				: string.Join(", ", Entity.Client.Phones.Where(p => !p.IsArchive).Select(p => p.DigitsNumber));
+			_summaryInfoBuilder.Clear();
 
-			ylblDeliveryDate.Text = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
-			ylblDeliveryInterval.Text = Entity.DeliverySchedule?.DeliveryTime;
+			var clientFIO = Entity.Client.FullName.ToUpper();
+			ylblCounterpartyFIO.Text = clientFIO;
+
+			_summaryInfoBuilder.AppendLine($"{lblCounterpartyFIO.Text} {clientFIO}").AppendLine();
+
+			var deliveryAddress = Entity.DeliveryPoint?.CompiledAddress.ToUpper() ?? "";
+			ylblDeliveryAddress.Text = deliveryAddress;
+
+			_summaryInfoBuilder.AppendLine($"{lblDeliveryAddress.Text} {deliveryAddress}").AppendLine();
+
+			var phone = Entity.ContactPhone != null ? $"+7 {Entity.ContactPhone.Number}" : "";
+			ylblPhoneNumber.Text = phone;
+
+			_summaryInfoBuilder.AppendLine($"{lblPhoneNumber.Text} {phone}").AppendLine();
+
+			var deliveryDate = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
+			ylblDeliveryDate.Text = deliveryDate;
+
+			_summaryInfoBuilder.AppendLine($"{lblDeliveryDate.Text} {deliveryDate}").AppendLine();
+
+			var deliveryTime = Entity.DeliverySchedule?.DeliveryTime;
+			ylblDeliveryInterval.Text = deliveryTime;
+
+			_summaryInfoBuilder.AppendLine($"{lblDeliveryInterval.Text} {deliveryTime}").AppendLine();
 
 			var isPaymentTypeCashless = Entity.PaymentType == PaymentType.cashless;
-			ylblDocumentSigning.Visible = isPaymentTypeCashless;
-			lblDocumentSigning.Visible = isPaymentTypeCashless;
-			ylblDocumentSigning.Text = isPaymentTypeCashless
-				? Entity.SignatureType?.GetEnumTitle() ?? ""
+			var documentSigning = isPaymentTypeCashless
+				? Entity.SignatureType?.GetEnumTitle().ToUpper() ?? ""
 				: "";
+			lblDocumentSigning.Visible = ylblDocumentSigning.Visible = isPaymentTypeCashless;
+			ylblDocumentSigning.Text = documentSigning;
+
+			if(lblDocumentSigning.Visible)
+			{
+				_summaryInfoBuilder.AppendLine($"{lblDocumentSigning.Text} {documentSigning}").AppendLine();
+			}
 
 			var hasOrderItems = Entity.OrderItems.Count > 0;
-			ylblGoods.Visible = hasOrderItems;
-			lblGoods.Visible = hasOrderItems;
-			ylblGoods.Text = hasOrderItems
+			var goods = hasOrderItems
 				? string.Join("\n",
-					Entity.OrderItems.Select(oi => $"{ oi.Nomenclature.Name } - { oi.Count.ToString("F" + (oi.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oi.Nomenclature.Unit?.Name }"))
+					Entity.OrderItems.Select(oi =>
+						$"{oi.Nomenclature.Name.ToUpper()} - {oi.Count.ToString("F" + (oi.Nomenclature.Unit?.Digits ?? 0).ToString())}{oi.Nomenclature.Unit?.Name}"))
 				: "";
+			lblGoods.Visible = ylblGoods.Visible = hasOrderItems;
+			ylblGoods.Text = goods;
+
+			if(lblGoods.Visible)
+			{
+				_summaryInfoBuilder.AppendLine($"{lblGoods.Text} {goods}").AppendLine();
+			}
 
 			var hasOrderEquipments = Entity.OrderEquipments.Count > 0;
-			ylblEquipment.Visible = hasOrderEquipments;
-			lblEquipment1.Visible = hasOrderEquipments;
-			ylblEquipment.Text = hasOrderEquipments
+			var equipments = hasOrderEquipments
 				? string.Join("\n",
-					Entity.OrderEquipments.Select(oe => $"{ oe.Nomenclature.Name } - { oe.Count.ToString("F" + (oe.Nomenclature.Unit?.Digits ?? 0).ToString()) }{ oe.Nomenclature.Unit?.Name ?? "шт" }"))
+					Entity.OrderEquipments.Select(oe =>
+						$"{oe.Nomenclature.Name.ToUpper()} - {oe.Count.ToString("F" + (oe.Nomenclature.Unit?.Digits ?? 0).ToString())}{oe.Nomenclature.Unit?.Name ?? "шт"}"))
 				: "";
+			lblEquipment1.Visible = ylblEquipment.Visible = hasOrderEquipments;
+			ylblEquipment.Text = equipments;
+
+			if(lblEquipment1.Visible)
+			{
+				_summaryInfoBuilder.AppendLine($"{lblEquipment1.Text} {equipments}").AppendLine();
+			}
 
 			var hasDepositItems = Entity.OrderDepositItems.Count > 0;
-
-			ylblReturns.Visible = hasDepositItems;
-			lblReturns.Visible = hasDepositItems;
-			ylblReturns.Text = hasDepositItems
+			var deposits = hasDepositItems
 				? string.Join("\n",
 					Entity.OrderDepositItems.Select(odi =>
 					{
 						if(odi.EquipmentNomenclature != null)
 						{
-							return $"{ odi.EquipmentNomenclature.Name } - { odi.Count }{ odi.EquipmentNomenclature.Unit.Name }";
+							return $"{odi.EquipmentNomenclature.Name.ToUpper()} - {odi.Count}{odi.EquipmentNomenclature.Unit.Name}";
 						}
 						else
 						{
-							return $"{ odi.DepositTypeString } - { odi.Count }";
+							return $"{odi.DepositTypeString.ToUpper()} - {odi.Count}";
 						}
 					}))
 				: "";
+			lblReturns.Visible = ylblReturns.Visible = hasDepositItems;
+			ylblReturns.Text = deposits;
 
-			ylblBottlesPlannedToReturn.Text = $"{ Entity.BottlesReturn ?? 0 } бут.";
+			if(lblReturns.Visible)
+			{
+				_summaryInfoBuilder.AppendLine($"{lblReturns.Text} {deposits}").AppendLine();
+			}
 
-			var isIncorrectLegalClientPaymentType = Entity.Client.PersonType == PersonType.legal && Entity.PaymentType != Entity.Client.PaymentMethod;
-			ylblPaymentType.LabelProp = isIncorrectLegalClientPaymentType
-				? $"<span foreground='red'>{ Entity.PaymentType.GetEnumTitle() }</span>"
-				: Entity.PaymentType.GetEnumTitle();
+			var bottlesToReturn = $"{Entity.BottlesReturn ?? 0} бут.";
+			ylblBottlesPlannedToReturn.Text = bottlesToReturn;
 
-			ylblPlannedSum.Text = $"{ Entity.OrderPositiveSum } руб.";
+			_summaryInfoBuilder.AppendLine($"{lblBottlesPlannedToReturn.Text} {bottlesToReturn}").AppendLine();
 
 			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
-			ylblTrifleFrom.Visible = isPaymentTypeCash;
-			lblTrifleFrom.Visible = isPaymentTypeCash;
-			ylblTrifleFrom.Text = isPaymentTypeCash
-								? $"{ Entity.Trifle ?? 0 } руб."
-								: "";
+			var paymentType = !isPaymentTypeCash
+				? Entity.PaymentType.GetEnumTitle().ToUpper()
+				: Entity.PaymentByQr
+					? "Оплата по QR"
+					: Entity.PaymentType.GetEnumTitle().ToUpper();
+			var isIncorrectLegalClientPaymentType =
+				Entity.Client.PersonType == PersonType.legal && Entity.PaymentType != Entity.Client.PaymentMethod;
+			ylblPaymentType.LabelProp = isIncorrectLegalClientPaymentType
+				? $"<span foreground='red'>{paymentType}</span>"
+				: paymentType;
+			;
 
-			ylblCommentForDriver.Text = Entity.HasCommentForDriver ? Entity.Comment : "";
+			_summaryInfoBuilder.AppendLine($"{lblPaymentType.Text} {paymentType}").AppendLine();
 
-			ylblCommentForLogist.Text = Entity.CommentLogist;
+			var plannedSum = $"{Entity.OrderPositiveSum} руб.";
+			ylblPlannedSum.Text = plannedSum;
 
+			_summaryInfoBuilder.AppendLine($"{lblPlannedSum.Text} {plannedSum}").AppendLine();
+
+			var trifle = isPaymentTypeCash
+				? $"{Entity.Trifle ?? 0} руб."
+				: "";
+			lblTrifleFrom.Visible = ylblTrifleFrom.Visible = isPaymentTypeCash;
+			ylblTrifleFrom.Text = trifle;
+
+			if(lblTrifleFrom.Visible)
+			{
+				_summaryInfoBuilder.AppendLine($"{lblTrifleFrom.Text} {trifle}").AppendLine();
+			}
+
+			var contactlessDelivery = Entity.ContactlessDelivery ? "Да".ToUpper() : "Нет".ToUpper();
+			lblContactlessDelivery.Visible = lblContactlessDeliveryText.Visible = Entity.ContactlessDelivery;
+			lblContactlessDeliveryText.Text = contactlessDelivery;
+
+			if(Entity.ContactlessDelivery)
+			{
+				_summaryInfoBuilder.AppendLine($"{lblContactlessDelivery.Text} {contactlessDelivery}").AppendLine();
+			}
+			
+			var commentForDriver = Entity.HasCommentForDriver ? Entity.Comment?.ToUpper() : "";
+			ylblCommentForDriver.Text = commentForDriver;
+
+			_summaryInfoBuilder.AppendLine($"{lblCommentForDriver.Text} {commentForDriver}").AppendLine();
+			
+			var commentForLogist = Entity.CommentLogist?.ToUpper();
+			ylblCommentForLogist.Text = commentForLogist;
+
+			_summaryInfoBuilder.Append($"{lblCommentForLogist.Text} {commentForLogist}");
+			
 			ntbOrder.GetNthPage(1).Hide();
 			ntbOrder.GetNthPage(1).Show();
 
@@ -4041,6 +4121,8 @@ namespace Vodovoz
 			return selectedNode == null ? null : UoW.GetById<Nomenclature>(selectedNode.Id);
 		}
 
+		#endregion
+		
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
 		{
 			if(Entity.Id > 0)
@@ -4048,7 +4130,10 @@ namespace Vodovoz
 				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
 			}
 		}
-
-		#endregion
+		
+		private void OnBtnCopySummaryInfoClicked(object sender, EventArgs e)
+		{
+			GetClipboard(Gdk.Selection.Clipboard).Text = _summaryInfoBuilder.ToString();
+		}
 	}
 }

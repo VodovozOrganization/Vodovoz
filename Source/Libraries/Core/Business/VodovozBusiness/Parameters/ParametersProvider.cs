@@ -9,6 +9,7 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.Parameters
 {
+	[Obsolete("Вместо него необходимо использовать интерфейс Vodovoz.Settings.ISettingsController")]
 	public class ParametersProvider : IParametersProvider
 	{
 		private readonly Logger logger = LogManager.GetCurrentClassLogger();

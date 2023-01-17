@@ -47,7 +47,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.19.4" />
+    <PackageReference Include="Google.Protobuf" Version="3.21.7" />
     <PackageReference Include="Grpc" Version="2.44.0" />
     <PackageReference Include="Grpc.Core" Version="2.44.0" />
     <PackageReference Include="Grpc.Core.Api" Version="2.44.0" />
@@ -63,9 +63,9 @@
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
-		<Protobuf Include="..\Mango.Grpc\PhonebookService.proto" GrpcServices="Client" />
-		<Protobuf Include="..\Mango.Grpc\NotificationService.proto" GrpcServices="Client" />
-	</ItemGroup>
+    <Protobuf Include="..\Mango.Grpc\PhonebookService.proto" GrpcServices="Client" />
+    <Protobuf Include="..\Mango.Grpc\NotificationService.proto" GrpcServices="Client" />
+  </ItemGroup>
   <Import Project="..\Mango.Grpc\Mango.Grpc.projitems" Label="Shared" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

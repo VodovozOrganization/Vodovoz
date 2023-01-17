@@ -97,6 +97,7 @@ namespace Vodovoz.Domain.Orders
 		private Phone _contactPhone;
 		private DateTime? _commentOPManagerUpdatedAt;
 		private Employee _commentOPManagerChangedBy;
+		private bool? _canCreateOrderInAdvance;
 		
 		#region Cвойства
 
@@ -1237,7 +1238,12 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
 			}
 
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance")
+			if(!_canCreateOrderInAdvance.HasValue)
+			{
+				_canCreateOrderInAdvance =
+					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance");
+			}
+			if(!_canCreateOrderInAdvance.Value
 			   && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today
 			   && OrderStatus <= OrderStatus.Accepted) {
 				yield return new ValidationResult(
@@ -1341,6 +1347,18 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult($"Номер для связи с Id {ContactPhone.Id} : {ContactPhone.Number} не найден в списке телефонных номеров ни контрагента, ни точки доставки.",
 					new[] { nameof(ContactPhone) });
+			}
+
+			if(OPComment?.Length > 255)
+			{
+				yield return new ValidationResult($"Значение поля \"Комментарий ОП/ОСК\" не должно превышать 255 символов",
+					new[] { nameof(OPComment) });
+			}
+
+			if(ODZComment?.Length > 255)
+			{
+				yield return new ValidationResult($"Значение поля \"Комментарий ОДЗ\" не должно превышать 255 символов",
+					new[] { nameof(OPComment) });
 			}
 		}
 

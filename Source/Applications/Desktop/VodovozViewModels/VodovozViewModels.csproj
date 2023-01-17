@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
+    <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
@@ -61,12 +62,22 @@
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\OrderJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
+    <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentViewModel.cs" />
     <Compile Include="ReportsParameters\Profitability\ProfitabilitySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
@@ -682,6 +693,5 @@
       <Version>1.7.4</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

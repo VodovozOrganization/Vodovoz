@@ -20,6 +20,8 @@ using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
+using System.Reflection;
 
 namespace PayPageAPI
 {
@@ -144,14 +146,15 @@ namespace PayPageAPI
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
 				db_config,
-				new System.Reflection.Assembly[]
+				new Assembly[]
 				{
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
-					System.Reflection.Assembly.GetAssembly(typeof(Bank)),
-					System.Reflection.Assembly.GetAssembly(typeof(HistoryMain)),
-					System.Reflection.Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Bank)),
+					Assembly.GetAssembly(typeof(HistoryMain)),
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
 

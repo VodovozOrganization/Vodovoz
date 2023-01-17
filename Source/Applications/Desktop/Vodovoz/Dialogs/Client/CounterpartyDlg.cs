@@ -84,6 +84,7 @@ using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using QS.Attachments.Domain;
+using Vodovoz.Core;
 
 namespace Vodovoz
 {
@@ -1266,7 +1267,9 @@ namespace Vodovoz
 				new UndeliveredOrdersRepository(),
 				new SubdivisionRepository(new ParametersProvider()),
 				new FileDialogService(),
-				new SubdivisionParametersProvider(new ParametersProvider())
+				new SubdivisionParametersProvider(new ParametersProvider()),
+				new DeliveryScheduleParametersProvider(new ParametersProvider()),
+				new RdlPreviewOpener()
 			);
 
 			TabParent.AddTab(orderJournalViewModel, this, false);

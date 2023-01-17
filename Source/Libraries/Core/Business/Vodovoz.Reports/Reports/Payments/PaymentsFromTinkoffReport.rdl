@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -1184,7 +1184,7 @@ FROM
         JOIN payments_by_card_online p_online on p_online.number = o_online.online_order
             AND p_online.date_and_time &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
             AND p_online.date_and_time &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
-            AND p_online.payment_by_card_from IN ('FromVodovozWebSite', 'FromEShop', 'FromTinkoff')
+            AND p_online.payment_by_card_from != 'FromSMS'
 
         UNION
 
@@ -1317,7 +1317,7 @@ WHERE
           AND payment_from_id NOT IN (10, 11, 12, 13) #убираем платежи из авангарда
           AND delivery_date &gt;= @startDate
     )
-        AND payment_by_card_from IN ('FromVodovozWebSite', 'FromEShop', 'FromTinkoff')
+        AND payment_by_card_from != 'FromSMS'
     )
     OR
     (

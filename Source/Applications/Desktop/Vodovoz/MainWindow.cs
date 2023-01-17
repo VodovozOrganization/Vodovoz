@@ -235,6 +235,7 @@ public partial class MainWindow : Gtk.Window
 		ActionWagesOperations.Sensitive = hasAccessToSalaries || _hasAccessToSalariesForLogistics; //Зарплаты сотрудников
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries; //Зарплаты экспедиторов
 		ActionDriversWageBalance.Visible = hasAccessToSalaries; //Баланс водителей
+		EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
 		ActionCRM.Sensitive = hasAccessToCRM;
 
 		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
@@ -2351,7 +2352,7 @@ public partial class MainWindow : Gtk.Window
 			);
 
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+		var interactiveService = new CastomInteractiveService();
 
 		var viewModel = new CarsExploitationReportViewModel(
 			uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(new ParametersProvider()),
@@ -2773,5 +2774,18 @@ public partial class MainWindow : Gtk.Window
 	protected void OnUsersRolesActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<UserRolesJournalViewModel>(null);
+	}
+
+	protected void OnEmployeeRegistrationsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EmployeeRegistrationsJournalViewModel>(null);
+	}
+
+	protected void OnEmployeesTaxesActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
+			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory))
+		);
 	}
 }

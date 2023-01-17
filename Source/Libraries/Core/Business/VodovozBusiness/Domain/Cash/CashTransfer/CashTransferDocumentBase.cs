@@ -182,9 +182,10 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		/// Если при создании операций возникло не предвиденное исключение документ откатывается на исходное состояние и бросается возникшее исключение.
 		/// </summary>
 		/// <param name="sender">Кассир, который будет указан в документе и операциях перемещения как отправитель</param>
+		/// <param name="description">Комментарий основание</param>
 		/// <exception cref="ArgumentNullException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
-		public virtual void Send(Employee sender)
+		public virtual void Send(Employee sender, string description)
 		{
 			if(sender == null) {
 				throw new ArgumentNullException(nameof(sender), $"Не указано кто является кассиром");
@@ -217,6 +218,8 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 
 				Expense newExpenseOperation = new Expense {
 					TypeDocument = ExpenseInvoiceDocumentType.ExpenseTransferDocument,
+					Description = description,
+					Employee = sender,
 					Casher = sender,
 					Date = now,
 					ExpenseCategory = ExpenseCategory,
@@ -248,9 +251,10 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		/// Если при создании операций возникло не предвиденное исключение документ откатывается на исходное состояние и бросается возникшее исключение.
 		/// </summary>
 		/// <param name="receiver">Кассир, который будет указан в документе и операциях перемещения как отправитель</param>
+		/// <param name="description">Комментарий основание</param>
 		/// <exception cref="ArgumentNullException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
-		public virtual void Receive(Employee receiver)
+		public virtual void Receive(Employee receiver, string description)
 		{
 			if(receiver == null) {
 				throw new ArgumentNullException($"Не указано кто является кассиром");
@@ -276,9 +280,12 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 			DateTime now = DateTime.Now;
 
 			try {
-				Income newIncomeOperation = new Income {
+				Income newIncomeOperation = new Income
+				{
 					TypeDocument = IncomeInvoiceDocumentType.IncomeTransferDocument,
+					Employee = receiver,
 					Casher = receiver,
+					Description = description,
 					Date = now,
 					IncomeCategory = IncomeCategory,
 					TypeOperation = IncomeType.Common,
