@@ -155,18 +155,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.Logistician.Id == _filterViewModel.Logistician.Id);
 			}
 
-			if(_filterViewModel.IsVerificationFromSite != null)
-			{
-				if(_filterViewModel.IsVerificationFromSite.Value)
-				{
-					itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.Author == null);
-				}
-				else
-				{
-					itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.Author != null);
-				}
-			}
-
 			if(_filterViewModel.IsNomenclatureNotInStock != null)
 			{
 				itemsQuery.Where(Restrictions.Eq(Projections.SubQuery(nomenclatureNotInStockSubquery),
@@ -237,7 +225,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				worksheet.Cell(3, 3).Value = _filterViewModel.VerificationDateFrom;
 				worksheet.Cell(3, 4).Value = "по";
 				worksheet.Cell(3, 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
-				worksheet.Cell(3, 5).Value = _filterViewModel.VerificationDateTo;
+				worksheet.Cell(3, 5).Value = _filterViewModel.VerificationDateTo?.Date;
 
 				worksheet.Cell(5, 1).Value = "Суммарные значения за период отчета";
 				worksheet.Row(5).Style.Font.SetBold(true);

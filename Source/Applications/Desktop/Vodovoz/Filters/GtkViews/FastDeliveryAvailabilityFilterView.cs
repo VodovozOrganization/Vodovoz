@@ -39,6 +39,8 @@ namespace Vodovoz.Filters.GtkViews
 
 			nullablecheckVerificatinFromSite.RenderMode = RenderMode.Icon;
 			nullablecheckVerificatinFromSite.Binding.AddBinding(ViewModel, vm => vm.IsVerificationFromSite, w => w.Active).InitializeFromSource();
+
+			ybuttonInfo.Clicked += (sender, args) => ViewModel.InfoCommand.Execute();
 		}
 	}
 }

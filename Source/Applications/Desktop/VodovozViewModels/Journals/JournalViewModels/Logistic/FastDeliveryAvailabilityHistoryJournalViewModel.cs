@@ -402,7 +402,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			CreateDefaultEditAction();
 			CreateXLExportAction();
 			CreateFailsOrdersXLExportAction();
-			CreateFailsOrdersHelpAction();
 		}
 
 		private void CreateXLExportAction()
@@ -452,25 +451,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			);
 
 			NodeActionsList.Add(xlExportAction);
-		}
-
-		private void CreateFailsOrdersHelpAction()
-		{
-			var helpAction = new JournalAction("Помощь",
-				(selected) => true,
-				(selected) => true,
-				(selected) =>
-				{
-					var message = "В отчёте по недоставленным экспресс-заказам отображаются заказы, которые в итоге не стали заказами с доставкой за час.\n" +
-								  "В столбце \"Не доставлено заказов\" считаются уникальные заказы.\nВ остальных столбцах кол-во проблем (по одному заказу может быть несколько проверок).\n" +
-								  "Если в проверке не нашлось подходящих по расстоянию МЛ, то в колонку \"Большое расстояние\" попадает 1, а в остальные колонки 0.\n"+
-								  "В противном случае суммируются показатели проверки для МЛ-в, подходящих по расстоянию, а в колонку с расстоянием попадает 0.";
-
-					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, message, "Сводный отчёт по заказам");
-				}
-			);
-
-			NodeActionsList.Add(helpAction);
 		}
 
 		protected override Func<FastDeliveryAvailabilityHistoryViewModel> CreateDialogFunction =>
