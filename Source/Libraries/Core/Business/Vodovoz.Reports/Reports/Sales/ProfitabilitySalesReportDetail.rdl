@@ -47,10 +47,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>63.9pt</Width>
+            <Width>65.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>78.7pt</Width>
+            <Width>77.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.1pt</Width>
@@ -109,7 +109,7 @@
             <Width>35.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.3pt</Width>
+            <Width>36.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -439,7 +439,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>Рентабельность, %</Value>
+                      <Value>Рентабель
+ность в 
+процентах</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1816,7 +1818,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox124">
-                      <Value>Рентабельность, %</Value>
+                      <Value>Рентабель
+ность в 
+процентах</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -3075,7 +3079,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     c.name AS counterparty,
@@ -3449,7 +3453,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="counterparty">
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>
