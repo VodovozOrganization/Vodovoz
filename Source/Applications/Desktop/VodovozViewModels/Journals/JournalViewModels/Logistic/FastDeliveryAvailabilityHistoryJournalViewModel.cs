@@ -14,12 +14,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using QS.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -401,6 +401,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			CreateDefaultEditAction();
 			CreateXLExportAction();
+			CreateFailsOrdersXLExportAction();
 		}
 
 		private void CreateXLExportAction()
@@ -430,6 +431,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					}
 
 					var report = new FastDeliveryAvailabilityHistoryReport(rows, _fileDialogService);
+					report.Export();
+				}
+			);
+
+			NodeActionsList.Add(xlExportAction);
+		}
+
+		private void CreateFailsOrdersXLExportAction()
+		{
+			var xlExportAction = new JournalAction("Сводный отчёт по заказам",
+				(selected) => true,
+				(selected) => true,
+				(selected) =>
+				{
+					var report = new FastDeliveryFailsReport(UnitOfWorkFactory, FilterViewModel, Search, _nomenclatureParametersProvider, _fileDialogService);
 					report.Export();
 				}
 			);
