@@ -1,6 +1,5 @@
 ﻿using ClosedXML.Report;
 using DateTimeHelpers;
-using DocumentFormat.OpenXml.VariantTypes;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -629,8 +628,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				OrderStatus.OnTheWay,
 				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock,
-				OrderStatus.Closed,
-				OrderStatus.WaitForPayment
+				OrderStatus.Closed
 			};
 
 			Order orderAlias = null;
@@ -656,7 +654,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
-				.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), filterOrderStatusInclude))
+				.Where(Restrictions.Or(
+					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), filterOrderStatusInclude),
+					Restrictions.And(
+						Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.WaitForPayment),
+						Restrictions.And(
+							Restrictions.Eq(Projections.Property(() => orderAlias.SelfDelivery), true),
+							Restrictions.Eq(Projections.Property(() => orderAlias.PayAfterShipment), true)))))
 				.And(Restrictions.NotEqProperty(Projections.Property(() => orderAlias.IsContractCloser), Projections.Constant(true)))
 				.And(Restrictions.Between(Projections.Property(() => orderAlias.DeliveryDate), StartDate, EndDate));
 

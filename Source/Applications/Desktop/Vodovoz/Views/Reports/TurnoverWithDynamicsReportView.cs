@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Vodovoz.ViewModels.Reports.Sales;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
-using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportRow;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
