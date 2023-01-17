@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>300</Timeout>
         <CommandText>SELECT
@@ -255,7 +255,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -351,6 +351,129 @@ ORDER BY
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="DataMovements">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    	'writeoff' as direction, 
+    	warehouses.name as warehouse, 
+    	store_movement_wagon.name as wagon, 
+    	store_movement_document.time_stamp as send_time, 
+    	store_movement_document.delivered_time,
+    	GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
+    FROM warehouse_movement_operations 
+    INNER JOIN store_movement_document_items ON store_movement_document_items.writeoff_movement_operation_id = warehouse_movement_operations.id
+    LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+    LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
+    LEFT JOIN store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id 
+    LEFT JOIN warehouses ON store_movement_document.warehouse_to_id = warehouses.id
+    LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
+    WHERE
+    	warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+    	AND warehouse_movement_operations.operation_time &gt;= @startDate
+    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+    	AND store_movement_document.category = 'Transportation'
+    	AND
+    	(
+    		((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+    		OR
+    		(nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+    		OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+    	)
+    	AND 
+    	(
+    		((nomenclature.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+    		OR
+    		(nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+    		OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+    	)
+    GROUP BY store_movement_document.id
+    UNION 
+    SELECT 
+    	'income' as direction, 
+    	warehouses.name as warehouse, 
+    	store_movement_wagon.name as wagon, 
+    	store_movement_document.time_stamp as send_time, 
+    	store_movement_document.delivered_time,
+    	GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
+    FROM warehouse_movement_operations 
+    INNER JOIN store_movement_document_items ON store_movement_document_items.income_movement_operation_id = warehouse_movement_operations.id
+    LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+    LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
+    LEFT JOIN store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id 
+    LEFT JOIN warehouses ON store_movement_document.warehouse_from_id = warehouses.id
+    LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
+    WHERE
+    	warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+    	AND warehouse_movement_operations.operation_time &gt;= @startDate
+    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+    	AND store_movement_document.category = 'Transportation'
+    	AND
+    	(
+    		((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+    		OR
+    		(nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+    		OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+    	)
+    	AND 
+    	(
+    		((nomenclature.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+    		OR
+    		(nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+    		OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+    	)
+    GROUP BY store_movement_document.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="warehouse_id">
+            <Value>={?warehouse_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="startDate">
+            <Value>={?startDate}</Value>
+          </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>={?endDate}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_include">
+            <Value>={?nomenclature_type_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_exclude">
+            <Value>={?nomenclature_type_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_include">
+            <Value>={?nomenclature_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_exclude">
+            <Value>={?nomenclature_exclude}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="direction">
+          <DataField>direction</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="warehouse">
+          <DataField>warehouse</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="wagon">
+          <DataField>wagon</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="send_time">
+          <DataField>send_time</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="delivered_time">
+          <DataField>delivered_time</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="cargo">
+          <DataField>cargo</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -366,6 +489,8 @@ ORDER BY
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1307,43 +1432,6 @@ ORDER BY
           <FontSize>14pt</FontSize>
         </Style>
       </Textbox>
-      <Subreport Name="Subreport1">
-        <Height>22.57pt</Height>
-        <Width>755.77pt</Width>
-        <Left>0.00pt</Left>
-        <Top>107.40pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <ReportName>StockWagonMovements</ReportName>
-        <NoRows>По фурам за период, нет данных.</NoRows>
-        <MergeTransactions>true</MergeTransactions>
-        <Parameters>
-          <Parameter Name="warehouse_id">
-            <Value>={?warehouse_id}</Value>
-          </Parameter>
-          <Parameter Name="startDate">
-            <Value>={?startDate}</Value>
-          </Parameter>
-          <Parameter Name="endDate">
-            <Value>={?endDate}</Value>
-          </Parameter>
-          <Parameter Name="nomenclature_type_include">
-            <Value>={?nomenclature_type_include}</Value>
-          </Parameter>
-          <Parameter Name="nomenclature_type_exclude">
-            <Value>={?nomenclature_type_exclude}</Value>
-          </Parameter>
-          <Parameter Name="nomenclature_include">
-            <Value>={?nomenclature_include}</Value>
-          </Parameter>
-          <Parameter Name="nomenclature_exclude">
-            <Value>={?nomenclature_exclude}</Value>
-          </Parameter>
-        </Parameters>
-      </Subreport>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Top>17.70pt</Top>
         <Left>4.50pt</Left>
@@ -1374,14 +1462,264 @@ ORDER BY
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
+      <Table Name="Table2">
+        <DataSetName>DataMovements</DataSetName>
+        <NoRows>По фурам за период, нет данных</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>74.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>115.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>63.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>99.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>106.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>340.1pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>Направление</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Склад</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Фура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>Дата отправки</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Дата приема</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>Содержимое</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>27.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="direction">
+                      <Value>=Iif(Fields!direction.Value = 'income', '⟵', '⟶')</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>DejaVu Sans</FontFamily>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>16pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="warehouse">
+                      <Value>=Fields!warehouse.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon">
+                      <Value>=Fields!wagon.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="send_time">
+                      <Value>=Fields!send_time.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="delivered_time">
+                      <Value>=Fields!delivered_time.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="cargo">
+                      <Value>=Fields!cargo.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>12pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
+                      </Style>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>108.0pt</Top>
+      </Table>
     </ReportItems>
-    <Height>137.5pt</Height>
+    <Height>155.1pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
     <ReportItems>
-      <Textbox Name="Textbox17">
+      <Textbox Name="Textbox36">
         <Top>1pt</Top>
         <Left>10pt</Left>
         <Height>12pt</Height>
@@ -1410,7 +1748,7 @@ ORDER BY
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
