@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -399,8 +399,12 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
+    <Compile Include="Additions\Logistic\CoordinateExtensions.cs" />
     <Compile Include="Additions\Logistic\CustomPolygons.cs" />
+    <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
+    <Compile Include="Additions\Logistic\DriverPositionExtensions.cs" />
     <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
+    <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />

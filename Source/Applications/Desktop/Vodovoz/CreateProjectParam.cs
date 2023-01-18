@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -418,6 +418,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ProfitabilitySalesReportViewModel, ProfitabilitySalesReportView>()
 				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<CarsMonitoringViewModel, CarsMonitoringView>()
 				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
 				;
 
