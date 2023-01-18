@@ -926,7 +926,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public override void Dispose()
 		{
-			ReportGenerationCancelationTokenSource.Dispose();
+			ReportGenerationCancelationTokenSource?.Dispose();
 			base.Dispose();
 		}
 	}
