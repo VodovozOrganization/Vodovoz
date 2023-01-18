@@ -41,6 +41,7 @@ using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using QS.Project.Domain;
+using System.Net.Http;
 
 namespace Vodovoz
 {
@@ -141,14 +142,26 @@ namespace Vodovoz
 			//Настройка карты
 			IGMapParametersProviders gMapParametersProviders = new GMapPararmetersProviders(parametersProvider); 
 			
-			GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
+			GMapProvider.UserAgent = string.Format("{0}/{1} used GMap.Net/{2} ({3})",
 				applicationInfo.ProductName,
 				applicationInfo.Version.VersionToShortString(),
 				Assembly.GetAssembly(typeof(GMapProvider)).GetName().Version.VersionToShortString(),
 				Environment.OSVersion.VersionString
 			);
 			GMapProvider.Language = GMap.NET.LanguageType.Russian;
-			GMapProvider.WebProxy = new WebProxy(gMapParametersProviders.SquidServer);
+
+			using(var httpClient = new HttpClient()){
+				var squidServer = gMapParametersProviders.SquidServer;
+				if(httpClient.GetAsync($"{squidServer}/squid-internal-static/icons/SN.png").Result.IsSuccessStatusCode)
+				{
+					GMapProvider.WebProxy = new WebProxy(gMapParametersProviders.SquidServer);
+					logger.Info("Используется прокси серверкарт: {MapsProxyServerUrl}", squidServer);
+				}
+				else
+				{
+					logger.Warn("Прокси сервер карт недоступен: {MapsProxyServerUrl}", squidServer);
+				}
+			}
 			
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
