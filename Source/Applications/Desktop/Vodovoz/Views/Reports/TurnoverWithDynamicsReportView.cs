@@ -26,8 +26,6 @@ namespace Vodovoz.ReportsParameters.Sales
 		{
 			Build();
 			ConfigureDlg();
-			ViewModel.PropertyChanged += ViewModelPropertyChanged;
-			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 			UpdateSliderArrow();
 		}
 
@@ -101,6 +99,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			ShowFilter();
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 		}
 
 		private void OnButtonAbortCreateReportClicked(object sender, EventArgs e)
@@ -358,6 +357,32 @@ namespace Vodovoz.ReportsParameters.Sales
 		private void UpdateSliderArrow()
 		{
 			arrowSlider.ArrowType = vboxTurnoverWithDynamicsReportFilterContainer.Visible ? ArrowType.Left : ArrowType.Right;
+		}
+
+		public override void Dispose()
+		{
+			ybuttonSave.Clicked -= OnYbuttonSaveClicked;
+			ybuttonCreateReport.Clicked -= OnButtonCreateReportClicked;
+			ybuttonAbortCreateReport.Clicked -= OnButtonAbortCreateReportClicked;
+
+			foreach(RadioButton radioButton in yrbtnSliceDay.Group)
+			{
+				radioButton.Toggled -= SliceGroupSelectionChanged;
+			}
+
+			foreach(RadioButton radioButton in yrbtnMeasurementUnitAmount.Group)
+			{
+				radioButton.Toggled -= MeasurementUnitGroupSelectionChanged;
+			}
+
+			foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
+			{
+				radioButton.Toggled -= DynamicsInGroupSelectionChanged;
+			}
+
+			ViewModel.PropertyChanged -= ViewModelPropertyChanged;
+			eventboxArrow.ButtonPressEvent -= OnEventboxArrowButtonPressEvent;
+			base.Dispose();
 		}
 	}
 }

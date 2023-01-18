@@ -518,7 +518,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{
 					if(!notSetValues.Contains(item.Value))
 					{
-						sb.AppendLine($"{item.Key}{item.Value}");
+						sb.AppendLine($"{item.Key}{item.Value.Trim('\n', '\r')}");
 					}
 				}
 			}
