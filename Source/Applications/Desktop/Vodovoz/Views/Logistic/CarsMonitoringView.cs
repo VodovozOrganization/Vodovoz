@@ -173,19 +173,18 @@ namespace Vodovoz.Views.Logistic
 
 		private void SelectedDriversChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
-			var selectedIds = ViewModel.SelectedWorkingDrivers.Select(swd => swd.Id);
-			foreach(var driverId in selectedIds)
+			foreach(var driver in ViewModel.SelectedWorkingDrivers)
 			{
-				if(!_lastSelectedDrivers.ContainsKey(driverId) && _carMarkers != null && _carMarkers.ContainsKey(driverId))
+				if(!_lastSelectedDrivers.ContainsKey(driver.Id) && _carMarkers != null && _carMarkers.ContainsKey(driver.Id))
 				{
-					_lastSelectedDrivers.Add(driverId, _carMarkers[driverId].Type);
-					_carMarkers[driverId].Type = CarMarkerType.BlackCar;
+					_lastSelectedDrivers.Add(driver.Id, _carMarkers[driver.Id].Type);
+					_carMarkers[driver.Id].Type = GetCarSelectedIconType(driver);
 				}
 			}
 
 			foreach(var pair in _lastSelectedDrivers.ToList())
 			{
-				if(!selectedIds.Contains(pair.Key) && _carMarkers != null)
+				if(!ViewModel.SelectedWorkingDrivers.Any(d => d.Id == pair.Key) && _carMarkers != null)
 				{
 					if(_carMarkers.ContainsKey(pair.Key))
 					{
