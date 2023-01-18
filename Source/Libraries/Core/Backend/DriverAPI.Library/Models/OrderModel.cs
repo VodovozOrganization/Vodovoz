@@ -215,7 +215,10 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				_logger.LogWarning($"Водитель {driver.Id} попытался сменить тип оплаты заказа {orderId} водителя {routeList.Driver.Id}");
+				_logger.LogWarning("Сотрудник {Employee.Id} попытался сменить тип оплаты заказа {Order.Id} водителя {Driver.Id}",
+					driver.Id,
+					orderId,
+					routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя сменить тип оплаты заказа другого водителя");
 			}
 
@@ -240,44 +243,44 @@ namespace DriverAPI.Library.Models
 
 			if(vodovozOrder is null)
 			{
-				var error = $"Заказ не найден: { orderId }";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "Заказ не найден: {Order.Id}";
+				_logger.LogWarning(errorFormat, orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			if(routeList is null)
 			{
-				var error = $"МЛ для заказа: { orderId } не найден";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "МЛ для заказа: {Order.Id} не найден";
+				_logger.LogWarning(errorFormat, orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			if(routeListAddress is null)
 			{
-				var error = $"адрес МЛ для заказа: { orderId } не найден";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "Адрес МЛ для заказа: {Order.Id} не найден";
+				_logger.LogWarning(errorFormat, orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				_logger.LogWarning("Водитель {DriverId} попытался завершить заказ {OrderId} водителя {RouteListDriverId}",
+				_logger.LogWarning("Сотрудник {Employee.Id} попытался завершить заказ {Order.Id} водителя {Driver.Id}",
 					driver.Id, orderId, routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя завершить заказ другого водителя");
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var error = $"Нельзя завершить заказ: { orderId }, МЛ не в пути";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "Нельзя завершить заказ: {Order.Id}, МЛ не в пути";
+				_logger.LogWarning(errorFormat);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var error = $"Нельзя завершить заказ: { orderId }, адрес МЛ не в пути";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "Нельзя завершить заказ: {Order.Id}, адрес МЛ не в пути";
+				_logger.LogWarning(errorFormat);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			routeListAddress.DriverBottlesReturned = bottlesReturnCount;
@@ -351,7 +354,7 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Driver.Id != driverId)
 			{
-				_logger.LogWarning("Водитель {DriverId} попытался запросить оплату по СМС для заказа {OrderId} водителя {RouteListDriverId}",
+				_logger.LogWarning("Сотрудник {Driver.Id} попытался запросить оплату по СМС для заказа {Order.Id} водителя {Driver.Id}",
 					driverId, orderId, routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя запросить оплату по СМС для заказа другого водителя");
 			}
@@ -377,7 +380,7 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Driver.Id != driverId)
 			{
-				_logger.LogWarning("Водитель {DriverId} попытался запросить оплату по QR для заказа {OrderId} водителя {RouteListDriverId}",
+				_logger.LogWarning("Сотрудник {Driver.Id} попытался запросить оплату по QR для заказа {Order.Id} водителя {Driver.Id}",
 					driverId, orderId, routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя запросить оплату по QR для заказа другого водителя");
 			}

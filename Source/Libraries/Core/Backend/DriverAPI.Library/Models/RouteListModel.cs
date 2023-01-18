@@ -66,7 +66,7 @@ namespace DriverAPI.Library.Models
 				}
 				catch (ConverterException e)
 				{
-					_logger.LogWarning(e, $"Ошибка конвертирования маршрутного листа { routelist.Id }");
+					_logger.LogWarning(e, "Ошибка конвертации маршрутного листа {RouteList.Id}", routelist.Id);
 				}
 			}
 
@@ -100,16 +100,23 @@ namespace DriverAPI.Library.Models
 
 			if(routeListAddress.RouteList.Driver.Id != driverId)
 			{
-				_logger.LogWarning($"Попытка записи координаты точки доставки {routeListAddressId} МЛ водителя {routeListAddress.RouteList.Driver.Id}," +
-					$" водителем {driverId}");
+				_logger.LogWarning("Попытка записи координаты точки доставки {RouteListAddress.Id} МЛ водителя {Driver.Id}, сотрудником {Employee.Id}",
+					routeListAddressId,
+					routeListAddress.RouteList.Driver.Id,
+					driverId);
 				throw new AccessViolationException("Нельзя записать координаты точки доставки для МЛ другого водителя");
 			}
 
 			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute
 			|| routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				_logger.LogWarning($"Попытка записи координаты точки доставки в МЛ {routeListAddress.RouteList.Id} в статусе {routeListAddress.RouteList.Status}" +
-					$" адреса {routeListAddressId} в статусе {routeListAddress.Status} водителем {driverId}");
+				_logger.LogWarning("Попытка записи координаты точки доставки в МЛ {RouteList.Id} в статусе {RouteList.Status}" +
+					" адреса {RouteListAddress.Id} в статусе {RouteListAddress.Status} водителем {Driver.Id}",
+					routeListAddress.RouteList.Id,
+					routeListAddress.RouteList.Status,
+					routeListAddressId,
+					routeListAddress.Status,
+					driverId);
 				throw new AccessViolationException("Нельзя записать координаты точки доставки для этого адреса");
 			}
 
@@ -142,7 +149,10 @@ namespace DriverAPI.Library.Models
 
 			if(!IsRouteListBelongToDriver(routeListAddress.RouteList.Id, driverId))
 			{
-				_logger.LogWarning($"Попытка вернуть в путь адрес МЛ {routeListAddressId} водителем {driverId}, водитель МЛ: {routeListAddress.RouteList.Driver?.Id}");
+				_logger.LogWarning("Попытка вернуть в путь адрес МЛ {RouteListAddress.Id} сотрудником {Employee.Id}, водитель МЛ: {Driver.Id}",
+					routeListAddressId,
+					driverId,
+					routeListAddress.RouteList.Driver?.Id);
 				throw new AccessViolationException("Нельзя вернуть в путь адрес не вашего МЛ");
 			}
 

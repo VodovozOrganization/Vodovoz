@@ -40,14 +40,18 @@ namespace DriverAPI.Library.Models
 			if(routeList.Status != RouteListStatus.EnRoute
 			&& routeList.Status != RouteListStatus.Delivered)
 			{
-				_logger.LogWarning($"Попытка записать трек для МЛ {routeListId}, МЛ в статусе '{routeList.Status}'");
+				_logger.LogWarning("Попытка записать трек для МЛ {RouteList.Id}, МЛ в статусе '{RouteList.Status}'",
+					routeListId,
+					routeList.Status);
 				throw new InvalidOperationException($"Нельзя записать трек для МЛ {routeListId}, МЛ в статусе недоступном для записи трека");
 			}
 
 			if(!_routeListModel.IsRouteListBelongToDriver(routeListId, driverId))
 			{
-				_logger.LogWarning($"Водитель ({driverId})" +
-					$" попытался зарегистрировать трек для МЛ {routeListId}");
+				_logger.LogWarning("Сотрудник ({Employee.Id}) попытался зарегистрировать трек для МЛ {RouteList.Id} водителя {Driver.Id}",
+					driverId,
+					routeListId,
+					routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя регистрировать координаты трека к чужому МЛ");
 			}
 
@@ -96,7 +100,7 @@ namespace DriverAPI.Library.Models
 			{
 				if(track.TrackPoints.Any(t => t.TimeStamp == trackPoint.TimeStamp))
 				{
-					_logger.LogInformation($"Уже зарегистрирована точка для времени {trackPoint.TimeStamp}");
+					_logger.LogInformation("Уже зарегистрирована точка для времени {TrackPoint.TimeStamp}", trackPoint.TimeStamp);
 					continue;
 				}
 

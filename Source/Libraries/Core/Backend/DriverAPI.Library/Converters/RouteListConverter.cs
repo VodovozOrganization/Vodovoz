@@ -10,19 +10,17 @@ namespace DriverAPI.Library.Converters
 {
 	public class RouteListConverter
 	{
-		private readonly ILogger<RouteListConverter> _logger;
 		private readonly DeliveryPointConverter _deliveryPointConverter;
 		private readonly RouteListStatusConverter _routeListStatusConverter;
 		private readonly RouteListAddressStatusConverter _routeListAddressStatusConverter;
 		private readonly RouteListCompletionStatusConverter _routeListCompletionStatusConverter;
 
-		public RouteListConverter(ILogger<RouteListConverter> logger,
+		public RouteListConverter(
 			DeliveryPointConverter deliveryPointConverter,
 			RouteListStatusConverter routeListStatusConverter,
 			RouteListAddressStatusConverter routeListAddressStatusConverter,
 			RouteListCompletionStatusConverter routeListCompletionStatusConverter)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
 			_routeListStatusConverter = routeListStatusConverter ?? throw new ArgumentNullException(nameof(routeListStatusConverter));
 			_routeListAddressStatusConverter = routeListAddressStatusConverter ?? throw new ArgumentNullException(nameof(routeListAddressStatusConverter));
