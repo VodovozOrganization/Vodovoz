@@ -80,11 +80,11 @@ namespace DateTimeHelpers
 				slices.Add(new DateTimeQuarterSlice
 				{
 					StartDate = date.Date,
-					EndDate = date.AddMonths(3).AddDays(-1).LatestDayTime(),
+					EndDate = date.LastQuarterDay().LatestDayTime(),
 					SliceType = DateTimeSliceType.Quarter
 				});
 
-				date = date.AddMonths(3).FirstDayOfMonth();
+				date = date.LastQuarterDay().AddDays(1);
 			}
 
 			return slices;
