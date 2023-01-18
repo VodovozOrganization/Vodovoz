@@ -205,7 +205,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 		}
 
-
 		public async Task<TurnoverWithDynamicsReport> ActionGenerateReport(CancellationToken cancellationToken)
 		{
 			try
@@ -479,7 +478,22 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void ShowInfo()
 		{
-			var info = "";
+			var info = "1. Подсчет отчёта по оборачиваемости с динамикой ведется на основе заказов. В отчёте учитываются заказы со статусами:\r\n" +
+				"    'Принят'\r\n" +
+				"    'В маршрутном листе'\r\n" +
+				"    'На погрузке'\r\n" +
+				"    'В пути'\r\n" +
+				"    'Доставлен'\r\n" +
+				"    'Выгрузка на складе'\r\n" +
+				"    'Закрыт'\r\n" +
+				"    'Ожидание оплаты' и заказ - самовывоз с оплатой после отгрузки.\r\n" +
+				"В отчет не попадают заказы, являющиеся закрывашками по контракту.\r\n" +
+				"Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.\r\n" +
+				"2. Настройки отчёта:\r\n" +
+				"«В разрезе» - Выбор разбивки по периодам. В отчет попадают периоды согласно выбранного разреза, но не выходя за границы выставленного периода.\r\n" +
+				"«Единица измерения» - величина, в которой будет сформирован отчёт, а именно в штуках или рублях.\r\n" +
+				"«В динамике» - показывает изменения по отношению к предыдущему столбцу, в процентах или ед. измерения.\r\n" +
+				"«Показать последнюю продажу» - добавляется информация о дате последней продажи, кол-ве дней от последней продажи до текущей даты, остатках по всем складам на текущую дату.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
 		}
@@ -871,9 +885,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.Add(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id))));
 			}
 
-			var result = query.Select(Projections.RootEntity())
-							  .ReadOnly()
-							  .List<OrderItem>();
+			var result = query.Select(Projections.RootEntity()).ReadOnly().List<OrderItem>();
 
 			return result;
 		}
@@ -910,6 +922,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				yield return "Для разреза месяц нельзя выбрать интервал более 60х месяцев";
 			}
+		}
+
+		public override void Dispose()
+		{
+			ReportGenerationCancelationTokenSource.Dispose();
+			base.Dispose();
 		}
 	}
 }

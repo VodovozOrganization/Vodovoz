@@ -101,6 +101,11 @@
 			return new DateTime(dateTime.Year, 12, 31);
 		}
 
+		public static DateTime FirstDayOfMonth(this DateTime dateTime)
+		{
+			return new DateTime(dateTime.Year, dateTime.Month, 1);
+		}
+
 		public static DateTime AddWeeks(this DateTime dateTime, int weeks)
 		{
 			return _calendar.AddWeeks(dateTime, weeks);

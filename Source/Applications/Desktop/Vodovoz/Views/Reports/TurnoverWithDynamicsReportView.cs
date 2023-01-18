@@ -61,8 +61,6 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			btnReportInfo.Clicked += (s, e) => ViewModel.ShowInfoCommand.Execute();
-
 			foreach(RadioButton radioButton in yrbtnSliceDay.Group)
 			{
 				if(radioButton.Active)
