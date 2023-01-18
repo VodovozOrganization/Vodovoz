@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
+using QS.Project.Domain;
 
 namespace DriverAPI.Controllers
 {
@@ -57,8 +58,10 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetRouteListsDetails")]
 		public GetRouteListsDetailsResponseDto Get([FromBody] int[] routeListsIds)
 		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(RouteListIds: {string.Join(',', routeListsIds)}) User token: {tokenStr}");
+			_logger.LogInformation("Запрос МЛ-ов с деталями: {@RouteListIds} пользователем {Username} User token: {AccessToken}",
+				routeListsIds,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
 
 			var routeLists = _aPIRouteListData.Get(routeListsIds);
 			var ordersIds = routeLists.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
@@ -92,7 +95,10 @@ namespace DriverAPI.Controllers
 		public RouteListDto Get(int routeListId)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(routeListId: {routeListId}) User token: {tokenStr}");
+			_logger.LogInformation("Запрос информации о МЛ {RouteListId} пользователем {Username} User token: {AccessToken}",
+				routeListId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
 
 			return _aPIRouteListData.Get(routeListId);
 		}
@@ -105,8 +111,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetRouteListsIds")]
 		public async Task<IEnumerable<int>> GetIds()
 		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"User token: {tokenStr}");
+			_logger.LogInformation("Запрос доступных МЛ пользователем {Username} User token: {AccessToken}",
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
 
 			var user = await _userManager.GetUserAsync(User);
 			var userName = await _userManager.GetUserNameAsync(user);
@@ -124,9 +131,10 @@ namespace DriverAPI.Controllers
 		public async Task RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(RoutelistAddressId: {requestDto.RoutelistAddressId}) User token: {tokenStr}");
-
-			_logger.LogInformation($"Попытка вернуть в путь адрес МЛ: { requestDto.RoutelistAddressId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+			_logger.LogInformation("Запрос возврата в путь адреса МЛ {RoutelistAddressId} пользователем {Username} User token: {AccessToken}",
+				requestDto.RoutelistAddressId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
 
 			var recievedTime = DateTime.Now;
 			var resultMessage = "OK";
@@ -147,10 +155,10 @@ namespace DriverAPI.Controllers
 			finally
 			{
 				_driverMobileAppActionRecordModel.RegisterAction(driver,
-													 DriverMobileAppActionType.RollbackRouteListAddressStatusEnRouteClicked,
-													 requestDto.ActionTime,
-													 recievedTime,
-													 resultMessage);
+					DriverMobileAppActionType.RollbackRouteListAddressStatusEnRouteClicked,
+					requestDto.ActionTime,
+					recievedTime,
+					resultMessage);
 			}
 		}
 	}
