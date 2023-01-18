@@ -66,7 +66,7 @@ namespace DriverAPI.Library.Models
 				}
 				catch (ConverterException e)
 				{
-					_logger.LogWarning(e, "Ошибка конвертации маршрутного листа {RouteList.Id}", routelist.Id);
+					_logger.LogWarning(e, "Ошибка конвертации маршрутного листа {RouteListId}", routelist.Id);
 				}
 			}
 
@@ -100,7 +100,7 @@ namespace DriverAPI.Library.Models
 
 			if(routeListAddress.RouteList.Driver.Id != driverId)
 			{
-				_logger.LogWarning("Попытка записи координаты точки доставки {RouteListAddress.Id} МЛ водителя {Driver.Id}, сотрудником {Employee.Id}",
+				_logger.LogWarning("Попытка записи координаты точки доставки {RouteListAddressId} МЛ водителя {DriverId}, сотрудником {EmployeeId}",
 					routeListAddressId,
 					routeListAddress.RouteList.Driver.Id,
 					driverId);
@@ -110,8 +110,8 @@ namespace DriverAPI.Library.Models
 			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute
 			|| routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				_logger.LogWarning("Попытка записи координаты точки доставки в МЛ {RouteList.Id} в статусе {RouteList.Status}" +
-					" адреса {RouteListAddress.Id} в статусе {RouteListAddress.Status} водителем {Driver.Id}",
+				_logger.LogWarning("Попытка записи координаты точки доставки в МЛ {RouteListId} в статусе {RouteListStatus}" +
+					" адреса {RouteListAddressId} в статусе {RouteListAddressStatus} водителем {DriverId}",
 					routeListAddress.RouteList.Id,
 					routeListAddress.RouteList.Status,
 					routeListAddressId,
@@ -149,7 +149,7 @@ namespace DriverAPI.Library.Models
 
 			if(!IsRouteListBelongToDriver(routeListAddress.RouteList.Id, driverId))
 			{
-				_logger.LogWarning("Попытка вернуть в путь адрес МЛ {RouteListAddress.Id} сотрудником {Employee.Id}, водитель МЛ: {Driver.Id}",
+				_logger.LogWarning("Попытка вернуть в путь адрес МЛ {RouteListAddressId} сотрудником {EmployeeId}, водитель МЛ: {DriverId}",
 					routeListAddressId,
 					driverId,
 					routeListAddress.RouteList.Driver?.Id);

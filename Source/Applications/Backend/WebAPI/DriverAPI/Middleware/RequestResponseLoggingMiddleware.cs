@@ -35,11 +35,11 @@ namespace DriverAPI.Middleware
 			await using var requestStream = _recyclableMemoryStreamManager.GetStream();
 			await context.Request.Body.CopyToAsync(requestStream);
 			_logger.LogInformation("Http Request Information: " +
-								   "Schema:{Request.Scheme} " +
-								   "Host: {Request.Host} " +
-								   "Path: {Request.Path} " +
-								   "QueryString: {Request.QueryString} " +
-								   "Request Body: {Request.Body}",
+								   "Schema: {RequestScheme} " +
+								   "Host: {RequestHost} " +
+								   "Path: {RequestPath} " +
+								   "QueryString: {RequestQueryString} " +
+								   "Request Body: {RequestBody}",
 								   context.Request.Scheme,
 								   context.Request.Host,
 								   context.Request.Path,
@@ -89,12 +89,12 @@ namespace DriverAPI.Middleware
 			watcher.Stop();
 
 			_logger.LogInformation("Http Response Information: " +
-								   "Schema:{Request.Scheme} " +
-								   "Host: {Request.Host} " +
-								   "Path: {Request.Path} " +
-								   "QueryString: {Request.QueryString} " +
-								   "Response Body: {Request.Body} | " +
-								   "Elapsed: {Request.TotalMilliseconds}ms",
+								   "Schema: {RequestScheme} " +
+								   "Host: {RequestHost} " +
+								   "Path: {RequestPath} " +
+								   "QueryString: {RequestQueryString} " +
+								   "Response Body: {RequestBody} | " +
+								   "Elapsed: {RequestTotalMilliseconds}ms",
 								   context.Request.Scheme,
 								   context.Request.Host,
 								   context.Request.Path,

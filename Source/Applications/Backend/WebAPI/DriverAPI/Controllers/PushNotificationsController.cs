@@ -95,11 +95,11 @@ namespace DriverAPI.Controllers
 			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 			if(string.IsNullOrWhiteSpace(token))
 			{
-				_logger.LogInformation("Отправка PUSH-сообщения прервана, водитель заказа {Order.Id} не подписан на PUSH-сообщения.", orderId);
+				_logger.LogInformation("Отправка PUSH-сообщения прервана, водитель заказа {OrderId} не подписан на PUSH-сообщения.", orderId);
 			}
 			else
 			{
-				_logger.LogInformation("Отправка PUSH-сообщения об изменении статуса заказа {Order.Id}", orderId);
+				_logger.LogInformation("Отправка PUSH-сообщения об изменении статуса заказа {OrderId}", orderId);
 				await _iFCMAPIHelper.SendPushNotification(token, "Веселый водовоз", $"Обновлен статус платежа для заказа {orderId}");
 			}
 		}
@@ -116,11 +116,11 @@ namespace DriverAPI.Controllers
 			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
 			if(string.IsNullOrWhiteSpace(token))
 			{
-				_logger.LogInformation("Отправка PUSH-сообщения прервана, водитель заказа {Order.Id} не подписан на PUSH-сообщения.", orderId);
+				_logger.LogInformation("Отправка PUSH-сообщения прервана, водитель заказа {OrderId} не подписан на PUSH-сообщения.", orderId);
 			}
 			else
 			{
-				_logger.LogInformation("Отправка PUSH-сообщения о добавлении заказа ({Order.Id}) для доставки за час", orderId);
+				_logger.LogInformation("Отправка PUSH-сообщения о добавлении заказа ({OrderId}) для доставки за час", orderId);
 				await _iFCMAPIHelper.SendPushNotification(token, "Уведомление о добавлении заказа за час", $"Добавлен заказ {orderId} с доставкой за час");
 			}
 		}

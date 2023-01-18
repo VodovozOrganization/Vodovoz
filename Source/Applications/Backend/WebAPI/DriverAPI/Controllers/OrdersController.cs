@@ -52,7 +52,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetOrder")]
 		public OrderDto Get(int orderId)
 		{
-			_logger.LogInformation("(OrderId: {Order.Id}) User token: {AccessToken}",
+			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
 				orderId,
 				Request.Headers[HeaderNames.Authorization]);
 
@@ -64,7 +64,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/CompleteOrderDelivery")]
 		public async Task CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
-			_logger.LogInformation("(Завершение заказа: {Order.Id}) пользователем {Username} | User token: {AccessToken}",
+			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				completedOrderRequestModel.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
@@ -115,7 +115,7 @@ namespace DriverAPI.Controllers
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
-			_logger.LogInformation("Смена типа оплаты заказа: {Order.Id} на {PaymentType}" +
+			_logger.LogInformation("Смена типа оплаты заказа: {OrderId} на {PaymentType}" +
 				" на стороне мобильного приложения в {ActionTime} пользователем {Username} в {RecievedTime} | User token: {AccessToken}",
 				orderId,
 				newPaymentType,
@@ -137,7 +137,7 @@ namespace DriverAPI.Controllers
 
 				if(!availableTypesToChange.Contains(newPaymentType))
 				{
-					var errorFormat = "Попытка сменить тип оплаты у заказа {Order.Id} на недоступный для этого заказа тип оплаты {PaymentType}";
+					var errorFormat = "Попытка сменить тип оплаты у заказа {OrderId} на недоступный для этого заказа тип оплаты {PaymentType}";
 					_logger.LogWarning(errorFormat, orderId, newPaymentType);
 					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
 						string.Format(errorFormat, orderId, newPaymentType));
@@ -155,7 +155,7 @@ namespace DriverAPI.Controllers
 				}
 				else
 				{
-					var errorFormat = "Попытка сменить тип оплаты у заказа {Order.Id} на не поддерживаемый для смены тип оплаты {PaymentType}";
+					var errorFormat = "Попытка сменить тип оплаты у заказа {OrderId} на не поддерживаемый для смены тип оплаты {PaymentType}";
 					_logger.LogWarning(errorFormat, orderId, newPaymentType);
 					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
 						string.Format(errorFormat, orderId, newPaymentType));

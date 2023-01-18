@@ -95,7 +95,7 @@ namespace DriverAPI.Controllers
 		public RouteListDto Get(int routeListId)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation("Запрос информации о МЛ {RouteList.Id} пользователем {Username} User token: {AccessToken}",
+			_logger.LogInformation("Запрос информации о МЛ {RouteListId} пользователем {Username} User token: {AccessToken}",
 				routeListId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
@@ -131,7 +131,7 @@ namespace DriverAPI.Controllers
 		public async Task RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation("Запрос возврата в путь адреса МЛ {RoutelistAddress.Id} пользователем {Username} User token: {AccessToken}",
+			_logger.LogInformation("Запрос возврата в путь адреса МЛ {RoutelistAddressId} пользователем {Username} User token: {AccessToken}",
 				requestDto.RoutelistAddressId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);

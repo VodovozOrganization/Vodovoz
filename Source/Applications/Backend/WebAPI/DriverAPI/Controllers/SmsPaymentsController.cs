@@ -62,7 +62,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetOrderSmsPaymentStatus")]
 		public OrderSmsPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
 		{
-			_logger.LogInformation("Запрос состояния оплаты заказа {Order.Id} пользователем {Username} User token: {AccessToken}",
+			_logger.LogInformation("Запрос состояния оплаты заказа {OrderId} пользователем {Username} User token: {AccessToken}",
 				orderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
@@ -92,7 +92,7 @@ namespace DriverAPI.Controllers
 		{
 			return;
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation("Запрос СМС для оплаты заказа {Order.Id} на номер {PhoneNumber} пользователем {Username} User token: {AccessToken}",
+			_logger.LogInformation("Запрос СМС для оплаты заказа {OrderId} на номер {PhoneNumber} пользователем {Username} User token: {AccessToken}",
 				payBySmsRequestModel.OrderId,
 				payBySmsRequestModel.PhoneNumber,
 				HttpContext.User.Identity?.Name ?? "Unknown",

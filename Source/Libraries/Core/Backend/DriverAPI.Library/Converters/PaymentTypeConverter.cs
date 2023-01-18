@@ -11,7 +11,7 @@ namespace DriverAPI.Library.Converters
 
 		public PaymentTypeConverter(IOrderParametersProvider orderParametersProvider)
 		{
-			this._orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 		}
 
 		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)

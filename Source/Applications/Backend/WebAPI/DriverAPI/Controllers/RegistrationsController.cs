@@ -65,7 +65,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterRouteListAddressCoordinates")]
 		public async Task RegisterRouteListAddressCoordinateAsync([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
-			_logger.LogInformation("Попытка регистрации предположительных координат для адреса {RouteListAddress.Id} пользователем {Username} User token: {AccessToken}",
+			_logger.LogInformation("Попытка регистрации предположительных координат для адреса {RouteListAddressId} пользователем {Username} User token: {AccessToken}",
 				routeListAddressCoordinate.RouteListAddressId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
@@ -108,7 +108,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterTrackCoordinates")]
 		public async Task RegisterTrackCoordinatesAsync([FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{
-			_logger.LogInformation("Попытка регистрации треков для МЛ {RouteList.Id} пользователем {Username} User token: {AccessToken}",
+			_logger.LogInformation("Попытка регистрации треков для МЛ {RouteListId} пользователем {Username} User token: {AccessToken}",
 				registerTrackCoordinateRequestModel.RouteListId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
