@@ -76,6 +76,8 @@ namespace Vodovoz.Domain.Orders
 			new OrderItemComparerForCopyingFromUndelivery();
 		private readonly double _futureDeliveryDaysLimit = 30;
 
+		private bool _isBottleStockDiscrepancy;
+
 		#region Платная доставка
 
 		private int paidDeliveryNomenclatureId;
@@ -682,7 +684,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isBottleStock, value, () => IsBottleStock);
 		}
 
-        private bool isSelfDeliveryPaid;
+		[Display(Name = "Расхождение между кол-вом фактически сданных и ожидаемых бутылей по акции \"Бутыль\"")]
+		public bool IsBottleStockDiscrepancy
+		{
+			get => _isBottleStockDiscrepancy;
+			set => SetField(ref _isBottleStockDiscrepancy, value);
+		}
+
+		private bool isSelfDeliveryPaid;
 
         [Display(Name = "Самовывоз оплачен")]
         public virtual bool IsSelfDeliveryPaid
