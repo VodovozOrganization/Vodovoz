@@ -31,7 +31,7 @@ namespace Vodovoz.Controllers
 			
 			if(_employee.EmployeeRegistrationVersions.Any())
 			{
-				var lastVersion = _employee.EmployeeRegistrationVersions.MaxBy(x => x.StartDate);
+				var lastVersion = _employee.EmployeeRegistrationVersions.MaxBy(x => x.StartDate).First();
 
 				if(lastVersion != null)
 				{
