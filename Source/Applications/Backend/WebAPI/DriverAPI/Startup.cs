@@ -267,7 +267,7 @@ namespace DriverAPI
 			services.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>();
 
 			// Workers
-			services.AddHostedService<WakeUpSendCoordinatesNotificationSenderWorker>();
+			services.AddHostedService<WakeUpNotificationSenderService>();
 
 			// Репозитории водовоза
 			services.AddScoped<ITrackRepository, TrackRepository>();
