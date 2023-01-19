@@ -40,7 +40,7 @@ namespace Vodovoz.Controllers
 
 			if(Car.OdometerReadings.Any())
 			{
-				var currentLatestVersion = Car.OdometerReadings.MaxBy(x => x.StartDate);
+				var currentLatestVersion = Car.OdometerReadings.MaxBy(x => x.StartDate).First();
 				if(startDate < currentLatestVersion.StartDate.AddDays(1))
 				{
 					throw new ArgumentException(

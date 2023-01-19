@@ -62,7 +62,7 @@ namespace Vodovoz.Controllers
 
 			if(Organization.OrganizationVersions.Any())
 			{
-				var currentLatestVersion = Organization.OrganizationVersions.MaxBy(x => x.StartDate);
+				var currentLatestVersion = Organization.OrganizationVersions.MaxBy(x => x.StartDate).First();
 
 				if(startDate < currentLatestVersion.StartDate.AddDays(1))
 				{

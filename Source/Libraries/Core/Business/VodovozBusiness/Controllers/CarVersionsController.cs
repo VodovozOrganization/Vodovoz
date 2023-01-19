@@ -77,7 +77,7 @@ namespace Vodovoz.Controllers
 
 			if(Car.CarVersions.Any())
 			{
-				var currentLatestVersion = Car.CarVersions.MaxBy(x => x.StartDate);
+				var currentLatestVersion = Car.CarVersions.MaxBy(x => x.StartDate).First();
 				if(startDate < currentLatestVersion.StartDate.AddDays(1))
 				{
 					throw new ArgumentException(

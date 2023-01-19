@@ -66,7 +66,7 @@ namespace Vodovoz.Controllers
 
 			if(_fuelType.FuelPriceVersions.Any())
 			{
-				var currentLatestVersion = _fuelType.FuelPriceVersions.MaxBy(x => x.StartDate);
+				var currentLatestVersion = _fuelType.FuelPriceVersions.MaxBy(x => x.StartDate).First();
 				if(startDate < currentLatestVersion.StartDate.AddDays(1))
 				{
 					throw new ArgumentException(
