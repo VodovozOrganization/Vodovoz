@@ -163,6 +163,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
+using Vodovoz.ViewModels.Reports.Sales;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -2375,7 +2376,7 @@ public partial class MainWindow : Gtk.Window
 			);
 
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+		var interactiveService = new CastomInteractiveService();
 
 		var viewModel = new CarsExploitationReportViewModel(
 			uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(new ParametersProvider()),
@@ -2810,5 +2811,10 @@ public partial class MainWindow : Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
 			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory))
 		);
+	}
+
+	protected void OnActionTurnoverWithDynamicsReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<TurnoverWithDynamicsReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }

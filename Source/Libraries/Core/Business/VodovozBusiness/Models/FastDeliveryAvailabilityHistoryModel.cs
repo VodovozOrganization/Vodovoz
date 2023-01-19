@@ -42,16 +42,33 @@ namespace Vodovoz.Models
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("ClearFastDeliveryAvailabilityHistory"))
 			{
+				// Такое удаление по ID быстрее. Если грузить полностью сущность, то будут подтягиваться все ТД (в мапинге сущности Not.LazyLoad()) и связанные с ней данные 
 				var availabilityHistories = uow.Session.Query<FastDeliveryAvailabilityHistory>()
 					.Where(x => x.VerificationDate < DateTime.Now.Date.AddDays(-fastDeliveryAvailabilityHistoryParameterProvider.FastDeliveryHistoryStorageDays))
+					.Select(x=> x.Id)
+					.ToList();
+
+				var availabilityOrderItemsHistory = uow.Session.Query<FastDeliveryOrderItemHistory>()
+					.Where(x => availabilityHistories.Contains(x.FastDeliveryAvailabilityHistory.Id))
+					.Select(x => x.Id)
+					.ToList();
+
+				var availabilityHistoriesItems = uow.Session.Query<FastDeliveryAvailabilityHistoryItem>()
+					.Where(x => availabilityHistories.Contains(x.FastDeliveryAvailabilityHistory.Id))
+					.Select(x => x.Id)
+					.ToList();
+
+				var availabilityDistributionHistory = uow.Session.Query<FastDeliveryNomenclatureDistributionHistory>()
+					.Where(x => availabilityHistories.Contains(x.FastDeliveryAvailabilityHistory.Id))
+					.Select(x => x.Id)
 					.ToList();
 
 				try
 				{
-					foreach(var history in availabilityHistories)
-					{
-						uow.Delete(history);
-					}
+					availabilityOrderItemsHistory.ForEach(id=> uow.Delete(new FastDeliveryOrderItemHistory { Id = id }));
+					availabilityDistributionHistory.ForEach(id => uow.Delete(new FastDeliveryNomenclatureDistributionHistory { Id = id }));
+					availabilityHistoriesItems.ForEach(id => uow.Delete(new FastDeliveryAvailabilityHistoryItem { Id = id }));
+					availabilityHistories.ForEach(id => uow.Delete(new FastDeliveryAvailabilityHistory { Id = id }));
 
 					uow.Commit();
 				}
