@@ -128,8 +128,9 @@ namespace Vodovoz.JournalViewers
 			}
 
 			var productGroup = vm.UoW.GetById<ProductGroup>(productGroupNode.Id);
-
-			if(_selectedItems.FirstOrDefault() is ProductGroupVMNode)
+			var firstSelectedItem = _selectedItems.FirstOrDefault();
+			
+			if(firstSelectedItem is ProductGroupVMNode)
 			{
 				var productGroups = vm.UoW.Session.QueryOver<ProductGroup>()
 					.WhereRestrictionOn(pg => pg.Id)
@@ -139,18 +140,25 @@ namespace Vodovoz.JournalViewers
 				foreach(var item in productGroups)
 				{
 					item.Parent = productGroup;
+					
+					if(ProductGroup.CheckCircle(item, productGroup))
+					{
+						MessageDialogHelper.RunWarningDialog("Обнаружена циклическая ссылка. Операция не возможна");
+						return;
+					}
+					
 					vm.UoW.Save(item);
 				}
 				vm.UoW.Commit();
 			}
-			else if(_selectedItems.FirstOrDefault() is NomenclatureNode)
+			else if(firstSelectedItem is NomenclatureNode)
 			{
-				var productGroups = vm.UoW.Session.QueryOver<Nomenclature>()
+				var nomenclatures = vm.UoW.Session.QueryOver<Nomenclature>()
 					.WhereRestrictionOn(n => n.Id)
 					.IsInG(_selectedItems.Select(x => x.GetId()))
 					.List();
 
-				foreach(var item in productGroups)
+				foreach(var item in nomenclatures)
 				{
 					item.ProductGroup = productGroup;
 					vm.UoW.Save(item);
