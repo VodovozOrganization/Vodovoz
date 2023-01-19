@@ -9,36 +9,41 @@ namespace Vodovoz.Additions.Logistic
 {
 	public class CustomPolygons
 	{
+		public const int _defaultCirclePointsCount = 30;
+		public const int _defaultBorderWidth = 1;
+		public const int _defaultFillAlpha = 30;
+
 		/// <summary>
-		/// Рисует окружность по расчитанным точкам
+		/// Создает полигон, близкий к окружности
 		/// </summary>
-		/// <param name="overlay">Оверлей, на который выводится окружность</param>
-		/// <param name="centerLat">Широта центра окружности</param>
-		/// <param name="centerLon">Долгота центра окружности</param>
-		/// <param name="radiusInKm">Радиус окружности в километрах</param>
+		/// <param name="center">координаты центра окружности</param>
+		/// <param name="radiusInKilometers">Радиус окружности в километрах</param>
 		/// <param name="segmentsPointsCount">Количество точек окружности (чем больше, тем плавнее линия)</param>
 		/// <param name="borderWidth">Толщина линии контура</param>
 		/// <param name="color">Цвет линии контура и заливки</param>
 		/// <param name="fillAlpha">Прозрачноть заливки (от 0-прозрачный до 255-непрозрачный)</param>
-		public static void CreateRoundPolygon(GMapOverlay overlay, Double centerLat, Double centerLon, double radiusInKm, int segmentsPointsCount, int borderWidth, Color color, int fillAlpha)
+		public static GMapPolygon CreateCirclePolygon(
+			PointLatLng center,
+			double radiusInKilometers,
+			Color color,
+			int segmentsPointsCount = _defaultCirclePointsCount,
+			int borderWidth = _defaultBorderWidth,
+			int fillAlpha = _defaultFillAlpha)
 		{
-			PointLatLng centerPoint = new PointLatLng(centerLat, centerLon);
 			List<PointLatLng> pointList = new List<PointLatLng>();
 
-			var twoPi = 2 * Math.PI;
+			var twoPi = Math.PI * 2;
 
 			for(double radian = 0; radian < twoPi; radian += twoPi / segmentsPointsCount)
 			{
-				pointList.Add(DistanceCalculator.FindPointByDistanceAndRadians(centerPoint, radian, radiusInKm));
+				pointList.Add(DistanceCalculator.FindPointByDistanceAndRadians(center, radian, radiusInKilometers));
 			}
 
-			GMapPolygon polygon = new GMapPolygon(pointList, "Circle")
+			return new GMapPolygon(pointList, "Circle")
 			{
 				Stroke = new Pen(color, borderWidth),
 				Fill = new SolidBrush(Color.FromArgb(fillAlpha, color))
 			};
-
-			overlay.Polygons.Add(polygon);
 		}
 	}
 }
