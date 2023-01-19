@@ -34,8 +34,9 @@ namespace Vodovoz.Views.Logistic
 		private readonly GMapOverlay _fastDeliveryCarCirclesOverlay;
 		private readonly GMapOverlay _fastDeliveryDistrictsOverlay;
 
-		private readonly uint _timerId;
+		private uint _timerId;
 
+		private GLib.TimeoutHandler _timeoutTimerHandler;
 
 		private IDictionary<int, CarMarker> _carMarkers;
 		private IDictionary<int, CarMarkerType> _lastSelectedDrivers;
@@ -51,6 +52,8 @@ namespace Vodovoz.Views.Logistic
 			_carMarkers = new Dictionary<int, CarMarker>();
 			_lastSelectedDrivers = new Dictionary<int, CarMarkerType>();
 			_tracksDistanceTextInfo = new List<DistanceTextInfo>();
+
+			_timeoutTimerHandler = new GLib.TimeoutHandler(UpdateCarPosition);
 
 			Build();
 
@@ -83,6 +86,7 @@ namespace Vodovoz.Views.Logistic
 			ychkbtnShowHistory.Binding.AddBinding(ViewModel, vm => vm.ShowHistory, w => w.Active)
 				.InitializeFromSource();
 
+
 			ydatepickerHistoryDate.Binding.AddBinding(ViewModel, vm => vm.HistoryDate, w => w.Date)
 				.InitializeFromSource();
 
@@ -98,7 +102,19 @@ namespace Vodovoz.Views.Logistic
 
 			UpdateCarPosition();
 
-			_timerId = GLib.Timeout.Add(ViewModel.CarRefreshInterval, new GLib.TimeoutHandler(UpdateCarPosition));
+			_timerId = GLib.Timeout.Add(ViewModel.CarRefreshInterval, _timeoutTimerHandler);
+		}
+
+		private void ShowHistoryToggled(object sender, EventArgs e)
+		{
+			if(ViewModel.ShowHistory)
+			{
+				GLib.Source.Remove(_timerId);
+			}
+			else
+			{
+				_timerId = GLib.Timeout.Add(ViewModel.CarRefreshInterval, _timeoutTimerHandler);
+			}
 		}
 
 		private void ConfigureRouteListAddressesTreeView()
@@ -131,21 +147,19 @@ namespace Vodovoz.Views.Logistic
 
 		private void SubscribeToEvents()
 		{
-			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			ViewModel.WorkingDrivers.CollectionChanged += (s, e) => { yTreeViewDrivers.YTreeModel.EmitModelChanged(); };
 			ViewModel.RouteListAddresses.CollectionChanged += (s, e) => { yTreeAddresses.YTreeModel.EmitModelChanged(); };
+			ViewModel.FastDeliveryDistricts.CollectionChanged += FastDeliveryDistrictsGeometryChanged;
+			ViewModel.SelectedWorkingDrivers.CollectionChanged += SelectedDriversChanged;
+			ViewModel.WorkingDrivers.CollectionChanged += WorkingDriversChanged;
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
-			ViewModel.FastDeliveryDistricts.CollectionChanged += FastDeliveryDistrictsGeometryChanged;
-
-			ViewModel.SelectedWorkingDrivers.CollectionChanged += SelectedDriversChanged;
-
-			ViewModel.WorkingDrivers.CollectionChanged += WorkingDriversChanged;
-
+			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			yTreeViewDrivers.RowActivated += OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked += OnButtonOpenKeepingClicked;
-			
+			ychkbtnShowHistory.Toggled += ShowHistoryToggled;
+
 			ybuttonTrackPoints.Clicked += OnButtonTrackPointsClicked;
 			buttonRefresh.Clicked += OnButtonRefreshClicked;
 			buttonCleanTrack.Clicked += OnButtonCleanTrackClicked;
@@ -155,18 +169,16 @@ namespace Vodovoz.Views.Logistic
 
 		private void UnSubscribeFromEvents()
 		{
-			yTreeViewDrivers.Selection.Changed -= OnSelectionChanged;
-
+			ViewModel.FastDeliveryDistricts.CollectionChanged -= FastDeliveryDistrictsGeometryChanged;
+			ViewModel.SelectedWorkingDrivers.CollectionChanged -= SelectedDriversChanged;
+			ViewModel.WorkingDrivers.CollectionChanged -= WorkingDriversChanged;
+			
 			ViewModel.PropertyChanged -= ViewModelPropertyChanged;
 
-			ViewModel.FastDeliveryDistricts.CollectionChanged -= FastDeliveryDistrictsGeometryChanged;
-
-			ViewModel.SelectedWorkingDrivers.CollectionChanged -= SelectedDriversChanged;
-
-			ViewModel.WorkingDrivers.CollectionChanged -= WorkingDriversChanged;
-
+			yTreeViewDrivers.Selection.Changed -= OnSelectionChanged;
 			yTreeViewDrivers.RowActivated -= OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked -= OnButtonOpenKeepingClicked;
+			ychkbtnShowHistory.Toggled -= ShowHistoryToggled;
 
 			ybuttonTrackPoints.Clicked -= OnButtonTrackPointsClicked;
 			buttonRefresh.Clicked -= OnButtonRefreshClicked;
