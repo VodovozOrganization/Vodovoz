@@ -26,7 +26,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -68,6 +67,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private IUnitOfWork _unitOfWork;
 		private bool _canOpenKeepingTab;
+		private bool _showHistory;
+		private DateTime _historyDate;
+		private int _historyHour;
 		private readonly TimeSpan _fastDeliveryTime;
 
 		private readonly double _fastDeliveryMaxDistance;
@@ -83,6 +85,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IGtkTabsOpener gtkTabsOpener)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+
 			TabName = "Мониторинг";
 
 			CarsOverlayId = "cars";
@@ -96,9 +102,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			DefaultMapCenterPosition = new Coordinate(59.93900, 30.31646);
 			_driverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
 
-			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			HistoryHours = Enumerable.Range(0, 24);
+
+			_historyDate = DateTime.Today;
 
 			if(deliveryRulesParametersProvider is null)
 			{
@@ -176,6 +182,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => SetField(ref _showAddresses, value);
 		}
 
+		public bool ShowHistory
+		{
+			get => _showHistory;
+			set => SetField(ref _showHistory, value);
+		}
+
 		public bool SeparateVindowOpened
 		{
 			get => _separateVindowOpened;
@@ -209,6 +221,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			get => _driverDisconnectedTimespan;
 			set => SetField(ref _driverDisconnectedTimespan, value);
+		}
+
+		public DateTime HistoryDate
+		{
+			get => _historyDate;
+			set => SetField(ref _historyDate, value);
 		}
 
 		public override bool HasChanges => false;
@@ -252,6 +270,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand<int> RefreshRouteListAddressesCommand { get; }
 
 		public DelegateCommand RefreshFastDeliveryDistrictsCommand { get; }
+
+		public IEnumerable<int> HistoryHours { get; }
+
+		public int HistoryHour
+		{
+			get => _historyHour;
+			set => SetField(ref _historyHour, value);
+		}
 
 		private void OpenRouteListKeepingTab(int routeListId)
 		{

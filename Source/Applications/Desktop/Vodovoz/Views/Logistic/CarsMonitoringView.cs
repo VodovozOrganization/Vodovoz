@@ -80,6 +80,17 @@ namespace Vodovoz.Views.Logistic
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			yenumcomboMapType.SelectedItem = _defaultMapProvider;
 
+			ychkbtnShowHistory.Binding.AddBinding(ViewModel, vm => vm.ShowHistory, w => w.Active)
+				.InitializeFromSource();
+
+			ydatepickerHistoryDate.Binding.AddBinding(ViewModel, vm => vm.HistoryDate, w => w.Date)
+				.InitializeFromSource();
+
+			yspeccomboboxHistoryHour.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.HistoryHours, w => w.ItemsList)
+				.AddBinding(vm => vm.HistoryHour, w => w.SelectedItem)
+				.InitializeFromSource();
+
 			ConfigureMap();
 			SubscribeToEvents();
 
