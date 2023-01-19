@@ -685,7 +685,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Расхождение между кол-вом фактически сданных и ожидаемых бутылей по акции \"Бутыль\"")]
-		public bool IsBottleStockDiscrepancy
+		public virtual bool IsBottleStockDiscrepancy
 		{
 			get => _isBottleStockDiscrepancy;
 			set => SetField(ref _isBottleStockDiscrepancy, value);

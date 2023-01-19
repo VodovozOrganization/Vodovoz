@@ -408,14 +408,27 @@ namespace DriverAPI.Library.Models
 
 		public void UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount)
 		{
-			var order = _orderRepository.GetOrder(_unitOfWork, orderId);
-			if(!order.IsBottleStock)
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
+
+			if(vodovozOrder is null)
+			{
+				var errorFormat = "Заказ не найден: {OrderId}";
+				_logger.LogWarning(errorFormat, orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+			}
+
+			if(!vodovozOrder.IsBottleStock
+			   || vodovozOrder.BottlesByStockCount == bottlesByStockActualCount
+			   || vodovozOrder.BottlesByStockActualCount == bottlesByStockActualCount)
 			{
 				return;
 			}
-			order.BottlesByStockActualCount = bottlesByStockActualCount;
-			order.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
-			_unitOfWork.Save(order);
+
+			vodovozOrder.IsBottleStockDiscrepancy = true;
+			vodovozOrder.BottlesByStockActualCount = bottlesByStockActualCount;
+			vodovozOrder.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
+			_unitOfWork.Save(vodovozOrder);
+			_unitOfWork.Commit();
 		}
 	}
 }
