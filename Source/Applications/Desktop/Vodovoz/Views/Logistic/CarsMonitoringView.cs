@@ -142,7 +142,7 @@ namespace Vodovoz.Views.Logistic
 			buttonMapInWindow.Clicked += OnButtonMapInWindowClicked;
 		}
 
-		private void SubscribeFromEvents()
+		private void UnSubscribeFromEvents()
 		{
 			yTreeViewDrivers.Selection.Changed -= OnSelectionChanged;
 
@@ -655,7 +655,7 @@ namespace Vodovoz.Views.Logistic
 
 		public override void Dispose()
 		{
-			SubscribeFromEvents();
+			UnSubscribeFromEvents();
 			base.Dispose();
 		}
 
