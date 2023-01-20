@@ -84,7 +84,7 @@
 			}
 
 			if(dateTime >= new DateTime(dateTime.Year, 10, 1)
-			&& dateTime < new DateTime(dateTime.Year + 1, 1, 11))
+			&& dateTime < new DateTime(dateTime.Year + 1, 1, 1))
 			{
 				return 4;
 			}
