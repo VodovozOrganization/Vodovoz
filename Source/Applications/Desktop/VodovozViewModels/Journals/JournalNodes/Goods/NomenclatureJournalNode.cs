@@ -9,11 +9,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 		public override string Title => Name;
 		public string Name { get; set; }
 		public NomenclatureCategory Category { get; set; }
-		public decimal InStock => Added - Removed;
+		public decimal InStock { get; set; }
 		public decimal? Reserved { get; set; }
 		public decimal Available => InStock - Reserved.GetValueOrDefault();
-		public decimal Added { get; set; }
-		public decimal Removed { get; set; }
 		public string UnitName { get; set; }
 		public short UnitDigits { get; set; }
 		

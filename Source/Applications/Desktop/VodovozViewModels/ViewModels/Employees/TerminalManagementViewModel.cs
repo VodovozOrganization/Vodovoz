@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
+	//TODO проверить работу вью модели
 	public class TerminalManagementViewModel : UoWWidgetViewModelBase
 	{
 		private readonly Employee _driver;
@@ -118,7 +119,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 			else
 			{
-				var income = _entity.WarehouseMovementOperation.WriteoffWarehouse;
+				var income = _entity.GoodsAccountingOperation.Warehouse;
 				var returnDocument = new DriverAttachedTerminalReturnDocument
 				{
 					CreationDate = DateTime.Now,

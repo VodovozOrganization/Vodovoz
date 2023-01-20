@@ -1,6 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
@@ -12,92 +12,100 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "строки входящей накладной",
 		Nominative = "строка входящей накладной")]
 	[HistoryTrace]
-	public class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
+	public abstract class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
 	{
+		private decimal _amount;
+		private decimal _primeCost;
+		private VAT _vat;
+		private Nomenclature _nomenclature;
+
 		public virtual int Id { get; set; }
 
 		public virtual IncomingInvoice Document { get; set; }
-
-		Nomenclature nomenclature;
-
+		
 		[Required(ErrorMessage = "Номенклатура должна быть заполнена.")]
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set {
-				SetField(ref nomenclature, value, () => Nomenclature);
-				if(IncomeGoodsOperation.Nomenclature != nomenclature)
-					IncomeGoodsOperation.Nomenclature = nomenclature;
+		public virtual Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set
+			{
+				if(!SetField(ref _nomenclature, value))
+				{
+					return;
+				}
+				UpdateOperation(nameof(GoodsAccountingOperation.Nomenclature), value);
 			}
 		}
-
-		Equipment equipment;
-
-		[Display(Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get { return equipment; }
-			set {
-				SetField(ref equipment, value, () => Equipment);
-				if(IncomeGoodsOperation.Equipment != equipment)
-					IncomeGoodsOperation.Equipment = equipment;
-			}
-		}
-
-		decimal amount;
 
 		[Min(1)]
 		[Display(Name = "Количество")]
-		public virtual decimal Amount {
-			get { return amount; }
-			set {
-				SetField(ref amount, value, () => Amount);
-				if(IncomeGoodsOperation.Amount != amount)
-					IncomeGoodsOperation.Amount = amount;
+		public virtual decimal Amount
+		{
+			get => _amount;
+			set
+			{
+				if(!SetField(ref _amount, value))
+				{
+					return;
+				}
+				UpdateOperation(nameof(GoodsAccountingOperation.Amount), -value);
 			}
 		}
-
-		decimal primeCost;
 
 		[Min(0)]
 		[Display(Name = "Цена")]
-		public virtual decimal PrimeCost {
-			get { return primeCost; }
-			set {
-				SetField(ref primeCost, value, () => PrimeCost);
-				if(value != IncomeGoodsOperation.PrimeCost)
-					IncomeGoodsOperation.PrimeCost = value;
-			}
+		public virtual decimal PrimeCost
+		{
+			get => _primeCost;
+			set => SetField(ref _primeCost, value);
 		}
 
-		VAT vat;
-
-		public virtual VAT VAT {
-			get { return vat; }
-			set { SetField(ref vat, value, () => VAT); }
+		public virtual VAT VAT
+		{
+			get => _vat;
+			set => SetField(ref _vat, value);
 		}
 
 		public virtual decimal Sum => PrimeCost * Amount;
 
-		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
+		public abstract string Name { get; }
 
-		public virtual string EquipmentString => Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "-";
+		public abstract string NumberString { get; }
 
-		public virtual bool CanEditAmount => Nomenclature != null && !Nomenclature.IsSerial;
+		public abstract bool CanEditAmount { get; }
 
-		WarehouseMovementOperation incomeGoodsOperation = new WarehouseMovementOperation();
+		public virtual GoodsAccountingOperation GoodsAccountingOperation { get; set; }
 
-		public virtual WarehouseMovementOperation IncomeGoodsOperation {
-			get { return incomeGoodsOperation; }
-			set { SetField(ref incomeGoodsOperation, value, () => IncomeGoodsOperation); }
-		}
+		public virtual void UpdateOperation(string propertyName, object value)
+		{
+			if(GoodsAccountingOperation is null)
+			{
+				return;
+			}
 
-		public virtual string Title {
-			get {
-				return String.Format("[{2}] {0} - {1}",
-					Nomenclature.Name,
-					Nomenclature.Unit.MakeAmountShortStr(Amount),
-					Document.Title);
+			var property = GoodsAccountingOperation.GetPropertyValue(propertyName);
+
+			if(property != value)
+			{
+				GoodsAccountingOperation.SetPropertyValue(propertyName, value);
 			}
 		}
+		
+		public abstract AccountingType AccountingType { get; }
+		
+		public override string ToString() => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
+		
+		public virtual string Title =>
+			string.Format("[{2}] {0} - {1}",
+				Nomenclature.Name,
+				Nomenclature.Unit.MakeAmountShortStr(Amount),
+				Document.Title);
+	}
+
+	public enum AccountingType
+	{
+		Bulk,
+		Instance
 	}
 }

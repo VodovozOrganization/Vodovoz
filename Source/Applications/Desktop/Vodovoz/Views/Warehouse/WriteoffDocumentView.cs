@@ -32,7 +32,7 @@ namespace Vodovoz.Views.Warehouse
 			responsibleEmployeeEntry.ViewModel.IsEditable = textComment.Editable = ViewModel.CanEditDocument;
 			
 			comboType.ItemsEnum = typeof(WriteOffType);
-			comboType.AddEnumToHideList(WriteOffType.counterparty);
+			comboType.AddEnumToHideList(WriteOffType.Counterparty);
 			comboType.Binding
 				.AddBinding(ViewModel.Entity, e => e.WriteOffType, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CanChangeStorage, w => w.Sensitive)
@@ -81,10 +81,6 @@ namespace Vodovoz.Views.Warehouse
 
 			if(!ViewModel.Entity.CanEdit && ViewModel.Entity.TimeStamp.Date != DateTime.Now.Date)
 			{
-				/*ySpecCmbWarehouses.Binding
-					.AddFuncBinding(ViewModel.Entity, e => e.CanEdit, w => w.Sensitive)
-					.InitializeFromSource();
-				*/
 				comboType.Sensitive = false;
 				textComment.Sensitive = false;
 				hboxStorages.Sensitive = false;
@@ -119,14 +115,13 @@ namespace Vodovoz.Views.Warehouse
 
 		private void ConfigureTreeItems()
 		{
-			treeItemsList.ColumnsConfig = ColumnsConfigFactory.Create<WriteoffDocumentItem>()
+			treeItemsList.ColumnsConfig = ColumnsConfigFactory.Create<WriteOffDocumentItem>()
 				.AddColumn("Наименование")
 					.AddTextRenderer (i => i.Name)
-				.AddColumn("С/Н оборудования")
-					.AddTextRenderer (i => i.EquipmentString)
+				.AddColumn("Инвентарный номер")
+					.AddTextRenderer (i => i.InventoryNumber)
 				.AddColumn("Количество")
 					.AddNumericRenderer(i => i.Amount)
-					.Editing()
 					.WidthChars(10)
 					.AddSetter((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
 					.AddSetter((c, i) => c.Editable = i.CanEditAmount)
@@ -150,11 +145,17 @@ namespace Vodovoz.Views.Warehouse
 			treeItemsList.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedItem, w => w.SelectedRow)
 				.InitializeFromSource();
+			treeItemsList.RowActivated += OnTreeItemsListRowActivated;
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
 			ViewModel.PrintCommand.Execute();
+		}
+		
+		private void OnTreeItemsListRowActivated(object o, RowActivatedArgs args)
+		{
+			ViewModel.EditSelectedItemCommand.Execute();
 		}
 	}
 }

@@ -445,12 +445,12 @@ namespace Vodovoz.ViewModels.Warehouses
 											continue;
 										Entity.AddItem(item.Nomenclature, count, nomsAmount[item.Nomenclature.Id]);
 									} else {
-										var count = (moveItem.SendedAmount + item.Count) > nomsAmount[item.Nomenclature.Id] ?
+										var count = (moveItem.SentAmount + item.Count) > nomsAmount[item.Nomenclature.Id] ?
 											nomsAmount[item.Nomenclature.Id] :
-											(moveItem.SendedAmount + item.Count);
+											(moveItem.SentAmount + item.Count);
 										if(count == 0)
 											continue;
-										moveItem.SendedAmount = count;
+										moveItem.SentAmount = count;
 									}
 								}
 								OnPropertyChanged(nameof(CanSend));

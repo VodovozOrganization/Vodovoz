@@ -22,58 +22,62 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class InventoryDocument: Document, IValidatableObject
 	{
-		public override DateTime TimeStamp {
-			get { return base.TimeStamp; }
-			set {
+		private string _comment;
+		private Warehouse _warehouse;
+		private IList<InventoryDocumentItem> _items = new List<InventoryDocumentItem> ();
+		private GenericObservableList<InventoryDocumentItem> _observableItems;
+
+		public override DateTime TimeStamp
+		{
+			get => base.TimeStamp;
+			set
+			{
 				base.TimeStamp = value;
-				foreach (var item in Items) {
+				foreach (var item in Items)
+				{
 					if (item.WarehouseChangeOperation != null && item.WarehouseChangeOperation.OperationTime != TimeStamp)
+					{
 						item.WarehouseChangeOperation.OperationTime = TimeStamp;
+					}
 				}
 			}
 		}
-
-		string comment;
-
+		
 		[Display (Name = "Комментарий")]
-		public virtual string Comment {
-			get { return comment; }
-			set { SetField (ref comment, value, () => Comment); }
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField (ref _comment, value);
 		}
 
-		Warehouse warehouse;
 
 		[Display (Name = "Склад")]
 		[Required(ErrorMessage = "Склад должен быть указан.")]
-		public virtual Warehouse Warehouse {
-			get { return warehouse; }
-			set {
-				SetField (ref warehouse, value, () => Warehouse);
-			}
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set => SetField (ref _warehouse, value);
 		}
 
-		IList<InventoryDocumentItem> items = new List<InventoryDocumentItem> ();
 
 		[Display (Name = "Строки")]
-		public virtual IList<InventoryDocumentItem> Items {
-			get { return items; }
-			set {
-				SetField (ref items, value, () => Items);
-				observableItems = null;
+		public virtual IList<InventoryDocumentItem> Items
+		{
+			get => _items;
+			set 
+			{
+				SetField (ref _items, value);
+				_observableItems = null;
 			}
 		}
 
-		GenericObservableList<InventoryDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<InventoryDocumentItem> ObservableItems {
-			get {
-				if (observableItems == null)
-					observableItems = new GenericObservableList<InventoryDocumentItem> (Items);
-				return observableItems;
-			}
-		}
+		public virtual GenericObservableList<InventoryDocumentItem> ObservableItems =>
+			_observableItems ?? (_observableItems = new GenericObservableList<InventoryDocumentItem>(Items));
 
 		public virtual string Title => String.Format("Инвентаризация №{0} от {1:d}", Id, TimeStamp);
+
+		public virtual InventoryDocumentType InventoryDocumentType { get; }
 
 		#region Функции
 
@@ -101,12 +105,13 @@ namespace Vodovoz.Domain.Documents
 			foreach(var itemInStock in inStock)
 			{
 				ObservableItems.Add(
-					new InventoryDocumentItem(){
-					Nomenclature = nomenclatures.First(x => x.Id == itemInStock.Key),
-					AmountInDB = itemInStock.Value,
-					AmountInFact = 0,
-					Document = this
-				}
+					new InventoryDocumentItem
+					{
+						Nomenclature = nomenclatures.First(x => x.Id == itemInStock.Key),
+						AmountInDB = itemInStock.Value,
+						AmountInFact = 0,
+						Document = this
+					}
 				);
 			}
 		}
@@ -116,8 +121,8 @@ namespace Vodovoz.Domain.Documents
 			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
-			string[] nomenclatureTypeToInclude,
-			string[] nomenclatureTypeToExclude,
+			NomenclatureCategory[] nomenclatureTypeToInclude,
+			NomenclatureCategory[] nomenclatureTypeToExclude,
 			int[] productGroupToInclude,
 			int[] productGroupToExclude)
 		{
@@ -142,8 +147,8 @@ namespace Vodovoz.Domain.Documents
 			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
-			string[] nomenclatureTypeToInclude,
-			string[] nomenclatureTypeToExclude,
+			NomenclatureCategory[] nomenclatureTypeToInclude,
+			NomenclatureCategory[] nomenclatureTypeToExclude,
 			int[] productGroupToInclude,
 			int[] productGroupToExclude)
 		{
@@ -265,6 +270,13 @@ namespace Vodovoz.Domain.Documents
 		{
 		}
 
+	}
+
+	public enum InventoryDocumentType
+	{
+		WarehouseInventory,
+		EmployeeInventory,
+		CarInventory
 	}
 }
 

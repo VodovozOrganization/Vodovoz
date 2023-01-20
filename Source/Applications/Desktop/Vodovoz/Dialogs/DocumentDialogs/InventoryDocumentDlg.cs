@@ -332,8 +332,8 @@ namespace Vodovoz
 			// Костыль для передачи из фильтра предназначенного только для отчетов данных в подходящем виде
 			List<int> nomenclaturesToInclude = new List<int>();
 			List<int> nomenclaturesToExclude = new List<int>();
-			List<string> nomenclatureCategoryToInclude = new List<string>();
-			List<string> nomenclatureCategoryToExclude = new List<string>();
+			var nomenclatureCategoryToInclude = new List<NomenclatureCategory>();
+			var nomenclatureCategoryToExclude = new List<NomenclatureCategory>();
 			List<int> productGroupToInclude = new List<int>();
 			List<int> productGroupToExclude = new List<int>();
 
@@ -352,12 +352,12 @@ namespace Vodovoz
 						break;
 					case "nomenclature_type":
 						if(parameterSet.FilterType == SelectableFilterType.Include) {
-							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-								nomenclatureCategoryToInclude.Add(value.Value.ToString());
+							foreach(var value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								nomenclatureCategoryToInclude.Add((NomenclatureCategory)value.Value);
 							}
 						} else {
-							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-								nomenclatureCategoryToExclude.Add(value.Value.ToString());
+							foreach(var value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								nomenclatureCategoryToExclude.Add((NomenclatureCategory)value.Value);
 							}
 						}
 						break;

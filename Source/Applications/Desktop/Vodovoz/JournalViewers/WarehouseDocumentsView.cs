@@ -121,23 +121,22 @@ namespace Vodovoz
 				case DocumentType.IncomingInvoice:
 					TabParent.OpenTab(
 						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
-						() => {
-							return new IncomingInvoiceViewModel(
-								EntityUoWBuilder.ForCreate(),
-								UnitOfWorkFactory.GetDefaultFactory,
-								new WarehousePermissionService(),
-								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(
-									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-								new NomenclatureJournalFactory(),
-								new OrderSelectorFactory(),
-								new WarehouseRepository(),
-								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices,
-								new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
-								new StockRepository()
-							);
-						},
+						() => new IncomingInvoiceViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory.GetDefaultFactory,
+							new WarehousePermissionService(),
+							VodovozGtkServicesConfig.EmployeeService,
+							new EntityExtendedPermissionValidator(
+								PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
+							new NomenclatureJournalFactory(),
+							new OrderSelectorFactory(),
+							new WarehouseRepository(),
+							new RdlPreviewOpener(),
+							ServicesConfig.CommonServices,
+							new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
+							new StockRepository(),
+							MainClass.MainWin.NavigationManager
+						),
 						this
 					);
 					break;
@@ -178,23 +177,22 @@ namespace Vodovoz
 					case DocumentType.IncomingInvoice:
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<IncomingInvoice>(id),
-							() => {
-								return new IncomingInvoiceViewModel(
-									EntityUoWBuilder.ForOpen(id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									new WarehousePermissionService(),
-									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(
-										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-									new NomenclatureJournalFactory(),
-									new OrderSelectorFactory(),
-									new WarehouseRepository(),
-									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices,
-									new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
-									new StockRepository()
-								);
-							},
+							() => new IncomingInvoiceViewModel(
+								EntityUoWBuilder.ForOpen(id),
+								UnitOfWorkFactory.GetDefaultFactory,
+								new WarehousePermissionService(),
+								VodovozGtkServicesConfig.EmployeeService,
+								new EntityExtendedPermissionValidator(
+									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
+								new NomenclatureJournalFactory(),
+								new OrderSelectorFactory(),
+								new WarehouseRepository(),
+								new RdlPreviewOpener(),
+								ServicesConfig.CommonServices,
+								new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
+								new StockRepository(),
+								MainClass.MainWin.NavigationManager
+							),
 							this
 						);
 

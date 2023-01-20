@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModel
 			IncomingInvoice invoiceAlias = null;
 			IncomingWater waterAlias = null;
 			MovementDocument movementAlias = null;
-			WriteoffDocument writeoffAlias = null;
+			WriteOffDocument writeOffAlias = null;
 			InventoryDocument inventoryAlias = null;
 			ShiftChangeWarehouseDocument shiftchangeAlias = null;
 			SelfDeliveryDocument selfDeliveryAlias = null;
@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModel
 			Domain.Orders.Order orderAlias = null;
 			DriverAttachedTerminalGiveoutDocument terminalGiveoutAlias = null;
 			DriverAttachedTerminalReturnDocument terminalReturnAlias = null;
-			WarehouseMovementOperation wmoAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 
 			List<DocumentVMNode> result = new List<DocumentVMNode>();
 
@@ -224,7 +224,7 @@ namespace Vodovoz.ViewModel
 			if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.WriteoffDocument) &&
 			   Filter.RestrictDriver == null)
 			{
-				var writeoffQuery = UoW.Session.QueryOver<WriteoffDocument>(() => writeoffAlias);
+				var writeoffQuery = UoW.Session.QueryOver<WriteOffDocument>(() => writeOffAlias);
 				if(Filter.RestrictWarehouse != null)
 				{
 					writeoffQuery.Where(x => x.WriteOffFromWarehouse.Id == Filter.RestrictWarehouse.Id);
@@ -239,20 +239,16 @@ namespace Vodovoz.ViewModel
 				}
 
 				var writeoffList = writeoffQuery
-					.JoinQueryOver(() => writeoffAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => writeoffAlias.WriteOffFromWarehouse, () => warehouseAlias,
+					//.JoinQueryOver(() => writeOffAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => writeOffAlias.WriteOffFromWarehouse, () => warehouseAlias,
 						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinAlias(() => writeoffAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinAlias(() => writeoffAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias(() => writeOffAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias(() => writeOffAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.SelectList(list => list
-						.Select(() => writeoffAlias.Id).WithAlias(() => resultAlias.Id)
-						.Select(() => writeoffAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+						.Select(() => writeOffAlias.Id).WithAlias(() => resultAlias.Id)
+						.Select(() => writeOffAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 						.Select(() => DocumentType.WriteoffDocument).WithAlias(() => resultAlias.DocTypeEnum)
-						.Select(Projections.Conditional(
-							Restrictions.Where(() => counterpartyAlias.Name == null),
-							Projections.Constant(string.Empty, NHibernateUtil.String),
-							Projections.Property(() => counterpartyAlias.Name)))
-						.WithAlias(() => resultAlias.Counterparty)
+						.Select(Projections.Constant(string.Empty, NHibernateUtil.String)).WithAlias(() => resultAlias.Counterparty)
 						.Select(Projections.Conditional(
 							Restrictions.Where(() => warehouseAlias.Name == null),
 							Projections.Constant(string.Empty, NHibernateUtil.String),
@@ -264,7 +260,7 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => writeoffAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => writeOffAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 
@@ -542,20 +538,22 @@ namespace Vodovoz.ViewModel
 				result.AddRange(carUnloadList);
 			}
 
+			//TODO проверить работу журнала
 			if(Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.DriverTerminalMovement)
 			{
 				#region Giveout
 
 				var driverTerminalGiveoutQuery = UoW.Session.QueryOver(() => terminalGiveoutAlias)
-					.JoinQueryOver(() => terminalGiveoutAlias.WarehouseMovementOperation, () => wmoAlias,
+					.JoinQueryOver(() => terminalGiveoutAlias.GoodsAccountingOperation, () => operationAlias,
 						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => wmoAlias.WriteoffWarehouse, () => warehouseAlias,
-						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin,
+						Restrictions.Lt(Projections.Property(() => operationAlias.Amount), 0))
 					.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 				if(Filter.RestrictWarehouse != null)
 				{
-					driverTerminalGiveoutQuery.Where(() => wmoAlias.WriteoffWarehouse.Id == Filter.RestrictWarehouse.Id);
+					driverTerminalGiveoutQuery.Where(() => operationAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
 				}
 
 				if(Filter.RestrictStartDate.HasValue)
@@ -595,15 +593,16 @@ namespace Vodovoz.ViewModel
 				#region Return
 
 				var driverTerminalReturnQuery = UoW.Session.QueryOver(() => terminalReturnAlias)
-					.JoinQueryOver(() => terminalReturnAlias.WarehouseMovementOperation, () => wmoAlias,
+					.JoinQueryOver(() => terminalReturnAlias.GoodsAccountingOperation, () => operationAlias,
 						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => wmoAlias.IncomingWarehouse, () => warehouseAlias,
-						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin,
+						Restrictions.Gt(Projections.Property(() => operationAlias.Amount), 0))
 					.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 				if(Filter.RestrictWarehouse != null)
 				{
-					driverTerminalReturnQuery.Where(() => wmoAlias.IncomingWarehouse.Id == Filter.RestrictWarehouse.Id);
+					driverTerminalReturnQuery.Where(() => operationAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
 				}
 
 				if(Filter.RestrictStartDate.HasValue)
@@ -644,15 +643,16 @@ namespace Vodovoz.ViewModel
 			if(Filter.RestrictDocumentType == DocumentType.DriverTerminalGiveout)
 			{
 				var driverterminalGiveoutQuery = UoW.Session.QueryOver(() => terminalGiveoutAlias)
-					.JoinQueryOver(() => terminalGiveoutAlias.WarehouseMovementOperation, () => wmoAlias,
+					.JoinQueryOver(() => terminalGiveoutAlias.GoodsAccountingOperation, () => operationAlias,
 						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => wmoAlias.WriteoffWarehouse, () => warehouseAlias,
-						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin,
+						Restrictions.Lt(Projections.Property(() => operationAlias.Amount), 0))
 					.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 				if(Filter.RestrictWarehouse != null)
 				{
-					driverterminalGiveoutQuery.Where(() => wmoAlias.WriteoffWarehouse.Id == Filter.RestrictWarehouse.Id);
+					driverterminalGiveoutQuery.Where(() => operationAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
 				}
 
 				if(Filter.RestrictStartDate.HasValue)
@@ -691,15 +691,16 @@ namespace Vodovoz.ViewModel
 			if(Filter.RestrictDocumentType == DocumentType.DriverTerminalReturn)
 			{
 				var driverTerminalReturnQuery = UoW.Session.QueryOver(() => terminalReturnAlias)
-					.JoinQueryOver(() => terminalReturnAlias.WarehouseMovementOperation, () => wmoAlias,
+					.JoinQueryOver(() => terminalReturnAlias.GoodsAccountingOperation, () => operationAlias,
 						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => wmoAlias.IncomingWarehouse, () => warehouseAlias,
-						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin,
+						Restrictions.Gt(Projections.Property(() => operationAlias.Amount), 0))
 					.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 				if(Filter.RestrictWarehouse != null)
 				{
-					driverTerminalReturnQuery.Where(() => wmoAlias.IncomingWarehouse.Id == Filter.RestrictWarehouse.Id);
+					driverTerminalReturnQuery.Where(() => operationAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
 				}
 
 				if(Filter.RestrictStartDate.HasValue)
@@ -808,7 +809,7 @@ namespace Vodovoz.ViewModel
 			typeof(IncomingInvoice),
 			typeof(IncomingWater),
 			typeof(MovementDocument),
-			typeof(WriteoffDocument),
+			typeof(WriteOffDocument),
 			typeof(SelfDeliveryDocument),
 			typeof(CarLoadDocument),
 			typeof(CarUnloadDocument),

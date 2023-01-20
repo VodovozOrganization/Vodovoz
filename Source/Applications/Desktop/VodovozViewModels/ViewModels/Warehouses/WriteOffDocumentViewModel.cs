@@ -16,6 +16,7 @@ using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.BasicHandbooks;
@@ -26,20 +27,25 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
-	public class WriteOffDocumentViewModel : EntityTabViewModelBase<WriteoffDocument>
+	public class WriteOffDocumentViewModel : EntityTabViewModelBase<WriteOffDocument>
 	{
 		private bool _canChangeDocumentType;
-		private WriteoffDocumentItem _selectedItem;
+		private WriteOffDocumentItem _selectedItem;
 		private INomenclatureRepository _nomenclatureRepository;
+		private INomenclatureInstanceRepository _nomenclatureInstanceRepository;
 		private readonly ILifetimeScope _scope;
 		private readonly CommonMessages _commonMessages;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -53,6 +59,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private DelegateCommand _addInventoryInstanceCommand;
 		private DelegateCommand _deleteItemCommand;
 		private DelegateCommand _deleteFineCommand;
+		private DelegateCommand _editSelectedItemCommand;
 
 		public WriteOffDocumentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -88,7 +95,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			set => SetField(ref _canChangeDocumentType, value);
 		}
 		
-		public WriteoffDocumentItem SelectedItem
+		public WriteOffDocumentItem SelectedItem
 		{
 			get => _selectedItem;
 			set
@@ -105,7 +112,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanEditDocument { get; private set; }
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; private set; }
 		public bool CanChangeStorage => CanEditDocument && !Entity.ObservableItems.Any();
-		public bool CanShowWarehouseStorage => Entity.WriteOffType == WriteOffType.warehouse;
+		public bool CanShowWarehouseStorage => Entity.WriteOffType == WriteOffType.Warehouse;
 		public bool CanShowEmployeeStorage => Entity.WriteOffType == WriteOffType.Employee;
 		public bool CanShowCarStorage => Entity.WriteOffType == WriteOffType.Car;
 		public bool CanDeleteItem => SelectedItem != null;
@@ -126,7 +133,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public DelegateCommand PrintCommand => _printCommand ?? (_printCommand = new DelegateCommand(
 			() =>
 			{
-				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(WriteoffDocument), "акта выбраковки"))
+				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(WriteOffDocument), "акта выбраковки"))
 				{
 					Save();
 				}
@@ -181,12 +188,15 @@ namespace Vodovoz.ViewModels.Warehouses
 			_addInventoryInstanceCommand ?? (_addInventoryInstanceCommand = new DelegateCommand(
 				() =>
 				{
-					FireItemsChanged();
+					var page = NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(this);
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.OnSelectResult += OnInventoryInstanceSelectResult;
 				}));
-		
+
 		public DelegateCommand DeleteItemCommand => _deleteItemCommand ?? (_deleteItemCommand = new DelegateCommand(
 			() =>
 			{
+				Entity.DeleteItem(SelectedItem);
 				FireItemsChanged();
 			}));
 		
@@ -218,9 +228,41 @@ namespace Vodovoz.ViewModels.Warehouses
 				OnPropertyChanged(nameof(AddOrEditFineTitle));
 				OnPropertyChanged(nameof(CanAddOrDeleteFine));
 			}));
+		
+		public DelegateCommand EditSelectedItemCommand => _editSelectedItemCommand ?? (_editSelectedItemCommand = new DelegateCommand(
+			() =>
+			{
+				if(SelectedItem is null)
+				{
+					return;
+				}
+
+				if(SelectedItem is InstanceWriteOffDocumentItem instanceItem)
+				{
+					var page = NavigationManager.OpenViewModel<InventoryInstanceViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForOpen(SelectedItem.Id), OpenPageOptions.AsSlave);
+					page.ViewModel.EntitySaved += OnInstanceItemSaved;
+				}
+				else if(SelectedItem is BulkWriteOffDocumentItem bulkItem)
+				{
+					var page = NavigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForOpen(SelectedItem.Id), OpenPageOptions.AsSlave);
+					page.ViewModel.EntitySaved += OnInstanceItemSaved;
+				}
+			}));
+
+		private void OnInstanceItemSaved(object sender, EntitySavedEventArgs e)
+		{
+			UoW.Session.Refresh(e.Entity);
+			OnPropertyChanged(nameof(AddOrEditFineTitle));
+			OnPropertyChanged(nameof(CanAddOrDeleteFine));
+		}
 
 		private INomenclatureRepository NomenclatureRepository =>
 			_nomenclatureRepository ?? (_nomenclatureRepository = _scope.Resolve<INomenclatureRepository>());
+		
+		private INomenclatureInstanceRepository NomenclatureInstanceRepository =>
+			_nomenclatureInstanceRepository ?? (_nomenclatureInstanceRepository = _scope.Resolve<INomenclatureInstanceRepository>());
 		
 		protected override bool BeforeValidation() => Entity.CanEdit;
 
@@ -253,7 +295,7 @@ namespace Vodovoz.ViewModels.Warehouses
 					return;
 				}
 
-				//Entity.WriteoffWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.WriteoffEdit);
+				Entity.WriteOffFromWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.WriteoffEdit);
 			}
 			else
 			{
@@ -275,12 +317,12 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			Entity.CanEdit =
 				_extendedPermissionValidator.Validate(
-					typeof(WriteoffDocument), UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+					typeof(WriteOffDocument), UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 		}
 		
 		private void SetViewModels()
 		{
-			var builder = new CommonEEVMBuilderFactory<WriteoffDocument>(this, Entity, UoW, NavigationManager, _scope);
+			var builder = new CommonEEVMBuilderFactory<WriteOffDocument>(this, Entity, UoW, NavigationManager, _scope);
 			
 			ResponsibleEmployeeViewModel = builder.ForProperty(x => x.ResponsibleEmployee)
 				.UseViewModelDialog<EmployeeViewModel>()
@@ -342,6 +384,21 @@ namespace Vodovoz.ViewModels.Warehouses
 			OnPropertyChanged(nameof(CanDeleteItem));
 			OnPropertyChanged(nameof(AddOrEditFineTitle));
 			OnPropertyChanged(nameof(CanAddOrDeleteFine));
+		}
+		
+		private void OnInventoryInstanceSelectResult(object sender, JournalSelectedEventArgs e)
+		{
+			var selectedItem = e.GetSelectedObjects<InventoryInstancesJournalNode>().FirstOrDefault();
+
+			if(selectedItem is null)
+			{
+				return;
+			}
+
+			var inventoryInstance = NomenclatureInstanceRepository.GetInventoryNomenclatureInstance(UoW, selectedItem.Id);
+
+			Entity.AddItem(inventoryInstance, 1, 1);
+			FireItemsChanged();
 		}
 	}
 }

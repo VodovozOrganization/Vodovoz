@@ -28,50 +28,36 @@ namespace Vodovoz.EntityRepositories.Store
 					  .List<Warehouse>();
 		}
 
+		//TODO проверить работу запроса
 		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds)
 		{
 			NomanclatureStockNode resultAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation warehouseOperation = null;
-
-			IProjection incomeAmount = Projections.Sum(
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => warehouseOperation.IncomingWarehouse.Id), warehouseId),
-					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0M)
-				)
-			);
-
-			IProjection writeoffAmount = Projections.Sum(
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => warehouseOperation.WriteoffWarehouse.Id), warehouseId),
-					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0M)
-				)
-			);
-
-			IProjection stockProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
-					NHibernateUtil.Int32,
-					incomeAmount,
-					writeoffAmount
-			);
+			WarehouseBulkGoodsAccountingOperation warehouseOperation = null;
+			
+			var stockProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
+					NHibernateUtil.Decimal,
+				Projections.Sum<WarehouseBulkGoodsAccountingOperation>(op => op.Amount));
 
 			return uow.Session.QueryOver(() => warehouseOperation)
 				.Left.JoinAlias(() => warehouseOperation.Nomenclature, () => nomenclatureAlias)
-				.Where(Restrictions.In(Projections.Property(() => warehouseOperation.Nomenclature.Id), nomenclatureIds.ToArray()))
+				.WhereRestrictionOn(() => warehouseOperation.Nomenclature.Id).IsIn(nomenclatureIds.ToArray())
+				.And(() => warehouseOperation.Warehouse.Id == warehouseId)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(stockProjection).WithAlias(() => resultAlias.Stock)
-				)
+					.Select(stockProjection).WithAlias(() => resultAlias.Stock))
 				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
 				.List<NomanclatureStockNode>();
 		}
 
+		//TODO проверить работу запроса
 		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId)
 		{
-			NomanclatureStockNode resultAlias = null;
+			return null;
+			/*NomanclatureStockNode resultAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation warehouseOperation = null;
+			GoodsAccountingOperation warehouseOperation = null;
 
 			IProjection incomeAmount = Projections.Sum(
 				Projections.Conditional(
@@ -83,7 +69,7 @@ namespace Vodovoz.EntityRepositories.Store
 
 			IProjection writeoffAmount = Projections.Sum(
 				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => warehouseOperation.WriteoffWarehouse.Id), warehouseId),
+					Restrictions.Eq(Projections.Property(() => warehouseOperation.WriteOffWarehouse.Id), warehouseId),
 					Projections.Property(() => warehouseOperation.Amount),
 					Projections.Constant(0M)
 				)
@@ -102,7 +88,7 @@ namespace Vodovoz.EntityRepositories.Store
 					.Select(stockProjection).WithAlias(() => resultAlias.Stock)
 				)
 				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
-				.List<NomanclatureStockNode>();
+				.List<NomanclatureStockNode>();*/
 		}
 
 		public IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId)
@@ -120,7 +106,7 @@ namespace Vodovoz.EntityRepositories.Store
 				.Left.JoinAlias(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
 				.Where(() => movementDocumentAlias.Status == MovementDocumentStatus.Discrepancy)
 				.Where(() => movementDocumentAlias.FromWarehouse.Id == warehouseId)
-				.Where(() => movementDocumentItemAlias.SendedAmount != movementDocumentItemAlias.ReceivedAmount)
+				.Where(() => movementDocumentItemAlias.SentAmount != movementDocumentItemAlias.ReceivedAmount)
 				.Select(Projections.Entity(() => nomenclatureAlias))
 				.List<Nomenclature>();
 		}
@@ -133,6 +119,7 @@ namespace Vodovoz.EntityRepositories.Store
 					.Any();
 		}
 		
+		//TODO Проверить работу запроса
 		public int GetTotalShippedKgByWarehousesAndProductGroups(
 			IUnitOfWork uow, DateTime dateFrom, DateTime dateTo, IEnumerable<int> productGroupsIds, IEnumerable<int> warehousesIds)
 		{
@@ -140,19 +127,19 @@ namespace Vodovoz.EntityRepositories.Store
 			Warehouse warehouseAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var result = uow.Session.QueryOver<WarehouseMovementOperation>()
-				.JoinAlias(wmo => wmo.WriteoffWarehouse, () => warehouseAlias)
+			var result = uow.Session.QueryOver<WarehouseBulkGoodsAccountingOperation>()
+				.JoinAlias(wmo => wmo.Warehouse, () => warehouseAlias)
 				.JoinAlias(wmo => wmo.Nomenclature, () => nomenclatureAlias)
 				.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).IsInG(productGroupsIds)
 				.AndRestrictionOn(() => warehouseAlias.Id).IsInG(warehousesIds)
 				.And(wmo => wmo.OperationTime >= dateFrom && wmo.OperationTime < dateTo)
-				.And(wmo => wmo.IncomingWarehouse == null)
+				.And(wmo => wmo.Amount < 0)
 				.SelectList(list => list
 					.SelectGroup(x => x.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(Projections.SqlFunction(
 						new SQLFunctionTemplate(NHibernateUtil.Int32, "?1 * ?2"),
 						NHibernateUtil.Int32,
-						Projections.Sum<WarehouseMovementOperation>(wmo => wmo.Amount),
+						Projections.Sum<WarehouseBulkGoodsAccountingOperation>(wmo => wmo.Amount),
 						Projections.Property(() => nomenclatureAlias.Weight))).WithAlias(() => resultAlias.TotalShippedKg))
 				.TransformUsing(Transformers.AliasToBean<NomenclatureTotalShippedKg>())
 				.List<NomenclatureTotalShippedKg>();

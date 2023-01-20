@@ -21,17 +21,17 @@ namespace VodovozBusinessTests.Domain.Documents
 				Warehouse = warehouseMock01,
 				Items = new List<CarUnloadDocumentItem> {
 					new CarUnloadDocumentItem {
-						WarehouseMovementOperation = new WarehouseMovementOperation {
+						GoodsAccountingOperation = new GoodsAccountingOperation {
 							IncomingWarehouse = warehouseMock01
 						}
 					},
 					new CarUnloadDocumentItem {
-						WarehouseMovementOperation = new WarehouseMovementOperation {
+						GoodsAccountingOperation = new GoodsAccountingOperation {
 							IncomingWarehouse = warehouseMock01
 						}
 					},
 					new CarUnloadDocumentItem {
-						WarehouseMovementOperation = new WarehouseMovementOperation {
+						GoodsAccountingOperation = new GoodsAccountingOperation {
 							IncomingWarehouse = null
 						}
 					}
@@ -42,7 +42,7 @@ namespace VodovozBusinessTests.Domain.Documents
 			unloadDocumentUnderTest.Warehouse = warehouseMock02;
 
 			// assert
-			Assert.That(unloadDocumentUnderTest.Items.All(i => i.WarehouseMovementOperation.IncomingWarehouse == warehouseMock02), Is.True);
+			Assert.That(unloadDocumentUnderTest.Items.All(i => i.GoodsAccountingOperation.IncomingWarehouse == warehouseMock02), Is.True);
 		}
 	}
 }

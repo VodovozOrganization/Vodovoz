@@ -19,20 +19,20 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
+	//TODO проверить работу запроса и убрать из выборки экземпляры
 	public class NomenclatureStockBalanceJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureStockJournalNode, NomenclatureStockFilterViewModel>
 	{
 		public NomenclatureStockBalanceJournalViewModel(
 			NomenclatureStockFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Складские остатки";
 
 			UpdateOnChanges(
 				typeof(Nomenclature),
 				typeof(MeasurementUnits),
-				typeof(WarehouseMovementOperation),
+				typeof(GoodsAccountingOperation),
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
@@ -50,64 +50,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits measurementUnitsAlias = null;
 			NomenclatureStockJournalNode resultAlias = null;
-			WarehouseMovementOperation incomeWarehouseOPerationAlias = null;
-			WarehouseMovementOperation writeoffWarehouseOperationAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 
-			#region Операции прихода на склад
+			var balanceInStock = QueryOver.Of(() => operationAlias)
+				.Where(() => operationAlias.Nomenclature.Id == nomenclatureAlias.Id);
 
-			var incomeSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => incomeWarehouseOPerationAlias)
-				.Where(() => incomeWarehouseOPerationAlias.Nomenclature.Id == nomenclatureAlias.Id);
-
-			if(FilterViewModel != null && FilterViewModel.Warehouse != null) {
-				incomeSubQuery.Where(
-					Restrictions.Eq(
-						Projections.Property(() => incomeWarehouseOPerationAlias.IncomingWarehouse),
-						FilterViewModel.Warehouse
-					)
-				);
-			} else {
-				//если не выбрано склада считаем общий баланс по всем складам
-				incomeSubQuery.Where(
-					Restrictions.IsNotNull(
-						Projections.Property(() => incomeWarehouseOPerationAlias.IncomingWarehouse)
-					)
-				);
+			if(FilterViewModel?.Warehouse != null)
+			{
+				balanceInStock.And(() => operationAlias.Warehouse.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			incomeSubQuery.Select(Projections.Sum(Projections.Property(() => incomeWarehouseOPerationAlias.Amount)));
+			balanceInStock.Select(Projections.Sum(Projections.Property(() => operationAlias.Amount)));
 
-			#endregion Операции прихода на склад
-
-			#region Операции списания со склада
-
-			var writeoffSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => writeoffWarehouseOperationAlias)
-				.Where(() => writeoffWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id);
-
-			if(FilterViewModel != null && FilterViewModel.Warehouse != null) {
-				writeoffSubQuery.Where(
-					Restrictions.Eq(
-						Projections.Property(() => writeoffWarehouseOperationAlias.WriteoffWarehouse),
-						FilterViewModel.Warehouse
-					)
-				);
-			} else {
-				//если не выбрано склада считаем общий баланс по всем складам
-				writeoffSubQuery.Where(
-					Restrictions.IsNotNull(
-						Projections.Property(() => writeoffWarehouseOperationAlias.WriteoffWarehouse)
-					)
-				);
-			}
-
-			writeoffSubQuery.Select(Projections.Sum(Projections.Property(() => writeoffWarehouseOperationAlias.Amount)));
-
-			#endregion Операции списания со склада
-
-			IProjection projection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
-				NHibernateUtil.Int32,
-				Projections.SubQuery(incomeSubQuery),
-				Projections.SubQuery(writeoffSubQuery)
+			var projectionBalance = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(balanceInStock)
 			);
 
 			var queryStock = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
@@ -129,9 +87,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 					);
 				}
 				if(FilterViewModel.Warehouse != null && SelectionMode != JournalSelectionMode.None) {
-					queryStock.Where(Restrictions.Gt(projection, 0));
+					queryStock.Where(Restrictions.Gt(projectionBalance, 0));
 				} else {
-					queryStock.Where(Restrictions.Not(Restrictions.Eq(projection,0)));
+					queryStock.Where(Restrictions.Not(Restrictions.Eq(projectionBalance,0)));
 				}
 			}
 
@@ -146,13 +104,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 			queryStock
 				.SelectList(list => list
-							.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-							.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-							.Select(() => nomenclatureAlias.MinStockCount).WithAlias(() => resultAlias.MinNomenclatureAmount)
-							.Select(() => measurementUnitsAlias.Name).WithAlias(() => resultAlias.UnitName)
-							.Select(() => measurementUnitsAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-							.Select(projection).WithAlias(() => resultAlias.StockAmount)
-				)
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+					.Select(() => nomenclatureAlias.MinStockCount).WithAlias(() => resultAlias.MinNomenclatureAmount)
+					.Select(() => measurementUnitsAlias.Name).WithAlias(() => resultAlias.UnitName)
+					.Select(() => measurementUnitsAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
+					.Select(projectionBalance).WithAlias(() => resultAlias.StockAmount))
 				.TransformUsing(Transformers.AliasToBean<NomenclatureStockJournalNode>());
 
 			return queryStock;

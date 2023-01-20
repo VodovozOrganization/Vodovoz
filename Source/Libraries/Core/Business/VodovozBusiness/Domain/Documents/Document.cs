@@ -68,7 +68,7 @@ namespace Vodovoz.Domain.Documents
 				case DocumentType.MovementDocument:
 					return typeof(MovementDocument);
 				case DocumentType.WriteoffDocument:
-					return typeof(WriteoffDocument);
+					return typeof(WriteOffDocument);
 				case DocumentType.SelfDeliveryDocument:
 					return typeof(SelfDeliveryDocument);
 				case DocumentType.CarLoadDocument:

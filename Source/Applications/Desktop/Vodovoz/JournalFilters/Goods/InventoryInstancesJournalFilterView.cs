@@ -1,5 +1,4 @@
-﻿using System;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.JournalFilters.Goods
@@ -15,7 +14,14 @@ namespace Vodovoz.JournalFilters.Goods
 
 		private void Configure()
 		{
-
+			nomenclatureEntry.ViewModel = ViewModel.NomenclatureViewModel;
+			nomenclatureEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeNomenclature, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			inventoryNumberEntry.Binding
+				.AddBinding(ViewModel, vm => vm.InventoryNumber, w => w.Text)
+				.InitializeFromSource();
 		}
 	}
 }

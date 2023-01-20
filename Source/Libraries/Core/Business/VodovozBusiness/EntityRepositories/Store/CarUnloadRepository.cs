@@ -16,14 +16,14 @@ namespace Vodovoz.Repository.Store
 		{
 			CarUnloadDocument docAlias = null;
 			CarUnloadDocumentItem docItemsAlias = null;
-			WarehouseMovementOperation movementOperationAlias = null;
+			GoodsAccountingOperation movementOperationAlias = null;
 
 			var unloadedlist = UoW.Session.QueryOver<CarUnloadDocument>(() => docAlias)
 								  .Where(d => d.RouteList.Id == routeList.Id)
 								  .Where(d => d.Warehouse.Id == warehouse.Id)
 								  .Where(d => d.Id != excludeDoc.Id)
 								  .JoinAlias(d => d.Items, () => docItemsAlias)
-								  .JoinAlias(() => docItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
+								  .JoinAlias(() => docItemsAlias.GoodsAccountingOperation, () => movementOperationAlias)
 				.SelectList(list => list
 							.SelectGroup(() => movementOperationAlias.Nomenclature.Id)
 							.SelectSum(() => movementOperationAlias.Amount)
@@ -58,14 +58,14 @@ namespace Vodovoz.Repository.Store
 		{
 			CarUnloadDocument docAlias = null;
 			CarUnloadDocumentItem docItemsAlias = null;
-			WarehouseMovementOperation warehouseMovementOperationAlias = null;
+			GoodsAccountingOperation goodsAccountingOperationAlias = null;
 
 			var query = uow.Session.QueryOver(() => docAlias)
 				.JoinAlias(d => d.Items, () => docItemsAlias)
-				.JoinAlias(() => docItemsAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
+				.JoinAlias(() => docItemsAlias.GoodsAccountingOperation, () => goodsAccountingOperationAlias)
 				.Where(() => docAlias.RouteList.Id == routelistId)
-				.And(() => warehouseMovementOperationAlias.Nomenclature.Id == terminalId)
-				.Select(Projections.Sum(() => warehouseMovementOperationAlias.Amount))
+				.And(() => goodsAccountingOperationAlias.Nomenclature.Id == terminalId)
+				.Select(Projections.Sum(() => goodsAccountingOperationAlias.Amount))
 				.SingleOrDefault<decimal>();
 
 			return query;

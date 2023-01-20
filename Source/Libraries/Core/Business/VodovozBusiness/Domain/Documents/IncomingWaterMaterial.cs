@@ -9,6 +9,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
+	//TODO поправить класс
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "Строки производства (сырьё)",
 		Nominative = "Строка производства (сырьё)")]
@@ -77,9 +78,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
 
-		WarehouseMovementOperation consumptionMaterialOperation;
+		GoodsAccountingOperation consumptionMaterialOperation;
 
-		public virtual WarehouseMovementOperation ConsumptionMaterialOperation {
+		public virtual GoodsAccountingOperation ConsumptionMaterialOperation {
 			get { return consumptionMaterialOperation; }
 			set { SetField(ref consumptionMaterialOperation, value, () => ConsumptionMaterialOperation); }
 		}
@@ -99,8 +100,8 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouseSrc, DateTime time)
 		{
-			ConsumptionMaterialOperation = new WarehouseMovementOperation {
-				WriteoffWarehouse = warehouseSrc,
+			ConsumptionMaterialOperation = new GoodsAccountingOperation {
+				//WriteOffWarehouse = warehouseSrc,
 				Amount = Amount,
 				OperationTime = time,
 				Nomenclature = Nomenclature

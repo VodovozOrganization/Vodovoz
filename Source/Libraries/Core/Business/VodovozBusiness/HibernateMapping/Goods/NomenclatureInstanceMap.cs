@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping.Goods
 
 			DiscriminateSubClassesOnColumn("type");
 			
-			Map(x => x.CreationDate).Column("creation_date");
+			Map(x => x.CreationDate).Column("creation_date").ReadOnly();
 			Map(x => x.CostPrice).Column("cost_price");
 			Map(x => x.InnerDeliveryPrice).Column("inner_delivery_price");
 			Map(x => x.PurchasePrice).Column("purchase_price");

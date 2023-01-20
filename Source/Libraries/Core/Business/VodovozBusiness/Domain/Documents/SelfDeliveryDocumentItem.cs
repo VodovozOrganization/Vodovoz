@@ -9,6 +9,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
+	//TODO попроавить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
@@ -32,8 +33,8 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField (ref nomenclature, value, () => Nomenclature);
 
-				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
-					WarehouseMovementOperation.Nomenclature = nomenclature;
+				if (GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != nomenclature)
+					GoodsAccountingOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -44,8 +45,8 @@ namespace Vodovoz.Domain.Documents
 			get { return equipment; }
 			set {
 				SetField (ref equipment, value, () => Equipment);
-				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
-					WarehouseMovementOperation.Equipment = equipment;
+				/*if (GoodsAccountingOperation != null && GoodsAccountingOperation.Equipment != equipment)
+					GoodsAccountingOperation.Equipment = equipment;*/
 
 				if (CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
 					CounterpartyMovementOperation.Equipment = equipment;
@@ -78,11 +79,11 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref orderEquipment, value, () => OrderEquipment); }
 		}
 
-		WarehouseMovementOperation warehouseMovementOperation;
+		GoodsAccountingOperation _goodsAccountingOperation;
 
-		public virtual WarehouseMovementOperation WarehouseMovementOperation { 
-			get { return warehouseMovementOperation; }
-			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
+		public virtual GoodsAccountingOperation GoodsAccountingOperation { 
+			get { return _goodsAccountingOperation; }
+			set { SetField (ref _goodsAccountingOperation, value, () => GoodsAccountingOperation); }
 		}
 
 		CounterpartyMovementOperation counterpartyMovementOperation;
@@ -121,11 +122,11 @@ namespace Vodovoz.Domain.Documents
 		public virtual string Title {
 			get {
 				string res = String.Empty;
-				if(WarehouseMovementOperation != null)
+				if(GoodsAccountingOperation != null)
 					res = String.Format(
 						"[{2}] {0} - {1}",
-						WarehouseMovementOperation.Nomenclature.Name,
-						WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount),
+						GoodsAccountingOperation.Nomenclature.Name,
+						GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
 						Document.Title
 					);
 				else if(Nomenclature != null)
@@ -141,22 +142,22 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
-			WarehouseMovementOperation = new WarehouseMovementOperation
+			GoodsAccountingOperation = new GoodsAccountingOperation
 				{
-					WriteoffWarehouse = warehouse,
+					//WriteOffWarehouse = warehouse,
 					Amount = Amount,
 					OperationTime = time,
 					Nomenclature = Nomenclature,
-					Equipment = Equipment
+					//Equipment = Equipment
 				};
 		}
 
 		public virtual void UpdateOperation(Warehouse warehouse)
 		{
-			WarehouseMovementOperation.WriteoffWarehouse = warehouse;
-			WarehouseMovementOperation.IncomingWarehouse = null;
-			WarehouseMovementOperation.Amount = Amount;
-			WarehouseMovementOperation.Equipment = Equipment;
+			//GoodsAccountingOperation.WriteOffWarehouse = warehouse;
+			//GoodsAccountingOperation.IncomingWarehouse = null;
+			GoodsAccountingOperation.Amount = Amount;
+			//GoodsAccountingOperation.Equipment = Equipment;
 		}
 
 		#endregion

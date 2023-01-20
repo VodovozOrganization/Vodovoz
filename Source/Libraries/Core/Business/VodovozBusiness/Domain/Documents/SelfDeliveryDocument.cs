@@ -36,8 +36,8 @@ namespace Vodovoz.Domain.Documents
 				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
 					return;
 				foreach(var item in Items) {
-					if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
-						item.WarehouseMovementOperation.OperationTime = TimeStamp;
+					if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
+						item.GoodsAccountingOperation.OperationTime = TimeStamp;
 				}
 			}
 		}
@@ -245,12 +245,12 @@ namespace Vodovoz.Domain.Documents
 		public virtual void UpdateOperations(IUnitOfWork uow)
 		{
 			foreach(var item in Items) {
-				if(item.Amount == 0 && item.WarehouseMovementOperation != null) {
-					uow.Delete(item.WarehouseMovementOperation);
-					item.WarehouseMovementOperation = null;
+				if(item.Amount == 0 && item.GoodsAccountingOperation != null) {
+					uow.Delete(item.GoodsAccountingOperation);
+					item.GoodsAccountingOperation = null;
 				}
 				if(item.Amount != 0) {
-					if(item.WarehouseMovementOperation != null) {
+					if(item.GoodsAccountingOperation != null) {
 						item.UpdateOperation(Warehouse);
 					} else {
 						item.CreateOperation(Warehouse, TimeStamp);

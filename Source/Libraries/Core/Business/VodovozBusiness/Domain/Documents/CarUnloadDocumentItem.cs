@@ -27,10 +27,10 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref reciveType, value, () => ReciveType); }
 		}
 
-		private WarehouseMovementOperation warehouseMovementOperation;
-		public virtual WarehouseMovementOperation WarehouseMovementOperation { 
-			get => warehouseMovementOperation;
-			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
+		private GoodsAccountingOperation _goodsAccountingOperation;
+		public virtual GoodsAccountingOperation GoodsAccountingOperation { 
+			get => _goodsAccountingOperation;
+			set { SetField (ref _goodsAccountingOperation, value, () => GoodsAccountingOperation); }
 		}
 
 		private EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
@@ -69,8 +69,8 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title =>
 			String.Format("[{2}] {0} - {1}",
-				WarehouseMovementOperation.Nomenclature.Name,
-				WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount),
+				GoodsAccountingOperation.Nomenclature.Name,
+				GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
 				document.Title);
 	}
 

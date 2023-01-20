@@ -130,7 +130,7 @@ namespace Vodovoz.ViewWidgets.Store
 				return;
 
 			DefectiveItemNode resultAlias = null;
-			WarehouseMovementOperation warehouseMovementOperationAlias = null;
+			GoodsAccountingOperation goodsAccountingOperationAlias = null;
 			CarUnloadDocument carUnloadDocumentAlias = null;
 			CarUnloadDocumentItem carUnloadDocumentItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -139,16 +139,16 @@ namespace Vodovoz.ViewWidgets.Store
 			var defectiveItems = UoW.Session.QueryOver<CarUnloadDocumentItem>(() => carUnloadDocumentItemAlias)
 									.Left.JoinAlias(() => carUnloadDocumentItemAlias.Document, () => carUnloadDocumentAlias)
 									.Where(() => carUnloadDocumentAlias.RouteList.Id == RouteList.Id)
-									.Left.JoinAlias(() => carUnloadDocumentItemAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
-									.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
+									.Left.JoinAlias(() => carUnloadDocumentItemAlias.GoodsAccountingOperation, () => goodsAccountingOperationAlias)
+									.Left.JoinAlias(() => goodsAccountingOperationAlias.Nomenclature, () => nomenclatureAlias)
 									.Where(() => nomenclatureAlias.IsDefectiveBottle)
 									.SelectList(
 										list => list
 										.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 										.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 										.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-				                        .Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-				                        .Select(() => carUnloadDocumentItemAlias.WarehouseMovementOperation).WithAlias(() => resultAlias.MovementOperation)
+				                        .Select(() => goodsAccountingOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+				                        .Select(() => carUnloadDocumentItemAlias.GoodsAccountingOperation).WithAlias(() => resultAlias.MovementOperation)
 				                        .Select(() => carUnloadDocumentItemAlias.DefectSource).WithAlias(() => resultAlias.Source)
 				                        .Select(() => carUnloadDocumentItemAlias.TypeOfDefect).WithAlias(() => resultAlias.TypeOfDefect)
 									   )
@@ -209,12 +209,12 @@ namespace Vodovoz.ViewWidgets.Store
 			this.amount = amount;
 		}
 
-		public DefectiveItemNode(WarehouseMovementOperation movementOperation) : this(movementOperation.Nomenclature, (int)movementOperation.Amount)
+		public DefectiveItemNode(GoodsAccountingOperation movementOperation) : this(movementOperation.Nomenclature, (int)movementOperation.Amount)
 		{
 			this.movementOperation = movementOperation;
 		}
 
-		public DefectiveItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.WarehouseMovementOperation)
+		public DefectiveItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.GoodsAccountingOperation)
 		{
 			this.carUnloadDocumentItem = carUnloadDocumentItem;
 		}
@@ -237,8 +237,8 @@ namespace Vodovoz.ViewWidgets.Store
 			set { SetField(ref amount, value, () => Amount); }
 		}
 
-		WarehouseMovementOperation movementOperation;
-		public virtual WarehouseMovementOperation MovementOperation {
+		GoodsAccountingOperation movementOperation;
+		public virtual GoodsAccountingOperation MovementOperation {
 			get { return movementOperation; }
 			set { SetField(ref movementOperation, value, () => MovementOperation); }
 		}

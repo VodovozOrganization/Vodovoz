@@ -22,157 +22,187 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class MovementDocument : Document, IValidatableObject
 	{
-		MovementDocumentType documentType;
+		private MovementDocumentType _documentType;
+		private DateTime timeStamp;
+		private MovementDocumentStatus _status;
+		private bool _hasDiscrepancy;
+		private MovementWagon _movementWagon;
+		private string _comment;
+		private Warehouse _fromWarehouse;
+		private Employee _sender;
+		private DateTime? _sendTime;
+		private Warehouse _toWarehouse;
+		private Employee _receiver;
+		private DateTime? _receiveTime;
+		private Employee _discrepancyAccepter;
+		private DateTime? _discrepancyAcceptTime;
+		private IList<MovementDocumentItem> _items = new List<MovementDocumentItem>();
+		private GenericObservableList<MovementDocumentItem> _observableItems;
+
 		[Display(Name = "Тип документа перемещения")]
-		public virtual MovementDocumentType DocumentType {
-			get => documentType;
-			set => SetField(ref documentType, value);
+		public virtual MovementDocumentType DocumentType
+		{
+			get => _documentType;
+			set => SetField(ref _documentType, value);
 		}
 
-		private DateTime timeStamp;
-		public override DateTime TimeStamp {
+		public override DateTime TimeStamp
+		{
 			get => timeStamp;
 			set => SetField(ref timeStamp, value);
 		}
 
-		private MovementDocumentStatus status;
 		[Display(Name = "Статус")]
-		public virtual MovementDocumentStatus Status {
-			get => status;
-			set => SetField(ref status, value, () => Status);
+		public virtual MovementDocumentStatus Status
+		{
+			get => _status;
+			set => SetField(ref _status, value);
 		}
 
-		private bool hasDiscrepancy;
 		[Display(Name = "Имеет расхождение")]
-		public virtual bool HasDiscrepancy {
-			get => hasDiscrepancy;
-			set => SetField(ref hasDiscrepancy, value, () => HasDiscrepancy);
+		public virtual bool HasDiscrepancy
+		{
+			get => _hasDiscrepancy;
+			set => SetField(ref _hasDiscrepancy, value);
 		}
 
-		private MovementWagon movementWagon;
 		[Display(Name = "Фура")]
-		public virtual MovementWagon MovementWagon {
-			get => movementWagon;
-			set => SetField(ref movementWagon, value);
+		public virtual MovementWagon MovementWagon
+		{
+			get => _movementWagon;
+			set => SetField(ref _movementWagon, value);
 		}
 
-		private string comment;
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value);
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
 		#region Send
 
-		private Warehouse fromWarehouse;
 		[Display(Name = "Склад отправки")]
-		public virtual Warehouse FromWarehouse {
-			get => fromWarehouse;
-			set => SetField(ref fromWarehouse, value);
+		public virtual Warehouse FromWarehouse
+		{
+			get => _fromWarehouse;
+			set => SetField(ref _fromWarehouse, value);
 		}
 
-		private Employee sender;
 		[Display(Name = "Отправитель")]
-		public virtual Employee Sender {
-			get => sender;
-			set => SetField(ref sender, value, () => Sender);
+		public virtual Employee Sender
+		{
+			get => _sender;
+			set => SetField(ref _sender, value);
 		}
 
-		private DateTime? sendTime;
 		[Display(Name = "Время отправления")]
-		public virtual DateTime? SendTime {
-			get => sendTime;
-			set => SetField(ref sendTime, value, () => SendTime);
+		public virtual DateTime? SendTime
+		{
+			get => _sendTime;
+			set => SetField(ref _sendTime, value);
 		}
 
 		#endregion Send
 
 		#region Receive
 
-		private Warehouse toWarehouse;
 		[Display(Name = "Склад получения")]
-		public virtual Warehouse ToWarehouse {
-			get => toWarehouse;
-			set => SetField(ref toWarehouse, value);
+		public virtual Warehouse ToWarehouse
+		{
+			get => _toWarehouse;
+			set => SetField(ref _toWarehouse, value);
 		}
 
-		private Employee receiver;
 		[Display(Name = "Получатель")]
-		public virtual Employee Receiver {
-			get => receiver;
-			set => SetField(ref receiver, value, () => Receiver);
+		public virtual Employee Receiver
+		{
+			get => _receiver;
+			set => SetField(ref _receiver, value);
 		}
 
-		private DateTime? receiveTime;
 		[Display(Name = "Время получения")]
 		public virtual DateTime? ReceiveTime {
-			get => receiveTime;
-			set => SetField(ref receiveTime, value);
+			get => _receiveTime;
+			set => SetField(ref _receiveTime, value);
 		}
 
 		#endregion Receive
 
 		#region Discrepancy
 
-		private Employee discrepancyAccepter;
 		[Display(Name = "Кто подтвердил расхождения")]
-		public virtual Employee DiscrepancyAccepter {
-			get => discrepancyAccepter;
-			set => SetField(ref discrepancyAccepter, value, () => DiscrepancyAccepter);
+		public virtual Employee DiscrepancyAccepter
+		{
+			get => _discrepancyAccepter;
+			set => SetField(ref _discrepancyAccepter, value);
 		}
 
-		private DateTime? discrepancyAcceptTime;
 		[Display(Name = "Время подтверждения расхождений")]
-		public virtual DateTime? DiscrepancyAcceptTime {
-			get => discrepancyAcceptTime;
-			set => SetField(ref discrepancyAcceptTime, value, () => DiscrepancyAcceptTime);
+		public virtual DateTime? DiscrepancyAcceptTime
+		{
+			get => _discrepancyAcceptTime;
+			set => SetField(ref _discrepancyAcceptTime, value);
 		}
 
 		#endregion Discrepancy
 
-		private IList<MovementDocumentItem> items = new List<MovementDocumentItem>();
 		[Display(Name = "Строки")]
-		public virtual IList<MovementDocumentItem> Items {
-			get => items;
-			set {
-				SetField(ref items, value);
-				observableItems = null;
+		public virtual IList<MovementDocumentItem> Items
+		{
+			get => _items;
+			set
+			{
+				SetField(ref _items, value);
+				_observableItems = null;
 			}
 		}
 
-		private GenericObservableList<MovementDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<MovementDocumentItem> ObservableItems {
-			get {
-				if(observableItems == null) {
-					observableItems = new GenericObservableList<MovementDocumentItem>(Items);
-					observableItems.PropertyOfElementChanged += (sender, e) => {
+		public virtual GenericObservableList<MovementDocumentItem> ObservableItems
+		{
+			get
+			{
+				if(_observableItems == null)
+				{
+					_observableItems = new GenericObservableList<MovementDocumentItem>(Items);
+					_observableItems.PropertyOfElementChanged += (sender, e) =>
+					{
 						var item = sender as MovementDocumentItem;
-						if(item == null) {
+						if(item == null)
+						{
 							return;
 						}
-						if(e.PropertyName == nameof(item.ReceivedAmount)) {
+						if(e.PropertyName == nameof(item.ReceivedAmount))
+						{
 							OnPropertyChanged(nameof(CanSend));
 							OnPropertyChanged(nameof(CanReceive));
 						}
 					};
 				}
-				return observableItems;
+				return _observableItems;
 			}
 		}
 
 		public virtual void SetNomenclaturesOnStock(IUnitOfWork uow, IWarehouseRepository warehouseRepository)
 		{
 			if(uow == null)
+			{
 				throw new ArgumentNullException(nameof(uow));
+			}
+
 			if(warehouseRepository == null)
+			{
 				throw new ArgumentNullException(nameof(warehouseRepository));
+			}
 
 			if(FromWarehouse == null) 
 			{
-				foreach(var item in items)
+				foreach(var item in _items)
+				{
 					item.AmountOnSource = 99999999;
+				}
+
 				return;
 			}
 
@@ -209,7 +239,7 @@ namespace Vodovoz.Domain.Documents
 					var amountOnStock = warehouseRepository.GetWarehouseNomenclatureStock(uow, FromWarehouse.Id, Items.Select(x => x.Nomenclature.Id));
 					foreach(var item in Items) {
 						var stock = amountOnStock.First(x => x.NomenclatureId == item.Nomenclature.Id).Stock;
-						if(item.SendedAmount > stock) {
+						if(item.SentAmount > stock) {
 							yield return new ValidationResult
 									(   
 										$"Нельзя отгружать больше чем есть на складе {Environment.NewLine} " +
@@ -244,7 +274,7 @@ namespace Vodovoz.Domain.Documents
 
 			if(Status == MovementDocumentStatus.New) {
 				foreach(var item in Items) {
-					if(item.SendedAmount <= 0)
+					if(item.SentAmount <= 0)
 						yield return new ValidationResult(String.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
 							new[] { this.GetPropertyName(o => o.Items) });
 				}
@@ -284,7 +314,7 @@ namespace Vodovoz.Domain.Documents
 
 			var item = new MovementDocumentItem {
 				Nomenclature = nomenclature,
-				SendedAmount = amount,
+				SentAmount = amount,
 				AmountOnSource = inStock,
 				Document = this
 			};
@@ -333,7 +363,7 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			foreach(var item in Items) {
-				item.ReceivedAmount = item.SendedAmount;
+				item.ReceivedAmount = item.SentAmount;
 				item.UpdateWriteoffOperation();
 			}
 		}

@@ -1,0 +1,69 @@
+﻿using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using Vodovoz.Domain.Goods;
+
+namespace Vodovoz.Domain.Operations
+{
+	[Appellative (Gender = GrammaticalGender.Neuter,
+		NominativePlural = "передвижения товаров",
+		Nominative = "передвижение товаров")]
+	public class GoodsAccountingOperation : OperationBase
+	{
+		private Nomenclature _nomenclature;
+		private decimal _primeCost;
+		private decimal _amount;
+
+		#region Свойства
+
+		[Required (ErrorMessage = "Номенклатура должна быть заполнена.")]
+		[Display (Name = "Номенклатура")]
+		public virtual Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
+		}
+
+		public virtual decimal PrimeCost
+		{
+			get => _primeCost;
+			set => SetField(ref _primeCost, value);
+		}
+
+		public virtual decimal Amount
+		{
+			get => _amount;
+			set => SetField (ref _amount, value);
+		}
+
+		#endregion
+		
+		public virtual GoodsAccountingOperationType GoodsAccountingOperationType { get; }
+		public virtual OperationTypeByStore OperationTypeByStore { get; }
+
+		#region Вычисляемые
+
+		public virtual string Title
+		{
+			get
+			{
+				return null;
+			}
+		}
+
+		#endregion
+	}
+
+	public enum GoodsAccountingOperationType
+	{
+		InstanceGoodsAccountingOperation,
+		BulkGoodsAccountingOperation
+	}
+	
+	public enum OperationTypeByStore
+	{
+		Warehouse,
+		Employee,
+		Car
+	}
+}
+

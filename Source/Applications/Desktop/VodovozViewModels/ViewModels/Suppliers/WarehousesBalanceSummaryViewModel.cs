@@ -22,6 +22,7 @@ using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Suppliers
 {
+	//TODO проверить работу вью модели
 	public class WarehousesBalanceSummaryViewModel : DialogTabViewModelBase
 	{
 		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
@@ -157,39 +158,39 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			#region Запросы
 
-			WarehouseMovementOperation inAlias = null;
-			WarehouseMovementOperation woAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
+			GoodsAccountingOperation woAlias = null;
 			BalanceBean resultAlias = null;
 
-			var inQuery = localUow.Session.QueryOver(() => inAlias)
-				.Where(() => inAlias.OperationTime <= endDate)
+			var balanceQuery = localUow.Session.QueryOver(() => operationAlias)
+				.Where(() => operationAlias.OperationTime <= endDate)
 				.AndNot(() => nomAlias.IsArchive)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
-				.Where(Restrictions.In(Projections.Property(() => inAlias.IncomingWarehouse.Id), warsIds))
+				.WhereRestrictionOn(() => operationAlias.Warehouse.Id).IsIn(warsIds)
 				.SelectList(list => list
-					.SelectGroup(() => inAlias.IncomingWarehouse.Id).WithAlias(() => resultAlias.WarehouseId)
+					.SelectGroup(() => operationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
 					.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
-					.Select(Projections.Sum(Projections.Property(() => inAlias.Amount))).WithAlias(() => resultAlias.Amount)
+					.Select(Projections.Sum(Projections.Property(() => operationAlias.Amount))).WithAlias(() => resultAlias.Amount)
 				)
 				.OrderBy(() => nomAlias.Id).Asc
-				.ThenBy(() => inAlias.IncomingWarehouse.Id).Asc
+				.ThenBy(() => operationAlias.Warehouse.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 
-			var woQuery = localUow.Session.QueryOver(() => woAlias)
+			/*var woQuery = localUow.Session.QueryOver(() => woAlias)
 				.Where(() => woAlias.OperationTime <= endDate)
 				.AndNot(() => nomAlias.IsArchive)
 				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
-				.Where(Restrictions.In(Projections.Property(() => woAlias.WriteoffWarehouse.Id), warsIds))
+				.Where(Restrictions.In(Projections.Property(() => woAlias.WriteOffWarehouse.Id), warsIds))
 				.SelectList(list => list
-					.SelectGroup(() => woAlias.WriteoffWarehouse.Id).WithAlias(() => resultAlias.WarehouseId)
+					.SelectGroup(() => woAlias.WriteOffWarehouse.Id).WithAlias(() => resultAlias.WarehouseId)
 					.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
 					.Select(Projections.Sum(Projections.Property(() => woAlias.Amount))).WithAlias(() => resultAlias.Amount)
 				)
 				.OrderBy(() => nomAlias.Id).Asc
-				.ThenBy(() => woAlias.WriteoffWarehouse.Id).Asc
-				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+				.ThenBy(() => woAlias.WriteOffWarehouse.Id).Asc
+				.TransformUsing(Transformers.AliasToBean<BalanceBean>());*/
 
-			var msQuery = localUow.Session.QueryOver(() => nomAlias)
+			var minStockQuery = localUow.Session.QueryOver(() => nomAlias)
 				.WhereNot(() => nomAlias.IsArchive)
 				.Select(n => n.MinStockCount)
 				.OrderBy(n => n.Id).Asc;
@@ -197,34 +198,34 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
-				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
-				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
-				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				balanceQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				//woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 			}
 
 			if(nomsSelected && !allNomsSelected)
 			{
-				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
-				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
-				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				balanceQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				//woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 			}
 
 			if(groupsSelected)
 			{
-				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
-				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
-				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				balanceQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				//woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 			}
 
 			#endregion
 
 			var batch = localUow.Session.CreateQueryBatch()
-				.Add<BalanceBean>("in", inQuery)
-				.Add<BalanceBean>("wo", woQuery)
-				.Add<decimal>("ms", msQuery);
+				.Add<BalanceBean>("in", balanceQuery)
+				//.Add<BalanceBean>("wo", woQuery)
+				.Add<decimal>("ms", minStockQuery);
 
 			var inResult = batch.GetResult<BalanceBean>("in").ToArray();
-			var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
+			//var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
 			var msResult = batch.GetResult<decimal>("ms").ToArray();
 
 			//Кол-во списаний != кол-во начислений, используется два счетчика
@@ -256,7 +257,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						}
 					}
 
-					if(removedCounter != woResult.Length)
+					/*if(removedCounter != woResult.Length)
 					{
 						var tempWo = woResult[removedCounter];
 						if(tempWo.WarehouseId == warId && tempWo.NomId == row.NomId)
@@ -264,7 +265,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 							row.Separate[warsCounter] -= tempWo.Amount;
 							removedCounter++;
 						}
-					}
+					}*/
 				}
 
 				AddRow(ref report, row);

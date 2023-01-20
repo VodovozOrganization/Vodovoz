@@ -29,8 +29,8 @@ namespace Vodovoz
 	public partial class WriteoffDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly ICullingCategoryRepository _cullingCategoryRepository = new CullingCategoryRepository();
-		GenericObservableList<WriteoffDocumentItem> items;
-		WriteoffDocumentItem FineEditItem;
+		GenericObservableList<WriteOffDocumentItem> items;
+		WriteOffDocumentItem FineEditItem;
 
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -40,20 +40,20 @@ namespace Vodovoz
 			treeItemsList.Selection.Changed += OnSelectionChanged;
 		}
 
-		private IUnitOfWorkGeneric<WriteoffDocument> documentUoW;
+		private IUnitOfWorkGeneric<WriteOffDocument> documentUoW;
 
-		public IUnitOfWorkGeneric<WriteoffDocument> DocumentUoW {
+		public IUnitOfWorkGeneric<WriteOffDocument> DocumentUoW {
 			get { return documentUoW; }
 			set {
 				if (documentUoW == value)
 					return;
 				documentUoW = value;
 				if (DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<WriteoffDocumentItem> ();
+					DocumentUoW.Root.Items = new List<WriteOffDocumentItem> ();
 				items = DocumentUoW.Root.ObservableItems;
-				treeItemsList.ColumnsConfig = ColumnsConfigFactory.Create<WriteoffDocumentItem>()
+				treeItemsList.ColumnsConfig = ColumnsConfigFactory.Create<WriteOffDocumentItem>()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
-					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
+					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.InventoryNumber)
 					.AddColumn ("Количество")
 					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
 					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
@@ -72,14 +72,14 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonDeleteClicked (object sender, EventArgs e)
+		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			items.Remove (treeItemsList.GetSelectedObjects () [0] as WriteoffDocumentItem);
+			items.Remove (treeItemsList.GetSelectedObjects () [0] as WriteOffDocumentItem);
 		}
 
-		void OnSelectionChanged (object sender, EventArgs e)
+		void OnSelectionChanged(object sender, EventArgs e)
 		{
-			var selected = treeItemsList.GetSelectedObject<WriteoffDocumentItem>();
+			var selected = treeItemsList.GetSelectedObject<WriteOffDocumentItem>();
 			buttonDelete.Sensitive = treeItemsList.Selection.CountSelectedRows () > 0;
 			buttonFine.Sensitive = selected != null;
 			if(selected != null)
@@ -92,7 +92,7 @@ namespace Vodovoz
 			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
-		protected void OnButtonAddClicked (object sender, EventArgs e)
+		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
 			ITdiTab mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null) {
@@ -127,7 +127,7 @@ namespace Vodovoz
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)
 		{
-			var selected = treeItemsList.GetSelectedObject<WriteoffDocumentItem>();
+			var selected = treeItemsList.GetSelectedObject<WriteOffDocumentItem>();
 			FineDlg fineDlg;
 			if (selected.Fine != null)
 			{
@@ -144,20 +144,20 @@ namespace Vodovoz
 			MyTab.TabParent.AddSlaveTab(MyTab, fineDlg);
 		}
 
-		void FineDlgNew_EntitySaved (object sender, EntitySavedEventArgs e)
+		void FineDlgNew_EntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			FineEditItem.Fine = e.Entity as Fine;
 			FineEditItem = null;
 		}
 
-		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
+		void FineDlgExist_EntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			DocumentUoW.Session.Refresh(FineEditItem.Fine);
 		}
 
 		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
 		{
-			var item = treeItemsList.GetSelectedObject<WriteoffDocumentItem>();
+			var item = treeItemsList.GetSelectedObject<WriteOffDocumentItem>();
 			DocumentUoW.Delete(item.Fine);
 			item.Fine = null;
 			OnSelectionChanged(null, EventArgs.Empty);

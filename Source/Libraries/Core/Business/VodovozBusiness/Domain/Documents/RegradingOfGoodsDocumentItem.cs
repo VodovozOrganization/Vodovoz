@@ -9,6 +9,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
+	//TODO поправить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки пересортицы",
 		Nominative = "строка пересортицы")]
@@ -107,16 +108,16 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref source, value, () => Source); }
 		}
 
-		WarehouseMovementOperation warehouseWriteOffOperation = new WarehouseMovementOperation();
+		GoodsAccountingOperation warehouseWriteOffOperation = new GoodsAccountingOperation();
 
-		public virtual WarehouseMovementOperation WarehouseWriteOffOperation {
+		public virtual GoodsAccountingOperation WarehouseWriteOffOperation {
 			get { return warehouseWriteOffOperation; }
 			set { SetField (ref warehouseWriteOffOperation, value, () => WarehouseWriteOffOperation); }
 		}
 
-		WarehouseMovementOperation warehouseIncomeOperation = new WarehouseMovementOperation();
+		GoodsAccountingOperation warehouseIncomeOperation = new GoodsAccountingOperation();
 
-		public virtual WarehouseMovementOperation WarehouseIncomeOperation {
+		public virtual GoodsAccountingOperation WarehouseIncomeOperation {
 			get { return warehouseIncomeOperation; }
 			set { SetField (ref warehouseIncomeOperation, value, () => WarehouseIncomeOperation); }
 		}
@@ -155,16 +156,16 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
-			WarehouseWriteOffOperation = new WarehouseMovementOperation
+			WarehouseWriteOffOperation = new GoodsAccountingOperation
 				{
-					WriteoffWarehouse = warehouse,
+					//WriteOffWarehouse = warehouse,
 					Amount = Amount,
 					OperationTime = time,
 					Nomenclature = NomenclatureOld
 				};
-			WarehouseIncomeOperation = new WarehouseMovementOperation
+			WarehouseIncomeOperation = new GoodsAccountingOperation
 				{
-					IncomingWarehouse = warehouse,
+					//IncomingWarehouse = warehouse,
 					Amount = Amount,
 					OperationTime = time,
 					Nomenclature = NomenclatureNew

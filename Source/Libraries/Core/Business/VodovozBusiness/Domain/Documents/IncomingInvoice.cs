@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -22,100 +20,101 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class IncomingInvoice : Document, IValidatableObject
 	{
-		IList<IncomingInvoiceItem> items = new List<IncomingInvoiceItem>();
+		private string _invoiceNumber;
+		private string _waybillNumber;
+		private string _comment;
+		private Counterparty _contractor;
+		private Warehouse _warehouse;
+
+		private IList<IncomingInvoiceItem> _items = new List<IncomingInvoiceItem>();
+		private GenericObservableList<IncomingInvoiceItem> _observableItems;
 
 		[Display(Name = "Строки")]
-		public virtual IList<IncomingInvoiceItem> Items {
-			get => items;
-			set {
-				SetField(ref items, value, () => Items);
-				observableItems = null;
+		public virtual IList<IncomingInvoiceItem> Items
+		{
+			get => _items;
+			set
+			{
+				SetField(ref _items, value);
+				_observableItems = null;
 			}
 		}
 
-		GenericObservableList<IncomingInvoiceItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<IncomingInvoiceItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<IncomingInvoiceItem>(Items);
-				return observableItems;
-			}
-		}
+		public virtual GenericObservableList<IncomingInvoiceItem> ObservableItems =>
+			_observableItems ?? (_observableItems = new GenericObservableList<IncomingInvoiceItem>(Items));
 
 		#region Properties
 
-		public override DateTime TimeStamp {
+		public override DateTime TimeStamp
+		{
 			get => base.TimeStamp;
-			set {
+			set
+			{
 				base.TimeStamp = value;
-				foreach(var item in Items) {
-					if(item.IncomeGoodsOperation.OperationTime != TimeStamp)
-						item.IncomeGoodsOperation.OperationTime = TimeStamp;
+				foreach(var item in Items)
+				{
+					item.UpdateOperation(nameof(GoodsAccountingOperation.OperationTime), value);
 				}
 			}
 		}
 
-		string invoiceNumber;
-
 		[Display(Name = "Номер счета-фактуры")]
-		public virtual string InvoiceNumber {
-			get => invoiceNumber;
-			set => SetField(ref invoiceNumber, value, () => InvoiceNumber);
+		public virtual string InvoiceNumber
+		{
+			get => _invoiceNumber;
+			set => SetField(ref _invoiceNumber, value);
 		}
-
-		string waybillNumber;
 
 		[Display(Name = "Номер входящей накладной")]
-		public virtual string WaybillNumber {
-			get => waybillNumber;
-			set => SetField(ref waybillNumber, value, () => WaybillNumber);
+		public virtual string WaybillNumber
+		{
+			get => _waybillNumber;
+			set => SetField(ref _waybillNumber, value);
 		}
-
-		Counterparty contractor;
 
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Contractor {
-			get => contractor;
-			set => SetField(ref contractor, value, () => Contractor);
+		public virtual Counterparty Contractor
+		{
+			get => _contractor;
+			set => SetField(ref _contractor, value);
 		}
+		
 		public virtual decimal TotalSum
 		{
 			get
 			{
 				decimal total = 0;
-				foreach (var item in Items) {
+				foreach(var item in Items)
+				{
 					total += item.Sum;
 				}
 				return total;
 			}
 		}
-		
-		Warehouse warehouse;
 
 		[Display(Name = "Склад")]
 		[Required(ErrorMessage = "Склад должен быть указан.")]
-		public virtual Warehouse Warehouse {
-			get => warehouse;
-			set {
-				SetField(ref warehouse, value, () => Warehouse);
-				foreach(var item in Items) {
-					if(item.IncomeGoodsOperation.IncomingWarehouse != warehouse)
-						item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set
+			{
+				SetField(ref _warehouse, value);
+				foreach(var item in Items)
+				{
+					item.UpdateOperation(nameof(WarehouseBulkGoodsAccountingOperation.Warehouse), value);
 				}
 			}
 		}
-
-		string comment;
-
+		
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
-		
 
-		public virtual string Title => string.Format("Поступление №{0} от {1:d}", Id, TimeStamp);
+		public virtual string Title => $"Поступление №{Id} от {TimeStamp:d}";
 		
 		public virtual bool CanAddItem => true;
 		public virtual bool CanDeleteItems => true;
@@ -123,21 +122,28 @@ namespace Vodovoz.Domain.Documents
 		#endregion
 		
 		#region Functions
-
 		
 		public virtual void AddItem(IncomingInvoiceItem item)
 		{
-			if (!CanAddItem) return;
+			if(!CanAddItem)
+			{
+				return;
+			}
 
-			item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
-			item.IncomeGoodsOperation.OperationTime = TimeStamp;
+			item.UpdateOperation(nameof(WarehouseBulkGoodsAccountingOperation.Warehouse), _warehouse);
+			item.GoodsAccountingOperation.OperationTime = TimeStamp;
+			
 			item.Document = this;
 			ObservableItems.Add(item);
 		}
+		
 		public virtual void DeleteItem(IncomingInvoiceItem item)
 		{
-			if(item == null || !CanDeleteItems || !ObservableItems.Contains(item)) 
+			if(item == null || !CanDeleteItems || !ObservableItems.Contains(item))
+			{
 				return;
+			}
+
 			ObservableItems.Remove(item);
 		}
 		
@@ -149,26 +155,28 @@ namespace Vodovoz.Domain.Documents
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			int maxCommentLength = 500;
-			if(Comment?.Length > maxCommentLength) {
+			var maxCommentLength = 500;
+			if(Comment?.Length > maxCommentLength)
+			{
 				yield return new ValidationResult(
 					$"Строка комментария слишком длинная. Максимальное количество символов: {maxCommentLength}",
-					new[] { this.GetPropertyName(o => o.Items) }
+					new[] { nameof(Items) }
 				);
 			}
 
 			if(!Items.Any())
-				yield return new ValidationResult(
-					string.Format("Табличная часть документа пустая."),
-					new[] { this.GetPropertyName(o => o.Items) }
-				);
+			{
+				yield return new ValidationResult("Табличная часть документа пустая", new[] { nameof(Items) });
+			}
 
 			foreach(var item in Items) {
 				if(item.Amount <= 0)
+				{
 					yield return new ValidationResult(
-						string.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
-						new[] { this.GetPropertyName(o => o.Items) }
+						$"Для номенклатуры <{item.Nomenclature.Name}> не указано количество.",
+						new[] { nameof(Items) }
 					);
+				}
 			}
 
 			var needWeightOrVolume = Items
@@ -190,29 +198,21 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			if(string.IsNullOrWhiteSpace(WaybillNumber) || string.IsNullOrWhiteSpace(InvoiceNumber))
-				yield return new ValidationResult(
-					string.Format("\"Номер счета-фактуры\" и \"Номер входящей накладной\" должны быть указаны"),
-					new[] {
-						this.GetPropertyName(o => o.WaybillNumber),
-						this.GetPropertyName(o => o.InvoiceNumber)
-					}
+			{
+				yield return new ValidationResult("\"Номер счета-фактуры\" и \"Номер входящей накладной\" должны быть указаны",
+					new[] { nameof(WaybillNumber), nameof(InvoiceNumber) }
 				);
+			}
 
 			if(Contractor == null)
-				yield return new ValidationResult(
-					string.Format("\"Контрагент\" должен быть указан"),
-					new[] {
-						this.GetPropertyName(o => o.Contractor)
-					}
-				);
+			{
+				yield return new ValidationResult("\"Контрагент\" должен быть указан", new[] { nameof(Contractor) });
+			}
 
 			if(string.IsNullOrWhiteSpace(Comment))
-				yield return new ValidationResult(
-					string.Format("Добавьте комментарий"),
-					new[] {
-						this.GetPropertyName(o => o.Comment)
-					}
-				);
+			{
+				yield return new ValidationResult("Добавьте комментарий", new[] { nameof(Comment) });
+			}
 		}
 
 		#endregion

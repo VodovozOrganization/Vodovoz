@@ -171,8 +171,8 @@ namespace Vodovoz.Domain.Documents
 			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
-			string[] nomenclatureTypeToInclude,
-			string[] nomenclatureTypeToExclude,
+			NomenclatureCategory[] nomenclatureTypeToInclude,
+			NomenclatureCategory[] nomenclatureTypeToExclude,
 			int[] productGroupToInclude,
 			int[] productGroupToExclude)
 		{
@@ -215,8 +215,8 @@ namespace Vodovoz.Domain.Documents
 			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
-			string[] nomenclatureTypeToInclude,
-			string[] nomenclatureTypeToExclude,
+			NomenclatureCategory[] nomenclatureTypeToInclude,
+			NomenclatureCategory[] nomenclatureTypeToExclude,
 			int[] productGroupToInclude,
 			int[] productGroupToExclude)
 		{

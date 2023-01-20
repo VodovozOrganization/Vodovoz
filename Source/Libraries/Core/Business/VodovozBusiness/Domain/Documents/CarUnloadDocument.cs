@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Documents
 {
+	//TODO поправить класс
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "талоны разгрузки автомобилей",
 		Nominative = "талон разгрузки автомобиля")]
@@ -133,11 +134,11 @@ namespace Vodovoz.Domain.Documents
 			DefectSource source = DefectSource.None, 
 			CullingCategory typeOfDefect = null)
 		{
-			var warehouseMovementOperation = new WarehouseMovementOperation {
+			var warehouseMovementOperation = new GoodsAccountingOperation {
 				Amount = amount,
 				Nomenclature = nomenclature,
-				IncomingWarehouse = Warehouse,
-				Equipment = equipment,
+				//IncomingWarehouse = Warehouse,
+				//Equipment = equipment,
 				OperationTime = TimeStamp
 			};
 			
@@ -150,7 +151,7 @@ namespace Vodovoz.Domain.Documents
 
 			var item = new CarUnloadDocumentItem {
 				ReciveType = reciveType,
-				WarehouseMovementOperation = warehouseMovementOperation,
+				GoodsAccountingOperation = warehouseMovementOperation,
 				EmployeeNomenclatureMovementOperation = employeeNomenclatureMovementOperation,
 				ServiceClaim = serviceClaim,
 				Redhead = redhead,
@@ -167,9 +168,9 @@ namespace Vodovoz.Domain.Documents
 				return;
 			
 			foreach(var item in Items) {
-				if(item.WarehouseMovementOperation != null) {
-					item.WarehouseMovementOperation.IncomingWarehouse = Warehouse;
-				}
+				/*if(item.GoodsAccountingOperation != null) {
+					item.GoodsAccountingOperation.IncomingWarehouse = Warehouse;
+				}*/
 			}
 		}
 
@@ -183,9 +184,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual bool IsDefaultBottle(CarUnloadDocumentItem item)
 		{
-			if(item.WarehouseMovementOperation?.Nomenclature.Id != DefBottleId)
+			if(item.GoodsAccountingOperation?.Nomenclature.Id != DefBottleId)
 				return false;
-			TareToReturn += (int)(item.WarehouseMovementOperation?.Amount ?? 0);
+			TareToReturn += (int)(item.GoodsAccountingOperation?.Amount ?? 0);
 			return true;
 		}
 
@@ -196,8 +197,8 @@ namespace Vodovoz.Domain.Documents
 		private void UpdateOperationsTime()
 		{
 			foreach(var item in Items) {
-				if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
-					item.WarehouseMovementOperation.OperationTime = TimeStamp;
+				if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
+					item.GoodsAccountingOperation.OperationTime = TimeStamp;
 				if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.OperationTime != TimeStamp)
 					item.EmployeeNomenclatureMovementOperation.OperationTime = TimeStamp;
 			}
@@ -227,15 +228,15 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			foreach(var item in Items) {
-				if(item.WarehouseMovementOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.WarehouseMovementOperation.Amount < 0) {
+				if(item.GoodsAccountingOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.GoodsAccountingOperation.Amount < 0) {
 					yield return new ValidationResult(
-						$"Для оборудования {item.WarehouseMovementOperation.Nomenclature.Name}, нельзя указывать отрицательное значение.",
+						$"Для оборудования {item.GoodsAccountingOperation.Nomenclature.Name}, нельзя указывать отрицательное значение.",
 						new[] { nameof(Items) }
 					);
 				}
-				if(item.WarehouseMovementOperation.Nomenclature.IsDefectiveBottle && item.TypeOfDefect == null) {
+				if(item.GoodsAccountingOperation.Nomenclature.IsDefectiveBottle && item.TypeOfDefect == null) {
 					yield return new ValidationResult(
-						$"Для брака {item.WarehouseMovementOperation.Nomenclature.Name} необходимо указать его вид",
+						$"Для брака {item.GoodsAccountingOperation.Nomenclature.Name} необходимо указать его вид",
 						new[] { nameof(Items) }
 					);
 				}
@@ -254,7 +255,7 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			var needWeightOrVolume = Items
-				.Select(item => item.WarehouseMovementOperation.Nomenclature)
+				.Select(item => item.GoodsAccountingOperation.Nomenclature)
 				.Where(nomenclature =>
 					Nomenclature.CategoriesWithWeightAndVolume.Contains(nomenclature.Category)
 					&& (nomenclature.Weight == default

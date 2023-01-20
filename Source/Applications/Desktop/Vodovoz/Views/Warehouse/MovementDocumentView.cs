@@ -57,7 +57,7 @@ namespace Vodovoz.Views.Warehouse
 					.AddColumn("Наименование").HeaderAlignment(0.5f)
 						.AddTextRenderer(i => i.Name)
 					.AddColumn("Отправлено").HeaderAlignment(0.5f)
-						.AddNumericRenderer(i => i.SendedAmount, false)
+						.AddNumericRenderer(i => i.SentAmount, false)
 						.XAlign(0.5f)
 						.AddSetter((c, i) => c.Editable = ViewModel.CanEditSendedAmount)
 						.WidthChars(10)

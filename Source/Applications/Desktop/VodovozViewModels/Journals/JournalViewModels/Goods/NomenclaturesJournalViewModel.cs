@@ -23,6 +23,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
+	//TODO проверить работу запроса и убрать из выборки экземпляры
 	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureJournalNode, NomenclatureFilterViewModel>
 	{
 		private readonly IEmployeeService employeeService;
@@ -55,7 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			UpdateOnChanges(
 				typeof(Nomenclature),
 				typeof(MeasurementUnits),
-				typeof(WarehouseMovementOperation),
+				typeof(GoodsAccountingOperation),
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
@@ -127,22 +128,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
 			NomenclatureJournalNode resultAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 
-			var subqueryAdded = QueryOver.Of(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+			var subQueryBalance = QueryOver.Of(() => operationAlias)
+				.Where(() => operationAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Select(Projections.Sum<GoodsAccountingOperation>(o => o.Amount));
 
-			var subqueryRemoved = QueryOver.Of(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-
-			var subqueryReserved = QueryOver.Of(() => orderAlias)
+			var subQueryReserved = QueryOver.Of(() => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
 				.Where(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Where(() => nomenclatureAlias.DoNotReserve == false)
@@ -157,7 +151,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				itemsQuery.Where(() => !nomenclatureAlias.IsArchive);
 
 			if(FilterViewModel.RestrictedExcludedIds != null && FilterViewModel.RestrictedExcludedIds.Any()) {
-				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(FilterViewModel.RestrictedExcludedIds.ToArray()));
+				itemsQuery.WhereRestrictionOn(() => nomenclatureAlias.Id).Not.IsInG(FilterViewModel.RestrictedExcludedIds);
 			}
 
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
@@ -201,25 +195,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 						.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 						.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 						.Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
-						.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)
-						.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
-						.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved)
-					)
+						.SelectSubQuery(subQueryBalance).WithAlias(() => resultAlias.InStock)
+						.SelectSubQuery(subQueryReserved).WithAlias(() => resultAlias.Reserved))
 					.OrderBy(x => x.Name).Asc
-					.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>())
-					;
-			} else {
+					.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>());
+			}
+			else
+			{
 				itemsQuery.Where(() => !nomenclatureAlias.IsSerial)
 					.SelectList(list => list
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
 						.Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
-						.Select(() => false).WithAlias(() => resultAlias.CalculateQtyOnStock)
-					)
+						.Select(() => false).WithAlias(() => resultAlias.CalculateQtyOnStock))
 					.OrderBy(x => x.Name).Asc
-					.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>())
-					;
+					.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>());
 			}
 
 			return itemsQuery;

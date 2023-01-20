@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.Documents.DriverTerminal
 		private Employee _author;
 		private Employee _driver;
 		private DateTime _creationDate;
-		private WarehouseMovementOperation _warehouseMovementOperation;
+		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 		private EmployeeNomenclatureMovementOperation _employeeNomenclatureMovementOperation;
 
 		#region Свойства
@@ -45,10 +45,10 @@ namespace Vodovoz.Domain.Documents.DriverTerminal
 		}
 
 		[Display(Name = "Операция передвижения товаров по складу")]
-		public virtual WarehouseMovementOperation WarehouseMovementOperation
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
 		{
-			get => _warehouseMovementOperation;
-			set => SetField(ref _warehouseMovementOperation, value);
+			get => _goodsAccountingOperation;
+			set => SetField(ref _goodsAccountingOperation, value);
 		}
 		
 		[Display(Name = "Операция передвижения товаров сотрудника")]

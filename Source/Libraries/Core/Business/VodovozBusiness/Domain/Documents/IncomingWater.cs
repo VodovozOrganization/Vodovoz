@@ -14,6 +14,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
+	//TODO поправить класс
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы производства",
 		Nominative = "документ производства")]
@@ -21,8 +22,6 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class IncomingWater : Document, IValidatableObject
 	{
-
-
 		Nomenclature product;
 
 		[Required(ErrorMessage = "Продукт должн быть заполнен.")]
@@ -63,8 +62,8 @@ namespace Vodovoz.Domain.Documents
 			get { return incomingWarehouse; }
 			set {
 				SetField(ref incomingWarehouse, value, () => IncomingWarehouse);
-				if(ProduceOperation.IncomingWarehouse != IncomingWarehouse)
-					ProduceOperation.IncomingWarehouse = IncomingWarehouse;
+				/*if(ProduceOperation.IncomingWarehouse != IncomingWarehouse)
+					ProduceOperation.IncomingWarehouse = IncomingWarehouse;*/
 			}
 		}
 
@@ -77,19 +76,19 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField(ref writeOffWarehouse, value, () => WriteOffWarehouse);
 				foreach(var item in Materials) {
-					if(item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.WriteoffWarehouse != WriteOffWarehouse)
-						item.ConsumptionMaterialOperation.WriteoffWarehouse = WriteOffWarehouse;
+					/*if(item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.WriteOffWarehouse != WriteOffWarehouse)
+						item.ConsumptionMaterialOperation.WriteOffWarehouse = WriteOffWarehouse;*/
 				}
 			}
 		}
 
 		public virtual string Title => String.Format("Документ производства №{0} от {1:d}", Id, TimeStamp);
 
-		WarehouseMovementOperation produceOperation = new WarehouseMovementOperation() {
+		GoodsAccountingOperation produceOperation = new GoodsAccountingOperation() {
 			OperationTime = DateTime.Now
 		};
 
-		public virtual WarehouseMovementOperation ProduceOperation {
+		public virtual GoodsAccountingOperation ProduceOperation {
 			get { return produceOperation; }
 			set { SetField(ref produceOperation, value, () => ProduceOperation); }
 		}

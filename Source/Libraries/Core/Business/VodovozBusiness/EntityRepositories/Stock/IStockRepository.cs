@@ -23,8 +23,8 @@ namespace Vodovoz.EntityRepositories.Stock
 			int warehouseId,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
-			string[] nomenclatureTypeToInclude,
-			string[] nomenclatureTypeToExclude,
+			NomenclatureCategory[] nomenclatureTypeToInclude,
+			NomenclatureCategory[] nomenclatureTypeToExclude,
 			int[] productGroupToInclude,
 			int[] productGroupToExclude,
 			DateTime? onDate = null);

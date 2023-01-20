@@ -54,7 +54,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				treeItemsList.ColumnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<MovementDocumentItem>.Create()
 					.AddColumn("Наименование").AddTextRenderer(i => i.Name)
 					.AddColumn("Количество")
-					.AddNumericRenderer(i => i.SendedAmount).Editing().WidthChars(10)
+					.AddNumericRenderer(i => i.SentAmount).Editing().WidthChars(10)
 					.AddSetter((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
 					.AddSetter((c, i) => c.Editable = i.CanEditAmount)
 					.AddSetter((c, i) => c.Adjustment = new Adjustment(0, 0, (double)i.AmountOnSource, 1, 100, 0))

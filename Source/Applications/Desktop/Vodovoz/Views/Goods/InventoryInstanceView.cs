@@ -1,9 +1,6 @@
-﻿using QS.Navigation;
-using QS.ViewModels.Control.EEVM;
+﻿using System;
+using QS.Navigation;
 using QS.Views;
-using Vodovoz.Domain.Goods;
-using Vodovoz.ViewModels.Dialogs.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.Views.Goods
@@ -18,10 +15,14 @@ namespace Vodovoz.Views.Goods
 
 		private void Configure()
 		{
-			btnSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			btnSave.Clicked += OnSaveClicked;
+			btnCancel.Clicked += OnCancelClicked;
 
-			ConfigureNomenclatureEntry();
+			entryNomenclature.ViewModel = ViewModel.NomenclatureViewModel;
+			
+			inventoryNumberEntry.Binding
+				.AddBinding(ViewModel.Entity, e => e.InventoryNumber, w => w.Text)
+				.InitializeFromSource();
 			
 			spinBtnPurchasePrice.Binding
 				.AddBinding(ViewModel.Entity, vm => vm.PurchasePrice, w => w.ValueAsDecimal)
@@ -34,15 +35,14 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 		}
 
-		private void ConfigureNomenclatureEntry()
+		private void OnSaveClicked(object sender, EventArgs e)
 		{
-			var builder = new CommonEEVMBuilderFactory<InventoryNomenclatureInstance>(
-				ViewModel, ViewModel.Entity, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
-
-			entryNomenclature.ViewModel = builder.ForProperty(x => x.Nomenclature)
-				.UseViewModelDialog<NomenclatureViewModel>()
-				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
-				.Finish();
+			ViewModel.SaveAndClose();
+		}
+		
+		private void OnCancelClicked(object sender, EventArgs e)
+		{
+			ViewModel.Close(false, CloseSource.Cancel);
 		}
 	}
 }

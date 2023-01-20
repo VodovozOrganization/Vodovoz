@@ -12,6 +12,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
+	//TODO поправить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "пересортицы товаров",
 		Nominative = "пересортица товаров")]
@@ -50,10 +51,10 @@ namespace Vodovoz.Domain.Documents
 				SetField (ref warehouse, value, () => Warehouse);
 
 				foreach (var item in Items) {
-					if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.WriteoffWarehouse != Warehouse)
-						item.WarehouseWriteOffOperation.WriteoffWarehouse = Warehouse;
+					/*if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.WriteOffWarehouse != Warehouse)
+						item.WarehouseWriteOffOperation.WriteOffWarehouse = Warehouse;
 					if (item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.IncomingWarehouse != Warehouse)
-						item.WarehouseIncomeOperation.IncomingWarehouse = Warehouse;
+						item.WarehouseIncomeOperation.IncomingWarehouse = Warehouse;*/
 				}
 			}
 		}
@@ -88,8 +89,8 @@ namespace Vodovoz.Domain.Documents
 			item.Document = this;
 			item.WarehouseIncomeOperation.OperationTime = item.WarehouseWriteOffOperation.OperationTime
 				= TimeStamp;
-			item.WarehouseIncomeOperation.IncomingWarehouse = item.WarehouseWriteOffOperation.WriteoffWarehouse
-				= Warehouse;
+			//item.WarehouseIncomeOperation.IncomingWarehouse = item.WarehouseWriteOffOperation.WriteOffWarehouse
+			//	= Warehouse;
 			ObservableItems.Add (item);
 		}
 

@@ -10,72 +10,73 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
+	//TODO поправить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки инвентаризации",
 		Nominative = "строка инвентаризации")]
 	[HistoryTrace]
 	public class InventoryDocumentItem: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private Nomenclature _nomenclature;
+		private decimal _amountInDb;
+		private decimal _amountInFact;
+		private string _comment;
+		private Fine _fine;
+		private GoodsAccountingOperation _warehouseChangeOperation;
+
 		public virtual int Id { get; set; }
 
 		public virtual InventoryDocument Document { get; set; }
 
-		Nomenclature nomenclature;
-
 		[Required (ErrorMessage = "Номенклатура должна быть заполнена.")]
 		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set {
-				SetField (ref nomenclature, value, () => Nomenclature);
+		public virtual Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set
+			{
+				SetField (ref _nomenclature, value);
 
-				if (WarehouseChangeOperation != null && WarehouseChangeOperation.Nomenclature != nomenclature)
-					WarehouseChangeOperation.Nomenclature = nomenclature;
+				if(WarehouseChangeOperation != null && WarehouseChangeOperation.Nomenclature != _nomenclature)
+				{
+					WarehouseChangeOperation.Nomenclature = _nomenclature;
+				}
 			}
 		}
-
-		decimal amountInDB;
 
 		[Display (Name = "Количество по базе")]
-		public virtual decimal AmountInDB {
-			get { return amountInDB; }
-			set {
-				SetField (ref amountInDB, value, () => AmountInDB);
-			}
+		public virtual decimal AmountInDB
+		{
+			get => _amountInDb;
+			set => SetField (ref _amountInDb, value);
 		}
-
-		decimal amountInFact;
 
 		[Display (Name = "Количество по базе")]
 		[PropertyChangedAlso("SumOfDamage")]
-		public virtual decimal AmountInFact {
-			get { return amountInFact; }
-			set {
-				SetField (ref amountInFact, value, () => AmountInFact);
-			}
+		public virtual decimal AmountInFact
+		{
+			get => _amountInFact;
+			set => SetField (ref _amountInFact, value);
 		}
-
-		string comment;
 
 		[Display (Name = "Комментарий")]
-		public virtual string Comment {
-			get { return comment; }
-			set { SetField (ref comment, value, () => Comment); }
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField (ref _comment, value);
 		}
-
-		Fine fine;
 
 		[Display (Name = "Штраф")]
-		public virtual Fine Fine {
-			get { return fine; }
-			set { SetField (ref fine, value, () => Fine); }
+		public virtual Fine Fine
+		{
+			get => _fine;
+			set => SetField (ref _fine, value);
 		}
 
-		WarehouseMovementOperation warehouseChangeOperation;
-
-		public virtual WarehouseMovementOperation WarehouseChangeOperation {
-			get { return warehouseChangeOperation; }
-			set { SetField (ref warehouseChangeOperation, value, () => WarehouseChangeOperation); }
+		public virtual GoodsAccountingOperation WarehouseChangeOperation
+		{
+			get => _warehouseChangeOperation;
+			set => SetField (ref _warehouseChangeOperation, value);
 		}
 
 		#region Расчетные
@@ -83,20 +84,13 @@ namespace Vodovoz.Domain.Documents
 		[Display(Name = "Сумма ущерба")]
 		public virtual decimal SumOfDamage => Difference <= 0 ? Nomenclature.SumOfDamage * Math.Abs(Difference) : 0;
 
-		public virtual string Title {
-			get{
-				return String.Format("[{2}] {0} - {1}",
-					Nomenclature.Name,
-					Nomenclature.Unit == null ? "" : Nomenclature.Unit.MakeAmountShortStr(AmountInFact),
-					Document.Title);
-			}
-		}
+		public virtual string Title =>
+			String.Format("[{2}] {0} - {1}",
+				Nomenclature.Name,
+				Nomenclature.Unit == null ? "" : Nomenclature.Unit.MakeAmountShortStr(AmountInFact),
+				Document.Title);
 
-		public virtual decimal Difference{
-			get {
-				return AmountInFact - AmountInDB;
-			}
-		}
+		public virtual decimal Difference => AmountInFact - AmountInDB;
 
 		#endregion
 
@@ -106,9 +100,9 @@ namespace Vodovoz.Domain.Documents
 		{
 			if(Difference < 0)
 			{
-				WarehouseChangeOperation = new WarehouseMovementOperation
+				WarehouseChangeOperation = new GoodsAccountingOperation
 					{
-						WriteoffWarehouse = warehouse,
+						//WriteOffWarehouse = warehouse,
 						Amount = Math.Abs(Difference),
 						OperationTime = time,
 						Nomenclature = Nomenclature
@@ -116,9 +110,9 @@ namespace Vodovoz.Domain.Documents
 			}
 			if(Difference > 0)
 			{
-				WarehouseChangeOperation = new WarehouseMovementOperation
+				WarehouseChangeOperation = new GoodsAccountingOperation
 					{
-						IncomingWarehouse = warehouse,
+						//IncomingWarehouse = warehouse,
 						Amount = Math.Abs(Difference),
 						OperationTime = time,
 						Nomenclature = Nomenclature
@@ -130,14 +124,14 @@ namespace Vodovoz.Domain.Documents
 		{
 			if(Difference < 0)
 			{
-				WarehouseChangeOperation.WriteoffWarehouse = warehouse;
-				WarehouseChangeOperation.IncomingWarehouse = null;
+				//WarehouseChangeOperation.WriteOffWarehouse = warehouse;
+				//WarehouseChangeOperation.IncomingWarehouse = null;
 				WarehouseChangeOperation.Amount = Math.Abs(Difference);
 			}
 			if(Difference > 0)
 			{
-				WarehouseChangeOperation.WriteoffWarehouse = null;
-				WarehouseChangeOperation.IncomingWarehouse = warehouse;
+				//WarehouseChangeOperation.WriteOffWarehouse = null;
+				//WarehouseChangeOperation.IncomingWarehouse = warehouse;
 				WarehouseChangeOperation.Amount = Math.Abs(Difference);
 			}
 		}

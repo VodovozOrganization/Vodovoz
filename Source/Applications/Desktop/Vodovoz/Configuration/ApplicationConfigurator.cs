@@ -219,7 +219,7 @@ namespace Vodovoz.Configuration
 			#region Складские документы
 
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
-            OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentView>();
+            OrmMain.AddObjectDescription<WriteOffDocument>().Dialog<WriteoffDocumentView>();
             OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
             OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
             OrmMain.AddObjectDescription<RegradingOfGoodsDocument>().Dialog<RegradingOfGoodsDocumentDlg>();

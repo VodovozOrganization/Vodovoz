@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 
 			_filterViewModel = _scope.Resolve<InventoryInstancesJournalFilterViewModel>(parameters);
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
-			//JournalFilter = _filterViewModel;
+			JournalFilter = _filterViewModel;
 		}
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)

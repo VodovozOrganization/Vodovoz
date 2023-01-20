@@ -226,6 +226,7 @@ namespace Vodovoz.EntityRepositories.Goods
 				.List<NomenclatureForRentNode>();
 		}
 		
+		//TODO проверить правильность работы запроса
 		/// <summary>
 		/// Запрос выбирающий количество добавленное на склад, отгруженное со склада 
 		/// и зарезервированное в заказах каждой номенклатуры по выбранному типу оборудования
@@ -233,19 +234,19 @@ namespace Vodovoz.EntityRepositories.Goods
 		public QueryOver<Nomenclature, Nomenclature> QueryAvailableNonSerialEquipmentForRent(EquipmentKind kind)
 		{
 			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAddAlias = null;
 
 			//Подзапрос выбирающий по номенклатуре количество добавленное на склад
-			var subqueryAdded = QueryOver.Of(() => operationAddAlias)
+			var subqueryBalance = QueryOver.Of(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-			
+				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseBulkGoodsAccountingOperation>(o => o.Warehouse)))
+				.Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(o => o.Amount));
+			/*
 			//Подзапрос выбирающий по номенклатуре количество отгруженное со склада
 			var subqueryRemoved = QueryOver.Of(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+				.Where(Restrictions.IsNotNull(Projections.Property<GoodsAccountingOperation>(o => o.WriteOffWarehouse)))
+				.Select(Projections.Sum<GoodsAccountingOperation>(o => o.Amount));*/
 
 			//Подзапрос выбирающий по номенклатуре количество зарезервированное в заказах до отгрузки со склада
 			Vodovoz.Domain.Orders.Order localOrderAlias = null;
@@ -285,8 +286,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		            .Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-					.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)
-					.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
+					.SelectSubQuery(subqueryBalance).WithAlias(() => resultAlias.InStock)
 					.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved))
 				.OrderBy(x => x.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<NomenclatureForRentNode>());

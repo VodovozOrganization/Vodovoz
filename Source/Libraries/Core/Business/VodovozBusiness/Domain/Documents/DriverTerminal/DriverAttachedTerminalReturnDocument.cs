@@ -8,6 +8,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents.DriverTerminal
 {
+	//TODO поправить класс
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		Nominative = "документ возврата терминала водителя",
 		NominativePlural = "документы возврата терминалов водителей")]
@@ -20,16 +21,16 @@ namespace Vodovoz.Domain.Documents.DriverTerminal
 
 		public override string ToString() =>
 			$"Возрат терминала {CreationDate.ToShortDateString()} в {CreationDate.ToShortTimeString()}\r\n" +
-			$"на склад {WarehouseMovementOperation.IncomingWarehouse.Name}";
+			$"на склад";// {GoodsAccountingOperation.IncomingWarehouse.Name}";
 
 		public override void CreateMovementOperations(Warehouse incomeWarehouse, Nomenclature terminal)
 		{
-			WarehouseMovementOperation = new WarehouseMovementOperation
+			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
 			{
-				WriteoffWarehouse = null,
-				IncomingWarehouse = incomeWarehouse,
+				//WriteOffWarehouse = null,
+				//IncomingWarehouse = incomeWarehouse,
 				Amount = 1,
-				Equipment = null,
+				//Equipment = null,
 				Nomenclature = terminal,
 				OperationTime = CreationDate
 			};

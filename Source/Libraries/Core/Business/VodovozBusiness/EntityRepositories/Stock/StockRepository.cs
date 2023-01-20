@@ -27,318 +27,183 @@ namespace Vodovoz.EntityRepositories.Stock
 				.Select(Projections.Sum(() => orderItemsAlias.Count)).SingleOrDefault<decimal>();
 		}
 
+		//TODO проверить работу запроса
 		public int GetStockForNomenclature(IUnitOfWork uow, int nomenclatureId)
 		{
-			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
-
-			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And(() => operationAddAlias.IncomingWarehouse.Id != null)
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-
-			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And(() => operationRemoveAlias.WriteoffWarehouse.Id != null)
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-
-			var amountProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?1 - ?2 )"),
-				NHibernateUtil.Int32, new IProjection[] {
-					Projections.SubQuery(subqueryAdd),
-					Projections.SubQuery(subqueryRemove)
-				}
-			);
-
-			ItemInStock inStock = null;
-			var queryResult = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Id == nomenclatureId)
+			var stockProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
+				NHibernateUtil.Decimal,
+				Projections.Sum<GoodsAccountingOperation>(op => op.Amount));
+			
+			var queryResult = uow.Session.QueryOver<GoodsAccountingOperation>()
+				.Where(op => op.Nomenclature.Id == nomenclatureId)
 				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id)
-					.Select(amountProjection)
+					.SelectGroup(op => op.Nomenclature.Id)
+					.Select(stockProjection)
 				).SingleOrDefault<object[]>();
 				
 			return (int)queryResult[1];
 		}
 		
-		public Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork uow, int[] nomenclatureIds, int? warehouseId = null, DateTime? onDate = null)
+		//TODO проверить работу запроса
+		public Dictionary<int, decimal> NomenclatureInStock(
+			IUnitOfWork uow,
+			int[] nomenclatureIds,
+			int? warehouseId = null,
+			DateTime? onDate = null)
 		{
 			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
 
-			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			var query = uow.Session.QueryOver<WarehouseBulkGoodsAccountingOperation>()
+				.JoinAlias(op => op.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds));
+				
 			if(onDate.HasValue)
 			{
-				subqueryAdd.Where(x => x.OperationTime < onDate.Value);
+				query.And(op => op.OperationTime < onDate.Value);
 			}
 
 			if(warehouseId.HasValue)
 			{
-				subqueryAdd.And(() => operationAddAlias.IncomingWarehouse.Id == warehouseId);
+				query.And(op => op.Warehouse.Id == warehouseId);
 			}
 			else
 			{
-				subqueryAdd.And(() => operationAddAlias.IncomingWarehouse != null);
+				query.And(op => op.Warehouse != null);
 			}
-			subqueryAdd.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-
-			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id);
-			if(onDate.HasValue)
-			{
-				subqueryRemove.Where(x => x.OperationTime < onDate.Value);
-			}
-
-			if(warehouseId.HasValue)
-			{
-				subqueryRemove.And(() => operationRemoveAlias.WriteoffWarehouse.Id == warehouseId);
-			}
-			else
-			{
-				subqueryRemove.And(() => operationRemoveAlias.WriteoffWarehouse != null);
-			}
-			subqueryRemove.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-
-			ItemInStock inStock = null;
-			var stocklist = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds))
-				.SelectList(list => list
-				   .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => inStock.Id)
-				   .SelectSubQuery(subqueryAdd).WithAlias(() => inStock.Added)
-				   .SelectSubQuery(subqueryRemove).WithAlias(() => inStock.Removed)
-				).TransformUsing(Transformers.AliasToBean<ItemInStock>()).List<ItemInStock>();
+			
+			var stocklist = query.SelectList(list => list
+				   .SelectGroup(() => nomenclatureAlias.Id)
+				   .Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(op => op.Amount)))
+				.TransformUsing(Transformers.AliasToBean<(int nomenclatureId, decimal amount)>())
+				.List<(int nomenclatureId, decimal amount)>();
+			
 			var result = new Dictionary<int, decimal>();
 			foreach(var nomenclatureInStock in stocklist)
-				result.Add(nomenclatureInStock.Id, nomenclatureInStock.Amount);
+			{
+				result.Add(nomenclatureInStock.nomenclatureId, nomenclatureInStock.amount);
+			}
 
 			return result;
 		}
 
-		public Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork uow, int warehouseId, DateTime? onDate = null, NomenclatureCategory? nomenclatureCategory = null, ProductGroup nomenclatureType = null , Nomenclature nomenclature = null)
+		//TODO проверить работу запроса
+		public Dictionary<int, decimal> NomenclatureInStock(
+			IUnitOfWork uow,
+			int warehouseId,
+			DateTime? onDate = null,
+			NomenclatureCategory? nomenclatureCategory = null,
+			ProductGroup nomenclatureType = null,
+			Nomenclature nomenclature = null)
 		{
 			Nomenclature nomenclatureAlias = null;
-			Nomenclature nomenclatureAddOperationAlias = null;
-			Nomenclature nomenclatureRemoveOperationAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
 
-			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
-				.JoinAlias(() => operationAddAlias.Nomenclature, () => nomenclatureAddOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id);
-			
+			var query = uow.Session.QueryOver<WarehouseBulkGoodsAccountingOperation>()
+				.JoinAlias(op => op.Nomenclature, () => nomenclatureAlias);
+				
 			if(nomenclatureCategory != null)
 			{
-				subqueryAdd.Where(() => nomenclatureAddOperationAlias.Category == nomenclatureCategory.Value);
+				query.Where(() => nomenclatureAlias.Category == nomenclatureCategory.Value);
 			}
 
 			if(nomenclatureType != null)
 			{
-				subqueryAdd.Where(() => nomenclatureAddOperationAlias.ProductGroup.Id == nomenclatureType.Id);
+				query.Where(() => nomenclatureAlias.ProductGroup == nomenclatureType);
 			}
 
 			if(nomenclature != null)
 			{
-				subqueryAdd.Where(() => nomenclatureAddOperationAlias.Id == nomenclature.Id);
+				query.Where(() => nomenclatureAlias.Id == nomenclature.Id);
 			}
-
+			
 			if(onDate.HasValue)
 			{
-				subqueryAdd.Where(x => x.OperationTime < onDate.Value);
+				query.Where(op => op.OperationTime < onDate.Value);
 			}
-
-			subqueryAdd.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse.Id), warehouseId))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-
-			var subqueryRemove = QueryOver.Of(() => operationRemoveAlias)
-				.JoinAlias(() => operationRemoveAlias.Nomenclature, () => nomenclatureRemoveOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id);
-			
-			if(nomenclatureCategory != null)
-			{
-				subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Category == nomenclatureCategory.Value);
-			}
-
-			if(nomenclatureType != null)
-			{
-				subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.ProductGroup == nomenclatureType);
-			}
-
-			if(nomenclature != null)
-			{
-				subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Id == nomenclature.Id);
-			}
-
-			if(onDate.HasValue)
-			{
-				subqueryRemove.Where(x => x.OperationTime < onDate.Value);
-			}
-
-			subqueryRemove.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse.Id), warehouseId))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-
-			ItemInStock inStock = null;
-			
-			var stocklist = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
-				.SelectList(list => list
-				   .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => inStock.Id)
-				   .SelectSubQuery(subqueryAdd).WithAlias(() => inStock.Added)
-				   .SelectSubQuery(subqueryRemove).WithAlias(() => inStock.Removed)
-				).TransformUsing(Transformers.AliasToBean<ItemInStock>()).List<ItemInStock>();
+				
+			var stocklist =
+				query.And(op => op.Warehouse.Id == warehouseId)
+					.SelectList(list => list
+					   .SelectGroup(() => nomenclatureAlias.Id)
+					   .Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(op => op.Amount)))
+					.TransformUsing(Transformers.AliasToBean<(int nomenclatureId, decimal amount)>())
+					.List<(int nomenclatureId, decimal amount)>();
 			
 			var result = new Dictionary<int, decimal>();
 			
-			foreach(var nomenclatureInStock in stocklist.Where(x => x.Amount != 0))
+			foreach(var nomenclatureInStock in stocklist.Where(x => x.amount != 0))
 			{
-				result.Add(nomenclatureInStock.Id, nomenclatureInStock.Amount);
+				result.Add(nomenclatureInStock.nomenclatureId, nomenclatureInStock.amount);
 			}
 
 			return result;
 		}
 
+		//TODO проверить работу запроса
 		public Dictionary<int, decimal> NomenclatureInStock(
-			IUnitOfWork uow, int warehouseId,
+			IUnitOfWork uow,
+			int warehouseId,
 			int[] nomenclaturesToInclude,
 			int[] nomenclaturesToExclude,
-			string[] nomenclatureTypeToInclude,
-			string[] nomenclatureTypeToExclude,
+			NomenclatureCategory[] nomenclatureTypeToInclude,
+			NomenclatureCategory[] nomenclatureTypeToExclude,
 			int[] productGroupToInclude,
 			int[] productGroupToExclude,
 			DateTime? onDate = null)
 		{
 			Nomenclature nomenclatureAlias = null;
-			Nomenclature nomenclatureAddOperationAlias = null;
-			Nomenclature nomenclatureRemoveOperationAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
 
-			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
-				.JoinAlias(() => operationAddAlias.Nomenclature, () => nomenclatureAddOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			var query = uow.Session.QueryOver<WarehouseBulkGoodsAccountingOperation>()
+				.Left.JoinAlias(op => op.Nomenclature, () => nomenclatureAlias);
 
-			if (nomenclatureTypeToInclude.Length > 0)
+			if(nomenclatureTypeToInclude?.Length > 0)
 			{
-				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
-				
-				foreach (var categoryName in nomenclatureTypeToInclude)
-				{
-					parsedCategories.Add((NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), categoryName));
-				}
-				
-				subqueryAdd.Where(() => nomenclatureAddOperationAlias.Category.IsIn(parsedCategories));
+				query.WhereRestrictionOn(() => nomenclatureAlias.Category).IsIn(nomenclatureTypeToInclude);
 			}
 			
 			if(productGroupToInclude != null && productGroupToInclude.Any())
 			{
-				subqueryAdd.Where(() => nomenclatureAddOperationAlias.ProductGroup.Id.IsIn(productGroupToInclude));
+				query.Where(() => nomenclatureAlias.ProductGroup.Id.IsIn(productGroupToInclude));
 			}
 
 			if(nomenclaturesToInclude != null && nomenclaturesToInclude.Any())
 			{
-				subqueryAdd.Where(() => nomenclatureAddOperationAlias.Id.IsIn(nomenclaturesToInclude));
+				query.Where(() => nomenclatureAlias.Id.IsIn(nomenclaturesToInclude));
 			}
 
-			if(nomenclatureTypeToExclude.Length > 0)
+			if(nomenclatureTypeToExclude?.Length > 0)
 			{
-				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
-				
-				foreach(var categoryName in nomenclatureTypeToExclude)
-				{
-					parsedCategories.Add((NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), categoryName));
-				}
-				
-				subqueryAdd.Where(() => nomenclatureAddOperationAlias.Category.IsIn(parsedCategories));
+				query.WhereRestrictionOn(() => nomenclatureAlias.Category).Not.IsIn(nomenclatureTypeToExclude);
 			}
 			
 			if(productGroupToExclude != null && productGroupToExclude.Any())
 			{
-				subqueryAdd.Where(() => nomenclatureAddOperationAlias.ProductGroup.IsIn(productGroupToExclude));
+				query.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup).Not.IsIn(productGroupToExclude);
 			}
 
 			if(nomenclaturesToExclude != null && nomenclaturesToExclude.Any())
 			{
-				subqueryAdd.Where(() => nomenclatureAddOperationAlias.Id.IsIn(nomenclaturesToExclude));
+				query.WhereRestrictionOn(() => nomenclatureAlias.Id).Not.IsIn(nomenclaturesToExclude);
 			}
 
 			if(onDate.HasValue)
 			{
-				subqueryAdd.Where(x => x.OperationTime < onDate.Value);
+				query.Where(x => x.OperationTime < onDate.Value);
 			}
 
-			subqueryAdd.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse.Id), warehouseId))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-
-			var subqueryRemove = QueryOver.Of(() => operationRemoveAlias)
-				.JoinAlias(() => operationRemoveAlias.Nomenclature, () => nomenclatureRemoveOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id);
-
-			if(nomenclatureTypeToInclude.Length > 0)
-			{
-				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
-				
-				foreach(var categoryName in nomenclatureTypeToInclude)
-				{
-					parsedCategories.Add((NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), categoryName));
-				}
-				
-				subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Category.IsIn(parsedCategories));
-			}
-			
-			if(productGroupToInclude != null && productGroupToInclude.Any())
-			{
-				subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.ProductGroup.Id.IsIn(productGroupToInclude));
-			}
-
-			if(nomenclaturesToInclude != null && nomenclaturesToInclude.Any())
-			{
-				subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Id.IsIn(nomenclaturesToInclude));
-			}
-
-			if (nomenclatureTypeToExclude.Length > 0)
-			{
-				List<NomenclatureCategory> parsedCategories = new List<NomenclatureCategory>();
-				
-				foreach (var categoryName in nomenclatureTypeToExclude)
-				{
-					parsedCategories.Add((NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), categoryName));
-				}
-				
-				subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Category.IsIn(parsedCategories));
-			}
-			
-			if(productGroupToExclude != null && productGroupToExclude.Any())
-			{
-				subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.ProductGroup.IsIn(productGroupToExclude));
-			}
-
-			if(nomenclaturesToExclude != null && nomenclaturesToExclude.Any())
-			{
-				subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Id.IsIn(nomenclaturesToExclude));
-			}
-
-			if(onDate.HasValue)
-			{
-				subqueryRemove = subqueryRemove.Where(x => x.OperationTime < onDate.Value);
-			}
-
-			subqueryRemove.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse.Id), warehouseId))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-
-			ItemInStock inStock = null;
-			
-			var stocklist = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+			var stocklist = query
+				.Where(op => op.Warehouse.Id == warehouseId)
 				.SelectList(list => list
-				   .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => inStock.Id)
-				   .SelectSubQuery(subqueryAdd).WithAlias(() => inStock.Added)
-				   .SelectSubQuery(subqueryRemove).WithAlias(() => inStock.Removed)
-				).TransformUsing(Transformers.AliasToBean<ItemInStock>()).List<ItemInStock>();
+				   .SelectGroup(() => nomenclatureAlias.Id)
+				   .Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(op => op.Amount)))
+				.TransformUsing(Transformers.AliasToBean<(int nomenclatureId, decimal amount)>())
+				.List<(int nomenclatureId, decimal amount)>();
 			
 			var result = new Dictionary<int, decimal>();
 			
-			foreach(var nomenclatureInStock in stocklist.Where(x => x.Amount != 0))
+			foreach(var nomenclatureInStock in stocklist.Where(x => x.amount != 0))
 			{
-				result.Add(nomenclatureInStock.Id, nomenclatureInStock.Amount);
+				result.Add(nomenclatureInStock.nomenclatureId, nomenclatureInStock.amount);
 			}
 
 			return result;
@@ -368,6 +233,7 @@ namespace Vodovoz.EntityRepositories.Stock
 			return total;
 		}
 
+		//TODO Проверить использование метода и удалить за ненадобностью
 		public decimal EquipmentInStock(IUnitOfWork uow, int warehouseId, int equipmentId)
 		{
 			return EquipmentInStock(uow, warehouseId, new int[] { equipmentId }).Values.FirstOrDefault();
@@ -375,19 +241,19 @@ namespace Vodovoz.EntityRepositories.Stock
 
 		public Dictionary<int, decimal> EquipmentInStock(IUnitOfWork uow, int warehouseId, int[] equipmentIds)
 		{
-			Equipment equipmentAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
+			/*Equipment equipmentAlias = null;
+			GoodsAccountingOperation operationAddAlias = null;
+			GoodsAccountingOperation operationRemoveAlias = null;
 
-			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
+			var subqueryAdd = QueryOver.Of<GoodsAccountingOperation>(() => operationAddAlias)
 				.Where(() => operationAddAlias.Equipment.Id == equipmentAlias.Id)
-				.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse.Id), warehouseId))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+				.And(Restrictions.Eq(Projections.Property<GoodsAccountingOperation>(o => o.IncomingWarehouse.Id), warehouseId))
+				.Select(Projections.Sum<GoodsAccountingOperation>(o => o.Amount));
 
-			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
+			var subqueryRemove = QueryOver.Of<GoodsAccountingOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Equipment.Id == equipmentAlias.Id)
-				.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse.Id), warehouseId))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+				.And(Restrictions.Eq(Projections.Property<GoodsAccountingOperation>(o => o.WriteOffWarehouse.Id), warehouseId))
+				.Select(Projections.Sum<GoodsAccountingOperation>(o => o.Amount));
 
 			ItemInStock inStock = null;
 			
@@ -399,14 +265,15 @@ namespace Vodovoz.EntityRepositories.Stock
 				   .SelectSubQuery(subqueryRemove).WithAlias(() => inStock.Removed)
 				).TransformUsing(Transformers.AliasToBean<ItemInStock>()).List<ItemInStock>();
 			
-			var result = new Dictionary<int, decimal>();
+			
 			
 			foreach(var nomenclatureInStock in stocklist)
 			{
 				result.Add(nomenclatureInStock.Id, nomenclatureInStock.Amount);
 			}
 
-			return result;
+			return result;*/
+			return new Dictionary<int, decimal>();
 		}
 	}
 }

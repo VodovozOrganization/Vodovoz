@@ -12,12 +12,11 @@ using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.Views.Warehouse
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class IncomingInvoiceView : TabViewBase<IncomingInvoiceViewModel>
 	{
 		public IncomingInvoiceView(IncomingInvoiceViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureView();
 		}
 
@@ -27,8 +26,9 @@ namespace Vodovoz.Views.Warehouse
 			ylabelSum.Binding.AddBinding(ViewModel, vm => vm.TotalSum, w => w.LabelProp).InitializeFromSource();
 			
 			ybtnAdd.Clicked += (sender, args) => ViewModel.AddItemCommand.Execute();
-			buttonDelete.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute(GetSelectedItem());
-			ViewModel.DeleteItemCommand.CanExecuteChanged += (sender, e) => buttonDelete.Sensitive = ViewModel.DeleteItemCommand.CanExecute(GetSelectedItem());
+			buttonDelete.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute();
+			ViewModel.DeleteItemCommand.CanExecuteChanged +=
+				(sender, e) => buttonDelete.Sensitive = ViewModel.DeleteItemCommand.CanExecute();
 
 			ybtnAddFromOrders.Clicked += (sender, e) => ViewModel.FillFromOrdersCommand.Execute();
 			ViewModel.FillFromOrdersCommand.CanExecuteChanged += (sender, e) => ybtnAddFromOrders.Sensitive = ViewModel.FillFromOrdersCommand.CanExecute();
@@ -58,36 +58,46 @@ namespace Vodovoz.Views.Warehouse
 			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive);
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+			btnAddInventoryInstance.Clicked += (sender, args) => ViewModel.AddInventoryInstanceCommand.Execute();
+			btnCopyInventoryInstance.Clicked += (sender, args) => ViewModel.CopyInventoryInstanceCommand.Execute();
+			btnCopyInventoryInstance.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedItem, w => w.Sensitive)
+				.InitializeFromSource();
 			
 			#endregion
 			
 			#region Таблица
-			treeItemsList.ColumnsConfig =  FluentColumnsConfig<IncomingInvoiceItem>.Create ()
-                .AddColumn ("№ п/п")
-                .AddTextRenderer(i => (i.Document.Items.IndexOf(i)+ 1).ToString())
-				.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
-				.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
-				.AddColumn ("% НДС").AddEnumRenderer (i => i.VAT).Editing ()
-				.AddColumn ("Количество")
-				.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
-				.AddSetter((c, i) => c.Digits = (i.Nomenclature.Unit == null ? 1 :(uint)i.Nomenclature.Unit.Digits)) 
-				.AddSetter ((c, i) => c.Editable = i.CanEditAmount)
-				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
-				.AddTextRenderer (i => i.Nomenclature.Unit == null ? String.Empty: i.Nomenclature.Unit.Name, false)
-				.AddColumn("Цена закупки").AddNumericRenderer(i => i.PrimeCost).Digits(2).Editing()
-				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
-				.AddTextRenderer (i => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn ("Сумма").AddTextRenderer (i => CurrencyWorks.GetShortCurrencyString (i.Sum))
-				.Finish ();
+
+			treeItemsList.ColumnsConfig =  FluentColumnsConfig<IncomingInvoiceItem>.Create()
+				.AddColumn("№ п/п")
+					.AddTextRenderer(i => (i.Document.Items.IndexOf(i)+ 1).ToString())
+				.AddColumn("Наименование")
+					.AddTextRenderer (i => i.Name)
+				.AddColumn("Инвентарный номер")
+					.AddTextRenderer (i => i.NumberString)
+				.AddColumn("% НДС").AddEnumRenderer (i => i.VAT).Editing()
+				.AddColumn("Количество")
+					.AddNumericRenderer(i => i.Amount)
+					.WidthChars(10)
+					.AddSetter((c, i) =>
+						c.Digits = i.Nomenclature.Unit == null ? 1 :(uint)i.Nomenclature.Unit.Digits)
+					.AddSetter((c, i) => c.Editable = i.CanEditAmount)
+					.Adjustment(new Adjustment (0, 0, 1000000, 1, 100, 0))
+					.AddTextRenderer(i => i.Nomenclature.Unit == null ? string.Empty: i.Nomenclature.Unit.Name, false)
+				.AddColumn("Цена закупки").AddNumericRenderer(i => i.PrimeCost)
+					.Digits(2)
+					.Editing()
+					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+					.AddTextRenderer(i => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Сумма").AddTextRenderer(i => CurrencyWorks.GetShortCurrencyString(i.Sum))
+				.Finish();
 			
 			treeItemsList.ItemsDataSource = ViewModel.Entity.ObservableItems;
+			treeItemsList.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedItem, w => w.SelectedRow)
+				.InitializeFromSource();
+
 			#endregion
-			
-		}
-		
-		private IncomingInvoiceItem GetSelectedItem()
-		{
-			return treeItemsList.GetSelectedObject() as IncomingInvoiceItem;
 		}
 	}
 }

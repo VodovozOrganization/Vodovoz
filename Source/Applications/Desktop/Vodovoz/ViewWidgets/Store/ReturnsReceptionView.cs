@@ -415,9 +415,9 @@ namespace Vodovoz
 			set => Amount = value ? 1 : 0;
 		}
 
-		WarehouseMovementOperation movementOperation = new WarehouseMovementOperation();
+		GoodsAccountingOperation movementOperation = new GoodsAccountingOperation();
 
-		public virtual WarehouseMovementOperation MovementOperation {
+		public virtual GoodsAccountingOperation MovementOperation {
 			get => movementOperation;
 			set => SetField(ref movementOperation, value, () => MovementOperation);
 		}
@@ -430,7 +430,7 @@ namespace Vodovoz
 			this.amount = amount;
 		}
 
-		public ReceptionItemNode(WarehouseMovementOperation movementOperation) : this(movementOperation.Nomenclature, (int)movementOperation.Amount)
+		public ReceptionItemNode(GoodsAccountingOperation movementOperation) : this(movementOperation.Nomenclature, (int)movementOperation.Amount)
 		{
 			this.movementOperation = movementOperation;
 		}
@@ -442,7 +442,7 @@ namespace Vodovoz
 			set => SetField(ref carUnloadDocumentItem, value, () => CarUnloadDocumentItem);
 		}
 
-		public ReceptionItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.WarehouseMovementOperation)
+		public ReceptionItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.GoodsAccountingOperation)
 		{
 			this.carUnloadDocumentItem = carUnloadDocumentItem;
 		}
