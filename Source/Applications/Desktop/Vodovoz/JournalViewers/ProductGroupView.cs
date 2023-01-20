@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -8,7 +9,6 @@ using QS.Navigation;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
-using QSOrmProject.RepresentationModel;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.GtkViews;
@@ -171,8 +171,30 @@ namespace Vodovoz.JournalViewers
 
 		private void UpdateData()
 		{
+			var selected = _selectedItems;
 			vm.UpdateNodes();
 			tableProductGroup.YTreeModel = vm.YTreeModel;
+
+			if(!(vm.ItemsList is IList<ProductGroupVMNode> productGroups))
+			{
+				return;
+			}
+			
+			foreach(var item in selected)
+			{
+				var node = productGroups.SingleOrDefault(
+					x => x.GetType() == item.GetType()
+						&& x.Id == item.GetId());
+
+				if(node is null)
+				{
+					continue;
+				}
+
+				var path = tableProductGroup.YTreeModel.PathFromNode(node);
+				tableProductGroup.ExpandToPath(path);
+				tableProductGroup.Selection.SelectPath(path);
+			}
 		}
 
 		private void OnButtonAddClicked(object sender, EventArgs e)
