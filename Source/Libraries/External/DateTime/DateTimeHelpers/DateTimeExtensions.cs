@@ -66,25 +66,25 @@
 		public static int GetQuarter(this DateTime dateTime)
 		{
 			if(dateTime >= new DateTime(dateTime.Year, 1, 1)
-			&& dateTime < new DateTime(dateTime.Year, 3, 31))
+			&& dateTime < new DateTime(dateTime.Year, 4, 1))
 			{
 				return 1;
 			}
 
 			if(dateTime >= new DateTime(dateTime.Year, 4, 1)
-			&& dateTime < new DateTime(dateTime.Year, 6, 30))
+			&& dateTime < new DateTime(dateTime.Year, 7, 1))
 			{
 				return 2;
 			}
 
 			if(dateTime >= new DateTime(dateTime.Year, 7, 1)
-			&& dateTime < new DateTime(dateTime.Year, 9, 30))
+			&& dateTime < new DateTime(dateTime.Year, 10, 1))
 			{
 				return 3;
 			}
 
 			if(dateTime >= new DateTime(dateTime.Year, 10, 1)
-			&& dateTime < new DateTime(dateTime.Year, 12, 31))
+			&& dateTime < new DateTime(dateTime.Year + 1, 1, 11))
 			{
 				return 4;
 			}
