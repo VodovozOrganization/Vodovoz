@@ -254,11 +254,12 @@ namespace Vodovoz.Representations
 				FileName = fileName
 			};
 
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
+
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 			path = result.Path;
 
 			return result.Successful;
-
 		}
 
 		private IEnumerable<CallTaskVMNode> SortResult(IEnumerable<CallTaskVMNode> tasks)
