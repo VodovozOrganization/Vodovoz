@@ -4,8 +4,6 @@ using MoreLinq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -13,7 +11,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	{
 		public partial class TurnoverWithDynamicsReport
 		{
-			private readonly Func<Nomenclature, decimal> _warehouseNomenclatureBalanceCallback;
+			private readonly Func<int, decimal> _warehouseNomenclatureBalanceCallback;
 
 			private TurnoverWithDynamicsReport(
 				DateTime startDate,
@@ -24,9 +22,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				bool showDynamics,
 				DynamicsInEnum dynamicsIn,
 				bool showLastSale,
-				Func<Nomenclature, decimal> warehouseNomenclatureBalanceCallback,
+				Func<int, decimal> warehouseNomenclatureBalanceCallback,
 				Func<TurnoverWithDynamicsReport,
-				IList<OrderItem>> dataFetchCallback)
+				IList<OrderItemNode>> dataFetchCallback)
 			{
 				StartDate = startDate;
 				EndDate = endDate;
@@ -99,13 +97,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			/// </summary>
 			public string MeasurementUnitFormat => MeasurementUnit == MeasurementUnitEnum.Amount ? "0" : "0.00";
 
-			private IList<TurnoverWithDynamicsReportRow> ProcessData(IList<OrderItem> ordersItemslist)
+			private IList<TurnoverWithDynamicsReportRow> ProcessData(IList<OrderItemNode> ordersItemslist)
 			{
 				IList<TurnoverWithDynamicsReportRow> rows = new List<TurnoverWithDynamicsReportRow>();
 
 				var nomenclatureGroups = ordersItemslist
-					.GroupBy(oi => oi.Nomenclature)
-					.GroupBy(g => g.Key.ProductGroup);
+					.GroupBy(oi => oi.NomenclatureId)
+					.GroupBy(g => g.First().ProductGroupId);
 
 				rows = ProcessGroups(nomenclatureGroups);
 
@@ -124,7 +122,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return result;
 			}
 
-			private IList<TurnoverWithDynamicsReportRow> ProcessGroups(IEnumerable<IGrouping<ProductGroup, IGrouping<Nomenclature, OrderItem>>> productGroups)
+			private IList<TurnoverWithDynamicsReportRow> ProcessGroups(IEnumerable<IGrouping<int, IGrouping<int, OrderItemNode>>> productGroups)
 			{
 				IList<TurnoverWithDynamicsReportRow> rows = new List<TurnoverWithDynamicsReportRow>();
 
@@ -136,13 +134,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{
 					IList<TurnoverWithDynamicsReportRow> productGroupRows = new List<TurnoverWithDynamicsReportRow>();
 
-					var productGroupTitle = GetProductGroupFullName(productGroup.Key);
+					var productGroupTitle = productGroup.First().First().ProductGroupName;
 
 					foreach(var nomenclatureGroup in productGroup)
 					{
 						var row = new TurnoverWithDynamicsReportRow
 						{
-							Title = nomenclatureGroup.Key.OfficialName,
+							Title = nomenclatureGroup.First().NomenclatureOfficialName,
 							RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
 							SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
 						};
@@ -160,8 +158,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						if(ShowLastSale)
 						{
 							var lastDelivery = nomenclatureGroup
-								.OrderBy(oi => oi.Order.DeliveryDate)
-								.Last().Order.DeliveryDate.Value;
+								.OrderBy(oi => oi.OrderDeliveryDate)
+								.Last().OrderDeliveryDate.Value;
 
 							row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
 							{
@@ -220,20 +218,20 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return output;
 			}
 
-			private static string GetProductGroupFullName(ProductGroup productGroup)
-			{
-				if(productGroup == null)
-				{
-					return "Без группы";
-				}
+			//private static string GetProductGroupFullName(ProductGroupNode productGroup)
+			//{
+			//	if(productGroup == null)
+			//	{
+			//		return "Без группы";
+			//	}
 
-				if(productGroup.Parent == null)
-				{
-					return productGroup?.Name ?? "Без группы";
-				}
+			//	if(productGroup.Parent == null)
+			//	{
+			//		return productGroup?.Name ?? "Без группы";
+			//	}
 
-				return GetProductGroupFullName(productGroup.Parent) + " / " + productGroup.Name;
-			}
+			//	return GetProductGroupFullName(productGroup.Parent) + " / " + productGroup.Name;
+			//}
 
 			private TurnoverWithDynamicsReportRow AddGroupTotals(string title, IList<TurnoverWithDynamicsReportRow> nomenclatureGroupRows)
 			{
@@ -274,18 +272,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return row;
 			}
 
-			private IList<decimal> CalculateNomenclatureValuesRow(IGrouping<Nomenclature, OrderItem> ordersItemsGroup)
+			private IList<decimal> CalculateNomenclatureValuesRow(IGrouping<int, OrderItemNode> ordersItemsGroup)
 			{
 				IList<decimal> result = CreateInitializedBy(Slices.Count, 0m);
-
-				Nomenclature nomenclature = ordersItemsGroup.Key;
 
 				for(var i = 0; i < Slices.Count; i++)
 				{
 					IDateTimeSlice slice = Slices[i];
 
-					result[i] = ordersItemsGroup.Where(oi => oi.Order.DeliveryDate >= slice.StartDate)
-						.Where(oi => oi.Order.DeliveryDate <= slice.EndDate)
+					result[i] = ordersItemsGroup.Where(oi => oi.OrderDeliveryDate >= slice.StartDate)
+						.Where(oi => oi.OrderDeliveryDate <= slice.EndDate)
 						.Distinct()
 						.Sum(MeasurementUnitSelector) ?? 0;
 				}
@@ -300,7 +296,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					: "-";
 			}
 
-			private decimal? MeasurementUnitSelector(OrderItem oi)
+			private decimal? MeasurementUnitSelector(OrderItemNode oi)
 			{
 				if(MeasurementUnit == MeasurementUnitEnum.Amount)
 				{
@@ -325,8 +321,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				bool showDynamics,
 				DynamicsInEnum dynamicsIn,
 				bool showLastSale,
-				Func<Nomenclature, decimal> warehouseNomenclatureBalanceCallback,
-				Func<TurnoverWithDynamicsReport, IList<OrderItem>> dataFetchCallback)
+				Func<int, decimal> warehouseNomenclatureBalanceCallback,
+				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
 				return new TurnoverWithDynamicsReport(
 							startDate,
@@ -376,6 +372,31 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public double DaysFromLastShipment { get; set; }
 
 				public decimal WarhouseResidue { get; set; }
+			}
+
+			public class OrderItemNode
+			{
+				public int Id { get; set; }
+
+				public int OrderId { get; set; }
+
+				public DateTime? OrderDeliveryDate { get; set; }
+
+				public int NomenclatureId { get; set; }
+
+				public string NomenclatureOfficialName { get; set; }
+
+				public int ProductGroupId { get; set; }
+
+				public string ProductGroupName { get; set; }
+
+				public decimal? ActualCount { get; set; }
+
+				public decimal Count { get; set; }
+
+				public decimal Price { get; set; }
+
+				public decimal ActualSum { get; set; }
 			}
 		}
 	}
