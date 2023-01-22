@@ -179,16 +179,24 @@ namespace Vodovoz.JournalViewers
 			{
 				return;
 			}
-			
+
 			foreach(var item in selected)
 			{
-				var node = productGroups.SingleOrDefault(
+				object node = productGroups.SingleOrDefault(
 					x => x.GetType() == item.GetType()
 						&& x.Id == item.GetId());
 
 				if(node is null)
 				{
-					continue;
+					node = productGroups.SelectMany(x => x.ChildNomenclatures)
+						.SingleOrDefault(
+							y => y.GetType() == item.GetType()
+								&& y.Id == item.GetId());
+
+					if(node is null)
+					{
+						continue;
+					}
 				}
 
 				var path = tableProductGroup.YTreeModel.PathFromNode(node);
