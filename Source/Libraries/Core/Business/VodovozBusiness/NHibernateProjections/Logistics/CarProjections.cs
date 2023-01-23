@@ -9,7 +9,7 @@ namespace Vodovoz.NHibernateProjections.Logistics
 		/// Проекции работают через рефлексию (nameof())<br/>
 		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
 		/// camelCase названия сущности + Alias<br/>
-		/// Используется CarVersion carVersionAlias
+		/// Используется <see cref="CarVersion"/> carVersionAlias
 		/// </summary>
 		/// <returns></returns>
 		public static IProjection GetIsCompanyCarProjection()

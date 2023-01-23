@@ -11,7 +11,7 @@ namespace Vodovoz.NHibernateProjections.Orders
 		/// Проекции работают через рефлексию (nameof())<br/>
 		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
 		/// camelCase названия сущности + Alias<br/>
-		/// Используется OrderItem orderItemAlias
+		/// Используется <see cref="OrderItem"/> orderItemAlias
 		/// </summary>
 		/// <returns></returns>
 		public static IProjection GetOrderSumProjection()
@@ -31,7 +31,7 @@ namespace Vodovoz.NHibernateProjections.Orders
 		/// Проекции работают через рефлексию (nameof())<br/>
 		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
 		/// camelCase названия сущности + Alias<br/>
-		/// Используется OrderItem orderItemAlias
+		/// Используется <see cref="OrderItem"/> orderItemAlias
 		/// </summary>
 		/// <returns></returns>
 		public static IProjection GetOrderItemSumProjection()
@@ -44,6 +44,20 @@ namespace Vodovoz.NHibernateProjections.Orders
 					Projections.Property(() => orderItemAlias.ActualCount),
 					Projections.Property(() => orderItemAlias.Count),
 					Projections.Property(() => orderItemAlias.DiscountMoney));
+		}
+
+		/// <summary>
+		/// Проекции работают через рефлексию (nameof())<br/>
+		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
+		/// camelCase названия сущности + Alias<br/>
+		/// Используется <see cref="OrderItem"/> orderItemAlias
+		/// </summary>
+		/// <returns></returns>
+		public static IProjection GetOrderItemCountSumProjection()
+		{
+			OrderItem orderItemAlias = null;
+
+			return Projections.Sum(() => orderItemAlias.Count);
 		}
 	}
 }

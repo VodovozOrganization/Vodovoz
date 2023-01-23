@@ -11,7 +11,7 @@ namespace Vodovoz.NHibernateProjections.Goods
 		/// Проекции работают через рефлексию (nameof())<br/>
 		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
 		/// camelCase названия сущности + Alias<br/>
-		/// Используется ProductGroup productGroupAlias
+		/// Используется <see cref="ProductGroup"/> productGroupAlias
 		/// </summary>
 		/// <returns></returns>
 		public static IProjection GetProductGroupNameWithEnclosureProjection()

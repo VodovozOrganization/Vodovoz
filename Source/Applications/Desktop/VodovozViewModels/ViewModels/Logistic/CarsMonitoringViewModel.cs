@@ -26,6 +26,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.NHibernateProjections.Logistics;
+using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
@@ -500,7 +501,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
 					nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
-				.Select(Projections.Sum(() => orderItemAlias.Count));
+				.Select(OrderProjections.GetOrderItemCountSumProjection());
 			return deliveredOrdersSubquery;
 		}
 
