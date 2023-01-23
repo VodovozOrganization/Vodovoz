@@ -23,8 +23,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				DynamicsInEnum dynamicsIn,
 				bool showLastSale,
 				Func<int, decimal> warehouseNomenclatureBalanceCallback,
-				Func<TurnoverWithDynamicsReport,
-				IList<OrderItemNode>> dataFetchCallback)
+				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
 				StartDate = startDate;
 				EndDate = endDate;

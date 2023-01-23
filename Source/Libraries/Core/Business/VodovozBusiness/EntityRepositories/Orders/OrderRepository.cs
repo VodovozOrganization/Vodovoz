@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
+using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -684,7 +685,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => orderAlias.PaymentType == PaymentType.cashless)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
-				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
+				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
 			
 			var totalPayPartiallyPaidOrders = uow.Session.QueryOver(() => paymentItemAlias)
@@ -705,8 +706,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		public bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId)
 		{
 			var selfDeliveryDocument = uow.Session.QueryOver<SelfDeliveryDocument>()
-			                              .Where(x => x.Order.Id == orderId)
-			                              .Take(1).List()?.FirstOrDefault();
+										  .Where(x => x.Order.Id == orderId)
+										  .Take(1).List()?.FirstOrDefault();
 			if(selfDeliveryDocument != null)
 				return false;
 
@@ -758,8 +759,8 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(() => districtAlias.GeographicGroup.Id == geographicGroupId)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.NewOrder
 							 || orderAlias.OrderStatus == OrderStatus.Accepted
-				             || orderAlias.OrderStatus == OrderStatus.InTravelList
-				             || orderAlias.OrderStatus == OrderStatus.OnLoading)
+							 || orderAlias.OrderStatus == OrderStatus.InTravelList
+							 || orderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select(Projections.Sum(() => orderEquipmentAlias.Count))
 				.SingleOrDefault<int>();
 
@@ -767,7 +768,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		}
 
 		public IEnumerable<VodovozOrder> GetOrders(IUnitOfWork uow, int[] ids)
-        {
+		{
 			VodovozOrder vodovozOrderAlias = null;
 			var query = uow.Session.QueryOver(() => vodovozOrderAlias)
 				.Where(
@@ -780,10 +781,10 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query.List();
 		}
 
-        public VodovozOrder GetOrder(IUnitOfWork unitOfWork, int orderId)
-        {
+		public VodovozOrder GetOrder(IUnitOfWork unitOfWork, int orderId)
+		{
 			return unitOfWork.GetById<VodovozOrder>(orderId);
-        }
+		}
 
 		public int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate)
 		{
@@ -816,17 +817,6 @@ namespace Vodovoz.EntityRepositories.Orders
 			return deliveryDate;
 		}
 
-		public static IProjection GetOrderSumProjection(OrderItem orderItemAlias)
-		{
-			return Projections.Sum(
-				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3) - ?4, 2)"),
-					NHibernateUtil.Decimal,
-						Projections.Property(() => orderItemAlias.Price),
-						Projections.Property(() => orderItemAlias.ActualCount),
-						Projections.Property(() => orderItemAlias.Count),
-						Projections.Property(() => orderItemAlias.DiscountMoney)));
-		}
-
 		public IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId)
 		{
@@ -839,7 +829,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			CashlessMovementOperation cashlessMovementOperationAlias = null;
 			NotFullyPaidOrderNode resultAlias = null;
 			
-			var orderSumProjection = GetOrderSumProjection(orderItemAlias);
+			var orderSumProjection = OrderProjections.GetOrderSumProjection();
 			var allocatedSumProjection = QueryOver.Of(() => paymentItemAlias)
 				.JoinAlias(pi => pi.CashlessMovementOperation, () => cashlessMovementOperationAlias)
 				.Where(pi => pi.Order.Id == orderAlias.Id)

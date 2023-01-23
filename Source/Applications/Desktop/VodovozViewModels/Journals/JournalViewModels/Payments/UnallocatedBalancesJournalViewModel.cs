@@ -23,6 +23,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Payments;
 using VodOrder = Vodovoz.Domain.Orders.Order;
@@ -172,7 +173,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 						Projections.SubQuery(income),
 						Projections.SubQuery(expense));
 
-			var orderSumProjection = OrderRepository.GetOrderSumProjection(orderItemAlias);
+			var orderSumProjection = OrderProjections.GetOrderSumProjection();
 
 			var totalNotPaidOrders = QueryOver.Of(() => orderAlias)
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)

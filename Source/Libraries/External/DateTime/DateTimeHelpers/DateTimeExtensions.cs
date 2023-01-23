@@ -1,8 +1,8 @@
-﻿namespace DateTimeHelpers
-{
-	using System;
-	using System.Globalization;
+﻿using System;
+using System.Globalization;
 
+namespace DateTimeHelpers
+{
 	public static class DateTimeExtensions
 	{
 		private static GregorianCalendar _calendar = new GregorianCalendar();

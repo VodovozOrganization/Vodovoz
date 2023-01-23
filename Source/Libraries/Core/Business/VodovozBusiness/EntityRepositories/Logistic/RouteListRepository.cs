@@ -25,6 +25,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -1174,7 +1175,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(rla => rla.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.WhereRestrictionOn(() => orderItemAlias.Nomenclature.Id).IsInG(paidDeliveriesNomenclaturesIds)
-				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
+				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
 		}
 
@@ -1188,7 +1189,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
 				.JoinAlias(rla => rla.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias))
+				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
 		}
 	}

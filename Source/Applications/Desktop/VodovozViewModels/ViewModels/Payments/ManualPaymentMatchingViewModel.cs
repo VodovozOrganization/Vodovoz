@@ -22,6 +22,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure;
 using SearchHelper = QS.Project.Journal.Search.SearchHelper;
@@ -631,7 +632,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			var orderSum = QueryOver.Of(() => orderItemAlias)
 				.Where(x => x.Order.Id == orderAlias.Id)
-				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias));
+				.Select(OrderProjections.GetOrderSumProjection());
 
 			incomePaymentQuery.Where(
 				GetSearchCriterion(
@@ -677,7 +678,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			var orderSum = QueryOver.Of(() => orderItemAlias)
 				.Where(x => x.Order.Id == orderAlias.Id)
-				.Select(OrderRepository.GetOrderSumProjection(orderItemAlias));
+				.Select(OrderProjections.GetOrderSumProjection());
 
 			var resultQuery = query
 				.SelectList(list => list

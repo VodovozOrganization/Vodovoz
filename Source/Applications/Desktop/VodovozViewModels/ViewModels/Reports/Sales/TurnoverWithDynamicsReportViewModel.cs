@@ -30,6 +30,8 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Goods;
+using Vodovoz.NHibernateProjections.Orders;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozCounterparty = Vodovoz.Domain.Client.Counterparty;
@@ -686,6 +688,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			var parameters = _filter.GetParameters();
 
+			#region filter parameters
 			if(parameters.ContainsKey(nameof(NomenclatureCategory) + _includeSuffix)
 				&& parameters[nameof(NomenclatureCategory) + _includeSuffix] is object[] nomenclatureTypesInclude
 				&& nomenclatureTypesInclude[0] != "0")
@@ -890,69 +893,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						promotionalSetsExclude)))
 					.Add(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id))));
 			}
+			#endregion
 
-			IProjection groupNameProjection = Projections.SqlFunction(
-				  new SQLFunctionTemplate(NHibernateUtil.String, 
-					@"(SELECT
-							CONCAT_WS("" / "", name_source_1.name, name_source_2.name, name_source_3.name) AS FullName
-						FROM (
-							WITH RECURSIVE groups_source (DEPTH,
-								id,
-								parent_id,
-								name,
-								level_1_id,
-								level_2_id,
-								level_3_id) AS (
-								SELECT
-									1 AS DEPTH,
-									ng.id AS id,
-									0 AS parent_id,
-									ng.name,
-									ng.id AS level_1_id,
-									0 AS level_2_id,
-									0 AS level_3_id
-								FROM
-									nomenclature_groups ng
-								WHERE
-									ng.parent_id IS NULL
-							UNION
-								SELECT
-									groups_source.depth + 1 AS DEPTH,
-									ng.id AS id,
-									groups_source.id AS parent_id,
-									ng.name,
-									groups_source.level_1_id AS level_1_id,
-									IF(groups_source.depth = 1,
-									ng.id,
-									groups_source.level_2_id) AS level_2_id,
-									IF(groups_source.depth = 2,
-									ng.id,
-									groups_source.level_3_id) AS level_3_id
-								FROM
-									nomenclature_groups ng,
-									groups_source
-								WHERE
-									ng.parent_id = groups_source.id
-							)
-							SELECT
-								*
-							FROM
-								groups_source
-						) AS groups_with_levels
-						LEFT JOIN nomenclature_groups name_source_1 ON
-							name_source_1.id = groups_with_levels.level_1_id
-						LEFT JOIN nomenclature_groups name_source_2 ON
-							name_source_2.id = groups_with_levels.level_2_id
-						LEFT JOIN nomenclature_groups name_source_3 ON
-							name_source_3.id = groups_with_levels.level_3_id
-						WHERE groups_with_levels.id = ?1)"),
-				  NHibernateUtil.String, Projections.Property(() => productGroupAlias.Id));
+			IProjection groupNameProjection = ProductGroupProjections.GetProductGroupNameWithEnclosureProjection();
 
 			var result = query.SelectList(list =>
 					list.SelectGroup(() => orderItemAlias.Id)
 						.Select(Projections.Property(() => orderAlias.Id).WithAlias(() => resultNodeAlias.Id))
 						.Select(Projections.Property(() => orderItemAlias.Price).WithAlias(() => resultNodeAlias.Price))
-						.Select(OrderRepository.GetOrderSumProjection(orderItemAlias).WithAlias(() => resultNodeAlias.ActualSum))
+						.Select(OrderProjections.GetOrderItemSumProjection()).WithAlias(() => resultNodeAlias.ActualSum)
 						.Select(Projections.Property(() => orderItemAlias.Count).WithAlias(() => resultNodeAlias.Count))
 						.Select(Projections.Property(() => orderItemAlias.ActualCount).WithAlias(() => resultNodeAlias.ActualCount))
 						.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
@@ -960,8 +909,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(Projections.Property(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId))
 						.Select(Projections.Property(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
 						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
-						.Select(groupNameProjection.WithAlias(() => resultNodeAlias.ProductGroupName))
-				).SetTimeout(0)
+						.Select(groupNameProjection.WithAlias(() => resultNodeAlias.ProductGroupName)))
+				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).List<OrderItemNode>();
 
 			return result;
