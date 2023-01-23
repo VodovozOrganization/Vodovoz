@@ -218,21 +218,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return output;
 			}
 
-			//private static string GetProductGroupFullName(ProductGroupNode productGroup)
-			//{
-			//	if(productGroup == null)
-			//	{
-			//		return "Без группы";
-			//	}
-
-			//	if(productGroup.Parent == null)
-			//	{
-			//		return productGroup?.Name ?? "Без группы";
-			//	}
-
-			//	return GetProductGroupFullName(productGroup.Parent) + " / " + productGroup.Name;
-			//}
-
 			private TurnoverWithDynamicsReportRow AddGroupTotals(string title, IList<TurnoverWithDynamicsReportRow> nomenclatureGroupRows)
 			{
 				var row = new TurnoverWithDynamicsReportRow
