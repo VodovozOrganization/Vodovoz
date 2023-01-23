@@ -182,27 +182,31 @@ namespace Vodovoz.JournalViewers
 
 			foreach(var item in selected)
 			{
-				object node = productGroups.SingleOrDefault(
-					x => x.GetType() == item.GetType()
-						&& x.Id == item.GetId());
-
-				if(node is null)
+				if(item is ProductGroupVMNode productGroupNode)
 				{
-					node = productGroups.SelectMany(x => x.ChildNomenclatures)
-						.SingleOrDefault(
-							y => y.GetType() == item.GetType()
-								&& y.Id == item.GetId());
-
-					if(node is null)
-					{
-						continue;
-					}
+					var node = productGroups.SingleOrDefault(x => x.Id == productGroupNode.Id);
+					ExpandAndSelectTreeNode(node);
 				}
-
-				var path = tableProductGroup.YTreeModel.PathFromNode(node);
-				tableProductGroup.ExpandToPath(path);
-				tableProductGroup.Selection.SelectPath(path);
+				else if(item is NomenclatureNode nomenclatureNode)
+				{
+					var node = productGroups.SelectMany(x => x.ChildNomenclatures)
+						.SingleOrDefault(x => x.Id == nomenclatureNode.Id);
+					
+					ExpandAndSelectTreeNode(node);
+				}
 			}
+		}
+
+		private void ExpandAndSelectTreeNode(object node)
+		{
+			if(node == null)
+			{
+				return;
+			}
+
+			var path = tableProductGroup.YTreeModel.PathFromNode(node);
+			tableProductGroup.ExpandToPath(path);
+			tableProductGroup.Selection.SelectPath(path);
 		}
 
 		private void OnButtonAddClicked(object sender, EventArgs e)
