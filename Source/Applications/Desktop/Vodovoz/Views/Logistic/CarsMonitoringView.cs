@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using GLib;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -83,16 +84,20 @@ namespace Vodovoz.Views.Logistic
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			yenumcomboMapType.SelectedItem = _defaultMapProvider;
 
-			ychkbtnShowHistory.Binding.AddBinding(ViewModel, vm => vm.ShowHistory, w => w.Active)
+			ychkbtnShowHistory.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowHistory, w => w.Active)
+				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
 				.InitializeFromSource();
 
-
-			ydatepickerHistoryDate.Binding.AddBinding(ViewModel, vm => vm.HistoryDate, w => w.Date)
+			ydatepickerHistoryDate.Binding.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.HistoryDate, w => w.Date)
+				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspeccomboboxHistoryHour.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.HistoryHours, w => w.ItemsList)
 				.AddBinding(vm => vm.HistoryHour, w => w.SelectedItem)
+				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ConfigureMap();
@@ -101,8 +106,12 @@ namespace Vodovoz.Views.Logistic
 			ViewModel.RefreshWorkingDriversCommand?.Execute();
 
 			UpdateCarPosition();
+			StartTimer(_timeoutTimerHandler);
+		}
 
-			_timerId = GLib.Timeout.Add(ViewModel.CarRefreshInterval, _timeoutTimerHandler);
+		private void StartTimer(TimeoutHandler timeoutHandler)
+		{
+			_timerId = GLib.Timeout.Add((uint)ViewModel.CarRefreshInterval.TotalMilliseconds, timeoutHandler);
 		}
 
 		private void ShowHistoryToggled(object sender, EventArgs e)
@@ -113,7 +122,7 @@ namespace Vodovoz.Views.Logistic
 			}
 			else
 			{
-				_timerId = GLib.Timeout.Add(ViewModel.CarRefreshInterval, _timeoutTimerHandler);
+				StartTimer(_timeoutTimerHandler);
 			}
 		}
 
@@ -684,7 +693,6 @@ namespace Vodovoz.Views.Logistic
 
 		class DistanceTextInfo
 		{
-			public string Id;
 			public Pango.Layout PangoLayout;
 		}
 	}

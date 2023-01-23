@@ -103,12 +103,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 			_unitOfWork.Session.DefaultReadOnly = true;
 
+			CarRefreshInterval = TimeSpan.FromSeconds(10);
+
 			DefaultMapCenterPosition = new Coordinate(59.93900, 30.31646);
 			_driverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
 
 			HistoryHours = Enumerable.Range(0, 24);
 
 			_historyDate = DateTime.Today;
+			_historyHour = 9;
 
 			if(deliveryRulesParametersProvider is null)
 			{
@@ -134,10 +137,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			SelectedWorkingDrivers.CollectionChanged += SelectedWorkingDriversCollectionChanged;
 		}
 
-		private void SelectedWorkingDriversCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			CanOpenKeepingTab = SelectedWorkingDrivers.Any();
-		}
+		#region Full properties
 
 		public bool ShowDistrictsOverlay
 		{
@@ -147,7 +147,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				SetField(ref _showDistrictsOverlay, value);
 				if(value)
 				{
-					RefreshFastDeliveryDistricts();
+					RefreshFastDeliveryDistrictsCommand?.Execute();
 				}
 				else
 				{
@@ -185,7 +185,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			get => _showAddresses;
 			set => SetField(ref _showAddresses, value);
 		}
-
 
 		public bool SeparateVindowOpened
 		{
@@ -269,10 +268,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				}
 			}
 		}
+		#endregion
 
+		#region Readoly Properties
 		public override bool HasChanges => false;
 
-		public uint CarRefreshInterval => 10000;
+		public TimeSpan CarRefreshInterval { get; }
 
 		public string CarsOverlayId { get; }
 
@@ -284,6 +285,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public Coordinate DefaultMapCenterPosition { get; }
 
+		public IEnumerable<int> HistoryHours { get; }
+
 		public TimeSpan FastDeliveryTime => _fastDeliveryTime;
 
 		public Color DistrictFillColor => _districtFillColor;
@@ -293,7 +296,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public double FastDeliveryMaxDistance => _fastDeliveryMaxDistance;
 
 		public Color[] AvailableTrackColors => _availableTrackColors;
+		#endregion
 
+		#region Observable Collections
 		public ObservableCollection<District> FastDeliveryDistricts { get; }
 
 		public ObservableCollection<WorkingDriverNode> SelectedWorkingDrivers { get; }
@@ -301,7 +306,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public ObservableCollection<WorkingDriverNode> WorkingDrivers { get; }
 
 		public ObservableCollection<RouteListAddressNode> RouteListAddresses { get; }
+		#endregion
 
+		#region Commands
 		public DelegateCommand<int> OpenKeepingDialogCommand { get; }
 
 		public DelegateCommand OpenTrackPointsJournalTabCommand { get; }
@@ -311,9 +318,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand<int> RefreshRouteListAddressesCommand { get; }
 
 		public DelegateCommand RefreshFastDeliveryDistrictsCommand { get; }
+		#endregion
 
-		public IEnumerable<int> HistoryHours { get; }
+		private void SelectedWorkingDriversCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			CanOpenKeepingTab = SelectedWorkingDrivers.Any();
+		}
 
+		#region Command Handlers
 		private void OpenRouteListKeepingTab(int routeListId)
 		{
 			_gtkTabsOpener.OpenRouteListKeepingDlg(this, routeListId);
@@ -362,11 +374,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			IProjection isCompanyCarProjection = CarProjections.GetIsCompanyCarProjection();
 
-			#region Water19LReserve
-
 			IProjection water19LReserveProjection = GetWater19LReserveProjection();
-
-			#endregion
 
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 
@@ -430,6 +438,81 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		public void RefreshRouteListAddresses(int driverId)
+		{
+			RouteListAddresses.Clear();
+
+			RouteListAddressNode resultAlias = null;
+			Employee driverAlias = null;
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			Domain.Orders.Order orderAlias = null;
+
+			var routeListAddresses = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
+				.JoinAlias(rli => rli.RouteList, () => routeListAlias)
+				.JoinAlias(rli => rli.RouteList.Driver, () => driverAlias)
+				.JoinAlias(rli => rli.Order, () => orderAlias)
+				.Where(() => routeListAlias.Status == RouteListStatus.EnRoute)
+				.Where(() => routeListAlias.Driver.Id == driverId)
+				.SelectList(list => list
+					.Select(() => routeListItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(Projections.Entity(() => orderAlias)).WithAlias(() => resultAlias.Order)
+					.Select(Projections.Entity(() => routeListItemAlias)).WithAlias(() => resultAlias.RouteListItem)
+					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
+					.Select(() => routeListItemAlias.Status).WithAlias(() => resultAlias.Status)
+					.Select(() => orderAlias.DeliverySchedule).WithAlias(() => resultAlias.Time)
+					.Select(() => orderAlias.DeliveryPoint).WithAlias(() => resultAlias.DeliveryPoint))
+				.TransformUsing(Transformers.AliasToBean<RouteListAddressNode>())
+				.List<RouteListAddressNode>();
+
+			foreach(var routeListAddress in routeListAddresses)
+			{
+				RouteListAddresses.Add(routeListAddress);
+			}
+		}
+
+		private void RefreshFastDeliveryDistricts()
+		{
+			FastDeliveryDistricts.Clear();
+			IList<District> districts;
+			if(ShowHistory)
+			{
+				districts = _scheduleRestrictionRepository
+					.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDate.AddHours(HistoryHour));
+			}
+			else
+			{
+				districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDelivery(_unitOfWork);
+			}
+			foreach(var district in districts)
+			{
+				FastDeliveryDistricts.Add(district);
+			}
+		}
+		#endregion
+
+		public int[] GetDriversWithAdditionalLoadingFrom(int[] ids)
+		{
+			return _routeListRepository.GetDriversWithAdditionalLoading(_unitOfWork, ids)
+				.Select(x => x.Id).ToArray();
+		}
+
+		public IList<DriverPosition> GetLastRouteListTrackPoints(int[] ids)
+		{
+			return _trackRepository.GetLastPointForRouteLists(_unitOfWork, ids);
+		}
+
+		public IList<DriverPosition> GetLastRouteListTrackPoints(int[] movedDrivers, DateTime disconnectedDateTime)
+		{
+			return _trackRepository.GetLastPointForRouteLists(_unitOfWork, movedDrivers, disconnectedDateTime);
+		}
+
+		public IList<TrackPoint> GetRouteListTrackPoints(int id)
+		{
+			return _trackRepository.GetPointsForRouteList(_unitOfWork, id);
+		}
+
+		#region Query Methods
 		private static QueryOver<RouteListItem, RouteListItem> CreateOwnOrdersSubquery()
 		{
 			RouteListItem routeListItemAlias = null;
@@ -544,80 +627,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			return water19LReserveProjection;
 		}
+		#endregion
 
-		public void RefreshRouteListAddresses(int driverId)
-		{
-			RouteListAddresses.Clear();
-
-			RouteListAddressNode resultAlias = null;
-			Employee driverAlias = null;
-			RouteList routeListAlias = null;
-			RouteListItem routeListItemAlias = null;
-			Domain.Orders.Order orderAlias = null;
-
-			var routeListAddresses = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
-				.JoinAlias(rli => rli.RouteList, () => routeListAlias)
-				.JoinAlias(rli => rli.RouteList.Driver, () => driverAlias)
-				.JoinAlias(rli => rli.Order, () => orderAlias)
-				.Where(() => routeListAlias.Status == RouteListStatus.EnRoute)
-				.Where(() => routeListAlias.Driver.Id == driverId)
-				.SelectList(list => list
-					.Select(() => routeListItemAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(Projections.Entity(() => orderAlias)).WithAlias(() => resultAlias.Order)
-					.Select(Projections.Entity(() => routeListItemAlias)).WithAlias(() => resultAlias.RouteListItem)
-					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
-					.Select(() => routeListItemAlias.Status).WithAlias(() => resultAlias.Status)
-					.Select(() => orderAlias.DeliverySchedule).WithAlias(() => resultAlias.Time)
-					.Select(() => orderAlias.DeliveryPoint).WithAlias(() => resultAlias.DeliveryPoint))
-				.TransformUsing(Transformers.AliasToBean<RouteListAddressNode>())
-				.List<RouteListAddressNode>();
-
-			foreach(var routeListAddress in routeListAddresses)
-			{
-				RouteListAddresses.Add(routeListAddress);
-			}
-		}
-
-		public int[] GetDriversWithAdditionalLoadingFrom(int[] ids)
-		{
-			return _routeListRepository.GetDriversWithAdditionalLoading(_unitOfWork, ids)
-				.Select(x => x.Id).ToArray();
-		}
-
-		public IList<DriverPosition> GetLastRouteListTrackPoints(int[] ids)
-		{
-			return _trackRepository.GetLastPointForRouteLists(_unitOfWork, ids);
-		}
-
-		public IList<DriverPosition> GetLastRouteListTrackPoints(int[] movedDrivers, DateTime disconnectedDateTime)
-		{
-			return _trackRepository.GetLastPointForRouteLists(_unitOfWork, movedDrivers, disconnectedDateTime);
-		}
-
-		public IList<TrackPoint> GetRouteListTrackPoints(int id)
-		{
-			return _trackRepository.GetPointsForRouteList(_unitOfWork, id);
-		}
-
-		private void RefreshFastDeliveryDistricts()
-		{
-			FastDeliveryDistricts.Clear();
-			IList<District> districts;
-			if(ShowHistory)
-			{
-				districts = _scheduleRestrictionRepository
-					.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDate.AddHours(HistoryHour));
-			}
-			else
-			{
-				districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDelivery(_unitOfWork);
-			}
-			foreach(var district in districts)
-			{
-				FastDeliveryDistricts.Add(district);
-			}
-		}
-
+		#region IDisposable
 		public override void Dispose()
 		{
 			FastDeliveryDistricts.Clear();
@@ -625,8 +637,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			SelectedWorkingDrivers.Clear();
 			base.Dispose();
 		}
+		#endregion
 	}
 
+	#region Nodes
 	public class WorkingDriverNode
 	{
 		private int _routeListNumber;
@@ -695,4 +709,5 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public int RouteListNumber { get; set; }
 	}
+	#endregion
 }
