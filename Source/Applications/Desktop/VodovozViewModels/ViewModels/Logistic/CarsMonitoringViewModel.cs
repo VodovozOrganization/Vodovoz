@@ -1,4 +1,5 @@
-﻿using NetTopologySuite.Geometries;
+﻿using DateTimeHelpers;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -27,7 +28,6 @@ using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -50,7 +50,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool _separateVindowOpened = false;
 		private bool _canShowAddresses = true;
 
-		private readonly Color[] _availableTrackColors = new Color[]{
+		private readonly Color[] _availableTrackColors = new Color[]
+		{
 			Color.Red,
 			Color.Green,
 			Color.Blue,
@@ -347,9 +348,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var uncompletedBottlesSubquery = QueryOver.Of<RouteListItem>()  // Запрашивает количество ещё не доставленных бутылей.
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
 				.Where(i => i.Status == RouteListItemStatus.EnRoute)
-				   .JoinAlias(rli => rli.Order, () => orderAlias)
-				   .JoinAlias(() => orderAlias.OrderItems, () => ordItemsAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				   .JoinAlias(() => ordItemsAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinAlias(rli => rli.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.OrderItems, () => ordItemsAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => ordItemsAlias.Nomenclature, () => nomenclatureAlias)
 			   	.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(Projections.Sum(() => ordItemsAlias.Count));
 
@@ -376,7 +377,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => !orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
 				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water
-						   && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+					&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
@@ -384,7 +385,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water
-							 && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+					&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
 				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
 
@@ -395,25 +396,49 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => transferedToAlias)
 				.Where(() =>
 					//не отменённые и не недовозы
-					routeListItemAlias.Status != RouteListItemStatus.Canceled && routeListItemAlias.Status != RouteListItemStatus.Overdue
+					routeListItemAlias.Status != RouteListItemStatus.Canceled
+					&& routeListItemAlias.Status != RouteListItemStatus.Overdue
 					// и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
 					&& (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload || orderAlias.IsFastDelivery)
 					// и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
-					&& (routeListItemAlias.Status != RouteListItemStatus.Transfered || (!transferedToAlias.NeedToReload && !orderAlias.IsFastDelivery)))
+					&& (routeListItemAlias.Status != RouteListItemStatus.Transfered
+						|| (!transferedToAlias.NeedToReload && !orderAlias.IsFastDelivery)))
 				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
-						   nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+					nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
-			var water19LReserveProjection =
-				Projections.Conditional(Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
+			IProjection water19LReserveProjection;
+			if(ShowHistory)
+			{
+				water19LReserveProjection = Projections.Conditional(
+					Restrictions.And(
+						Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
+						Restrictions.Between(
+							Projections.Property(() => additionalLoadingDocumentAlias.CreationDate),
+								HistoryDate,
+								HistoryDate.AddHours(HistoryHour))),
 					Projections.Constant(0m),
 					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"), // 
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"),
 						NHibernateUtil.Decimal,
 						Projections.SubQuery(ownOrdersSubquery),
 						Projections.SubQuery(additionalBalanceSubquery),
 						Projections.SubQuery(deliveredOrdersSubquery)));
+				
+			}
+			else
+			{
+				water19LReserveProjection = Projections.Conditional(
+					Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
+					Projections.Constant(0m),
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"),
+						NHibernateUtil.Decimal,
+						Projections.SubQuery(ownOrdersSubquery),
+						Projections.SubQuery(additionalBalanceSubquery),
+						Projections.SubQuery(deliveredOrdersSubquery)));
+			}
 
 			#endregion
 
@@ -435,7 +460,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(ShowHistory)
 			{
-				query.Where(Restrictions.Between(Projections.Property(() => routeListAlias.Date), HistoryDate, HistoryDate.LatestDayTime()));
+				query.Where(Restrictions.Between(
+					Projections.Property(() => routeListAlias.Date),
+					HistoryDate,
+					HistoryDate.LatestDayTime()));
 			}
 			else
 			{
@@ -454,8 +482,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
 					.SelectSubQuery(trackSubquery).WithAlias(() => resultAlias.TrackId)
 					.SelectSubQuery(uncompletedBottlesSubquery).WithAlias(() => resultAlias.BottlesLeft)
-					.Select(water19LReserveProjection).WithAlias(() => resultAlias.Water19LReserve)
-					)
+					.Select(water19LReserveProjection).WithAlias(() => resultAlias.Water19LReserve))
 				.TransformUsing(Transformers.AliasToBean<WorkingDriverNode>())
 				.List<WorkingDriverNode>();
 
@@ -465,7 +492,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			foreach(var driver in result.GroupBy(x => x.Id).OrderBy(x => x.First().ShortName))
 			{
 				var savedRow = driver.First();
-				savedRow.RouteListsText = string.Join("; ", driver.Select(x => x.TrackId != null ? $"<span foreground=\"green\"><b>{x.RouteListNumber}</b></span>" : x.RouteListNumber.ToString()));
+				savedRow.RouteListsText = string.Join("; ", driver.Select(x => x.TrackId != null
+						? $"<span foreground=\"green\"><b>{x.RouteListNumber}</b></span>"
+						: x.RouteListNumber.ToString()));
 				savedRow.RouteListsIds = driver.ToDictionary(x => x.RouteListNumber, x => x.TrackId);
 				savedRow.AddressesAll = driver.Sum(x => x.AddressesAll);
 				savedRow.AddressesCompleted = driver.Sum(x => x.AddressesCompleted);
@@ -535,7 +564,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IList<District> districts;
 			if(ShowHistory)
 			{
-				districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDate.AddHours(HistoryHour));
+				districts = _scheduleRestrictionRepository
+					.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDate.AddHours(HistoryHour));
 			}
 			else
 			{
