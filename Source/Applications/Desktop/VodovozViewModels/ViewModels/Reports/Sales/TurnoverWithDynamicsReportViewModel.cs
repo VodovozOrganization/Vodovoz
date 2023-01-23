@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Linq;
 using NHibernate.Transform;
+using NLog.Targets;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -27,7 +28,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Goods;
+using Vodovoz.NHibernateProjections.Orders;
+using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozCounterparty = Vodovoz.Domain.Client.Counterparty;
 
@@ -275,7 +280,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					(filters) =>
 					{
 						var query = _unitOfWork.Session.QueryOver<ProductGroup>()
-							.Where(p => p.Parent == null);
+							.Where(p => p.Parent == null)
+							.And(p => !p.IsArchive);
 
 						if(filters != null && filters.Any())
 						{
@@ -593,7 +599,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			template.SaveAs(path);
 		}
 
-		private decimal GetWarhouseBalance(Nomenclature nomenclature)
+		private decimal GetWarhouseBalance(int nomenclatureId)
 		{
 			if(!ShowLastSale)
 			{
@@ -625,14 +631,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				Projections.SubQuery(writeoffSubQuery));
 
 			var result = _unitOfWork.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Id == nomenclature.Id)
+				.Where(() => nomenclatureAlias.Id == nomenclatureId)
 				.Select(projection)
 				.SingleOrDefault<decimal>();
 
 			return result;
 		}
 
-		private IList<OrderItem> GetData(TurnoverWithDynamicsReport report)
+		private IList<OrderItemNode> GetData(TurnoverWithDynamicsReport report)
 		{
 			var filterOrderStatusInclude = new OrderStatus[]
 			{
@@ -657,6 +663,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			VodovozCounterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 
+			OrderItemNode resultNodeAlias = null;
+
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.PromoSet, () => promotionalSetAlias)
 				.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
@@ -680,6 +688,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			var parameters = _filter.GetParameters();
 
+			#region filter parameters
 			if(parameters.ContainsKey(nameof(NomenclatureCategory) + _includeSuffix)
 				&& parameters[nameof(NomenclatureCategory) + _includeSuffix] is object[] nomenclatureTypesInclude
 				&& nomenclatureTypesInclude[0] != "0")
@@ -884,8 +893,25 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						promotionalSetsExclude)))
 					.Add(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id))));
 			}
+			#endregion
 
-			var result = query.Select(Projections.RootEntity()).ReadOnly().List<OrderItem>();
+			IProjection groupNameProjection = ProductGroupProjections.GetProductGroupNameWithEnclosureProjection();
+
+			var result = query.SelectList(list =>
+					list.SelectGroup(() => orderItemAlias.Id)
+						.Select(Projections.Property(() => orderAlias.Id).WithAlias(() => resultNodeAlias.Id))
+						.Select(Projections.Property(() => orderItemAlias.Price).WithAlias(() => resultNodeAlias.Price))
+						.Select(OrderProjections.GetOrderItemSumProjection()).WithAlias(() => resultNodeAlias.ActualSum)
+						.Select(Projections.Property(() => orderItemAlias.Count).WithAlias(() => resultNodeAlias.Count))
+						.Select(Projections.Property(() => orderItemAlias.ActualCount).WithAlias(() => resultNodeAlias.ActualCount))
+						.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
+						.Select(Projections.Property(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName))
+						.Select(Projections.Property(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId))
+						.Select(Projections.Property(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
+						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
+						.Select(groupNameProjection.WithAlias(() => resultNodeAlias.ProductGroupName)))
+				.SetTimeout(0)
+				.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).List<OrderItemNode>();
 
 			return result;
 		}
