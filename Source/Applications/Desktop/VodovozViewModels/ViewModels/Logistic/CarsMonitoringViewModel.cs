@@ -25,6 +25,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.NHibernateProjections.Logistics;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
@@ -358,7 +359,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Where(x => x.RouteList.Id == routeListAlias.Id)
 				.Select(x => x.Id);
 
-			IProjection isCompanyCarProjection = GetIsCompanyCarProjection();
+			IProjection isCompanyCarProjection = CarProjections.GetIsCompanyCarProjection();
 
 			#region Water19LReserve
 
@@ -428,16 +429,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		private static IProjection GetIsCompanyCarProjection()
-		{
-			CarVersion carVersionAlias = null;
-
-			return Projections.Conditional(
-				Restrictions.Eq(Projections.Property(() => carVersionAlias.CarOwnType), CarOwnType.Company),
-				Projections.Constant(true),
-				Projections.Constant(false));
-		}
-
 		private static QueryOver<RouteListItem, RouteListItem> CreateOwnOrdersSubquery()
 		{
 			RouteListItem routeListItemAlias = null;
@@ -457,20 +448,30 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 							.Select(Projections.Sum(() => orderItemAlias.Count));
 		}
 
-		private static QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> CreateAdditionalBalanceSuqquery()
+		private QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> CreateAdditionalBalanceSuqquery()
 		{
 			RouteList routeListAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
 			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
 
-			return QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
+			var subquery = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
 				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water
 					&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
 				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
+
+			if(ShowHistory)
+			{
+				subquery.And(Restrictions.Between(
+					Projections.Property(() => additionalLoadingDocumentAlias.CreationDate),
+						HistoryDate,
+						HistoryDate.AddHours(HistoryHour)));
+			}
+
+			return subquery;
 		}
 
 		private static QueryOver<RouteListItem, RouteListItem> CreateDeliveredOrdersSubquery()
@@ -512,18 +513,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			QueryOver<RouteListItem, RouteListItem> deliveredOrdersSubquery = CreateDeliveredOrdersSubquery();
 
 			RouteList routeListAlias = null;
-			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
 
 			IProjection water19LReserveProjection;
+
 			if(ShowHistory)
 			{
 				water19LReserveProjection = Projections.Conditional(
-					Restrictions.And(
-						Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
-						Restrictions.Between(
-							Projections.Property(() => additionalLoadingDocumentAlias.CreationDate),
-								HistoryDate,
-								HistoryDate.AddHours(HistoryHour))),
+					Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
 					Projections.Constant(0m),
 					Projections.SqlFunction(
 						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"),
@@ -531,7 +527,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						Projections.SubQuery(ownOrdersSubquery),
 						Projections.SubQuery(additionalBalanceSubquery),
 						Projections.SubQuery(deliveredOrdersSubquery)));
-
 			}
 			else
 			{
