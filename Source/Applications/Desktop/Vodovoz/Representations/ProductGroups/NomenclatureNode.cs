@@ -12,7 +12,7 @@ namespace Vodovoz.Representations.ProductGroups
 		[SearchHighlight]
 		public string Name { get; set; }
 		public bool IsArchive { get; set; }
-		public NomenclatureGroupNode Parent { get; set; }
+		public ProductGroupVMNode Parent { get; set; }
 		public int? ParentId { get; set; }
 	}
 }
