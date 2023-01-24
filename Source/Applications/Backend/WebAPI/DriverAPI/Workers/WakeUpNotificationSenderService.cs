@@ -63,6 +63,11 @@ namespace DriverAPI.Workers
 					_logger.LogError(e, "Ошибка отправки WakeUp-сообщения, пропуск цикла {StopExecutedAt}", DateTime.Now);
 					break;
 				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Произошла непредвиденная ошибка");
+					break;
+				}
 			}
 		}
 	}
