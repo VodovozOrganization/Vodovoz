@@ -14,7 +14,7 @@ namespace Vodovoz.Representations.ProductGroups
 		public string Name { get; set; }
 		public bool IsArchive { get; set; }
 		public IList<ProductGroupVMNode> ChildGroups { get; set; } = new List<ProductGroupVMNode>();
-		public NomenclatureGroupNode ChildGroupNomenclatures { get; set; }
+		public IList<NomenclatureNode> ChildNomenclatures { get; set; } = new List<NomenclatureNode>();
 		public ProductGroupVMNode Parent { get; set; }
 		public int? ParentId { get; set; }
 	}
