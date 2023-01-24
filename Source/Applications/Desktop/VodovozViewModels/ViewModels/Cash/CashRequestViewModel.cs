@@ -271,6 +271,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(() => ExpenseCategorySensitive);
 				OnPropertyChanged(() => VisibleOnlyForFinancer);
 				OnPropertyChanged(() => CanSeeGiveSum);
+				OnPropertyChanged(() => CanGiveSum);
 				OnPropertyChanged(() => CanApprove);
 				OnPropertyChanged(() => CanConveyForResults);
 				OnPropertyChanged(() => CanCancel);
