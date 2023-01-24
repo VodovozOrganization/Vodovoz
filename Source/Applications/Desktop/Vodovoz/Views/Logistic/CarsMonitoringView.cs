@@ -396,7 +396,15 @@ namespace Vodovoz.Views.Logistic
 				var startRequest = DateTime.Now;
 				DateTime disconnectedDateTime = start.Add(ViewModel.DriverDisconnectedTimespan);
 
-				IList<DriverPosition> lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds);
+				IList<DriverPosition> lastPoints;
+				if(ViewModel.ShowHistory)
+				{
+					lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds, ViewModel.HistoryDate.AddHours(ViewModel.HistoryHour));
+				}
+				else
+				{
+					lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds);
+				}
 
 				var movedDrivers = lastPoints.Where(x => x.Time > disconnectedDateTime)
 					.Select(x => x.RouteListId)
