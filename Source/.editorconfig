@@ -66,3 +66,6 @@ dotnet_naming_style._privatefieldstyle.required_prefix = _
 dotnet_naming_style._privatefieldstyle.required_suffix = 
 dotnet_naming_style._privatefieldstyle.word_separator = 
 dotnet_naming_style._privatefieldstyle.capitalization = camel_case
+
+[Applications/Desktop/Vodovoz/gtk-gui/*.cs]
+generated_code = true
