@@ -32,7 +32,6 @@ namespace DriverAPI.Workers
 
 			_logger.LogInformation("Интервал отправки WakeUp-сообщений: {WakeUpCoordinatesNotificationInterval} секунд", interval);
 
-
 			if(_wakeUpDriverClientService.Clients.IsEmpty())
 			{
 				var tokens = employeeData.GetAllPushNotifiableTokens();
@@ -50,24 +49,26 @@ namespace DriverAPI.Workers
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Начало цикла отправки WakeUp-сообщений {StartExecutedAt}", DateTime.Now);
-			foreach(var client in _wakeUpDriverClientService.Clients)
+			try
 			{
-				try
+				_logger.LogInformation("Начало цикла отправки WakeUp-сообщений {StartExecutedAt}", DateTime.Now);
+				foreach(var client in _wakeUpDriverClientService.Clients)
 				{
-					_logger.LogInformation("Попытка отправки WakeUp-сообщения на {FirebaseToken}", client);
-					await _fCMAPIHelper.SendWakeUpNotification(client);
+					try
+					{
+						_logger.LogInformation("Попытка отправки WakeUp-сообщения на {FirebaseToken}", client);
+						await _fCMAPIHelper.SendWakeUpNotification(client);
+					}
+					catch(FCMException e)
+					{
+						_logger.LogError(e, "Ошибка отправки WakeUp-сообщения, пропуск цикла {StopExecutedAt}", DateTime.Now);
+						break;
+					}
 				}
-				catch(FCMException e)
-				{
-					_logger.LogError(e, "Ошибка отправки WakeUp-сообщения, пропуск цикла {StopExecutedAt}", DateTime.Now);
-					break;
-				}
-				catch(Exception e)
-				{
-					_logger.LogError(e, "Произошла непредвиденная ошибка");
-					break;
-				}
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Произошла непредвиденная ошибка");
 			}
 		}
 	}
