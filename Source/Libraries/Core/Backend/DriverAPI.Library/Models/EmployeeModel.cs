@@ -37,9 +37,9 @@ namespace DriverAPI.Library.Models
 				?? throw new DataNotFoundException(nameof(login), $"Не найден сотрудник для логина { login }");
 		}
 
-		public IList<string> GetAllPushNotifiableTokens()
+		public IEnumerable<Employee> GetAllPushNotifiableEmployees()
 		{
-			return _employeeRepository.GetAllPushTokens(_unitOfWork);
+			return _employeeRepository.GetSubscribedToPushNotificationsDrivers(_unitOfWork);
 		}
 	}
 }

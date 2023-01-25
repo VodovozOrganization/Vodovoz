@@ -1,7 +1,5 @@
 ﻿using DriverAPI.Library.Helpers;
-using DriverAPI.Library.Models;
 using DriverAPI.Services;
-using FluentNHibernate.Conventions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -21,8 +19,7 @@ namespace DriverAPI.Workers
 			ILogger<WakeUpNotificationSenderService> logger,
 			IConfiguration configuration,
 			IFCMAPIHelper fCMAPIHelper,
-			IWakeUpDriverClientService wakeUpDriverClientService,
-			IEmployeeModel employeeData)
+			IWakeUpDriverClientService wakeUpDriverClientService)
 		{
 			_logger = logger;
 			_fCMAPIHelper = fCMAPIHelper;
@@ -31,18 +28,6 @@ namespace DriverAPI.Workers
 			Interval = TimeSpan.FromSeconds(interval);
 
 			_logger.LogInformation("Интервал отправки WakeUp-сообщений: {WakeUpCoordinatesNotificationInterval} секунд", interval);
-
-			if(_wakeUpDriverClientService.Clients.IsEmpty())
-			{
-				var tokens = employeeData.GetAllPushNotifiableTokens();
-
-				foreach(var token in tokens)
-				{
-					_wakeUpDriverClientService.Clients.Add(token);
-				}
-			}
-
-			_logger.LogInformation("Зарегистрировано {WakeUpCoordinatesNotificationClientsCount} клиентов для получения WakeUp-сообщений", _wakeUpDriverClientService.Clients.Count);
 		}
 
 		protected override TimeSpan Interval { get; }
@@ -51,13 +36,16 @@ namespace DriverAPI.Workers
 		{
 			try
 			{
-				_logger.LogInformation("Начало цикла отправки WakeUp-сообщений {StartExecutedAt}", DateTime.Now);
-				foreach(var client in _wakeUpDriverClientService.Clients)
+				_logger.LogInformation("Начало цикла отправки WakeUp-сообщений {StartExecutedAt}, сообщений ожидают {WakeUpNotificationsClientsCount} клиентов мобильного приложения",
+					DateTime.Now,
+					_wakeUpDriverClientService.Clients.Count);
+
+				foreach((var clientId, var clientToken) in _wakeUpDriverClientService.Clients)
 				{
 					try
 					{
-						_logger.LogInformation("Попытка отправки WakeUp-сообщения на {FirebaseToken}", client);
-						await _fCMAPIHelper.SendWakeUpNotification(client);
+						_logger.LogInformation("Попытка отправки WakeUp-сообщения для водителя {DriverId} с токеном {FirebaseToken}", clientId, clientToken);
+						await _fCMAPIHelper.SendWakeUpNotification(clientToken);
 					}
 					catch(FCMException e)
 					{

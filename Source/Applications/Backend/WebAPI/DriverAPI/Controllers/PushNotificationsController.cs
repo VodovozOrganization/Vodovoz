@@ -52,10 +52,10 @@ namespace DriverAPI.Controllers
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				enablePushNotificationsRequest.Token,
 				Request.Headers[HeaderNames.Authorization]);
-			_wakeUpDriverClientService.Clients.Add(enablePushNotificationsRequest.Token);
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
+			_wakeUpDriverClientService.Subscribe(driver, enablePushNotificationsRequest.Token);
 			_employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
 		}
 
@@ -72,8 +72,9 @@ namespace DriverAPI.Controllers
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
-			_wakeUpDriverClientService.Clients.Remove(driver.AndroidToken);
+			_wakeUpDriverClientService.UnSubscribe(driver);
 			_employeeData.DisablePushNotifications(driver);
+
 		}
 
 		/// <summary>

@@ -7,7 +7,7 @@ namespace DriverAPI.Library.Models
 	{
 		void DisablePushNotifications(Employee driver);
 		void EnablePushNotifications(Employee driver, string token);
-		IList<string> GetAllPushNotifiableTokens();
+		IEnumerable<Employee> GetAllPushNotifiableEmployees();
 		Employee GetByAPILogin(string login);
 	}
 }
