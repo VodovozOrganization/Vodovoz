@@ -1775,6 +1775,7 @@
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
     <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Widget.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
