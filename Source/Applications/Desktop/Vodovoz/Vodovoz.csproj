@@ -1773,9 +1773,9 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarsMonitoringView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.cs" />
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
-    <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Widget.cs" />
+    <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
+    <Compile Include="ReportsParameters\WayBillGroupReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
