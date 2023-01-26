@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using GLib;
 using GMap.NET;
@@ -392,25 +392,25 @@ namespace Vodovoz.Views.Logistic
 					.SelectMany(x => x.RouteListsIds.Keys)
 					.ToArray();
 
-				var start = ViewModel.ShowHistory ? ViewModel.HistoryDate.AddHours(ViewModel.HistoryHour) : DateTime.Now; // Значение времени? 0_о
+				var start = ViewModel.ShowHistory ? ViewModel.HistoryDate.Add(ViewModel.HistoryHour) : DateTime.Now; // Значение времени? 0_о
 				var startRequest = DateTime.Now;
 				DateTime disconnectedDateTime = start.Add(ViewModel.DriverDisconnectedTimespan);
 
 				IList<DriverPosition> lastPoints;
 				if(ViewModel.ShowHistory)
 				{
-					lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds, ViewModel.HistoryDate.AddHours(ViewModel.HistoryHour));
+					lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds, ViewModel.HistoryDate.Add(ViewModel.HistoryHour));
 				}
 				else
 				{
 					lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds);
 				}
 
-				var movedDrivers = lastPoints.Where(x => x.Time > disconnectedDateTime)
+				var movedDriversRouteListsIds = lastPoints.Where(x => x.Time > disconnectedDateTime)
 					.Select(x => x.RouteListId)
 					.ToArray();
 
-				var ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDrivers, disconnectedDateTime);
+				var ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDriversRouteListsIds, disconnectedDateTime);
 				_logger.Debug("Время запроса точек: {0}", DateTime.Now - startRequest);
 
 				var driversWithAdditionalLoading = ViewModel.GetDriversWithAdditionalLoadingFrom(routesIds);

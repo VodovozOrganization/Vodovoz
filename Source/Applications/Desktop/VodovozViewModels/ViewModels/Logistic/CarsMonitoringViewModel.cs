@@ -41,8 +41,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
 
-		private TimeSpan _driverDisconnectedTimespan;
-
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 
 		private bool _showCarCirclesOverlay = false;
@@ -73,7 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool _canOpenKeepingTab;
 		private bool _showHistory;
 		private DateTime _historyDate;
-		private int _historyHour;
+		private TimeSpan _historyHour;
 		private readonly TimeSpan _fastDeliveryTime;
 
 		private readonly double _fastDeliveryMaxDistance;
@@ -106,12 +104,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CarRefreshInterval = TimeSpan.FromSeconds(10);
 
 			DefaultMapCenterPosition = new Coordinate(59.93900, 30.31646);
-			_driverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
+			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
 
-			HistoryHours = Enumerable.Range(0, 24);
+			var timespanRange = new List<TimeSpan>();
+
+			for(int i = 0; i < 24; i++)
+			{
+				timespanRange.Add(TimeSpan.FromHours(i));
+			}
+
+			HistoryHours = timespanRange;
 
 			_historyDate = DateTime.Today;
-			_historyHour = 9;
+			_historyHour = TimeSpan.FromHours(9);
 
 			if(deliveryRulesParametersProvider is null)
 			{
@@ -215,12 +220,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => SetField(ref _canOpenKeepingTab, value);
 		}
 
-		public TimeSpan DriverDisconnectedTimespan
-		{
-			get => _driverDisconnectedTimespan;
-			set => SetField(ref _driverDisconnectedTimespan, value);
-		}
-
 		public bool ShowHistory
 		{
 			get => _showHistory;
@@ -252,7 +251,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		public int HistoryHour
+		public TimeSpan HistoryHour
 		{
 			get => _historyHour;
 			set
@@ -273,6 +272,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#region Readoly Properties
 		public override bool HasChanges => false;
 
+		public TimeSpan DriverDisconnectedTimespan { get; }
+
 		public TimeSpan CarRefreshInterval { get; }
 
 		public string CarsOverlayId { get; }
@@ -285,7 +286,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public Coordinate DefaultMapCenterPosition { get; }
 
-		public IEnumerable<int> HistoryHours { get; }
+		public IEnumerable<TimeSpan> HistoryHours { get; }
 
 		public TimeSpan FastDeliveryTime => _fastDeliveryTime;
 
@@ -478,7 +479,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(ShowHistory)
 			{
 				districts = _scheduleRestrictionRepository
-					.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDate.AddHours(HistoryHour));
+					.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDate.Add(HistoryHour));
 			}
 			else
 			{
@@ -502,9 +503,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return _trackRepository.GetLastPointForRouteLists(_unitOfWork, ids);
 		}
 
-		public IList<DriverPosition> GetLastRouteListTrackPoints(int[] movedDrivers, DateTime disconnectedDateTime)
+		public IList<DriverPosition> GetLastRouteListTrackPoints(int[] routeListsIds, DateTime disconnectedDateTime)
 		{
-			return _trackRepository.GetLastPointForRouteLists(_unitOfWork, movedDrivers, disconnectedDateTime);
+			return _trackRepository.GetLastPointForRouteLists(_unitOfWork, routeListsIds, disconnectedDateTime);
 		}
 
 		public IList<TrackPoint> GetRouteListTrackPoints(int id)
@@ -552,7 +553,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				subquery.And(Restrictions.Between(
 					Projections.Property(() => additionalLoadingDocumentAlias.CreationDate),
 						HistoryDate,
-						HistoryDate.AddHours(HistoryHour)));
+						HistoryDate.Add(HistoryHour)));
 			}
 
 			return subquery;

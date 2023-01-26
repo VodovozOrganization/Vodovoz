@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using System.Linq;
@@ -45,7 +45,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			
 			if(beforeTime.HasValue)
 			{
-				lastTimeTrackQuery.Where(p => p.TimeStamp <= beforeTime);
+				lastTimeTrackQuery.Where(p => p.ReceiveTimeStamp < beforeTime);
 			}
 
 			lastTimeTrackQuery.Select(Projections.Max(() => subPoint.TimeStamp));
