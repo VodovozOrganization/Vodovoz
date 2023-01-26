@@ -29,13 +29,13 @@ namespace Vodovoz.ReportsParameters
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICarJournalFactory _carJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly IOrganizationJournalFactory _organizationJournalFactory;
 
-		public WayBillReportGroupPrint(IEmployeeJournalFactory employeeJournalFactory, ICarJournalFactory carJournalFactory, ISubdivisionJournalFactory subdivisionJournalFactory)
+		public WayBillReportGroupPrint(IEmployeeJournalFactory employeeJournalFactory, ICarJournalFactory carJournalFactory, IOrganizationJournalFactory organizationJournalFactory)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
+			_organizationJournalFactory = organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory));
 
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -72,7 +72,7 @@ namespace Vodovoz.ReportsParameters
 			//Выбор подразделения
 			comboDepartment.SetRenderTextFunc<Subdivision>(x => x.Name);
 			comboDepartment.ItemsList = UoW.GetAll<Subdivision>();
-			//comboDepartment.Add(new Subdivision { Name = "Все" });
+			comboDepartment.ShowSpecialStateAll = true;
 
 			//Время отправления по умолчанию
 			timeHourEntryGroupReportForOneDay.Text = DateTime.Now.Hour.ToString("00.##");
@@ -93,11 +93,11 @@ namespace Vodovoz.ReportsParameters
 			enumcheckCarOwnTypeOneDayReport1.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarOwnTypeOneDayReport1.SelectAll();
 
-			//Выбор подразделения
+			//Выбор организации
 			entryManufactures.SetEntityAutocompleteSelectorFactory(
-				_subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory());
+				_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
 
-			entryManufactures.SetEntityAutocompleteSelectorFactory(_subdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory());
+			entryManufactures.SetEntityAutocompleteSelectorFactory(_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
 		}
 
 		#region IParametersWidget implementation
@@ -108,7 +108,7 @@ namespace Vodovoz.ReportsParameters
 
 		#endregion
 
-		private ReportInfo GetReportInfo()
+		private ReportInfo GetSingleReportInfo()
 		{
 			return new ReportInfo
 			{
@@ -124,9 +124,18 @@ namespace Vodovoz.ReportsParameters
 			};
 		}
 
+		private ReportInfo GetSingleReportInfo(Dictionary<string, object> parameters)
+		{
+			return new ReportInfo
+			{
+				Identifier = "Logistic.WayBillReport",
+				Parameters = parameters
+			};
+		}
+
 		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
 		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetSingleReportInfo(), true));
 		}
 	}
 }
