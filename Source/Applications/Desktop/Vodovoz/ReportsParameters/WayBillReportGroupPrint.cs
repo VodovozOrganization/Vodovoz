@@ -22,6 +22,10 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using System.Linq;
+using NHibernate.Criterion;
+using Vodovoz.Domain.Goods;
+using NHibernate.Util;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -62,11 +66,11 @@ namespace Vodovoz.ReportsParameters
 			datepickerGroupReportForOneDay.Date = DateTime.Today;
 
 			// Тип автомобиля
-			enumcheckCarTypeOfUseOneDayReport.EnumType = typeof(CarOwnType);
+			enumcheckCarTypeOfUseOneDayReport.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUseOneDayReport.SelectAll();
 
 			// Принадлежность автомобиля
-			enumcheckCarOwnTypeOneDayReport.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarOwnTypeOneDayReport.EnumType = typeof(CarOwnType);
 			enumcheckCarOwnTypeOneDayReport.SelectAll();
 
 			//Выбор подразделения
@@ -124,6 +128,49 @@ namespace Vodovoz.ReportsParameters
 			};
 		}
 
+		private ReportInfo GetReportInfo(int driverId, int carId, string timeHours, string timeMinnutes, DateTime? date = null)
+		{
+			return new ReportInfo
+			{
+				Identifier = "Logistic.WayBillReport",
+				Parameters = new Dictionary<string, object>
+				{
+					{ "date", date },
+					{ "driver_id", driverId },
+					{ "car_id", carId },
+					{ "time", timeHours + ":" + timeMinnutes },
+					{ "need_date", date != null }
+				}
+			};
+		}
+
+		private IEnumerable<ReportInfo> GetGroupReportInfoForOneDay()
+		{
+			var types = (enumcheckCarTypeOfUseOneDayReport.SelectedValues).ToArray();
+			
+			var cars = UoW.GetAll<Car>()
+				.Where(c => !c.IsArchive)
+				.ToArray<Car>();
+			var type = cars[0].CarModel.CarTypeOfUse;
+			var cont2 = types.Contains(cars[0].CarModel.CarTypeOfUse);
+			var cont3 = types.Any(t => (CarTypeOfUse)t == cars[0].CarModel.CarTypeOfUse);
+
+			var drivers = UoW.GetAll<Employee>()
+				.Where(e=>e.Category == EmployeeCategory.driver)
+				.ToArray<Employee>();
+
+			var carDriver = cars.Join(drivers,
+					(c) => c.Id,
+					(d) => d.Id,
+					(c, d) => new { carId = c.Id, driverId = d.Id })
+				.ToArray();
+
+			foreach (var car in carDriver)
+			{
+				yield return GetReportInfo(car.driverId, car.carId, timeHourEntryGroupReportForOneDay.Text, timeMinuteEntryGroupReportForPOneDay.Text, datepickerGroupReportForOneDay.Date);
+			}
+		}
+
 		private ReportInfo GetSingleReportInfo(Dictionary<string, object> parameters)
 		{
 			return new ReportInfo
@@ -135,7 +182,7 @@ namespace Vodovoz.ReportsParameters
 
 		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
 		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetSingleReportInfo(), true));
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetGroupReportInfoForOneDay().First(), true));
 		}
 	}
 }
