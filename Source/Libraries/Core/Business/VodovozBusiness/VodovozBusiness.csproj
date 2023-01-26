@@ -53,8 +53,12 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Logistic\AddressTransferType.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
     <Compile Include="Controllers\EmployeeRegistrationVersionController.cs" />
+    <Compile Include="Domain\Logistic\DeliveryFreeBalanceType.cs" />
+    <Compile Include="Controllers\IRouteListFreeBalanceController.cs" />
+    <Compile Include="Controllers\RouteListFreeBalanceController.cs" />
     <Compile Include="Controllers\FuelPriceVersionsController.cs" />
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
     <Compile Include="Controllers\IEmployeeRegistrationVersionController.cs" />
@@ -99,6 +103,11 @@
     <Compile Include="Domain\Client\RoboAtsCounterpartyPatronymic.cs" />
     <Compile Include="Domain\Complaints\ComplaintDiscussionStatuses.cs" />
     <Compile Include="Domain\Complaints\Responsible.cs" />
+    <Compile Include="Domain\Documents\CarUnderloadDocumentItem.cs" />
+    <Compile Include="Domain\Documents\CarUnderloadDocument.cs" />
+    <Compile Include="Domain\Documents\RouteListKeepingDocumentItem.cs" />
+    <Compile Include="Domain\Documents\RouteListKeepingDocument.cs" />
+    <Compile Include="Domain\Documents\DeliveryFreeBalanceTransferItem.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentBase.cs" />
@@ -180,6 +189,7 @@
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\FastDeliveryMaxDistanceParameterVersion.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
+    <Compile Include="Domain\Operations\DeliveryFreeBalanceOperation.cs" />
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
     <Compile Include="Domain\Orders\TrueMarkApiDocument.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
@@ -444,11 +454,16 @@
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointEstimatedCoordinateMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\CarUnderloadDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\RouteListKeepingDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\CarUnderloadDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\RouteListKeepingDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DocumentPrintHistoryMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DeliveryDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\DeliveryFreeBalanceTransferItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverNomenclatureTransferItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverTerminalTransferDocumentBaseMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverTerminal\DriverAttachedTerminalDocumentsMap.cs" />
@@ -491,6 +506,7 @@
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
     <Compile Include="HibernateMapping\Logistic\ArchivedTrackPointMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\DeliveryFreeBalanceOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
     <Compile Include="HibernateMapping\Order\TrueMarkApiDocumentMap.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />

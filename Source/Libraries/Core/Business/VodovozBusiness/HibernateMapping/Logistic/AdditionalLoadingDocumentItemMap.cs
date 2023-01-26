@@ -14,6 +14,7 @@ namespace Vodovoz.HibernateMapping.Logistic
 			Map(x => x.Amount).Column("amount");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.AdditionalLoadingDocument).Column("additional_loading_document_id");
+			References(x => x.DeliveryFreeBalanceOperation).Column("delivery_free_balance_operation_id").Cascade.All();
 		}
 	}
 }

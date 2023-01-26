@@ -41,7 +41,7 @@ namespace Vodovoz
 			set => ytreeRouteListDiscrepancyItemsView.Sensitive = value;
 		}
 
-		public IList<RouteListControlNotLoadedNode> ItemsLoaded { get; set; }
+		public IList<RouteListControlNotLoadedNode> ItemsNotLoaded { get; set; }
 
 		protected void Configure()
 		{
@@ -50,19 +50,19 @@ namespace Vodovoz
             ytreeRouteListDiscrepancyItemsView.ColumnsConfig = ColumnsConfigFactory.Create<Discrepancy>()
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
-				.AddColumn("Недопо-\nгрузка")
+				.AddColumn("Погрузка")
 					.AddNumericRenderer(node => node.FromWarehouse)
+				.AddColumn("Получено\nот других\nводителей")
+					.AddNumericRenderer(node => node.TransferedFromDrivers)
+				.AddColumn("Передано\nдругим\nводителям")
+					.AddNumericRenderer(node => node.TransferedToAnotherDrivers)
+				.AddColumn("Отгружено\nклиентам")
+					.AddNumericRenderer(node => node.DeliveredToClient)
+				.AddColumn("Получено от\nклиентов")
+					.AddNumericRenderer(node => node.PickedUpFromClient)
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 				.AddColumn("Выгру-\nзка")
 					.AddNumericRenderer(node => node.ToWarehouse)
-					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
-				.AddColumn("Не-\nдовоз")
-					.AddTextRenderer(node => node.Returns)
-				.AddColumn("От \nклиента")
-					.AddNumericRenderer(node => node.PickedUpFromClient)
-					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
-				.AddColumn("Запас")
-					.AddNumericRenderer(node => node.AdditionaLoading)
 					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 				.AddColumn("Расхо-\nждения")
 					.AddNumericRenderer(node => node.Remainder)
@@ -87,7 +87,7 @@ namespace Vodovoz
 		}
 
 		public void FindDiscrepancies(List<ReturnsNode> allReturnsToWarehouse) {
-			Items = RouteList.GetDiscrepancies(ItemsLoaded, allReturnsToWarehouse);
+			Items = RouteList.GetDiscrepancies(ItemsNotLoaded, allReturnsToWarehouse);
 		}
 	}
 }

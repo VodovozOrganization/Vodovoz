@@ -138,6 +138,7 @@ namespace Vodovoz
 		private CounterpartyContractFactory counterpartyContractFactory;
 		private IOrderParametersProvider _orderParametersProvider;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
+		private RouteListFreeBalanceDocumentController _routeListFreeBalanceDocumentController;
 
 		private readonly IRouteListParametersProvider _routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
@@ -465,6 +466,8 @@ namespace Vodovoz
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
+			var routeListRepository = new RouteListRepository(_stockRepository, _baseParametersProvider);
+			_routeListFreeBalanceDocumentController = new RouteListFreeBalanceDocumentController(_employeeRepository, routeListRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
@@ -1657,7 +1660,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			RouteList routeListToAddOrderTo = null;
+			RouteList routeListToAddFastDeliveryOrder = null;
 
 			if(Entity.IsFastDelivery)
 			{
@@ -1710,11 +1713,11 @@ namespace Vodovoz
 				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(UnitOfWorkFactory.GetDefaultFactory);
 				fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
-				routeListToAddOrderTo = fastDeliveryAvailabilityHistory.Items
+				routeListToAddFastDeliveryOrder = fastDeliveryAvailabilityHistory.Items
 					.FirstOrDefault(x => x.IsValidToFastDelivery)
 					?.RouteList;
 
-				if(routeListToAddOrderTo == null)
+				if(routeListToAddFastDeliveryOrder == null)
 				{
 					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
 					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
@@ -1767,10 +1770,12 @@ namespace Vodovoz
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 			treeItems.Selection.UnselectAll();
 
-			if(routeListToAddOrderTo != null)
+			RouteListItem fastDeliveryAddress = null;
+
+			if(routeListToAddFastDeliveryOrder != null)
 			{
-				UoW.Session.Refresh(routeListToAddOrderTo);
-				routeListToAddOrderTo.AddAddressFromOrder(Entity);
+				UoW.Session.Refresh(routeListToAddFastDeliveryOrder);
+				fastDeliveryAddress = routeListToAddFastDeliveryOrder.AddAddressFromOrder(Entity);
 				Entity.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, CallTaskWorker);
 				Entity.UpdateDocuments();
 			}
@@ -1779,7 +1784,19 @@ namespace Vodovoz
 			{
 				return false;
 			}
-			if(routeListToAddOrderTo != null && DriverApiParametersProvider.NotificationsEnabled)
+
+			if(fastDeliveryAddress != null)
+			{
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("CreateOrUpdateRouteListKeepingDocument"))
+				{
+					_routeListFreeBalanceDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, fastDeliveryAddress,
+						DeliveryFreeBalanceType.Decrease);
+
+					uow.Commit();
+				}
+			}
+
+			if(routeListToAddFastDeliveryOrder != null && DriverApiParametersProvider.NotificationsEnabled)
 			{
 				NotifyDriver();
 			}
@@ -2969,6 +2986,8 @@ namespace Vodovoz
 				{
 					Entity.SetActualCountsToZeroOnCanceled();
 				}
+
+				_routeListFreeBalanceDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, Entity, DeliveryFreeBalanceType.Increase);
 
 				UpdateUIState();
 

@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using QS.Project.Services;
 using QS.Report;
+using Vodovoz.Controllers;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
@@ -33,6 +34,8 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private IRouteListFreeBalanceDocumentController _routeListFreeBalanceDocumentController;
+
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -157,6 +160,8 @@ namespace Vodovoz
 			} else {
 				Entity.CanEdit = true;
 			}
+
+			_routeListFreeBalanceDocumentController = new RouteListFreeBalanceDocumentController(_employeeRepository, _routeListRepository);
 		}
 
 		public override bool Save()
@@ -175,6 +180,8 @@ namespace Vodovoz
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
+
+			_routeListFreeBalanceDocumentController.CreateOrUpdateCarUnderloadDocument(UoW, Entity.RouteList);
 
 			if(Entity.Items.Any(x => x.Amount == 0))
 			{

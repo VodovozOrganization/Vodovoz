@@ -606,10 +606,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					routeListItemAlias.Status != RouteListItemStatus.Canceled
 					&& routeListItemAlias.Status != RouteListItemStatus.Overdue
 					// и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
-					&& (!routeListItemAlias.WasTransfered || routeListItemAlias.NeedToReload || orderAlias.IsFastDelivery)
+					&& (!routeListItemAlias.WasTransfered || routeListItemAlias.AddressTransferType == AddressTransferType.NeedToReload || orderAlias.IsFastDelivery)
 					// и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
 					&& (routeListItemAlias.Status != RouteListItemStatus.Transfered
-						|| (!transferedToAlias.NeedToReload && !orderAlias.IsFastDelivery)))
+						|| (transferedToAlias.AddressTransferType != AddressTransferType.NeedToReload && !orderAlias.IsFastDelivery)))
 				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
 					nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)

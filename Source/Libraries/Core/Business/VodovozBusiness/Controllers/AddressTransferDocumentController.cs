@@ -83,11 +83,16 @@ namespace Vodovoz.Controllers
                     Document = transferDocument,
                     OldAddress = address,
                     NewAddress = address.TransferedTo,
-                    NeedToReload = address.TransferedTo.NeedToReload
+                    AddressTransferType = address.TransferedTo.AddressTransferType
                 };
                 transferDocument.ObservableAddressTransferDocumentItems.Add(newAddressTransferItem);
 
-                if(newAddressTransferItem.NeedToReload) {
+                if(newAddressTransferItem.AddressTransferType == AddressTransferType.FromFreeBalance)
+                {
+					CreateDeliveryFreeBalanceOperations(newAddressTransferItem);
+                }
+
+                if(newAddressTransferItem.AddressTransferType == AddressTransferType.NeedToReload) {
                     continue;
                 }
 
@@ -121,5 +126,39 @@ namespace Vodovoz.Controllers
 
             uow.Save(transferDocument);
         }
-    }
+
+		private void CreateDeliveryFreeBalanceOperations(AddressTransferDocumentItem addressTransferItem)
+		{
+			foreach(var orderItem in addressTransferItem.OldAddress.Order.GetAllGoodsToDeliver())
+			{
+				var newDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
+				{
+					AddressTransferDocumentItem = addressTransferItem,
+					RouteListFrom = addressTransferItem.OldAddress.RouteList,
+					RouteListTo = addressTransferItem.OldAddress.TransferedTo.RouteList,
+					Nomenclature = orderItem.Nomenclature,
+					Amount = orderItem.Amount
+				};
+
+				newDeliveryFreeBalanceTransferItem.CreateOrUpdateOperations();
+				addressTransferItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
+			}
+
+			foreach(var orderItem in addressTransferItem.OldAddress.Order.OrderEquipments
+						.Where(x => x.Direction == Direction.Deliver))
+			{
+				var newDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
+				{
+					AddressTransferDocumentItem = addressTransferItem,
+					Amount = orderItem.Count,
+					Nomenclature = orderItem.Nomenclature,
+					RouteListFrom = addressTransferItem.OldAddress.RouteList,
+					RouteListTo = addressTransferItem.OldAddress.TransferedTo.RouteList
+				};
+
+				newDeliveryFreeBalanceTransferItem.CreateOrUpdateOperations();
+				addressTransferItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
+			}
+		}
+	}
 }

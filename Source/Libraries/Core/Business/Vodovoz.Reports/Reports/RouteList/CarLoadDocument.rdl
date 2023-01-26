@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -49,7 +49,7 @@ FROM
 	    measurement_units ON measurement_units.id = nomenclature.unit_id
 	WHERE
 	  route_list_addresses.route_list_id = @id
-	  AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
+	  AND ((route_list_addresses.was_transfered = true AND route_list_addresses.address_transfer_type = 'NeedToReload') OR route_list_addresses.was_transfered = false)
 	  AND nomenclature.online_store_id IS NULL
 	GROUP BY nom_id
 	
@@ -231,7 +231,7 @@ FROM
 		rla.route_list_id = @id
 		AND n.online_store_id IS NULL
 		AND oe.direction = 'Deliver'
-		AND (rla.was_transfered = true AND rla.need_to_reload = true OR rla.was_transfered = false)
+		AND (rla.was_transfered = true AND rla.address_transfer_type = 'NeedToReload' OR rla.was_transfered = false)
 	GROUP BY oe.own_type, nom_id
 	
 	UNION ALL 
@@ -288,7 +288,7 @@ FROM(
         LEFT JOIN route_list_addresses a ON e.order_id = a.order_id
         WHERE a.route_list_id = @id
           AND direction = 'Deliver'
-          AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
+          AND (a.was_transfered = true AND a.address_transfer_type = 'NeedToReload' OR a.was_transfered = false)
         UNION ALL
         SELECT
             nomenclature_id,
@@ -296,7 +296,7 @@ FROM(
         FROM order_items i
         LEFT JOIN route_list_addresses a ON i.order_id = a.order_id
         WHERE a.route_list_id = @id
-          AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
+          AND (a.was_transfered = true AND a.address_transfer_type = 'NeedToReload' OR a.was_transfered = false)
     ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
 LEFT JOIN orders o on eq.order_id = o.id

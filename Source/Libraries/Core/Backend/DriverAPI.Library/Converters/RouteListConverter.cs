@@ -49,9 +49,9 @@ namespace DriverAPI.Library.Converters
 					.Where(rla => 
 						rla.Status != RouteListItemStatus.Canceled && rla.Status != RouteListItemStatus.Overdue
 						// и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
-						&& (!rla.WasTransfered || rla.NeedToReload || rla.Order.IsFastDelivery)
+						&& (!rla.WasTransfered || rla.AddressTransferType == AddressTransferType.NeedToReload || rla.Order.IsFastDelivery)
 						// и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
-						&& (rla.Status != RouteListItemStatus.Transfered || (!rla.TransferedTo.NeedToReload && !rla.Order.IsFastDelivery)))
+						&& (rla.Status != RouteListItemStatus.Transfered || (rla.TransferedTo.AddressTransferType != AddressTransferType.NeedToReload && !rla.Order.IsFastDelivery)))
 					.Sum(rla => rla.Order.Total19LBottlesToDeliver);
 
 				var fullBottlesToReturn = ownOrders + additionalBalance - deliveredOrders;

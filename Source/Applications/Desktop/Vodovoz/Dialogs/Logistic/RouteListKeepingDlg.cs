@@ -49,6 +49,7 @@ namespace Vodovoz
 			new NomenclatureParametersProvider(_parametersProvider);
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
+		private RouteListFreeBalanceDocumentController _routeListFreeBalanceDocumentController;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
 			new RouteListProfitabilityController(
 				new RouteListProfitabilityFactory(),
@@ -290,6 +291,9 @@ namespace Vodovoz
 			UpdateBottlesSummaryInfo();
 
 			UpdateNodes();
+
+			_routeListFreeBalanceDocumentController = new RouteListFreeBalanceDocumentController(_employeeRepository,
+				new RouteListRepository(new StockRepository(), new BaseParametersProvider(_parametersProvider)));
 		}
 
 		void YtreeviewAddresses_RowActivated(object o, RowActivatedArgs args)
@@ -378,12 +382,18 @@ namespace Vodovoz
 		{
 			var newStatus = e.NewStatus;
 			if(sender is RouteListKeepingItemNode rli) {
+				var oldStatus = rli.RouteListItem.Status;
 				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
 					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
 					TabParent.AddSlaveTab(this, dlg);
-					dlg.DlgSaved += (s, ea) => rli.UpdateStatus(newStatus, CallTaskWorker);
+					dlg.DlgSaved += (s, ea) =>
+					{
+						rli.UpdateStatus(newStatus, CallTaskWorker);
+						_routeListFreeBalanceDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
+					};
 					return;
 				}
+				_routeListFreeBalanceDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
 				rli.UpdateStatus(newStatus, CallTaskWorker);
 			}
 		}

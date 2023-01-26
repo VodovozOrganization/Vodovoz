@@ -8,7 +8,7 @@ namespace Vodovoz.Models
 	public interface IAdditionalLoadingModel
 	{
 		AdditionalLoadingDocument CreateAdditionLoadingDocument(IUnitOfWork uow, RouteList routeList);
-		IList<AdditionalLoadingDocumentItem> CreateAdditionalLoadingItems(IUnitOfWork uow, decimal availableWeight, decimal availableVolume, DateTime routelistDate);
 		void ReloadActiveFlyers(IUnitOfWork uow, RouteList routelist, DateTime previousRoutelistDate);
+		void UpdateDeliveryFreeBalanceOperations(IUnitOfWork uow, RouteList routeList);
 	}
 }

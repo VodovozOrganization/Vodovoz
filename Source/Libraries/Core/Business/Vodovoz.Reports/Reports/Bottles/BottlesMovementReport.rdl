@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -1552,7 +1552,7 @@ FROM
                AND NOT nomenclature.is_disposable_tare
                AND route_lists.date &gt;= @start_date
                AND (@end_date = '' OR route_lists.date &lt;= @end_date)
-               AND (transfered_to.id is null OR transfered_to.need_to_reload)
+               AND (transfered_to.id is null OR transfered_to.address_transfer_type = 'NeedToReload')
              GROUP BY route_list_addresses.id
          ) AS o_items ON o_items.order_id = orders.id AND o_items.rl_id = route_list_addresses.route_list_id
              LEFT JOIN route_lists ON route_list_addresses.route_list_id = route_lists.id

@@ -2,6 +2,7 @@
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -14,6 +15,7 @@ namespace Vodovoz.Domain.Logistic
 		private Nomenclature _nomenclature;
 		private decimal _amount;
 		private AdditionalLoadingDocument _additionalLoadingDocument;
+		private DeliveryFreeBalanceOperation _deliveryFreeBalanceOperation;
 
 		public virtual int Id { get; set; }
 
@@ -29,6 +31,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _amount;
 			set => SetField(ref _amount, value);
+		}
+
+		[Display(Name = "Операция изменения свободных остатков МЛ")]
+		public virtual DeliveryFreeBalanceOperation DeliveryFreeBalanceOperation
+		{
+			get => _deliveryFreeBalanceOperation;
+			set => SetField(ref _deliveryFreeBalanceOperation, value);
 		}
 
 		[Display(Name = "Документ запаса")]

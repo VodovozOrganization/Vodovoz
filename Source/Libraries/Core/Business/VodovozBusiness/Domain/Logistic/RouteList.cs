@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using NHibernate.Criterion;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
@@ -46,6 +47,7 @@ using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -807,7 +809,7 @@ namespace Vodovoz.Domain.Logistic
 				var toAddress = routeListItemRepository.GetRouteListItemById(UoW, address.TransferedTo.Id);
 				toAddress.SetTransferTo(null);
 				toAddress.WasTransfered = false;
-				toAddress.NeedToReload = false;
+				toAddress.AddressTransferType = null;
 
 				UoW.Save(toAddress);
 			}
@@ -940,12 +942,59 @@ namespace Vodovoz.Domain.Logistic
 			return closed;
 		}
 
-		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsLoaded,
+		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsNotLoaded,
 			List<ReturnsNode> allReturnsToWarehouse)
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
 
-			#region Товары
+			#region Талон погрузки
+
+			var allLoaded = _routeListRepository.AllGoodsLoaded(UoW, this);
+
+			AddDiscrepancy(allLoaded, result, (discrepancy, amount) => discrepancy.FromWarehouse = amount);
+
+			#endregion
+
+			#region Талон разгрузки
+
+			var shipmentCategoriesWithoutBottle = Nomenclature.GetCategoriesForShipment().Where(c => c != NomenclatureCategory.bottle).ToArray();
+			
+			var allUnloaded = _routeListRepository.GetReturnsToWarehouse(UoW, Id, shipmentCategoriesWithoutBottle)
+				.Select(x => new GoodsInRouteListResult { NomenclatureId = x.NomenclatureId, Amount = x.Amount });
+			
+			AddDiscrepancy(allUnloaded, result, (discrepancy, amount) => discrepancy.ToWarehouse = amount);
+
+			#endregion
+
+			#region Получено от других водителей
+
+			var allGoodsTransferredFromDrivers = _routeListRepository.AllGoodsTransferredFromDrivers(UoW, this, Nomenclature.GetCategoriesForShipment());
+			AddDiscrepancy(allGoodsTransferredFromDrivers, result, (discrepancy, amount) => discrepancy.TransferedFromDrivers = amount);
+
+			#endregion
+
+			#region Передано другим водителям
+
+			var allGoodsTransferedToAnotherDrivers = _routeListRepository.AllGoodsTransferredToAnotherDrivers(UoW, this, Nomenclature.GetCategoriesForShipment());
+			
+			AddDiscrepancy(allGoodsTransferedToAnotherDrivers, result, (discrepancy, amount) => discrepancy.TransferedToAnotherDrivers = amount);
+
+			#endregion
+
+			#region Доставлено клиентам
+
+			var allDelivered = _routeListRepository.GetGoodsForShipmentActualCount(UoW, Id).ToList();
+
+			if(_routeListRepository.GetEquipmentForShipmentActualCount(UoW, this.Id, Direction.Deliver) is IEnumerable<GoodsInRouteListResult> equipmentActualCount)
+			{
+				allDelivered.AddRange(equipmentActualCount);
+			}
+
+			AddDiscrepancy(allDelivered, result, (discrepancy, amount) => discrepancy.DeliveredToClient = amount);
+
+			#endregion
+
+			#region Товары от клиента
 
 			foreach(var address in Addresses) {
 				foreach(var orderItem in address.Order.OrderItems) {
@@ -955,20 +1004,17 @@ namespace Vodovoz.Domain.Logistic
 						continue;
 					}
 					Discrepancy discrepancy = null;
-					
-					if(address.TransferedTo == null) {
-						discrepancy = new Discrepancy {
-							ClientRejected = orderItem.ReturnedCount, 
-							Nomenclature = orderItem.Nomenclature, 
-							Name = orderItem.Nomenclature.Name
-						};
-					} else if(address.TransferedTo.NeedToReload) {
-						discrepancy = new Discrepancy {
-							ClientRejected = orderItem.Count, 
-							Nomenclature = orderItem.Nomenclature, 
+
+					if(address.TransferedTo == null || address.TransferedTo.AddressTransferType == AddressTransferType.NeedToReload)
+					{
+						discrepancy = new Discrepancy
+						{
+							ClientRejected = orderItem.ReturnedCount,
+							Nomenclature = orderItem.Nomenclature,
 							Name = orderItem.Nomenclature.Name
 						};
 					}
+
 					if(discrepancy != null && discrepancy.ClientRejected != 0) {
 						AddDiscrepancy(result, discrepancy);
 					}
@@ -977,26 +1023,7 @@ namespace Vodovoz.Domain.Logistic
 
 			#endregion
 
-			//Терминал для оплаты
-			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
-			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
-			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
-
-			if (loadedTerminalAmount > 0) {
-				var terminal = UoW.GetById<Nomenclature>(terminalId);
-
-				var discrepancyTerminal = new Discrepancy {
-					Nomenclature = terminal,
-					PickedUpFromClient = loadedTerminalAmount,
-					Name = terminal.Name
-				};
-
-				if (unloadedTerminalAmount > 0) discrepancyTerminal.ToWarehouse = unloadedTerminalAmount;
-
-				AddDiscrepancy(result, discrepancyTerminal);
-			}
-
-			//ОБОРУДОВАНИЕ
+			#region Оборудование
 
 			foreach (var address in Addresses)
 			{
@@ -1024,7 +1051,7 @@ namespace Vodovoz.Domain.Logistic
 						}
 						AddDiscrepancy(result, discrepancy);
 					}
-					else if (address.TransferedTo.NeedToReload)
+					else if (address.TransferedTo.AddressTransferType == AddressTransferType.NeedToReload)
 					{
 						if (orderEquipment.Direction == Direction.Deliver)
 						{// не обрабатываем pickup, т.к. водитель физически не был на адресе, чтобы забрать оборудование
@@ -1035,52 +1062,72 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-			//ДОСТАВЛЕНО НА СКЛАД
-			var warehouseItems = allReturnsToWarehouse.Where(x => x.NomenclatureCategory != NomenclatureCategory.bottle)
-													  .ToList();
-			foreach(var whItem in warehouseItems) {
-				var discrepancy = new Discrepancy {
-					Nomenclature = whItem.Nomenclature,
-					ToWarehouse = whItem.Amount,
-					Name = whItem.Name
-				};
-				AddDiscrepancy(result, discrepancy);
-			}
+			#endregion
 
-			if(itemsLoaded != null && itemsLoaded.Any()) {
-				var loadedItems = itemsLoaded.Where(x => x.Nomenclature.Category != NomenclatureCategory.bottle);
-				foreach(var item in loadedItems) {
-					var discrepancy = new Discrepancy {
-						Nomenclature = item.Nomenclature,
-						FromWarehouse = item.CountNotLoaded,
-						Name = item.Nomenclature.Name
-					};
+			#region Терминал для оплаты
 
-					AddDiscrepancy(result, discrepancy);
-				}
-			}
+			//Терминал для оплаты
+			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
+			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
-			//Остатки запаса
-
-			if(AdditionalLoadingDocument != null)
+			if(loadedTerminalAmount > 0)
 			{
-				var fastDeliveryOrdersItemsInRL = _routeListRepository
-					.GetFastDeliveryOrdersItemsInRL(UoW, this.Id, new RouteListItemStatus [] { RouteListItemStatus.Transfered } );
+				var terminal = UoW.GetById<Nomenclature>(terminalId);
 
-				foreach(var item in AdditionalLoadingDocument.Items)
+				var discrepancyTerminal = new Discrepancy
 				{
-					var fastDeliveryItem = fastDeliveryOrdersItemsInRL.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
-					AddDiscrepancy(result, new Discrepancy
-					{
-						Nomenclature = item.Nomenclature,
-						AdditionaLoading = item.Amount,
-						NomenclaturesInFastDeliveryOrders = fastDeliveryItem?.Amount ?? 0,
-						Name = item.Nomenclature.Name
-					});
-				}
+					Nomenclature = terminal,
+					PickedUpFromClient = loadedTerminalAmount,
+					Name = terminal.Name
+				};
+
+				if(unloadedTerminalAmount > 0) discrepancyTerminal.ToWarehouse = unloadedTerminalAmount;
+
+				AddDiscrepancy(result, discrepancyTerminal);
 			}
+
+			#endregion
+
+
+			#region Свободные остатки
+
+			var freeBalance = UoW.GetAll<DeliveryFreeBalanceOperation>()
+				.Where(o => o.RouteList.Id == Id)
+				.GroupBy(o => o.Nomenclature.Id)
+				.Select(list => new GoodsInRouteListResult
+				{
+					NomenclatureId = list.First().Nomenclature.Id,
+					Amount = list.Sum(x => x.Amount)
+				}).ToArray();
+
+			AddDiscrepancy(freeBalance, result, (discrepancy, amount) => discrepancy.FreeBalance = amount);
+
+			#endregion
 
 			return result;
+		}
+
+		private void AddDiscrepancy(IEnumerable<GoodsInRouteListResult> goods, List<Discrepancy> discrepancies, Action<Discrepancy, decimal> setAmountAction)
+		{
+			var nomenclatures = UoW.Session.QueryOver<Nomenclature>()
+				.Where(n => n.Id.IsIn(goods.Select(g => g.NomenclatureId).ToArray()))
+				.List();
+
+			foreach(var product in goods)
+			{
+				var nomenclature = nomenclatures.First(n => n.Id == product.NomenclatureId);
+
+				var discrepancy = new Discrepancy
+				{
+					Name = nomenclature.ShortName,
+					Nomenclature = nomenclature
+				};
+
+				setAmountAction(discrepancy, product.Amount);
+
+				AddDiscrepancy(discrepancies, discrepancy);
+			}
 		}
 
 		/// <summary>
@@ -1097,8 +1144,10 @@ namespace Vodovoz.Domain.Logistic
 				existingDiscrepancy.PickedUpFromClient += item.PickedUpFromClient;
 				existingDiscrepancy.ToWarehouse += item.ToWarehouse;
 				existingDiscrepancy.FromWarehouse += item.FromWarehouse;
-				existingDiscrepancy.AdditionaLoading += item.AdditionaLoading;
-				existingDiscrepancy.NomenclaturesInFastDeliveryOrders += item.NomenclaturesInFastDeliveryOrders;
+				existingDiscrepancy.TransferedToAnotherDrivers += item.TransferedToAnotherDrivers;
+				existingDiscrepancy.TransferedFromDrivers += item.TransferedFromDrivers;
+				existingDiscrepancy.DeliveredToClient += item.DeliveredToClient;
+				existingDiscrepancy.FreeBalance += item.FreeBalance;
 			}
 		}
 

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gtk;
 using QS.Commands;
 using QS.Dialog;
@@ -209,32 +211,34 @@ namespace Vodovoz
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 
 			var config = ColumnsConfigFactory.Create<RouteListItemNode>()
-				.AddColumn("Еж. номер").AddTextRenderer(node => node.DalyNumber)
+				.AddColumn("Еж.\nномер").AddTextRenderer(node => node.DalyNumber)
 				.AddColumn("Заказ").AddTextRenderer(node => node.Id)
 				.AddColumn("Дата").AddTextRenderer(node => node.Date)
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 				.AddColumn("Бутыли").AddTextRenderer(node => node.BottlesCount)
 				.AddColumn("Статус").AddEnumRenderer(node => node.Status)
-				.AddColumn("Доставка за час")
+				.AddColumn("Доставка\nза час")
 					.AddToggleRenderer(x => x.IsFastDelivery).Editing(false);
 
 			if(isRightPanel)
 			{
-				config.AddColumn("Нужна загрузка").AddToggleRenderer(node => node.NeedToReload)
-					.Editing(false);
+				config.AddColumn("Тип переноса").AddTextRenderer(node => node.RouteListItem.AddressTransferType.HasValue ? node.RouteListItem.AddressTransferType.GetEnumTitle() : "");
 			}
 			else
 			{
-				config.AddColumn("Нужна загрузка")
-					.AddToggleRenderer(x => x.LeftNeedToReload).Radio()
-					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery)
-					.AddTextRenderer(x => (x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery) ? "Да" : "")
-					.AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
-					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery)
-					.AddTextRenderer(x => (x.Status != RouteListItemStatus.Transfered && !x.IsFastDelivery) ? "Нет" : "");
+				config.AddColumn("Тип переноса")
+					.AddToggleRenderer(x => x.IsNeedToReload).Radio()
+					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
+					.AddTextRenderer(x => x.Status != RouteListItemStatus.Transfered ? "Дозагрузка\nна складе" : "")
+					.AddToggleRenderer(x => x.IsFromDriverToDriver).Radio()
+					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
+					.AddTextRenderer(x => x.Status != RouteListItemStatus.Transfered ? "От водителя\nк водителю" : "")
+					.AddToggleRenderer(x => x.IsFromFreeBalance).Radio()
+					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
+					.AddTextRenderer(x => x.Status != RouteListItemStatus.Transfered ? "Из остатков\nполучателя" : "");
 			}
 
-			return config.AddColumn("Нужен терминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
+			return config.AddColumn("Нужен\nтерминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
 			             .AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 			             .RowCells().AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen : colorWhite)
 			             .Finish();
@@ -272,7 +276,7 @@ namespace Vodovoz
 			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo))
 			{
 				yentryreferenceRLFrom.Subject = null;
-				MessageDialogHelper.RunErrorDialog("Вы дурачёк?", "Вы не можете забирать адреса из того же МЛ, в который собираетесь передавать.");
+				MessageDialogHelper.RunErrorDialog( "Вы не можете забирать адреса из того же МЛ, в который собираетесь передавать.");
 				return;
 			}
 
@@ -320,7 +324,7 @@ namespace Vodovoz
 			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo))
 			{
 				yentryreferenceRLTo.Subject = null;
-				MessageDialogHelper.RunErrorDialog("Вы дурачёк?", "Вы не можете передавать адреса в тот же МЛ, из которого забираете.");
+				MessageDialogHelper.RunErrorDialog("Вы не можете передавать адреса в тот же МЛ, из которого забираете.");
 				return;
 			}
 
@@ -384,9 +388,9 @@ namespace Vodovoz
 				return;
 			}
 
-			List<RouteListItemNode> needReloadNotSet = new List<RouteListItemNode>();
-			List<RouteListItemNode> needReloadSetAndRlEnRoute = new List<RouteListItemNode>();
-			List<RouteListItemNode> fastDeliveryNotEnoughQuantity = new List<RouteListItemNode>();
+			List<RouteListItemNode> transferTypeNotSet = new List<RouteListItemNode>();
+			List<RouteListItemNode> transferTypeSetAndRlEnRoute = new List<RouteListItemNode>();
+			List<RouteListItemNode> deliveryNotEnoughQuantity = new List<RouteListItemNode>();
 
 			foreach(var row in ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>())
 			{
@@ -398,26 +402,25 @@ namespace Vodovoz
 					continue;
 				}
 
-				if(!row.IsFastDelivery && !row.LeftNeedToReload && !row.LeftNotNeedToReload)
+				if(!row.IsNeedToReload && !row.IsFromDriverToDriver && !row.IsFromFreeBalance)
 				{
-					needReloadNotSet.Add(row);
+					transferTypeNotSet.Add(row);
 					continue;
 				}
 
-				if(row.LeftNeedToReload && routeListTo.Status >= RouteListStatus.EnRoute)
+				if(row.IsNeedToReload && routeListTo.Status >= RouteListStatus.EnRoute)
 				{
-					needReloadSetAndRlEnRoute.Add(row);
+					transferTypeSetAndRlEnRoute.Add(row);
 					continue;
 				}
 
-				if(row.IsFastDelivery)
+				if(row.IsFromFreeBalance)
 				{
-					var hasEnoughQuantityForFastDelivery = _routeListItemRepository
-						.HasEnoughQuantityForFastDelivery(UoW, row.RouteListItem, routeListTo);
+					var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(UoW, row.RouteListItem.Order, routeListTo);
 
-					if(!hasEnoughQuantityForFastDelivery)
+					if(!hasBalanceForTransfer)
 					{
-						fastDeliveryNotEnoughQuantity.Add(row);
+						deliveryNotEnoughQuantity.Add(row);
 						continue;
 					}
 				}
@@ -440,7 +443,11 @@ namespace Vodovoz
 					newItem = new RouteListItem(routeListTo, item.Order, item.Status)
 					{
 						WasTransfered = true,
-						NeedToReload = row.LeftNeedToReload,
+						AddressTransferType = row.IsNeedToReload
+							? AddressTransferType.NeedToReload
+							: row.IsFromDriverToDriver
+								? AddressTransferType.FromDriverToDriver 
+								: AddressTransferType.FromFreeBalance,
 						WithForwarder = routeListTo.Forwarder != null
 					};
 
@@ -485,23 +492,23 @@ namespace Vodovoz
 
 			UoW.Commit();
 
-			if(needReloadNotSet.Count > 0)
+			if(transferTypeNotSet.Count > 0)
 			{
 				MessageDialogHelper.RunWarningDialog("Для следующих адресов не была указана необходимость загрузки, поэтому они не были перенесены:\n * " +
-													string.Join("\n * ", needReloadNotSet.Select(x => x.Address))
+													string.Join("\n * ", transferTypeNotSet.Select(x => x.Address))
 												   );
 			}
 
-			if(needReloadSetAndRlEnRoute.Count > 0)
+			if(transferTypeSetAndRlEnRoute.Count > 0)
 			{
                 MessageDialogHelper.RunWarningDialog("Для следующих адресов была указана необходимость загрузки при переносе в МЛ со статусом \"В пути\" и выше , поэтому они не были перенесены:\n * " + 
-                                                     string.Join("\n * ", needReloadSetAndRlEnRoute.Select(x => x.Address)));
+                                                     string.Join("\n * ", transferTypeSetAndRlEnRoute.Select(x => x.Address)));
             }
 
-			if(fastDeliveryNotEnoughQuantity.Count > 0)
+			if(deliveryNotEnoughQuantity.Count > 0)
 			{
-				MessageDialogHelper.RunWarningDialog("Для следующих адресов c доставкой за час у водителя не хватает остатков, поэтому они не были перенесены:\n * " + 
-				                                     string.Join("\n * ", fastDeliveryNotEnoughQuantity.Select(x => x.Address)));
+				MessageDialogHelper.RunWarningDialog("Для следующих адресов у водителя не хватает остатков, поэтому они не были перенесены:\n * " + 
+				                                     string.Join("\n * ", deliveryNotEnoughQuantity.Select(x => x.Address)));
 			}
 
 			if(messages.Count > 0)
@@ -523,6 +530,8 @@ namespace Vodovoz
 
 		protected void OnButtonRevertClicked(object sender, EventArgs e)
 		{
+			List<string> deliveryNotEnoughQuantityAddresses = new List<string>();
+
 			var toRevert = ytreeviewRLTo
 				.GetSelectedObjects<RouteListItemNode>()
 				.Where(x => x.WasTransfered)
@@ -547,8 +556,19 @@ namespace Vodovoz
 
 				if(pastPlace != null)
 				{
+					if(address.Order.IsFastDelivery || address.AddressTransferType != AddressTransferType.NeedToReload)
+					{
+						var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(UoW, address.Order, pastPlace.RouteList);
+
+						if(!hasBalanceForTransfer)
+						{
+							deliveryNotEnoughQuantityAddresses.Add(address.Title);
+							continue;
+						}
+					}
+
 					previousRouteList.RevertTransferAddress(_wageParameterService, pastPlace, address);
-					pastPlace.NeedToReload = address.NeedToReload;
+					pastPlace.AddressTransferType = address.AddressTransferType;
 					pastPlace.WasTransfered = true;
 					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
 					pastPlace.RecalculateTotalCash();
@@ -563,9 +583,15 @@ namespace Vodovoz
 
 				UoW.Save(address.RouteList);
 			}
-			
+
 			UoW.Commit();
 			UpdateNodes();
+
+			if(deliveryNotEnoughQuantityAddresses.Count > 0)
+			{
+				MessageDialogHelper.RunWarningDialog("Для следующих адресов у водителя не хватает остатков, поэтому они не были перенесены:\n * " +
+				                                     string.Join("\n * ", deliveryNotEnoughQuantityAddresses));
+			}
 		}
 
 		private void UpdateTranferDocuments(RouteList from, RouteList to)
@@ -740,36 +766,55 @@ namespace Vodovoz
 		public string Address => RouteListItem.Order.DeliveryPoint?.ShortAddress ?? "Нет адреса";
 		public RouteListItemStatus Status => RouteListItem.Status;
 
-		public bool NeedToReload => RouteListItem.NeedToReload;
+		public bool IsNeedToReload
+		{
+			get => RouteListItem.AddressTransferType == AddressTransferType.NeedToReload;
+			set
+			{
+				if(value)
+				{
+					RouteListItem.AddressTransferType = AddressTransferType.NeedToReload;
+				}
+				else
+				{
+					RouteListItem.AddressTransferType = null;
+				}
+			}
+		}
+		
+		public bool IsFromDriverToDriver
+		{
+			get => RouteListItem.AddressTransferType == AddressTransferType.FromDriverToDriver;
+			set
+			{
+				if(value)
+				{
+					RouteListItem.AddressTransferType = AddressTransferType.FromDriverToDriver;
+				}
+				else
+				{
+					RouteListItem.AddressTransferType = null;
+				}
+			}
+		}
+
+		public bool IsFromFreeBalance
+		{
+			get => RouteListItem.AddressTransferType == AddressTransferType.FromFreeBalance;
+			set
+			{
+				if(value)
+				{
+					RouteListItem.AddressTransferType = AddressTransferType.FromFreeBalance;
+				}
+				else
+				{
+					RouteListItem.AddressTransferType = null;
+				}
+			}
+		}
+
 		public bool IsFastDelivery => RouteListItem.Order.IsFastDelivery;
-
-		bool _leftNeedToReload;
-		public bool LeftNeedToReload
-		{
-			get => _leftNeedToReload;
-			set
-			{
-				_leftNeedToReload = value;
-				if(value)
-				{
-					_leftNotNeedToReload = false;
-				}
-			}
-		}
-
-		bool _leftNotNeedToReload;
-		public bool LeftNotNeedToReload
-		{
-			get => _leftNotNeedToReload;
-			set
-			{
-				_leftNotNeedToReload = value;
-				if(value)
-				{
-					_leftNeedToReload = false;
-				}
-			}
-		}
 
 		public bool WasTransfered => RouteListItem.WasTransfered;
 		public string Comment => RouteListItem.Comment ?? "";

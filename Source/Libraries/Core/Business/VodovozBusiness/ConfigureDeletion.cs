@@ -1160,11 +1160,16 @@ namespace Vodovoz
 				.AddDeleteDependenceFromCollection(x => x.AddressTransferDocumentItems);
 
 			DeleteConfig.AddHibernateDeleteInfo<AddressTransferDocumentItem>()
-				.AddDeleteDependenceFromCollection(x => x.DriverNomenclatureTransferDocumentItems);
+				.AddDeleteDependenceFromCollection(x => x.DriverNomenclatureTransferDocumentItems)
+				.AddDeleteDependenceFromCollection(x => x.DeliveryFreeBalanceTransferItems);
 
 			DeleteConfig.AddHibernateDeleteInfo<DriverNomenclatureTransferItem>()
 				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationFrom)
 				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationTo);
+
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryFreeBalanceTransferItem>()
+				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperationFrom)
+				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperationTo);
 
 			#endregion
 

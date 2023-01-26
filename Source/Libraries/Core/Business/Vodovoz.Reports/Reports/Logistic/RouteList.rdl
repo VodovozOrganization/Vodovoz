@@ -2265,7 +2265,7 @@ LIMIT 1
     CONCAT_WS('\n', CONCAT((SELECT rcnc.name FROM roboats_counterparty_name_codes rcnc WHERE rcnc.id = p.roboats_counterparty_name_id), ' ',
     	(SELECT rcpc.patronymic FROM roboats_counterparty_patronymic_codes rcpc WHERE rcpc.id = p.roboats_counterparty_patronymic_id)), p.`number`) as phone_and_name,
     CONCAT_WS('\n', orders.id, orders.daily_number_1c) AS order_and_daily_nr,
-    orders.daily_number_1c, orders.has_comment_for_driver, route_list_addresses.need_to_reload AS Reloaded,
+    orders.daily_number_1c, orders.has_comment_for_driver, route_list_addresses.address_transfer_type = 'NeedToReload' AS Reloaded,
     (SELECT SUM(order_items.count * nomenclature.weight) FROM order_items
                                                                   LEFT JOIN nomenclature ON nomenclature.id=order_items.nomenclature_id
      WHERE order_items.order_id = orders.id) as weight,

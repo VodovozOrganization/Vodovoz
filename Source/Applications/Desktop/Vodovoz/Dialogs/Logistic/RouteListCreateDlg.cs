@@ -565,6 +565,9 @@ namespace Vodovoz
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 			_logger.Debug("Закончили пересчет рентабельности МЛ");
 			UoW.Save(Entity.RouteListProfitability);
+
+			_additionalLoadingModel.UpdateDeliveryFreeBalanceOperations(UoW, Entity);
+
 			UoW.Commit();
 			
 			return true;

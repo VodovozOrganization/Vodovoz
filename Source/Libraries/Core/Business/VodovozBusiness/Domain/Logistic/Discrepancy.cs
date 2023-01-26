@@ -4,7 +4,6 @@ namespace Vodovoz.Domain.Logistic
 {
 	public class Discrepancy
 	{
-		public int Id { get; set; }
 		public string Name { get; set; }
 		public Nomenclature Nomenclature { get; set; }
 
@@ -13,6 +12,12 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		/// <value>The picked up from client.</value>
 		public decimal PickedUpFromClient { get; set; }
+
+		/// <summary>
+		/// Доставлено клиенту
+		/// </summary>
+		/// <value>The picked up from client.</value>
+		public decimal DeliveredToClient { get; set; }
 
 		/// <summary>
 		/// Недовезенное количество
@@ -31,39 +36,27 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public decimal FromWarehouse { get; set; }
 
-		/// <summary>
-		/// Запас
-		/// </summary>
-		public decimal AdditionaLoading { get; set; }
-
-		/// <summary>
-		/// Заказы с доставкой за час
-		/// </summary>
-		public decimal NomenclaturesInFastDeliveryOrders { get; set; }
-
-		public bool Trackable { get; set; }
 		public bool UseFine { get; set; }
+
+		/// <summary>
+		/// Свободные остатки
+		/// </summary>
+		public decimal FreeBalance { get; set; }
+
+		/// <summary>
+		/// Получено от водителей
+		/// </summary>
+		public decimal TransferedFromDrivers { get; set; }
+
+		/// <summary>
+		/// Передано другим водителям
+		/// </summary>
+		public decimal TransferedToAnotherDrivers { get; set; }
 
 		/// <summary>
 		/// Остаток
 		/// </summary>
-		public decimal Remainder => FromWarehouse + ToWarehouse - ClientRejected - PickedUpFromClient - AdditionaLoading + NomenclaturesInFastDeliveryOrders;
-
-		/// <summary>
-		/// Недовоз
-		/// </summary>
-		public string Returns => $"{ClientRejected:N0}";
-
-		/// <summary>
-		/// Серийный номер
-		/// </summary>
-		public string Serial {
-			get {
-				if(Trackable)
-					return Id > 0 ? Id.ToString() : "(не определен)";
-				return string.Empty;
-			}
-		}
+		public decimal Remainder => ToWarehouse - FreeBalance;
 
 		/// <summary>
 		/// Ущерб
