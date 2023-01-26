@@ -18,9 +18,13 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.RepresentationEntry yentryreferenceRLFrom;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonAddOrder;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewRLFrom;
+
+		private global::Vodovoz.ViewWidgets.Logistics.DeliveryFreeBalanceView deliveryfreebalanceviewFrom;
 
 		private global::Gtk.HBox hbox8;
 
@@ -45,6 +49,8 @@ namespace Vodovoz
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewRLTo;
+
+		private global::Vodovoz.ViewWidgets.Logistics.DeliveryFreeBalanceView deliveryfreebalanceviewTo;
 
 		private global::Gtk.HBox hbox7;
 
@@ -100,11 +106,25 @@ namespace Vodovoz
 			this.hbox3.Add(this.yentryreferenceRLFrom);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryreferenceRLFrom]));
 			w2.Position = 1;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ybuttonAddOrder = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonAddOrder.CanFocus = true;
+			this.ybuttonAddOrder.Name = "ybuttonAddOrder";
+			this.ybuttonAddOrder.UseUnderline = true;
+			this.ybuttonAddOrder.Label = global::Mono.Unix.Catalog.GetString("Добавить заказ");
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.ybuttonAddOrder.Image = w3;
+			this.hbox3.Add(this.ybuttonAddOrder);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybuttonAddOrder]));
+			w4.Position = 2;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.vbox4.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox3]));
-			w3.Position = 0;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox3]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -116,8 +136,17 @@ namespace Vodovoz
 			this.ytreeviewRLFrom.EnableSearch = false;
 			this.GtkScrolledWindow.Add(this.ytreeviewRLFrom);
 			this.vbox4.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.GtkScrolledWindow]));
-			w5.Position = 1;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.GtkScrolledWindow]));
+			w7.Position = 1;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.deliveryfreebalanceviewFrom = new global::Vodovoz.ViewWidgets.Logistics.DeliveryFreeBalanceView();
+			this.deliveryfreebalanceviewFrom.Events = ((global::Gdk.EventMask)(256));
+			this.deliveryfreebalanceviewFrom.Name = "deliveryfreebalanceviewFrom";
+			this.vbox4.Add(this.deliveryfreebalanceviewFrom);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.deliveryfreebalanceviewFrom]));
+			w8.Position = 2;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";
@@ -129,19 +158,19 @@ namespace Vodovoz
 			this.buttonTransfer.Name = "buttonTransfer";
 			this.buttonTransfer.UseUnderline = true;
 			this.buttonTransfer.Label = global::Mono.Unix.Catalog.GetString("Перенести");
-			global::Gtk.Image w6 = new global::Gtk.Image();
-			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-go-forward", global::Gtk.IconSize.Menu);
-			this.buttonTransfer.Image = w6;
+			global::Gtk.Image w9 = new global::Gtk.Image();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-go-forward", global::Gtk.IconSize.Menu);
+			this.buttonTransfer.Image = w9;
 			this.hbox8.Add(this.buttonTransfer);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonTransfer]));
-			w7.Position = 0;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonTransfer]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.vbox4.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox8]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox8]));
+			w11.Position = 3;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
@@ -152,8 +181,8 @@ namespace Vodovoz
 			this.yTreeViewDriverBalanceFrom.Name = "yTreeViewDriverBalanceFrom";
 			this.GtkScrolledWindow2.Add(this.yTreeViewDriverBalanceFrom);
 			this.vbox4.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.GtkScrolledWindow2]));
-			w10.Position = 3;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.GtkScrolledWindow2]));
+			w13.Position = 4;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.hbox9 = new global::Gtk.HBox();
 			this.hbox9.Name = "hbox9";
@@ -165,18 +194,18 @@ namespace Vodovoz
 			this.ybtnTransferTerminal.UseUnderline = true;
 			this.ybtnTransferTerminal.Label = global::Mono.Unix.Catalog.GetString("Перенести");
 			this.hbox9.Add(this.ybtnTransferTerminal);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ybtnTransferTerminal]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.ybtnTransferTerminal]));
+			w14.Position = 0;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.vbox4.Add(this.hbox9);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox9]));
-			w12.Position = 4;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox9]));
+			w15.Position = 5;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.hbox2.Add(this.vbox4);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox4]));
-			w13.Position = 0;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox4]));
+			w16.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.vbox5 = new global::Gtk.VBox();
 			this.vbox5.Name = "vbox5";
@@ -190,22 +219,22 @@ namespace Vodovoz
 			this.ylabel2.Name = "ylabel2";
 			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Кому:");
 			this.hbox5.Add(this.ylabel2);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ylabel2]));
-			w14.Position = 0;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ylabel2]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.yentryreferenceRLTo = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.yentryreferenceRLTo.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceRLTo.Name = "yentryreferenceRLTo";
 			this.hbox5.Add(this.yentryreferenceRLTo);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yentryreferenceRLTo]));
-			w15.Position = 1;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yentryreferenceRLTo]));
+			w18.Position = 1;
 			this.vbox5.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox5]));
-			w16.Position = 0;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox5]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -217,8 +246,17 @@ namespace Vodovoz
 			this.ytreeviewRLTo.EnableSearch = false;
 			this.GtkScrolledWindow1.Add(this.ytreeviewRLTo);
 			this.vbox5.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.GtkScrolledWindow1]));
-			w18.Position = 1;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.GtkScrolledWindow1]));
+			w21.Position = 1;
+			// Container child vbox5.Gtk.Box+BoxChild
+			this.deliveryfreebalanceviewTo = new global::Vodovoz.ViewWidgets.Logistics.DeliveryFreeBalanceView();
+			this.deliveryfreebalanceviewTo.Events = ((global::Gdk.EventMask)(256));
+			this.deliveryfreebalanceviewTo.Name = "deliveryfreebalanceviewTo";
+			this.vbox5.Add(this.deliveryfreebalanceviewTo);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.deliveryfreebalanceviewTo]));
+			w22.Position = 2;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox();
 			this.hbox7.Name = "hbox7";
@@ -229,19 +267,19 @@ namespace Vodovoz
 			this.buttonRevert.Name = "buttonRevert";
 			this.buttonRevert.UseUnderline = true;
 			this.buttonRevert.Label = global::Mono.Unix.Catalog.GetString("Вернуть в исходный МЛ");
-			global::Gtk.Image w19 = new global::Gtk.Image();
-			w19.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-undo", global::Gtk.IconSize.Menu);
-			this.buttonRevert.Image = w19;
+			global::Gtk.Image w23 = new global::Gtk.Image();
+			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-undo", global::Gtk.IconSize.Menu);
+			this.buttonRevert.Image = w23;
 			this.hbox7.Add(this.buttonRevert);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonRevert]));
-			w20.Position = 0;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.buttonRevert]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
 			this.vbox5.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox7]));
-			w21.Position = 2;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox7]));
+			w25.Position = 3;
+			w25.Expand = false;
+			w25.Fill = false;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
@@ -252,8 +290,8 @@ namespace Vodovoz
 			this.yTreeViewDriverBalanceTo.Name = "yTreeViewDriverBalanceTo";
 			this.GtkScrolledWindow3.Add(this.yTreeViewDriverBalanceTo);
 			this.vbox5.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.GtkScrolledWindow3]));
-			w23.Position = 3;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.GtkScrolledWindow3]));
+			w27.Position = 4;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.hbox10 = new global::Gtk.HBox();
 			this.hbox10.Name = "hbox10";
@@ -265,24 +303,24 @@ namespace Vodovoz
 			this.ybtnRevertTerminal.UseUnderline = true;
 			this.ybtnRevertTerminal.Label = global::Mono.Unix.Catalog.GetString("Вернуть");
 			this.hbox10.Add(this.ybtnRevertTerminal);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.ybtnRevertTerminal]));
-			w24.Position = 0;
-			w24.Expand = false;
-			w24.Fill = false;
-			this.vbox5.Add(this.hbox10);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox10]));
-			w25.Position = 4;
-			w25.Expand = false;
-			w25.Fill = false;
-			this.hbox2.Add(this.vbox5);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox5]));
-			w26.Position = 1;
-			this.vbox3.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
-			w27.Position = 0;
-			this.hbox1.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox3]));
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.ybtnRevertTerminal]));
 			w28.Position = 0;
+			w28.Expand = false;
+			w28.Fill = false;
+			this.vbox5.Add(this.hbox10);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox10]));
+			w29.Position = 5;
+			w29.Expand = false;
+			w29.Fill = false;
+			this.hbox2.Add(this.vbox5);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox5]));
+			w30.Position = 1;
+			this.vbox3.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
+			w31.Position = 0;
+			this.hbox1.Add(this.vbox3);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox3]));
+			w32.Position = 0;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
