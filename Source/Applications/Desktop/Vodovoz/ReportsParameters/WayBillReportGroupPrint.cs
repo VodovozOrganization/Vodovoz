@@ -63,45 +63,45 @@ namespace Vodovoz.ReportsParameters
 		private void ConfigureGroupReportForOneDay()
 		{
 			//Дата по умолчанию
-			datepickerGroupReportForOneDay.Date = DateTime.Today;
+			datepickerOneDayGroupReport.Date = DateTime.Today;
 
 			// Тип автомобиля
-			enumcheckCarTypeOfUseOneDayReport.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarTypeOfUseOneDayReport.SelectAll();
+			enumcheckCarTypeOfUseOneDayGroupReport.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUseOneDayGroupReport.SelectAll();
 
 			// Принадлежность автомобиля
-			enumcheckCarOwnTypeOneDayReport.EnumType = typeof(CarOwnType);
-			enumcheckCarOwnTypeOneDayReport.SelectAll();
+			enumcheckCarOwnTypeOneDayGroupReport.EnumType = typeof(CarOwnType);
+			enumcheckCarOwnTypeOneDayGroupReport.SelectAll();
 
 			//Выбор подразделения
-			comboDepartment.SetRenderTextFunc<Subdivision>(x => x.Name);
-			comboDepartment.ItemsList = UoW.GetAll<Subdivision>();
-			comboDepartment.ShowSpecialStateAll = true;
+			comboDepartmentOneDayGroupReport.SetRenderTextFunc<Subdivision>(x => x.Name);
+			comboDepartmentOneDayGroupReport.ItemsList = UoW.GetAll<Subdivision>();
+			comboDepartmentOneDayGroupReport.ShowSpecialStateAll = true;
 
 			//Время отправления по умолчанию
-			timeHourEntryGroupReportForOneDay.Text = DateTime.Now.Hour.ToString("00.##");
-			timeMinuteEntryGroupReportForPOneDay.Text = DateTime.Now.Minute.ToString("00.##");
+			timeHourEntryOneDayGroupReport.Text = DateTime.Now.Hour.ToString("00.##");
+			timeMinuteEntryOneDayGroupReport.Text = DateTime.Now.Minute.ToString("00.##");
 		}
 
 		private void ConfigureGroupReportForPeriod()
 		{
 			//Период по умолчанию
-			datePickerGroupPeriodValue.StartDate = DateTime.Today;
-			datePickerGroupPeriodValue.EndDate = DateTime.Today;
+			datePickerPeriodGroupReport.StartDate = DateTime.Today;
+			datePickerPeriodGroupReport.EndDate = DateTime.Today;
 
 			// Тип автомобиля
-			enumcheckCarTypeOfUseOneDayReport1.EnumType = typeof(CarOwnType);
-			enumcheckCarTypeOfUseOneDayReport1.SelectAll();
+			enumcheckCarTypeOfUsePeriodGroupReport.EnumType = typeof(CarOwnType);
+			enumcheckCarTypeOfUsePeriodGroupReport.SelectAll();
 
 			// Принадлежность автомобиля
-			enumcheckCarOwnTypeOneDayReport1.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarOwnTypeOneDayReport1.SelectAll();
+			enumcheckCarOwnTypePeriodGroupReport.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarOwnTypePeriodGroupReport.SelectAll();
 
 			//Выбор организации
-			entryManufactures.SetEntityAutocompleteSelectorFactory(
+			entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(
 				_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
 
-			entryManufactures.SetEntityAutocompleteSelectorFactory(_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
+			entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
 		}
 
 		#region IParametersWidget implementation
@@ -146,7 +146,7 @@ namespace Vodovoz.ReportsParameters
 
 		private IEnumerable<ReportInfo> GetGroupReportInfoForOneDay()
 		{
-			var types = (enumcheckCarTypeOfUseOneDayReport.SelectedValues).ToArray();
+			var types = (enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues).ToArray();
 			
 			var cars = UoW.GetAll<Car>()
 				.Where(c => !c.IsArchive)
@@ -167,7 +167,7 @@ namespace Vodovoz.ReportsParameters
 
 			foreach (var car in carDriver)
 			{
-				yield return GetReportInfo(car.driverId, car.carId, timeHourEntryGroupReportForOneDay.Text, timeMinuteEntryGroupReportForPOneDay.Text, datepickerGroupReportForOneDay.Date);
+				yield return GetReportInfo(car.driverId, car.carId, timeHourEntryOneDayGroupReport.Text, timeMinuteEntryOneDayGroupReport.Text, datepickerOneDayGroupReport.Date);
 			}
 		}
 
