@@ -26,7 +26,7 @@ using Vodovoz.Views.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public partial class CounterpartyTalkViewModel : TalkViewModelBase
+	public partial class CounterpartyTalkViewModel : TalkViewModelBase, IDisposable
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IRouteListRepository _routedListRepository;
@@ -184,10 +184,25 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заказ поступает от контрагента дистрибуции");
 			}
+
 			var model = CounterpartyOrdersViewModels.Find(m => m.Client.Id == currentCounterparty.Id);
 
-			var currentClientPhone = currentCounterparty.Phones.FirstOrDefault(p => p.DigitsNumber == ActiveCall.Phone.DigitsNumber);
-			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty, Phone>(null, currentCounterparty, currentClientPhone);
+			if(model.IsDeliveryPointChoiceRequired && model.DeliveryPoint == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, 
+					$"У клиента несколько точек доставки с телефоном {ActiveCall.CallerNumberText}, выберите одну из точек доставки.");
+
+				return;
+			}
+
+			var contactPhone = currentCounterparty.Phones?.FirstOrDefault(p => p.DigitsNumber == ActiveCall.Phone.DigitsNumber);
+
+			if(contactPhone == null)
+			{
+				contactPhone = model.DeliveryPoint?.Phones?.FirstOrDefault(p => p.DigitsNumber == ActiveCall.Phone.DigitsNumber);
+			}
+
+			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty, Phone>(null, currentCounterparty, contactPhone);
 			page.PageClosed += (sender, e) => { model.RefreshOrders(); };
 		}
 
@@ -237,5 +252,15 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 
 		#endregion
+
+		public void Dispose()
+		{
+			foreach(var model in CounterpartyOrdersViewModels)
+			{
+				model.Dispose();
+			}
+
+			_uow?.Dispose();
+		}
 	}
 }
