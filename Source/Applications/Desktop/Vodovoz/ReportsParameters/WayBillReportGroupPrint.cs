@@ -138,7 +138,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			return new ReportInfo
 			{
-				Identifier = "Logistic.WayBillReport",
+				Identifier = "Logistic.WayBillReportGroupPrint",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "date", date },
