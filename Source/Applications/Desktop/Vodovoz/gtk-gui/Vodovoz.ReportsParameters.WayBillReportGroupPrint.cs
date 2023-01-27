@@ -4,9 +4,9 @@ namespace Vodovoz.ReportsParameters
 {
 	public partial class WayBillReportGroupPrint
 	{
-		private global::Gtk.VBox vboxMainConteiner;
-
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+
+		private global::Gtk.VBox vboxMainConteiner;
 
 		private global::Gamma.GtkWidgets.yVBox yvbox1;
 
@@ -131,17 +131,18 @@ namespace Vodovoz.ReportsParameters
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReportsParameters.WayBillReportGroupPrint";
 			// Container child Vodovoz.ReportsParameters.WayBillReportGroupPrint.Gtk.Container+ContainerChild
-			this.vboxMainConteiner = new global::Gtk.VBox();
-			this.vboxMainConteiner.Name = "vboxMainConteiner";
-			this.vboxMainConteiner.Spacing = 6;
-			// Container child vboxMainConteiner.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
 			w1.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
+			this.vboxMainConteiner = new global::Gtk.VBox();
+			this.vboxMainConteiner.Name = "vboxMainConteiner";
+			this.vboxMainConteiner.Spacing = 6;
+			// Container child vboxMainConteiner.Gtk.Box+BoxChild
 			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
 			this.yvbox1.Name = "yvbox1";
 			this.yvbox1.Spacing = 6;
@@ -699,12 +700,12 @@ namespace Vodovoz.ReportsParameters
 			w63.Position = 3;
 			w63.Expand = false;
 			w63.Fill = false;
-			w1.Add(this.yvbox1);
+			this.vboxMainConteiner.Add(this.yvbox1);
+			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.vboxMainConteiner[this.yvbox1]));
+			w64.Position = 0;
+			w1.Add(this.vboxMainConteiner);
 			this.GtkScrolledWindow.Add(w1);
-			this.vboxMainConteiner.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w66 = ((global::Gtk.Box.BoxChild)(this.vboxMainConteiner[this.GtkScrolledWindow]));
-			w66.Position = 0;
-			this.Add(this.vboxMainConteiner);
+			this.Add(this.GtkScrolledWindow);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
