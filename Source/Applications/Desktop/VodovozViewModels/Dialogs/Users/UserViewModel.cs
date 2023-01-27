@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Autofac;
+using ClosedXML.Excel;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -12,6 +13,7 @@ using Vodovoz.Domain.Employees;
 using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Journal;
+using QS.Project.Services.FileDialog;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.ViewModels.Permissions;
@@ -20,6 +22,7 @@ using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Journals;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.ViewModels
 {
@@ -281,6 +284,18 @@ namespace Vodovoz.ViewModels
 			);
 
 		public void UpdateChanges(object sender, EventArgs e) => HasChanges = true;
+
+		public void ExportPermissions((string PermissionName, string PermissionTitle) permission)
+		{
+			var permissionValuesGetter = _scope.Resolve<UsersEntityPermissionValuesGetter>();
+			var permissionsExporter = _scope.Resolve<UserPermissionsExporter>();
+
+			var usersWithPermission = permissionValuesGetter.GetUsersWithEntityPermission(UoW, permission.PermissionName);
+			var usersWithPermissionBySubdivisions =
+				permissionValuesGetter.GetUsersWithActivePermissionPresetByOwnSubdivision(UoW, permission.PermissionName);
+
+			permissionsExporter.ExportUsersEntityPermissionToExcel(permission, usersWithPermission, usersWithPermissionBySubdivisions);
+		}
 
 		private bool CanAddUserRoleToUser => SelectedAvailableUserRole != null;
 		private bool CanRemoveUserRole => SelectedUserRole != null && SelectedUserRole.Id != Entity.CurrentUserRole?.Id;

@@ -121,5 +121,12 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 
 			return subdivisionsList.Distinct();
 		}
+		
+		public IEnumerable<int> GetAllSubdivisionsIds(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<Subdivision>()
+				.Select(s => s.Id)
+				.List<int>();
+		}
 	}
 }

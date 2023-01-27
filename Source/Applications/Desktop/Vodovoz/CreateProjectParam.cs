@@ -611,6 +611,9 @@ namespace Vodovoz
 			builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
 			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
 			builder.RegisterType<WarehousePermissionService>().AsImplementedInterfaces().AsSelf();
+			builder.RegisterType<UsersPresetPermissionValuesGetter>().AsSelf();
+			builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
+			builder.RegisterType<UserPermissionsExporter>().AsSelf();
 
 			#endregion
 

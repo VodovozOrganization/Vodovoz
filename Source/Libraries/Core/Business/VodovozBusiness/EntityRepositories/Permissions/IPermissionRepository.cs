@@ -4,6 +4,7 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
@@ -32,6 +33,11 @@ namespace Vodovoz.EntityRepositories.Permissions
 			IUnitOfWork uow, int userId, int warehouseId, WarehousePermissionsType warehousePermissionsType);
 		SubdivisionWarehousePermission GetSubdivisionWarehousePermission(
 			IUnitOfWork uow, int subdivisionId, int warehouseId, WarehousePermissionsType warehousePermissionsType);
+		IList<UserNode> GetUsersWithActivePermission(IUnitOfWork uow, string permissionName);
+		IList<UserPresetPermissionWithSubdivisionNode> GetUsersWithSubdivisionsPresetPermission(IUnitOfWork uow);
+		IList<UserEntityExtendedPermissionWithSubdivisionNode> GetUsersWithSubdivisionsEntityPermission(IUnitOfWork uow);
+		IList<UserEntityExtendedPermissionNode> GetUsersEntityPermission(IUnitOfWork uow, string permissionName);
+		EntityExtendedPermission GetSubdivisionEntityExtendedPermission(IUnitOfWork uow, int subdivisionId, string permissionName);
 	}
 
 	public class SubdivisionPermissionNode : IPermissionNode
