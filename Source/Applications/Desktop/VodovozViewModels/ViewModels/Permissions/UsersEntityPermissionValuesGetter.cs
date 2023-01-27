@@ -10,12 +10,12 @@ namespace Vodovoz.ViewModels.Permissions
 	public class UsersEntityPermissionValuesGetter
 	{
 		private readonly IPermissionRepository _permissionRepository;
-		private readonly SubdivisionRepository _subdivisionRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
 		private Dictionary<int, EntityExtendedPermission> _entityExtendedPermissionBySubdivisionsMatrix;
 
 		public UsersEntityPermissionValuesGetter(
 			IPermissionRepository permissionRepository,
-			SubdivisionRepository subdivisionRepository)
+			ISubdivisionRepository subdivisionRepository)
 		{
 			_permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
