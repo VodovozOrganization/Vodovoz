@@ -17,6 +17,8 @@ namespace Vodovoz.Domain.Cash
 	[HistoryTrace]
 	public class IncomeCategory : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private const int _nameLimit = 45;
+
 		public IncomeCategory ()
 		{
 			Name = String.Empty;
@@ -32,8 +34,8 @@ namespace Vodovoz.Domain.Cash
         [Required (ErrorMessage = "Название статьи должно быть заполнено.")]
 		[Display (Name = "Название")]
 		public virtual string Name {
-			get { return name; }
-			set { SetField (ref name, value, () => Name); }
+			get => name;
+			set => SetField (ref name, value);
 		}
 		
 		private string numbering;
@@ -47,8 +49,8 @@ namespace Vodovoz.Domain.Cash
 		Subdivision subdivision;
         [Display (Name = "Подразделение")]
 		public virtual Subdivision Subdivision {
-			get { return subdivision; }
-			set { SetField (ref subdivision, value); }
+			get => subdivision;
+			set => SetField (ref subdivision, value);
 		}
 		
 		private bool isArchive;
@@ -65,9 +67,10 @@ namespace Vodovoz.Domain.Cash
         [Required(ErrorMessage = "Должно быть заполнен тип приходного ордера.")]
         [Display(Name = "Тип приходного ордера")]
         public virtual IncomeInvoiceDocumentType IncomeDocumentType {
-            get { return incomeDocumentType; }
-            set { SetField(ref incomeDocumentType, value, () => IncomeDocumentType); }
-        }
+            get => incomeDocumentType;
+			set => SetField(ref incomeDocumentType, value);
+		}
+		
         #endregion
 
 		#region ParentChilds
@@ -87,7 +90,6 @@ namespace Vodovoz.Domain.Cash
 		}
 		
 		#endregion
-        
 
 		#region Функции
 
@@ -99,6 +101,7 @@ namespace Vodovoz.Domain.Cash
 		}
 		
 		private bool isChildsFetched = false;
+
 		public virtual void FetchChilds(IUnitOfWork uow)
 		{
 			if(isChildsFetched)
@@ -111,10 +114,15 @@ namespace Vodovoz.Domain.Cash
 		#endregion
 		
 		#region IValidatableObject implementation
+		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			yield break;
+			if(Name?.Length > _nameLimit)
+			{
+				yield return new ValidationResult($"Длина названия статьи превышена на {Name.Length - _nameLimit}");
+			}
 		}
+		
 		#endregion IValidatableObject implementation
 
 	}
