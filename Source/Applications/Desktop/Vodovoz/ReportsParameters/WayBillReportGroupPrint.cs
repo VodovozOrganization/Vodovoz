@@ -26,6 +26,12 @@ using System.Linq;
 using NHibernate.Criterion;
 using Vodovoz.Domain.Goods;
 using NHibernate.Util;
+using QS.Utilities.Enums;
+using NHibernate;
+using FluentNHibernate.Utils;
+using Gamma.GtkWidgets;
+using Gamma.Widgets;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -48,9 +54,16 @@ namespace Vodovoz.ReportsParameters
 			ConfigureGroupReportForPeriod();
 		}
 
+		#region Конфигурация контролов виджета отчетов
+		/// <summary>
+		/// Первичная конфигурация одиночного отчета
+		/// </summary>
 		private void ConfigureSingleReport()
 		{
+			//Дата по умолчанию
 			datepickerSingleReport.Date = DateTime.Today;
+
+			//Время отправления по умолчанию
 			timeHourEntrySingleReport.Text = DateTime.Now.Hour.ToString("00.##");
 			timeMinuteEntrySingleReport.Text = DateTime.Now.Minute.ToString("00.##");
 
@@ -60,6 +73,9 @@ namespace Vodovoz.ReportsParameters
 			entryCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
 		}
 
+		/// <summary>
+		/// Первичная конфигурация группового отчета за один день для транспортного отдела
+		/// </summary>
 		private void ConfigureGroupReportForOneDay()
 		{
 			//Дата по умолчанию
@@ -67,11 +83,11 @@ namespace Vodovoz.ReportsParameters
 
 			// Тип автомобиля
 			enumcheckCarTypeOfUseOneDayGroupReport.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarTypeOfUseOneDayGroupReport.SelectAll();
+			MakeActiveCheks(new string[]{ CarTypeOfUse.Largus.ToString() }, ref enumcheckCarTypeOfUseOneDayGroupReport);
 
 			// Принадлежность автомобиля
 			enumcheckCarOwnTypeOneDayGroupReport.EnumType = typeof(CarOwnType);
-			enumcheckCarOwnTypeOneDayGroupReport.SelectAll();
+			MakeActiveCheks(new string[] { CarOwnType.Company.ToString() }, ref enumcheckCarOwnTypeOneDayGroupReport);
 
 			//Выбор подразделения
 			comboDepartmentOneDayGroupReport.SetRenderTextFunc<Subdivision>(x => x.Name);
@@ -83,19 +99,23 @@ namespace Vodovoz.ReportsParameters
 			timeMinuteEntryOneDayGroupReport.Text = DateTime.Now.Minute.ToString("00.##");
 		}
 
+		/// <summary>
+		/// Первичная конфигурация группового отчета за выбранный период для бухгалтерии
+		/// </summary>
 		private void ConfigureGroupReportForPeriod()
 		{
+			//TODO Выбор организации по умолчанию
 			//Период по умолчанию
 			datePickerPeriodGroupReport.StartDate = DateTime.Today;
 			datePickerPeriodGroupReport.EndDate = DateTime.Today;
 
 			// Тип автомобиля
-			enumcheckCarTypeOfUsePeriodGroupReport.EnumType = typeof(CarOwnType);
-			enumcheckCarTypeOfUsePeriodGroupReport.SelectAll();
+			enumcheckCarTypeOfUsePeriodGroupReport.EnumType = typeof(CarTypeOfUse);
+			MakeActiveCheks(new string[] { CarTypeOfUse.Largus.ToString(), CarTypeOfUse.GAZelle.ToString() }, ref enumcheckCarTypeOfUsePeriodGroupReport);
 
 			// Принадлежность автомобиля
-			enumcheckCarOwnTypePeriodGroupReport.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarOwnTypePeriodGroupReport.SelectAll();
+			enumcheckCarOwnTypePeriodGroupReport.EnumType = typeof(CarOwnType);
+			MakeActiveCheks(new string[] { CarOwnType.Company.ToString() }, ref enumcheckCarOwnTypePeriodGroupReport);
 
 			//Выбор организации
 			entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(
@@ -103,6 +123,7 @@ namespace Vodovoz.ReportsParameters
 
 			entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
 		}
+		#endregion
 
 		#region IParametersWidget implementation
 
@@ -111,22 +132,6 @@ namespace Vodovoz.ReportsParameters
 		public string Title => "Путевой лист";
 
 		#endregion
-
-		private ReportInfo GetSingleReportInfo()
-		{
-			return new ReportInfo
-			{
-				Identifier = "Logistic.WayBillReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", datepickerSingleReport.Date },
-					{ "driver_id", (entryDriverSingleReport?.Subject as Employee)?.Id ?? -1 },
-					{ "car_id", (entryCarSingleReport?.Subject as Car)?.Id ?? -1 },
-					{ "time", timeHourEntrySingleReport.Text + ":" + timeMinuteEntrySingleReport.Text },
-					{ "need_date", !datepickerSingleReport.IsEmpty }
-				}
-			};
-		}
 
 		private ReportInfo GetReportInfo(int driverId, int carId, string timeHours, string timeMinnutes, DateTime? date = null)
 		{
@@ -144,45 +149,94 @@ namespace Vodovoz.ReportsParameters
 			};
 		}
 
+		private IEnumerable<ReportInfo> GetSingleReportInfo()
+		{
+			var date = datepickerSingleReport.Date;
+			var driverId = (entryDriverSingleReport?.Subject as Employee)?.Id ?? -1;
+			var carId = (entryCarSingleReport?.Subject as Car)?.Id ?? -1;
+			var timeHours = timeHourEntrySingleReport.Text;
+			var timeMinutes = timeMinuteEntrySingleReport.Text;
+			var needDate = !datepickerSingleReport.IsEmpty;
+
+			return new ReportInfo[] { GetReportInfo(driverId, carId, timeHours, timeMinutes, date) };
+		}
+
 		private IEnumerable<ReportInfo> GetGroupReportInfoForOneDay()
 		{
-			var types = (enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues).ToArray();
-			
-			var cars = UoW.GetAll<Car>()
-				.Where(c => !c.IsArchive)
-				.ToArray<Car>();
-			var type = cars[0].CarModel.CarTypeOfUse;
-			var cont2 = types.Contains(cars[0].CarModel.CarTypeOfUse);
-			var cont3 = types.Any(t => (CarTypeOfUse)t == cars[0].CarModel.CarTypeOfUse);
+			//TODO в запросе нет учета подразделения
+			CarTypeOfUse[] selectedCarTypeOfUses = (enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues).Cast<CarTypeOfUse>().ToArray();
+			CarOwnType[] selectedCarOwnTypes = (enumcheckCarOwnTypeOneDayGroupReport.SelectedValues).Cast<CarOwnType>().ToArray();
 
-			var drivers = UoW.GetAll<Employee>()
-				.Where(e=>e.Category == EmployeeCategory.driver)
-				.ToArray<Employee>();
+			Car car = null;
+			Employee driver = null;
+			CarModel carModel = null;
+			CarVersion carVersion = null;
 
-			var carDriver = cars.Join(drivers,
-					(c) => c.Id,
-					(d) => d.Id,
-					(c, d) => new { carId = c.Id, driverId = d.Id })
-				.ToArray();
+			var cars = UoW.Session
+				.QueryOver<Car>(() => car)
+				.JoinAlias(() => car.CarModel, () => carModel)
+				.JoinAlias(() => car.Driver, () => driver)
+				.JoinAlias(() => car.CarVersions, () => carVersion)
+				.Where(() =>
+					!car.IsArchive
+					&& driver.Category == EmployeeCategory.driver)
+				.WhereRestrictionOn(() => carModel.CarTypeOfUse).IsIn(selectedCarTypeOfUses)
+				.WhereRestrictionOn(() => carVersion.CarOwnType).IsIn(selectedCarOwnTypes)
+				.List();
 
-			foreach (var car in carDriver)
+			foreach(var c in cars)
 			{
-				yield return GetReportInfo(car.driverId, car.carId, timeHourEntryOneDayGroupReport.Text, timeMinuteEntryOneDayGroupReport.Text, datepickerOneDayGroupReport.Date);
+				yield return GetReportInfo(c.Driver.Id, c.Id, timeHourEntryOneDayGroupReport.Text, timeMinuteEntryOneDayGroupReport.Text, datepickerOneDayGroupReport.Date);
 			}
 		}
 
-		private ReportInfo GetSingleReportInfo(Dictionary<string, object> parameters)
+		private IEnumerable<ReportInfo> GetGroupReportInfoForPeriod()
 		{
-			return new ReportInfo
+			CarTypeOfUse[] selectedCarTypeOfUses = (enumcheckCarTypeOfUsePeriodGroupReport.SelectedValues).Cast<CarTypeOfUse>().ToArray();
+			CarOwnType[] selectedCarOwnTypes = (enumcheckCarOwnTypePeriodGroupReport.SelectedValues).Cast<CarOwnType>().ToArray();
+			DateTime startDate = datePickerPeriodGroupReport.StartDate;
+			DateTime endDate = datePickerPeriodGroupReport.EndDate;
+			var organization = (entryManufacturesPeriodGroupReport?.Subject as Organization)?.Id ?? -1;
+
+			Car car = null;
+			Employee driver = null;
+			CarModel carModel = null;
+			CarVersion carVersion = null;
+
+			var cars = UoW.Session
+				.QueryOver<Car>(() => car)
+				.JoinAlias(() => car.CarModel, () => carModel)
+				.JoinAlias(() => car.Driver, () => driver)
+				.JoinAlias(() => car.CarVersions, () => carVersion)
+				.Where(() =>
+					!car.IsArchive
+					&& driver.Category == EmployeeCategory.driver)
+				.WhereRestrictionOn(() => carModel.CarTypeOfUse).IsIn(selectedCarTypeOfUses)
+				.WhereRestrictionOn(() => carVersion.CarOwnType).IsIn(selectedCarOwnTypes)
+				.List();
+
+			foreach(var c in cars)
 			{
-				Identifier = "Logistic.WayBillReport",
-				Parameters = parameters
-			};
+				yield return GetReportInfo(c.Driver.Id, c.Id, "Hours_value", "Minutes_value", DateTime.Now);
+			}
 		}
 
 		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
 		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetGroupReportInfoForOneDay().First(), true));
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetGroupReportInfoForPeriod().First(), true));
+		}
+
+		private static void MakeActiveCheks(string[] valuesToCheck, ref EnumCheckList checkList)
+		{
+			if(valuesToCheck.Length < 1) return;
+
+			foreach(var check in checkList.Children.Cast<yCheckButton>())
+			{
+				if(valuesToCheck.Contains(check.Tag.ToString()))
+				{
+					check.Active = true;
+				}
+			}
 		}
 	}
 }
