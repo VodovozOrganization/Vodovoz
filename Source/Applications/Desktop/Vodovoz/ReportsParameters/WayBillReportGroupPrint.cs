@@ -32,6 +32,7 @@ using FluentNHibernate.Utils;
 using Gamma.GtkWidgets;
 using Gamma.Widgets;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -196,12 +197,14 @@ namespace Vodovoz.ReportsParameters
 			CarOwnType[] selectedCarOwnTypes = (enumcheckCarOwnTypePeriodGroupReport.SelectedValues).Cast<CarOwnType>().ToArray();
 			DateTime startDate = datePickerPeriodGroupReport.StartDate;
 			DateTime endDate = datePickerPeriodGroupReport.EndDate;
-			var organization = (entryManufacturesPeriodGroupReport?.Subject as Organization)?.Id ?? -1;
+			var organizationId = (entryManufacturesPeriodGroupReport?.Subject as Organization)?.Id ?? -1;
 
 			Car car = null;
 			Employee driver = null;
 			CarModel carModel = null;
 			CarVersion carVersion = null;
+			Organization organization = null;
+			WayBillDocument wayBillDocument = null;
 
 			var cars = UoW.Session
 				.QueryOver<Car>(() => car)
