@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.Permissions
 			var row = 1;
 			var colName = new[]
 			{
-				"№", "Пользователь", "Может смотреть?", "Может содавать?", "Может изменять?", "Может удалять?", "Особое право на документ"
+				"№", "Пользователь", "Просмотр", "Создание", "Редактирование", "Удаление", "Особое право на документ"
 			};
 			
 			ws.Cell(row, 1).Value = "Право на";
@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.Permissions
 				ws.Cell(nextRow, ++column).Value = item.CanCreate.ConvertToYesOrNo();
 				ws.Cell(nextRow, ++column).Value = item.CanUpdate.ConvertToYesOrNo();
 				ws.Cell(nextRow, ++column).Value = item.CanDelete.ConvertToYesOrNo();
-				ws.Cell(nextRow, ++column).Value = item.ExtendedPermissionValue.ConvertToNullOrYesOrNo();
+				ws.Cell(nextRow, ++column).Value = item.ExtendedPermissionValue.ConvertToNotSetOrYesOrNo();
 			}
 			
 			ws.Column(2).Width = 30;
@@ -130,10 +130,10 @@ namespace Vodovoz.ViewModels.Permissions
 				"№",
 				"Пользователь",
 				"Подразделение",
-				"Может смотреть?",
-				"Может содавать?",
-				"Может изменять?",
-				"Может удалять?",
+				"Просмотр",
+				"Создание",
+				"Редактирование",
+				"Удаление",
 				"Особое право на документ"
 			};
 
@@ -150,11 +150,11 @@ namespace Vodovoz.ViewModels.Permissions
 				ws.Cell(nextRow, column).Value = item.User.Id;
 				ws.Cell(nextRow, ++column).Value = item.User.Name;
 				ws.Cell(nextRow, ++column).Value = item.Subdivision.Name;
-				ws.Cell(nextRow, ++column).Value = item.CanRead.ConvertToNullOrYesOrNo();
-				ws.Cell(nextRow, ++column).Value = item.CanCreate.ConvertToNullOrYesOrNo();
-				ws.Cell(nextRow, ++column).Value = item.CanUpdate.ConvertToNullOrYesOrNo();
-				ws.Cell(nextRow, ++column).Value = item.CanDelete.ConvertToNullOrYesOrNo();
-				ws.Cell(nextRow, ++column).Value = item.ExtendedPermissionValue.ConvertToNullOrYesOrNo();
+				ws.Cell(nextRow, ++column).Value = item.CanRead.ConvertToNotSetOrYesOrNo();
+				ws.Cell(nextRow, ++column).Value = item.CanCreate.ConvertToNotSetOrYesOrNo();
+				ws.Cell(nextRow, ++column).Value = item.CanUpdate.ConvertToNotSetOrYesOrNo();
+				ws.Cell(nextRow, ++column).Value = item.CanDelete.ConvertToNotSetOrYesOrNo();
+				ws.Cell(nextRow, ++column).Value = item.ExtendedPermissionValue.ConvertToNotSetOrYesOrNo();
 			}
 			
 			ws.Columns(2, 3).Width = 30;

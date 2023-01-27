@@ -6,12 +6,12 @@ namespace VodovozInfrastructure.Extensions
 	{
 		public static string ConvertToYesOrNo(this bool value) => value ? "Да" : "Нет";
 		
-		public static string ConvertToNullOrYesOrNo(this bool? value)
+		public static string ConvertToNotSetOrYesOrNo(this bool? value)
 		{
 			switch(value)
 			{
 				case null:
-					return "Null";
+					return "Не задано";
 				default:
 					return ConvertToYesOrNo(value.Value);
 			}
