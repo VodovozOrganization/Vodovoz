@@ -68,10 +68,10 @@ namespace Vodovoz.ReportsParameters
 			timeHourEntrySingleReport.Text = DateTime.Now.Hour.ToString("00.##");
 			timeMinuteEntrySingleReport.Text = DateTime.Now.Minute.ToString("00.##");
 
-			entryDriverSingleReport.SetEntityAutocompleteSelectorFactory(
+			//entityentryDriverSingleReport.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
-			entryCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
+			//entryCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
 		}
 
 		/// <summary>
@@ -91,9 +91,9 @@ namespace Vodovoz.ReportsParameters
 			MakeActiveCheks(new string[] { CarOwnType.Company.ToString() }, ref enumcheckCarOwnTypeOneDayGroupReport);
 
 			//Выбор подразделения
-			comboDepartmentOneDayGroupReport.SetRenderTextFunc<Subdivision>(x => x.Name);
-			comboDepartmentOneDayGroupReport.ItemsList = UoW.GetAll<Subdivision>();
-			comboDepartmentOneDayGroupReport.ShowSpecialStateAll = true;
+			//comboDepartmentOneDayGroupReport.SetRenderTextFunc<Subdivision>(x => x.Name);
+			//comboDepartmentOneDayGroupReport.ItemsList = UoW.GetAll<Subdivision>();
+			//comboDepartmentOneDayGroupReport.ShowSpecialStateAll = true;
 
 			//Время отправления по умолчанию
 			timeHourEntryOneDayGroupReport.Text = DateTime.Now.Hour.ToString("00.##");
@@ -107,8 +107,8 @@ namespace Vodovoz.ReportsParameters
 		{
 			//TODO Выбор организации по умолчанию
 			//Период по умолчанию
-			datePickerPeriodGroupReport.StartDate = DateTime.Today;
-			datePickerPeriodGroupReport.EndDate = DateTime.Today;
+			//datePickerPeriodGroupReport.StartDate = DateTime.Today;
+			//datePickerPeriodGroupReport.EndDate = DateTime.Today;
 
 			// Тип автомобиля
 			enumcheckCarTypeOfUsePeriodGroupReport.EnumType = typeof(CarTypeOfUse);
@@ -119,10 +119,10 @@ namespace Vodovoz.ReportsParameters
 			MakeActiveCheks(new string[] { CarOwnType.Company.ToString() }, ref enumcheckCarOwnTypePeriodGroupReport);
 
 			//Выбор организации
-			entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(
+			//entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(
 				_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
 
-			entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
+			//entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
 		}
 		#endregion
 
@@ -153,8 +153,8 @@ namespace Vodovoz.ReportsParameters
 		private IEnumerable<ReportInfo> GetSingleReportInfo()
 		{
 			var date = datepickerSingleReport.Date;
-			var driverId = (entryDriverSingleReport?.Subject as Employee)?.Id ?? -1;
-			var carId = (entryCarSingleReport?.Subject as Car)?.Id ?? -1;
+			//var driverId = (entryDriverSingleReport?.Subject as Employee)?.Id ?? -1;
+			//var carId = (entryCarSingleReport?.Subject as Car)?.Id ?? -1;
 			var timeHours = timeHourEntrySingleReport.Text;
 			var timeMinutes = timeMinuteEntrySingleReport.Text;
 			var needDate = !datepickerSingleReport.IsEmpty;
