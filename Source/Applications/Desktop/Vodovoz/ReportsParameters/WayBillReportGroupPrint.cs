@@ -241,6 +241,26 @@ namespace Vodovoz.ReportsParameters
 				}
 			}
 		}
+
+		protected void OnButtonInfoSingleReportClicked(object sender, EventArgs e)
+		{
+			MessageDialogHelper.RunInfoDialog("OnButtonInfoSingleReportClicked");
+		}
+
+		protected void OnButtonInfoOneDayGroupReportClicked(object sender, EventArgs e)
+		{
+			MessageDialogHelper.RunInfoDialog("OnButtonInfoOneDayGroupReportClicked");
+		}
+
+		protected void OnButtonInfoPeriodGroupReportClicked(object sender, EventArgs e)
+		{
+			MessageDialogHelper.RunInfoDialog("OnButtonInfoOneDayGroupReportClicked");
+		}
+
+		protected void OnReportSelectorGroupChanged(object sender, EventArgs e)
+		{
+			MessageDialogHelper.RunInfoDialog("Settings changed");
+		}
 	}
 }
 
