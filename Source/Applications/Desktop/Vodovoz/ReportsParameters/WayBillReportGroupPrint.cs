@@ -69,7 +69,7 @@ namespace Vodovoz.ReportsParameters
 			timeMinuteEntrySingleReport.Text = DateTime.Now.Minute.ToString("00.##");
 
 			//entityentryDriverSingleReport.SetEntityAutocompleteSelectorFactory(
-				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
+				//_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
 			//entryCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
 		}
@@ -91,9 +91,9 @@ namespace Vodovoz.ReportsParameters
 			MakeActiveCheks(new string[] { CarOwnType.Company.ToString() }, ref enumcheckCarOwnTypeOneDayGroupReport);
 
 			//Выбор подразделения
-			//comboDepartmentOneDayGroupReport.SetRenderTextFunc<Subdivision>(x => x.Name);
-			//comboDepartmentOneDayGroupReport.ItemsList = UoW.GetAll<Subdivision>();
-			//comboDepartmentOneDayGroupReport.ShowSpecialStateAll = true;
+			comboSubdivisionsOneDayGroupReport.SetRenderTextFunc<Subdivision>(x => x.Name);
+			comboSubdivisionsOneDayGroupReport.ItemsList = UoW.GetAll<Subdivision>();
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = true;
 
 			//Время отправления по умолчанию
 			timeHourEntryOneDayGroupReport.Text = DateTime.Now.Hour.ToString("00.##");
@@ -120,7 +120,7 @@ namespace Vodovoz.ReportsParameters
 
 			//Выбор организации
 			//entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(
-				_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
+			//	_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
 
 			//entryManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
 		}
@@ -153,8 +153,8 @@ namespace Vodovoz.ReportsParameters
 		private IEnumerable<ReportInfo> GetSingleReportInfo()
 		{
 			var date = datepickerSingleReport.Date;
-			//var driverId = (entryDriverSingleReport?.Subject as Employee)?.Id ?? -1;
-			//var carId = (entryCarSingleReport?.Subject as Car)?.Id ?? -1;
+			var driverId = -1;  //(entryDriverSingleReport?.Subject as Employee)?.Id ?? -1;
+			var carId = -1; //(entryCarSingleReport?.Subject as Car)?.Id ?? -1;
 			var timeHours = timeHourEntrySingleReport.Text;
 			var timeMinutes = timeMinuteEntrySingleReport.Text;
 			var needDate = !datepickerSingleReport.IsEmpty;
@@ -195,9 +195,9 @@ namespace Vodovoz.ReportsParameters
 		{
 			CarTypeOfUse[] selectedCarTypeOfUses = (enumcheckCarTypeOfUsePeriodGroupReport.SelectedValues).Cast<CarTypeOfUse>().ToArray();
 			CarOwnType[] selectedCarOwnTypes = (enumcheckCarOwnTypePeriodGroupReport.SelectedValues).Cast<CarOwnType>().ToArray();
-			DateTime startDate = datePickerPeriodGroupReport.StartDate;
-			DateTime endDate = datePickerPeriodGroupReport.EndDate;
-			var organizationId = (entryManufacturesPeriodGroupReport?.Subject as Organization)?.Id ?? -1;
+			DateTime startDate = DateTime.Now; //datePickerPeriodGroupReport.StartDate;
+			DateTime endDate = DateTime.Now; // datePickerPeriodGroupReport.EndDate;
+			var organizationId = -1; // (entryManufacturesPeriodGroupReport?.Subject as Organization)?.Id ?? -1;
 
 			Car car = null;
 			Employee driver = null;
@@ -257,9 +257,19 @@ namespace Vodovoz.ReportsParameters
 			MessageDialogHelper.RunInfoDialog("OnButtonInfoOneDayGroupReportClicked");
 		}
 
-		protected void OnReportSelectorGroupChanged(object sender, EventArgs e)
+		protected void OnRadiobuttonSingleReportToggled(object sender, EventArgs e)
 		{
-			MessageDialogHelper.RunInfoDialog("Settings changed");
+			MessageDialogHelper.RunInfoDialog("OnRadiobuttonSingleReportToggled");
+		}
+
+		protected void OnRadiobuttonOneDayGroupReportToggled(object sender, EventArgs e)
+		{
+			MessageDialogHelper.RunInfoDialog("OnRadiobuttonOneDayGroupReportToggled");
+		}
+
+		protected void OnRadiobuttonPeriodGroupReportToggled(object sender, EventArgs e)
+		{
+			MessageDialogHelper.RunInfoDialog("OnRadiobuttonPeriodGroupReportToggled");
 		}
 	}
 }
