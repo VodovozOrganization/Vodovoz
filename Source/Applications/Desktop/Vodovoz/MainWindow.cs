@@ -2026,7 +2026,7 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionWayBillReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<WayBillReportGroupPrint>(),
+			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
 			() => new QSReport.ReportViewDlg(
 				new WayBillReportGroupPrint(
 					autofacScope.Resolve<IEmployeeJournalFactory>(),
