@@ -26,9 +26,9 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DatePicker datepickerSingleReport;
 
-		private global::QS.Views.Control.EntityEntry entityentryCarSingleReport;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityCarSingleReport;
 
-		private global::QS.Views.Control.EntityEntry entityentryDriverSingleReport;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityDriverSingleReport;
 
 		private global::Gtk.HBox hboxTimeEntrySingleReport;
 
@@ -112,7 +112,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gtk.Table tablePeriodGroupReport;
 
-		private global::QS.Widgets.GtkUI.DateRangePicker daterangepickerPeriodGroupReport;
+		private global::QS.Widgets.GtkUI.DateRangePicker datePeriodGroupReport;
 
 		private global::Gtk.HBox hboxCarTypeAndOwnerPeriodGroupReport;
 
@@ -128,7 +128,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gtk.VBox vboxOrganizationSelectionPeriodGroupReport;
 
-		private global::QS.Views.Control.EntityEntry entityentryManufacturesPeriodGroupReport;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityManufacturesPeriodGroupReport;
 
 		private global::Gtk.VBox vboxOrganizationsLabelsPeriodGroupReport;
 
@@ -235,11 +235,13 @@ namespace Vodovoz.ReportsParameters
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSingleReport.Gtk.Table+TableChild
-			this.entityentryCarSingleReport = new global::QS.Views.Control.EntityEntry();
-			this.entityentryCarSingleReport.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryCarSingleReport.Name = "entityentryCarSingleReport";
-			this.tableSingleReport.Add(this.entityentryCarSingleReport);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableSingleReport[this.entityentryCarSingleReport]));
+			this.entityCarSingleReport = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityCarSingleReport.Events = ((global::Gdk.EventMask)(256));
+			this.entityCarSingleReport.Name = "entityCarSingleReport";
+			this.entityCarSingleReport.CanEditReference = false;
+			this.entityCarSingleReport.CanOpenWithoutTabParent = false;
+			this.tableSingleReport.Add(this.entityCarSingleReport);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableSingleReport[this.entityCarSingleReport]));
 			w7.TopAttach = ((uint)(2));
 			w7.BottomAttach = ((uint)(3));
 			w7.LeftAttach = ((uint)(1));
@@ -247,11 +249,13 @@ namespace Vodovoz.ReportsParameters
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSingleReport.Gtk.Table+TableChild
-			this.entityentryDriverSingleReport = new global::QS.Views.Control.EntityEntry();
-			this.entityentryDriverSingleReport.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryDriverSingleReport.Name = "entityentryDriverSingleReport";
-			this.tableSingleReport.Add(this.entityentryDriverSingleReport);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableSingleReport[this.entityentryDriverSingleReport]));
+			this.entityDriverSingleReport = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityDriverSingleReport.Events = ((global::Gdk.EventMask)(256));
+			this.entityDriverSingleReport.Name = "entityDriverSingleReport";
+			this.entityDriverSingleReport.CanEditReference = false;
+			this.entityDriverSingleReport.CanOpenWithoutTabParent = false;
+			this.tableSingleReport.Add(this.entityDriverSingleReport);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableSingleReport[this.entityDriverSingleReport]));
 			w8.TopAttach = ((uint)(1));
 			w8.BottomAttach = ((uint)(2));
 			w8.LeftAttach = ((uint)(1));
@@ -667,13 +671,13 @@ namespace Vodovoz.ReportsParameters
 			this.tablePeriodGroupReport.RowSpacing = ((uint)(6));
 			this.tablePeriodGroupReport.ColumnSpacing = ((uint)(6));
 			// Container child tablePeriodGroupReport.Gtk.Table+TableChild
-			this.daterangepickerPeriodGroupReport = new global::QS.Widgets.GtkUI.DateRangePicker();
-			this.daterangepickerPeriodGroupReport.Events = ((global::Gdk.EventMask)(256));
-			this.daterangepickerPeriodGroupReport.Name = "daterangepickerPeriodGroupReport";
-			this.daterangepickerPeriodGroupReport.StartDate = new global::System.DateTime(0);
-			this.daterangepickerPeriodGroupReport.EndDate = new global::System.DateTime(0);
-			this.tablePeriodGroupReport.Add(this.daterangepickerPeriodGroupReport);
-			global::Gtk.Table.TableChild w54 = ((global::Gtk.Table.TableChild)(this.tablePeriodGroupReport[this.daterangepickerPeriodGroupReport]));
+			this.datePeriodGroupReport = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.datePeriodGroupReport.Events = ((global::Gdk.EventMask)(256));
+			this.datePeriodGroupReport.Name = "datePeriodGroupReport";
+			this.datePeriodGroupReport.StartDate = new global::System.DateTime(0);
+			this.datePeriodGroupReport.EndDate = new global::System.DateTime(0);
+			this.tablePeriodGroupReport.Add(this.datePeriodGroupReport);
+			global::Gtk.Table.TableChild w54 = ((global::Gtk.Table.TableChild)(this.tablePeriodGroupReport[this.datePeriodGroupReport]));
 			w54.LeftAttach = ((uint)(1));
 			w54.RightAttach = ((uint)(2));
 			w54.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -734,11 +738,13 @@ namespace Vodovoz.ReportsParameters
 			this.vboxOrganizationSelectionPeriodGroupReport.Name = "vboxOrganizationSelectionPeriodGroupReport";
 			this.vboxOrganizationSelectionPeriodGroupReport.Spacing = 6;
 			// Container child vboxOrganizationSelectionPeriodGroupReport.Gtk.Box+BoxChild
-			this.entityentryManufacturesPeriodGroupReport = new global::QS.Views.Control.EntityEntry();
-			this.entityentryManufacturesPeriodGroupReport.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryManufacturesPeriodGroupReport.Name = "entityentryManufacturesPeriodGroupReport";
-			this.vboxOrganizationSelectionPeriodGroupReport.Add(this.entityentryManufacturesPeriodGroupReport);
-			global::Gtk.Box.BoxChild w65 = ((global::Gtk.Box.BoxChild)(this.vboxOrganizationSelectionPeriodGroupReport[this.entityentryManufacturesPeriodGroupReport]));
+			this.entityManufacturesPeriodGroupReport = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityManufacturesPeriodGroupReport.Events = ((global::Gdk.EventMask)(256));
+			this.entityManufacturesPeriodGroupReport.Name = "entityManufacturesPeriodGroupReport";
+			this.entityManufacturesPeriodGroupReport.CanEditReference = false;
+			this.entityManufacturesPeriodGroupReport.CanOpenWithoutTabParent = false;
+			this.vboxOrganizationSelectionPeriodGroupReport.Add(this.entityManufacturesPeriodGroupReport);
+			global::Gtk.Box.BoxChild w65 = ((global::Gtk.Box.BoxChild)(this.vboxOrganizationSelectionPeriodGroupReport[this.entityManufacturesPeriodGroupReport]));
 			w65.Position = 0;
 			w65.Expand = false;
 			w65.Fill = false;
