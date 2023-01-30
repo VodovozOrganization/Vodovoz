@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -19,6 +21,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 {
 	public class SubdivisionViewModel : EntityTabViewModelBase<Subdivision>
 	{
+		private readonly ILifetimeScope _scope;
 		private PresetSubdivisionPermissionsViewModel _presetSubdivisionPermissionVm;
 		private WarehousePermissionsViewModel _warehousePermissionsVm;
 
@@ -30,11 +33,15 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			IPermissionRepository permissionRepository,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			ISubdivisionRepository subdivisionRepository
-		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			ISubdivisionRepository subdivisionRepository,
+			ILifetimeScope scope) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			SubdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
+			PresetSubdivisionPermissionVM =
+				_scope.Resolve<PresetSubdivisionPermissionsViewModel>(
+					new TypedParameter(typeof(IUnitOfWork), UoW),
+					new TypedParameter(typeof(Subdivision), Entity));
 			var warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
 			WarehousePermissionsVM = new WarehousePermissionsViewModel(UoW, warehousePermissionModel)
 			{

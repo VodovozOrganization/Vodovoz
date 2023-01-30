@@ -352,10 +352,16 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\EntityExtendedPermission.cs" />
     <Compile Include="EntityRepositories\Permissions\IPrivilegesRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\IUserRoleRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\PrivilegesRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserEntityExtendedPermissionNode.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserEntityExtendedPermissionWithSubdivisionNode.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserNode.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserPresetPermissionWithSubdivisionNode.cs" />
     <Compile Include="EntityRepositories\Permissions\UserRoleRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserWithSubdivisionNode.cs" />
     <Compile Include="EntityRepositories\Profitability\IProfitabilityConstantsRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\IRouteListProfitabilityRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\ProfitabilityConstantsRepository.cs" />

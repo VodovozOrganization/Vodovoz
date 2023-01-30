@@ -866,7 +866,8 @@ public partial class MainWindow : Window
 					ServicesConfig.CommonServices,
 					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					new SalesPlanJournalFactory(),
-					new NomenclatureJournalFactory()
+					new NomenclatureJournalFactory(),
+					autofacScope.BeginLifetimeScope()
 				);
 			});
 
