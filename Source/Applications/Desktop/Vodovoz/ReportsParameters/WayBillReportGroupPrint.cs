@@ -1,17 +1,4 @@
-﻿//using System;
-//namespace Vodovoz.ReportsParameters
-//{
-//	[System.ComponentModel.ToolboxItem(true)]
-//	public partial class WayBillReportGroupPrint : Gtk.Bin
-//	{
-//		public WayBillReportGroupPrint()
-//		{
-//			this.Build();
-//		}
-//	}
-//}
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using QS.Report;
 using QSReport;
@@ -173,8 +160,8 @@ namespace Vodovoz.ReportsParameters
 				Parameters = new Dictionary<string, object>
 				{
 					{ "date", datepickerOneDayGroupReport.Date },
-					{ "auto_types",  (enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues).Cast<CarTypeOfUse>().ToArray() },
-					{ "owner_types",  (enumcheckCarOwnTypeOneDayGroupReport.SelectedValues).Cast<CarOwnType>().ToArray() },
+					{ "auto_types",  (enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues)?.Cast<CarTypeOfUse>().ToArray() },
+					{ "owner_types",  (enumcheckCarOwnTypeOneDayGroupReport.SelectedValues)?.Cast<CarOwnType>().ToArray() },
 					{ "subdivisions", subdivisionIds },
 					{ "time", timeHourEntryOneDayGroupReport.Text + ":" + timeHourEntryOneDayGroupReport.Text },
 					{ "need_date", !datepickerOneDayGroupReport.IsEmpty }
