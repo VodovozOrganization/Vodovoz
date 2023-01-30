@@ -187,7 +187,7 @@ namespace Vodovoz.ReportsParameters.Sales
 						var sliceIndex = i / 2;
 						columnsConfig.AddColumn(ViewModel.Report.Slices[sliceIndex].ToString())
 							.HeaderAlignment(0.5f)
-							.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+							.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 								row.DynamicColumns[index])
 							.XAlign(1);
 					}
@@ -196,7 +196,7 @@ namespace Vodovoz.ReportsParameters.Sales
 						var index = i;
 						columnsConfig.AddColumn(ViewModel.Report.DynamicsInStringShort)
 							.HeaderAlignment(0.5f)
-							.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+							.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 								row.DynamicColumns[index])
 							.XAlign(1);
 					}
@@ -209,7 +209,7 @@ namespace Vodovoz.ReportsParameters.Sales
 					var index = i;
 					columnsConfig.AddColumn(ViewModel.Report.Slices[index].ToString())
 						.HeaderAlignment(0.5f)
-						.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+						.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 							row.SliceColumnValues[index].ToString(ViewModel.Report.MeasurementUnitFormat))
 						.XAlign(1);
 				}

@@ -673,9 +673,19 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => counterpartyAlias.CounterpartyContracts, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
-				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
+				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias);
+
+			if(true) // Условие на включение не включенных номенклатур
+			{
+				query.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
+			}
+			else
+			{
+				query.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
+			}
+
+				
+			query.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Where(Restrictions.Or(
 					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), filterOrderStatusInclude),
 					Restrictions.And(
