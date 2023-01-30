@@ -268,6 +268,16 @@ namespace Vodovoz.ReportsParameters
 			frameOneDayGroupReport.Visible = false;
 			framePeriodGroupReport.Visible = true;
 		}
+
+		protected void Focused(object o, Gtk.FocusedArgs args)
+		{
+			MessageDialogHelper.RunInfoDialog("Focused");
+		}
+
+		protected void FocusIn(object o, Gtk.FocusInEventArgs args)
+		{
+			MessageDialogHelper.RunInfoDialog("FocusIn");
+		}
 	}
 }
 
