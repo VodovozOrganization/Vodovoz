@@ -174,7 +174,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddTextRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index, useMarkup: true);
 
 			columnsConfig.AddColumn("Периоды продаж").AddTextRenderer(row =>
-				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true).XAlign(1);
+				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true);
 
 			if(ViewModel.Report.ShowDynamics)
 			{
@@ -232,7 +232,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				columnsConfig
 					.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")
 					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
-						row.LastSaleDetails.WarhouseResidue.ToString("0.000"));
+						row.LastSaleDetails.WarhouseResidue.ToString("0"));
 			}
 			
 			columnsConfig.AddColumn("");
