@@ -42,8 +42,6 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 				_scope.Resolve<PresetSubdivisionPermissionsViewModel>(
 					new TypedParameter(typeof(IUnitOfWork), UoW),
 					new TypedParameter(typeof(Subdivision), Entity));
-				/*new PresetSubdivisionPermissionsViewModel(
-					UoW, permissionRepository, _scope.Resolve<IFileDialogService>(), Entity);*/
 			var warehousePermissionModel = new SubdivisionWarehousePermissionModel(UoW, Entity);
 			WarehousePermissionsVM = new WarehousePermissionsViewModel(UoW, warehousePermissionModel)
 			{
