@@ -11,6 +11,17 @@ namespace Vodovoz.ViewModels.Permissions
 {
 	public class UserPermissionsExporter
 	{
+		private const string _userId = "№";
+		private const string _user = "Пользователь";
+		private const string _isDeactivatedUser = "Пользователь отключен";
+		private const string _userSubdivision = "Подразделение сотрудника";
+		private const string _canRead = "Просмотр";
+		private const string _canCreate = "Создание";
+		private const string _canUpdate = "Редактирование";
+		private const string _canDelete = "Удаление";
+		private const string _extendedPermission = "Особое право на документ";
+		private const string _userPermission = "Пользовательское право";
+		private const string _userPermissionBySubdivision = "Право выдано через подразд-е";
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IInteractiveMessage _interactiveMessage;
 
@@ -37,13 +48,13 @@ namespace Vodovoz.ViewModels.Permissions
 			{
 				if(usersWithPermission.Any())
 				{
-					var wsByUsers = wb.Worksheets.Add("По пользователям");
+					var wsByUsers = wb.Worksheets.Add(_userPermission);
 					InsertUsersEntityPermission(wsByUsers, usersWithPermission, permission.PermissionTitle);
 				}
 
 				if(usersWithPermissionBySubdivisions.Any())
 				{
-					var wsBySubdivisions = wb.Worksheets.Add("По подразделениям");
+					var wsBySubdivisions = wb.Worksheets.Add(_userPermissionBySubdivision);
 					InsertUsersEntityPermissionBySubdivisions(wsBySubdivisions, usersWithPermissionBySubdivisions);
 				}
 
@@ -69,13 +80,13 @@ namespace Vodovoz.ViewModels.Permissions
 			{
 				if(usersWithActivePermission.Any())
 				{
-					var wsByUsers = wb.Worksheets.Add("По пользователям");
+					var wsByUsers = wb.Worksheets.Add(_userPermission);
 					InsertUsersPresetPermission(wsByUsers, usersWithActivePermission, permission.PermissionTitle);
 				}
 
 				if(usersWithActivePermissionBySubdivision.Any())
 				{
-					var wsBySubdivisions = wb.Worksheets.Add("По подразделениям");
+					var wsBySubdivisions = wb.Worksheets.Add(_userPermissionBySubdivision);
 					InsertUsersPresetPermissionBySubdivisions(wsBySubdivisions, usersWithActivePermissionBySubdivision);
 				}
 
@@ -91,7 +102,15 @@ namespace Vodovoz.ViewModels.Permissions
 			var row = 1;
 			var colName = new[]
 			{
-				"№", "Пользователь", "Просмотр", "Создание", "Редактирование", "Удаление", "Особое право на документ"
+				_userId,
+				_user,
+				_isDeactivatedUser,
+				_userSubdivision,
+				_canRead,
+				_canCreate,
+				_canUpdate,
+				_canDelete,
+				_extendedPermission
 			};
 			
 			ws.Cell(row, 1).Value = "Право на";
@@ -110,6 +129,8 @@ namespace Vodovoz.ViewModels.Permissions
 				var column = 1;
 				ws.Cell(nextRow, column).Value = item.UserId;
 				ws.Cell(nextRow, ++column).Value = item.UserName;
+				ws.Cell(nextRow, ++column).Value = item.IsDeactivatedUser.ConvertToYesOrNo();
+				ws.Cell(nextRow, ++column).Value = item.UserSubdivision;
 				ws.Cell(nextRow, ++column).Value = item.CanRead.ConvertToYesOrNo();
 				ws.Cell(nextRow, ++column).Value = item.CanCreate.ConvertToYesOrNo();
 				ws.Cell(nextRow, ++column).Value = item.CanUpdate.ConvertToYesOrNo();
@@ -118,7 +139,9 @@ namespace Vodovoz.ViewModels.Permissions
 			}
 			
 			ws.Column(2).Width = 30;
-			ws.Columns(3, 6).Width = 16;
+			ws.Column(4).Width = 30;
+			ws.Columns(5, 8).Width = 16;
+			ws.Column(3).Width = 25;
 			ws.Column(colName.Length).Width = 25;
 		}
 
@@ -127,14 +150,15 @@ namespace Vodovoz.ViewModels.Permissions
 		{
 			var colName = new[]
 			{
-				"№",
-				"Пользователь",
-				"Подразделение",
-				"Просмотр",
-				"Создание",
-				"Редактирование",
-				"Удаление",
-				"Особое право на документ"
+				_userId,
+				_user,
+				_isDeactivatedUser,
+				_userSubdivision,
+				_canRead,
+				_canCreate,
+				_canUpdate,
+				_canDelete,
+				_extendedPermission
 			};
 
 			var row = 1;
@@ -149,6 +173,7 @@ namespace Vodovoz.ViewModels.Permissions
 				var column = 1;
 				ws.Cell(nextRow, column).Value = item.User.Id;
 				ws.Cell(nextRow, ++column).Value = item.User.Name;
+				ws.Cell(nextRow, ++column).Value = item.User.Deactivated.ConvertToYesOrNo();
 				ws.Cell(nextRow, ++column).Value = item.Subdivision.Name;
 				ws.Cell(nextRow, ++column).Value = item.CanRead.ConvertToNotSetOrYesOrNo();
 				ws.Cell(nextRow, ++column).Value = item.CanCreate.ConvertToNotSetOrYesOrNo();
@@ -157,15 +182,23 @@ namespace Vodovoz.ViewModels.Permissions
 				ws.Cell(nextRow, ++column).Value = item.ExtendedPermissionValue.ConvertToNotSetOrYesOrNo();
 			}
 			
-			ws.Columns(2, 3).Width = 30;
-			ws.Columns(4, 7).Width = 16;
+			ws.Column(2).Width = 30;
+			ws.Column(4).Width = 30;
+			ws.Columns(5, 8).Width = 16;
+			ws.Column(3).Width = 25;
 			ws.Column(colName.Length).Width = 25;
 		}
 		
 		private void InsertUsersPresetPermission(IXLWorksheet ws, IList<UserNode> users, string permissionTitle)
 		{
 			var row = 1;
-			var colName = new[] { "№", "Пользователь" };
+			var colName = new[]
+			{
+				_userId,
+				_user,
+				_isDeactivatedUser,
+				_userSubdivision
+			};
 			
 			ws.Cell(row, 1).Value = "Право";
 			ws.Cell(row, 2).Value = permissionTitle;
@@ -177,21 +210,31 @@ namespace Vodovoz.ViewModels.Permissions
 				ws.Cell(row, i + 1).Value = colName[i];
 			}
 			
-			foreach(var t in users)
+			foreach(var item in users)
 			{
 				var nextRow = ++row;
 				var column = 1;
-				ws.Cell(nextRow, column).Value = t.UserId;
-				ws.Cell(nextRow, ++column).Value = t.UserName;
+				ws.Cell(nextRow, column).Value = item.UserId;
+				ws.Cell(nextRow, ++column).Value = item.UserName;
+				ws.Cell(nextRow, ++column).Value = item.IsDeactivatedUser.ConvertToYesOrNo();
+				ws.Cell(nextRow, ++column).Value = item.UserSubdivision;
 			}
 			
+			ws.Column(2).Width = 30;
+			ws.Column(colName.Length - 1).Width = 25;
 			ws.Column(colName.Length).Width = 30;
 		}
 		
 		private void InsertUsersPresetPermissionBySubdivisions(
 			IXLWorksheet ws, IEnumerable<UserPresetPermissionWithSubdivisionNode> usersBySubdivisions)
 		{
-			var colName = new[] { "№", "Пользователь", "Подразделение" };
+			var colName = new[]
+			{
+				_userId,
+				_user,
+				_isDeactivatedUser,
+				_userSubdivision
+			};
 
 			var row = 1;
 			for(var i = 0; i < colName.Length; i++)
@@ -199,16 +242,18 @@ namespace Vodovoz.ViewModels.Permissions
 				ws.Cell(row, i + 1).Value = colName[i];
 			}
 
-			foreach(var t in usersBySubdivisions)
+			foreach(var item in usersBySubdivisions)
 			{
 				var nextRow = ++row;
 				var column = 1;
-				ws.Cell(nextRow, column).Value = t.User.Id;
-				ws.Cell(nextRow, ++column).Value = t.User.Name;
-				ws.Cell(nextRow, ++column).Value = t.Subdivision.Name;
+				ws.Cell(nextRow, column).Value = item.User.Id;
+				ws.Cell(nextRow, ++column).Value = item.User.Name;
+				ws.Cell(nextRow, ++column).Value = item.User.Deactivated.ConvertToYesOrNo();
+				ws.Cell(nextRow, ++column).Value = item.Subdivision.Name;
 			}
 			
-			ws.Column(colName.Length - 1).Width = 30;
+			ws.Column(2).Width = 30;
+			ws.Column(colName.Length - 1).Width = 25;
 			ws.Column(colName.Length).Width = 30;
 		}
 		

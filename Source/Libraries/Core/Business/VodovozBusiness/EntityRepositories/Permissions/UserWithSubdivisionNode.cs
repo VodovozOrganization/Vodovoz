@@ -6,6 +6,5 @@ namespace Vodovoz.EntityRepositories.Permissions
 	{
 		public UserBase User { get; set; }
 		public Subdivision Subdivision { get; set; }
-		public string SubdivisionName { get; set; }
 	}
 }

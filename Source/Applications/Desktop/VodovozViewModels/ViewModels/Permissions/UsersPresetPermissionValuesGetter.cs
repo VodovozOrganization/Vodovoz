@@ -23,7 +23,7 @@ namespace Vodovoz.ViewModels.Permissions
 		
 		public IList<UserNode> GetUsersWithActivePermission(IUnitOfWork uow, string permissionName)
 		{
-			return _permissionRepository.GetUsersWithActivePermission(uow, permissionName);
+			return _permissionRepository.GetUsersWithActivePresetPermission(uow, permissionName);
 		}
 
 		public IEnumerable<UserPresetPermissionWithSubdivisionNode> GetUsersWithActivePermissionPresetByOwnSubdivision(IUnitOfWork uow, string permissionName) =>

@@ -193,19 +193,27 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.SingleOrDefault();
 		}
 		
-		public IList<UserNode> GetUsersWithActivePermission(IUnitOfWork uow, string permissionName)
+		public IList<UserNode> GetUsersWithActivePresetPermission(IUnitOfWork uow, string permissionName)
 		{
+			Subdivision subdivisionAlias = null;
 			User userAlias = null;
 			HierarchicalPresetUserPermission presetUserPermissionAlias = null;
 			UserNode resultAlias = null;
 
-			return uow.Session.QueryOver(() => userAlias)
+			return uow.Session.QueryOver<Employee>()
+				.JoinAlias(e => e.User, () => userAlias)
+				.JoinAlias(e => e.Subdivision, () => subdivisionAlias)
 				.JoinEntityAlias(() => presetUserPermissionAlias, () => userAlias.Id == presetUserPermissionAlias.User.Id)
 				.Where(() => presetUserPermissionAlias.PermissionName == permissionName)
 				.And(() => presetUserPermissionAlias.Value)
 				.SelectList(list => list
 					.Select(() => userAlias.Id).WithAlias(() => resultAlias.UserId)
-					.Select(() => userAlias.Name).WithAlias(() => resultAlias.UserName))
+					.Select(() => userAlias.Name).WithAlias(() => resultAlias.UserName)
+					.Select(() => userAlias.Deactivated).WithAlias(() => resultAlias.IsDeactivatedUser)
+					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.UserSubdivision))
+				.OrderBy(() => userAlias.Deactivated).Asc
+				.ThenBy(() => subdivisionAlias.Name).Asc
+				.ThenBy(() => userAlias.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<UserNode>())
 				.List<UserNode>();
 		}
@@ -228,13 +236,16 @@ namespace Vodovoz.EntityRepositories.Permissions
 
 		public IList<UserEntityExtendedPermissionNode> GetUsersEntityPermission(IUnitOfWork uow, string permissionName)
 		{
+			Subdivision subdivisionAlias = null;
 			User userAlias = null;
 			TypeOfEntity typeOfEntityAlias = null;
 			EntityUserPermission entityUserPermissionAlias = null;
 			EntityUserPermissionExtended entityUserPermissionExtendedAlias = null;
 			UserEntityExtendedPermissionNode resultAlias = null;
 
-			return uow.Session.QueryOver(() => userAlias)
+			return uow.Session.QueryOver<Employee>()
+				.JoinAlias(e => e.Subdivision, () => subdivisionAlias)
+				.JoinAlias(e => e.User, () => userAlias)
 				.JoinEntityAlias(() => entityUserPermissionAlias, () => userAlias.Id == entityUserPermissionAlias.User.Id)
 				.JoinAlias(() => entityUserPermissionAlias.TypeOfEntity, () => typeOfEntityAlias)
 				.JoinEntityAlias(() => entityUserPermissionExtendedAlias,
@@ -245,12 +256,17 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.SelectList(list => list
 					.Select(() => userAlias.Id).WithAlias(() => resultAlias.UserId)
 					.Select(() => userAlias.Name).WithAlias(() => resultAlias.UserName)
+					.Select(() => userAlias.Deactivated).WithAlias(() => resultAlias.IsDeactivatedUser)
+					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.UserSubdivision)
 					.Select(() => entityUserPermissionAlias.CanRead).WithAlias(() => resultAlias.CanRead)
 					.Select(() => entityUserPermissionAlias.CanCreate).WithAlias(() => resultAlias.CanCreate)
 					.Select(() => entityUserPermissionAlias.CanUpdate).WithAlias(() => resultAlias.CanUpdate)
 					.Select(() => entityUserPermissionAlias.CanDelete).WithAlias(() => resultAlias.CanDelete)
 					.Select(() => entityUserPermissionExtendedAlias.IsPermissionAvailable)
 						.WithAlias(() => resultAlias.ExtendedPermissionValue))
+				.OrderBy(() => userAlias.Deactivated).Asc
+				.ThenBy(() => subdivisionAlias.Name).Asc
+				.ThenBy(() => userAlias.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<UserEntityExtendedPermissionNode>())
 				.List<UserEntityExtendedPermissionNode>();
 		}
@@ -300,8 +316,10 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionAlias)
 				.SelectList(list => list
 					.Select(Projections.Entity<UserBase>(nameof(userAlias))).WithAlias(() => resultAlias.User)
-					.Select(Projections.Entity<Subdivision>(nameof(subdivisionAlias))).WithAlias(() => resultAlias.Subdivision)
-					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionName));
+					.Select(Projections.Entity<Subdivision>(nameof(subdivisionAlias))).WithAlias(() => resultAlias.Subdivision))
+				.OrderBy(() => userAlias.Deactivated).Asc
+				.ThenBy(() => subdivisionAlias.Name).Asc
+				.ThenBy(() => userAlias.Name).Asc;
 		}
 	}
 }

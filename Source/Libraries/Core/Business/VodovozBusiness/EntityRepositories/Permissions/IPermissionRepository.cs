@@ -33,7 +33,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 			IUnitOfWork uow, int userId, int warehouseId, WarehousePermissionsType warehousePermissionsType);
 		SubdivisionWarehousePermission GetSubdivisionWarehousePermission(
 			IUnitOfWork uow, int subdivisionId, int warehouseId, WarehousePermissionsType warehousePermissionsType);
-		IList<UserNode> GetUsersWithActivePermission(IUnitOfWork uow, string permissionName);
+		IList<UserNode> GetUsersWithActivePresetPermission(IUnitOfWork uow, string permissionName);
 		IList<UserPresetPermissionWithSubdivisionNode> GetUsersWithSubdivisionsPresetPermission(IUnitOfWork uow);
 		IList<UserEntityExtendedPermissionWithSubdivisionNode> GetUsersWithSubdivisionsEntityPermission(IUnitOfWork uow);
 		IList<UserEntityExtendedPermissionNode> GetUsersEntityPermission(IUnitOfWork uow, string permissionName);
