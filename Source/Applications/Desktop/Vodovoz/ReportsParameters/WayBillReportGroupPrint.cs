@@ -239,6 +239,7 @@ namespace Vodovoz.ReportsParameters
 				|| enumcheckCarOwnTypeOneDayGroupReport.SelectedValues.Count() < 1
 				|| enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues.Count() < 1))
 			{
+				MessageDialogHelper.RunErrorDialog("Недостаточно данных для отчета");
 				var info = "Недостаточно данных для отчета.";
 
 				_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Ошибка формирования отчета");
