@@ -670,17 +670,76 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			OrderItemNode resultNodeAlias = null;
 
+			var parameters = _filter.GetParameters();
+
 			IList<OrderItemNode> nomenclaturesEmptyNodes = new List<OrderItemNode>();
 
 			if(ShowResidueForNomenclaturesWithoutSales)
 			{
-				nomenclaturesEmptyNodes = _unitOfWork.Session.QueryOver(() => nomenclatureAlias)
+				var nomenclaturesEmptyQuery = _unitOfWork.Session.QueryOver(() => nomenclatureAlias)
 					.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 					.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Nomenclature.Id == nomenclatureAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.Where(() => !nomenclatureAlias.IsArchive)
-					.And(Restrictions.Le(Projections.Property(() => orderAlias.DeliveryDate), EndDate))
-					.SelectList(list => list.SelectGroup(() => nomenclatureAlias.Id)
+					.And(Restrictions.Le(Projections.Property(() => orderAlias.DeliveryDate), EndDate));
+
+				if(parameters.ContainsKey(nameof(NomenclatureCategory) + _includeSuffix)
+				&& parameters[nameof(NomenclatureCategory) + _includeSuffix] is object[] nomenclatureTypesInclude2
+				&& nomenclatureTypesInclude2[0] != "0")
+				{
+					nomenclaturesEmptyQuery.Where(Restrictions.In(
+						Projections.Property(() => nomenclatureAlias.Category),
+						nomenclatureTypesInclude2));
+				}
+
+				if(parameters.ContainsKey(nameof(NomenclatureCategory) + _excludeSuffix)
+					&& parameters[nameof(NomenclatureCategory) + _excludeSuffix] is object[] nomenclatureTypesExclude2
+					&& nomenclatureTypesExclude2[0] != "0")
+				{
+					nomenclaturesEmptyQuery.Where(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => nomenclatureAlias.Category),
+						nomenclatureTypesExclude2)));
+				}
+
+				if(parameters.ContainsKey(nameof(Nomenclature) + _includeSuffix)
+					&& parameters[nameof(Nomenclature) + _includeSuffix] is object[] nomenclaturesInclude2
+					&& nomenclaturesInclude2[0] != "0")
+				{
+					nomenclaturesEmptyQuery.Where(Restrictions.In(
+						Projections.Property(() => nomenclatureAlias.Id),
+						nomenclaturesInclude2));
+				}
+
+				if(parameters.ContainsKey(nameof(Nomenclature) + _excludeSuffix)
+					&& parameters[nameof(Nomenclature) + _excludeSuffix] is object[] nomenclaturesExclude2
+					&& nomenclaturesExclude2[0] != "0")
+				{
+					nomenclaturesEmptyQuery.Where(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => nomenclatureAlias.Id),
+						nomenclaturesExclude2)));
+				}
+
+				if(parameters.ContainsKey(nameof(ProductGroup) + _includeSuffix)
+					&& parameters[nameof(ProductGroup) + _includeSuffix] is object[] productGroupsInclude2
+					&& productGroupsInclude2[0] != "0")
+				{
+					nomenclaturesEmptyQuery.Where(Restrictions.In(
+						Projections.Property(() => productGroupAlias.Id),
+						productGroupsInclude2));
+				}
+
+				if(parameters.ContainsKey(nameof(ProductGroup) + _excludeSuffix)
+					&& parameters[nameof(ProductGroup) + _excludeSuffix] is object[] productGroupsExclude2
+					&& productGroupsExclude2[0] != "0")
+				{
+					nomenclaturesEmptyQuery.Where(Restrictions.Disjunction()
+						.Add(Restrictions.Not(Restrictions.In(
+							Projections.Property(() => productGroupAlias.Id),
+							productGroupsExclude2)))
+						.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
+				}
+
+				nomenclaturesEmptyNodes = nomenclaturesEmptyQuery.SelectList(list => list.SelectGroup(() => nomenclatureAlias.Id)
 							.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.Id))
 							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Price))
 							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualSum))
@@ -708,7 +767,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias);
 
-			var parameters = _filter.GetParameters();
 
 			#region filter parameters
 			if(parameters.ContainsKey(nameof(NomenclatureCategory) + _includeSuffix)
