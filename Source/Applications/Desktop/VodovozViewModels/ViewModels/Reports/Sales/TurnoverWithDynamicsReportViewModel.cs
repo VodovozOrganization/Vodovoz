@@ -5,7 +5,6 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Linq;
 using NHibernate.Transform;
-using NLog.Targets;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -28,7 +27,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
@@ -672,6 +670,32 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			OrderItemNode resultNodeAlias = null;
 
+			IList<OrderItemNode> nomenclaturesEmptyNodes = new List<OrderItemNode>();
+
+			if(ShowResidueForNomenclaturesWithoutSales)
+			{
+				nomenclaturesEmptyNodes = _unitOfWork.Session.QueryOver(() => nomenclatureAlias)
+					.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
+					.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Nomenclature.Id == nomenclatureAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.Where(() => !nomenclatureAlias.IsArchive)
+					.And(Restrictions.Le(Projections.Property(() => orderAlias.DeliveryDate), EndDate))
+					.SelectList(list => list.SelectGroup(() => nomenclatureAlias.Id)
+							.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.Id))
+							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Price))
+							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualSum))
+							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Count))
+							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualCount))
+							.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
+							.Select(Projections.Property(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName))
+							.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.OrderId))
+							.Select(Projections.Max(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
+							.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
+							.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
+					.SetTimeout(0)
+					.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).ReadOnly().List<OrderItemNode>();
+			}
+
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.PromoSet, () => promotionalSetAlias)
 				.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
@@ -680,28 +704,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => counterpartyAlias.CounterpartyContracts, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias);
-
-			if(ShowResidueForNomenclaturesWithoutSales)
-			{
-				query.Right.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
-			}
-			else
-			{
-				query.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
-			}
-
-
-			query.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
-				.Where(Restrictions.Or(
-					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), filterOrderStatusInclude),
-					Restrictions.And(
-						Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.WaitForPayment),
-						Restrictions.And(
-							Restrictions.Eq(Projections.Property(() => orderAlias.SelfDelivery), true),
-							Restrictions.Eq(Projections.Property(() => orderAlias.PayAfterShipment), true)))))
-				.And(Restrictions.NotEqProperty(Projections.Property(() => orderAlias.IsContractCloser), Projections.Constant(true)))
-				.And(Restrictions.Between(Projections.Property(() => orderAlias.DeliveryDate), StartDate, EndDate));
+				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
+				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias);
 
 			var parameters = _filter.GetParameters();
 
@@ -912,11 +917,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 			#endregion
 
-			IProjection groupNameProjection = ProductGroupProjections.GetProductGroupNameWithEnclosureProjection();
-
-			var result = query.SelectList(list =>
+			var result = query.Where(GetOrderCriterion(filterOrderStatusInclude, orderAlias))
+				.SelectList(list =>
 					list.SelectGroup(() => orderItemAlias.Id)
-						.Select(Projections.Property(() => orderAlias.Id).WithAlias(() => resultNodeAlias.Id))
+						.Select(Projections.Property(() => orderItemAlias.Id).WithAlias(() => resultNodeAlias.Id))
 						.Select(Projections.Property(() => orderItemAlias.Price).WithAlias(() => resultNodeAlias.Price))
 						.Select(OrderProjections.GetOrderItemSumProjection()).WithAlias(() => resultNodeAlias.ActualSum)
 						.Select(Projections.Property(() => orderItemAlias.Count).WithAlias(() => resultNodeAlias.Count))
@@ -926,11 +930,26 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(Projections.Property(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId))
 						.Select(Projections.Property(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
 						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
-						.Select(groupNameProjection.WithAlias(() => resultNodeAlias.ProductGroupName)))
+						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).List<OrderItemNode>();
 
-			return result;
+			return nomenclaturesEmptyNodes.Union(result.AsEnumerable()).ToList();
+		}
+
+		private AbstractCriterion GetOrderCriterion(OrderStatus[] filterOrderStatusInclude, Order orderAlias)
+		{
+			return Restrictions.And(
+						Restrictions.And(
+							Restrictions.Or(
+								Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), filterOrderStatusInclude),
+								Restrictions.And(
+									Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.WaitForPayment),
+									Restrictions.And(
+										Restrictions.Eq(Projections.Property(() => orderAlias.SelfDelivery), true),
+										Restrictions.Eq(Projections.Property(() => orderAlias.PayAfterShipment), true)))),
+							Restrictions.NotEqProperty(Projections.Property(() => orderAlias.IsContractCloser), Projections.Constant(true))),
+						Restrictions.Between(Projections.Property(() => orderAlias.DeliveryDate), StartDate, EndDate));
 		}
 
 		private IEnumerable<string> ValidateParameters()

@@ -101,11 +101,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				IList<TurnoverWithDynamicsReportRow> rows = new List<TurnoverWithDynamicsReportRow>();
 
-				var nomenclatureGroups = ordersItemslist
+				var productGroups = ordersItemslist
 					.GroupBy(oi => oi.NomenclatureId)
 					.GroupBy(g => g.First().ProductGroupId);
 
-				rows = ProcessGroups(nomenclatureGroups);
+				rows = ProcessGroups(productGroups);
 
 				return rows;
 			}
