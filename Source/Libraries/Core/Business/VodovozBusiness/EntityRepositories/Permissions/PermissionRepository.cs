@@ -2,10 +2,13 @@
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
+using NHibernate.Transform;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
@@ -190,10 +193,133 @@ namespace Vodovoz.EntityRepositories.Permissions
 				.SingleOrDefault();
 		}
 		
+		public IList<UserNode> GetUsersWithActivePresetPermission(IUnitOfWork uow, string permissionName)
+		{
+			Subdivision subdivisionAlias = null;
+			User userAlias = null;
+			HierarchicalPresetUserPermission presetUserPermissionAlias = null;
+			UserNode resultAlias = null;
+
+			return uow.Session.QueryOver<Employee>()
+				.JoinAlias(e => e.User, () => userAlias)
+				.JoinAlias(e => e.Subdivision, () => subdivisionAlias)
+				.JoinEntityAlias(() => presetUserPermissionAlias, () => userAlias.Id == presetUserPermissionAlias.User.Id)
+				.Where(() => presetUserPermissionAlias.PermissionName == permissionName)
+				.And(() => presetUserPermissionAlias.Value)
+				.SelectList(list => list
+					.Select(() => userAlias.Id).WithAlias(() => resultAlias.UserId)
+					.Select(() => userAlias.Name).WithAlias(() => resultAlias.UserName)
+					.Select(() => userAlias.Deactivated).WithAlias(() => resultAlias.IsDeactivatedUser)
+					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.UserSubdivision))
+				.OrderBy(() => userAlias.Deactivated).Asc
+				.ThenBy(() => subdivisionAlias.Name).Asc
+				.ThenBy(() => userAlias.Name).Asc
+				.TransformUsing(Transformers.AliasToBean<UserNode>())
+				.List<UserNode>();
+		}
+		
+		public IList<UserPresetPermissionWithSubdivisionNode> GetUsersWithSubdivisionsPresetPermission(IUnitOfWork uow)
+		{
+			return GetUsersWithSubdivisions()
+				.GetExecutableQueryOver(uow.Session)
+				.TransformUsing(Transformers.AliasToBean<UserPresetPermissionWithSubdivisionNode>())
+				.List<UserPresetPermissionWithSubdivisionNode>();
+		}
+		
+		public IList<UserEntityExtendedPermissionWithSubdivisionNode> GetUsersWithSubdivisionsEntityPermission(IUnitOfWork uow)
+		{
+			return GetUsersWithSubdivisions()
+				.GetExecutableQueryOver(uow.Session)
+				.TransformUsing(Transformers.AliasToBean<UserEntityExtendedPermissionWithSubdivisionNode>())
+				.List<UserEntityExtendedPermissionWithSubdivisionNode>();
+		}
+
+		public IList<UserEntityExtendedPermissionNode> GetUsersEntityPermission(IUnitOfWork uow, string permissionName)
+		{
+			Subdivision subdivisionAlias = null;
+			User userAlias = null;
+			TypeOfEntity typeOfEntityAlias = null;
+			EntityUserPermission entityUserPermissionAlias = null;
+			EntityUserPermissionExtended entityUserPermissionExtendedAlias = null;
+			UserEntityExtendedPermissionNode resultAlias = null;
+
+			return uow.Session.QueryOver<Employee>()
+				.JoinAlias(e => e.Subdivision, () => subdivisionAlias)
+				.JoinAlias(e => e.User, () => userAlias)
+				.JoinEntityAlias(() => entityUserPermissionAlias, () => userAlias.Id == entityUserPermissionAlias.User.Id)
+				.JoinAlias(() => entityUserPermissionAlias.TypeOfEntity, () => typeOfEntityAlias)
+				.JoinEntityAlias(() => entityUserPermissionExtendedAlias,
+					() => entityUserPermissionExtendedAlias.User.Id == userAlias.Id
+					&& entityUserPermissionExtendedAlias.TypeOfEntity.Id == typeOfEntityAlias.Id,
+					JoinType.LeftOuterJoin)
+				.Where(() => typeOfEntityAlias.Type == permissionName)
+				.SelectList(list => list
+					.Select(() => userAlias.Id).WithAlias(() => resultAlias.UserId)
+					.Select(() => userAlias.Name).WithAlias(() => resultAlias.UserName)
+					.Select(() => userAlias.Deactivated).WithAlias(() => resultAlias.IsDeactivatedUser)
+					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.UserSubdivision)
+					.Select(() => entityUserPermissionAlias.CanRead).WithAlias(() => resultAlias.CanRead)
+					.Select(() => entityUserPermissionAlias.CanCreate).WithAlias(() => resultAlias.CanCreate)
+					.Select(() => entityUserPermissionAlias.CanUpdate).WithAlias(() => resultAlias.CanUpdate)
+					.Select(() => entityUserPermissionAlias.CanDelete).WithAlias(() => resultAlias.CanDelete)
+					.Select(() => entityUserPermissionExtendedAlias.IsPermissionAvailable)
+						.WithAlias(() => resultAlias.ExtendedPermissionValue))
+				.OrderBy(() => userAlias.Deactivated).Asc
+				.ThenBy(() => subdivisionAlias.Name).Asc
+				.ThenBy(() => userAlias.Name).Asc
+				.TransformUsing(Transformers.AliasToBean<UserEntityExtendedPermissionNode>())
+				.List<UserEntityExtendedPermissionNode>();
+		}
+
+		public EntityExtendedPermission GetSubdivisionEntityExtendedPermission(
+			IUnitOfWork uow, int subdivisionId, string permissionName)
+		{
+			TypeOfEntity typeOfEntityAlias = null;
+			EntitySubdivisionOnlyPermission entitySubdivisionPermissionAlias = null;
+			EntitySubdivisionPermissionExtended entitySubdivisionPermissionExtendedAlias = null;
+			EntityExtendedPermission resultAlias = null;
+
+			return uow.Session.QueryOver(() => entitySubdivisionPermissionAlias)
+				.JoinAlias(() => entitySubdivisionPermissionAlias.TypeOfEntity, () => typeOfEntityAlias)
+				.JoinEntityAlias(() => entitySubdivisionPermissionExtendedAlias,
+					() => entitySubdivisionPermissionExtendedAlias.Subdivision.Id == entitySubdivisionPermissionAlias.Subdivision.Id
+					&& entitySubdivisionPermissionExtendedAlias.TypeOfEntity.Id == typeOfEntityAlias.Id,
+					JoinType.LeftOuterJoin)
+				.Where(() => entitySubdivisionPermissionAlias.Subdivision.Id == subdivisionId)
+				.Where(() => typeOfEntityAlias.Type == permissionName)
+				.SelectList(list => list
+					.Select(() => entitySubdivisionPermissionAlias.CanRead).WithAlias(() => resultAlias.CanRead)
+					.Select(() => entitySubdivisionPermissionAlias.CanCreate).WithAlias(() => resultAlias.CanCreate)
+					.Select(() => entitySubdivisionPermissionAlias.CanUpdate).WithAlias(() => resultAlias.CanUpdate)
+					.Select(() => entitySubdivisionPermissionAlias.CanDelete).WithAlias(() => resultAlias.CanDelete)
+					.Select(() => entitySubdivisionPermissionExtendedAlias.IsPermissionAvailable)
+						.WithAlias(() => resultAlias.ExtendedPermissionValue))
+				.TransformUsing(Transformers.AliasToBean<EntityExtendedPermission>())
+				.SingleOrDefault<EntityExtendedPermission>();
+		}
+
 		private QueryOver<HierarchicalPresetUserPermission, HierarchicalPresetUserPermission> GetPresetUserPermissionByUserId(int userId)
 		{
 			return QueryOver.Of<HierarchicalPresetUserPermission>()
 				.Where(x => x.User.Id == userId);
+		}
+		
+		private QueryOver<Employee, Employee> GetUsersWithSubdivisions()
+		{
+			Employee employeeAlias = null;
+			UserBase userAlias = null;
+			UserWithSubdivisionNode resultAlias = null;
+			Subdivision subdivisionAlias = null;
+
+			return QueryOver.Of(() => employeeAlias)
+				.JoinAlias(() => employeeAlias.User, () => userAlias)
+				.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionAlias)
+				.SelectList(list => list
+					.Select(Projections.Entity<UserBase>(nameof(userAlias))).WithAlias(() => resultAlias.User)
+					.Select(Projections.Entity<Subdivision>(nameof(subdivisionAlias))).WithAlias(() => resultAlias.Subdivision))
+				.OrderBy(() => userAlias.Deactivated).Asc
+				.ThenBy(() => subdivisionAlias.Name).Asc
+				.ThenBy(() => userAlias.Name).Asc;
 		}
 	}
 }

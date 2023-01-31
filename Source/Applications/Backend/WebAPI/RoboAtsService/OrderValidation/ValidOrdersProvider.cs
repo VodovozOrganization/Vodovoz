@@ -83,7 +83,6 @@ namespace RoboatsService.OrderValidation
 				multiValidator.AddValidator(new DateOrderValidator(_roboatsSettings));
 				multiValidator.AddValidator(new PromosetOrderValidator());
 				multiValidator.AddValidator(new FiasStreetOrderValidator(_roboatsRepository));
-				multiValidator.AddValidator(new ApartmentOrderValidator());
 				multiValidator.AddValidator(new OnlyWaterOrderValidator(_nomenclatureParametersProvider));
 				multiValidator.AddValidator(new RoboatsWaterOrderValidator(_roboatsRepository));
 				multiValidator.AddValidator(new WaterRowDuplicateOrderValidator());
