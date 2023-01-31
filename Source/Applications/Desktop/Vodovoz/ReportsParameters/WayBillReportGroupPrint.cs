@@ -83,12 +83,14 @@ namespace Vodovoz.ReportsParameters
 			timeHourEntrySingleReport.Text = DateTime.Now.Hour.ToString("00.##");
 			timeMinuteEntrySingleReport.Text = DateTime.Now.Minute.ToString("00.##");
 
+			//Выбор водителя
 			entityDriverSingleReport.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
+			//Выбор автомобиля
 			entityCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
 
-			yradiobuttonSingleReport.Clicked += OnRadiobuttonSingleReportToggled;
+			yradiobuttonSingleReport.Clicked += OnRadiobuttonSingleReportClicked;
 		}
 
 		/// <summary>
@@ -111,13 +113,13 @@ namespace Vodovoz.ReportsParameters
 			comboSubdivisionsOneDayGroupReport.SetRenderTextFunc<Subdivision>(x => x.Name);
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
-			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = true;
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
 
 			//Время отправления по умолчанию
 			timeHourEntryOneDayGroupReport.Text = DateTime.Now.Hour.ToString("00.##");
 			timeMinuteEntryOneDayGroupReport.Text = DateTime.Now.Minute.ToString("00.##");
 
-			yradiobuttonOneDayGroupReport.Clicked += OnRadiobuttonOneDayGroupReportToggled;
+			yradiobuttonOneDayGroupReport.Clicked += OnRadiobuttonOneDayGroupReportClicked;
 		}
 		#endregion
 
@@ -198,7 +200,9 @@ namespace Vodovoz.ReportsParameters
 				$"\n\t'Дата' - дата выезда из гаража" +
 				$"\n\t'Водитель' - информация о водителе" +
 				$"\n\t'Автомобиль' - информация об автомобиле" +
-				$"\n\t'Время' - время выезда из гаража";
+				$"\n\t'Время' - время выезда из гаража" +
+				$"\nДанные поля не являются обязательными к заполнению. При оставлении полей незаполненными (пустыми)," +
+				$"\nв путевых листах будут отсутствовать соответствующие значения.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
 		}
@@ -211,12 +215,18 @@ namespace Vodovoz.ReportsParameters
 				$"\n" +
 				$"\n<b>2.</b> При выборе пункта 'Все' в списке подразделений в выборку попадут автомобили," +
 				$"\nудовлетворяющие условиям остальных фильтров, из всех подразделений." +
-			    $"\n" +
-				$"\n<b>3.</b> Во всех путевых листах указываются одинаковые данные из следующих полей:" +
+				$"\n" +
+				$"\n<b>3.</b> Список подразделений обновляется при каждом изменении фильтра параметров автомобиля." +
+				$"\nОтсутствие данных в списке подразделений означает, что автомобили, удовлетворяющие заданным" +
+				$"\nусловиям не найдены ни в одном из подразделений." +
+				$"\n" +
+				$"\n<b>4.</b> Во всех путевых листах указываются одинаковые данные из следующих полей:" +
 				$"\n\t'Дата' - дата выезда из гаража" +
 				$"\n\t'Время' - время выезда из гаража" +
+				$"\nДанные поля не являются обязательными к заполнению. При оставлении полей незаполненными (пустыми)," +
+				$"\nв путевых листах будут отсутствовать соответствующие значения." +
 				$"\n" +
-				$"\n<b>4.</b> В выборку попадают только неархивные автомобили, имеющие \"привязанных\" водителей." +
+				$"\n<b>5.</b> В выборку попадают только неархивные автомобили, имеющие \"привязанных\" водителей." +
 				$"\nДанные водителя в каждый путевой лист вносятся автоматически.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
@@ -224,17 +234,25 @@ namespace Vodovoz.ReportsParameters
 
 		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
 		{
+			if (yradiobuttonOneDayGroupReport.Active && 
+				(_availableSubdivisionsForOneDayGroupReport.Count < 1 
+				|| enumcheckCarOwnTypeOneDayGroupReport.SelectedValues.Count() < 1
+				|| enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues.Count() < 1))
+			{
+				MessageDialogHelper.RunErrorDialog("Недостаточно данных для отчета");
+				return;
+			}
 			LoadReport?.Invoke(this, new LoadReportEventArgs(_selectedReport.Invoke(), true));
 		}
 
-		protected void OnRadiobuttonSingleReportToggled(object sender, EventArgs e)
+		protected void OnRadiobuttonSingleReportClicked(object sender, EventArgs e)
 		{
 			_selectedReport = () => GetSingleReportInfo();
 			frameSingleReport.Sensitive = true;
 			frameOneDayGroupReport.Sensitive = false;
 		}
 
-		protected void OnRadiobuttonOneDayGroupReportToggled(object sender, EventArgs e)
+		protected void OnRadiobuttonOneDayGroupReportClicked(object sender, EventArgs e)
 		{
 			_selectedReport = () => GetGroupReportInfoForOneDay();
 			frameSingleReport.Sensitive = false;
@@ -245,12 +263,14 @@ namespace Vodovoz.ReportsParameters
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
 		}
 
 		private void EnumcheckCarOwnTypeOneDayGroupReport_CheckStateChanged(object sender, CheckStateChangedEventArgs e)
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
+			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
 		}
 	}
 }
