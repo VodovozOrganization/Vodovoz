@@ -398,7 +398,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				query.Where(Restrictions.Between(
 					Projections.Property(() => routeListAlias.Date),
 					HistoryDate,
-					HistoryDate.LatestDayTime()));
+					HistoryDate.Add(HistoryHour)));
+
+				TrackPoint trackPointAlias = null;
+
+				trackSubquery.Inner.JoinAlias(x => x.TrackPoints, () => trackPointAlias)
+					.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), HistoryDate.Add(HistoryHour)))
+					.Take(1);
+
+				query.Where(Restrictions.IsNotNull(Projections.SubQuery(trackSubquery)))
+					.And(x => x.DeliveredAt <= HistoryDate.Add(HistoryHour));
 			}
 			else
 			{

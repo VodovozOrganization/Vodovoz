@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using GLib;
 using GMap.NET;
@@ -103,10 +103,18 @@ namespace Vodovoz.Views.Logistic
 			ConfigureMap();
 			SubscribeToEvents();
 
+			Disable4206();
+
 			ViewModel.RefreshWorkingDriversCommand?.Execute();
 
 			UpdateCarPosition();
 			StartTimer(_timeoutTimerHandler);
+		}
+
+		private void Disable4206()
+		{
+			hboxHistory.Visible = false;
+			ylblCoveragePercent.Visible = false;
 		}
 
 		private void StartTimer(TimeoutHandler timeoutHandler)
