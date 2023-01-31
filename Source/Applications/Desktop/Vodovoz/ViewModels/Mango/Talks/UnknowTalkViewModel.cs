@@ -19,7 +19,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public class UnknowTalkViewModel : TalkViewModelBase
+	public class UnknowTalkViewModel : TalkViewModelBase, IDisposable
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IInteractiveQuestion _interactive;
@@ -119,6 +119,12 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
 			_tdiNavigation.OpenTdiTab<DeliveryPriceDlg>(null);
 		}
+
+		public void Dispose()
+		{
+			_uow?.Dispose();
+		}
+
 
 		#endregion
 	}

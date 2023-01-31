@@ -332,7 +332,17 @@ namespace Vodovoz
 			Entity.PaymentType = Entity.Client.PaymentMethod;
 			IsForRetail = Entity.Client.IsForRetail;
 			IsForSalesDepartment = Entity.Client.IsForSalesDepartment;
-			Entity.ContactPhone = contactPhone;
+
+			if(contactPhone != null)
+			{
+				Entity.ContactPhone = UoW.GetById<Phone>(contactPhone.Id);
+
+				if(contactPhone.DeliveryPoint != null)
+				{
+					Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(contactPhone.DeliveryPoint.Id);
+				}
+			}
+
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 		}
