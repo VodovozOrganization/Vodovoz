@@ -222,7 +222,7 @@ namespace Vodovoz
 				SelectionMode = JournalSelectionMode.Single
 			};
 			journalViewModel.TabName = "Номенклатура на продажу";
-			journalViewModel.CalculateQtyOnStock = true;
+			journalViewModel.CalculateQuantityOnStock = true;
 			journalViewModel.OnEntitySelectedResult += OnNomenclatureSelected;
 			TabParent.AddSlaveTab(this, journalViewModel);
 		}
