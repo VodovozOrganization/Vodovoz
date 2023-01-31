@@ -2032,7 +2032,8 @@ public partial class MainWindow : Gtk.Window
 					autofacScope.Resolve<IEmployeeJournalFactory>(),
 					autofacScope.Resolve<ICarJournalFactory>(),
 					autofacScope.Resolve<IOrganizationJournalFactory>(),
-					autofacScope.Resolve<IInteractiveService>()
+					autofacScope.Resolve<IInteractiveService>(),
+					autofacScope.Resolve<ISubdivisionRepository>()
 				)
 			)
 		);
