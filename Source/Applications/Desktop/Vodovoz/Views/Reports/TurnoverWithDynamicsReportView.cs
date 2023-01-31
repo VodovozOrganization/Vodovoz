@@ -95,6 +95,9 @@ namespace Vodovoz.ReportsParameters.Sales
 			ychkbtnShowLastSale.Binding
 				.AddBinding(ViewModel, vm => vm.ShowLastSale, w => w.Active)
 				.InitializeFromSource();
+			ychkbtnShowResidueForNomenclaturesWithoutSales.Binding
+				.AddBinding(ViewModel, vm => vm.ShowResidueForNomenclaturesWithoutSales, w => w.Active)
+				.InitializeFromSource();
 
 			ShowFilter();
 

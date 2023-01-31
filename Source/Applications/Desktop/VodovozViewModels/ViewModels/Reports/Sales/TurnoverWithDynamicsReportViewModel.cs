@@ -55,11 +55,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private bool _showDynamics;
 		private DateTimeSliceType _slice;
 		private MeasurementUnitEnum _measurementUnit;
 		private DynamicsInEnum _dynamicsIn;
+		private bool _showDynamics;
 		private bool _showLastSale;
+		private bool _showResidueForNomenclaturesWithoutSales;
 		private TurnoverWithDynamicsReport _report;
 		private bool _isSaving;
 		private bool _canSave;
@@ -145,6 +146,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			get => _showLastSale;
 			set => SetField(ref _showLastSale, value);
+		}
+
+		public bool ShowResidueForNomenclaturesWithoutSales
+		{
+			get => _showResidueForNomenclaturesWithoutSales;
+			set => SetField(ref _showResidueForNomenclaturesWithoutSales, value);
 		}
 
 		public TurnoverWithDynamicsReport Report
@@ -675,16 +682,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias);
 
-			if(true) // Условие на включение не включенных номенклатур
+			if(ShowResidueForNomenclaturesWithoutSales)
 			{
-				query.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
+				query.Right.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
 			}
 			else
 			{
 				query.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias);
 			}
 
-				
+
 			query.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Where(Restrictions.Or(
 					Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), filterOrderStatusInclude),
