@@ -136,20 +136,20 @@ namespace Vodovoz.ViewModels.Mango
 
 				if(entity.Entity is DeliveryPoint deliveryPoint)
 				{
-					Client.DeliveryPoints?.Remove(Client.DeliveryPoints.Single(dp => dp.Id == deliveryPoint.Id));
+					Client.DeliveryPoints?.Remove(Client.DeliveryPoints.SingleOrDefault(dp => dp.Id == deliveryPoint.Id));
 				}
 
 				if(entity.Entity is Phone phone)
 				{
 					if(phone.Counterparty != null)
 					{
-						Client.Phones?.Remove(Client.Phones.Single(p => p.Id == phone.Id));
+						Client.Phones?.Remove(Client.Phones.SingleOrDefault(p => p.Id == phone.Id));
 					}
 
 					if(phone.DeliveryPoint != null)
 					{
-						var phoneDeliveryPoint = Client.DeliveryPoints?.Single(dp => dp.Id == phone.DeliveryPoint.Id);
-						phoneDeliveryPoint?.Phones.Remove(phoneDeliveryPoint.Phones.Single(p => p.Id == phone.Id));
+						var phoneDeliveryPoint = Client.DeliveryPoints?.SingleOrDefault(dp => dp.Id == phone.DeliveryPoint.Id);
+						phoneDeliveryPoint?.Phones?.Remove(phoneDeliveryPoint.Phones.SingleOrDefault(p => p.Id == phone.Id));
 					}
 				}
 			}
