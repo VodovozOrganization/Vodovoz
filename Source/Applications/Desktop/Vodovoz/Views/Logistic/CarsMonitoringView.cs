@@ -90,7 +90,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ydatepickerHistoryDate.Binding.AddSource(ViewModel)
-				.AddBinding(ViewModel, vm => vm.HistoryDate, w => w.Date)
+				.AddBinding(vm => vm.HistoryDate, w => w.Date)
 				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
 				.InitializeFromSource();
 
