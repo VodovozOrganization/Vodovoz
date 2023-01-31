@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -32,6 +33,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IUserRepository _userRepository;
+		private readonly ILifetimeScope _scope;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity,
@@ -43,8 +45,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			IUserRepository userRepository
-		) : base(entity, commonServices)
+			IUserRepository userRepository,
+			ILifetimeScope scope) : base(entity, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -53,6 +55,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			UoW = uow;
 			CreateCommands();
@@ -141,7 +144,8 @@ namespace Vodovoz.ViewModels.Complaints
 						CommonServices,
 						_employeeSelectorFactory,
 						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory
+						_nomenclatureSelectorFactory,
+						_scope.BeginLifetimeScope()
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};

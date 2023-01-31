@@ -1131,7 +1131,8 @@ public partial class MainWindow : Gtk.Window
 			new NomenclatureJournalFactory(),
 			new EmployeeSettings(new ParametersProvider()),
 			new UndeliveredOrdersRepository(),
-			complaintParametersProvider
+			complaintParametersProvider,
+			autofacScope.BeginLifetimeScope()
 		);
 
 		tdiMain.AddTab(journal);
@@ -1970,7 +1971,8 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.CommonServices,
 			employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 			salesPlanJournalFactory,
-			nomenclatureSelectorFactory)
+			nomenclatureSelectorFactory,
+			autofacScope.BeginLifetimeScope())
 		);
 	}
 
@@ -2277,7 +2279,8 @@ public partial class MainWindow : Gtk.Window
 					new NomenclatureJournalFactory(),
 					new EmployeeSettings(new ParametersProvider()),
 					new UndeliveredOrdersRepository(),
-					complaintParametersProvider
+					complaintParametersProvider,
+					autofacScope.BeginLifetimeScope()
 				);
 			}
 		);

@@ -247,7 +247,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						WarhouseResidue = nomenclatureGroupRows.Sum(nrg => nrg.LastSaleDetails.WarhouseResidue)
 					};
 
-					if(nomenclatureGroupRows.First().RowType == TurnoverWithDynamicsReportRow.RowTypes.Values)
+					if(nomenclatureGroupRows.FirstOrDefault()?.RowType == TurnoverWithDynamicsReportRow.RowTypes.Values)
 					{
 						row.LastSaleDetails.LastSaleDate = nomenclatureGroupRows.Max(nrg => nrg.LastSaleDetails.LastSaleDate);
 					}

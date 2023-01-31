@@ -17,5 +17,6 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		IList<Subdivision> GetChildDepartments(IUnitOfWork uow, Subdivision parentSubdivision, bool orderByDescending = false);
 		Subdivision GetQCDepartment(IUnitOfWork uow);
 		IList<Warehouse> GetWarehouses(IUnitOfWork uow, Subdivision subdivision, bool orderByDescending = false);
+		IEnumerable<int> GetAllSubdivisionsIds(IUnitOfWork uow);
 	}
 }

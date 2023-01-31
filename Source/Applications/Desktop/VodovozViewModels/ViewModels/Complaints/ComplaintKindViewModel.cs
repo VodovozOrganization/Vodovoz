@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -28,10 +29,17 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IList<Subdivision> _subdivisionsOnStart;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ILifetimeScope _scope;
 
-		public ComplaintKindViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory, Action updateJournalAction, ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		public ComplaintKindViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			Action updateJournalAction,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -39,6 +47,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_updateJournalAction = updateJournalAction ?? throw new ArgumentNullException(nameof(updateJournalAction));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			_subdivisionsOnStart = new List<Subdivision>(Entity.Subdivisions);
@@ -71,7 +80,8 @@ namespace Vodovoz.ViewModels.Complaints
 						_commonServices,
 						_employeeSelectorFactory,
 						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory
+						_nomenclatureSelectorFactory,
+						_scope.BeginLifetimeScope()
 					);
 					subdivisionJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 					subdivisionJournalViewModel.OnEntitySelectedResult += (sender, e) =>

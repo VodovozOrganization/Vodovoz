@@ -12,6 +12,7 @@ using QS.Services;
 using System;
 using System.Collections;
 using System.Linq;
+using Autofac;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -58,6 +59,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly ILifetimeScope _scope;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -93,10 +95,11 @@ namespace Vodovoz.Journals.JournalViewModels
 			INomenclatureJournalFactory nomenclatureSelector,
 			IEmployeeSettings employeeSettings,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			IComplaintParametersProvider complaintParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IComplaintParametersProvider complaintParametersProvider,
+			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this._unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this._commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
@@ -118,6 +121,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			
 			TabName = "Журнал рекламаций";
 
 			RegisterComplaints();
@@ -652,7 +657,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_nomenclatureSelector,
 						_employeeSettings,
 						new ComplaintResultsRepository(),
-						_subdivisionParametersProvider
+						_subdivisionParametersProvider,
+						_scope.BeginLifetimeScope()
 					),
 					//функция идентификации документа
 					(ComplaintJournalNode node) => {
@@ -693,7 +699,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_nomenclatureSelector,
 						_employeeSettings,
 						new ComplaintResultsRepository(),
-						_subdivisionParametersProvider
+						_subdivisionParametersProvider,
+						_scope.BeginLifetimeScope()
 					),
 					//функция идентификации документа
 					(ComplaintJournalNode node) => {
@@ -803,7 +810,8 @@ namespace Vodovoz.Journals.JournalViewModels
 								_nomenclatureSelector,
 								_employeeSettings,
 								new ComplaintResultsRepository(),
-								_subdivisionParametersProvider
+								_subdivisionParametersProvider,
+								_scope.BeginLifetimeScope()
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
 						}
@@ -838,7 +846,8 @@ namespace Vodovoz.Journals.JournalViewModels
 								_nomenclatureSelector,
 								_employeeSettings,
 								new ComplaintResultsRepository(),
-								_subdivisionParametersProvider
+								_subdivisionParametersProvider,
+								_scope.BeginLifetimeScope()
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))
