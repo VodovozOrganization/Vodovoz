@@ -27,9 +27,10 @@ namespace Vodovoz.Services
 		int FlyerForNewCounterpartyBottlesCount { get; }
 		bool FlyerForNewCounterpartyEnabled { get; }
 
-		void UpdateFastDeliveryMaxDistanceParameter(string value);
+		void UpdateFastDeliveryMaxDistanceParameter(double value);
 		void UpdateFlyerForNewCounterpartyBottlesCountParameter(string value);
 		void UpdateFlyerForNewCounterpartyEnabledParameter(string value);
+		double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime);
 
 		#endregion
 	}

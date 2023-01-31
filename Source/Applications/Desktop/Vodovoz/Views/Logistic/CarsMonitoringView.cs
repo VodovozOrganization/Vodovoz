@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using GLib;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -34,8 +35,9 @@ namespace Vodovoz.Views.Logistic
 		private readonly GMapOverlay _fastDeliveryCarCirclesOverlay;
 		private readonly GMapOverlay _fastDeliveryDistrictsOverlay;
 
-		private readonly uint _timerId;
+		private uint _timerId;
 
+		private GLib.TimeoutHandler _timeoutTimerHandler;
 
 		private IDictionary<int, CarMarker> _carMarkers;
 		private IDictionary<int, CarMarkerType> _lastSelectedDrivers;
@@ -51,6 +53,8 @@ namespace Vodovoz.Views.Logistic
 			_carMarkers = new Dictionary<int, CarMarker>();
 			_lastSelectedDrivers = new Dictionary<int, CarMarkerType>();
 			_tracksDistanceTextInfo = new List<DistanceTextInfo>();
+
+			_timeoutTimerHandler = new GLib.TimeoutHandler(UpdateCarPosition);
 
 			Build();
 
@@ -80,14 +84,58 @@ namespace Vodovoz.Views.Logistic
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
 			yenumcomboMapType.SelectedItem = _defaultMapProvider;
 
+			ychkbtnShowHistory.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowHistory, w => w.Active)
+				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ydatepickerHistoryDate.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.HistoryDate, w => w.Date)
+				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yspeccomboboxHistoryHour.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.HistoryHours, w => w.ItemsList)
+				.AddBinding(vm => vm.HistoryHour, w => w.SelectedItem)
+				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ConfigureMap();
 			SubscribeToEvents();
+
+			Disable4206();
 
 			ViewModel.RefreshWorkingDriversCommand?.Execute();
 
 			UpdateCarPosition();
+			StartTimer(_timeoutTimerHandler);
+		}
 
-			_timerId = GLib.Timeout.Add(ViewModel.CarRefreshInterval, new GLib.TimeoutHandler(UpdateCarPosition));
+		private void Disable4206()
+		{
+			hboxHistory.Visible = false;
+			ychkbtnShowHistory.Visible = false;
+			ydatepickerHistoryDate.Visible = false;
+			yspeccomboboxHistoryHour.Visible = false;
+			ylblCoveragePercentBefore.Visible = false;
+			ylblCoveragePercent.Visible = false;
+		}
+
+		private void StartTimer(TimeoutHandler timeoutHandler)
+		{
+			_timerId = GLib.Timeout.Add((uint)ViewModel.CarRefreshInterval.TotalMilliseconds, timeoutHandler);
+		}
+
+		private void ShowHistoryToggled(object sender, EventArgs e)
+		{
+			if(ViewModel.ShowHistory)
+			{
+				GLib.Source.Remove(_timerId);
+			}
+			else
+			{
+				StartTimer(_timeoutTimerHandler);
+			}
 		}
 
 		private void ConfigureRouteListAddressesTreeView()
@@ -120,21 +168,19 @@ namespace Vodovoz.Views.Logistic
 
 		private void SubscribeToEvents()
 		{
-			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			ViewModel.WorkingDrivers.CollectionChanged += (s, e) => { yTreeViewDrivers.YTreeModel.EmitModelChanged(); };
 			ViewModel.RouteListAddresses.CollectionChanged += (s, e) => { yTreeAddresses.YTreeModel.EmitModelChanged(); };
+			ViewModel.FastDeliveryDistricts.CollectionChanged += FastDeliveryDistrictsGeometryChanged;
+			ViewModel.SelectedWorkingDrivers.CollectionChanged += SelectedDriversChanged;
+			ViewModel.WorkingDrivers.CollectionChanged += WorkingDriversChanged;
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
-			ViewModel.FastDeliveryDistricts.CollectionChanged += FastDeliveryDistrictsGeometryChanged;
-
-			ViewModel.SelectedWorkingDrivers.CollectionChanged += SelectedDriversChanged;
-
-			ViewModel.WorkingDrivers.CollectionChanged += WorkingDriversChanged;
-
+			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			yTreeViewDrivers.RowActivated += OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked += OnButtonOpenKeepingClicked;
-			
+			ychkbtnShowHistory.Toggled += ShowHistoryToggled;
+
 			ybuttonTrackPoints.Clicked += OnButtonTrackPointsClicked;
 			buttonRefresh.Clicked += OnButtonRefreshClicked;
 			buttonCleanTrack.Clicked += OnButtonCleanTrackClicked;
@@ -144,18 +190,16 @@ namespace Vodovoz.Views.Logistic
 
 		private void UnSubscribeFromEvents()
 		{
-			yTreeViewDrivers.Selection.Changed -= OnSelectionChanged;
-
+			ViewModel.FastDeliveryDistricts.CollectionChanged -= FastDeliveryDistrictsGeometryChanged;
+			ViewModel.SelectedWorkingDrivers.CollectionChanged -= SelectedDriversChanged;
+			ViewModel.WorkingDrivers.CollectionChanged -= WorkingDriversChanged;
+			
 			ViewModel.PropertyChanged -= ViewModelPropertyChanged;
 
-			ViewModel.FastDeliveryDistricts.CollectionChanged -= FastDeliveryDistrictsGeometryChanged;
-
-			ViewModel.SelectedWorkingDrivers.CollectionChanged -= SelectedDriversChanged;
-
-			ViewModel.WorkingDrivers.CollectionChanged -= WorkingDriversChanged;
-
+			yTreeViewDrivers.Selection.Changed -= OnSelectionChanged;
 			yTreeViewDrivers.RowActivated -= OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked -= OnButtonOpenKeepingClicked;
+			ychkbtnShowHistory.Toggled -= ShowHistoryToggled;
 
 			ybuttonTrackPoints.Clicked -= OnButtonTrackPointsClicked;
 			buttonRefresh.Clicked -= OnButtonRefreshClicked;
@@ -360,18 +404,26 @@ namespace Vodovoz.Views.Logistic
 					.SelectMany(x => x.RouteListsIds.Keys)
 					.ToArray();
 
-				var start = DateTime.Now; // Значение времени? 0_о
-
+				var start = ViewModel.ShowHistory ? ViewModel.HistoryDate.Add(ViewModel.HistoryHour) : DateTime.Now; // Значение времени? 0_о
+				var startRequest = DateTime.Now;
 				DateTime disconnectedDateTime = start.Add(ViewModel.DriverDisconnectedTimespan);
 
-				IList<DriverPosition> lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds);
+				IList<DriverPosition> lastPoints;
+				if(ViewModel.ShowHistory)
+				{
+					lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds, ViewModel.HistoryDate.Add(ViewModel.HistoryHour));
+				}
+				else
+				{
+					lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds);
+				}
 
-				var movedDrivers = lastPoints.Where(x => x.Time > disconnectedDateTime)
+				var movedDriversRouteListsIds = lastPoints.Where(x => x.Time > disconnectedDateTime)
 					.Select(x => x.RouteListId)
 					.ToArray();
 
-				var ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDrivers, disconnectedDateTime);
-				_logger.Debug("Время запроса точек: {0}", DateTime.Now - start);
+				var ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDriversRouteListsIds, disconnectedDateTime);
+				_logger.Debug("Время запроса точек: {0}", DateTime.Now - startRequest);
 
 				var driversWithAdditionalLoading = ViewModel.GetDriversWithAdditionalLoadingFrom(routesIds);
 
@@ -661,7 +713,6 @@ namespace Vodovoz.Views.Logistic
 
 		class DistanceTextInfo
 		{
-			public string Id;
 			public Pango.Layout PangoLayout;
 		}
 	}
