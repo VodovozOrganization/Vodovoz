@@ -103,6 +103,7 @@
     <Compile Include="Domain\Documents\BulkWriteOffFromCarDocumentItem.cs" />
     <Compile Include="Domain\Documents\BulkWriteOffFromEmployeeDocumentItem.cs" />
     <Compile Include="Domain\Documents\BulkWriteOffFromWarehouseDocumentItem.cs" />
+    <Compile Include="Domain\Documents\CarBulkInventoryDocumentItem.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentBase.cs" />
@@ -113,11 +114,14 @@
     <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalDocumentBase.cs" />
     <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalGiveoutDocument.cs" />
     <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalReturnDocument.cs" />
+    <Compile Include="Domain\Documents\EmployeeBulkInventoryDocumentItem.cs" />
+    <Compile Include="Domain\Documents\InstanceInventoryDocumentItem.cs" />
     <Compile Include="Domain\Documents\InstanceWriteOffFromCarDocumentItem.cs" />
     <Compile Include="Domain\Documents\InstanceWriteOffFromEmployeeDocumentItem.cs" />
     <Compile Include="Domain\Documents\InstanceWriteOffFromWarehouseDocumentItem.cs" />
     <Compile Include="Domain\Documents\InventoryInstanceIncomingInvoiceItem.cs" />
     <Compile Include="Domain\Documents\NomenclatureIncomingInvoiceItem.cs" />
+    <Compile Include="Domain\Documents\WarehouseBulkInventoryDocumentItem.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />

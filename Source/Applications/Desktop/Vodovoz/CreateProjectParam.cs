@@ -195,11 +195,13 @@ using Vodovoz.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.JournalFilters.Goods;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
@@ -340,6 +342,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
 				.RegisterWidgetForTabViewModel<WriteOffDocumentViewModel, WriteoffDocumentView>()
+				.RegisterWidgetForTabViewModel<InventoryDocumentViewModel, InventoryDocumentView>()
 				;
 
 			//Регистрация виджетов
@@ -703,6 +706,7 @@ namespace Vodovoz
 
 			builder.RegisterType<PaymentsJournalFilterViewModel>().AsSelf();
 			builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
+			builder.RegisterType<SelectableParametersReportFilter>().AsSelf();
 
 			#endregion
 

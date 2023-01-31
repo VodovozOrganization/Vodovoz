@@ -1759,6 +1759,8 @@
     <Compile Include="JournalFilters\Goods\InventoryInstancesJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.Goods.InventoryInstancesJournalFilterView.cs" />
     <Compile Include="Views\Warehouse\WriteoffDocumentView.cs" />
+    <Compile Include="Views\Warehouse\InventoryDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.InventoryDocumentView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

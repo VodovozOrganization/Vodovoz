@@ -3,29 +3,40 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "инвентаризации",
 		Nominative = "инвентаризация",
 		Prepositional = "инвентаризации")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class InventoryDocument: Document, IValidatableObject
+	public class InventoryDocument : Document, IValidatableObject
 	{
 		private string _comment;
 		private Warehouse _warehouse;
-		private IList<InventoryDocumentItem> _items = new List<InventoryDocumentItem> ();
-		private GenericObservableList<InventoryDocumentItem> _observableItems;
+		private Employee _employee;
+		private Car _car;
+		private InventoryDocumentType _inventoryDocumentType;
+		private IList<InventoryDocumentItem> _nomenclatureItems = new List<InventoryDocumentItem>();
+		private IList<InstanceInventoryDocumentItem> _instanceItems = new List<InstanceInventoryDocumentItem>();
+		private GenericObservableList<InventoryDocumentItem> _observableNomenclatureItems;
+		private GenericObservableList<InstanceInventoryDocumentItem> _observableInstanceItems;
+
+		public InventoryDocument()
+		{
+			InventoryDocumentType = InventoryDocumentType.WarehouseInventory;
+		}
 
 		public override DateTime TimeStamp
 		{
@@ -33,90 +44,135 @@ namespace Vodovoz.Domain.Documents
 			set
 			{
 				base.TimeStamp = value;
-				foreach (var item in Items)
+				foreach(var item in NomenclatureItems)
 				{
-					if (item.WarehouseChangeOperation != null && item.WarehouseChangeOperation.OperationTime != TimeStamp)
+					if(item.WarehouseChangeOperation != null && item.WarehouseChangeOperation.OperationTime != TimeStamp)
 					{
 						item.WarehouseChangeOperation.OperationTime = TimeStamp;
 					}
 				}
 			}
 		}
-		
-		[Display (Name = "Комментарий")]
+
+		[Display(Name = "Комментарий")]
 		public virtual string Comment
 		{
 			get => _comment;
-			set => SetField (ref _comment, value);
+			set => SetField(ref _comment, value);
 		}
 
-
-		[Display (Name = "Склад")]
-		[Required(ErrorMessage = "Склад должен быть указан.")]
+		[Display(Name = "Склад")]
 		public virtual Warehouse Warehouse
 		{
 			get => _warehouse;
-			set => SetField (ref _warehouse, value);
+			set
+			{
+				if(SetField(ref _warehouse, value) && value != null)
+				{
+					Employee = null;
+					Car = null;
+				}
+			}
 		}
 
-
-		[Display (Name = "Строки")]
-		public virtual IList<InventoryDocumentItem> Items
+		[Display(Name = "Сотрудник")]
+		public virtual Employee Employee
 		{
-			get => _items;
-			set 
+			get => _employee;
+			set
 			{
-				SetField (ref _items, value);
-				_observableItems = null;
+				if(SetField(ref _employee, value) && value != null)
+				{
+					Warehouse = null;
+					Car = null;
+				}
+			}
+		}
+
+		[Display(Name = "Автомобиль")]
+		public virtual Car Car
+		{
+			get => _car;
+			set
+			{
+				if(SetField(ref _car, value) && value != null)
+				{
+					Warehouse = null;
+					Employee = null;
+				}
+			}
+		}
+
+		[Display(Name = "Строки объемного учета")]
+		public virtual IList<InventoryDocumentItem> NomenclatureItems
+		{
+			get => _nomenclatureItems;
+			set
+			{
+				SetField(ref _nomenclatureItems, value);
+				_observableNomenclatureItems = null;
 			}
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<InventoryDocumentItem> ObservableItems =>
-			_observableItems ?? (_observableItems = new GenericObservableList<InventoryDocumentItem>(Items));
+		public virtual GenericObservableList<InventoryDocumentItem> ObservableNomenclatureItems =>
+			_observableNomenclatureItems ?? (_observableNomenclatureItems = new GenericObservableList<InventoryDocumentItem>(NomenclatureItems));
 
-		public virtual string Title => String.Format("Инвентаризация №{0} от {1:d}", Id, TimeStamp);
-
-		public virtual InventoryDocumentType InventoryDocumentType { get; }
-
-		#region Функции
-
-		public virtual void AddItem (Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
+		[Display(Name = "Строки экземплярного учета")]
+		public virtual IList<InstanceInventoryDocumentItem> InstanceItems
 		{
-			var item = new InventoryDocumentItem()
-			{ 
-				Nomenclature = nomenclature,
-				AmountInDB = amountInDB,
-				AmountInFact = amountInFact,
-				Document = this
-			};
-			ObservableItems.Add (item);
-		}
-
-		public virtual void FillItemsFromStock(IUnitOfWork uow, Dictionary<int, decimal> selectedNomenclature){
-			var inStock = selectedNomenclature;
-
-			if (inStock.Count == 0)
-				return;
-
-			var nomenclatures = uow.GetById<Nomenclature>(inStock.Select(p => p.Key).ToArray());
-
-			ObservableItems.Clear();
-			foreach(var itemInStock in inStock)
+			get => _instanceItems;
+			set
 			{
-				ObservableItems.Add(
-					new InventoryDocumentItem
-					{
-						Nomenclature = nomenclatures.First(x => x.Id == itemInStock.Key),
-						AmountInDB = itemInStock.Value,
-						AmountInFact = 0,
-						Document = this
-					}
-				);
+				SetField(ref _instanceItems, value);
+				_observableInstanceItems = null;
 			}
 		}
 
-		public virtual void FillItemsFromStock(
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<InstanceInventoryDocumentItem> ObservableInstanceItems =>
+			_observableInstanceItems ??
+			(_observableInstanceItems = new GenericObservableList<InstanceInventoryDocumentItem>(InstanceItems));
+
+		public virtual string Title => $"Инвентаризация №{Id} от {TimeStamp:d}";
+
+		public virtual InventoryDocumentType InventoryDocumentType
+		{
+			get => _inventoryDocumentType;
+			set => SetField(ref _inventoryDocumentType, value);
+		}
+
+		#region Функции
+
+		public virtual void AddNomenclatureItem(Nomenclature nomenclature, decimal amountInDb, decimal amountInFact)
+		{
+			var item = CreateNewNomenclatureItem();
+			FillBulkItem(item, nomenclature, amountInDb, amountInFact);
+			ObservableNomenclatureItems.Add(item);
+		}
+
+		public virtual void FillNomenclatureItemsFromStock(IUnitOfWork uow, Dictionary<int, decimal> selectedNomenclature)
+		{
+			var inStock = selectedNomenclature;
+
+			if(inStock.Count == 0)
+			{
+				return;
+			}
+
+			var nomenclatures = uow.GetById<Nomenclature>(inStock.Select(p => p.Key).ToArray());
+
+			ObservableNomenclatureItems.Clear();
+
+			foreach(var itemInStock in inStock)
+			{
+				var item = CreateNewNomenclatureItem();
+				FillBulkItem(item, nomenclatures.First(x => x.Id == itemInStock.Key), itemInStock.Value, 0);
+				ObservableNomenclatureItems.Add(item);
+			}
+		}
+
+		public virtual void FillNomenclatureItemsFromStock(
 			IUnitOfWork uow,
 			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
@@ -127,7 +183,9 @@ namespace Vodovoz.Domain.Documents
 			int[] productGroupToExclude)
 		{
 			if(Warehouse == null)
+			{
 				return;
+			}
 
 			var selectedNomenclature = stockRepository.NomenclatureInStock(
 				uow,
@@ -138,11 +196,11 @@ namespace Vodovoz.Domain.Documents
 				nomenclatureTypeToExclude,
 				productGroupToInclude,
 				productGroupToExclude);
-			
-			FillItemsFromStock(uow, selectedNomenclature);
+
+			FillNomenclatureItemsFromStock(uow, selectedNomenclature);
 		}
 
-		public virtual void UpdateItemsFromStock(
+		public virtual void UpdateNomenclatureItemsFromStock(
 			IUnitOfWork uow,
 			IStockRepository stockRepository,
 			int[] nomenclaturesToInclude,
@@ -153,7 +211,9 @@ namespace Vodovoz.Domain.Documents
 			int[] productGroupToExclude)
 		{
 			if(Warehouse == null)
+			{
 				return;
+			}
 
 			var inStock = stockRepository.NomenclatureInStock(
 				uow,
@@ -168,78 +228,86 @@ namespace Vodovoz.Domain.Documents
 
 			foreach(var itemInStock in inStock)
 			{
-				var item = Items.FirstOrDefault(x => x.Nomenclature.Id == itemInStock.Key);
-				if (item != null)
+				var item = NomenclatureItems.FirstOrDefault(x => x.Nomenclature.Id == itemInStock.Key);
+				if(item != null)
+				{
 					item.AmountInDB = itemInStock.Value;
+				}
 				else
 				{
-					ObservableItems.Add(
-						new InventoryDocumentItem()
-						{
-							Nomenclature = uow.GetById<Nomenclature>(itemInStock.Key),
-							AmountInDB = itemInStock.Value,
-							AmountInFact = 0,
-							Document = this
-						});
+					item = CreateNewNomenclatureItem();
+					FillBulkItem(item, uow.GetById<Nomenclature>(itemInStock.Key), itemInStock.Value, 0);
+					ObservableNomenclatureItems.Add(item);
 				}
 			}
 
 			var itemsToRemove = new List<InventoryDocumentItem>();
-			foreach(var item in Items) {
+			foreach(var item in NomenclatureItems)
+			{
 				if(!inStock.ContainsKey(item.Nomenclature.Id))
+				{
 					itemsToRemove.Add(item);
+				}
 			}
 
-			foreach(var item in itemsToRemove) {
-				ObservableItems.Remove(item);
+			foreach(var item in itemsToRemove)
+			{
+				ObservableNomenclatureItems.Remove(item);
 			}
 		}
 
+		//TODO проверить маппинг, возможно стоит настроить там удаление строк и операций
 		public virtual void UpdateOperations(IUnitOfWork uow)
 		{
 			IList<InventoryDocumentItem> itemsToDelete = new List<InventoryDocumentItem>();
-			foreach(var item in Items)
+			foreach(var item in NomenclatureItems)
 			{
 				if(item.Difference == 0 && item.WarehouseChangeOperation != null)
 				{
 					uow.Delete(item.WarehouseChangeOperation);
 					item.WarehouseChangeOperation = null;
 				}
-				if(item.Difference != 0)
+				
+				UpdateOperation(item);
+
+				if(item.AmountInDB == 0 && item.AmountInFact == 0)
 				{
-					if(item.WarehouseChangeOperation != null)
-					{
-						item.UpdateOperation(Warehouse);
-					}
-					else
-					{
-						item.CreateOperation(Warehouse, TimeStamp);
-					}
-				}
-				if(item.AmountInDB == 0 && item.AmountInFact == 0) {
 					itemsToDelete.Add(item);
 				}
 			}
 
-			foreach(var item in itemsToDelete) {
+			foreach(var item in itemsToDelete)
+			{
 				uow.Delete(item);
-				Items.Remove(item);
+				NomenclatureItems.Remove(item);
+			}
+		}
+
+		private void UpdateOperation(InventoryDocumentItem item)
+		{
+			if(item.Difference != 0)
+			{
+				item.UpdateOperation(TimeStamp);
 			}
 		}
 
 		#endregion
 
-		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Items.Count == 0)
-				yield return new ValidationResult (String.Format("Табличная часть документа пустая."),
-					new[] { this.GetPropertyName (o => o.Items) });
-			
-			if(TimeStamp == default(DateTime))
-				yield return new ValidationResult (String.Format("Дата документа должна быть указана."),
-					new[] { this.GetPropertyName (o => o.TimeStamp) });
+			if(NomenclatureItems.Count == 0 /*&&*/)
+			{
+				yield return new ValidationResult("Табличная часть документа пустая.",
+					new[] {nameof(NomenclatureItems)});
+			}
 
-			foreach(var item in Items)
+			if(TimeStamp == default(DateTime))
+			{
+				yield return new ValidationResult("Дата документа должна быть указана.",
+					new[] {nameof(TimeStamp)});
+			}
+
+			foreach(var item in NomenclatureItems)
 			{
 				foreach(var result in item.Validate(new ValidationContext(item)))
 				{
@@ -247,14 +315,14 @@ namespace Vodovoz.Domain.Documents
 				}
 			}
 
-			var needWeightOrVolume = Items
+			var needWeightOrVolume = NomenclatureItems
 				.Select(item => item.Nomenclature)
 				.Where(nomenclature =>
 					Nomenclature.CategoriesWithWeightAndVolume.Contains(nomenclature.Category)
 					&& (nomenclature.Weight == default
-						|| nomenclature.Length == default
-						|| nomenclature.Width == default
-						|| nomenclature.Height == default))
+					    || nomenclature.Length == default
+					    || nomenclature.Width == default
+					    || nomenclature.Height == default))
 				.ToList();
 			if(needWeightOrVolume.Any())
 			{
@@ -262,20 +330,41 @@ namespace Vodovoz.Domain.Documents
 					"Для всех добавленных номенклатур должны быть заполнены вес и объём.\n" +
 					"Список номенклатур, в которых не заполнен вес или объём:\n" +
 					$"{string.Join("\n", needWeightOrVolume.Select(x => $"({x.Id}) {x.Name}"))}",
-					new[] { nameof(Items) });
+					new[] {nameof(NomenclatureItems)});
 			}
 		}
 
-		public InventoryDocument ()
+		private void FillBulkItem(InventoryDocumentItem item, Nomenclature nomenclature, decimal amountInDb, decimal amountInFact)
 		{
+			item.Nomenclature = nomenclature;
+			item.AmountInDB = amountInDb;
+			item.AmountInFact = amountInFact;
+			item.Document = this;
 		}
 
-	}
+		private InventoryDocumentItem CreateNewNomenclatureItem()
+		{
+			switch(InventoryDocumentType)
+			{
+				case InventoryDocumentType.WarehouseInventory:
+					return new WarehouseBulkInventoryDocumentItem();
+				case InventoryDocumentType.EmployeeInventory:
+					return new EmployeeBulkInventoryDocumentItem();
+				case InventoryDocumentType.CarInventory:
+					return new CarBulkInventoryDocumentItem();
+				default:
+					throw new InvalidOperationException("Неизвестный тип документа");
+			}
+		}
+}
 
 	public enum InventoryDocumentType
 	{
+		[Display(Name = "Для склада")]
 		WarehouseInventory,
+		[Display(Name = "Для сотрудника")]
 		EmployeeInventory,
+		[Display(Name = "Для автомобиля")]
 		CarInventory
 	}
 }

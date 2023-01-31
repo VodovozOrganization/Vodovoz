@@ -99,7 +99,7 @@ namespace Vodovoz
 
 			string errorMessage = "Не установлены единицы измерения у следующих номенклатур :" + Environment.NewLine;
 			int wrongNomenclatures = 0;
-			foreach (var item in UoWGeneric.Root.Items)
+			foreach (var item in UoWGeneric.Root.NomenclatureItems)
 			{
 				if(item.Nomenclature.Unit == null) {
 					errorMessage += string.Format("Номер: {0}. Название: {1}{2}",
@@ -256,10 +256,10 @@ namespace Vodovoz
 
 		protected void OnYentryrefWarehouseBeforeChangeByUser(object sender, EntryReferenceBeforeChangeEventArgs e)
 		{
-			if(Entity.Warehouse != null && Entity.Items.Count > 0)
+			if(Entity.Warehouse != null && Entity.NomenclatureItems.Count > 0)
 			{
 				if (MessageDialogHelper.RunQuestionDialog("При изменении склада табличная часть документа будет очищена. Продолжить?"))
-					Entity.ObservableItems.Clear();
+					Entity.ObservableNomenclatureItems.Clear();
 				else
 					e.CanChange = false;
 			}
@@ -292,7 +292,7 @@ namespace Vodovoz
 				})
 				.Finish();
 
-			ytreeviewItems.ItemsDataSource = Entity.ObservableItems;
+			ytreeviewItems.ItemsDataSource = Entity.ObservableNomenclatureItems;
 			ytreeviewItems.YTreeModel?.EmitModelChanged();
 
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
@@ -377,9 +377,9 @@ namespace Vodovoz
 
 			FillDiscrepancies();
 
-			if(Entity.Items.Count == 0)
+			if(Entity.NomenclatureItems.Count == 0)
 			{
-				Entity.FillItemsFromStock(
+				Entity.FillNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -391,7 +391,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				Entity.UpdateItemsFromStock(
+				Entity.UpdateNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -408,7 +408,7 @@ namespace Vodovoz
 		private void UpdateButtonState()
 		{
 			buttonFillItems.Sensitive = Entity.Warehouse != null;
-			if(Entity.Items.Count == 0)
+			if(Entity.NomenclatureItems.Count == 0)
 				buttonFillItems.Label = "Заполнить по складу";
 			else
 				buttonFillItems.Label = "Обновить остатки";
@@ -427,13 +427,13 @@ namespace Vodovoz
 			{
 				foreach(var node in e.SelectedNodes)
 				{
-					if(Entity.Items.Any(x => x.Nomenclature.Id == node.Id))
+					if(Entity.NomenclatureItems.Any(x => x.Nomenclature.Id == node.Id))
 					{
 						continue;
 					}
 
 					var nomenclature = UoW.GetById<Nomenclature>(node.Id);
-					Entity.AddItem(nomenclature, 0, 0);
+					Entity.AddNomenclatureItem(nomenclature, 0, 0);
 				}
 			}
 		}

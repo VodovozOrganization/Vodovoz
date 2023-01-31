@@ -83,10 +83,6 @@ namespace Vodovoz.ViewModels.Warehouses
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 
 			Init();
-			SetPermissions();
-			SetViewModels();
-			SetOtherProperties();
-			SetPropertyChangeRelations();
 		}
 
 		public bool CanChangeDocumentType
@@ -128,7 +124,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		
 		public IEntityEntryViewModel ResponsibleEmployeeViewModel { get; private set; }
 		public IEntityEntryViewModel WriteOffFromEmployeeViewModel { get; private set; }
-		public IEntityEntryViewModel CarViewModel { get; private set; }
+		public IEntityEntryViewModel WriteOffFromCarViewModel { get; private set; }
 
 		public DelegateCommand PrintCommand => _printCommand ?? (_printCommand = new DelegateCommand(
 			() =>
@@ -305,7 +301,13 @@ namespace Vodovoz.ViewModels.Warehouses
 			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.WriteoffEdit, Entity.WriteOffFromWarehouse))
 			{
 				FailInitialize = true;
+				return;
 			}
+			
+			SetPermissions();
+			SetViewModels();
+			SetOtherProperties();
+			SetPropertyChangeRelations();
 		}
 		
 		private void SetPermissions()
@@ -334,7 +336,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
 				.Finish();
 			
-			CarViewModel = builder.ForProperty(x => x.WriteOffFromCar)
+			WriteOffFromCarViewModel = builder.ForProperty(x => x.WriteOffFromCar)
 				.UseViewModelDialog<CarViewModel>()
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
 				.Finish();

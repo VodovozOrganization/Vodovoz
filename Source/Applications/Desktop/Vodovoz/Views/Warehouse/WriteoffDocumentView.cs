@@ -61,7 +61,7 @@ namespace Vodovoz.Views.Warehouse
 				.AddBinding(ViewModel, vm => vm.CanChangeStorage, w => w.Sensitive)
 				.InitializeFromSource();
 			
-			carStorageEntry.ViewModel = ViewModel.CarViewModel;
+			carStorageEntry.ViewModel = ViewModel.WriteOffFromCarViewModel;
 			carStorageEntry.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeStorage, w => w.Sensitive)
 				.InitializeFromSource();

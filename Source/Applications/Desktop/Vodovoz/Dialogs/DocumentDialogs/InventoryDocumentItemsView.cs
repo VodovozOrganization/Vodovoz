@@ -91,14 +91,14 @@ namespace Vodovoz
 				if (documentUoW == value)
 					return;
 				documentUoW = value;
-				if (DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<InventoryDocumentItem> ();
+				if (DocumentUoW.Root.NomenclatureItems == null)
+					DocumentUoW.Root.NomenclatureItems = new List<InventoryDocumentItem> ();
 
 				FillDiscrepancies();
 
-				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
+				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableNomenclatureItems;
 				UpdateButtonState();
-				if (DocumentUoW.Root.Warehouse != null && DocumentUoW.Root.Items.Count == 0)
+				if (DocumentUoW.Root.Warehouse != null && DocumentUoW.Root.NomenclatureItems.Count == 0)
 					buttonFillItems.Click();
 				DocumentUoW.Root.PropertyChanged += DocumentUoW_Root_PropertyChanged;
 			}
@@ -130,7 +130,7 @@ namespace Vodovoz
 		private void UpdateButtonState()
 		{
 			buttonFillItems.Sensitive = DocumentUoW.Root.Warehouse != null;
-			if (DocumentUoW.Root.Items.Count == 0)
+			if (DocumentUoW.Root.NomenclatureItems.Count == 0)
 				buttonFillItems.Label = "Заполнить по складу";
 			else
 				buttonFillItems.Label = "Обновить остатки";
@@ -157,10 +157,10 @@ namespace Vodovoz
 			}
 
 			var selectedNomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
-			if(DocumentUoW.Root.Items.Any(x => x.Nomenclature.Id == selectedNomenclature.Id))
+			if(DocumentUoW.Root.NomenclatureItems.Any(x => x.Nomenclature.Id == selectedNomenclature.Id))
 				return;
 
-			DocumentUoW.Root.AddItem(selectedNomenclature, 0, 0);
+			DocumentUoW.Root.AddNomenclatureItem(selectedNomenclature, 0, 0);
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)

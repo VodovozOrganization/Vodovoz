@@ -20,7 +20,7 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.Author).Column ("author_id");
 			References (x => x.LastEditor).Column ("last_editor_id");
 			References (x => x.Warehouse).Column ("warehouse_id");
-			HasMany (x => x.Items).Cascade.AllDeleteOrphan ().Inverse ().KeyColumn ("store_inventory_id");
+			HasMany (x => x.NomenclatureItems).Cascade.AllDeleteOrphan ().Inverse ().KeyColumn ("store_inventory_id");
 		}
 	}
 }

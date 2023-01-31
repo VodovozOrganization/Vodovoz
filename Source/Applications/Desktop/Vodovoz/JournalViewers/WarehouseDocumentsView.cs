@@ -29,6 +29,7 @@ using Vodovoz.Models;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.Views.Warehouse;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
@@ -144,11 +145,14 @@ namespace Vodovoz
 					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(
 						this, EntityUoWBuilder.ForCreate());
 					break;
+				case DocumentType.InventoryDocument:
+					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<InventoryDocumentViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate());
+					break;
 				case DocumentType.IncomingWater:
 				case DocumentType.SelfDeliveryDocument:
 				case DocumentType.CarLoadDocument:
 				case DocumentType.CarUnloadDocument:
-				case DocumentType.InventoryDocument:
 				case DocumentType.ShiftChangeDocument:
 				case DocumentType.RegradingOfGoodsDocument:
 				default:

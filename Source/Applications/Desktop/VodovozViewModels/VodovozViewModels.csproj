@@ -579,6 +579,7 @@
     <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\DriverMessageFilterViewModel.cs" />
     <Compile Include="ViewModels\Goods\InventoryInstanceViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\InventoryDocumentViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">

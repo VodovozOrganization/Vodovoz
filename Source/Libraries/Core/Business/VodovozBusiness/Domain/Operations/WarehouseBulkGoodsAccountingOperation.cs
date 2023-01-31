@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Operations
 			set => SetField(ref _warehouse, value);
 		}
 
-		public override OperationTypeByStore OperationTypeByStore => OperationTypeByStore.Warehouse;
+		public override OperationTypeByStorage OperationTypeByStorage => OperationTypeByStorage.Warehouse;
 	}
 }
 
