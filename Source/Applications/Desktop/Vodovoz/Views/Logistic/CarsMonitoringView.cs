@@ -114,6 +114,10 @@ namespace Vodovoz.Views.Logistic
 		private void Disable4206()
 		{
 			hboxHistory.Visible = false;
+			ychkbtnShowHistory.Visible = false;
+			ydatepickerHistoryDate.Visible = false;
+			yspeccomboboxHistoryHour.Visible = false;
+			ylblCoveragePercentBefore.Visible = false;
 			ylblCoveragePercent.Visible = false;
 		}
 
