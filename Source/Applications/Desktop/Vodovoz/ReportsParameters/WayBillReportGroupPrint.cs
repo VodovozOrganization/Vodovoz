@@ -66,8 +66,8 @@ namespace Vodovoz.ReportsParameters
 			buttonInfoSingleReport.Clicked += OnButtonInfoSingleReportClicked;
 			buttonInfoOneDayGroupReport.Clicked += OnButtonInfoOneDayGroupReportClicked;
 
-			enumcheckCarTypeOfUseOneDayGroupReport.CheckStateChanged += EnumcheckCarTypeOfUseOneDayGroupReport_CheckStateChanged;
-			enumcheckCarOwnTypeOneDayGroupReport.CheckStateChanged += EnumcheckCarOwnTypeOneDayGroupReport_CheckStateChanged;
+			enumcheckCarTypeOfUseOneDayGroupReport.CheckStateChanged += EnumcheckCarTypeOfUseOneDayGroupReportCheckStateChanged;
+			enumcheckCarOwnTypeOneDayGroupReport.CheckStateChanged += EnumcheckCarOwnTypeOneDayGroupReportCheckStateChanged;
 		}
 
 		#region Конфигурация элементов управления виджета отчетов
@@ -259,14 +259,14 @@ namespace Vodovoz.ReportsParameters
 			frameOneDayGroupReport.Sensitive = true;
 		}
 
-		private void EnumcheckCarTypeOfUseOneDayGroupReport_CheckStateChanged(object sender, CheckStateChangedEventArgs e)
+		private void EnumcheckCarTypeOfUseOneDayGroupReportCheckStateChanged(object sender, CheckStateChangedEventArgs e)
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
 			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
 		}
 
-		private void EnumcheckCarOwnTypeOneDayGroupReport_CheckStateChanged(object sender, CheckStateChangedEventArgs e)
+		private void EnumcheckCarOwnTypeOneDayGroupReportCheckStateChanged(object sender, CheckStateChangedEventArgs e)
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
