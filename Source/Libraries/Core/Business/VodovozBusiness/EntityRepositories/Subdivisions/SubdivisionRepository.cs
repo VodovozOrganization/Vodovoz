@@ -153,7 +153,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 				.JoinAlias(() => car.Driver, () => driverEmployee)
 				.JoinAlias(() => car.CarVersions, () => carVersion)
 				.JoinAlias(() => driverEmployee.Subdivision, () => subdivision)
-				.Where(() => !car.IsArchive && driverEmployee.Category == EmployeeCategory.driver)
+				.Where(() => !car.IsArchive && carVersion.EndDate == null && driverEmployee.Category == EmployeeCategory.driver)
 				.WhereRestrictionOn(() => carModel.CarTypeOfUse).IsIn(carTypeOfUses)
 				.WhereRestrictionOn(() => carVersion.CarOwnType).IsIn(carOwnTypes)
 				.List();
