@@ -21,6 +21,7 @@ namespace Vodovoz.HibernateMapping
 									  .ParentKeyColumn("subdivision_id")
 									  .ChildKeyColumn("type_of_entity_id")
 									  .LazyLoad();
+			Map(x => x.Address).Column("address");
 		}
 	}
 }
