@@ -56,11 +56,9 @@ namespace Vodovoz.ReportsParameters
 
 			ConfigureSingleReport();
 			ConfigureGroupReportForOneDay();
-			ConfigureGroupReportForPeriod();
 
 			frameSingleReport.Sensitive = true;
 			frameOneDayGroupReport.Sensitive = false;
-			framePeriodGroupReport.Sensitive = false;
 
 			_selectedReport = () => GetSingleReportInfo();
 
@@ -72,7 +70,7 @@ namespace Vodovoz.ReportsParameters
 			enumcheckCarOwnTypeOneDayGroupReport.CheckStateChanged += EnumcheckCarOwnTypeOneDayGroupReport_CheckStateChanged;
 		}
 
-		#region Конфигурация контролов виджета отчетов
+		#region Конфигурация элементов управления виджета отчетов
 		/// <summary>
 		/// Первичная конфигурация одиночного отчета
 		/// </summary>
@@ -120,31 +118,6 @@ namespace Vodovoz.ReportsParameters
 			timeMinuteEntryOneDayGroupReport.Text = DateTime.Now.Minute.ToString("00.##");
 
 			yradiobuttonOneDayGroupReport.Clicked += OnRadiobuttonOneDayGroupReportToggled;
-		}
-
-		/// <summary>
-		/// Первичная конфигурация группового отчета за выбранный период для бухгалтерии
-		/// </summary>
-		private void ConfigureGroupReportForPeriod()
-		{
-			//TODO Выбор организации по умолчанию
-			//Период по умолчанию
-			datePeriodGroupReport.StartDate = DateTime.Today;
-			datePeriodGroupReport.EndDate = DateTime.Today;
-
-			// Тип автомобиля
-			enumcheckCarTypeOfUsePeriodGroupReport.EnumType = typeof(CarTypeOfUse);
-			SetChekBoxesInActive(new string[] { CarTypeOfUse.Largus.ToString(), CarTypeOfUse.GAZelle.ToString() }, ref enumcheckCarTypeOfUsePeriodGroupReport);
-
-			// Принадлежность автомобиля
-			enumcheckCarOwnTypePeriodGroupReport.EnumType = typeof(CarOwnType);
-			SetChekBoxesInActive(new string[] { CarOwnType.Company.ToString() }, ref enumcheckCarOwnTypePeriodGroupReport);
-
-			//Выбор организации
-			entityManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(
-				_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
-
-			yradiobuttonPeriodGroupReport.Clicked += OnRadiobuttonPeriodGroupReportToggled;
 		}
 		#endregion
 
@@ -196,27 +169,6 @@ namespace Vodovoz.ReportsParameters
 			};
 		}
 
-		private ReportInfo GetGroupReportInfoForPeriod()
-		{
-			return new ReportInfo
-			{
-				Identifier = "Logistic.WayBillReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", datepickerSingleReport.Date },
-					{ "driver_id", (entityDriverSingleReport?.Subject as Employee)?.Id ?? -1 },
-					{ "car_id", (entityCarSingleReport?.Subject as Car)?.Id ?? -1 },
-					{ "time", timeHourEntrySingleReport.Text + ":" + timeMinuteEntrySingleReport.Text },
-					{ "need_date", !datepickerSingleReport.IsEmpty }
-				}
-			};
-		}
-
-		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(_selectedReport.Invoke(), true));
-		}
-
 		private List<Subdivision> GetAvailableSubdivisionsListInAccordingWithCarParameters()
 		{
 
@@ -224,27 +176,6 @@ namespace Vodovoz.ReportsParameters
 			var selectedCarOwnTypes = (enumcheckCarOwnTypeOneDayGroupReport.SelectedValues).Cast<CarOwnType>().ToArray();
 
 			return _subdivisionRepository.GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(UoW, selectedCarTypeOfUses, selectedCarOwnTypes).ToList();
-
-			//Car car = null;
-			//Subdivision subdivision = null;
-			//Employee driverEmployee = null;
-			//CarModel carModel = null;
-			//CarVersion carVersion = null;
-
-			//var availableCars = UoW.Session
-			//	.QueryOver<Car>(() => car)
-			//	.JoinAlias(() => car.CarModel, () => carModel)
-			//	.JoinAlias(() => car.Driver, () => driverEmployee)
-			//	.JoinAlias(() => car.CarVersions, () => carVersion)
-			//	.JoinAlias(() => driverEmployee.Subdivision, () => subdivision)
-			//	.Where(() => !car.IsArchive && driverEmployee.Category == EmployeeCategory.driver)
-			//	.WhereRestrictionOn(() => carModel.CarTypeOfUse).IsIn(selectedCarTypeOfUses)
-			//	.WhereRestrictionOn(() => carVersion.CarOwnType).IsIn(selectedCarOwnTypes)
-			//	.List();
-
-			//var availableSubdivisions = availableCars.Select(c => c.Driver.Subdivision).Distinct().OrderBy(s=>s.Name).ToList();
-
-			//return availableSubdivisions;
 		}
 
 		private static void SetChekBoxesInActive(string[] valuesToCheck, ref EnumCheckList checkList)
@@ -291,9 +222,9 @@ namespace Vodovoz.ReportsParameters
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
 		}
 
-		protected void OnButtonInfoPeriodGroupReportClicked(object sender, EventArgs e)
+		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
 		{
-			MessageDialogHelper.RunInfoDialog("OnButtonInfoOneDayGroupReportClicked");
+			LoadReport?.Invoke(this, new LoadReportEventArgs(_selectedReport.Invoke(), true));
 		}
 
 		protected void OnRadiobuttonSingleReportToggled(object sender, EventArgs e)
@@ -301,7 +232,6 @@ namespace Vodovoz.ReportsParameters
 			_selectedReport = () => GetSingleReportInfo();
 			frameSingleReport.Sensitive = true;
 			frameOneDayGroupReport.Sensitive = false;
-			framePeriodGroupReport.Sensitive = false;
 		}
 
 		protected void OnRadiobuttonOneDayGroupReportToggled(object sender, EventArgs e)
@@ -309,15 +239,6 @@ namespace Vodovoz.ReportsParameters
 			_selectedReport = () => GetGroupReportInfoForOneDay();
 			frameSingleReport.Sensitive = false;
 			frameOneDayGroupReport.Sensitive = true;
-			framePeriodGroupReport.Sensitive = false;
-		}
-
-		protected void OnRadiobuttonPeriodGroupReportToggled(object sender, EventArgs e)
-		{
-			_selectedReport = () => GetGroupReportInfoForPeriod();
-			frameSingleReport.Sensitive = false;
-			frameOneDayGroupReport.Sensitive = false;
-			framePeriodGroupReport.Sensitive = true;
 		}
 
 		private void EnumcheckCarTypeOfUseOneDayGroupReport_CheckStateChanged(object sender, CheckStateChangedEventArgs e)
