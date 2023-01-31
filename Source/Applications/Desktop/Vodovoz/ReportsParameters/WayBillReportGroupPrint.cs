@@ -23,6 +23,7 @@ using Vodovoz.Domain.Documents;
 using MoreLinq.Extensions;
 using Vodovoz.Core.Permissions;
 using System.Linq.Dynamic.Core;
+using QS.Dialog;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -31,14 +32,16 @@ namespace Vodovoz.ReportsParameters
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly IOrganizationJournalFactory _organizationJournalFactory;
+		private readonly IInteractiveService _interactiveService;
 		private Func<ReportInfo> _selectedReport;
 		private List<Subdivision> _availableSubdivisionsForOneDayGroupReport;
 
-		public WayBillReportGroupPrint(IEmployeeJournalFactory employeeJournalFactory, ICarJournalFactory carJournalFactory, IOrganizationJournalFactory organizationJournalFactory)
+		public WayBillReportGroupPrint(IEmployeeJournalFactory employeeJournalFactory, ICarJournalFactory carJournalFactory, IOrganizationJournalFactory organizationJournalFactory, IInteractiveService interactiveService)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_organizationJournalFactory = organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -54,6 +57,8 @@ namespace Vodovoz.ReportsParameters
 			_selectedReport = () => GetSingleReportInfo();
 
 			ybuttonCreateReport.Clicked += OnButtonCreateRepotClicked;
+			buttonInfoSingleReport.Clicked += OnButtonInfoSingleReportClicked;
+			buttonInfoOneDayGroupReport.Clicked += OnButtonInfoOneDayGroupReportClicked;
 		}
 
 		#region Конфигурация контролов виджета отчетов
@@ -171,7 +176,7 @@ namespace Vodovoz.ReportsParameters
 					{ "auto_types",  (enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues)?.Cast<CarTypeOfUse>().ToArray() },
 					{ "owner_types",  (enumcheckCarOwnTypeOneDayGroupReport.SelectedValues)?.Cast<CarOwnType>().ToArray() },
 					{ "subdivisions", subdivisionIds },
-					{ "time", timeHourEntryOneDayGroupReport.Text + ":" + timeHourEntryOneDayGroupReport.Text },
+					{ "time", timeHourEntryOneDayGroupReport.Text + ":" + timeMinuteEntryOneDayGroupReport.Text },
 					{ "need_date", !datepickerOneDayGroupReport.IsEmpty }
 				}
 			};
@@ -240,12 +245,33 @@ namespace Vodovoz.ReportsParameters
 
 		protected void OnButtonInfoSingleReportClicked(object sender, EventArgs e)
 		{
-			MessageDialogHelper.RunInfoDialog("OnButtonInfoSingleReportClicked");
+			var info =
+				"Формируется один путевой лист с данными из соответсвующих полей:" +
+				$"\n\t'Дата' - дата выезда из гаража" +
+				$"\n\t'Водитель' - информация о водителе" +
+				$"\n\t'Автомобиль' - информация об автомобиле" +
+				$"\n\t'Время' - время выезда из гаража";
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
 		}
 
 		protected void OnButtonInfoOneDayGroupReportClicked(object sender, EventArgs e)
 		{
-			MessageDialogHelper.RunInfoDialog("OnButtonInfoOneDayGroupReportClicked");
+			var info =
+				"<b>1.</b> Формируется множество путевых листов для автомобилей, согласно установленным фильтрам" +
+				$"\nпо типу и принадлежности автомобиля, а также выбранному значению подразделения." +
+				$"\n" +
+				$"\n<b>2.</b> При выборе пункта 'Все' в списке подразделений в выборку попадут автомобили," +
+				$"\nудовлетворяющие условиям остальных фильтров, из всех подразделений." +
+			    $"\n" +
+				$"\n<b>3.</b> Во всех путевых листах указываются одинаковые данные из следующих полей:" +
+				$"\n\t'Дата' - дата выезда из гаража" +
+				$"\n\t'Время' - время выезда из гаража" +
+				$"\n" +
+				$"\n<b>4.</b> В выборку попадают только неархивные автомобили, имеющие \"привязанных\" водителей." +
+				$"\nДанные водителя в каждый путевой лист вносятся автоматически.";
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
 		}
 
 		protected void OnButtonInfoPeriodGroupReportClicked(object sender, EventArgs e)

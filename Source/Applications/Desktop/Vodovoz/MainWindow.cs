@@ -2031,7 +2031,8 @@ public partial class MainWindow : Gtk.Window
 				new WayBillReportGroupPrint(
 					autofacScope.Resolve<IEmployeeJournalFactory>(),
 					autofacScope.Resolve<ICarJournalFactory>(),
-					autofacScope.Resolve<IOrganizationJournalFactory>()
+					autofacScope.Resolve<IOrganizationJournalFactory>(),
+					autofacScope.Resolve<IInteractiveService>()
 				)
 			)
 		);
