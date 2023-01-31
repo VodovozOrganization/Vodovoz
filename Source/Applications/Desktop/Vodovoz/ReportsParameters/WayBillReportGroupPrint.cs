@@ -47,9 +47,9 @@ namespace Vodovoz.ReportsParameters
 			ConfigureGroupReportForOneDay();
 			ConfigureGroupReportForPeriod();
 
-			frameSingleReport.Visible = true;
-			frameOneDayGroupReport.Visible = false;
-			framePeriodGroupReport.Visible = false;
+			frameSingleReport.Sensitive = true;
+			frameOneDayGroupReport.Sensitive = false;
+			framePeriodGroupReport.Sensitive = false;
 
 			_selectedReport = () => GetSingleReportInfo();
 
@@ -256,25 +256,25 @@ namespace Vodovoz.ReportsParameters
 		protected void OnRadiobuttonSingleReportToggled(object sender, EventArgs e)
 		{
 			_selectedReport = () => GetSingleReportInfo();
-			frameSingleReport.Visible = true;
-			frameOneDayGroupReport.Visible = false;
-			framePeriodGroupReport.Visible = false;
+			frameSingleReport.Sensitive = true;
+			frameOneDayGroupReport.Sensitive = false;
+			framePeriodGroupReport.Sensitive = false;
 		}
 
 		protected void OnRadiobuttonOneDayGroupReportToggled(object sender, EventArgs e)
 		{
 			_selectedReport = () => GetGroupReportInfoForOneDay();
-			frameSingleReport.Visible = false;
-			frameOneDayGroupReport.Visible = true;
-			framePeriodGroupReport.Visible = false;
+			frameSingleReport.Sensitive = false;
+			frameOneDayGroupReport.Sensitive = true;
+			framePeriodGroupReport.Sensitive = false;
 		}
 
 		protected void OnRadiobuttonPeriodGroupReportToggled(object sender, EventArgs e)
 		{
 			_selectedReport = () => GetGroupReportInfoForPeriod();
-			frameSingleReport.Visible = false;
-			frameOneDayGroupReport.Visible = false;
-			framePeriodGroupReport.Visible = true;
+			frameSingleReport.Sensitive = false;
+			frameOneDayGroupReport.Sensitive = false;
+			framePeriodGroupReport.Sensitive = true;
 		}
 	}
 }
