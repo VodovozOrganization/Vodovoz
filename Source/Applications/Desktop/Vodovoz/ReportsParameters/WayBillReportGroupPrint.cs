@@ -323,11 +323,13 @@ namespace Vodovoz.ReportsParameters
 		private void EnumcheckCarTypeOfUseOneDayGroupReport_CheckStateChanged(object sender, CheckStateChangedEventArgs e)
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
+			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
 		}
 
 		private void EnumcheckCarOwnTypeOneDayGroupReport_CheckStateChanged(object sender, CheckStateChangedEventArgs e)
 		{
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
+			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
 		}
 	}
 }
