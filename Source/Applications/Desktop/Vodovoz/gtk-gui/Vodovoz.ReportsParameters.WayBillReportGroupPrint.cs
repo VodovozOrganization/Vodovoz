@@ -98,46 +98,6 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gtk.Label GtkLabelFrameOneDayGroupReport;
 
-		private global::Gtk.VBox vboxPartPeriodGroupReport;
-
-		private global::Gtk.HBox hbox9;
-
-		private global::Gamma.GtkWidgets.yButton buttonInfoSingleReportPeriodGroupReport;
-
-		private global::Gamma.GtkWidgets.yRadioButton yradiobuttonPeriodGroupReport;
-
-		private global::Gtk.Frame framePeriodGroupReport;
-
-		private global::Gtk.Alignment GtkAlignmentPeriodGroupReport;
-
-		private global::Gtk.Table tablePeriodGroupReport;
-
-		private global::QS.Widgets.GtkUI.DateRangePicker datePeriodGroupReport;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityManufacturesPeriodGroupReport;
-
-		private global::Gtk.HBox hboxCarTypeAndOwnerPeriodGroupReport;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindowTypeOfUsePeriodGroupReport;
-
-		private global::Gamma.Widgets.EnumCheckList enumcheckCarTypeOfUsePeriodGroupReport;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindowOwnTypePeriodGroupReport;
-
-		private global::Gamma.Widgets.EnumCheckList enumcheckCarOwnTypePeriodGroupReport;
-
-		private global::Gtk.Label labelPeriodPeriodGroupReport;
-
-		private global::Gtk.VBox vboxOrganizationsLabelsPeriodGroupReport;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelOrganizationPart1PeriodGroupReport;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelOrganizationPart2PeriodGroupReport;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelCarSettingsPeriodGroupReport;
-
-		private global::Gtk.Label GtkLabelFramePeriodGroupReport;
-
 		private global::Gamma.GtkWidgets.yButton ybuttonCreateReport;
 
 		protected virtual void Build()
@@ -428,7 +388,6 @@ namespace Vodovoz.ReportsParameters
 			this.tableOneDayGroupReport.ColumnSpacing = ((uint)(6));
 			// Container child tableOneDayGroupReport.Gtk.Table+TableChild
 			this.comboSubdivisionsOneDayGroupReport = new global::Gamma.Widgets.ySpecComboBox();
-			this.comboSubdivisionsOneDayGroupReport.WidthRequest = 350;
 			this.comboSubdivisionsOneDayGroupReport.Name = "comboSubdivisionsOneDayGroupReport";
 			this.comboSubdivisionsOneDayGroupReport.AddIfNotExist = false;
 			this.comboSubdivisionsOneDayGroupReport.DefaultFirst = false;
@@ -444,7 +403,6 @@ namespace Vodovoz.ReportsParameters
 			w26.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tableOneDayGroupReport.Gtk.Table+TableChild
 			this.datepickerOneDayGroupReport = new global::QS.Widgets.GtkUI.DatePicker();
-			this.datepickerOneDayGroupReport.WidthRequest = 350;
 			this.datepickerOneDayGroupReport.Events = ((global::Gdk.EventMask)(256));
 			this.datepickerOneDayGroupReport.Name = "datepickerOneDayGroupReport";
 			this.datepickerOneDayGroupReport.WithTime = false;
@@ -460,7 +418,7 @@ namespace Vodovoz.ReportsParameters
 			w27.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tableOneDayGroupReport.Gtk.Table+TableChild
 			this.hboxCarTypeAndOwnerOneDayGroupReport = new global::Gtk.HBox();
-			this.hboxCarTypeAndOwnerOneDayGroupReport.WidthRequest = 360;
+			this.hboxCarTypeAndOwnerOneDayGroupReport.WidthRequest = 417;
 			this.hboxCarTypeAndOwnerOneDayGroupReport.Name = "hboxCarTypeAndOwnerOneDayGroupReport";
 			this.hboxCarTypeAndOwnerOneDayGroupReport.Spacing = 6;
 			// Container child hboxCarTypeAndOwnerOneDayGroupReport.Gtk.Box+BoxChild
@@ -559,21 +517,19 @@ namespace Vodovoz.ReportsParameters
 			w41.BottomAttach = ((uint)(4));
 			w41.LeftAttach = ((uint)(1));
 			w41.RightAttach = ((uint)(2));
-			w41.XOptions = ((global::Gtk.AttachOptions)(0));
+			w41.XOptions = ((global::Gtk.AttachOptions)(4));
 			w41.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tableOneDayGroupReport.Gtk.Table+TableChild
 			this.labelDateOneDayGroupReport = new global::Gtk.Label();
-			this.labelDateOneDayGroupReport.WidthRequest = 170;
 			this.labelDateOneDayGroupReport.Name = "labelDateOneDayGroupReport";
 			this.labelDateOneDayGroupReport.Xalign = 1F;
 			this.labelDateOneDayGroupReport.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.tableOneDayGroupReport.Add(this.labelDateOneDayGroupReport);
 			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.tableOneDayGroupReport[this.labelDateOneDayGroupReport]));
-			w42.XOptions = ((global::Gtk.AttachOptions)(0));
-			w42.YOptions = ((global::Gtk.AttachOptions)(0));
+			w42.XOptions = ((global::Gtk.AttachOptions)(4));
+			w42.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOneDayGroupReport.Gtk.Table+TableChild
 			this.ylabelCarSettingsOneDayGroupReport = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelCarSettingsOneDayGroupReport.WidthRequest = 170;
 			this.ylabelCarSettingsOneDayGroupReport.Name = "ylabelCarSettingsOneDayGroupReport";
 			this.ylabelCarSettingsOneDayGroupReport.Xalign = 1F;
 			this.ylabelCarSettingsOneDayGroupReport.LabelProp = global::Mono.Unix.Catalog.GetString(" ");
@@ -581,14 +537,13 @@ namespace Vodovoz.ReportsParameters
 			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.tableOneDayGroupReport[this.ylabelCarSettingsOneDayGroupReport]));
 			w43.TopAttach = ((uint)(1));
 			w43.BottomAttach = ((uint)(2));
-			w43.XOptions = ((global::Gtk.AttachOptions)(0));
-			w43.YOptions = ((global::Gtk.AttachOptions)(0));
+			w43.XOptions = ((global::Gtk.AttachOptions)(4));
+			w43.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableOneDayGroupReport.Gtk.Table+TableChild
 			this.ylabelSubdivisionOneDayGroupReport = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelSubdivisionOneDayGroupReport.WidthRequest = 170;
 			this.ylabelSubdivisionOneDayGroupReport.Name = "ylabelSubdivisionOneDayGroupReport";
 			this.ylabelSubdivisionOneDayGroupReport.Xalign = 1F;
-			this.ylabelSubdivisionOneDayGroupReport.LabelProp = global::Mono.Unix.Catalog.GetString("                Подразделение:");
+			this.ylabelSubdivisionOneDayGroupReport.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение:");
 			this.tableOneDayGroupReport.Add(this.ylabelSubdivisionOneDayGroupReport);
 			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.tableOneDayGroupReport[this.ylabelSubdivisionOneDayGroupReport]));
 			w44.TopAttach = ((uint)(2));
@@ -597,7 +552,6 @@ namespace Vodovoz.ReportsParameters
 			w44.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child tableOneDayGroupReport.Gtk.Table+TableChild
 			this.ylabelTimeOneDayGroupReport = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelTimeOneDayGroupReport.WidthRequest = 170;
 			this.ylabelTimeOneDayGroupReport.Name = "ylabelTimeOneDayGroupReport";
 			this.ylabelTimeOneDayGroupReport.Xalign = 1F;
 			this.ylabelTimeOneDayGroupReport.LabelProp = global::Mono.Unix.Catalog.GetString("Выезд:");
@@ -605,8 +559,8 @@ namespace Vodovoz.ReportsParameters
 			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.tableOneDayGroupReport[this.ylabelTimeOneDayGroupReport]));
 			w45.TopAttach = ((uint)(3));
 			w45.BottomAttach = ((uint)(4));
-			w45.XOptions = ((global::Gtk.AttachOptions)(0));
-			w45.YOptions = ((global::Gtk.AttachOptions)(0));
+			w45.XOptions = ((global::Gtk.AttachOptions)(4));
+			w45.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.GtkAlignmentOneDayGroupReport.Add(this.tableOneDayGroupReport);
 			this.frameOneDayGroupReport.Add(this.GtkAlignmentOneDayGroupReport);
 			this.GtkLabelFrameOneDayGroupReport = new global::Gtk.Label();
@@ -623,212 +577,20 @@ namespace Vodovoz.ReportsParameters
 			w49.Position = 1;
 			w49.Expand = false;
 			// Container child yvboxReportsControls.Gtk.Box+BoxChild
-			this.vboxPartPeriodGroupReport = new global::Gtk.VBox();
-			this.vboxPartPeriodGroupReport.Name = "vboxPartPeriodGroupReport";
-			this.vboxPartPeriodGroupReport.Spacing = 6;
-			// Container child vboxPartPeriodGroupReport.Gtk.Box+BoxChild
-			this.hbox9 = new global::Gtk.HBox();
-			this.hbox9.Name = "hbox9";
-			this.hbox9.Spacing = 6;
-			// Container child hbox9.Gtk.Box+BoxChild
-			this.buttonInfoSingleReportPeriodGroupReport = new global::Gamma.GtkWidgets.yButton();
-			this.buttonInfoSingleReportPeriodGroupReport.TooltipMarkup = "Справка по работе с отчётом";
-			this.buttonInfoSingleReportPeriodGroupReport.CanFocus = true;
-			this.buttonInfoSingleReportPeriodGroupReport.Name = "buttonInfoSingleReportPeriodGroupReport";
-			this.buttonInfoSingleReportPeriodGroupReport.UseUnderline = true;
-			this.buttonInfoSingleReportPeriodGroupReport.Relief = ((global::Gtk.ReliefStyle)(1));
-			global::Gtk.Image w50 = new global::Gtk.Image();
-			w50.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
-			this.buttonInfoSingleReportPeriodGroupReport.Image = w50;
-			this.hbox9.Add(this.buttonInfoSingleReportPeriodGroupReport);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.buttonInfoSingleReportPeriodGroupReport]));
-			w51.Position = 0;
-			w51.Expand = false;
-			w51.Fill = false;
-			// Container child hbox9.Gtk.Box+BoxChild
-			this.yradiobuttonPeriodGroupReport = new global::Gamma.GtkWidgets.yRadioButton();
-			this.yradiobuttonPeriodGroupReport.CanFocus = true;
-			this.yradiobuttonPeriodGroupReport.Name = "yradiobuttonPeriodGroupReport";
-			this.yradiobuttonPeriodGroupReport.Label = global::Mono.Unix.Catalog.GetString("Групповая печать по МЛ за период для бухгалтерии");
-			this.yradiobuttonPeriodGroupReport.DrawIndicator = true;
-			this.yradiobuttonPeriodGroupReport.UseUnderline = true;
-			this.yradiobuttonPeriodGroupReport.Group = this.yradiobuttonSingleReport.Group;
-			this.hbox9.Add(this.yradiobuttonPeriodGroupReport);
-			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.yradiobuttonPeriodGroupReport]));
-			w52.Position = 1;
-			w52.Expand = false;
-			w52.Fill = false;
-			this.vboxPartPeriodGroupReport.Add(this.hbox9);
-			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.vboxPartPeriodGroupReport[this.hbox9]));
-			w53.Position = 0;
-			w53.Expand = false;
-			w53.Fill = false;
-			// Container child vboxPartPeriodGroupReport.Gtk.Box+BoxChild
-			this.framePeriodGroupReport = new global::Gtk.Frame();
-			this.framePeriodGroupReport.Name = "framePeriodGroupReport";
-			this.framePeriodGroupReport.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child framePeriodGroupReport.Gtk.Container+ContainerChild
-			this.GtkAlignmentPeriodGroupReport = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
-			this.GtkAlignmentPeriodGroupReport.Name = "GtkAlignmentPeriodGroupReport";
-			// Container child GtkAlignmentPeriodGroupReport.Gtk.Container+ContainerChild
-			this.tablePeriodGroupReport = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
-			this.tablePeriodGroupReport.Name = "tablePeriodGroupReport";
-			this.tablePeriodGroupReport.RowSpacing = ((uint)(6));
-			this.tablePeriodGroupReport.ColumnSpacing = ((uint)(6));
-			// Container child tablePeriodGroupReport.Gtk.Table+TableChild
-			this.datePeriodGroupReport = new global::QS.Widgets.GtkUI.DateRangePicker();
-			this.datePeriodGroupReport.WidthRequest = 350;
-			this.datePeriodGroupReport.Events = ((global::Gdk.EventMask)(256));
-			this.datePeriodGroupReport.Name = "datePeriodGroupReport";
-			this.datePeriodGroupReport.StartDate = new global::System.DateTime(0);
-			this.datePeriodGroupReport.EndDate = new global::System.DateTime(0);
-			this.tablePeriodGroupReport.Add(this.datePeriodGroupReport);
-			global::Gtk.Table.TableChild w54 = ((global::Gtk.Table.TableChild)(this.tablePeriodGroupReport[this.datePeriodGroupReport]));
-			w54.LeftAttach = ((uint)(1));
-			w54.RightAttach = ((uint)(2));
-			w54.XOptions = ((global::Gtk.AttachOptions)(4));
-			w54.YOptions = ((global::Gtk.AttachOptions)(0));
-			// Container child tablePeriodGroupReport.Gtk.Table+TableChild
-			this.entityManufacturesPeriodGroupReport = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityManufacturesPeriodGroupReport.WidthRequest = 350;
-			this.entityManufacturesPeriodGroupReport.Events = ((global::Gdk.EventMask)(256));
-			this.entityManufacturesPeriodGroupReport.Name = "entityManufacturesPeriodGroupReport";
-			this.entityManufacturesPeriodGroupReport.CanEditReference = false;
-			this.entityManufacturesPeriodGroupReport.CanOpenWithoutTabParent = false;
-			this.tablePeriodGroupReport.Add(this.entityManufacturesPeriodGroupReport);
-			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.tablePeriodGroupReport[this.entityManufacturesPeriodGroupReport]));
-			w55.TopAttach = ((uint)(3));
-			w55.BottomAttach = ((uint)(4));
-			w55.LeftAttach = ((uint)(1));
-			w55.RightAttach = ((uint)(2));
-			w55.XOptions = ((global::Gtk.AttachOptions)(4));
-			w55.YOptions = ((global::Gtk.AttachOptions)(0));
-			// Container child tablePeriodGroupReport.Gtk.Table+TableChild
-			this.hboxCarTypeAndOwnerPeriodGroupReport = new global::Gtk.HBox();
-			this.hboxCarTypeAndOwnerPeriodGroupReport.WidthRequest = 350;
-			this.hboxCarTypeAndOwnerPeriodGroupReport.Name = "hboxCarTypeAndOwnerPeriodGroupReport";
-			this.hboxCarTypeAndOwnerPeriodGroupReport.Spacing = 6;
-			// Container child hboxCarTypeAndOwnerPeriodGroupReport.Gtk.Box+BoxChild
-			this.GtkScrolledWindowTypeOfUsePeriodGroupReport = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindowTypeOfUsePeriodGroupReport.WidthRequest = 200;
-			this.GtkScrolledWindowTypeOfUsePeriodGroupReport.Name = "GtkScrolledWindowTypeOfUsePeriodGroupReport";
-			this.GtkScrolledWindowTypeOfUsePeriodGroupReport.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindowTypeOfUsePeriodGroupReport.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w56 = new global::Gtk.Viewport();
-			w56.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child GtkViewport4.Gtk.Container+ContainerChild
-			this.enumcheckCarTypeOfUsePeriodGroupReport = new global::Gamma.Widgets.EnumCheckList();
-			this.enumcheckCarTypeOfUsePeriodGroupReport.Name = "enumcheckCarTypeOfUsePeriodGroupReport";
-			w56.Add(this.enumcheckCarTypeOfUsePeriodGroupReport);
-			this.GtkScrolledWindowTypeOfUsePeriodGroupReport.Add(w56);
-			this.hboxCarTypeAndOwnerPeriodGroupReport.Add(this.GtkScrolledWindowTypeOfUsePeriodGroupReport);
-			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.hboxCarTypeAndOwnerPeriodGroupReport[this.GtkScrolledWindowTypeOfUsePeriodGroupReport]));
-			w59.Position = 0;
-			// Container child hboxCarTypeAndOwnerPeriodGroupReport.Gtk.Box+BoxChild
-			this.GtkScrolledWindowOwnTypePeriodGroupReport = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindowOwnTypePeriodGroupReport.WidthRequest = 200;
-			this.GtkScrolledWindowOwnTypePeriodGroupReport.Name = "GtkScrolledWindowOwnTypePeriodGroupReport";
-			this.GtkScrolledWindowOwnTypePeriodGroupReport.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindowOwnTypePeriodGroupReport.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w60 = new global::Gtk.Viewport();
-			w60.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child GtkViewport5.Gtk.Container+ContainerChild
-			this.enumcheckCarOwnTypePeriodGroupReport = new global::Gamma.Widgets.EnumCheckList();
-			this.enumcheckCarOwnTypePeriodGroupReport.Name = "enumcheckCarOwnTypePeriodGroupReport";
-			w60.Add(this.enumcheckCarOwnTypePeriodGroupReport);
-			this.GtkScrolledWindowOwnTypePeriodGroupReport.Add(w60);
-			this.hboxCarTypeAndOwnerPeriodGroupReport.Add(this.GtkScrolledWindowOwnTypePeriodGroupReport);
-			global::Gtk.Box.BoxChild w63 = ((global::Gtk.Box.BoxChild)(this.hboxCarTypeAndOwnerPeriodGroupReport[this.GtkScrolledWindowOwnTypePeriodGroupReport]));
-			w63.Position = 1;
-			this.tablePeriodGroupReport.Add(this.hboxCarTypeAndOwnerPeriodGroupReport);
-			global::Gtk.Table.TableChild w64 = ((global::Gtk.Table.TableChild)(this.tablePeriodGroupReport[this.hboxCarTypeAndOwnerPeriodGroupReport]));
-			w64.TopAttach = ((uint)(1));
-			w64.BottomAttach = ((uint)(2));
-			w64.LeftAttach = ((uint)(1));
-			w64.RightAttach = ((uint)(2));
-			w64.XOptions = ((global::Gtk.AttachOptions)(0));
-			w64.YOptions = ((global::Gtk.AttachOptions)(0));
-			// Container child tablePeriodGroupReport.Gtk.Table+TableChild
-			this.labelPeriodPeriodGroupReport = new global::Gtk.Label();
-			this.labelPeriodPeriodGroupReport.WidthRequest = 170;
-			this.labelPeriodPeriodGroupReport.Name = "labelPeriodPeriodGroupReport";
-			this.labelPeriodPeriodGroupReport.Xalign = 1F;
-			this.labelPeriodPeriodGroupReport.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
-			this.tablePeriodGroupReport.Add(this.labelPeriodPeriodGroupReport);
-			global::Gtk.Table.TableChild w65 = ((global::Gtk.Table.TableChild)(this.tablePeriodGroupReport[this.labelPeriodPeriodGroupReport]));
-			w65.XOptions = ((global::Gtk.AttachOptions)(0));
-			w65.YOptions = ((global::Gtk.AttachOptions)(0));
-			// Container child tablePeriodGroupReport.Gtk.Table+TableChild
-			this.vboxOrganizationsLabelsPeriodGroupReport = new global::Gtk.VBox();
-			this.vboxOrganizationsLabelsPeriodGroupReport.Name = "vboxOrganizationsLabelsPeriodGroupReport";
-			this.vboxOrganizationsLabelsPeriodGroupReport.Spacing = 6;
-			// Container child vboxOrganizationsLabelsPeriodGroupReport.Gtk.Box+BoxChild
-			this.ylabelOrganizationPart1PeriodGroupReport = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelOrganizationPart1PeriodGroupReport.WidthRequest = 170;
-			this.ylabelOrganizationPart1PeriodGroupReport.Name = "ylabelOrganizationPart1PeriodGroupReport";
-			this.ylabelOrganizationPart1PeriodGroupReport.Xalign = 1F;
-			this.ylabelOrganizationPart1PeriodGroupReport.LabelProp = global::Mono.Unix.Catalog.GetString("МЛ, в которых есть");
-			this.vboxOrganizationsLabelsPeriodGroupReport.Add(this.ylabelOrganizationPart1PeriodGroupReport);
-			global::Gtk.Box.BoxChild w66 = ((global::Gtk.Box.BoxChild)(this.vboxOrganizationsLabelsPeriodGroupReport[this.ylabelOrganizationPart1PeriodGroupReport]));
-			w66.Position = 0;
-			w66.Expand = false;
-			w66.Fill = false;
-			// Container child vboxOrganizationsLabelsPeriodGroupReport.Gtk.Box+BoxChild
-			this.ylabelOrganizationPart2PeriodGroupReport = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelOrganizationPart2PeriodGroupReport.WidthRequest = 170;
-			this.ylabelOrganizationPart2PeriodGroupReport.Name = "ylabelOrganizationPart2PeriodGroupReport";
-			this.ylabelOrganizationPart2PeriodGroupReport.Xalign = 1F;
-			this.ylabelOrganizationPart2PeriodGroupReport.LabelProp = global::Mono.Unix.Catalog.GetString("заказы по организации");
-			this.vboxOrganizationsLabelsPeriodGroupReport.Add(this.ylabelOrganizationPart2PeriodGroupReport);
-			global::Gtk.Box.BoxChild w67 = ((global::Gtk.Box.BoxChild)(this.vboxOrganizationsLabelsPeriodGroupReport[this.ylabelOrganizationPart2PeriodGroupReport]));
-			w67.Position = 1;
-			w67.Expand = false;
-			w67.Fill = false;
-			this.tablePeriodGroupReport.Add(this.vboxOrganizationsLabelsPeriodGroupReport);
-			global::Gtk.Table.TableChild w68 = ((global::Gtk.Table.TableChild)(this.tablePeriodGroupReport[this.vboxOrganizationsLabelsPeriodGroupReport]));
-			w68.TopAttach = ((uint)(3));
-			w68.BottomAttach = ((uint)(4));
-			w68.XOptions = ((global::Gtk.AttachOptions)(4));
-			w68.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tablePeriodGroupReport.Gtk.Table+TableChild
-			this.ylabelCarSettingsPeriodGroupReport = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelCarSettingsPeriodGroupReport.WidthRequest = 170;
-			this.ylabelCarSettingsPeriodGroupReport.Name = "ylabelCarSettingsPeriodGroupReport";
-			this.ylabelCarSettingsPeriodGroupReport.Xalign = 1F;
-			this.ylabelCarSettingsPeriodGroupReport.LabelProp = global::Mono.Unix.Catalog.GetString(" ");
-			this.tablePeriodGroupReport.Add(this.ylabelCarSettingsPeriodGroupReport);
-			global::Gtk.Table.TableChild w69 = ((global::Gtk.Table.TableChild)(this.tablePeriodGroupReport[this.ylabelCarSettingsPeriodGroupReport]));
-			w69.TopAttach = ((uint)(1));
-			w69.BottomAttach = ((uint)(2));
-			w69.XOptions = ((global::Gtk.AttachOptions)(0));
-			w69.YOptions = ((global::Gtk.AttachOptions)(0));
-			this.GtkAlignmentPeriodGroupReport.Add(this.tablePeriodGroupReport);
-			this.framePeriodGroupReport.Add(this.GtkAlignmentPeriodGroupReport);
-			this.GtkLabelFramePeriodGroupReport = new global::Gtk.Label();
-			this.GtkLabelFramePeriodGroupReport.Name = "GtkLabelFramePeriodGroupReport";
-			this.GtkLabelFramePeriodGroupReport.UseMarkup = true;
-			this.framePeriodGroupReport.LabelWidget = this.GtkLabelFramePeriodGroupReport;
-			this.vboxPartPeriodGroupReport.Add(this.framePeriodGroupReport);
-			global::Gtk.Box.BoxChild w72 = ((global::Gtk.Box.BoxChild)(this.vboxPartPeriodGroupReport[this.framePeriodGroupReport]));
-			w72.Position = 1;
-			this.yvboxReportsControls.Add(this.vboxPartPeriodGroupReport);
-			global::Gtk.Box.BoxChild w73 = ((global::Gtk.Box.BoxChild)(this.yvboxReportsControls[this.vboxPartPeriodGroupReport]));
-			w73.Position = 2;
-			// Container child yvboxReportsControls.Gtk.Box+BoxChild
 			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCreateReport.CanFocus = true;
 			this.ybuttonCreateReport.Name = "ybuttonCreateReport";
 			this.ybuttonCreateReport.UseUnderline = true;
 			this.ybuttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.yvboxReportsControls.Add(this.ybuttonCreateReport);
-			global::Gtk.Box.BoxChild w74 = ((global::Gtk.Box.BoxChild)(this.yvboxReportsControls[this.ybuttonCreateReport]));
-			w74.PackType = ((global::Gtk.PackType)(1));
-			w74.Position = 3;
-			w74.Expand = false;
-			w74.Fill = false;
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.yvboxReportsControls[this.ybuttonCreateReport]));
+			w50.PackType = ((global::Gtk.PackType)(1));
+			w50.Position = 3;
+			w50.Expand = false;
+			w50.Fill = false;
 			this.vboxMainConteiner.Add(this.yvboxReportsControls);
-			global::Gtk.Box.BoxChild w75 = ((global::Gtk.Box.BoxChild)(this.vboxMainConteiner[this.yvboxReportsControls]));
-			w75.Position = 1;
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vboxMainConteiner[this.yvboxReportsControls]));
+			w51.Position = 0;
 			w1.Add(this.vboxMainConteiner);
 			this.GtkScrolledWindow.Add(w1);
 			this.Add(this.GtkScrolledWindow);
