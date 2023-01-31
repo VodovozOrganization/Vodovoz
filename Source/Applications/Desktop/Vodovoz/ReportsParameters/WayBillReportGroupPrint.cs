@@ -52,6 +52,8 @@ namespace Vodovoz.ReportsParameters
 			framePeriodGroupReport.Visible = false;
 
 			_selectedReport = () => GetSingleReportInfo();
+
+			ybuttonCreateReport.Clicked += OnButtonCreateRepotClicked;
 		}
 
 		#region Конфигурация контролов виджета отчетов
@@ -71,6 +73,8 @@ namespace Vodovoz.ReportsParameters
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 
 			entityCarSingleReport.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory());
+
+			yradiobuttonSingleReport.Clicked += OnRadiobuttonSingleReportToggled;
 		}
 
 		/// <summary>
@@ -98,6 +102,8 @@ namespace Vodovoz.ReportsParameters
 			//Время отправления по умолчанию
 			timeHourEntryOneDayGroupReport.Text = DateTime.Now.Hour.ToString("00.##");
 			timeMinuteEntryOneDayGroupReport.Text = DateTime.Now.Minute.ToString("00.##");
+
+			yradiobuttonOneDayGroupReport.Clicked += OnRadiobuttonOneDayGroupReportToggled;
 		}
 
 		/// <summary>
@@ -121,6 +127,8 @@ namespace Vodovoz.ReportsParameters
 			//Выбор организации
 			entityManufacturesPeriodGroupReport.SetEntityAutocompleteSelectorFactory(
 				_organizationJournalFactory.CreateOrganizationAutocompleteSelectorFactory());
+
+			yradiobuttonPeriodGroupReport.Clicked += OnRadiobuttonPeriodGroupReportToggled;
 		}
 		#endregion
 
@@ -267,16 +275,6 @@ namespace Vodovoz.ReportsParameters
 			frameSingleReport.Visible = false;
 			frameOneDayGroupReport.Visible = false;
 			framePeriodGroupReport.Visible = true;
-		}
-
-		protected void Focused(object o, Gtk.FocusedArgs args)
-		{
-			MessageDialogHelper.RunInfoDialog("Focused");
-		}
-
-		protected void FocusIn(object o, Gtk.FocusInEventArgs args)
-		{
-			MessageDialogHelper.RunInfoDialog("FocusIn");
 		}
 	}
 }
