@@ -40,6 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 
@@ -66,15 +67,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private readonly Color _districtFillColor = Color.Transparent;
 		private readonly Color _fastDeliveryCircleFillColor = Color.OrangeRed;
+		private TimeSpan _fastDeliveryTime;
 
 		private IUnitOfWork _unitOfWork;
 		private bool _canOpenKeepingTab;
 		private bool _showHistory;
 		private DateTime _historyDate;
 		private TimeSpan _historyHour;
-		private readonly TimeSpan _fastDeliveryTime;
 
-		private readonly double _fastDeliveryMaxDistance;
+		private double _fastDeliveryMaxDistance;
 
 		public CarsMonitoringViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -90,6 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 
 			TabName = "Мониторинг";
 
@@ -118,13 +120,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_historyDate = DateTime.Today;
 			_historyHour = TimeSpan.FromHours(9);
 
-			if(deliveryRulesParametersProvider is null)
-			{
-				throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-			}
-
-			_fastDeliveryTime = deliveryRulesParametersProvider.MaxTimeForFastDelivery;
-			_fastDeliveryMaxDistance = deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
+			_fastDeliveryTime = _deliveryRulesParametersProvider.MaxTimeForFastDelivery;
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
@@ -138,7 +134,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RefreshWorkingDriversCommand = new DelegateCommand(RefreshWorkingDrivers);
 			RefreshRouteListAddressesCommand = new DelegateCommand<int>(RefreshRouteListAddresses);
 			RefreshFastDeliveryDistrictsCommand = new DelegateCommand(RefreshFastDeliveryDistricts);
+			RefreshFastDeliveryMaxKmValueCommand = new DelegateCommand(RefreshFastDeliveryMaxKmValue);
 
+			RefreshFastDeliveryMaxKmValueCommand?.Execute();
 			SelectedWorkingDrivers.CollectionChanged += SelectedWorkingDriversCollectionChanged;
 		}
 
@@ -230,6 +228,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if(ShowDistrictsOverlay)
 				{
 					RefreshFastDeliveryDistrictsCommand.Execute();
+					RefreshFastDeliveryMaxKmValueCommand?.Execute();
 				}
 			}
 		}
@@ -246,6 +245,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					if(ShowDistrictsOverlay)
 					{
 						RefreshFastDeliveryDistrictsCommand.Execute();
+						RefreshFastDeliveryMaxKmValueCommand?.Execute();
 					}
 				}
 			}
@@ -263,9 +263,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					if(ShowDistrictsOverlay)
 					{
 						RefreshFastDeliveryDistrictsCommand.Execute();
+						RefreshFastDeliveryMaxKmValueCommand?.Execute();
 					}
 				}
 			}
+		}
+
+		public double FastDeliveryMaxDistance
+		{
+			get => _fastDeliveryMaxDistance;
+			set => SetField(ref _fastDeliveryMaxDistance, value);
 		}
 		#endregion
 
@@ -294,8 +301,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public Color FastDeliveryCircleFillColor => _fastDeliveryCircleFillColor;
 
-		public double FastDeliveryMaxDistance => _fastDeliveryMaxDistance;
-
 		public Color[] AvailableTrackColors => _availableTrackColors;
 		#endregion
 
@@ -319,6 +324,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand<int> RefreshRouteListAddressesCommand { get; }
 
 		public DelegateCommand RefreshFastDeliveryDistrictsCommand { get; }
+
+		public DelegateCommand RefreshFastDeliveryMaxKmValueCommand { get; }
 		#endregion
 
 		private void SelectedWorkingDriversCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -497,6 +504,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			foreach(var district in districts)
 			{
 				FastDeliveryDistricts.Add(district);
+			}
+		}
+
+		public void RefreshFastDeliveryMaxKmValue()
+		{
+			if(ShowHistory)
+			{
+				FastDeliveryMaxDistance = _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(HistoryDate.Add(HistoryHour));
+			}
+			else
+			{
+				FastDeliveryMaxDistance = _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
 			}
 		}
 		#endregion
