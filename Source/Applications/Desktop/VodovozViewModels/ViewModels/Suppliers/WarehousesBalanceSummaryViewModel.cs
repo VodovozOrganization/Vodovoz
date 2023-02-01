@@ -15,9 +15,12 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Suppliers
@@ -194,12 +197,60 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.Select(n => n.MinStockCount)
 				.OrderBy(n => n.Id).Asc;
 
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			OrderItem orderItemsAlias = null;
+			decimal? count = null;
+			int? id = null;
+
+			//		var subqueryReserved = QueryOver.Of(() => orderAlias)
+			//.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
+			//.Where(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
+			//.Where(() => nomenclatureAlias.DoNotReserve == false)
+			//.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
+			//	   || orderAlias.OrderStatus == OrderStatus.InTravelList
+			//	   || orderAlias.OrderStatus == OrderStatus.OnLoading)
+			//.Select(Projections.Sum(() => orderItemsAlias.Count));
+
+			var reservedSubQuery = QueryOver.Of(() => orderAlias)
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomAlias)
+				.Where(() => orderItemsAlias.Nomenclature.Id == nomAlias.Id)
+				.Where(() => nomAlias.DoNotReserve == false)
+				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
+					   || orderAlias.OrderStatus == OrderStatus.InTravelList
+					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
+				.Select(Projections.Sum(() => orderItemsAlias.Count));
+
+			var reservedQuery = localUow.Session.QueryOver(() => nomAlias)
+				.Where(() => !nomAlias.IsSerial)
+				.SelectList(list => list
+					.SelectGroup(() => nomAlias.Id).WithAlias(() => id)
+					.SelectSubQuery(reservedSubQuery).WithAlias(() => count)
+				)
+				.OrderBy(x => x.Name).Asc
+				.TransformUsing(Transformers.AliasToBean<IdCount>());
+
+
+
+			//var reservedQuery = localUow.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+			//	.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
+			//	.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomAlias)
+			//	//.Where(() => orderItemsAlias.Nomenclature.Id == nomAlias.Id)
+			//	.Where(() => nomAlias.DoNotReserve == false)
+			//	.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
+			//		   || orderAlias.OrderStatus == OrderStatus.InTravelList
+			//		   || orderAlias.OrderStatus == OrderStatus.OnLoading)
+			//	.Select(Projections.Sum(() => orderItemsAlias.Count));
+
+
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
 				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				reservedQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				//reservedQuery.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
 			}
 
 			if(nomsSelected && !allNomsSelected)
@@ -221,11 +272,13 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var batch = localUow.Session.CreateQueryBatch()
 				.Add<BalanceBean>("in", inQuery)
 				.Add<BalanceBean>("wo", woQuery)
-				.Add<decimal>("ms", msQuery);
+				.Add<decimal>("ms", msQuery)
+				.Add<IdCount>("rs", reservedQuery);
 
 			var inResult = batch.GetResult<BalanceBean>("in").ToArray();
 			var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
 			var msResult = batch.GetResult<decimal>("ms").ToArray();
+			var rsResult = batch.GetResult<IdCount>("rs").ToArray();
 
 			//Кол-во списаний != кол-во начислений, используется два счетчика
 			var addedCounter = 0;
@@ -505,5 +558,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public int NomId { get; set; }
 		public int WarehouseId { get; set; }
 		public decimal Amount { get; set; }
+	}
+
+	public class IdCount
+	{
+		public int Id { get; set; }
+		public decimal? Count { get; set; }
 	}
 }
