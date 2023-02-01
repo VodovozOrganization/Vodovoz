@@ -124,13 +124,25 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public virtual DateTime? StartDate
 		{
 			get => _startDate;
-			set => SetField(ref _startDate, value);
+			set
+			{
+				if(value != null)
+				{
+					SetField(ref _startDate, value.Value.Date);
+				}
+			}
 		}
 
 		public virtual DateTime? EndDate
 		{
 			get => _endDate;
-			set => SetField(ref _endDate, value);
+			set
+			{
+				if(value != null)
+				{
+					SetField(ref _endDate, value.Value.LatestDayTime());
+				}
+			}
 		}
 
 		public bool ShowDynamics
