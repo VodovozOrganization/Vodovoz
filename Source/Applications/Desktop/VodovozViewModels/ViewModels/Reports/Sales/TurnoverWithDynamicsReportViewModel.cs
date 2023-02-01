@@ -143,7 +143,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public bool ShowLastSale
 		{
 			get => _showLastSale;
-			set => SetField(ref _showLastSale, value);
+			set
+			{
+				SetField(ref _showLastSale, value);
+				if(!value)
+				{
+					ShowResidueForNomenclaturesWithoutSales = value;
+				}
+			}
 		}
 
 		public bool ShowResidueForNomenclaturesWithoutSales
