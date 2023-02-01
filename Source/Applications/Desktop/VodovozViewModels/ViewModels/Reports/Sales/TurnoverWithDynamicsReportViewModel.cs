@@ -47,6 +47,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
+		private readonly string _templateFinancePath = @".\Reports\Sales\TurnoverFinanceReport.xlsx";
+		private readonly string _templateWithDynamicsFinancePath = @".\Reports\Sales\TurnoverWithDynamicsFinanceReport.xlsx";
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
@@ -596,11 +598,26 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			if(ShowDynamics)
 			{
-				templatePath = _templateWithDynamicsPath;
+				if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+				{
+					templatePath = _templateWithDynamicsPath;
+				}
+				else
+				{
+					templatePath = _templateWithDynamicsFinancePath;
+				}
+
 			}
 			else
 			{
-				templatePath = _templatePath;
+				if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+				{
+					templatePath = _templatePath;
+				}
+				else
+				{
+					templatePath = _templateFinancePath;
+				}
 			}
 
 			var template = new XLTemplate(templatePath);

@@ -3,7 +3,6 @@ using Gamma.Utilities;
 using MoreLinq;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -95,7 +94,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			/// <summary>
 			/// Зависит от текущего значения <see cref="MeasurementUnit"/>
 			/// </summary>
-			public string MeasurementUnitFormat => MeasurementUnit == MeasurementUnitEnum.Amount ? "# ##0" : "# ##0.00";
+			public string MeasurementUnitFormat => MeasurementUnit == MeasurementUnitEnum.Amount ? "# ### ### ##0" : "# ### ### ##0.00";
 
 			private IList<TurnoverWithDynamicsReportRow> ProcessData(IList<OrderItemNode> ordersItemslist)
 			{
