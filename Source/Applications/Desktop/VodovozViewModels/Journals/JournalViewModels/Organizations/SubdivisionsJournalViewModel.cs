@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -8,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
@@ -28,6 +30,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ILifetimeScope _scope;
 
 		public SubdivisionsJournalViewModel(
 			SubdivisionFilterViewModel filterViewModel,
@@ -35,13 +38,14 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			TabName = "Выбор подразделения";
 		}
 
@@ -98,11 +102,11 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		protected override Func<SubdivisionViewModel> CreateDialogFunction =>
 			() => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, employeeSelectorFactory,
 				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
-				new SubdivisionRepository(new ParametersProvider()));
+				new SubdivisionRepository(new ParametersProvider()), _scope.BeginLifetimeScope());
 
 		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction =>
 			node => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, employeeSelectorFactory,
 				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
-				new SubdivisionRepository(new ParametersProvider()));
+				new SubdivisionRepository(new ParametersProvider()), _scope.BeginLifetimeScope());
 	}
 }

@@ -65,16 +65,15 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterRouteListAddressCoordinates")]
 		public async Task RegisterRouteListAddressCoordinateAsync([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(RouteListAddressId: {routeListAddressCoordinate.RouteListAddressId}) User token: {tokenStr}");
+			_logger.LogInformation("Попытка регистрации предположительных координат для адреса {RouteListAddressId} пользователем {Username} User token: {AccessToken}",
+				routeListAddressCoordinate.RouteListAddressId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
 
 			var recievedTime = DateTime.Now;
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
-
-			_logger.LogInformation($"Регистрация предположительных координат точки доставки { routeListAddressCoordinate.RouteListAddressId }" +
-				$" пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
 
 			var resultMessage = "OK";
 
@@ -109,20 +108,18 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterTrackCoordinates")]
 		public async Task RegisterTrackCoordinatesAsync([FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(RouteListId: {registerTrackCoordinateRequestModel.RouteListId}) User token: {tokenStr}");
+			_logger.LogInformation("Попытка регистрации треков для МЛ {RouteListId} пользователем {Username} User token: {AccessToken}",
+				registerTrackCoordinateRequestModel.RouteListId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
-			_logger.LogInformation($"Регистрация треков для МЛ { registerTrackCoordinateRequestModel.RouteListId }" +
-				$" пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
-
 			_trackPointsData.RegisterForRouteList(
 				registerTrackCoordinateRequestModel.RouteListId,
 				registerTrackCoordinateRequestModel.TrackList.ToList(),
-				driver.Id
-				);
+				driver.Id);
 		}
 	}
 }

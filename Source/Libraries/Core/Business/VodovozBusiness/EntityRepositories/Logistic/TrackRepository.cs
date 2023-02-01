@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using System.Linq;
@@ -43,9 +43,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
 				.Where(() => subPoint.Track.Id == trackAlias.Id);
 			
-			if (beforeTime.HasValue)
+			if(beforeTime.HasValue)
 			{
-				lastTimeTrackQuery.Where(p => p.TimeStamp <= beforeTime);
+				lastTimeTrackQuery.Where(p => p.ReceiveTimeStamp < beforeTime);
 			}
 
 			lastTimeTrackQuery.Select(Projections.Max(() => subPoint.TimeStamp));
@@ -60,8 +60,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Select(() => trackAlias.RouteList.Id).WithAlias(() => result.RouteListId)
 					.Select(x => x.TimeStamp).WithAlias(() => result.Time)
 					.Select(x => x.Latitude).WithAlias(() => result.Latitude)
-					.Select(x => x.Longitude).WithAlias(() => result.Longitude)
-				).TransformUsing(Transformers.AliasToBean<DriverPosition>())
+					.Select(x => x.Longitude).WithAlias(() => result.Longitude))
+				.TransformUsing(Transformers.AliasToBean<DriverPosition>())
 				.List<DriverPosition>();
 		}
 

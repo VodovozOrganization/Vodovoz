@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
 			dialogSettings.DefaultFileExtention = ".xlsx";
-			dialogSettings.FileName = $"{"Заказы, недоставленные за час"} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+			dialogSettings.FileName = $"{"Заказы, не попавшие в доставку за час"} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 			if(result.Successful)
@@ -209,7 +209,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 				worksheet.Range(worksheet.Cell(1, 1), worksheet.Cell(1, 6)).Merge();
 				worksheet.Column(1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-				worksheet.Cell(1, 1).Value = "Сводный отчет по заказам, не доставленным за час";
+				worksheet.Cell(1, 1).Value = "Сводный отчет по заказам, не попавшим в доставку за час";
 
 				worksheet.Column(1).Width = 20;
 				for(var col = 2; col <= 6; col++)

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -418,6 +418,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ProfitabilitySalesReportViewModel, ProfitabilitySalesReportView>()
 				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<CarsMonitoringViewModel, CarsMonitoringView>()
 				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
 				;
 
@@ -610,6 +611,9 @@ namespace Vodovoz
 			builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
 			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
 			builder.RegisterType<WarehousePermissionService>().AsImplementedInterfaces().AsSelf();
+			builder.RegisterType<UsersPresetPermissionValuesGetter>().AsSelf();
+			builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
+			builder.RegisterType<UserPermissionsExporter>().AsSelf();
 
 			#endregion
 

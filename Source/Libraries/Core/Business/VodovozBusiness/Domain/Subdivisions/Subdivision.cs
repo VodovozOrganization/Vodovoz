@@ -118,6 +118,14 @@ namespace Vodovoz
 			set => SetField(ref _defaultSalesPlan, value);
 		}
 
+		private string address;
+		[Display(Name = "Адрес подразделения")]
+		public virtual string Address
+		{
+			get => address;
+			set => SetField(ref address, value, () => Address);
+		}
+
 		#endregion
 
 		#region Геттеры и методы

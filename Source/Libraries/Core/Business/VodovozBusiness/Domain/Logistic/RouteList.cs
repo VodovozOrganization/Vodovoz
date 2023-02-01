@@ -363,6 +363,22 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref lastCallTime, value, () => LastCallTime);
 		}
 
+		[Display(Name = "Время завершеняи доставки")]
+		public virtual DateTime? DeliveredAt
+		{
+			get => _deliveredAt;
+			set
+			{
+				if(_deliveredAt is null
+				&& value != null
+				&& value != default(DateTime)
+				&& value != DateTime.MinValue)
+				{
+					SetField(ref _deliveredAt, value);
+				}
+			}
+		}
+
 		private bool closingFilled;
 
 		/// <summary>
@@ -576,6 +592,8 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		private AdditionalLoadingDocument _additionalLoadingDocument;
+		private DateTime? _deliveredAt;
+
 		[Display(Name = "Документ запаса")]
 		public virtual AdditionalLoadingDocument AdditionalLoadingDocument
 		{
@@ -1293,6 +1311,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListStatus.Delivered:
 					if (Status == RouteListStatus.EnRoute) {
+						DeliveredAt = DateTime.Now;
 						Status = newStatus;
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
@@ -1308,6 +1327,11 @@ namespace Vodovoz.Domain.Logistic
 						|| Status == RouteListStatus.Delivered
 						|| Status == RouteListStatus.Closed)
 					{
+						if(DeliveredAt is null)
+						{
+							DeliveredAt = DateTime.Now;
+						}
+
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x =>
 							        x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))

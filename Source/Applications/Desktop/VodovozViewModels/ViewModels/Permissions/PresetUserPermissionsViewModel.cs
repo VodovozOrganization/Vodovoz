@@ -19,7 +19,10 @@ namespace Vodovoz.ViewModels.Permissions
 		public PresetUserPermissionsViewModel(
 			IUnitOfWork unitOfWork,
 			IPermissionRepository permissionRepository,
-			User user) : base(unitOfWork, permissionRepository)
+			User user,
+			UsersPresetPermissionValuesGetter usersPresetPermissionValuesGetter,
+			UserPermissionsExporter userPermissionsExporter)
+			: base(unitOfWork, permissionRepository, usersPresetPermissionValuesGetter, userPermissionsExporter)
 		{
 			_user = user ?? throw new ArgumentNullException(nameof(user));
 			ObservablePermissionsList = new GenericObservableList<HierarchicalPresetPermissionBase>();

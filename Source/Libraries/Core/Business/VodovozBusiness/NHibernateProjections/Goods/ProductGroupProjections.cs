@@ -8,9 +8,10 @@ namespace Vodovoz.NHibernateProjections.Goods
 	public static class ProductGroupProjections
 	{
 		/// <summary>
-		/// Проекции работают через рефлексию (nameof())
-		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:
-		/// camelCase названия сущности + Alias
+		/// Проекции работают через рефлексию (nameof())<br/>
+		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
+		/// camelCase названия сущности + Alias<br/>
+		/// Используется <see cref="ProductGroup"/> productGroupAlias
 		/// </summary>
 		/// <returns></returns>
 		public static IProjection GetProductGroupNameWithEnclosureProjection()

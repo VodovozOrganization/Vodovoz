@@ -255,7 +255,7 @@ namespace Vodovoz.ViewModels.Goods
 				UoW.Save(priority);
 			}
 
-			_deliveryRulesParametersProvider.UpdateFastDeliveryMaxDistanceParameter(FastDeliveryMaxDistance.ToString());
+			_deliveryRulesParametersProvider.UpdateFastDeliveryMaxDistanceParameter(FastDeliveryMaxDistance);
 			
 			_deliveryRulesParametersProvider.UpdateAdditionalLoadingFlyerAdditionEnabledParameter(FlyerAdditionEnabled.ToString());
 			_deliveryRulesParametersProvider.UpdateBottlesCountForFlyerParameter(BottlesCount.ToString());

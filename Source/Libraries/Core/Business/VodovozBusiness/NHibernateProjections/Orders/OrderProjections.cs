@@ -8,9 +8,10 @@ namespace Vodovoz.NHibernateProjections.Orders
 	public static class OrderProjections
 	{
 		/// <summary>
-		/// Проекции работают через рефлексию (nameof())
-		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:
-		/// camelCase названия сущности + Alias
+		/// Проекции работают через рефлексию (nameof())<br/>
+		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
+		/// camelCase названия сущности + Alias<br/>
+		/// Используется <see cref="OrderItem"/> orderItemAlias
 		/// </summary>
 		/// <returns></returns>
 		public static IProjection GetOrderSumProjection()
@@ -27,9 +28,10 @@ namespace Vodovoz.NHibernateProjections.Orders
 		}
 
 		/// <summary>
-		/// Проекции работают через рефлексию (nameof())
-		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:
-		/// camelCase названия сущности + Alias
+		/// Проекции работают через рефлексию (nameof())<br/>
+		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
+		/// camelCase названия сущности + Alias<br/>
+		/// Используется <see cref="OrderItem"/> orderItemAlias
 		/// </summary>
 		/// <returns></returns>
 		public static IProjection GetOrderItemSumProjection()
@@ -42,6 +44,20 @@ namespace Vodovoz.NHibernateProjections.Orders
 					Projections.Property(() => orderItemAlias.ActualCount),
 					Projections.Property(() => orderItemAlias.Count),
 					Projections.Property(() => orderItemAlias.DiscountMoney));
+		}
+
+		/// <summary>
+		/// Проекции работают через рефлексию (nameof())<br/>
+		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
+		/// camelCase названия сущности + Alias<br/>
+		/// Используется <see cref="OrderItem"/> orderItemAlias
+		/// </summary>
+		/// <returns></returns>
+		public static IProjection GetOrderItemCountSumProjection()
+		{
+			OrderItem orderItemAlias = null;
+
+			return Projections.Sum(() => orderItemAlias.Count);
 		}
 	}
 }
