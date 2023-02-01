@@ -3384,6 +3384,8 @@ LEFT JOIN
 WHERE
     car.is_archive = 0
 	AND empl.category = 'driver' 
+	AND empl.status = 'IsWorking' 
+    AND ISNULL(empl.date_fired)  
     AND empl.subdivision_id IN (@subdivisions)
     AND cm.car_type_of_use IN (@auto_types)
     AND cv.car_own_type IN (@owner_types)</CommandText>
