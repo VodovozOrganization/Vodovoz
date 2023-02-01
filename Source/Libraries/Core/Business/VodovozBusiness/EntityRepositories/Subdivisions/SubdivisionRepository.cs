@@ -5,6 +5,8 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
 using Vodovoz.Parameters;
@@ -120,6 +122,50 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 			}
 
 			return subdivisionsList.Distinct();
+		}
+		
+		public IEnumerable<int> GetAllSubdivisionsIds(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<Subdivision>()
+				.Select(s => s.Id)
+				.List<int>();
+		}
+
+		/// <summary>
+		/// Возвращает список подразделений, в которых имеются машины с заданным типом (ларгус, фура, газель) и принадлежностью (компания, авто в раскате, авто водителя)
+		/// Результирующий список отсортирован по имени
+		/// </summary>
+		/// <param name="uow">UoW</param>
+		/// <param name="carTypeOfUses">Тип автомобиля</param>
+		/// <param name="carOwnTypes">Принадлежность автомобиля</param>
+		/// <returns>Список подражделений</returns>
+		public IList<Subdivision> GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(IUnitOfWork uow, CarTypeOfUse[] carTypeOfUses, CarOwnType[] carOwnTypes)
+		{
+			Car car = null;
+			Subdivision subdivision = null;
+			Employee driverEmployee = null;
+			CarModel carModel = null;
+			CarVersion carVersion = null;
+
+			var availableCars = uow.Session
+				.QueryOver<Car>(() => car)
+				.JoinAlias(() => car.CarModel, () => carModel)
+				.JoinAlias(() => car.Driver, () => driverEmployee)
+				.JoinAlias(() => car.CarVersions, () => carVersion)
+				.JoinAlias(() => driverEmployee.Subdivision, () => subdivision)
+				.Where(() => 
+					!car.IsArchive 
+					&& carVersion.EndDate == null 
+					&& driverEmployee.Status == EmployeeStatus.IsWorking 
+					&& driverEmployee.DateFired == null 
+					&& driverEmployee.Category == EmployeeCategory.driver)
+				.WhereRestrictionOn(() => carModel.CarTypeOfUse).IsIn(carTypeOfUses)
+				.WhereRestrictionOn(() => carVersion.CarOwnType).IsIn(carOwnTypes)
+				.List();
+
+			var availableSubdivisions = availableCars.Select(c => c.Driver.Subdivision).Distinct().OrderBy(s => s.Name).ToList();
+
+			return availableSubdivisions;
 		}
 	}
 }

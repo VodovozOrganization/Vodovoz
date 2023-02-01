@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -44,6 +45,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
+		private readonly ILifetimeScope _scope;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
@@ -72,7 +74,8 @@ namespace Vodovoz.ViewModels.Complaints
 			INomenclatureJournalFactory nomenclatureSelector,
 			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider) : base(uowBuilder, uowFactory, commonServices)
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices)
 		{
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -82,6 +85,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
@@ -238,7 +242,8 @@ namespace Vodovoz.ViewModels.Complaints
 						_employeeSelectorFactory,
 						_salesPlanJournalFactory,
 						NomenclatureSelector,
-						_userRepository
+						_userRepository,
+						_scope.BeginLifetimeScope()
 					);
 				}
 				return discussionsViewModel;

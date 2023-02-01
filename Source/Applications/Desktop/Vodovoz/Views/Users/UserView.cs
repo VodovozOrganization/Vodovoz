@@ -92,6 +92,7 @@ namespace Vodovoz.Views.Users
 				vboxDocumentPrivileges.Add(_documentPermissionWidget);
 				_documentPermissionWidget.Show();
 				ybuttonDocumentPrivileges.Sensitive = true;
+				_documentPermissionWidget.Model.PermissionListViewModel.ExportAction = ViewModel.ExportPermissions;
 				_documentPermissionWidget.Model.PermissionListViewModel.PermissionsList.ListContentChanged += ViewModel.UpdateChanges;
 
 				_specialDocumentPermissionWidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);

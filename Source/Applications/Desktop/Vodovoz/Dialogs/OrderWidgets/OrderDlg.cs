@@ -332,7 +332,17 @@ namespace Vodovoz
 			Entity.PaymentType = Entity.Client.PaymentMethod;
 			IsForRetail = Entity.Client.IsForRetail;
 			IsForSalesDepartment = Entity.Client.IsForSalesDepartment;
-			Entity.ContactPhone = contactPhone;
+
+			if(contactPhone != null)
+			{
+				Entity.ContactPhone = UoW.GetById<Phone>(contactPhone.Id);
+
+				if(contactPhone.DeliveryPoint != null)
+				{
+					Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(contactPhone.DeliveryPoint.Id);
+				}
+			}
+
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 		}
@@ -2242,7 +2252,7 @@ namespace Vodovoz
 			};
 			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
 			journalViewModel.TabName = "Выезд мастера";
-			journalViewModel.CalculateQtyOnStock = true;
+			journalViewModel.CalculateQuantityOnStock = true;
 			journalViewModel.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)
@@ -2283,7 +2293,7 @@ namespace Vodovoz
 			};
 			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
 			journalViewModel.TabName = "Номенклатура на продажу";
-			journalViewModel.CalculateQtyOnStock = true;
+			journalViewModel.CalculateQuantityOnStock = true;
 			journalViewModel.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.FirstOrDefault();
 				if(selectedNode == null)

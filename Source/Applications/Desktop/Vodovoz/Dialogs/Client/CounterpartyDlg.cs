@@ -1306,7 +1306,8 @@ namespace Vodovoz
 				new NomenclatureJournalFactory(),
 				new EmployeeSettings(new ParametersProvider()),
 				new UndeliveredOrdersRepository(),
-				new ComplaintParametersProvider(new ParametersProvider())
+				new ComplaintParametersProvider(new ParametersProvider()),
+				MainClass.AppDIContainer.BeginLifetimeScope()
 			);
 
 			TabParent.AddTab(complaintsJournalViewModel, this, false);
