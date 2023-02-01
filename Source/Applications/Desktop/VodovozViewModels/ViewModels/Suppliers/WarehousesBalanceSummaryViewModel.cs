@@ -199,17 +199,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
-			decimal? count = null;
-			int? id = null;
-
-			//		var subqueryReserved = QueryOver.Of(() => orderAlias)
-			//.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
-			//.Where(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
-			//.Where(() => nomenclatureAlias.DoNotReserve == false)
-			//.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
-			//	   || orderAlias.OrderStatus == OrderStatus.InTravelList
-			//	   || orderAlias.OrderStatus == OrderStatus.OnLoading)
-			//.Select(Projections.Sum(() => orderItemsAlias.Count));
+			ReservedBalance reservedBalance = null;
 
 			var reservedSubQuery = QueryOver.Of(() => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
@@ -222,25 +212,27 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.Select(Projections.Sum(() => orderItemsAlias.Count));
 
 			var reservedQuery = localUow.Session.QueryOver(() => nomAlias)
-				.Where(() => !nomAlias.IsSerial)
+				.Where(() => !nomAlias.IsArchive && !nomAlias.IsSerial)
 				.SelectList(list => list
-					.SelectGroup(() => nomAlias.Id).WithAlias(() => id)
-					.SelectSubQuery(reservedSubQuery).WithAlias(() => count)
+					.SelectGroup(() => nomAlias.Id).WithAlias(() => reservedBalance.ItemId)
+					.SelectSubQuery(reservedSubQuery).WithAlias(() => reservedBalance.ReservedItemsCount)
 				)
-				.OrderBy(x => x.Name).Asc
-				.TransformUsing(Transformers.AliasToBean<IdCount>());
+				.OrderBy(x => x.Id).Asc
+				.TransformUsing(Transformers.AliasToBean<ReservedBalance>());
 
+			var query = localUow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomAlias)
+				.Where(() => nomAlias.DoNotReserve == false)
+				.Where(() => !nomAlias.IsArchive && !nomAlias.IsSerial)
+				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
+					   || orderAlias.OrderStatus == OrderStatus.InTravelList
+					   || orderAlias.OrderStatus == OrderStatus.OnLoading);
 
-
-			//var reservedQuery = localUow.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
-			//	.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
-			//	.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomAlias)
-			//	//.Where(() => orderItemsAlias.Nomenclature.Id == nomAlias.Id)
-			//	.Where(() => nomAlias.DoNotReserve == false)
-			//	.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
-			//		   || orderAlias.OrderStatus == OrderStatus.InTravelList
-			//		   || orderAlias.OrderStatus == OrderStatus.OnLoading)
-			//	.Select(Projections.Sum(() => orderItemsAlias.Count));
+			//.Select(() => orderItemsAlias.Count).WithAlias(() => reservedBalance.ReservedItemsCount))
+			//.OrderBy(x => x.Id).Asc
+			//.TransformUsing(Transformers.AliasToBean<ReservedBalance>())
+			//.List<ReservedBalance>().ToList();
 
 
 			if(typesSelected)
@@ -249,15 +241,24 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
-				reservedQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
-				//reservedQuery.WhereRestrictionOn(() => nomAlias.Category).IsIn(typesIds);
+				reservedSubQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				query.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 			}
+
+			var res = query
+				.SelectList(list => list
+					.SelectGroup(() => nomAlias.Id).WithAlias(() => reservedBalance.ItemId)
+					.Select(Projections.Sum(() => orderItemsAlias.Count)).WithAlias(() => reservedBalance.ReservedItemsCount))
+				.OrderBy(x => x.Id).Asc
+				.TransformUsing(Transformers.AliasToBean<ReservedBalance>())
+				.List<ReservedBalance>().ToList();
 
 			if(nomsSelected && !allNomsSelected)
 			{
 				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				reservedSubQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 			}
 
 			if(groupsSelected)
@@ -265,6 +266,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				reservedSubQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 			}
 
 			#endregion
@@ -272,13 +274,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var batch = localUow.Session.CreateQueryBatch()
 				.Add<BalanceBean>("in", inQuery)
 				.Add<BalanceBean>("wo", woQuery)
-				.Add<decimal>("ms", msQuery)
-				.Add<IdCount>("rs", reservedQuery);
+				.Add<decimal>("ms", msQuery);
 
 			var inResult = batch.GetResult<BalanceBean>("in").ToArray();
 			var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
 			var msResult = batch.GetResult<decimal>("ms").ToArray();
-			var rsResult = batch.GetResult<IdCount>("rs").ToArray();
+			var rsResult = reservedQuery.List<ReservedBalance>().ToList();
 
 			//Кол-во списаний != кол-во начислений, используется два счетчика
 			var addedCounter = 0;
@@ -560,9 +561,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public decimal Amount { get; set; }
 	}
 
-	public class IdCount
+	public class ReservedBalance
 	{
-		public int Id { get; set; }
-		public decimal? Count { get; set; }
+		public int ItemId { get; set; }
+		public decimal? ReservedItemsCount { get; set; }
 	}
 }
