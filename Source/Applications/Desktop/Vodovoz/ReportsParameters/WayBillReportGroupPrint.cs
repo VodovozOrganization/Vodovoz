@@ -195,7 +195,7 @@ namespace Vodovoz.ReportsParameters
 
 		protected void OnButtonInfoSingleReportClicked(object sender, EventArgs e)
 		{
-			var info =
+			var warning =
 				"Формируется один путевой лист с данными из соответсвующих полей:" +
 				$"\n\t'Дата' - дата выезда из гаража" +
 				$"\n\t'Водитель' - информация о водителе" +
@@ -204,7 +204,7 @@ namespace Vodovoz.ReportsParameters
 				$"\nДанные поля не являются обязательными к заполнению. При оставлении полей незаполненными (пустыми)," +
 				$"\nв путевых листах будут отсутствовать соответствующие значения.";
 
-			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
+			_interactiveService.ShowMessage(ImportanceLevel.Warning, warning, "Справка по работе с отчетом");
 		}
 
 		protected void OnButtonInfoOneDayGroupReportClicked(object sender, EventArgs e)
