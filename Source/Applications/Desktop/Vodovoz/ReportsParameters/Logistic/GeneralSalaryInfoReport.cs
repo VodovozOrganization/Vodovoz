@@ -13,6 +13,7 @@ using Vodovoz.CommonEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
+using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -124,6 +125,14 @@ namespace Vodovoz.ReportsParameters.Logistic
 						? "водители и экспедиторы"
 						: ((EmployeeCategory)comboCategory.SelectedItem).GetEnumTitle()
 				);
+
+				if(!(comboCategory.SelectedItemOrNull is EmployeeCategory.driver))
+				{
+					return filters;
+				}
+
+				filters += "\n\t";
+				filters += $"{chkBtnExcludeVisitingMasters.Label}: {chkBtnExcludeVisitingMasters.Active.ConvertToYesOrNo()}";
 			}
 			else
 			{
