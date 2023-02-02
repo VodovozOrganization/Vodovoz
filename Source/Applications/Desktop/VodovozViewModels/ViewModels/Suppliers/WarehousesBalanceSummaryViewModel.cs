@@ -9,19 +9,16 @@ using NHibernate.Criterion;
 using NHibernate.Multi;
 using NHibernate.Transform;
 using NHibernate.Util;
-using QS.BusinessCommon.Domain;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Suppliers
@@ -41,7 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private bool _isGenerating = false;
 		private BalanceSummaryReport _report;
-		private bool _reportCreatedWithReserveData = false;
+		private bool _isCreatedWithReserveData = false;
 
 		public WarehousesBalanceSummaryViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation, IFileDialogService fileDialogService)
@@ -115,7 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			//Флаг типа отчета для экспорта в Эксель. Если выполнять проверку по ShowReserve,
 			//то если после формирования отчета переключить чекбокс и нажать экспорт, отчет выгрузится неправильно
-			_reportCreatedWithReserveData = ShowReserve;
+			_isCreatedWithReserveData = ShowReserve;
 
 			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
 
@@ -328,7 +325,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
 				var ws = wb.Worksheets.Add(sheetName);
 
-				if(_reportCreatedWithReserveData)
+				if(_isCreatedWithReserveData)
 				{
 					InsertValuesWithReserveAmount(ws);
 				}
