@@ -49,6 +49,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			comboYear.DefaultFirst = true;
 			comboYear.ItemsList = Enumerable.Range(DateTime.Now.AddYears(-10).Year, 11).Reverse();
 
+			comboCategory.Changed += OnComboCategoryChanged;
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
 			comboCategory.AddEnumToHideList(EmployeeCategory.office);
 
@@ -90,7 +91,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{ "driver_of_car_type_of_use", comboDriverOfCarTypeOfUse.SelectedItemOrNull },
 					{ "employee_category", comboCategory.SelectedItemOrNull },
 					{ "employee_id", entryEmployee.Subject?.GetIdOrNull() },
-					{ "filters", GetSelectedFilters() }
+					{ "filters", GetSelectedFilters() },
+					{ "exclude_visiting_masters", chkBtnExcludeVisitingMasters.Active }
 				}
 			};
 		}
@@ -204,13 +206,25 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 				comboCategory.Sensitive = false;
 				comboCategory.SelectedItem = empl.Category;
+
+				hboxExcludeVisitingMasters.Visible = false;
 			}
 			else
 			{
 				comboDriverOfCarOwnType.Sensitive = true;
 				comboDriverOfCarTypeOfUse.Sensitive = true;
 				comboCategory.Sensitive = true;
+				
+				if(comboCategory.SelectedItemOrNull is EmployeeCategory.driver)
+				{
+					hboxExcludeVisitingMasters.Visible = true;
+				}
 			}
+		}
+		
+		private void OnComboCategoryChanged(object sender, EventArgs e)
+		{
+			hboxExcludeVisitingMasters.Visible = comboCategory.SelectedItemOrNull is EmployeeCategory.driver;
 		}
 	}
 }
