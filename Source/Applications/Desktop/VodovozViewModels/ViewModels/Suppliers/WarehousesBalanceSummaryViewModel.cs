@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		#region Свойства
 
 		public DateTime? EndDate { get; set; } = DateTime.Today;
+		public bool ShowReserves { get; set; }
 
 		public bool AllNomenclatures { get; set; } = true;
 		public bool IsGreaterThanZeroByNomenclature { get; set; }
