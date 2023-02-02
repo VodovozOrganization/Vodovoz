@@ -204,15 +204,15 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			ReservedBalance reservedBalance = null;
 			ProductGroup productGroupAlias = null;
 
+			OrderStatus[] orderStatusesToCalcReservedItems = new[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
+
 			var reservedItemsQuery = localUow.Session.QueryOver(() => orderAlias)
+				.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), orderStatusesToCalcReservedItems))
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomAlias)
 				.JoinAlias(() => nomAlias.ProductGroup, () => productGroupAlias)
 				.Where(() => nomAlias.DoNotReserve == false)
-				.Where(() => !nomAlias.IsArchive && !nomAlias.IsSerial)
-				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
-					   || orderAlias.OrderStatus == OrderStatus.InTravelList
-					   || orderAlias.OrderStatus == OrderStatus.OnLoading);
+				.Where(() => !nomAlias.IsArchive && !nomAlias.IsSerial);
 
 			if(typesSelected)
 			{
