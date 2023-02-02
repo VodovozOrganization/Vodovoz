@@ -97,7 +97,7 @@ namespace Vodovoz.Views.Suppliers
 			{
 				columnsConfig
 				.AddColumn("В резерве").AddNumericRenderer(row => row.ReservedItemsAmount).XAlign(0.5f)
-				.AddColumn("Доступно").AddNumericRenderer(row => row.AvailableItemsAmount).XAlign(0.5f);
+				.AddColumn("Доступно для заказа").AddNumericRenderer(row => row.AvailableItemsAmount).XAlign(0.5f);
 			}
 
 			for(var i = 0; i < ViewModel.Report.WarehousesTitles.Count; i++)
