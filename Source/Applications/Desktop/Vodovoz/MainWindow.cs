@@ -2030,9 +2030,12 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
 			() => new QSReport.ReportViewDlg(
-				new WayBillReport(
+				new WayBillReportGroupPrint(
 					autofacScope.Resolve<IEmployeeJournalFactory>(),
-					autofacScope.Resolve<ICarJournalFactory>()
+					autofacScope.Resolve<ICarJournalFactory>(),
+					autofacScope.Resolve<IOrganizationJournalFactory>(),
+					autofacScope.Resolve<IInteractiveService>(),
+					autofacScope.Resolve<ISubdivisionRepository>()
 				)
 			)
 		);

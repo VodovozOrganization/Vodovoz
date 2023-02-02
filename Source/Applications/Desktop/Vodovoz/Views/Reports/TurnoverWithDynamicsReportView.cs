@@ -95,6 +95,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			ychkbtnShowLastSale.Binding
 				.AddBinding(ViewModel, vm => vm.ShowLastSale, w => w.Active)
 				.InitializeFromSource();
+			ychkbtnShowResidueForNomenclaturesWithoutSales.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowResidueForNomenclaturesWithoutSales, w => w.Active)
+				.AddBinding(vm => vm.ShowLastSale, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ShowFilter();
 
@@ -174,7 +178,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddTextRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index, useMarkup: true);
 
 			columnsConfig.AddColumn("Периоды продаж").AddTextRenderer(row =>
-				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true).XAlign(1);
+				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true);
 
 			if(ViewModel.Report.ShowDynamics)
 			{
@@ -187,7 +191,7 @@ namespace Vodovoz.ReportsParameters.Sales
 						var sliceIndex = i / 2;
 						columnsConfig.AddColumn(ViewModel.Report.Slices[sliceIndex].ToString())
 							.HeaderAlignment(0.5f)
-							.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+							.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 								row.DynamicColumns[index])
 							.XAlign(1);
 					}
@@ -196,7 +200,7 @@ namespace Vodovoz.ReportsParameters.Sales
 						var index = i;
 						columnsConfig.AddColumn(ViewModel.Report.DynamicsInStringShort)
 							.HeaderAlignment(0.5f)
-							.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+							.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 								row.DynamicColumns[index])
 							.XAlign(1);
 					}
@@ -209,7 +213,7 @@ namespace Vodovoz.ReportsParameters.Sales
 					var index = i;
 					columnsConfig.AddColumn(ViewModel.Report.Slices[index].ToString())
 						.HeaderAlignment(0.5f)
-						.AddNumericRenderer(row => row.IsSubheaderRow ? "" :
+						.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 							row.SliceColumnValues[index].ToString(ViewModel.Report.MeasurementUnitFormat))
 						.XAlign(1);
 				}
@@ -232,7 +236,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				columnsConfig
 					.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")
 					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
-						row.LastSaleDetails.WarhouseResidue.ToString("0.000"));
+						row.LastSaleDetails.WarhouseResidue.ToString("0"));
 			}
 			
 			columnsConfig.AddColumn("");

@@ -567,7 +567,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => orderWSDAlias.Id == FilterViewModel.OrderId.Value);
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
 
@@ -580,7 +580,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
 			{
 				query.Where(x => x.Id == null);
 			}
@@ -742,7 +742,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => orderWSPAlias.Id == FilterViewModel.OrderId.Value);
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
 
@@ -755,7 +755,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
 			{
 				query.Where(x => x.Id == null);
 			}
@@ -907,7 +907,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => orderWSAPAlias.Id == FilterViewModel.OrderId.Value);
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
 
@@ -920,7 +920,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
 			{
 				query.Where(x => x.Id == null);
 			}

@@ -311,7 +311,8 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void Dispose()
 		{
-			NotifyConfiguration.Instance.UnsubscribeAll(this); 
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			RefreshOrders = null;
 			UoW?.Dispose();
 		}
 	}
