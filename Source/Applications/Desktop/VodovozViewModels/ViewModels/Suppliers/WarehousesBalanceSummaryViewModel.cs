@@ -322,7 +322,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
 				var ws = wb.Worksheets.Add(sheetName);
 
-				InsertValues(ws);
+				if(ShowReserve)
+				{
+					InsertValues(ws);
+				}
+				else
+				{
+					InsertValues(ws);
+				}
 				ws.Columns().AdjustToContents();
 
 				if(TryGetSavePath(out string path))
@@ -357,6 +364,30 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						   row.NomId,
 						   row.NomTitle,
 						   row.Min,
+						   row.Common,
+						   row.Diff
+					   };
+			int index = 1;
+			foreach(var name in colNames)
+			{
+				ws.Cell(1, index).Value = name;
+				index++;
+			}
+			ws.Cell(2, 1).InsertData(rows);
+			AddWarehouseCloumns(ws, index);
+		}
+
+		private void InsertValuesWithReserveAmount(IXLWorksheet ws)
+		{
+			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "Резерв", "Доступно для заказа", "Общий остаток", "Разница" };
+			var rows = from row in Report.SummaryRows.Cast<BalanceSummaryRowWithReservedInfo>()
+					   select new
+					   {
+						   row.NomId,
+						   row.NomTitle,
+						   row.Min,
+						   row.ReservedItemsAmount,
+						   row.AvailableItemsAmount,
 						   row.Common,
 						   row.Diff
 					   };
