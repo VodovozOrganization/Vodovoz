@@ -820,7 +820,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
@@ -1043,7 +1043,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
@@ -1132,7 +1132,7 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>

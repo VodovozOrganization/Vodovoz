@@ -6,6 +6,7 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using Autofac;
 using NHibernate.Criterion;
 using QS.Project.DB;
 using QS.Project.Journal.EntitySelector;
@@ -23,15 +24,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ILifetimeScope _scope;
 
-		public ComplaintKindJournalViewModel(ComplaintKindJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, IEntityAutocompleteSelectorFactory employeeSelectorFactory, ISalesPlanJournalFactory salesPlanJournalFactory, 
-			INomenclatureJournalFactory nomenclatureSelectorFactory)
+		public ComplaintKindJournalViewModel(
+			ComplaintKindJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			ISalesPlanJournalFactory salesPlanJournalFactory, 
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			ILifetimeScope scope)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			TabName = "Виды рекламаций";
 
@@ -90,10 +98,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 		protected override Func<ComplaintKindViewModel> CreateDialogFunction => () =>
 			new ComplaintKindViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, Refresh, 
-				_salesPlanJournalFactory, _nomenclatureSelectorFactory);
+				_salesPlanJournalFactory, _nomenclatureSelectorFactory, _scope.BeginLifetimeScope());
 
 		protected override Func<ComplaintKindJournalNode, ComplaintKindViewModel> OpenDialogFunction =>
 			(node) => new ComplaintKindViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices, _employeeSelectorFactory, Refresh,
-				_salesPlanJournalFactory, _nomenclatureSelectorFactory);
+				_salesPlanJournalFactory, _nomenclatureSelectorFactory, _scope.BeginLifetimeScope());
 	}
 }

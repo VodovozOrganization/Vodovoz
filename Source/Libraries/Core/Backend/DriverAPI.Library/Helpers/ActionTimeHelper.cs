@@ -26,13 +26,17 @@ namespace DriverAPI.Library.Helpers
 		{
 			if(actionTime > recievedTime.AddMinutes(_futureTimeout))
 			{
-				_logger.LogError($"Пришел запрос из будущего {actionTime} в {recievedTime}");
+				_logger.LogError("Пришел запрос из будущего {ActionTime} в {RecievedTime}",
+					actionTime,
+					recievedTime);
 				throw new InvalidTimeZoneException("Нельзя отправлять запросы из будущего! Проверьте настройки системного времени вашего телефона");
 			}
 
 			if(recievedTime > actionTime.AddMinutes(_timeout))
 			{
-				_logger.LogError($"Пришел запрос из дальнего прошлого {actionTime} в {recievedTime}");
+				_logger.LogError("Пришел запрос из дальнего прошлого {ActionTime} в {RecievedTime}",
+					actionTime,
+					recievedTime);
 				throw new InvalidOperationException("Таймаут запроса операции");
 			}
 		}

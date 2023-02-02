@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -89,6 +89,7 @@
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\CarsMonitoringViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageDistributionNode.cs" />
@@ -392,6 +393,9 @@
     <Compile Include="ViewModels\PermissionNode\WarehousePermissionAllNodeViewModelBase.cs" />
     <Compile Include="ViewModels\PermissionNode\WarehousePermissionNodeViewModel.cs" />
     <Compile Include="ViewModels\Permissions\EntitySubdivisionPermissionViewModel.cs" />
+    <Compile Include="ViewModels\Permissions\UserPermissionsExporter.cs" />
+    <Compile Include="ViewModels\Permissions\UsersEntityPermissionValuesGetter.cs" />
+    <Compile Include="ViewModels\Permissions\UsersPresetPermissionValuesGetter.cs" />
     <Compile Include="ViewModels\Permissions\WarehousePermissionsViewModel.cs" />
     <Compile Include="ViewModels\Payments\AutoPaymentMatching.cs" />
     <Compile Include="ViewModels\Payments\ManualPaymentMatchingViewModel.cs" />

@@ -39,6 +39,27 @@ namespace Vodovoz.EntityRepositories.Sale
 				.List();
 		}
 
+		public IList<District> GetDistrictsWithBorderForFastDeliveryAtDateTime(IUnitOfWork uow, DateTime dateTime)
+		{
+			DistrictsSet districtsSetAlias = null;
+			District districtAlias = null;
+			TariffZone tariffZoneAlias = null;
+
+			return uow.Session.QueryOver(() => districtAlias)
+				.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
+				.JoinAlias(() => districtAlias.TariffZone, () => tariffZoneAlias)
+				.And(() => districtAlias.DistrictBorder != null)
+				.And(() => tariffZoneAlias.IsFastDeliveryAvailable)
+				.And(Restrictions.Le(Projections.Property(() => districtsSetAlias.DateActivated), dateTime))
+				.And(Restrictions.Or(
+					Restrictions.And(
+						Restrictions.IsNull(Projections.Property(() => districtsSetAlias.DateClosed)),
+						Restrictions.Eq(Projections.Property(() => districtsSetAlias.Status), DistrictsSetStatus.Active)),
+					Restrictions.Ge(Projections.Property(() => districtsSetAlias.DateClosed), dateTime)))
+				.Select(Projections.Entity(() => districtAlias))
+				.List();
+		}
+
 		public IList<District> GetDistrictsWithBorder(IUnitOfWork uow)
 		{
 			return GetDistrictsWithBorder()

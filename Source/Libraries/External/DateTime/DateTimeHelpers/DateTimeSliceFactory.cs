@@ -131,6 +131,7 @@ namespace DateTimeHelpers
 			var slices = new List<DateTimeWeekSlice>();
 
 			if(startDate.Year == endDate.Year
+			&& startDate.Month == endDate.Month
 			&& startDate.Date.GetWeekNumber() == endDate.Date.GetWeekNumber())
 			{
 				slices.Add(new DateTimeWeekSlice

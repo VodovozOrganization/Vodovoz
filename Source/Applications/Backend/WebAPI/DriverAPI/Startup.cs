@@ -41,6 +41,7 @@ namespace DriverAPI
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = "NLog";
 		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
@@ -58,10 +59,11 @@ namespace DriverAPI
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging => 
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
+				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
 
 			// Подключение к БД
 

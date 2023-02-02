@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		[Obsolete("Лучше передавать через фильтр")]
 		public int[] ExcludingNomenclatureIds { get; set; }
 
-		public bool CalculateQtyOnStock { get; set; } = false;
+		public bool CalculateQuantityOnStock { get; set; } = false;
 
 		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
 
@@ -191,7 +191,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				itemsQuery.Where(x => x.IsDefectiveBottle);
 			}
 
-			if(CalculateQtyOnStock) {
+			if(CalculateQuantityOnStock) {
 				itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
 					.Where(() => !nomenclatureAlias.IsSerial)
 					.SelectList(list => list

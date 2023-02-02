@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -178,6 +178,7 @@
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
+    <Compile Include="Domain\Logistic\FastDeliveryMaxDistanceParameterVersion.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
     <Compile Include="Domain\Orders\TrueMarkApiDocument.cs" />
@@ -352,10 +353,16 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\EntityExtendedPermission.cs" />
     <Compile Include="EntityRepositories\Permissions\IPrivilegesRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\IUserRoleRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\PrivilegesRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserEntityExtendedPermissionNode.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserEntityExtendedPermissionWithSubdivisionNode.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserNode.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserPresetPermissionWithSubdivisionNode.cs" />
     <Compile Include="EntityRepositories\Permissions\UserRoleRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserWithSubdivisionNode.cs" />
     <Compile Include="EntityRepositories\Profitability\IProfitabilityConstantsRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\IRouteListProfitabilityRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\ProfitabilityConstantsRepository.cs" />
@@ -462,6 +469,7 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureInnerDeliveryPriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\FastDeliveryMaxDistanceParameterVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelPriceVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventTypeMap.cs" />
@@ -552,6 +560,9 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
+    <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
+    <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\EdoSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />

@@ -62,8 +62,10 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetOrderSmsPaymentStatus")]
 		public OrderSmsPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
 		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(orderId: {orderId}) User token: {tokenStr}");
+			_logger.LogInformation("Запрос состояния оплаты заказа {OrderId} пользователем {Username} User token: {AccessToken}",
+				orderId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
 
 			var additionalInfo = _aPIOrderData.GetAdditionalInfo(orderId)
 				?? throw new Exception($"Не удалось получить информацию о заказе {orderId}");
@@ -90,15 +92,16 @@ namespace DriverAPI.Controllers
 		{
 			return;
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(OrderId: {payBySmsRequestModel.OrderId}) User token: {tokenStr}");
+			_logger.LogInformation("Запрос СМС для оплаты заказа {OrderId} на номер {PhoneNumber} пользователем {Username} User token: {AccessToken}",
+				payBySmsRequestModel.OrderId,
+				payBySmsRequestModel.PhoneNumber,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
 
 			var recievedTime = DateTime.Now;
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
-
-			_logger.LogInformation($"Запрос смены оплаты заказа: { payBySmsRequestModel.OrderId }" +
-				$" на оплату по СМС с номером { payBySmsRequestModel.PhoneNumber } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"} ({driver?.Id})");
 
 			var resultMessage = "OK";
 
@@ -116,10 +119,10 @@ namespace DriverAPI.Controllers
 			finally
 			{
 				_driverMobileAppActionRecordModel.RegisterAction(driver,
-													 DriverMobileAppActionType.PayBySmsClicked,
-													 payBySmsRequestModel.ActionTime,
-													 recievedTime,
-													 resultMessage);
+					DriverMobileAppActionType.PayBySmsClicked,
+					payBySmsRequestModel.ActionTime,
+					recievedTime,
+					resultMessage);
 			}
 		}
 	}
