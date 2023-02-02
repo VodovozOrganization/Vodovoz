@@ -79,11 +79,6 @@ namespace Vodovoz.Views.Suppliers
 			treeData.EnableGridLines = TreeViewGridLines.Both;
 		}
 
-		private void YcheckbuttonShowReserv_Activated(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
-
 		private void ConfigureTreeView()
 		{
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRowWithReservedInfo>.Create()
