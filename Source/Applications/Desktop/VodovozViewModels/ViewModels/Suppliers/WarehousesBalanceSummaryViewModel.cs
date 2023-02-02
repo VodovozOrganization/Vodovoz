@@ -41,6 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private bool _isGenerating = false;
 		private BalanceSummaryReport _report;
+		private bool _reportCreatedWithReserveData = false;
 
 		public WarehousesBalanceSummaryViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation, IFileDialogService fileDialogService)
@@ -111,6 +112,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
+
+			//Флаг типа отчета для экспорта в Эксель. Если выполнять проверку по ShowReserve,
+			//то если после формирования отчета переключить чекбокс и нажать экспорт, отчет выгрузится неправильно
+			_reportCreatedWithReserveData = ShowReserve;
+
 			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
 
 			var nomsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNom);
@@ -269,7 +275,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				var row = new BalanceSummaryRowWithReservedInfo
+				var row = new BalanceSummaryRow
 				{
 					NomId = (int)noms[nomsCounter].Value,
 					NomTitle = noms[nomsCounter].Title,
@@ -322,9 +328,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
 				var ws = wb.Worksheets.Add(sheetName);
 
-				if(ShowReserve)
+				if(_reportCreatedWithReserveData)
 				{
-					InsertValues(ws);
+					InsertValuesWithReserveAmount(ws);
 				}
 				else
 				{
@@ -380,7 +386,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private void InsertValuesWithReserveAmount(IXLWorksheet ws)
 		{
 			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "Резерв", "Доступно для заказа", "Общий остаток", "Разница" };
-			var rows = from row in Report.SummaryRows.Cast<BalanceSummaryRowWithReservedInfo>()
+			var rows = from row in Report.SummaryRows
 					   select new
 					   {
 						   row.NomId,
@@ -561,10 +567,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public decimal Common => Separate.Sum();
 		public decimal Diff => Common - Min;
 		public List<decimal> Separate { get; set; }
-	}
-
-	public class BalanceSummaryRowWithReservedInfo : BalanceSummaryRow
-	{
 		public decimal? ReservedItemsAmount { get; set; } = 0;
 		public decimal? AvailableItemsAmount => Common - ReservedItemsAmount;
 	}

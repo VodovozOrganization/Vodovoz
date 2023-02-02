@@ -81,7 +81,7 @@ namespace Vodovoz.Views.Suppliers
 
 		private void ConfigureTreeView()
 		{
-			var columnsConfig = FluentColumnsConfig<BalanceSummaryRowWithReservedInfo>.Create()
+			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
 				.AddColumn("Код").AddNumericRenderer(row => row.NomId).XAlign(0.5f)
 				.AddColumn("Наименование").AddTextRenderer(row => row.NomTitle).XAlign(0.5f)
 				.AddColumn("Мин. остаток").AddNumericRenderer(row => row.Min).XAlign(0.5f);
