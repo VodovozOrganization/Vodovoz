@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using GLib;
 using GMap.NET;
@@ -374,7 +374,7 @@ namespace Vodovoz.Views.Logistic
 
 			var timeDiff = node.RouteListItem.CreationDate.Add(ViewModel.FastDeliveryTime) - DateTime.Now;
 			var timeRemainingStr = timeDiff.Days == 0
-				? $"{timeDiff: hh':'mm':'ss}"
+				? $"{timeDiff:hh':'mm':'ss}"
 				: $"{Math.Abs(timeDiff.Days)} {NumberToTextRus.Case(timeDiff.Days, "день", "дня", "дней")} {timeDiff:hh':'mm':'ss}";
 
 			if(DateTime.Now > node.RouteListItem.CreationDate.Add(ViewModel.FastDeliveryTime))
