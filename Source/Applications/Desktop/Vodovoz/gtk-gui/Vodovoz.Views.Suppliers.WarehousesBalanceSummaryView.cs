@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Suppliers
 
 		private global::QS.Widgets.GtkUI.DatePicker datePicker;
 
-		private global::Gtk.CheckButton checkbuttonShowReserv;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowReserv;
 
 		private global::Gamma.GtkWidgets.yVBox vboxNomenclaturesSection;
 
@@ -140,15 +140,14 @@ namespace Vodovoz.Views.Suppliers
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxDate[this.datePicker]));
 			w2.Position = 1;
 			// Container child hboxDate.Gtk.Box+BoxChild
-			this.checkbuttonShowReserv = new global::Gtk.CheckButton();
-			this.checkbuttonShowReserv.CanFocus = true;
-			this.checkbuttonShowReserv.Name = "checkbuttonShowReserv";
-			this.checkbuttonShowReserv.Label = global::Mono.Unix.Catalog.GetString("Показать резерв");
-			this.checkbuttonShowReserv.DrawIndicator = true;
-			this.checkbuttonShowReserv.UseUnderline = true;
-			this.hboxDate.Add(this.checkbuttonShowReserv);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxDate[this.checkbuttonShowReserv]));
-			w3.PackType = ((global::Gtk.PackType)(1));
+			this.ycheckbuttonShowReserv = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowReserv.CanFocus = true;
+			this.ycheckbuttonShowReserv.Name = "ycheckbuttonShowReserv";
+			this.ycheckbuttonShowReserv.Label = global::Mono.Unix.Catalog.GetString("Показать резерв");
+			this.ycheckbuttonShowReserv.DrawIndicator = true;
+			this.ycheckbuttonShowReserv.UseUnderline = true;
+			this.hboxDate.Add(this.ycheckbuttonShowReserv);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxDate[this.ycheckbuttonShowReserv]));
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;
