@@ -532,6 +532,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public List<decimal> Separate { get; set; }
 	}
 
+	public class BalanceSummaryRowWithReservedInfo : BalanceSummaryRow
+	{
+		public decimal? ReservedItemsAmount { get; set; } = 0;
+		public decimal? AvailableItemsAmount => Common - ReservedItemsAmount;
+	}
+
 	public class BalanceSummaryReport
 	{
 		public DateTime EndDate { get; set; }
@@ -544,12 +550,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public int NomId { get; set; }
 		public int WarehouseId { get; set; }
 		public decimal Amount { get; set; }
-	}
-
-	public class BalanceSummaryRowWithReservedInfo: BalanceSummaryRow
-	{
-		public decimal? ReservedItemsAmount { get; set; } = 0;
-		public decimal? AvailableItemsAmount => Common - ReservedItemsAmount;
 	}
 
 	public class ReservedBalance
