@@ -73,12 +73,14 @@ namespace Vodovoz.Views.Suppliers
 
 		private void ConfigureTreeView()
 		{
-			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
+			var columnsConfig = FluentColumnsConfig<BalanceSummaryRowWithReservedInfo>.Create()
 				.AddColumn("Код").AddNumericRenderer(row => row.NomId).XAlign(0.5f)
 				.AddColumn("Наименование").AddTextRenderer(row => row.NomTitle).XAlign(0.5f)
 				.AddColumn("Мин. остаток").AddNumericRenderer(row => row.Min).XAlign(0.5f)
 				.AddColumn("Общий остаток").AddNumericRenderer(row => row.Common).XAlign(0.5f)
-				.AddColumn("Разница").AddNumericRenderer(row => row.Diff).XAlign(0.5f);
+				.AddColumn("Разница").AddNumericRenderer(row => row.Diff).XAlign(0.5f)
+				.AddColumn("В резерве").AddNumericRenderer(row => row.ReservedItemsAmount).XAlign(0.5f)
+				.AddColumn("Доступно").AddNumericRenderer(row => row.AvailableItemsAmount).XAlign(0.5f);
 
 			for(var i = 0; i < ViewModel.Report.WarehousesTitles.Count; i++)
 			{
