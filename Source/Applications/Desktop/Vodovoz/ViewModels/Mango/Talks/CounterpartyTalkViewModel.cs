@@ -203,9 +203,14 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			}
 
 			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty, Phone>(null, currentCounterparty, contactPhone);
-			page.PageClosed += (sender, e) => { model.RefreshOrders(); };
+			page.PageClosed += OnOrderPageClosed;
 		}
 
+		private void OnOrderPageClosed(object sender, PageClosedEventArgs e)
+		{
+			var model = CounterpartyOrdersViewModels.Find(m => m.Client.Id == currentCounterparty.Id);
+			model.RefreshOrders?.Invoke(); 
+		}
 
 		public void AddComplainCommand()
 		{
