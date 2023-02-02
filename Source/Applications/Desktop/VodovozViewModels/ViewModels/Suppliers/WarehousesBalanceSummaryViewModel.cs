@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		#region Свойства
 
 		public DateTime? EndDate { get; set; } = DateTime.Today;
-		public bool ShowReserves { get; set; }
+		public bool ShowReserve { get; set; }
 
 		public bool AllNomenclatures { get; set; } = true;
 		public bool IsGreaterThanZeroByNomenclature { get; set; }
@@ -239,12 +239,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				reservedItemsQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 			}
 
-			var reservedItems = reservedItemsQuery
+			reservedItemsQuery
 				.SelectList(list => list
 					.SelectGroup(() => nomAlias.Id).WithAlias(() => reservedBalance.ItemId)
 					.Select(Projections.Sum(() => orderItemsAlias.Count)).WithAlias(() => reservedBalance.ReservedItemsAmount))
-				.TransformUsing(Transformers.AliasToBean<ReservedBalance>())
-				.List<ReservedBalance>().ToList();
+				.TransformUsing(Transformers.AliasToBean<ReservedBalance>());
 
 			#endregion
 
@@ -257,19 +256,18 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
 			var msResult = batch.GetResult<decimal>("ms").ToArray();
 
+			List<ReservedBalance> reservedItems = new List<ReservedBalance>();
+			if(ShowReserve)
+			{
+				reservedItems = reservedItemsQuery.List<ReservedBalance>().ToList();
+			}
+
 			//Кол-во списаний != кол-во начислений, используется два счетчика
 			var addedCounter = 0;
 			var removedCounter = 0;
 			for(var nomsCounter = 0; nomsCounter < noms?.Count; nomsCounter++)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
-				var row1 = new BalanceSummaryRow
-				{
-					NomId = (int)noms[nomsCounter].Value,
-					NomTitle = noms[nomsCounter].Title,
-					Separate = new List<decimal>(),
-					Min = msResult[nomsCounter]
-				};
 
 				var row = new BalanceSummaryRowWithReservedInfo
 				{
@@ -550,7 +548,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 	public class BalanceSummaryRowWithReservedInfo: BalanceSummaryRow
 	{
-		public decimal? ReservedItemsAmount { get; set; }
+		public decimal? ReservedItemsAmount { get; set; } = 0;
 		public decimal? AvailableItemsAmount => Common - ReservedItemsAmount;
 	}
 
