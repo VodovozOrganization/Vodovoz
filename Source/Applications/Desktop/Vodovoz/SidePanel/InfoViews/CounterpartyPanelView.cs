@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using Gtk;
 using Pango;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
@@ -26,6 +27,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private Counterparty _counterparty;
 		private IPermissionResult _counterpartyPermissionResult;
+		private bool _textviewcommentBufferChanged = false;
+		private string _commentText = "";
 
 		public CounterpartyPanelView(ICommonServices commonServices)
 		{
@@ -43,6 +46,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelName.LineWrapMode = Pango.WrapMode.WordChar;
 			labelLatestOrderDate.LineWrapMode = Pango.WrapMode.WordChar;
 			textviewComment.Editable = _counterpartyPermissionResult.CanUpdate;
+			_commentText = textviewComment.Buffer.Text;
 			ytreeCurrentOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
 				.AddColumn("Номер")
 				.AddNumericRenderer(node => node.Id)
@@ -85,6 +89,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelName.Text = _counterparty.FullName;
 			SetupPersonalManagers();
 			textviewComment.Buffer.Text = _counterparty.Comment;
+
+			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
+			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
 
 			var latestOrder = _orderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, _counterparty);
 			if(latestOrder != null)
@@ -192,7 +199,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 		}
 
-		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
+		private void SaveComment()
 		{
 			using(var uow =
 				UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
@@ -200,6 +207,30 @@ namespace Vodovoz.SidePanel.InfoViews
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
 			}
+			_textviewcommentBufferChanged = false;
+		}
+
+		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
+		{
+			SaveComment();
+		}
+
+		private void OnTextviewCommentBufferChanged(object sender, EventArgs e)
+		{
+			_textviewcommentBufferChanged = true;
+		}
+
+		private void OnTextviewCommentFocusOut(object sender, EventArgs e)
+		{
+			if(_commentText != textviewComment.Buffer.Text && !buttonSaveComment.HasFocus)
+			{
+				bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("В поле комментария внесены изменения.\nСохранить изменения?");
+				if(isRequiredToSaveComment)
+				{
+					SaveComment();
+				}
+			}
+			textviewComment.Buffer.Text = _commentText;
 		}
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
