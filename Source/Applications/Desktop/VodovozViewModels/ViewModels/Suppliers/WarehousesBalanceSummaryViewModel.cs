@@ -383,7 +383,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private void InsertValuesWithReserveAmount(IXLWorksheet ws)
 		{
-			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "Резерв", "Доступно для заказа", "Общий остаток", "Разница" };
+			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "В резерве", "Доступно для заказа", "Общий остаток", "Разница" };
 			var rows = from row in Report.SummaryRows
 					   select new
 					   {
