@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var uow = UnitOfWorkFactory.CreateWithoutRoot("Отчет остатков по складам");
 			try
 			{
-				return await GenerateAsync(EndDate ?? DateTime.Today, uow, cancellationToken);
+				return await GenerateAsync(EndDate ?? DateTime.Today, ShowReserve, uow, cancellationToken);
 			}
 			finally
 			{
@@ -105,6 +105,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private async Task<BalanceSummaryReport> GenerateAsync(
 			DateTime endDate,
+			bool createReportWithReserveData,
 			IUnitOfWork localUow,
 			CancellationToken cancellationToken)
 		{
@@ -112,7 +113,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			//Флаг типа отчета для экспорта в Эксель. Если выполнять проверку по ShowReserve,
 			//то если после формирования отчета переключить чекбокс и нажать экспорт, отчет выгрузится неправильно
-			_isCreatedWithReserveData = ShowReserve;
+			_isCreatedWithReserveData = createReportWithReserveData;
 
 			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
 
@@ -260,7 +261,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var msResult = batch.GetResult<decimal>("ms").ToArray();
 
 			List<ReservedBalance> reservedItems = new List<ReservedBalance>();
-			if(ShowReserve)
+			if(createReportWithReserveData)
 			{
 				reservedItems = reservedItemsQuery.List<ReservedBalance>().ToList();
 			}
