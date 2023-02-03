@@ -29,7 +29,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		private Counterparty _counterparty;
 		private IPermissionResult _counterpartyPermissionResult;
 		private bool _textviewcommentBufferChanged = false;
-		private string _commentText = "";
 
 		public CounterpartyPanelView(ICommonServices commonServices)
 		{
@@ -47,7 +46,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelName.LineWrapMode = Pango.WrapMode.WordChar;
 			labelLatestOrderDate.LineWrapMode = Pango.WrapMode.WordChar;
 			textviewComment.Editable = _counterpartyPermissionResult.CanUpdate;
-			_commentText = textviewComment.Buffer.Text;
 			ytreeCurrentOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
 				.AddColumn("Номер")
 				.AddNumericRenderer(node => node.Id)
@@ -56,6 +54,9 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddColumn("Статус")
 				.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
 				.Finish();
+
+			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
+			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
 		}
 		
 		private void Refresh(object changedObj)
@@ -90,17 +91,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelName.Text = _counterparty.FullName;
 			SetupPersonalManagers();
 			textviewComment.Buffer.Text = _counterparty.Comment;
-
-			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
-			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
-			textviewComment.FocusMoved += TextviewComment_FocusMoved;
-			textviewComment.Focused += TextviewComment_Focused;
-			textviewComment.ClientEvent += TextviewComment_ClientEvent;
-
-			buttonSaveComment.Clicked += ButtonSaveComment_Clicked1;
-			vbox1.FocusChildSet += Vbox1_FocusChildSet;
-			vbox1.FocusGrabbed += Vbox1_FocusGrabbed;
-			vbox1.FocusMoved += Vbox1_FocusMoved;
+			_textviewcommentBufferChanged = false;
 
 			var latestOrder = _orderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, _counterparty);
 			if(latestOrder != null)
@@ -222,12 +213,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
 			SaveComment();
-			var chain = this.FocusChain;
-			var child = this.FocusChild;
-			var focusHar = this.FocusHadjustment;
-			var vb1 = vbox1.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-
 		}
 
 		private void OnTextviewCommentBufferChanged(object sender, EventArgs e)
@@ -235,119 +220,21 @@ namespace Vodovoz.SidePanel.InfoViews
 			_textviewcommentBufferChanged = true;
 		}
 
-		private void ButtonSaveComment_Clicked1(object sender, EventArgs e)
-		{
-			var chain = this.FocusChain;
-			var isFocus = this.IsFocus;
-			var child = this.FocusChild;
-			var focusHar = this.HasFocus;
-			var vb1 = vbox1.HasFocus;
-			var tv = textviewComment.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-		}
-
-		private void TextviewComment_ClientEvent(object o, ClientEventArgs args)
-		{
-			var chain = this.FocusChain;
-			var isFocus = this.IsFocus;
-			var child = this.FocusChild;
-			var focusHar = this.HasFocus;
-			var vb1 = vbox1.HasFocus;
-			var tv = textviewComment.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-		}
-
-		private void Vbox1_FocusMoved(object o, FocusMovedArgs args)
-		{
-			var chain = this.FocusChain;
-			var isFocus = this.IsFocus;
-			var child = this.FocusChild;
-			var focusHar = this.HasFocus;
-			var vb1 = vbox1.HasFocus;
-			var tv = textviewComment.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-		}
-
-		private void TextviewComment_FocusMoved(object o, FocusMovedArgs args)
-		{
-			var chain = this.FocusChain;
-			var isFocus = this.IsFocus;
-			var child = this.FocusChild;
-			var focusHar = this.HasFocus;
-			var vb1 = vbox1.HasFocus;
-			var tv = textviewComment.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-		}
-
-		private void TextviewComment_Focused(object o, FocusedArgs args)
-		{
-			var chain = this.FocusChain;
-			var isFocus = this.IsFocus;
-			var child = this.FocusChild;
-			var focusHar = this.HasFocus;
-			var vb1 = vbox1.HasFocus;
-			var tv = textviewComment.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-		}
-
-		private void ButtonSaveComment_Clicked(object o, FocusedArgs args)
-		{
-			var chain = this.FocusChain;
-			var isFocus = this.IsFocus;
-			var child = this.FocusChild;
-			var focusHar = this.HasFocus;
-			var vb1 = vbox1.HasFocus;
-			var tv = textviewComment.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-		}
-
-		private void Vbox1_FocusChildSet(object o, FocusChildSetArgs args)
-		{
-			var chain = this.FocusChain;
-			var isFocus = this.IsFocus;
-			var child = this.FocusChild;
-			var focusHar = this.HasFocus;
-			var vb1 = vbox1.HasFocus;
-			var tv = textviewComment.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-		}
-
-		private void Vbox1_FocusGrabbed(object sender, EventArgs e)
-		{
-			var chain = this.FocusChain;
-			var isFocus = this.IsFocus;
-			var child = this.FocusChild;
-			var focusHar = this.HasFocus;
-			var vb1 = vbox1.HasFocus;
-			var tv = textviewComment.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-		}
-
 		private void OnTextviewCommentFocusOut(object sender, EventArgs e)
 		{
-			var chain = this.FocusChain;
-			var child = this.FocusChild;
-			var focusHar = this.HasFocus;
-			var vb1 = vbox1.HasFocus;
-			var tv = textviewComment.HasFocus;
-			var butHasFocus = buttonSaveComment.HasFocus;
-
-			if (buttonSaveComment.HasFocus)
+			if(_textviewcommentBufferChanged && buttonSaveComment.State != StateType.Prelight)
 			{
-				MessageDialogHelper.RunQuestionDialog("Фокус на кнопке!");
+				bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
+				if(isRequiredToSaveComment)
+				{
+					SaveComment();
+				}
+				else
+				{
+					textviewComment.Buffer.Text = _counterparty.Comment ?? String.Empty;
+					_textviewcommentBufferChanged = false;
+				}
 			}
-			//if(_commentText.Equals(textviewComment.Buffer.Text) || buttonSaveComment.HasFocus)
-			//{
-			//	_commentText = textviewComment.Buffer.Text;
-			//	return;
-			//}
-
-			//bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("В поле комментария внесены изменения.\nСохранить изменения?");
-			//if(isRequiredToSaveComment)
-			//{
-			//	_commentText = textviewComment.Buffer.Text;
-			//	SaveComment();
-			//}
 		}
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)

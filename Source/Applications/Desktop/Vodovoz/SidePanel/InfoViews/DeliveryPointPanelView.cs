@@ -5,6 +5,7 @@ using Fias.Client.Cache;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.Tdi;
@@ -33,6 +34,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IPermissionResult _deliveryPointPermissionResult;
 		private readonly IPermissionResult _orderPermissionResult;
 		DeliveryPoint DeliveryPoint { get; set; }
+		private bool _textviewcommentBufferChanged = false;
+		private bool _textviewcommentLogistBufferChanged = false;
 
 		public DeliveryPointPanelView(ICommonServices commonServices)
 		{
@@ -68,6 +71,12 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddColumn("Бутылей")
 				.AddNumericRenderer(node => node.Total19LBottlesToDeliver).Editing(false)
 				.Finish();
+
+			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
+			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
+
+			textviewCommentLogist.Buffer.Changed += OnTextviewCommentLogistBufferChanged;
+			textviewCommentLogist.FocusOutEvent += OnTextviewCommentLogistFocusOut;
 		}
 
 		private void Refresh(object changedObj)
@@ -142,8 +151,10 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 			textviewCommentLogist.Buffer.Text = DeliveryPoint.CommentLogist;
+			_textviewcommentBufferChanged = false;
+			_textviewcommentLogistBufferChanged = false;
 
-			var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
+		var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
 			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
 			vboxLastOrders.Visible = currentOrders.Any();
 
@@ -215,21 +226,77 @@ namespace Vodovoz.SidePanel.InfoViews
 			ytreeLastOrders.HasTooltip = true;
 		}
 
-		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
+		private void SaveComment()
 		{
 			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий» на панели точки доставки"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
 			}
+			_textviewcommentBufferChanged = false;
 		}
 
-		protected void OnButtonSaveCommentLogistClicked(object sender, EventArgs e)
+		private void SaveCommentLogist()
 		{
 			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий для логиста» на панели точки доставки"))
 			{
 				uow.Root.CommentLogist = textviewCommentLogist.Buffer.Text;
 				uow.Save();
+			}
+			_textviewcommentLogistBufferChanged = false;
+		}
+
+		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
+		{
+			SaveComment();
+		}
+
+		protected void OnButtonSaveCommentLogistClicked(object sender, EventArgs e)
+		{
+			SaveCommentLogist();
+		}
+
+		private void OnTextviewCommentBufferChanged(object sender, EventArgs e)
+		{
+			_textviewcommentBufferChanged = true;
+		}
+
+		private void OnTextviewCommentLogistBufferChanged(object sender, EventArgs e)
+		{
+			_textviewcommentLogistBufferChanged = true;
+		}
+
+		private void OnTextviewCommentFocusOut(object o, FocusOutEventArgs args)
+		{
+			if(_textviewcommentBufferChanged && buttonSaveComment.State != StateType.Prelight)
+			{
+				bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
+				if(isRequiredToSaveComment)
+				{
+					SaveComment();
+				}
+				else
+				{
+					textviewComment.Buffer.Text = DeliveryPoint.Comment ?? String.Empty;
+					_textviewcommentBufferChanged = false;
+				}
+			}
+		}
+
+		private void OnTextviewCommentLogistFocusOut(object o, FocusOutEventArgs args)
+		{
+			if(_textviewcommentLogistBufferChanged && buttonSaveCommentLogist.State != StateType.Prelight)
+			{
+				bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии для логиста?");
+				if(isRequiredToSaveComment)
+				{
+					SaveCommentLogist();
+				}
+				else
+				{
+					textviewCommentLogist.Buffer.Text = DeliveryPoint.CommentLogist ?? String.Empty;
+					_textviewcommentLogistBufferChanged = false;
+				}
 			}
 		}
 
