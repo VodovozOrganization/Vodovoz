@@ -222,15 +222,18 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void OnTextviewCommentFocusOut(object sender, EventArgs e)
 		{
-			if(_commentText != textviewComment.Buffer.Text && !buttonSaveComment.HasFocus)
+			if(_commentText.Equals(textviewComment.Buffer.Text) || buttonSaveComment.HasFocus)
 			{
-				bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("В поле комментария внесены изменения.\nСохранить изменения?");
-				if(isRequiredToSaveComment)
-				{
-					SaveComment();
-				}
+				_commentText = textviewComment.Buffer.Text;
+				return;
 			}
-			textviewComment.Buffer.Text = _commentText;
+
+			bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("В поле комментария внесены изменения.\nСохранить изменения?");
+			if(isRequiredToSaveComment)
+			{
+				_commentText = textviewComment.Buffer.Text;
+				SaveComment();
+			}
 		}
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
