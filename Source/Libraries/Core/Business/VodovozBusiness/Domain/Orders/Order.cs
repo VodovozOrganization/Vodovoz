@@ -873,15 +873,10 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderDocuments, value, () => OrderDocuments);
 		}
 
-		GenericObservableList<OrderDocument> observableOrderDocuments;
+		GenericObservableList<OrderDocument> _observableOrderDocuments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments {
-			get {
-				if(observableOrderDocuments == null)
-					observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments);
-				return observableOrderDocuments;
-			}
-		}
+		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments => 
+			_observableOrderDocuments?.ReconnectToObject(OrderDocuments) ?? (_observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments));
 
 		IList<OrderItem> orderItems = new List<OrderItem>();
 
