@@ -1,24 +1,20 @@
 ﻿using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Controllers
 {
-	public class RouteListFreeBalanceDocumentController: IRouteListFreeBalanceDocumentController
+	public class RouteListKeepingDocumentController: IRouteListKeepingDocumentController
 	{
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IRouteListRepository _routeListRepository;
 
-		public RouteListFreeBalanceDocumentController(IEmployeeRepository employeeRepository, IRouteListRepository routeListRepository)
+		public RouteListKeepingDocumentController(IEmployeeRepository employeeRepository)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 		}
 
 		private DeliveryFreeBalanceType GetDeliveryFreeBalanceType(RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
@@ -68,8 +64,7 @@ namespace Vodovoz.Controllers
 
 		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, DeliveryFreeBalanceType deliveryFreeBalanceType)
 		{
-			if(deliveryFreeBalanceType == DeliveryFreeBalanceType.Unchange
-			   || routeListItem == null)
+			if(deliveryFreeBalanceType == DeliveryFreeBalanceType.Unchange || routeListItem == null)
 			{
 				return;
 			}
@@ -78,6 +73,13 @@ namespace Vodovoz.Controllers
 				uow.GetAll<RouteListKeepintDocument>()
 					.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id)
 				?? new RouteListKeepintDocument();
+
+			var routeList = routeListItem.RouteList;
+
+			foreach(var item in routeListKeepingDocument.Items)
+			{
+				routeList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
+			}
 
 			var oldSignIsDecrease = routeListKeepingDocument.Items.Any(x => x.Amount < 0);
 			var oldSignIsIncrease = routeListKeepingDocument.Items.Any(x => x.Amount > 0);
@@ -108,80 +110,15 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocumentItem.RouteListKeepintDocument = routeListKeepingDocument;
 				routeListKeepingDocumentItem.Nomenclature = item.Nomenclature;
 				routeListKeepingDocumentItem.Amount = item.Amount * amountSign;
+
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
 
-				if(!routeListKeepingDocument.Items.Contains(routeListKeepingDocumentItem))
-				{
-					routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
-				}
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+
+				routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 			}
 
 			uow.Save(routeListKeepingDocument);
-		}
-
-		public void CreateOrUpdateCarUnderloadDocument(IUnitOfWork uow, RouteList routeList)
-		{
-			var carLoadDocuments = uow.GetAll<CarLoadDocument>()
-				.Where(d => d.RouteList.Id == routeList.Id)
-				.ToList();
-
-			var carLoadDocumentItems = new List<CarLoadDocumentItem>();
-
-			foreach(var carLoadDocument in carLoadDocuments)
-			{
-				carLoadDocument.UpdateAlreadyLoaded(uow, _routeListRepository);
-				carLoadDocument.UpdateInRouteListAmount(uow, _routeListRepository);
-				carLoadDocumentItems.AddRange(carLoadDocument.Items);
-			}
-
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-
-			var carUnderloadDocument =
-				uow.GetAll<CarUnderloadDocument>()
-					.SingleOrDefault(x => x.RouteList.Id == routeList.Id)
-				?? new CarUnderloadDocument();
-
-			carUnderloadDocument.RouteList = routeList;
-			carUnderloadDocument.Author = currentEmployee;
-
-			carUnderloadDocument.Items.Clear();
-
-			CreateUnderloadDocumentItems(carLoadDocumentItems, carUnderloadDocument);
-
-			uow.Save(carUnderloadDocument);
-		}
-
-		private void CreateUnderloadDocumentItems(List<CarLoadDocumentItem> carLoadDocumentItems, CarUnderloadDocument carUnderloadDocument)
-		{
-			var groupedItems = carLoadDocumentItems.GroupBy(i => i.Nomenclature)
-				.Select(g => new
-				{
-					Nomenclature = g.Key,
-					Amount = g.Sum(s => s.Amount),
-					AmountLoaded = g.Sum(s => s.AmountLoaded),
-					AmountInRouteList = g.Sum(s => s.AmountInRouteList)
-				});
-			
-			foreach(var loadItem in groupedItems)
-			{
-				var amount = loadItem.AmountInRouteList - loadItem.AmountLoaded - loadItem.Amount;
-
-				if(amount == 0)
-				{
-					continue;
-				}
-
-				var underloadItem = carUnderloadDocument.Items.SingleOrDefault(x => x.Nomenclature.Id == loadItem.Nomenclature.Id)
-				                    ?? new CarUnderloadDocumentItem();
-
-				underloadItem.Amount = amount * -1;
-				underloadItem.Nomenclature = loadItem.Nomenclature;
-				underloadItem.CarUnderloadDocument = carUnderloadDocument;
-
-				underloadItem.CreateOrUpdateOperation();
-
-				carUnderloadDocument.Items.Add(underloadItem);
-			}
 		}
 	}
 }

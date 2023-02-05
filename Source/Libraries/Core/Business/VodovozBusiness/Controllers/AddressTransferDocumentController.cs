@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
@@ -89,7 +89,7 @@ namespace Vodovoz.Controllers
 
                 if(newAddressTransferItem.AddressTransferType == AddressTransferType.FromFreeBalance)
                 {
-					CreateDeliveryFreeBalanceOperations(newAddressTransferItem);
+					CreateDeliveryFreeBalanceTransferItems(newAddressTransferItem);
                 }
 
                 if(newAddressTransferItem.AddressTransferType == AddressTransferType.NeedToReload) {
@@ -127,7 +127,7 @@ namespace Vodovoz.Controllers
             uow.Save(transferDocument);
         }
 
-		private void CreateDeliveryFreeBalanceOperations(AddressTransferDocumentItem addressTransferItem)
+		private void CreateDeliveryFreeBalanceTransferItems(AddressTransferDocumentItem addressTransferItem)
 		{
 			foreach(var orderItem in addressTransferItem.OldAddress.Order.GetAllGoodsToDeliver())
 			{

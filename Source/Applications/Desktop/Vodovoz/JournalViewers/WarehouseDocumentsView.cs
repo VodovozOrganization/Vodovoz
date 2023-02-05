@@ -27,6 +27,8 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Models;
+using Vodovoz.Controllers;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -304,6 +306,13 @@ namespace Vodovoz
 
 			if(OrmMain.DeleteObject (Document.GetDocClass(item.DocTypeEnum), item.Id))
 				tableDocuments.RepresentationModel.UpdateNodes ();
+
+			IRouteListUnderLoadDocumentController routeListUnderLoadDocumentController = new RouteListUnderLoadDocumentController(new EmployeeRepository());
+			var routelist = uow.GetById<RouteList>(item.RouteListId);
+			routeListUnderLoadDocumentController.CreateOrUpdateCarUnderloadDocument(uow, routelist);
+
+			uow.Commit();
+
 		}
 
 		protected void OnButtonFilterToggled (object sender, EventArgs e)

@@ -38,6 +38,8 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz
@@ -49,7 +51,7 @@ namespace Vodovoz
 			new NomenclatureParametersProvider(_parametersProvider);
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		private RouteListFreeBalanceDocumentController _routeListFreeBalanceDocumentController;
+		private RouteListKeepingDocumentController _routeListKeepingDocumentController;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
 			new RouteListProfitabilityController(
 				new RouteListProfitabilityFactory(),
@@ -66,6 +68,7 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		WageParameterService wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
+		private DeliveryFreeBalanceView _deliveryfreebalanceview;
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -146,6 +149,15 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.AdditionalLoadingDocument, w => w.AdditionalLoadingDocument)
 				.InitializeFromSource();
 			additionalloadingtextview.Visible = Entity.AdditionalLoadingDocument != null;
+
+			var deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
+			_deliveryfreebalanceview = new DeliveryFreeBalanceView(deliveryFreeBalanceViewModel);
+			_deliveryfreebalanceview.Binding
+				.AddBinding(Entity, e => e.ObservableDeliveryFreeBalanceOperations, w => w.ObservableDeliveryFreeBalanceOperations)
+				.InitializeFromSource();
+			_deliveryfreebalanceview.WidthRequest = 300;
+			_deliveryfreebalanceview.ShowAll();
+			hbox10.PackStart(_deliveryfreebalanceview, false, false, 0);
 
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
@@ -292,8 +304,7 @@ namespace Vodovoz
 
 			UpdateNodes();
 
-			_routeListFreeBalanceDocumentController = new RouteListFreeBalanceDocumentController(_employeeRepository,
-				new RouteListRepository(new StockRepository(), new BaseParametersProvider(_parametersProvider)));
+			_routeListKeepingDocumentController = new RouteListKeepingDocumentController(_employeeRepository);
 		}
 
 		void YtreeviewAddresses_RowActivated(object o, RowActivatedArgs args)
@@ -389,11 +400,11 @@ namespace Vodovoz
 					dlg.DlgSaved += (s, ea) =>
 					{
 						rli.UpdateStatus(newStatus, CallTaskWorker);
-						_routeListFreeBalanceDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
+						_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
 					};
 					return;
 				}
-				_routeListFreeBalanceDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
+				_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
 				rli.UpdateStatus(newStatus, CallTaskWorker);
 			}
 		}
@@ -421,6 +432,7 @@ namespace Vodovoz
 		#region implemented abstract members of OrmGtkDialogBase
 
 		private bool canClose = true;
+
 		public bool CanClose()
 		{
 			if(!canClose)

@@ -34,7 +34,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
-		private IRouteListFreeBalanceDocumentController _routeListFreeBalanceDocumentController;
+		private IRouteListUnderLoadDocumentController _routeListUnderLoadDocumentController;
 
 
 		private CallTaskWorker callTaskWorker;
@@ -161,7 +161,7 @@ namespace Vodovoz
 				Entity.CanEdit = true;
 			}
 
-			_routeListFreeBalanceDocumentController = new RouteListFreeBalanceDocumentController(_employeeRepository, _routeListRepository);
+			_routeListUnderLoadDocumentController = new RouteListUnderLoadDocumentController(_employeeRepository);
 		}
 
 		public override bool Save()
@@ -180,8 +180,6 @@ namespace Vodovoz
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
-
-			_routeListFreeBalanceDocumentController.CreateOrUpdateCarUnderloadDocument(UoW, Entity.RouteList);
 
 			if(Entity.Items.Any(x => x.Amount == 0))
 			{
@@ -209,6 +207,9 @@ namespace Vodovoz
 			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker, out _))
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
+
+			_routeListUnderLoadDocumentController.CreateOrUpdateCarUnderloadDocument(UoW, Entity.RouteList);
+
 			UoW.Commit();
 
 			logger.Info("Ok.");

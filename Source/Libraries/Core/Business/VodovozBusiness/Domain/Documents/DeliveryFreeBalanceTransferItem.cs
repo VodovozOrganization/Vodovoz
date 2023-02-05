@@ -76,11 +76,6 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOrUpdateOperations()
 		{
-			if(!AddressTransferDocumentItem.OldAddress.Order.IsFastDelivery)
-			{
-				return;
-			}
-
 			var freeBalanceOperationFrom = DeliveryFreeBalanceOperationFrom ?? new DeliveryFreeBalanceOperation();
 			freeBalanceOperationFrom.Amount = Amount;
 			freeBalanceOperationFrom.Nomenclature = Nomenclature;
@@ -88,6 +83,7 @@ namespace Vodovoz.Domain.Documents
 			freeBalanceOperationFrom.RouteList = AddressTransferDocumentItem.OldAddress.RouteList;
 
 			DeliveryFreeBalanceOperationFrom = freeBalanceOperationFrom;
+			RouteListFrom.ObservableDeliveryFreeBalanceOperations.Add(DeliveryFreeBalanceOperationFrom);
 
 			var freeBalanceOperationTo = DeliveryFreeBalanceOperationTo ?? new DeliveryFreeBalanceOperation();
 			freeBalanceOperationTo.Amount = -Amount;
@@ -96,6 +92,7 @@ namespace Vodovoz.Domain.Documents
 			freeBalanceOperationTo.RouteList = AddressTransferDocumentItem.NewAddress.RouteList;
 
 			DeliveryFreeBalanceOperationTo = freeBalanceOperationTo;
+			RouteListTo.ObservableDeliveryFreeBalanceOperations.Add(DeliveryFreeBalanceOperationTo);
 		}
 	}
 }

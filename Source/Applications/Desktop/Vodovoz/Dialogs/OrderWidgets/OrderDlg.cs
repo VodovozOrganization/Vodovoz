@@ -138,7 +138,7 @@ namespace Vodovoz
 		private CounterpartyContractFactory counterpartyContractFactory;
 		private IOrderParametersProvider _orderParametersProvider;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
-		private RouteListFreeBalanceDocumentController _routeListFreeBalanceDocumentController;
+		private RouteListKeepingDocumentController _routeListKeepingDocumentController;
 
 		private readonly IRouteListParametersProvider _routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
@@ -467,7 +467,7 @@ namespace Vodovoz
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 			var routeListRepository = new RouteListRepository(_stockRepository, _baseParametersProvider);
-			_routeListFreeBalanceDocumentController = new RouteListFreeBalanceDocumentController(_employeeRepository, routeListRepository);
+			_routeListKeepingDocumentController = new RouteListKeepingDocumentController(_employeeRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
@@ -1666,12 +1666,12 @@ namespace Vodovoz
 			{
 				if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
 				{
-					throw new InvalidOperationException("Доставка за час возможна только на текущую дату");
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Доставка за час возможна только на текущую дату");
 				}
 
 				if(Entity.DeliveryPoint?.Latitude == null || Entity.DeliveryPoint.Longitude == null)
 				{
-					throw new InvalidOperationException(
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"В доставке за час обязательно должна быть точка доставки с заполненными координатами");
 				}
 
@@ -1679,12 +1679,12 @@ namespace Vodovoz
 
 				if(district == null)
 				{
-					throw new InvalidOperationException($"Для точки доставки не указан район");
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Для точки доставки не указан район");
 				}
 
 				if(district.TariffZone == null)
 				{
-					throw new InvalidOperationException($"Для района точки доставки не указана тарифная зона");
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Для района точки доставки не указана тарифная зона");
 				}
 
 				if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
@@ -1697,7 +1697,7 @@ namespace Vodovoz
 
 				if(Entity.Total19LBottlesToDeliver == 0)
 				{
-					throw new InvalidOperationException("В доставке за час обязательно должна быть 19л вода");
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "В доставке за час обязательно должна быть 19л вода");
 				}
 
 				var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
@@ -1789,8 +1789,7 @@ namespace Vodovoz
 			{
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("CreateOrUpdateRouteListKeepingDocument"))
 				{
-					_routeListFreeBalanceDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, fastDeliveryAddress,
-						DeliveryFreeBalanceType.Decrease);
+					_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
 
 					uow.Commit();
 				}
@@ -2987,7 +2986,7 @@ namespace Vodovoz
 					Entity.SetActualCountsToZeroOnCanceled();
 				}
 
-				_routeListFreeBalanceDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, Entity, DeliveryFreeBalanceType.Increase);
+				_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, Entity, DeliveryFreeBalanceType.Increase);
 
 				UpdateUIState();
 

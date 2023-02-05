@@ -2,6 +2,7 @@
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents

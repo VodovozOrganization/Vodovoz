@@ -689,13 +689,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			GoodsInRouteListResult resultAlias = null;
 
-			var freeBalance = uow.Session.QueryOver<DeliveryFreeBalanceOperation>()
-				.Where(o => o.RouteList.Id == routeListTo.Id)
-				.SelectList(list => list
-					.SelectGroup(x => x.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.SelectSum(x => x.Amount).WithAlias(() => resultAlias.Amount))
-				.TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
-				.List<GoodsInRouteListResult>();
+			var freeBalance = routeListTo.DeliveryFreeBalanceOperations
+				.GroupBy(o => o.Nomenclature)
+				.Select(list => new GoodsInRouteListResult
+				{
+					NomenclatureId = list.First().Nomenclature.Id,
+					Amount = list.Sum(x => x.Amount)
+				});
 
 			var nomenclaturesToDeliver = order.GetAllGoodsToDeliver();
 

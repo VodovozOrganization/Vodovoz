@@ -2,7 +2,6 @@
 using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Documents

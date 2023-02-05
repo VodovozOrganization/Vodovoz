@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -13,6 +13,7 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Controllers;
@@ -23,6 +24,8 @@ using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
@@ -32,10 +35,14 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using GC = System.GC;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
 {
@@ -55,6 +62,7 @@ namespace Vodovoz
 		private readonly ICategoryRepository _categoryRepository;
 		
 		private IRouteListProfitabilityController _routeListProfitabilityController;
+		private IRouteListKeepingDocumentController _routeListKeepingDocumentController;
 
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceFrom { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceTo { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
@@ -68,8 +76,7 @@ namespace Vodovoz
 
 		#region Конструкторы
 
-		public RouteListAddressesTransferringDlg(
-			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
+		public RouteListAddressesTransferringDlg(IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
@@ -135,6 +142,8 @@ namespace Vodovoz
 			_routeListProfitabilityController = new RouteListProfitabilityController(new RouteListProfitabilityFactory(),
 				nomenclatureParametersProvider, new ProfitabilityConstantsRepository(),
 				new RouteListProfitabilityRepository(), _routeListRepository, new NomenclatureRepository(nomenclatureParametersProvider));
+
+			_routeListKeepingDocumentController = new RouteListKeepingDocumentController(new EmployeeRepository());
 			
 			var filterFrom = new RouteListsFilter(UoW);
 			filterFrom.SetAndRefilterAtOnce(
@@ -190,6 +199,8 @@ namespace Vodovoz
 
 			ybtnTransferTerminal.Clicked += (sender, e) => TransferTerminal.Execute();
 			ybtnRevertTerminal.Clicked += (sender, e) => RevertTerminal.Execute();
+
+			ybuttonAddOrder.Clicked += (sender, e) => AddOrderCommand.Execute();
 		}
 
 		void YtreeviewRLFrom_OnSelectionChanged(object sender, EventArgs e)
@@ -308,6 +319,8 @@ namespace Vodovoz
 			ytreeviewRLFrom.ItemsDataSource = items;
 
 			FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListFrom);
+
+			deliveryfreebalanceviewFrom.ObservableDeliveryFreeBalanceOperations = routeListFrom.ObservableDeliveryFreeBalanceOperations;
 		}
 
 		void YentryreferenceRLTo_Changed(object sender, EventArgs e)
@@ -354,6 +367,8 @@ namespace Vodovoz
 
 			ytreeviewRLTo.ItemsDataSource = items;
 			FillObservableDriverBalance(ObservableDriverBalanceTo, routeListTo);
+
+			deliveryfreebalanceviewTo.ObservableDeliveryFreeBalanceOperations = routeListTo.ObservableDeliveryFreeBalanceOperations;
 		}
 
 		private void UpdateNodes()
@@ -756,7 +771,114 @@ namespace Vodovoz
 			() => yentryreferenceRLFrom.Subject != null && yentryreferenceRLTo.Subject != null
 		));
 
+
+		private DelegateCommand _addOrderCommand;
+		public DelegateCommand AddOrderCommand => _addOrderCommand ?? (_addOrderCommand = new DelegateCommand(
+			() =>
+			{
+				var routeList = yentryreferenceRLTo.Subject as RouteList;
+				if(routeList == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Выберите МЛ");
+					return;
+				}
+
+				AddOrders(routeList);
+			}
+		));
+
 		#endregion
+
+		private void AddOrders(RouteList routeListToAdd)
+		{
+			var filter = new OrderJournalFilterViewModel(
+				new CounterpartyJournalFactory(),
+				new DeliveryPointJournalFactory(),
+				new EmployeeJournalFactory())
+			{
+				ExceptIds = routeListToAdd.Addresses.Select(address => address.Order.Id).ToArray()
+			};
+
+			var geoGroupIds = routeListToAdd.GeographicGroups.Select(x => x.Id).ToArray();
+			if(geoGroupIds.Any())
+			{
+				var districtIds = UoW.GetAll<District>()
+					.Where(d => geoGroupIds.Contains(d.Id))
+					.Select(d => d.Id)
+					.ToArray();
+
+				filter.IncludeDistrictsIds = districtIds;
+			}
+
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictStartDate = routeListToAdd.Date.Date,
+				x => x.RestrictEndDate = routeListToAdd.Date.Date,
+				x => x.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate,
+				x => x.RestrictStatus = OrderStatus.Accepted,
+				x => x.RestrictWithoutSelfDelivery = true,
+				x => x.RestrictOnlySelfDelivery = false,
+				x => x.RestrictHideService = true,
+				x => x.ExcludeClosingDocumentDeliverySchedule = true
+			);
+
+			var orderPage = MainClass.MainWin.NavigationManager.OpenViewModel<OrderJournalViewModel, OrderJournalFilterViewModel>(null, filter);
+			orderPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+			orderPage.ViewModel.OnEntitySelectedResult += OnOrderSelectedResult;
+		}
+
+		private void OnOrderSelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var routeList = yentryreferenceRLTo.Subject as RouteList;
+
+			List<int> notEnoughLeftovers = new List<int>();
+
+			foreach(var selectedNode in e.SelectedNodes)
+			{
+				var order = UoW.GetById<Order>(selectedNode.Id);
+				var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(UoW, order, routeList);
+
+				if(!hasBalanceForTransfer)
+				{
+					notEnoughLeftovers.Add(order.Id);
+					continue;
+				}
+
+				AddOrder(routeList, order);
+			}
+
+			if(notEnoughLeftovers.Any())
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					$"Следующие заказы не удалось перенести, т.к. в МЛ недостаточно остатков {string.Join(",", notEnoughLeftovers.Select(n => n.ToString()))}");
+			}
+		}
+
+		private void AddOrder(RouteList routeList, Order order)
+		{
+			var newRouteListItem = new RouteListItem(routeList, order, RouteListItemStatus.EnRoute)
+			{
+				WithForwarder = routeList.Forwarder != null
+			};
+
+			routeList.ObservableAddresses.Add(newRouteListItem);
+
+			routeList.CalculateWages(_wageParameterService);
+
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeList);
+
+			newRouteListItem.RecalculateTotalCash();
+
+			if(routeList.ClosingFilled)
+			{
+				newRouteListItem.FirstFillClosing(_wageParameterService);
+			}
+
+			UoW.Save(newRouteListItem);
+
+			_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, newRouteListItem, DeliveryFreeBalanceType.Decrease);
+
+			UoW.Commit();
+		}
 	}
 
 	public class RouteListItemNode

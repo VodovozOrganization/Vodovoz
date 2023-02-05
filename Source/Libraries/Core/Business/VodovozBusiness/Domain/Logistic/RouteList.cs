@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NHibernate.Criterion;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -92,6 +93,7 @@ namespace Vodovoz.Domain.Logistic
 		private Car _car;
 		private RouteListProfitability _routeListProfitability;
 		private DateTime _date;
+		private GenericObservableList<DeliveryFreeBalanceOperation> _observableDeliveryFreeBalanceOperations;
 
 		#region Свойства
 
@@ -402,6 +404,18 @@ namespace Vodovoz.Domain.Logistic
 				SetNullToObservableAddresses();
 			}
 		}
+
+		IList<DeliveryFreeBalanceOperation> _deliveryFreeBalanceOperations = new List<DeliveryFreeBalanceOperation>();
+
+		[Display(Name = "Операции со свободными остатками")]
+		public virtual IList<DeliveryFreeBalanceOperation> DeliveryFreeBalanceOperations
+		{
+			get => _deliveryFreeBalanceOperations;
+			set => SetField(ref _deliveryFreeBalanceOperations, value);
+		}
+
+		public virtual GenericObservableList<DeliveryFreeBalanceOperation> ObservableDeliveryFreeBalanceOperations =>
+			_observableDeliveryFreeBalanceOperations ?? (_observableDeliveryFreeBalanceOperations = new GenericObservableList<DeliveryFreeBalanceOperation>(DeliveryFreeBalanceOperations));
 
 		GenericObservableList<RouteListItem> observableAddresses;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
@@ -942,6 +956,18 @@ namespace Vodovoz.Domain.Logistic
 			return closed;
 		}
 
+		public virtual string GetFreeBalanceOperationInfoString()
+		{
+			var stringBuilder = new StringBuilder("Свободные остатки по МЛ:");
+
+			foreach(var operation in DeliveryFreeBalanceOperations.GroupBy(o => o.Nomenclature))
+			{
+				stringBuilder.AppendLine($"{operation.Key.Name} - {operation.Sum(o => o.Amount)}");
+			}
+
+			return stringBuilder.ToString();
+		}
+
 		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsNotLoaded,
 			List<ReturnsNode> allReturnsToWarehouse)
 		{
@@ -1092,14 +1118,13 @@ namespace Vodovoz.Domain.Logistic
 
 			#region Свободные остатки
 
-			var freeBalance = UoW.GetAll<DeliveryFreeBalanceOperation>()
-				.Where(o => o.RouteList.Id == Id)
-				.GroupBy(o => o.Nomenclature.Id)
+			var freeBalance = DeliveryFreeBalanceOperations
+				.GroupBy(o => o.Nomenclature)
 				.Select(list => new GoodsInRouteListResult
 				{
 					NomenclatureId = list.First().Nomenclature.Id,
 					Amount = list.Sum(x => x.Amount)
-				}).ToArray();
+				});
 
 			AddDiscrepancy(freeBalance, result, (discrepancy, amount) => discrepancy.FreeBalance = amount);
 

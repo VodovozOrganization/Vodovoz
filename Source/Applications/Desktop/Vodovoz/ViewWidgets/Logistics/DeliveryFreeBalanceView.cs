@@ -1,12 +1,88 @@
-﻿using System;
+﻿using Gamma.Binding.Core;
+using Gtk;
+using QS.Views.GtkUI;
+using System;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Vodovoz.Domain.Operations;
+using Vodovoz.ViewModels.Widgets;
+
 namespace Vodovoz.ViewWidgets.Logistics
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DeliveryFreeBalanceView : Gtk.Bin
+	public partial class DeliveryFreeBalanceView : WidgetViewBase<DeliveryFreeBalanceViewModel>
 	{
-		public DeliveryFreeBalanceView()
+		private TextTag _defaultTag;
+		private TextTag _boldTag;
+
+		public DeliveryFreeBalanceView(DeliveryFreeBalanceViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+
+			Binding = new BindingControler<DeliveryFreeBalanceView>(this, new Expression<Func<DeliveryFreeBalanceView, object>>[]
+			{
+				w => w.ViewModel.ObservableDeliveryFreeBalanceOperations
+			});
+
+			Configure();
+		}
+
+		public GenericObservableList<DeliveryFreeBalanceOperation> ObservableDeliveryFreeBalanceOperations
+		{
+			get => ViewModel.ObservableDeliveryFreeBalanceOperations;
+			set => ViewModel.ObservableDeliveryFreeBalanceOperations = value;
+		}
+
+		private void Configure()
+		{
+			InitializeBuffer();
+			ViewModel.UpdateAction = Refresh;
+		}
+
+		public BindingControler<DeliveryFreeBalanceView> Binding { get; }
+
+		private void Refresh()
+		{
+			var operations = ViewModel.ObservableDeliveryFreeBalanceOperations;
+
+			if(operations == null)
+			{
+				return;
+			}
+
+			var buffer = ytextview.Buffer;
+			buffer.Clear();
+			var iter = buffer.EndIter;
+			buffer.InsertWithTags(ref iter, "Свободные остатки в МЛ: ", _boldTag);
+
+			var groupedOperations = operations.GroupBy(o => o.Nomenclature).ToArray();
+
+			int lastIndex = groupedOperations.Length - 1;
+			for(var i = 0; i < groupedOperations.Length; i++)
+			{
+				var item = groupedOperations[i];
+				iter = buffer.EndIter;
+				buffer.InsertWithTags(ref iter, item.Key.ShortName + ": ", _defaultTag);
+				iter = buffer.EndIter;
+				buffer.InsertWithTags(ref iter, item.Sum(o => o.Amount).ToString("N0"), _boldTag);
+				iter = buffer.EndIter;
+				buffer.InsertWithTags(ref iter, " " + item.Key.Unit.Name + (i == lastIndex ? "" : ", "), _defaultTag);
+			}
+		}
+
+		private void InitializeBuffer()
+		{
+			var textTags = new TextTagTable();
+			_boldTag = new TextTag("Bold");
+			_boldTag.Weight = Pango.Weight.Bold;
+			textTags.Add(_boldTag);
+
+			_defaultTag = new TextTag("Default");
+			textTags.Add(_defaultTag);
+
+			ytextview.Buffer = new TextBuffer(textTags);
+			ytextview.Editable = false;
 		}
 	}
 }

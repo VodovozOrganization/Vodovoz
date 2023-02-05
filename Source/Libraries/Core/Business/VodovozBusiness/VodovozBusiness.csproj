@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,12 +53,14 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Controllers\IRouteListUnderLoadDocumentController.cs" />
+    <Compile Include="Controllers\RouteListUnderLoadDocumentController.cs" />
     <Compile Include="Domain\Logistic\AddressTransferType.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
     <Compile Include="Controllers\EmployeeRegistrationVersionController.cs" />
     <Compile Include="Domain\Logistic\DeliveryFreeBalanceType.cs" />
-    <Compile Include="Controllers\IRouteListFreeBalanceController.cs" />
-    <Compile Include="Controllers\RouteListFreeBalanceController.cs" />
+    <Compile Include="Controllers\IRouteListKeepingDocumentController.cs" />
+    <Compile Include="Controllers\RouteListKeepingDocumentController.cs" />
     <Compile Include="Controllers\FuelPriceVersionsController.cs" />
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
     <Compile Include="Controllers\IEmployeeRegistrationVersionController.cs" />
