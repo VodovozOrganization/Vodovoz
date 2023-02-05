@@ -686,7 +686,12 @@ namespace Vodovoz
 					warningMsg.Append($"\n\t- объём груза превышен на { Entity.VolumeExecess() } м<sup>3</sup>");
 				}
 
-				if(buttonAccept.Label == "Подтвердить" && (Entity.HasOverweight() || Entity.HasVolumeExecess()))
+				if(Entity.HasReverseVolumeExecess())
+				{
+					warningMsg.Append($"\n\t- объём возвращаемого груза превышен на {Entity.ReverseVolumeExecess()} м<sup>3</sup>");
+				}
+
+				if(buttonAccept.Label == "Подтвердить" && (Entity.HasOverweight() || Entity.HasVolumeExecess() || Entity.HasReverseVolumeExecess()))
 				{
 					if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight"))
 					{

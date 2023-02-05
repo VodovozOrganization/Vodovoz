@@ -4241,6 +4241,22 @@ namespace Vodovoz.Domain.Orders
 			return volume;
 		}
 
+		/// <summary>
+		/// Расчёт объёма ВОЗВРАЩАЕМОГО оборудования, включая 19-литровую тару, имеющие наравление от клиента для этого заказа
+		/// </summary>
+		/// <returns>Объём</returns>
+		public virtual decimal FullReverseVolume()
+		{
+			decimal volume = 0;
+			volume += OrderEquipments
+				.Where(
+					x => x.Direction == Direction.PickUp 
+					&& (x.Nomenclature.Category == NomenclatureCategory.equipment 
+						|| (x.Nomenclature.Category == NomenclatureCategory.bottle) && x.Nomenclature.TareVolume == TareVolume.Vol19L))
+				.Sum(x => x.Nomenclature.Volume * x.Count);
+			return volume;
+		}
+
 		#endregion
 
 		#region Статические

@@ -2405,6 +2405,30 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		/// <returns>Возрат значения превышения объёма груза в метрах кубических.</returns>
 		public virtual decimal VolumeExecess() => HasVolumeExecess() ? Math.Round(GetTotalVolume() - Car.CarModel.MaxVolume, 3) : 0;
+
+
+
+
+		/// <summary>
+		/// Полный объём ВОЗВРАЩАЕМОГО оборудования в маршрутном листе
+		/// </summary>
+		/// <returns>Объём в кубических метрах</returns>
+		public virtual decimal GetTotalReverseVolume() =>
+			Addresses.Where(item => item.Status != RouteListItemStatus.Transfered).Sum(item => item.Order.FullReverseVolume())
+			+ (AdditionalLoadingDocument?.Items.Sum(x => (decimal)x.Nomenclature.Volume * x.Amount) ?? 0);
+
+		/// <summary>
+		/// Проверка на превышение объёма ВОЗВРАЩАЕМОГО груза автомобиля
+		/// </summary>
+		/// <returns><c>true</c>, если имеется превышение объёма ВОЗВРАЩАЕМОГО груза, <c>false</c> в остальных случаях.</returns>
+		public virtual bool HasReverseVolumeExecess() => Car.CarModel.MaxVolume < GetTotalReverseVolume();
+
+		/// <summary>
+		/// Величина, на оторую превышен объём груза
+		/// </summary>
+		/// <returns>Возрат значения превышения объёма ВОЗВРАЩАЕМОГО груза в метрах кубических.</returns>
+		public virtual decimal ReverseVolumeExecess() => HasReverseVolumeExecess() ? Math.Round(GetTotalReverseVolume() - Car.CarModel.MaxVolume, 3) : 0;
+
 		#endregion Объём
 
 		/// <summary>
