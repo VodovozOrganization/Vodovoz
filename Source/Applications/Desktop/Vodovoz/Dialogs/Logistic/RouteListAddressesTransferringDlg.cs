@@ -41,6 +41,8 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewWidgets.Logistics;
 using GC = System.GC;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -66,6 +68,9 @@ namespace Vodovoz
 
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceFrom { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceTo { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
+
+		private DeliveryFreeBalanceViewModel _deliveryFreeBalanceViewModelFrom;
+		private DeliveryFreeBalanceViewModel _deliveryFreeBalanceViewModelTo;
 
 		#region IOrmDialog implementation
 
@@ -201,6 +206,16 @@ namespace Vodovoz
 			ybtnRevertTerminal.Clicked += (sender, e) => RevertTerminal.Execute();
 
 			ybuttonAddOrder.Clicked += (sender, e) => AddOrderCommand.Execute();
+
+			_deliveryFreeBalanceViewModelFrom = new DeliveryFreeBalanceViewModel();
+			var deliveryfreebalanceviewFrom = new DeliveryFreeBalanceView(_deliveryFreeBalanceViewModelFrom);
+			deliveryfreebalanceviewFrom.ShowAll();
+			yhboxDeliveryFreeBalanceFrom.PackStart(deliveryfreebalanceviewFrom, true, true, 0);
+
+			_deliveryFreeBalanceViewModelTo = new DeliveryFreeBalanceViewModel();
+			var deliveryfreebalanceviewTo = new DeliveryFreeBalanceView(_deliveryFreeBalanceViewModelTo);
+			deliveryfreebalanceviewTo.ShowAll();
+			yhboxDeliveryFreeBalanceTo.PackStart(deliveryfreebalanceviewTo, true, true, 0);
 		}
 
 		void YtreeviewRLFrom_OnSelectionChanged(object sender, EventArgs e)
@@ -320,7 +335,7 @@ namespace Vodovoz
 
 			FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListFrom);
 
-			deliveryfreebalanceviewFrom.ObservableDeliveryFreeBalanceOperations = routeListFrom.ObservableDeliveryFreeBalanceOperations;
+			_deliveryFreeBalanceViewModelFrom.ObservableDeliveryFreeBalanceOperations = routeListFrom.ObservableDeliveryFreeBalanceOperations;
 		}
 
 		void YentryreferenceRLTo_Changed(object sender, EventArgs e)
@@ -368,7 +383,7 @@ namespace Vodovoz
 			ytreeviewRLTo.ItemsDataSource = items;
 			FillObservableDriverBalance(ObservableDriverBalanceTo, routeListTo);
 
-			deliveryfreebalanceviewTo.ObservableDeliveryFreeBalanceOperations = routeListTo.ObservableDeliveryFreeBalanceOperations;
+			_deliveryFreeBalanceViewModelTo.ObservableDeliveryFreeBalanceOperations = routeListTo.ObservableDeliveryFreeBalanceOperations;
 		}
 
 		private void UpdateNodes()

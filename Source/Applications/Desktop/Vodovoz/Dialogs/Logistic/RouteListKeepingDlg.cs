@@ -68,7 +68,6 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		WageParameterService wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
-		private DeliveryFreeBalanceView _deliveryfreebalanceview;
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -151,13 +150,12 @@ namespace Vodovoz
 			additionalloadingtextview.Visible = Entity.AdditionalLoadingDocument != null;
 
 			var deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
-			_deliveryfreebalanceview = new DeliveryFreeBalanceView(deliveryFreeBalanceViewModel);
-			_deliveryfreebalanceview.Binding
+			var deliveryfreebalanceview = new DeliveryFreeBalanceView(deliveryFreeBalanceViewModel);
+			deliveryfreebalanceview.Binding
 				.AddBinding(Entity, e => e.ObservableDeliveryFreeBalanceOperations, w => w.ObservableDeliveryFreeBalanceOperations)
 				.InitializeFromSource();
-			_deliveryfreebalanceview.WidthRequest = 300;
-			_deliveryfreebalanceview.ShowAll();
-			hbox10.PackStart(_deliveryfreebalanceview, false, false, 0);
+			deliveryfreebalanceview.ShowAll();
+			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(

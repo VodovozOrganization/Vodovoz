@@ -52,6 +52,8 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.Models;
+using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewWidgets.Logistics;
 
 namespace Vodovoz
 {
@@ -356,6 +358,14 @@ namespace Vodovoz
 			enumTerminalCondition.ItemsEnum = typeof(DriverTerminalCondition);
 			enumTerminalCondition.Binding
 				.AddBinding(Entity, e => e.DriverTerminalCondition, w => w.SelectedItemOrNull).InitializeFromSource();
+
+			var deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
+			var deliveryfreebalanceview = new DeliveryFreeBalanceView(deliveryFreeBalanceViewModel);
+			deliveryfreebalanceview.Binding
+				.AddBinding(Entity, e => e.ObservableDeliveryFreeBalanceOperations, w => w.ObservableDeliveryFreeBalanceOperations)
+				.InitializeFromSource();
+			deliveryfreebalanceview.ShowAll();
+			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 		}
 
 		private void UpdateSensitivity()
