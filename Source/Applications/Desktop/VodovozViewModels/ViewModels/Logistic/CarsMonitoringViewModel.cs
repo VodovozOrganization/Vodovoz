@@ -586,33 +586,41 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private double CalculateCoveragePercent()
 		{
+			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
+
 			IEnumerable<Geometry> districtsBorders = FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder);
-			var totalDistrictsArea = districtsBorders.Sum(g => g.Area);
 
-			var polyCircles = new List<Polygon>();
-			
-			foreach(var position in LastDriverPositions)
+			if(districtsBorders.Any())
 			{
-				polyCircles.Add(CreateCircle(position.ToCoordinate(), FastDeliveryMaxDistance));
-			}
+				Geometry allDistricts = districtsBorders.First();
 
-			var differenceDistrictBordersAndFastDeliveryCircles = new List<Geometry>();
+				foreach(var distr in districtsBorders.Skip(1))
+				{
+					allDistricts = allDistricts.Union(distr);
+				}
 
-			foreach(var districtBorder in districtsBorders)
-			{
-				var differedBorder = districtBorder;
+				var totalDistrictsArea = allDistricts.Area;
+
+				var polyCircles = new List<Polygon>();
+
+				Geometry allRadiuces = geometryFactory.CreatePolygon();
+
+				foreach(var position in LastDriverPositions)
+				{
+					polyCircles.Add(CreateCircle(position.ToCoordinate(), FastDeliveryMaxDistance));
+				}
 
 				foreach(var circle in polyCircles)
 				{
-					differedBorder = districtBorder.Difference(circle);
+					allRadiuces = allRadiuces.Union(circle);
 				}
 
-				differenceDistrictBordersAndFastDeliveryCircles.Add(differedBorder);
+				var difference = allDistricts.Difference(allRadiuces).Area;
+
+				return totalDistrictsArea != 0 ? (totalDistrictsArea - difference) / totalDistrictsArea : 0;
+
 			}
-
-			var difference = differenceDistrictBordersAndFastDeliveryCircles.Sum(ddbafdc => ddbafdc.Area);
-
-			return totalDistrictsArea != 0 ? difference / totalDistrictsArea : 0;
+			return 0;
 		}
 
 		private Polygon CreateCircle(Coordinate center, double radius)
@@ -621,7 +629,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var segmentsPointsCount = 36;
 
-			var geometryFactory = GeometryFactory.Default;
+			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
+			//GeometryFactory.Default;
 
 			var perimetralRingPoints = new List<Coordinate>();
 
@@ -629,8 +638,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				perimetralRingPoints.Add(DistanceCalculator.FindPointByDistanceAndRadians(center, radian, radius));
 			}
-
-			perimetralRingPoints.Add(DistanceCalculator.FindPointByDistanceAndRadians(center, 0, radius));
 
 			Polygon polyCircle = geometryFactory.CreatePolygon(perimetralRingPoints.ToArray());
 
