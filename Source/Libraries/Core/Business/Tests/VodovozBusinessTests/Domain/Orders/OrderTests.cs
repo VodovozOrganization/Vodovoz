@@ -915,6 +915,42 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(Math.Round(vol, 4), Is.EqualTo(Math.Round(result, 4)));
 		}
 
+		static IEnumerable NomenclatureSettingsForReverseVolume()
+		{
+			yield return new object[] { false, false, 0d };
+			yield return new object[] { false, true, 1.2d };
+			yield return new object[] { true, false, 0.18225d };
+			yield return new object[] { true, true, 1.38225d };
+		}
+		[TestCaseSource(nameof(NomenclatureSettingsForReverseVolume))]
+		[Test(Description = "Считаем полный объём возвращаемого груза, либо отдельно тары или оборудования от клиента в заказе ")]
+		public void FullReverseVolume_WhenPassCommandToCalculateOrderBottlesReturnOrEquipmentOrBoth_CanCalculatesFullReverseVolumeOrVolumeOfBottlesReturnOrEquipmentSeparately(bool countBottlesReturn, bool countOrderEquipment, double result)
+		{
+			// arrange
+			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
+			nomenclatureMockOrderEquipment.Volume.Returns(.40m);
+			nomenclatureMockOrderEquipment.Category = NomenclatureCategory.equipment;
+
+			OrderEquipment orderEquipment = new OrderEquipment
+			{
+				Nomenclature = nomenclatureMockOrderEquipment,
+				Count = 3,
+				Direction = Direction.PickUp
+			};
+
+			Order orderUnderTest = new Order
+			{
+				BottlesReturn = 5,
+				OrderEquipments = new List<OrderEquipment> { orderEquipment },
+			};
+
+			// act
+			var vol = orderUnderTest.FullReverseVolume(countBottlesReturn, countOrderEquipment);
+
+			// assert
+			Assert.That(Math.Round(vol, 4), Is.EqualTo(Math.Round(result, 4)));
+		}
+
 		static IEnumerable NomenclatureSettingsForWeight()
 		{
 			yield return new object[] { false, false, 0.0d };
