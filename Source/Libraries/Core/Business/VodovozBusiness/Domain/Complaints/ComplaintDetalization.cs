@@ -46,7 +46,7 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual string Title => $"Детализация рекламации №{Id} ({Name})";
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(Name))
 			{
