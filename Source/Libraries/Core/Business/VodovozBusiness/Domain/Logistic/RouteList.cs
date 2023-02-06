@@ -2421,13 +2421,13 @@ namespace Vodovoz.Domain.Logistic
 		/// Проверка на превышение объёма ВОЗВРАЩАЕМОГО груза автомобиля
 		/// </summary>
 		/// <returns><c>true</c>, если имеется превышение объёма ВОЗВРАЩАЕМОГО груза, <c>false</c> в остальных случаях.</returns>
-		public virtual bool HasReverseVolumeExecess() => Car.CarModel.MaxVolume < GetTotalReverseVolume();
+		public virtual bool HasReverseVolumeExcess() => Car.CarModel.MaxVolume < GetTotalReverseVolume();
 
 		/// <summary>
 		/// Величина, на оторую превышен объём груза
 		/// </summary>
 		/// <returns>Возрат значения превышения объёма ВОЗВРАЩАЕМОГО груза в метрах кубических.</returns>
-		public virtual decimal ReverseVolumeExecess() => HasReverseVolumeExecess() ? Math.Round(GetTotalReverseVolume() - Car.CarModel.MaxVolume, 3) : 0;
+		public virtual decimal ReverseVolumeExecess() => HasReverseVolumeExcess() ? Math.Round(GetTotalReverseVolume() - Car.CarModel.MaxVolume, 3) : 0;
 
 		#endregion Объём
 

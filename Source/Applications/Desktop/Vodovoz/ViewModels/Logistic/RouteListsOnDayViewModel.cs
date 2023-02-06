@@ -1112,7 +1112,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			bool overweight = routeList.HasOverweight();
 			bool volExcess = routeList.HasVolumeExecess();
-			bool reverseVolExcess = routeList.HasVolumeExecess();
+			bool reverseVolExcess = routeList.HasReverseVolumeExcess();
 
 			if(overweight || volExcess || reverseVolExcess) {
 				StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", routeList.Car.Title, routeList.Id));
