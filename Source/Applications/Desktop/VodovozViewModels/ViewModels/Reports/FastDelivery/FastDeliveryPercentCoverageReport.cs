@@ -45,7 +45,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		{
 			var result = new List<Row>
 			{
-				Grouping
+				Grouping,
+				new Subheader()
 			};
 
 			foreach(var dayGroup in Grouping)
@@ -56,6 +57,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				{
 					result.Add(hourGroup);
 				}
+
+				result.Add(new EmptyRow());
 			}
 
 			return result;
@@ -86,6 +89,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			public virtual double PercentCoverage { get; }
 		}
+
+		public class Subheader : Row
+		{
+			override public string SubHeader => "Детальная информация";
+		}
+
+		public class EmptyRow : Row {}
 
 		public class TotalsRow : Row, IGrouping<bool, DayGrouping>
 		{
@@ -170,7 +180,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			public DateTime Date => _dateTime;
 
-			public override string SubHeader => $"{_hourSpan:hh}:00";
+			public override string SubHeader => $"{_hourSpan:hh}-00";
 
 			public override double CarsCount { get; }
 

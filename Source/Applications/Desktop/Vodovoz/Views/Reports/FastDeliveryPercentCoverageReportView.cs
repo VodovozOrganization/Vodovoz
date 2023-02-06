@@ -127,15 +127,29 @@ namespace Vodovoz.Views.Reports
 		{
 			ytreeReportIndicatorsRows.CreateFluentColumnsConfig<Row>()
 				.AddColumn("Усредненные значения за период отчета")
-					.AddTextRenderer(x => x.SubHeader)
+					.HeaderAlignment(0)
+					.AddTextRenderer(x => 
+						(x is TotalsRow || x is DayGrouping || x is Subheader)
+						? $"<b>{x.SubHeader}</b>" 
+						: x is EmptyRow ? "" : x.SubHeader,
+						useMarkup: true)
+					.XAlign(0.5f)
 				.AddColumn("Количество автомобилей")
-					.AddNumericRenderer(x => x.CarsCount)
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x is EmptyRow ? "" : x.CarsCount.ToString("0"))
+					.XAlign(0.5f)
 				.AddColumn("Радиус обслуживания")
-					.AddNumericRenderer(x => x.ServiceRadius)
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x is EmptyRow ? "" : x.ServiceRadius.ToString("0.00"))
+					.XAlign(0.5f)
 				.AddColumn("Процент покрытия")
-					.AddNumericRenderer(x => x.PercentCoverage.ToString("P"))
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x is EmptyRow ? "" : x.PercentCoverage.ToString("P"))
+					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
+
+			ytreeReportIndicatorsRows.EnableGridLines = TreeViewGridLines.Both;
 		}
 
 		private void UpdateReport()
