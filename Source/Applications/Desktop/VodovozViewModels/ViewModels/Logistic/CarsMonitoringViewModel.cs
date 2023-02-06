@@ -630,7 +630,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var segmentsPointsCount = 36;
 
 			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
-			//GeometryFactory.Default;
 
 			var perimetralRingPoints = new List<Coordinate>();
 

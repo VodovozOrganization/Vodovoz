@@ -21,7 +21,6 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	[ToolboxItem(true)]
 	public partial class CarsMonitoringView : TabViewBase<CarsMonitoringViewModel>
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();

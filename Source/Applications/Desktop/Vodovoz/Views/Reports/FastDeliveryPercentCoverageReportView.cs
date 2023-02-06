@@ -9,7 +9,6 @@ using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryPerc
 
 namespace Vodovoz.Views.Reports
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FastDeliveryPercentCoverageReportView : TabViewBase<FastDeliveryPercentCoverageReportViewModel>
 	{
 		private Task _generationTask;
