@@ -1121,7 +1121,7 @@ namespace Vodovoz.ViewModels.Logistic
 				if(volExcess)
 					warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", routeList.VolumeExecess()));
 				if(reverseVolExcess)
-					warningMsg.Append(string.Format("\n\t- объём возвращаемого груза превышен на {0} м<sup>3</sup>", routeList.VolumeExecess()));
+					warningMsg.Append(string.Format("\n\t- объём возвращаемого груза превышен на {0} м<sup>3</sup>", routeList.ReverseVolumeExecess()));
 				ShowWarningMessage(warningMsg.ToString());
 			}
 			return true;
