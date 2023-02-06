@@ -91,6 +91,7 @@
     <Compile Include="Domain\Client\SubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\UnsubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\BulkEmailEventReason.cs" />
+    <Compile Include="Domain\Complaints\ComplaintDetalization.cs" />
     <Compile Include="Domain\Complaints\ComplaintObject.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultBase.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultOfEmployees.cs" />
