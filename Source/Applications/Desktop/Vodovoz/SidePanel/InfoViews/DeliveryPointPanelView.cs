@@ -306,5 +306,37 @@ namespace Vodovoz.SidePanel.InfoViews
 			dpViewModel.EntitySaved += (o, args) => Refresh(args.Entity);
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
 		}
+
+		#region overrided Dispose() method
+
+		private bool _disposed = false;
+
+		public override void Dispose()
+		{
+			Dispose(true);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if(_disposed)
+			{
+				return;
+			}
+
+			if(disposing)
+			{
+
+				textviewComment.Buffer.Changed -= OnTextviewCommentBufferChanged;
+				textviewComment.FocusOutEvent -= OnTextviewCommentFocusOut;
+
+				textviewCommentLogist.Buffer.Changed -= OnTextviewCommentLogistBufferChanged;
+				textviewCommentLogist.FocusOutEvent -= OnTextviewCommentLogistFocusOut;
+
+				base.Dispose();
+			}
+
+			_disposed = true;
+		}
+		#endregion
 	}
 }

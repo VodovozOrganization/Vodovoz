@@ -252,5 +252,32 @@ namespace Vodovoz.SidePanel.InfoViews
 		}
 
 		#endregion
+
+		#region overrided Dispose() method
+
+		private bool _disposed = false;
+
+		public override void Dispose()
+		{
+			Dispose(true);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if(_disposed)
+			{
+				return;
+			}
+
+			if(disposing)
+			{
+				textviewComment.Buffer.Changed -= OnTextviewCommentBufferChanged;
+				textviewComment.FocusOutEvent -= OnTextviewCommentFocusOut;
+				base.Dispose();
+			}
+
+			_disposed = true;
+		}
+		#endregion
 	}
 }
