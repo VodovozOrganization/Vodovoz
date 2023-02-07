@@ -917,15 +917,15 @@ namespace VodovozBusinessTests.Domain.Orders
 
 		static IEnumerable NomenclatureSettingsForReverseVolume()
 		{
-			yield return new object[] { false, false, 0.03645d, 0d };
-			yield return new object[] { false, true, 0.03645d, 1.2d };
-			yield return new object[] { true, false, 0.18225, 0.18225d };
-			yield return new object[] { true, true, 0.03645d, 1.38225d };
-			yield return new object[] { true, true, 0.1d, 1.7d };
+			yield return new object[] { false, false, 0.03645m, 0d };
+			yield return new object[] { false, true, 0.03645m, 1.2d };
+			yield return new object[] { true, false, 0.03645m, 0.18225d };
+			yield return new object[] { true, true, 0.03645m, 1.38225d };
+			yield return new object[] { true, true, 0.1m, 1.7d };
 		}
 		[TestCaseSource(nameof(NomenclatureSettingsForReverseVolume))]
 		[Test(Description = "Считаем полный объём возвращаемого груза, либо отдельно тары или оборудования от клиента в заказе ")]
-		public void FullReverseVolume_WhenPassCommandToCalculateOrderBottlesReturnOrEquipmentOrBoth_CanCalculatesFullReverseVolumeOrVolumeOfBottlesReturnOrEquipmentSeparately(bool countBottlesReturn, bool countOrderEquipment, double result, double bottlesVolume)
+		public void FullReverseVolume_WhenPassCommandToCalculateOrderBottlesReturnOrEquipmentOrBoth_CanCalculatesFullReverseVolumeOrVolumeOfBottlesReturnOrEquipmentSeparately(bool countBottlesReturn, bool countOrderEquipment, decimal bottlesVolume, double result)
 		{
 			// arrange
 			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
@@ -946,7 +946,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			};
 
 			// act
-			var vol = orderUnderTest.FullReverseVolume(countBottlesReturn, countOrderEquipment);
+			var vol = orderUnderTest.FullReverseVolume(countBottlesReturn, countOrderEquipment,bottlesVolume);
 
 			// assert
 			Assert.That(Math.Round(vol, 4), Is.EqualTo(Math.Round(result, 4)));
