@@ -37,28 +37,49 @@ namespace Vodovoz.Controllers
                 .Where(x => x.RouteListFrom.Id == from.Id)
                 .And(x => x.RouteListTo.Id == to.Id)
                 .SingleOrDefault();
-            
-            if(transferDocument != null) {
-                foreach(var documentItem in transferDocument.AddressTransferDocumentItems) {
-                    uow.Delete(documentItem);
-                }
-                transferDocument.AddressTransferDocumentItems.Clear();
-                
-                uow.Delete(transferDocument);
-            }
+
+	        CleanRouteListFreeBalanceOperations(transferDocument);
+
+            transferDocument.AddressTransferDocumentItems.Clear();
+
+			uow.Delete(transferDocument);
         }
+
+        private void CleanRouteListFreeBalanceOperations(AddressTransferDocument transferDocument)
+        {
+			var documentOperationsFrom = transferDocument.ObservableAddressTransferDocumentItems
+				.SelectMany(x => x.DeliveryFreeBalanceTransferItems
+					.Select(y => y.DeliveryFreeBalanceOperationTo));
+			var documentOperationsTo = transferDocument.ObservableAddressTransferDocumentItems
+				.SelectMany(x => x.DeliveryFreeBalanceTransferItems
+					.Select(y => y.DeliveryFreeBalanceOperationFrom));
+			var documentOperations = documentOperationsFrom.Concat(documentOperationsTo).ToArray();
+
+			foreach(var operation in transferDocument.RouteListFrom.ObservableDeliveryFreeBalanceOperations.ToArray())
+			{
+				if(documentOperations.Contains(operation))
+				{
+					transferDocument.RouteListFrom?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
+				}
+			}
+
+			foreach(var operation in transferDocument.RouteListTo.ObservableDeliveryFreeBalanceOperations.ToArray())
+			{
+				if(documentOperations.Contains(operation))
+				{
+					transferDocument.RouteListTo?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
+				}
+			}
+		}
 
         private void CreateOrUpdateAddressTransferDocuments(RouteList from, RouteList to, IUnitOfWork uow)
         {
-            var transferDocument = uow.Session.QueryOver<AddressTransferDocument>()
+	        var transferDocument = uow.Session.QueryOver<AddressTransferDocument>()
                 .Where(x => x.RouteListFrom.Id == from.Id)
                 .And(x => x.RouteListTo.Id == to.Id)
                 .SingleOrDefault() ?? new AddressTransferDocument();
-            
-            foreach(var documentItem in transferDocument.AddressTransferDocumentItems) {
-                uow.Delete(documentItem);
-            }
-            transferDocument.ObservableAddressTransferDocumentItems.Clear();
+
+			transferDocument.ObservableAddressTransferDocumentItems.Clear();
 
             var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
 
@@ -87,47 +108,53 @@ namespace Vodovoz.Controllers
                 };
                 transferDocument.ObservableAddressTransferDocumentItems.Add(newAddressTransferItem);
 
-                if(newAddressTransferItem.AddressTransferType == AddressTransferType.FromFreeBalance)
+				CreateDeliveryFreeBalanceTransferItems(newAddressTransferItem);
+                
+				if(newAddressTransferItem.AddressTransferType == AddressTransferType.NeedToReload) 
                 {
-					CreateDeliveryFreeBalanceTransferItems(newAddressTransferItem);
-                }
-
-                if(newAddressTransferItem.AddressTransferType == AddressTransferType.NeedToReload) {
                     continue;
                 }
 
-                foreach (var orderItem in newAddressTransferItem.OldAddress.Order.OrderItems) {
-                    var newDriverNomenclatureTransferItem = new DriverNomenclatureTransferItem {
-                        DocumentItem = newAddressTransferItem,
-                        Amount = orderItem.Count,
-                        Nomenclature = orderItem.Nomenclature,
-                        DriverFrom = newAddressTransferItem.OldAddress.RouteList.Driver,
-                        DriverTo = newAddressTransferItem.OldAddress.TransferedTo.RouteList.Driver
-                    };
-                    
-                    newDriverNomenclatureTransferItem.CreateOrUpdateOperations();
-                    newAddressTransferItem.DriverNomenclatureTransferDocumentItems.Add(newDriverNomenclatureTransferItem);
-                }
-                
-                foreach (var orderItem in newAddressTransferItem.OldAddress.Order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)) {
-                    var newDriverNomenclatureTransferItem = new DriverNomenclatureTransferItem {
-                        DocumentItem = newAddressTransferItem,
-                        Amount = orderItem.Count,
-                        Nomenclature = orderItem.Nomenclature,
-                        DriverFrom = newAddressTransferItem.OldAddress.RouteList.Driver,
-                        DriverTo = newAddressTransferItem.OldAddress.TransferedTo.RouteList.Driver
-                    };
-                    
-                    newDriverNomenclatureTransferItem.CreateOrUpdateOperations();
-                    newAddressTransferItem.DriverNomenclatureTransferDocumentItems.Add(newDriverNomenclatureTransferItem);
-                }
-                
+				CreateDriverNomenclatureTransferItems(newAddressTransferItem);
             }
 
             uow.Save(transferDocument);
         }
 
-		private void CreateDeliveryFreeBalanceTransferItems(AddressTransferDocumentItem addressTransferItem)
+        private void CreateDriverNomenclatureTransferItems(AddressTransferDocumentItem newAddressTransferItem)
+        {
+			foreach(var orderItem in newAddressTransferItem.OldAddress.Order.OrderItems)
+			{
+				var newDriverNomenclatureTransferItem = new DriverNomenclatureTransferItem
+				{
+					DocumentItem = newAddressTransferItem,
+					Amount = orderItem.Count,
+					Nomenclature = orderItem.Nomenclature,
+					DriverFrom = newAddressTransferItem.OldAddress.RouteList.Driver,
+					DriverTo = newAddressTransferItem.OldAddress.TransferedTo.RouteList.Driver
+				};
+
+				newDriverNomenclatureTransferItem.CreateOrUpdateOperations();
+				newAddressTransferItem.DriverNomenclatureTransferDocumentItems.Add(newDriverNomenclatureTransferItem);
+			}
+
+			foreach(var orderItem in newAddressTransferItem.OldAddress.Order.OrderEquipments.Where(x => x.Direction == Direction.Deliver))
+			{
+				var newDriverNomenclatureTransferItem = new DriverNomenclatureTransferItem
+				{
+					DocumentItem = newAddressTransferItem,
+					Amount = orderItem.Count,
+					Nomenclature = orderItem.Nomenclature,
+					DriverFrom = newAddressTransferItem.OldAddress.RouteList.Driver,
+					DriverTo = newAddressTransferItem.OldAddress.TransferedTo.RouteList.Driver
+				};
+
+				newDriverNomenclatureTransferItem.CreateOrUpdateOperations();
+				newAddressTransferItem.DriverNomenclatureTransferDocumentItems.Add(newDriverNomenclatureTransferItem);
+			}
+		}
+
+        private void CreateDeliveryFreeBalanceTransferItems(AddressTransferDocumentItem addressTransferItem)
 		{
 			foreach(var orderItem in addressTransferItem.OldAddress.Order.GetAllGoodsToDeliver())
 			{

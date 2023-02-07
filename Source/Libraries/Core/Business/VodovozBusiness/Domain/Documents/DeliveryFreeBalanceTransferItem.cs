@@ -76,6 +76,11 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOrUpdateOperations()
 		{
+			if(AddressTransferDocumentItem.AddressTransferType == AddressTransferType.FromDriverToDriver)
+			{
+				return;
+			}
+
 			var freeBalanceOperationFrom = DeliveryFreeBalanceOperationFrom ?? new DeliveryFreeBalanceOperation();
 			freeBalanceOperationFrom.Amount = Amount;
 			freeBalanceOperationFrom.Nomenclature = Nomenclature;
@@ -84,6 +89,11 @@ namespace Vodovoz.Domain.Documents
 
 			DeliveryFreeBalanceOperationFrom = freeBalanceOperationFrom;
 			RouteListFrom.ObservableDeliveryFreeBalanceOperations.Add(DeliveryFreeBalanceOperationFrom);
+
+			if(AddressTransferDocumentItem.AddressTransferType == AddressTransferType.NeedToReload)
+			{
+				return;
+			}
 
 			var freeBalanceOperationTo = DeliveryFreeBalanceOperationTo ?? new DeliveryFreeBalanceOperation();
 			freeBalanceOperationTo.Amount = -Amount;

@@ -689,7 +689,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			GoodsInRouteListResult resultAlias = null;
 
-			var freeBalance = routeListTo.DeliveryFreeBalanceOperations
+			var freeBalance = routeListTo.ObservableDeliveryFreeBalanceOperations
 				.GroupBy(o => o.Nomenclature)
 				.Select(list => new GoodsInRouteListResult
 				{

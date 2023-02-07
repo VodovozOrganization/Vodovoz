@@ -1171,6 +1171,8 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperationFrom)
 				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperationTo);
 
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryFreeBalanceOperation>();
+
 			#endregion
 
 			#region Операции по счету

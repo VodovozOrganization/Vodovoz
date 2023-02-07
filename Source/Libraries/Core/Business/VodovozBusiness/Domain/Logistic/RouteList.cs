@@ -994,14 +994,14 @@ namespace Vodovoz.Domain.Logistic
 
 			#region Получено от других водителей
 
-			var allGoodsTransferredFromDrivers = _routeListRepository.AllGoodsTransferredFromDrivers(UoW, this, Nomenclature.GetCategoriesForShipment());
+			var allGoodsTransferredFromDrivers = _routeListRepository.AllGoodsTransferredFromDrivers(UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromDriverToDriver);
 			AddDiscrepancy(allGoodsTransferredFromDrivers, result, (discrepancy, amount) => discrepancy.TransferedFromDrivers = amount);
 
 			#endregion
 
 			#region Передано другим водителям
 
-			var allGoodsTransferedToAnotherDrivers = _routeListRepository.AllGoodsTransferredToAnotherDrivers(UoW, this, Nomenclature.GetCategoriesForShipment());
+			var allGoodsTransferedToAnotherDrivers = _routeListRepository.AllGoodsTransferredToAnotherDrivers(UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromDriverToDriver);
 			
 			AddDiscrepancy(allGoodsTransferedToAnotherDrivers, result, (discrepancy, amount) => discrepancy.TransferedToAnotherDrivers = amount);
 
@@ -1118,7 +1118,7 @@ namespace Vodovoz.Domain.Logistic
 
 			#region Свободные остатки
 
-			var freeBalance = DeliveryFreeBalanceOperations
+			var freeBalance = ObservableDeliveryFreeBalanceOperations
 				.GroupBy(o => o.Nomenclature)
 				.Select(list => new GoodsInRouteListResult
 				{

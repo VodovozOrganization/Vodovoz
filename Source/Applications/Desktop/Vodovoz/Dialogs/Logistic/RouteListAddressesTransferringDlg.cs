@@ -165,7 +165,7 @@ namespace Vodovoz
 			var vmFrom = new RouteListsVM(filterFrom);
 			GC.KeepAlive(vmFrom);
 			yentryreferenceRLFrom.RepresentationModel = vmFrom;
-			yentryreferenceRLFrom.JournalButtons = QS.Project.Dialogs.GtkUI.Buttons.Add | QS.Project.Dialogs.GtkUI.Buttons.Edit;
+			yentryreferenceRLFrom.JournalButtons = QS.Project.Dialogs.GtkUI.Buttons.Edit;
 			yentryreferenceRLFrom.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			var filterTo = new RouteListsFilter(UoW);
@@ -184,7 +184,7 @@ namespace Vodovoz
 
 			var vmTo = new RouteListsVM(filterTo);
 			yentryreferenceRLTo.RepresentationModel = vmTo;
-			yentryreferenceRLTo.JournalButtons = QS.Project.Dialogs.GtkUI.Buttons.Add | QS.Project.Dialogs.GtkUI.Buttons.Edit;
+			yentryreferenceRLTo.JournalButtons = QS.Project.Dialogs.GtkUI.Buttons.Edit;
 			yentryreferenceRLTo.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
@@ -864,7 +864,7 @@ namespace Vodovoz
 			if(notEnoughLeftovers.Any())
 			{
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					$"Следующие заказы не удалось перенести, т.к. в МЛ недостаточно остатков {string.Join(",", notEnoughLeftovers.Select(n => n.ToString()))}");
+					$"Следующие заказы не удалось добавить, т.к. в МЛ недостаточно остатков {string.Join(",", notEnoughLeftovers.Select(n => n.ToString()))}");
 			}
 		}
 
