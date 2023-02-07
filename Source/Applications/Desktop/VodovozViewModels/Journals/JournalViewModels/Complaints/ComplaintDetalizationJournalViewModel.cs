@@ -1,11 +1,10 @@
-﻿using System;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using System;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;

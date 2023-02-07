@@ -1335,6 +1335,7 @@ namespace Vodovoz
 				new EmployeeSettings(new ParametersProvider()),
 				new UndeliveredOrdersRepository(),
 				new ComplaintParametersProvider(new ParametersProvider()),
+				new ComplaintDetalizationAutocompleteSelectorFactory(),
 				MainClass.AppDIContainer.BeginLifetimeScope()
 			);
 

@@ -1132,6 +1132,7 @@ public partial class MainWindow : Gtk.Window
 			new EmployeeSettings(new ParametersProvider()),
 			new UndeliveredOrdersRepository(),
 			complaintParametersProvider,
+			new ComplaintDetalizationAutocompleteSelectorFactory(),
 			autofacScope.BeginLifetimeScope()
 		);
 
@@ -2283,6 +2284,7 @@ public partial class MainWindow : Gtk.Window
 					new EmployeeSettings(new ParametersProvider()),
 					new UndeliveredOrdersRepository(),
 					complaintParametersProvider,
+					new ComplaintDetalizationAutocompleteSelectorFactory(),
 					autofacScope.BeginLifetimeScope()
 				);
 			}

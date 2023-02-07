@@ -28,6 +28,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -82,6 +83,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationSelectorFactory,
 			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices)
 		{
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
@@ -146,6 +148,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
+			InitializeComplaintDetalizationAutocompleteSelectorFactory(complaintDetalizationSelectorFactory);
 		}
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
@@ -446,6 +449,7 @@ namespace Vodovoz.ViewModels.Complaints
 		#endregion Commands
 
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
+		public IEntityAutocompleteSelectorFactory ComplaintDetalizationAutocompleteSelectorFactory { get; private set; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		private ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
@@ -465,6 +469,21 @@ namespace Vodovoz.ViewModels.Complaints
 			OrderAutocompleteSelectorFactory =
 				(orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
 				.CreateOrderAutocompleteSelectorFactory(orderFilter);
+		}
+
+		private void InitializeComplaintDetalizationAutocompleteSelectorFactory(IComplaintDetalizationAutocompleteSelectorFactory complainDetalizationSelectorFactory)
+		{
+			var complainDetalizationFilter =
+				new ComplaintDetalizationJournalFilterViewModel();
+
+			if(Entity.ComplaintKind != null)
+			{
+				complainDetalizationFilter.RestrictKind = Entity.ComplaintKind;
+			}
+
+			ComplaintDetalizationAutocompleteSelectorFactory =
+				(complainDetalizationSelectorFactory ?? throw new ArgumentNullException(nameof(complainDetalizationSelectorFactory)))
+				.CreateComplaintDetalizationAutocompleteSelectorFactory(complainDetalizationFilter);
 		}
 
 		protected void ConfigureEntityChangingRelations()

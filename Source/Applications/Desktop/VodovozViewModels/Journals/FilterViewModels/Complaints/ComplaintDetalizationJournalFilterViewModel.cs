@@ -29,5 +29,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 
         public IList<ComplaintObject> ComplaintObjects { get; }
         public IList<ComplaintKind> ComplaintKinds { get; }
-    }
+		public ComplaintKind RestrictKind { get; internal set; }
+	}
 }

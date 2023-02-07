@@ -80,6 +80,8 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			entryComplainDetalization.SetEntityAutocompleteSelectorFactory(ViewModel.ComplaintDetalizationAutocompleteSelectorFactory);
+
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)

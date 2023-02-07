@@ -59,6 +59,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly IComplaintDetalizationAutocompleteSelectorFactory _complaintDetalizationAutocompleteSelectorFactory;
 		private readonly ILifetimeScope _scope;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -96,6 +97,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEmployeeSettings employeeSettings,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IComplaintParametersProvider complaintParametersProvider,
+			IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationAutocompleteSelectorFactory,
 			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -121,6 +123,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+			_complaintDetalizationAutocompleteSelectorFactory = complaintDetalizationAutocompleteSelectorFactory;
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			TabName = "Журнал рекламаций";
@@ -658,6 +661,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_employeeSettings,
 						new ComplaintResultsRepository(),
 						_subdivisionParametersProvider,
+						_complaintDetalizationAutocompleteSelectorFactory,
 						_scope.BeginLifetimeScope()
 					),
 					//функция идентификации документа
@@ -700,6 +704,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_employeeSettings,
 						new ComplaintResultsRepository(),
 						_subdivisionParametersProvider,
+						_complaintDetalizationAutocompleteSelectorFactory,
 						_scope.BeginLifetimeScope()
 					),
 					//функция идентификации документа
@@ -811,6 +816,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_employeeSettings,
 								new ComplaintResultsRepository(),
 								_subdivisionParametersProvider,
+								_complaintDetalizationAutocompleteSelectorFactory,
 								_scope.BeginLifetimeScope()
 							);
 							currentComplaintVM.AddFineCommand.Execute(this);
@@ -847,6 +853,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								_employeeSettings,
 								new ComplaintResultsRepository(),
 								_subdivisionParametersProvider,
+								_complaintDetalizationAutocompleteSelectorFactory,
 								_scope.BeginLifetimeScope()
 							);
 							string msg = string.Empty;
