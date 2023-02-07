@@ -4245,12 +4245,12 @@ namespace Vodovoz.Domain.Orders
 		/// Расчёт объёма ВОЗВРАЩАЕМОГО оборудования (из тары включается только 19-литровая), имеющие наравление от клиента для этого заказа
 		/// </summary>
 		/// <returns>Объём</returns>
-		public virtual decimal FullReverseVolume(bool includeBottlesReturn = true, bool includeEquipment = true)
+		public virtual decimal FullReverseVolume(bool includeBottlesReturn = true, bool includeEquipment = true, decimal one19LitersBottleVolume = 0.03645m)
 		{
 			decimal volume = 0;
 			if (includeBottlesReturn)
 			{
-				volume += (bottlesReturn ?? 0) * 0.03645m;
+				volume += (bottlesReturn ?? 0) * one19LitersBottleVolume;
 			}
 			if (includeEquipment)
 			{
