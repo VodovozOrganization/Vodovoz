@@ -1778,6 +1778,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="Views\Complaints\ComplaintDetalizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintDetalizationView.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintDetalizationJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintDetalizationJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -1434,6 +1434,17 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			//ComplaintDetalizationJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ComplaintDetalizationJournalViewModel>(
+				() => FluentColumnsConfig<ComplaintDetalizationJournalNode>.Create()
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name).WrapWidth(400).WrapMode(WrapMode.WordChar)
+					.AddColumn("Объект рекламаций").AddTextRenderer(node => node.ComplaintObject).WrapWidth(400).WrapMode(WrapMode.WordChar)
+					.AddColumn("Вид рекламации").AddTextRenderer(node => node.ComplaintKind).WrapWidth(400).WrapMode(WrapMode.WordChar)
+					.AddColumn("В архиве").AddToggleRenderer(node => node.IsArchive).Editing(false).XAlign(0f)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
+					.Finish());
+
 			//FlyersJournalViewModel
 			TreeViewColumnsConfigFactory.Register<FlyersJournalViewModel>(
 				() => FluentColumnsConfig<FlyersJournalNode>.Create()

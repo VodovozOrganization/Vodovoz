@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -2804,5 +2804,23 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionFastDeliveryPercentCoverageReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<FastDeliveryPercentCoverageReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnActionComplaintDetalizationJournalActivated(object sender, EventArgs e)
+	{
+		//var employeeJournalFactory = new EmployeeJournalFactory();
+		//var salesPlanJournalFactory = new SalesPlanJournalFactory();
+		//var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+
+		//tdiMain.OpenTab(() => new ComplaintDetalizationJournalViewModel(
+		//	new ComplaintDetalizationJournalFilterViewModel
+		//	{
+		//		HidenByDefault = true
+		//	},
+		//	UnitOfWorkFactory.GetDefaultFactory,
+		//	ServicesConfig.CommonServices)
+		//);
+
+		NavigationManager.OpenViewModel<ComplaintDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }
