@@ -4261,7 +4261,7 @@ namespace Vodovoz.Domain.Orders
 					.Where(
 						x => x.Direction == Direction.PickUp
 						&& (x.Nomenclature.Category == NomenclatureCategory.equipment
-							|| (x.Nomenclature.Category == NomenclatureCategory.bottle) && x.Nomenclature.TareVolume == TareVolume.Vol19L))
+							|| (x.Nomenclature.Category == NomenclatureCategory.bottle && x.Nomenclature.TareVolume == TareVolume.Vol19L)))
 					.Sum(x => x.Nomenclature.Volume * x.Count);
 			}
 			return volume;
