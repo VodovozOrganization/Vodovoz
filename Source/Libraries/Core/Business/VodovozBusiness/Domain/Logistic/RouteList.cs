@@ -2406,9 +2406,6 @@ namespace Vodovoz.Domain.Logistic
 		/// <returns>Возрат значения превышения объёма груза в метрах кубических.</returns>
 		public virtual decimal VolumeExecess() => HasVolumeExecess() ? Math.Round(GetTotalVolume() - Car.CarModel.MaxVolume, 3) : 0;
 
-
-
-
 		/// <summary>
 		/// Полный объём ВОЗВРАЩАЕМОГО оборудования в маршрутном листе
 		/// </summary>
