@@ -1,8 +1,6 @@
 ﻿using ClosedXML.Report;
 using NetTopologySuite.Geometries;
 using NHibernate.Criterion;
-using NHibernate.Transform;
-using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -13,7 +11,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Extensions;
 using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryPercentCoverageReport;
@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly ITrackRepository _trackRepository;
 		private readonly IInteractiveService _interactiveService;
 
 		private DateTime _startDate;
@@ -46,10 +47,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			ITrackRepository trackRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_interactiveService = interactiveService;
 
@@ -180,28 +183,33 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			{
 				RouteList routeListAlias = null;
 
-				Coordinate coordinateAlias = null;
+				var trackSubquery = QueryOver.Of<Track>()
+					.Where(x => x.RouteList.Id == routeListAlias.Id)
+					.Select(x => x.Id);
 
-				TrackPoint trackPointAlias = null;
-				Track trackAlias = null;
+				var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 
-				var lastDriversCoordinates = UoW.Session.QueryOver(() => trackPointAlias)
-					.Inner.JoinAlias(() => trackPointAlias.Track, () => trackAlias)
-					.Inner.JoinAlias(() => trackAlias.RouteList, () => routeListAlias)
-					.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), date))
-					.And(Restrictions.Ge(Projections.Property(() => trackPointAlias.TimeStamp), date.Add(DriverDisconnectedTimespan)))
-					.And(() => routeListAlias.AdditionalLoadingDocument != null)
-					.And(Restrictions.And(
+				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
+
+				query.Where(
+					Restrictions.And(
 						Restrictions.Or(
 							Restrictions.Ge(Projections.Property(() => routeListAlias.DeliveredAt), date),
 							Restrictions.IsNull(Projections.Property(() => routeListAlias.DeliveredAt))),
-						Restrictions.In(Projections.Property(() => routeListAlias.Status), routeListHistoryStatuses)))
-					.OrderBy(() => trackPointAlias.TimeStamp).Desc
-					.SelectList(list =>
-						list.SelectGroup(() => trackAlias.Id)
-							.Select(() => trackPointAlias.Latitude).WithAlias(() => coordinateAlias.X)
-							.Select(() => trackPointAlias.Longitude).WithAlias(() => coordinateAlias.Y))
-					.TransformUsing(Transformers.AliasToBean<Coordinate>()).List<Coordinate>();
+						Restrictions.In(Projections.Property(() => routeListAlias.Status), routeListHistoryStatuses)));
+
+				TrackPoint trackPointAlias = null;
+
+				trackSubquery.Inner.JoinAlias(x => x.TrackPoints, () => trackPointAlias)
+					.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), date))
+					.Where(Restrictions.Ge(Projections.Property(() => trackPointAlias.TimeStamp), date.Add(DriverDisconnectedTimespan)))
+					.Take(1);
+
+				query.Where(Restrictions.IsNotNull(Projections.SubQuery(trackSubquery)));
+
+				var routeListsIds = query.Select(Projections.Property(() => routeListAlias.Id)).List<int>().ToArray();
+
+				var lastDriversCoordinates = _trackRepository.GetLastPointForRouteLists(UoW, routeListsIds, date);
 
 				var carsCount = lastDriversCoordinates.Count;
 
@@ -236,7 +244,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			return await Task.FromResult(new TotalsRow(dayGroupings));
 		}
 
-		private double CalculateCoveragePercent(IEnumerable<Geometry> districtsBorders, IEnumerable<Coordinate> lastDriversCoordinates, double serviceRadiusAtDateTime)
+		private double CalculateCoveragePercent(IEnumerable<Geometry> districtsBorders, IList<DriverPosition> lastDriversCoordinates, double serviceRadiusAtDateTime)
 		{
 			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
 
@@ -257,7 +265,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 				foreach(var position in lastDriversCoordinates)
 				{
-					polyCircles.Add(CreateCircle(position, serviceRadiusAtDateTime));
+					polyCircles.Add(CreateCircle(position.ToCoordinate(), serviceRadiusAtDateTime));
 				}
 
 				foreach(var circle in polyCircles)

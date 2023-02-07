@@ -93,6 +93,9 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ylblHistoryHour.Binding.AddBinding(ViewModel, vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
+				.InitializeFromSource();
+
 			yspeccomboboxHistoryHour.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.HistoryHours, w => w.ItemsList)
 				.AddBinding(vm => vm.HistoryHour, w => w.SelectedItem)
