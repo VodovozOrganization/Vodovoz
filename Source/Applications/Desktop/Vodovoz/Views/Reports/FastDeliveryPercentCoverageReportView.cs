@@ -136,7 +136,8 @@ namespace Vodovoz.Views.Reports
 					.XAlign(0.5f)
 				.AddColumn("Количество автомобилей")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? "" : x.CarsCount.ToString("0"))
+					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? ""
+						: (x is TotalsRow || x is DayGrouping) ? x.CarsCount.ToString("0.00") : x.CarsCount.ToString("0"))
 					.XAlign(0.5f)
 				.AddColumn("Радиус обслуживания")
 					.HeaderAlignment(0.5f)
@@ -144,7 +145,8 @@ namespace Vodovoz.Views.Reports
 					.XAlign(0.5f)
 				.AddColumn("Процент покрытия")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? "" : x.PercentCoverage.ToString("P"))
+					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? ""
+						: x.PercentCoverage.ToString("P"))
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
@@ -156,6 +158,8 @@ namespace Vodovoz.Views.Reports
 		{
 			if(ViewModel.Report?.Grouping != null)
 			{
+				ConfigurePreview();
+
 				ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report?.Rows;
 
 				ytreeReportIndicatorsRows.YTreeModel.EmitModelChanged();

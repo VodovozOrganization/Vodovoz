@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +25,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			_grouping = grouping;
 
 			CreatedAt = DateTime.Now;
+
+			Rows = TransformToRows();
 		}
 
 		public DateTime CreatedAt { get; }
@@ -39,7 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 		public TotalsRow Grouping => _grouping;
 
-		public IList<Row> Rows => TransformToRows();
+		public IList<Row> Rows { get; }
 
 		private IList<Row> TransformToRows()
 		{

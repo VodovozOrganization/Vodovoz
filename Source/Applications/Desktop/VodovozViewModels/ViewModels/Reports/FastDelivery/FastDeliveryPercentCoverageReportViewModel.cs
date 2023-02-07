@@ -225,7 +225,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				if(row.Date.Date != groupingDate)
 				{
 					dayGroupings.Add(new DayGrouping(groupingDate, currentDayGroupRows));
-					currentDayGroupRows.Clear();
+					currentDayGroupRows = new List<ValueRow>();
 					groupingDate = row.Date.Date;
 				}
 				currentDayGroupRows.Add(row);
