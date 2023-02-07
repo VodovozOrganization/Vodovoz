@@ -67,6 +67,20 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(c => c.INN == inn).List<Counterparty>();
 		}
 
+		public IList<Counterparty> GetNotArchivedCounterpartiesByPhoneNumber(IUnitOfWork uow, string phoneNumber)
+		{
+			if(string.IsNullOrWhiteSpace(phoneNumber))
+			{
+				return new List<Counterparty>();
+			}
+			Phone phoneAlias = null;
+			return uow.Session.QueryOver<Counterparty>()
+				.Where(c => c.IsArchive == false)
+				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
+				.Where(() => phoneAlias.Number == phoneNumber)
+				.List<Counterparty>() ?? new List<Counterparty>();
+		}
+
 		public Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber)
 		{
 			if(string.IsNullOrWhiteSpace(accountNumber))

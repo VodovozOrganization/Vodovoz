@@ -1125,6 +1125,13 @@ namespace Vodovoz.Domain.Client
 			return false;
 		}
 
+		public virtual IList<Counterparty> CheckForPhoneNumberDuplicate(ICounterpartyRepository counterpartyRepository, IUnitOfWork uow, string phoneNumber)
+		{
+			IList<Counterparty> counterarties = counterpartyRepository.GetNotArchivedCounterpartiesByPhoneNumber(uow, phoneNumber);
+
+			return counterarties.Where(x => x.Id != Id).ToList();
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(!(validationContext.ServiceContainer.GetService(typeof(IBottlesRepository)) is IBottlesRepository bottlesRepository))
@@ -1299,6 +1306,20 @@ namespace Vodovoz.Domain.Client
 				if(phone.RoboAtsCounterpartyPatronymic == null)
 				{
 					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
+				}
+
+				//Если это новый контрагент, то ищем дубликаты введенных номеров телефонов
+				if(Id == 0)
+				{
+					var counterpartiesWithTheSamePhoneNumber = CheckForPhoneNumberDuplicate(counterpartyRepository, UoW, phone.Number);
+					if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
+					{
+						phonesValidationStringBuilder.Append($"Телефон {phone.Number} уже указан у контрагентов:");
+						foreach(var c in counterpartiesWithTheSamePhoneNumber)
+						{
+							phonesValidationStringBuilder.Append($"\n\t{c.Name}");
+						}
+					}
 				}
 			}
 
