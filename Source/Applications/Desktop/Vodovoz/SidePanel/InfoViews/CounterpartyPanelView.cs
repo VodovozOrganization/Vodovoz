@@ -224,16 +224,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			if(_textviewcommentBufferChanged && buttonSaveComment.State != StateType.Prelight)
 			{
-				bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
-				if(isRequiredToSaveComment)
+				Application.Invoke((s, ea) =>
 				{
-					SaveComment();
-				}
-				else
-				{
-					textviewComment.Buffer.Text = _counterparty.Comment ?? String.Empty;
-					_textviewcommentBufferChanged = false;
-				}
+					bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
+					if(isRequiredToSaveComment)
+					{
+						SaveComment();
+					}
+					else
+					{
+						textviewComment.Buffer.Text = _counterparty.Comment ?? String.Empty;
+						_textviewcommentBufferChanged = false;
+					}
+				});
 			}
 		}
 

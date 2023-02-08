@@ -270,16 +270,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			if(_textviewcommentBufferChanged && buttonSaveComment.State != StateType.Prelight)
 			{
-				bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
-				if(isRequiredToSaveComment)
+				Application.Invoke((s, ea) =>
 				{
-					SaveComment();
-				}
-				else
-				{
-					textviewComment.Buffer.Text = DeliveryPoint.Comment ?? String.Empty;
-					_textviewcommentBufferChanged = false;
-				}
+					bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
+					if(isRequiredToSaveComment)
+					{
+						SaveComment();
+					}
+					else
+					{
+						textviewComment.Buffer.Text = DeliveryPoint.Comment ?? String.Empty;
+						_textviewcommentBufferChanged = false;
+					}
+				});
 			}
 		}
 
@@ -287,16 +290,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			if(_textviewcommentLogistBufferChanged && buttonSaveCommentLogist.State != StateType.Prelight)
 			{
-				bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии для логиста?");
-				if(isRequiredToSaveComment)
+				Application.Invoke((s, ea) =>
 				{
-					SaveCommentLogist();
-				}
-				else
-				{
-					textviewCommentLogist.Buffer.Text = DeliveryPoint.CommentLogist ?? String.Empty;
-					_textviewcommentLogistBufferChanged = false;
-				}
+					bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии для логиста?");
+					if(isRequiredToSaveComment)
+					{
+						SaveCommentLogist();
+					}
+					else
+					{
+						textviewCommentLogist.Buffer.Text = DeliveryPoint.CommentLogist ?? String.Empty;
+						_textviewcommentLogistBufferChanged = false;
+					}
+				});
 			}
 		}
 
