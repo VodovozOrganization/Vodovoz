@@ -1262,9 +1262,15 @@ public partial class MainWindow : Window
 		ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationAutocompleteSelectorFactory = new ComplaintDetalizationAutocompleteSelectorFactory();
 
-		var complaintFilterViewModel = new ComplaintFilterViewModel(ServicesConfig.CommonServices, subdivisionRepository, employeeJournalFactory,
-			counterpartySelectorFactory, subdivisionParametersProvider)
+		var complaintFilterViewModel = new ComplaintFilterViewModel(
+			ServicesConfig.CommonServices,
+			subdivisionRepository,
+			employeeJournalFactory,
+			counterpartySelectorFactory,
+			subdivisionParametersProvider,
+			complaintDetalizationAutocompleteSelectorFactory)
 		{
 			IsForSalesDepartment = true
 		};

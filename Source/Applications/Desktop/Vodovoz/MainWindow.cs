@@ -1098,6 +1098,7 @@ public partial class MainWindow : Gtk.Window
 		IFileDialogService fileDialogService = new FileDialogService();
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
+		IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationAutocompleteSelectorFactory = new ComplaintDetalizationAutocompleteSelectorFactory();
 
 		var journal = new ComplaintsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
@@ -1112,8 +1113,8 @@ public partial class MainWindow : Gtk.Window
 				subdivisionRepository,
 				employeeJournalFactory,
 				counterpartySelectorFactory,
-				subdivisionParametersProvider
-			)
+				subdivisionParametersProvider,
+				complaintDetalizationAutocompleteSelectorFactory)
 			{
 				HidenByDefault = true
 			},
@@ -1132,9 +1133,8 @@ public partial class MainWindow : Gtk.Window
 			new EmployeeSettings(new ParametersProvider()),
 			new UndeliveredOrdersRepository(),
 			complaintParametersProvider,
-			new ComplaintDetalizationAutocompleteSelectorFactory(),
-			autofacScope.BeginLifetimeScope()
-		);
+			complaintDetalizationAutocompleteSelectorFactory,
+			autofacScope.BeginLifetimeScope());
 
 		tdiMain.AddTab(journal);
 	}
@@ -2250,6 +2250,8 @@ public partial class MainWindow : Gtk.Window
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
 
+		IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationAutocompleteSelectorFactory = new ComplaintDetalizationAutocompleteSelectorFactory();
+
 		tdiMain.OpenTab(
 			() =>
 			{
@@ -2266,9 +2268,11 @@ public partial class MainWindow : Gtk.Window
 						subdivisionRepository,
 						employeeJournalFactory,
 						counterpartySelectorFactory,
-						subdivisionParametersProvider
-					)
-					{ IsForRetail = true },
+						subdivisionParametersProvider,
+						complaintDetalizationAutocompleteSelectorFactory)
+					{
+						IsForRetail = true
+					},
 					fileDialogService,
 					subdivisionRepository,
 					new GtkTabsOpener(),
@@ -2284,9 +2288,8 @@ public partial class MainWindow : Gtk.Window
 					new EmployeeSettings(new ParametersProvider()),
 					new UndeliveredOrdersRepository(),
 					complaintParametersProvider,
-					new ComplaintDetalizationAutocompleteSelectorFactory(),
-					autofacScope.BeginLifetimeScope()
-				);
+					complaintDetalizationAutocompleteSelectorFactory,
+					autofacScope.BeginLifetimeScope());
 			}
 		);
 	}

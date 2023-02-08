@@ -1307,8 +1307,15 @@ namespace Vodovoz
 		{
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
+			IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationAutocompleteSelectorFactory = new ComplaintDetalizationAutocompleteSelectorFactory();
+
 			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory, _subdivisionParametersProvider);
+				ServicesConfig.CommonServices,
+				SubdivisionRepository,
+				new EmployeeJournalFactory(),
+				CounterpartySelectorFactory,
+				_subdivisionParametersProvider,
+				complaintDetalizationAutocompleteSelectorFactory);
 			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
 
 			var complaintsJournalViewModel = new ComplaintsJournalViewModel(
@@ -1335,7 +1342,7 @@ namespace Vodovoz
 				new EmployeeSettings(new ParametersProvider()),
 				new UndeliveredOrdersRepository(),
 				new ComplaintParametersProvider(new ParametersProvider()),
-				new ComplaintDetalizationAutocompleteSelectorFactory(),
+				complaintDetalizationAutocompleteSelectorFactory,
 				MainClass.AppDIContainer.BeginLifetimeScope()
 			);
 
