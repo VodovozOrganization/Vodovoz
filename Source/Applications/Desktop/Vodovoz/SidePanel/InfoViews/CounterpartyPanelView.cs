@@ -14,7 +14,6 @@ using QS.Tdi;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.SidePanel.InfoProviders;
