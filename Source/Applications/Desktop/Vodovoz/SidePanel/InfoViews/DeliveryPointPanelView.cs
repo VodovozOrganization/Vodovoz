@@ -154,7 +154,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			_textviewcommentBufferChanged = false;
 			_textviewcommentLogistBufferChanged = false;
 
-		var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
+			var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
 			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
 			vboxLastOrders.Visible = currentOrders.Any();
 
