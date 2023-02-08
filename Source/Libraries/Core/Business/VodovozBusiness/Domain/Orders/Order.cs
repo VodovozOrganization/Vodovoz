@@ -2002,7 +2002,7 @@ namespace Vodovoz.Domain.Orders
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{
 			var fixedPrice = GetFixedPriceOrNull(nomenclature);
-			if (fixedPrice != null) {
+			if (fixedPrice != null && promoSet == null) {
 				return fixedPrice.Price;
 			}
 
