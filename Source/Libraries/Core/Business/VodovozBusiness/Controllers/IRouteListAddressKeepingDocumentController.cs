@@ -4,7 +4,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Controllers
 {
-	public interface IRouteListKeepingDocumentController
+	public interface IRouteListAddressKeepingDocumentController
 	{
 		void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem address, RouteListItemStatus oldStatus, RouteListItemStatus newStatus);
 		void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, DeliveryFreeBalanceType deliveryFreeBalanceType);

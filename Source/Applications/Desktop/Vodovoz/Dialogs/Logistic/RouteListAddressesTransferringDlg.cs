@@ -62,9 +62,11 @@ namespace Vodovoz
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
 		private readonly ICategoryRepository _categoryRepository;
-		
+		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly IEmployeeRepository _employeeRepository;
+
 		private IRouteListProfitabilityController _routeListProfitabilityController;
-		private IRouteListKeepingDocumentController _routeListKeepingDocumentController;
+		private IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceFrom { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
 		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceTo { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
@@ -87,7 +89,10 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository)
+			ICategoryRepository categoryRepository,
+			IEmployeeRepository employeeRepository,
+			INomenclatureParametersProvider nomenclatureParametersProvider
+			)
 		{
 			Build();
 			_employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository
@@ -99,7 +104,9 @@ namespace Vodovoz
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
-			
+			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+
 			TabName = "Перенос адресов маршрутных листов";
 			ConfigureDlg();
 		}
@@ -113,7 +120,10 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository)
+			ICategoryRepository categoryRepository,
+			IEmployeeRepository employeeRepository,
+			INomenclatureParametersProvider nomenclatureParametersProvider
+			)
 			: this(
 				employeeNomenclatureMovementRepository,
 				terminalNomenclatureProvider,
@@ -121,7 +131,9 @@ namespace Vodovoz
 				routeListItemRepository,
 				employeeService,
 				commonServices,
-				categoryRepository)
+				categoryRepository,
+				employeeRepository,
+				nomenclatureParametersProvider)
 		{
 			var rl = UoW.GetById<RouteList>(routeListId);
 
@@ -148,7 +160,7 @@ namespace Vodovoz
 				nomenclatureParametersProvider, new ProfitabilityConstantsRepository(),
 				new RouteListProfitabilityRepository(), _routeListRepository, new NomenclatureRepository(nomenclatureParametersProvider));
 
-			_routeListKeepingDocumentController = new RouteListKeepingDocumentController(new EmployeeRepository());
+			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
 			
 			var filterFrom = new RouteListsFilter(UoW);
 			filterFrom.SetAndRefilterAtOnce(
@@ -626,7 +638,7 @@ namespace Vodovoz
 
 		private void UpdateTranferDocuments(RouteList from, RouteList to)
 		{
-			var addressTransferController = new AddressTransferController(new EmployeeRepository());
+			var addressTransferController = new AddressTransferController(new EmployeeRepository(), _nomenclatureParametersProvider);
 			addressTransferController.UpdateDocuments(from, to, UoW);
 		}
 
@@ -890,7 +902,7 @@ namespace Vodovoz
 
 			UoW.Save(newRouteListItem);
 
-			_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, newRouteListItem, DeliveryFreeBalanceType.Decrease);
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, newRouteListItem, DeliveryFreeBalanceType.Decrease);
 
 			UoW.Commit();
 		}

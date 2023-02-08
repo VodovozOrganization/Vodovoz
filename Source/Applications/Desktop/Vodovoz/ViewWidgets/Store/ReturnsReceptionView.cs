@@ -136,12 +136,9 @@ namespace Vodovoz
 			Nomenclature nomenclatureAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			RouteListItem routeListItemAlias = null;
-			RouteList routeListAlias = null;
 			DeliveryFreeBalanceOperation freeBalanceOperation = null;
-			Nomenclature equipmetnNomenclatureAlias = null;
 
 			IList<ReceptionItemNode> returnableItems = new List<ReceptionItemNode>();
-			IList<ReceptionItemNode> returnableEquipment = new List<ReceptionItemNode>();
 
 			ReceptionItemNode returnableTerminal = null;
 			int loadedTerminalAmount = default(int);
@@ -167,58 +164,28 @@ namespace Vodovoz
 			}
 			else
 			{
+				var pickUpSubquery = QueryOver.Of(() => routeListItemAlias)
+					.JoinAlias(()=> routeListItemAlias.Order, () => orderAlias)
+					.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
+					.And(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.PickUp)
+					.And(() => orderEquipmentAlias.Nomenclature.Id == freeBalanceOperation.Nomenclature.Id)
+					.Select(Projections.Property(() => orderEquipmentAlias.Nomenclature.Id));
+
 				returnableItems = UoW.Session.QueryOver(() => freeBalanceOperation)
 					.JoinAlias(() => freeBalanceOperation.Nomenclature, () => nomenclatureAlias)
-					.WhereRestrictionOn(() => nomenclatureAlias.Category).Not.IsIn(new[] { NomenclatureCategory.deposit, NomenclatureCategory.service })
-					.And(() => freeBalanceOperation.RouteList.Id == RouteList.Id)
+					.Where(f => f.RouteList.Id == RouteList.Id)
+					.WithSubquery.WhereNotExists(pickUpSubquery)
 					.SelectList(list => list
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-						.SelectSum(() => freeBalanceOperation.Amount).WithAlias(() => resultAlias.ExpectedAmount
-						)
-					).TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
-					.List<ReceptionItemNode>();
-
-				var equipmentSubquery = QueryOver.Of(() => routeListAlias)
-					.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
-					.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
-					.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
-					.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => equipmetnNomenclatureAlias)
-					.Where(Restrictions.Or(
-							Restrictions.In(
-								Projections.Property(() => orderAlias.OrderStatus),
-								new[] { OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered, OrderStatus.Canceled }),
-							Restrictions.NotEqProperty(Projections.Property(() => orderEquipmentAlias.ActualCount),
-								Projections.Property(() => orderEquipmentAlias.Count))
-							)
-					)
-					.And(() => equipmetnNomenclatureAlias.Category != NomenclatureCategory.deposit)
-					.And(() => orderEquipmentAlias.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
-					.And(() => routeListAlias.Id == freeBalanceOperation.RouteList.Id)
-					.And(() => equipmetnNomenclatureAlias.Id == nomenclatureAlias.Id)
-					.Select(Projections.Property(() => equipmetnNomenclatureAlias.Id));
-
-				returnableEquipment = UoW.Session.QueryOver(() => freeBalanceOperation)
-					.JoinAlias(() => freeBalanceOperation.Nomenclature, () => nomenclatureAlias)
-					.Where(()=> freeBalanceOperation.RouteList.Id == RouteList.Id)
-					.WithSubquery.WhereExists(equipmentSubquery)
-					.SelectList(list => list
-						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-						.SelectSum(() => freeBalanceOperation.Amount).WithAlias(() => resultAlias.ExpectedAmount
-						)
+						.SelectSum(() => freeBalanceOperation.Amount).WithAlias(() => resultAlias.ExpectedAmount)
 					).TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 					.List<ReceptionItemNode>();
 			}
 
 			foreach(var item in returnableItems) {
-				if(ReceptionReturnsList.All(i => i.NomenclatureId != item.NomenclatureId))
-					ReceptionReturnsList.Add(item);
-			}
-
-			foreach(var item in returnableEquipment) {
 				if(ReceptionReturnsList.All(i => i.NomenclatureId != item.NomenclatureId))
 					ReceptionReturnsList.Add(item);
 			}

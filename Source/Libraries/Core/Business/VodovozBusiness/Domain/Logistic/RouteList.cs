@@ -62,6 +62,7 @@ namespace Vodovoz.Domain.Logistic
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+		private static readonly NomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 		private static readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(_parametersProvider));
 		private static readonly IRouteListRepository _routeListRepository =
@@ -956,20 +957,7 @@ namespace Vodovoz.Domain.Logistic
 			return closed;
 		}
 
-		public virtual string GetFreeBalanceOperationInfoString()
-		{
-			var stringBuilder = new StringBuilder("Свободные остатки по МЛ:");
-
-			foreach(var operation in DeliveryFreeBalanceOperations.GroupBy(o => o.Nomenclature))
-			{
-				stringBuilder.AppendLine($"{operation.Key.Name} - {operation.Sum(o => o.Amount)}");
-			}
-
-			return stringBuilder.ToString();
-		}
-
-		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsNotLoaded,
-			List<ReturnsNode> allReturnsToWarehouse)
+		public virtual List<Discrepancy> GetDiscrepancies()
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
 
@@ -1119,11 +1107,12 @@ namespace Vodovoz.Domain.Logistic
 			#region Свободные остатки
 
 			var freeBalance = ObservableDeliveryFreeBalanceOperations
+				.Where(o => o.Nomenclature.Id != _nomenclatureParametersProvider.GetDefaultBottleNomenclature(UoW).Id)
 				.GroupBy(o => o.Nomenclature)
 				.Select(list => new GoodsInRouteListResult
 				{
 					NomenclatureId = list.First().Nomenclature.Id,
-					Amount = list.Sum(x => x.Amount)
+					Amount = list.Sum(o => o.Amount)
 				});
 
 			AddDiscrepancy(freeBalance, result, (discrepancy, amount) => discrepancy.FreeBalance = amount);
@@ -1185,9 +1174,7 @@ namespace Vodovoz.Domain.Logistic
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
 
-			var notloadedNomenclatures = NotLoadedNomenclatures(true);
-			var allReturnsToWarehouse = _routeListRepository.GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
-			var discrepancies = GetDiscrepancies(notloadedNomenclatures, allReturnsToWarehouse);
+			var discrepancies = GetDiscrepancies();
 
 			var hasItemsDiscrepancies = discrepancies.Any(discrepancy => discrepancy.Remainder != 0);
 			bool hasFine = BottleFine != null;

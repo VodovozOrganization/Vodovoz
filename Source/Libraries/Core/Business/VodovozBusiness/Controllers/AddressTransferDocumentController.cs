@@ -5,17 +5,20 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Services;
 
 namespace Vodovoz.Controllers
 {
     public class AddressTransferController
     {
-        public AddressTransferController(IEmployeeRepository employeeRepository)
+	    private readonly IEmployeeRepository employeeRepository;
+	    private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		
+	    public AddressTransferController(IEmployeeRepository employeeRepository, INomenclatureParametersProvider nomenclatureParametersProvider)
         {
-            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+	        this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+	        _nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider)); ;
         }
-        
-        private readonly IEmployeeRepository employeeRepository;
 
         public void UpdateDocuments(RouteList from, RouteList to, IUnitOfWork uow)
         {
@@ -38,11 +41,19 @@ namespace Vodovoz.Controllers
                 .And(x => x.RouteListTo.Id == to.Id)
                 .SingleOrDefault();
 
-	        CleanRouteListFreeBalanceOperations(transferDocument);
+            if(transferDocument != null)
+            {
+	            CleanRouteListFreeBalanceOperations(transferDocument);
 
-            transferDocument.AddressTransferDocumentItems.Clear();
+				foreach(var documentItem in transferDocument.AddressTransferDocumentItems)
+	            {
+		            uow.Delete(documentItem);
+	            }
 
-			uow.Delete(transferDocument);
+	            transferDocument.AddressTransferDocumentItems.Clear();
+
+	            uow.Delete(transferDocument);
+            }
         }
 
         private void CleanRouteListFreeBalanceOperations(AddressTransferDocument transferDocument)
@@ -108,7 +119,7 @@ namespace Vodovoz.Controllers
                 };
                 transferDocument.ObservableAddressTransferDocumentItems.Add(newAddressTransferItem);
 
-				CreateDeliveryFreeBalanceTransferItems(newAddressTransferItem);
+				CreateDeliveryFreeBalanceTransferItems(newAddressTransferItem, uow);
                 
 				if(newAddressTransferItem.AddressTransferType == AddressTransferType.NeedToReload) 
                 {
@@ -154,7 +165,7 @@ namespace Vodovoz.Controllers
 			}
 		}
 
-        private void CreateDeliveryFreeBalanceTransferItems(AddressTransferDocumentItem addressTransferItem)
+        private void CreateDeliveryFreeBalanceTransferItems(AddressTransferDocumentItem addressTransferItem, IUnitOfWork uow)
 		{
 			foreach(var orderItem in addressTransferItem.OldAddress.Order.GetAllGoodsToDeliver())
 			{
@@ -171,13 +182,14 @@ namespace Vodovoz.Controllers
 				addressTransferItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
 			}
 
+			// оборудование от клиента
 			foreach(var orderItem in addressTransferItem.OldAddress.Order.OrderEquipments
-						.Where(x => x.Direction == Direction.Deliver))
+						.Where(x => x.Direction == Direction.PickUp))
 			{
 				var newDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
 				{
 					AddressTransferDocumentItem = addressTransferItem,
-					Amount = orderItem.Count,
+					Amount = -orderItem.Count,
 					Nomenclature = orderItem.Nomenclature,
 					RouteListFrom = addressTransferItem.OldAddress.RouteList,
 					RouteListTo = addressTransferItem.OldAddress.TransferedTo.RouteList
@@ -186,6 +198,21 @@ namespace Vodovoz.Controllers
 				newDeliveryFreeBalanceTransferItem.CreateOrUpdateOperations();
 				addressTransferItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
 			}
+
+			// бутыли на возврат
+
+			var emptyBottlesDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
+			{
+				Nomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow),
+				Amount = -(addressTransferItem.OldAddress.Order.BottlesReturn ?? 0),
+				AddressTransferDocumentItem = addressTransferItem,
+				RouteListFrom = addressTransferItem.OldAddress.RouteList,
+				RouteListTo = addressTransferItem.OldAddress.TransferedTo.RouteList
+			};
+
+			emptyBottlesDeliveryFreeBalanceTransferItem.CreateOrUpdateOperations();
+			addressTransferItem.DeliveryFreeBalanceTransferItems.Add(emptyBottlesDeliveryFreeBalanceTransferItem);
+
 		}
 	}
 }

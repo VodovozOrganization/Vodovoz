@@ -129,9 +129,12 @@ namespace Vodovoz
 			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)));
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			returnsreceptionview.Sensitive =
-				hbxTareToReturn.Sensitive =
+				/*hbxTareToReturn.Sensitive =*/
 					nonserialequipmentreceptionview1.Sensitive =
 						defectiveitemsreceptionview1.Sensitive = editing;
+
+			hbxTareToReturn.Visible = false;
+			hbxTareToReturn.Sensitive = false;
 
 			defectiveitemsreceptionview1.UoW =
 				returnsreceptionview.UoW = UoW;
@@ -285,7 +288,7 @@ namespace Vodovoz
 		private void UpdateWidgetsVisible()
 		{
 			lblTareReturnedBefore.Visible = Entity.RouteList != null;
-			hbxTareToReturn.Visible = Entity.RouteList != null && Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
+			/*hbxTareToReturn.Visible = Entity.RouteList != null && Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;*/
 			nonserialequipmentreceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
 		}
 
@@ -468,6 +471,8 @@ namespace Vodovoz
 						item.WarehouseMovementOperation.Amount = tempItem.Amount;
 					if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.Amount != -tempItem.Amount)
 						item.EmployeeNomenclatureMovementOperation.Amount = -tempItem.Amount;
+					if(item.DeliveryFreeBalanceOperation != null && item.DeliveryFreeBalanceOperation.Amount != -tempItem.Amount)
+						item.DeliveryFreeBalanceOperation.Amount = -tempItem.Amount;
 					if(item.Redhead != tempItem.Redhead)
 						item.Redhead = tempItem.Redhead;
 				}

@@ -41,8 +41,6 @@ namespace Vodovoz
 			set => ytreeRouteListDiscrepancyItemsView.Sensitive = value;
 		}
 
-		public IList<RouteListControlNotLoadedNode> ItemsNotLoaded { get; set; }
-
 		protected void Configure()
 		{
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
@@ -86,8 +84,8 @@ namespace Vodovoz
 			});
 		}
 
-		public void FindDiscrepancies(List<ReturnsNode> allReturnsToWarehouse) {
-			Items = RouteList.GetDiscrepancies(ItemsNotLoaded, allReturnsToWarehouse);
+		public void FindDiscrepancies() {
+			Items = RouteList.GetDiscrepancies();
 		}
 	}
 }

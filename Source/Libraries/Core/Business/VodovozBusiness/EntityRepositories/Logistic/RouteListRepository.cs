@@ -678,7 +678,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var result = query
 				.SelectList(list => list
 					.SelectGroup(() => orderEquipmentAlias.Nomenclature.Id).WithAlias(() => resultNodeAlias.NomenclatureId)
-					.SelectSum(() => orderEquipmentAlias.ActualCount).WithAlias(() => resultNodeAlias.Amount)
+					.Select(Projections.Sum(
+						Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => orderEquipmentAlias.ActualCount))))
+					.WithAlias(() => resultNodeAlias.Amount)
 				).TransformUsing(Transformers.AliasToBean<GoodsInRouteListResult>())
 				.List<GoodsInRouteListResult>();
 

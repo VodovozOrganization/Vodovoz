@@ -12,9 +12,9 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "строки документа ведения свободных остатков МЛ для адреса")]
 
 	[HistoryTrace]
-	public class RouteListKeepingDocumentItem : PropertyChangedBase, IDomainObject
+	public class RouteListAddressKeepingDocumentItem : PropertyChangedBase, IDomainObject
 	{
-		private RouteListKeepintDocument _routeListKeepintDocument;
+		private RouteListAddressKeepingDocument _routeListAddressKeepingDocument;
 		private DeliveryFreeBalanceOperation _deliveryFreeBalanceOperation;
 		private Nomenclature _nomenclature;
 		private decimal _amount;
@@ -22,10 +22,10 @@ namespace Vodovoz.Domain.Documents
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Документ ведения свободных остатков МЛ для адреса")]
-		public virtual RouteListKeepintDocument RouteListKeepintDocument
+		public virtual RouteListAddressKeepingDocument RouteListAddressKeepingDocument
 		{
-			get => _routeListKeepintDocument;
-			set => SetField(ref _routeListKeepintDocument, value);
+			get => _routeListAddressKeepingDocument;
+			set => SetField(ref _routeListAddressKeepingDocument, value);
 		}
 
 		[Display(Name = "Номенклатура")]
@@ -54,11 +54,11 @@ namespace Vodovoz.Domain.Documents
 			var operation = DeliveryFreeBalanceOperation ?? new DeliveryFreeBalanceOperation();
 			operation.Amount = Amount;
 			operation.Nomenclature = Nomenclature;
-			operation.RouteList = RouteListKeepintDocument.RouteListItem.RouteList;
+			operation.RouteList = RouteListAddressKeepingDocument.RouteListItem.RouteList;
 
 			DeliveryFreeBalanceOperation = operation;
 		}
 
-		public virtual string Title => $"Строка документа ведения свободных остатков МЛ для адреса №{RouteListKeepintDocument.RouteListItem.Id} {Nomenclature.Name} кол-во {Amount}";
+		public virtual string Title => $"Строка документа ведения свободных остатков МЛ для адреса №{RouteListAddressKeepingDocument.RouteListItem.Id} {Nomenclature.Name} кол-во {Amount}";
 	}
 }

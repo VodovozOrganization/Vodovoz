@@ -3,11 +3,11 @@ using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.HibernateMapping.Documents
 {
-	public class RouteListKeepingDocumentMap : ClassMap<RouteListKeepintDocument>
+	public class RouteListAddressKeepingDocumentMap : ClassMap<RouteListAddressKeepingDocument>
     {
-        public RouteListKeepingDocumentMap()
+        public RouteListAddressKeepingDocumentMap()
         {
-            Table ("route_list_keeping_documents");
+            Table ("route_list_address_keeping_documents");
 			
             Id(x => x.Id).Column("id").GeneratedBy.Native();
 

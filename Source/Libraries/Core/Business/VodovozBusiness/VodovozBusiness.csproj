@@ -53,14 +53,12 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
-    <Compile Include="Controllers\IRouteListUnderLoadDocumentController.cs" />
-    <Compile Include="Controllers\RouteListUnderLoadDocumentController.cs" />
     <Compile Include="Domain\Logistic\AddressTransferType.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
     <Compile Include="Controllers\EmployeeRegistrationVersionController.cs" />
     <Compile Include="Domain\Logistic\DeliveryFreeBalanceType.cs" />
-    <Compile Include="Controllers\IRouteListKeepingDocumentController.cs" />
-    <Compile Include="Controllers\RouteListKeepingDocumentController.cs" />
+    <Compile Include="Controllers\IRouteListAddressKeepingDocumentController.cs" />
+    <Compile Include="Controllers\RouteListAddressKeepingDocumentController.cs" />
     <Compile Include="Controllers\FuelPriceVersionsController.cs" />
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
     <Compile Include="Controllers\IEmployeeRegistrationVersionController.cs" />
@@ -105,10 +103,8 @@
     <Compile Include="Domain\Client\RoboAtsCounterpartyPatronymic.cs" />
     <Compile Include="Domain\Complaints\ComplaintDiscussionStatuses.cs" />
     <Compile Include="Domain\Complaints\Responsible.cs" />
-    <Compile Include="Domain\Documents\CarUnderloadDocumentItem.cs" />
-    <Compile Include="Domain\Documents\CarUnderloadDocument.cs" />
-    <Compile Include="Domain\Documents\RouteListKeepingDocumentItem.cs" />
-    <Compile Include="Domain\Documents\RouteListKeepingDocument.cs" />
+    <Compile Include="Domain\Documents\RouteListAddressKeepingDocumentItem.cs" />
+    <Compile Include="Domain\Documents\RouteListAddressKeepingDocument.cs" />
     <Compile Include="Domain\Documents\DeliveryFreeBalanceTransferItem.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\DriverTerminalTransferDocumentType.cs" />
     <Compile Include="Domain\Documents\DriverTerminalTransfer\SelfDriverTerminalTransferDocument.cs" />
@@ -456,10 +452,8 @@
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointEstimatedCoordinateMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
-    <Compile Include="HibernateMapping\Documents\CarUnderloadDocumentItemMap.cs" />
-    <Compile Include="HibernateMapping\Documents\RouteListKeepingDocumentItemMap.cs" />
-    <Compile Include="HibernateMapping\Documents\CarUnderloadDocumentMap.cs" />
-    <Compile Include="HibernateMapping\Documents\RouteListKeepingDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\RouteListAddressKeepingDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\RouteListAddressKeepingDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DocumentPrintHistoryMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\DriverDiscrepancyDocumentMap.cs" />

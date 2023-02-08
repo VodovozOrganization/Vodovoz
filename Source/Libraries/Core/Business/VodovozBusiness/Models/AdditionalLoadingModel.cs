@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Controllers;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Stock;
@@ -303,26 +300,6 @@ namespace Vodovoz.Models
 				{
 					items.Remove(item);
 				}
-			}
-		}
-
-		public void UpdateDeliveryFreeBalanceOperations(IUnitOfWork uow, RouteList routeList)
-		{
-			if(routeList.AdditionalLoadingDocument?.Items == null)
-			{
-				return;
-			}
-			
-			foreach(var item in routeList.AdditionalLoadingDocument.Items)
-			{
-				var operation = item.DeliveryFreeBalanceOperation ?? new DeliveryFreeBalanceOperation();
-				operation.Nomenclature = item.Nomenclature;
-				operation.Amount = item.Amount;
-				operation.RouteList = routeList;
-
-				uow.Save(operation);
-
-				item.DeliveryFreeBalanceOperation = operation;
 			}
 		}
 	}

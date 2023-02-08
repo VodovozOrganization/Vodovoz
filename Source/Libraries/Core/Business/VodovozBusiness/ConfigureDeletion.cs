@@ -861,7 +861,8 @@ namespace Vodovoz
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarLoadDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation);
+				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation)
+				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarUnloadDocument>()
 				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.Document);

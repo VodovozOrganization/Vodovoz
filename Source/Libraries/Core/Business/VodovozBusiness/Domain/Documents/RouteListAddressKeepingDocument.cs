@@ -11,10 +11,10 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "документы ведения свободных остатков МЛ для адреса")]
 	[HistoryTrace]
 
-	public class RouteListKeepintDocument : Document
+	public class RouteListAddressKeepingDocument : Document
 	{
 		private RouteListItem _routeListItem;
-		private IList<RouteListKeepingDocumentItem> _items = new List<RouteListKeepingDocumentItem>();
+		private IList<RouteListAddressKeepingDocumentItem> _items = new List<RouteListAddressKeepingDocumentItem>();
 
 		[Display(Name = "Адрес")]
 		public virtual RouteListItem RouteListItem
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		[Display(Name = "Строки документа ведения свободных остатков МЛ")]
-		public virtual IList<RouteListKeepingDocumentItem> Items
+		public virtual IList<RouteListAddressKeepingDocumentItem> Items
 		{
 			get => _items;
 			set => SetField(ref _items, value);

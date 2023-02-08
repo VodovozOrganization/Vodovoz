@@ -51,7 +51,7 @@ namespace Vodovoz
 			new NomenclatureParametersProvider(_parametersProvider);
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		private RouteListKeepingDocumentController _routeListKeepingDocumentController;
+		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
 			new RouteListProfitabilityController(
 				new RouteListProfitabilityFactory(),
@@ -302,7 +302,7 @@ namespace Vodovoz
 
 			UpdateNodes();
 
-			_routeListKeepingDocumentController = new RouteListKeepingDocumentController(_employeeRepository);
+			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
 		}
 
 		void YtreeviewAddresses_RowActivated(object o, RowActivatedArgs args)
@@ -398,11 +398,11 @@ namespace Vodovoz
 					dlg.DlgSaved += (s, ea) =>
 					{
 						rli.UpdateStatus(newStatus, CallTaskWorker);
-						_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
+						_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
 					};
 					return;
 				}
-				_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
 				rli.UpdateStatus(newStatus, CallTaskWorker);
 			}
 		}

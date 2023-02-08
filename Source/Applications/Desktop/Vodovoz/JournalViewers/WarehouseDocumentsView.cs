@@ -307,10 +307,6 @@ namespace Vodovoz
 			if(OrmMain.DeleteObject (Document.GetDocClass(item.DocTypeEnum), item.Id))
 				tableDocuments.RepresentationModel.UpdateNodes ();
 
-			IRouteListUnderLoadDocumentController routeListUnderLoadDocumentController = new RouteListUnderLoadDocumentController(new EmployeeRepository());
-			var routelist = uow.GetById<RouteList>(item.RouteListId);
-			routeListUnderLoadDocumentController.CreateOrUpdateCarUnderloadDocument(uow, routelist);
-
 			uow.Commit();
 
 		}

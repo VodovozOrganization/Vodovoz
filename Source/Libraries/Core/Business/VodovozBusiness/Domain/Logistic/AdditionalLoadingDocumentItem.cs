@@ -33,12 +33,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _amount, value);
 		}
 
-		[Display(Name = "Операция изменения свободных остатков МЛ")]
-		public virtual DeliveryFreeBalanceOperation DeliveryFreeBalanceOperation
-		{
-			get => _deliveryFreeBalanceOperation;
-			set => SetField(ref _deliveryFreeBalanceOperation, value);
-		}
 
 		[Display(Name = "Документ запаса")]
 		public virtual AdditionalLoadingDocument AdditionalLoadingDocument

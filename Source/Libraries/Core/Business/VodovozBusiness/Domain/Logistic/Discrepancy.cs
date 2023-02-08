@@ -56,7 +56,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Остаток
 		/// </summary>
-		public decimal Remainder => ToWarehouse - FreeBalance;
+		public decimal Remainder => FreeBalance;
 
 		/// <summary>
 		/// Ущерб

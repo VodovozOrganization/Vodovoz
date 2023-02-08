@@ -5,16 +5,20 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.Controllers
 {
-	public class RouteListKeepingDocumentController: IRouteListKeepingDocumentController
+	public class RouteListAddressKeepingDocumentController: IRouteListAddressKeepingDocumentController
 	{
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
 
-		public RouteListKeepingDocumentController(IEmployeeRepository employeeRepository)
+		public RouteListAddressKeepingDocumentController(IEmployeeRepository employeeRepository, INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 		}
 
 		private DeliveryFreeBalanceType GetDeliveryFreeBalanceType(RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
@@ -70,9 +74,9 @@ namespace Vodovoz.Controllers
 			}
 
 			var routeListKeepingDocument =
-				uow.GetAll<RouteListKeepintDocument>()
+				uow.GetAll<RouteListAddressKeepingDocument>()
 					.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id)
-				?? new RouteListKeepintDocument();
+				?? new RouteListAddressKeepingDocument();
 
 			var routeList = routeListItem.RouteList;
 
@@ -97,26 +101,58 @@ namespace Vodovoz.Controllers
 			routeListKeepingDocument.RouteListItem = routeListItem;
 			routeListKeepingDocument.Author = currentEmployee;
 
+			foreach(var item in routeListKeepingDocument.Items)
+			{
+				uow.Delete(item);
+			}
+
 			routeListKeepingDocument.Items.Clear();
 
 			int amountSign = deliveryFreeBalanceType == DeliveryFreeBalanceType.Increase ? 1 : -1;
 
 			foreach(var item in routeListItem.Order.GetAllGoodsToDeliver())
 			{
-				var routeListKeepingDocumentItem =
-					routeListKeepingDocument.Items.SingleOrDefault(x => x.Nomenclature.Id == item.Nomenclature.Id)
-					?? new RouteListKeepingDocumentItem();
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 
-				routeListKeepingDocumentItem.RouteListKeepintDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
 				routeListKeepingDocumentItem.Nomenclature = item.Nomenclature;
 				routeListKeepingDocumentItem.Amount = item.Amount * amountSign;
 
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+				
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
 
+				routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+			}
+
+			// оборудование от клиента
+			foreach(var item in routeListItem.Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp))
+			{
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
+				{
+					RouteListAddressKeepingDocument = routeListKeepingDocument,
+					Nomenclature = item.Nomenclature,
+					Amount = item.Count * (-amountSign)
+				};
+
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 
 				routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 			}
+
+			// бутыли на возврат
+			var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
+			{
+				RouteListAddressKeepingDocument = routeListKeepingDocument,
+				Nomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow),
+				Amount = routeListItem.Order.BottlesReturn ?? 0 * (-amountSign)
+			};
+
+			bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
+			routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
+
+			routeList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 
 			uow.Save(routeListKeepingDocument);
 		}

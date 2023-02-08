@@ -283,21 +283,9 @@ namespace Vodovoz
 																   .SelectMany(address => address.Order.OrderItems)
 																   .Where(orderItem => !orderItem.Nomenclature.IsSerial)
 																   .Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
-			foreach(var item in returnableOrderItems) {
-				if(allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
-					allReturnsToWarehouse.Add(new ReturnsNode {
-						Name = item.Nomenclature.Name,
-						Trackable = item.Nomenclature.IsSerial,
-						NomenclatureId = item.Nomenclature.Id,
-						Nomenclature = item.Nomenclature,
-						Amount = 0
-					});
-			}
 
 			routelistdiscrepancyview.RouteList = Entity;
-			routelistdiscrepancyview.ItemsNotLoaded = Entity.NotLoadedNomenclatures(false,
-				_baseParametersProvider.GetNomenclatureIdForTerminal);
-			routelistdiscrepancyview.FindDiscrepancies(allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies();
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
@@ -564,7 +552,9 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository
+							_categoryRepository,
+							_employeeRepository,
+							_nomenclatureParametersProvider
 						)
 					);
 					break;
@@ -586,7 +576,9 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository
+							_categoryRepository,
+							_employeeRepository,
+							_nomenclatureParametersProvider
 						)
 					);
 					break;
@@ -618,7 +610,7 @@ namespace Vodovoz
 				foreach(var itm in item.Order.OrderItems)
 					itm.ActualCount = 0m;
 
-			routelistdiscrepancyview.FindDiscrepancies(allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies();
 			OnItemsUpdated();
 		}
 
@@ -644,7 +636,7 @@ namespace Vodovoz
 				Entity.RecalculateWagesForRouteListItem(rli, wageParameterService);
 				rli.RecalculateTotalCash();
 			}
-			routelistdiscrepancyview.FindDiscrepancies(allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies();
 			OnItemsUpdated();
 		}
 
@@ -1225,7 +1217,7 @@ namespace Vodovoz
 		private void ReloadDiscrepancies()
 		{
 			ReloadReturnedToWarehouse();
-			routelistdiscrepancyview.FindDiscrepancies(allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies();
 			CalculateTotal();
 		}
 

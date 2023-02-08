@@ -34,7 +34,6 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
-		private IRouteListUnderLoadDocumentController _routeListUnderLoadDocumentController;
 
 
 		private CallTaskWorker callTaskWorker;
@@ -161,7 +160,6 @@ namespace Vodovoz
 				Entity.CanEdit = true;
 			}
 
-			_routeListUnderLoadDocumentController = new RouteListUnderLoadDocumentController(_employeeRepository);
 		}
 
 		public override bool Save()
@@ -207,8 +205,6 @@ namespace Vodovoz
 			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker, out _))
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
-
-			_routeListUnderLoadDocumentController.CreateOrUpdateCarUnderloadDocument(UoW, Entity.RouteList);
 
 			UoW.Commit();
 

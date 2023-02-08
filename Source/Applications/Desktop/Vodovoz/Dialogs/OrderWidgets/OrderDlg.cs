@@ -126,6 +126,7 @@ namespace Vodovoz
 			new DeliveryRulesParametersProvider(_parametersProvider);
 		private static readonly IDriverApiParametersProvider _driverApiParametersProvider =
 			new DriverApiParametersProvider(_parametersProvider);
+		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 		private static readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -138,7 +139,7 @@ namespace Vodovoz
 		private CounterpartyContractFactory counterpartyContractFactory;
 		private IOrderParametersProvider _orderParametersProvider;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
-		private RouteListKeepingDocumentController _routeListKeepingDocumentController;
+		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
 		private readonly IRouteListParametersProvider _routeListParametersProvider = new RouteListParametersProvider(_parametersProvider);
 		private readonly IDocumentPrinter _documentPrinter = new DocumentPrinter();
@@ -467,7 +468,7 @@ namespace Vodovoz
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
 			var routeListRepository = new RouteListRepository(_stockRepository, _baseParametersProvider);
-			_routeListKeepingDocumentController = new RouteListKeepingDocumentController(_employeeRepository);
+			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 
@@ -1789,7 +1790,7 @@ namespace Vodovoz
 			{
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("CreateOrUpdateRouteListKeepingDocument"))
 				{
-					_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
+					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
 
 					uow.Commit();
 				}
@@ -2986,7 +2987,7 @@ namespace Vodovoz
 					Entity.SetActualCountsToZeroOnCanceled();
 				}
 
-				_routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, Entity, DeliveryFreeBalanceType.Increase);
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, Entity, DeliveryFreeBalanceType.Increase);
 
 				UpdateUIState();
 

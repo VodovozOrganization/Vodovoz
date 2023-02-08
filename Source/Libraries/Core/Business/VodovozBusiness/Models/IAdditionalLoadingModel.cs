@@ -9,6 +9,5 @@ namespace Vodovoz.Models
 	{
 		AdditionalLoadingDocument CreateAdditionLoadingDocument(IUnitOfWork uow, RouteList routeList);
 		void ReloadActiveFlyers(IUnitOfWork uow, RouteList routelist, DateTime previousRoutelistDate);
-		void UpdateDeliveryFreeBalanceOperations(IUnitOfWork uow, RouteList routeList);
 	}
 }
