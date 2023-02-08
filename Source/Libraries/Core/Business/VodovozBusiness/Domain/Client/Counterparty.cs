@@ -1314,10 +1314,10 @@ namespace Vodovoz.Domain.Client
 					var counterpartiesWithTheSamePhoneNumber = CheckForPhoneNumberDuplicate(counterpartyRepository, UoW, phone.Number);
 					if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
 					{
-						phonesValidationStringBuilder.Append($"Телефон {phone.Number} уже указан у контрагентов:");
+						phonesValidationStringBuilder.Append($"Телефон {phone.Number} уже указан у контрагентов:\n");
 						foreach(var c in counterpartiesWithTheSamePhoneNumber)
 						{
-							phonesValidationStringBuilder.Append($"\n\t{c.Name}");
+							phonesValidationStringBuilder.Append($"\t{c.Name}\n");
 						}
 					}
 				}
