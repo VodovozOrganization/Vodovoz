@@ -15,11 +15,17 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			//yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
-			//yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
-				//.AddBinding(vm => vm.ComplaintObjects, w => w.ItemsList)
-				//.AddBinding(vm => vm.ComplaintObject, w => w.SelectedItem)
-				//.InitializeFromSource();
+			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
+			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ComplaintObjects, w => w.ItemsList)
+				.AddBinding(vm => vm.ComplaintObject, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yspeccomboboxComplaintKind.ShowSpecialStateAll = true;
+			yspeccomboboxComplaintKind.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.VisibleComplaintKinds, w => w.ItemsList)
+				.AddBinding(vm => vm.ComplaintKind, w => w.SelectedItem)
+				.InitializeFromSource();
 		}
 	}
 }

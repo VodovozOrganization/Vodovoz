@@ -81,6 +81,9 @@ namespace Vodovoz.Views.Complaints
 				.InitializeFromSource();
 
 			entryComplainDetalization.SetEntityAutocompleteSelectorFactory(ViewModel.ComplaintDetalizationAutocompleteSelectorFactory);
+			entryComplainDetalization.Binding
+				.AddBinding(ViewModel.Entity, e => e.ComplaintDetalization, w => w.Subject) //?
+				.InitializeFromSource();
 
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)

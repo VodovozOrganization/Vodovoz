@@ -323,12 +323,6 @@ namespace Vodovoz.ViewModels.Complaints
 			set => SetField(ref _complaintKindSource, value);
 		}
 
-		public ComplaintDetalization ComplaintDetalization
-		{
-			get => _complaintDetalization;
-			set => SetField(ref _complaintDetalization, value);
-		}
-
 		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 
 		public bool IsInnerComplaint => Entity.ComplaintType == ComplaintType.Inner;
@@ -478,7 +472,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 			if(Entity.ComplaintKind != null)
 			{
-				complainDetalizationFilter.RestrictKind = Entity.ComplaintKind;
+				complainDetalizationFilter.RestrictComplaintKind = Entity.ComplaintKind;
 			}
 
 			ComplaintDetalizationAutocompleteSelectorFactory =
