@@ -349,7 +349,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			{
 				foreach(var timeSpan in requestedHours)
 				{
-					result.Add(date.Add(timeSpan));
+					var dateToAdd = date.Add(timeSpan);
+					if(dateToAdd > DateTime.Now)
+					{
+						break;
+					}
+					result.Add(dateToAdd);
 				}
 			}
 
