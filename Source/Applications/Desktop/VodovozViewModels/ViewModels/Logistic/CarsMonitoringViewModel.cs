@@ -672,7 +672,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		#region Query Methods
-		private static QueryOver<RouteListItem, RouteListItem> CreateOwnOrdersSubquery()
+		private QueryOver<RouteListItem, RouteListItem> CreateOwnOrdersSubquery()
 		{
 			RouteListItem routeListItemAlias = null;
 			OrderItem orderItemAlias = null;
@@ -680,18 +680,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Domain.Orders.Order orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			return QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+			var result = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 							.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 							.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
 							.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 							.Where(() => !orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
 							.And(() => nomenclatureAlias.Category == NomenclatureCategory.water
 								&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-							.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
-							.Select(Projections.Sum(() => orderItemAlias.Count));
+							.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id);
+
+			if(ShowHistory)
+			{
+				result.And(Restrictions.Le(Projections.Property(() => routeListItemAlias.CreationDate), HistoryDateTime));
+			}
+
+			return result.Select(Projections.Sum(() => orderItemAlias.Count));
 		}
 
-		private QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> CreateAdditionalBalanceSuqquery()
+		private QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> CreateAdditionalBalanceSubquery()
 		{
 			RouteList routeListAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -699,14 +705,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
 
 			var subquery = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
+				.Inner.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Inner.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water
 					&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.And(() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
-				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
+				.And(() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id);
 
-			return subquery;
+			if(ShowHistory)
+			{
+				subquery.And(Restrictions.Le(Projections.Property(() => additionalLoadingDocumentAlias.CreationDate), HistoryDateTime));
+			}
+
+			return subquery.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
 		}
 
 		private QueryOver<RouteListItem, RouteListItem> CreateDeliveredOrdersSubquery()
@@ -736,10 +746,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id);
 
-
 			if(ShowHistory)
 			{
-				deliveredOrdersSubquery.And(Restrictions.Le(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime));
+				deliveredOrdersSubquery
+					.And(Restrictions.Le(Projections.Property(() => routeListItemAlias.CreationDate), HistoryDateTime));
 			}
 
 			deliveredOrdersSubquery.Select(OrderProjections.GetOrderItemCountSumProjection());
@@ -750,7 +760,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			QueryOver<RouteListItem, RouteListItem> ownOrdersSubquery = CreateOwnOrdersSubquery();
 
-			QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> additionalBalanceSubquery = CreateAdditionalBalanceSuqquery();
+			QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> additionalBalanceSubquery = CreateAdditionalBalanceSubquery();
 
 			QueryOver<RouteListItem, RouteListItem> deliveredOrdersSubquery = CreateDeliveredOrdersSubquery();
 
@@ -758,30 +768,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			IProjection water19LReserveProjection;
 
-			if(ShowHistory)
-			{
-				water19LReserveProjection = Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
-					Projections.Constant(0m),
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"),
-						NHibernateUtil.Decimal,
-						Projections.SubQuery(ownOrdersSubquery),
-						Projections.SubQuery(additionalBalanceSubquery),
-						Projections.SubQuery(deliveredOrdersSubquery)));
-			}
-			else
-			{
-				water19LReserveProjection = Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
-					Projections.Constant(0m),
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"),
-						NHibernateUtil.Decimal,
-						Projections.SubQuery(ownOrdersSubquery),
-						Projections.SubQuery(additionalBalanceSubquery),
-						Projections.SubQuery(deliveredOrdersSubquery)));
-			}
+			water19LReserveProjection = Projections.Conditional(
+				Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
+				Projections.Constant(0m),
+				Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"),
+					NHibernateUtil.Decimal,
+					Projections.SubQuery(ownOrdersSubquery),
+					Projections.SubQuery(additionalBalanceSubquery),
+					Projections.SubQuery(deliveredOrdersSubquery)));
+
 
 			return water19LReserveProjection;
 		}
