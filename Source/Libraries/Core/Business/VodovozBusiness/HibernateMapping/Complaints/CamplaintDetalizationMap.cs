@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Complaints
 	{
 		public CamplaintDetalizationMap()
 		{
-			Table("complaint_detalization");
+			Table("complaint_detalizations");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
