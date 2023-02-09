@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities;
+using QS.Utilities.Text;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -59,6 +60,9 @@ namespace Vodovoz.Domain.Client
 		private string _specialContractNumber;
 		private DateTime? _specialContractDate;
 		private bool _doNotMixMarkedAndUnmarkedGoodsInOrder;
+		private string _patronymic;
+		private string _firstName;
+		private string _surname;
 
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
 		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
@@ -733,7 +737,46 @@ namespace Vodovoz.Domain.Client
 			get => _edoOperator;
 			set => SetField(ref _edoOperator, value);
 		}
-		
+
+		[Display(Name = "Фамилия")]
+		public virtual string Surname
+		{
+			get => _surname;
+			set
+			{
+				if(SetField(ref _surname, value))
+				{
+					Name = FullName = PersonHelper.PersonFullName(Surname, FirstName, Patronymic);
+				}
+			}
+		}
+
+		[Display(Name = "Имя")]
+		public virtual string FirstName
+		{
+			get => _firstName;
+			set
+			{
+				if(SetField(ref _firstName, value))
+				{
+					Name = FullName = PersonHelper.PersonFullName(Surname, FirstName, Patronymic);
+				}
+			}
+		}
+
+		[Display(Name = "Отчество")]
+		public virtual string Patronymic
+		{
+			get => _patronymic;
+			set
+			{
+				if(SetField(ref _patronymic, value))
+				{
+					Name = FullName = PersonHelper.PersonFullName(Surname, FirstName, Patronymic);
+				}
+			}
+		}
+
 		[Display(Name = "Не смешивать в одном заказе маркированные и немаркированные товары")]
 		public virtual bool DoNotMixMarkedAndUnmarkedGoodsInOrder
 		{
