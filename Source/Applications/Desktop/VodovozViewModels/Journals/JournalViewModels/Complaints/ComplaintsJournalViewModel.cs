@@ -191,6 +191,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintDiscussion discussionAlias = null;
 			Subdivision subdivisionAlias = null;
 			ComplaintKind complaintKindAlias = null;
+			ComplaintDetalization complaintDelatizationAlias = null;
 			Subdivision superspecialAlias = null;
 			ComplaintObject complaintObjectAlias = null;
 			ComplaintResultOfCounterparty resultOfCounterpartyAlias = null;
@@ -310,6 +311,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Left.JoinAlias(() => complaintAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
 				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
@@ -483,6 +485,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintAlias.ComplaintText).WithAlias(() => resultAlias.ComplaintText)
 				.Select(() => complaintKindAlias.Name).WithAlias(() => resultAlias.ComplaintKindString)
 				.Select(() => complaintKindAlias.IsArchive).WithAlias(() => resultAlias.ComplaintKindIsArchive)
+				.Select(() => complaintDelatizationAlias.Name).WithAlias(() => resultAlias.ComplaintDetalizationString)
+				.Select(() => complaintDelatizationAlias.IsArchive).WithAlias(() => resultAlias.ComplaintDetalizationIsArchive)
 				.Select(() => complaintAlias.ResultText).WithAlias(() => resultAlias.ResultText)
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
