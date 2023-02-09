@@ -29,14 +29,20 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			ComplaintKinds = UoW.Session.QueryOver<ComplaintKind>().List();
 			VisibleComplaintKinds = ComplaintKinds;
+
+			SelectedComplainObject = complaintObject ?? Entity.ComplaintKind?.ComplaintObject;
+
+			if(complaintKind != null)
+			{
+				Entity.ComplaintKind = complaintKind;
+			}
+
 			SelectedComplainObject = Entity.ComplaintKind?.ComplaintObject;
+
+			CanChangeComplaintObject = complaintObject is null && !(SelectedComplainObject?.IsArchive ?? false) && !(Entity.ComplaintKind?.IsArchive ?? false);
+			CanChangeComplaintKind = complaintKind is null && !(Entity.ComplaintKind?.IsArchive ?? false);
+
 			Entity.PropertyChanged += EntityPropertyChanged;
-
-			CanChangeComplaintObject = complaintObject is null;
-			CanChangeComplaintKind = complaintKind is null;
-
-			SelectedComplainObject = ComplaintObjects.FirstOrDefault(x => x.Id == complaintObject?.Id);
-			Entity.ComplaintKind = ComplaintKinds.FirstOrDefault(x => x.Id == complaintKind?.Id);
 		}
 
 		public IList<ComplaintObject> ComplaintObjects { get; }

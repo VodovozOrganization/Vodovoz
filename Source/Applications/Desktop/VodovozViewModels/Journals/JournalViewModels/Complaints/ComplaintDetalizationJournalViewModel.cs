@@ -60,7 +60,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				() => complaintKindAlias.Name,
 				() => complaintObjectAlias.Name));
 
-			itemsQuery.SelectList(list =>
+			itemsQuery.OrderBy(x => x.IsArchive).Asc
+				.SelectList(list =>
 					list.SelectGroup(() => complaintDetalizationAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => complaintDetalizationAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => complaintDetalizationAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
