@@ -382,8 +382,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			completedSubquery.Select(Projections.RowCount());
 
 			var addressesSubquery = QueryOver.Of<RouteListItem>()
-				.Where(i => i.RouteList.Id == routeListAlias.Id)
-				.Select(Projections.RowCount());
+				.Where(i => i.RouteList.Id == routeListAlias.Id);
+
+			if(ShowHistory)
+			{
+				addressesSubquery.And(ua => ua.CreationDate <= HistoryDateTime);
+			}
+
+			addressesSubquery.Select(Projections.RowCount());
 
 			var uncompletedBottlesSubquery = QueryOver.Of<RouteListItem>(() => routeListItemAlias)  // Запрашивает количество ещё не доставленных бутылей.
 				.Where(i => i.RouteList.Id == routeListAlias.Id);
