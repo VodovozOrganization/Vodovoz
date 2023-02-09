@@ -69,16 +69,43 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 		public IList<Counterparty> GetNotArchivedCounterpartiesByPhoneNumber(IUnitOfWork uow, string phoneNumber)
 		{
+			var counterpartiesWithDesiredPhoneNumber = new List<Counterparty>();
+
 			if(string.IsNullOrWhiteSpace(phoneNumber))
 			{
-				return new List<Counterparty>();
+				return counterpartiesWithDesiredPhoneNumber;
 			}
-			Phone phoneAlias = null;
-			return uow.Session.QueryOver<Counterparty>()
-				.Where(c => c.IsArchive == false)
-				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
-				.Where(() => phoneAlias.Number == phoneNumber)
-				.List<Counterparty>() ?? new List<Counterparty>();
+
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+
+			var phoneEntitiesWithDesiredPhoneNumber = uow.Session.QueryOver<Phone>()
+				.Where(p => p.Number == phoneNumber)
+				.Left.JoinAlias(p => p.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(p => p.DeliveryPoint, () => deliveryPointAlias)
+				.List<Phone>();
+
+			counterpartiesWithDesiredPhoneNumber.AddRange(
+				phoneEntitiesWithDesiredPhoneNumber
+				.Where(p => !p.IsArchive && p.Counterparty != null)
+				.Select(p => p.Counterparty));
+
+			var deliveryPointIdsWithDesiredPhoneNumber = phoneEntitiesWithDesiredPhoneNumber
+				.Where(p => p.DeliveryPoint != null)
+				.Select(p => p.DeliveryPoint?.Id)
+				.ToList();
+
+			var counterapartiesWithDesiredPhoneNumberFoundByDeliveryPoint =
+				uow.Session.QueryOver(() => deliveryPointAlias)
+				.Where(() => deliveryPointAlias.IsActive)
+				.Where(Restrictions.In(Projections.Property(() => deliveryPointAlias.Id), deliveryPointIdsWithDesiredPhoneNumber))
+				.JoinAlias(d => d.Counterparty, () => counterpartyAlias)
+				.Select(Projections.Distinct(Projections.Property<DeliveryPoint>(d => d.Counterparty)))
+				.List<Counterparty>();
+
+			counterpartiesWithDesiredPhoneNumber.AddRange(counterapartiesWithDesiredPhoneNumberFoundByDeliveryPoint);
+
+			return counterpartiesWithDesiredPhoneNumber.Distinct().ToList();
 		}
 
 		public Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber)
