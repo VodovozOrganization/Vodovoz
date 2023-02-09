@@ -397,8 +397,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(ShowHistory)
 			{
 				uncompletedBottlesSubquery.Where(Restrictions.Or(
-					Restrictions.Ge(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime),
-					Restrictions.Eq(Projections.Property(() => routeListItemAlias.Status), RouteListItemStatus.EnRoute)));
+						Restrictions.Ge(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime),
+						Restrictions.Eq(Projections.Property(() => routeListItemAlias.Status), RouteListItemStatus.EnRoute)))
+					.And(ua => ua.CreationDate <= HistoryDateTime);
 			}
 			else
 			{
