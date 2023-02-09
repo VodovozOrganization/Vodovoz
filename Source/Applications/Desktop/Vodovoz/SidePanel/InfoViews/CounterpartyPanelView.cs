@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using Gtk;
 using Pango;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
@@ -26,6 +27,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private Counterparty _counterparty;
 		private IPermissionResult _counterpartyPermissionResult;
+		private bool _textviewcommentBufferChanged = false;
 
 		public CounterpartyPanelView(ICommonServices commonServices)
 		{
@@ -51,6 +53,9 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddColumn("Статус")
 				.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
 				.Finish();
+
+			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
+			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
 		}
 		
 		private void Refresh(object changedObj)
@@ -85,6 +90,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelName.Text = _counterparty.FullName;
 			SetupPersonalManagers();
 			textviewComment.Buffer.Text = _counterparty.Comment;
+			_textviewcommentBufferChanged = false;
 
 			var latestOrder = _orderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, _counterparty);
 			if(latestOrder != null)
@@ -192,13 +198,44 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 		}
 
-		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
+		private void SaveComment()
 		{
 			using(var uow =
 				UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
+			}
+			_textviewcommentBufferChanged = false;
+		}
+
+		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
+		{
+			SaveComment();
+		}
+
+		private void OnTextviewCommentBufferChanged(object sender, EventArgs e)
+		{
+			_textviewcommentBufferChanged = true;
+		}
+
+		private void OnTextviewCommentFocusOut(object sender, EventArgs e)
+		{
+			if(_textviewcommentBufferChanged && buttonSaveComment.State != StateType.Prelight)
+			{
+				Application.Invoke((s, ea) =>
+				{
+					bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
+					if(isRequiredToSaveComment)
+					{
+						SaveComment();
+					}
+					else
+					{
+						textviewComment.Buffer.Text = _counterparty.Comment ?? String.Empty;
+						_textviewcommentBufferChanged = false;
+					}
+				});
 			}
 		}
 
@@ -216,6 +253,33 @@ namespace Vodovoz.SidePanel.InfoViews
 			);
 		}
 
+		#endregion
+
+		#region overrided Dispose() method
+
+		private bool _disposed = false;
+
+		public override void Dispose()
+		{
+			Dispose(true);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if(_disposed)
+			{
+				return;
+			}
+
+			if(disposing)
+			{
+				textviewComment.Buffer.Changed -= OnTextviewCommentBufferChanged;
+				textviewComment.FocusOutEvent -= OnTextviewCommentFocusOut;
+				base.Dispose();
+			}
+
+			_disposed = true;
+		}
 		#endregion
 	}
 }
