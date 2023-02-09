@@ -82,7 +82,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var phoneEntitiesWithDesiredPhoneNumber = uow.Session.QueryOver<Phone>()
 				.Where(p => p.Number == phoneNumber)
 				.Left.JoinAlias(p => p.Counterparty, () => counterpartyAlias)
-				.Left.JoinAlias(p => p.DeliveryPoint, () => deliveryPointAlias)
 				.List<Phone>();
 
 			counterpartiesWithDesiredPhoneNumber.AddRange(
@@ -91,7 +90,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Select(p => p.Counterparty));
 
 			var deliveryPointIdsWithDesiredPhoneNumber = phoneEntitiesWithDesiredPhoneNumber
-				.Where(p => p.DeliveryPoint != null)
+				.Where(p => !p.IsArchive && p.DeliveryPoint != null)
 				.Select(p => p.DeliveryPoint?.Id)
 				.ToList();
 
