@@ -166,9 +166,11 @@ namespace Vodovoz.Journals.JournalViewModels
 				typeof(Order),
 				typeof(RouteList),
 				typeof(RouteListItem),
-				typeof(ComplaintObject)
-			);
-			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
+				typeof(ComplaintObject),
+				typeof(ComplaintKind),
+				typeof(ComplaintDetalization));
+
+			DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 		}
@@ -391,13 +393,25 @@ namespace Vodovoz.Journals.JournalViewModels
 				}
 
 				if(dicussionQuery != null)
+				{
 					query.WithSubquery.WhereExists(dicussionQuery);
+				}
+
 				if(FilterViewModel.ComplaintType != null)
+				{
 					query = query.Where(() => complaintAlias.ComplaintType == FilterViewModel.ComplaintType);
+				}
+
 				if(FilterViewModel.ComplaintStatus != null)
+				{
 					query = query.Where(() => complaintAlias.Status == FilterViewModel.ComplaintStatus);
+				}
+
 				if(FilterViewModel.Employee != null)
+				{
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
+				}
+
 				if(FilterViewModel.Counterparty != null)
 				{
 					query = query.Where(() => complaintAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
@@ -426,8 +440,15 @@ namespace Vodovoz.Journals.JournalViewModels
 					query.WithSubquery.WhereProperty(x => x.Id).In(subquery.Select(x => x.Complaint));
 				}
 
+				if(FilterViewModel.ComplainDetalization != null)
+				{
+					query.Where(() => complaintAlias.ComplaintDetalization.Id == FilterViewModel.ComplainDetalization.Id);
+				}
+
 				if(FilterViewModel.ComplaintKind != null)
+				{
 					query.Where(() => complaintAlias.ComplaintKind.Id == FilterViewModel.ComplaintKind.Id);
+				}
 
 				if(FilterViewModel.ComplaintObject != null)
 				{
@@ -567,13 +588,25 @@ namespace Vodovoz.Journals.JournalViewModels
 				}
 
 				if(dicussionQuery != null)
+				{
 					query.WithSubquery.WhereExists(dicussionQuery);
+				}
+
 				if(FilterViewModel.ComplaintType != null)
+				{
 					query = query.Where(() => complaintAlias.ComplaintType == FilterViewModel.ComplaintType);
+				}
+
 				if(FilterViewModel.ComplaintStatus != null)
+				{
 					query = query.Where(() => complaintAlias.Status == FilterViewModel.ComplaintStatus);
+				}
+
 				if(FilterViewModel.Employee != null)
+				{
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
+				}
+
 				if(FilterViewModel.Counterparty != null)
 				{
 					query = query.Where(() => complaintAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
@@ -606,7 +639,9 @@ namespace Vodovoz.Journals.JournalViewModels
 				}
 
 				if(FilterViewModel.ComplaintKind != null)
+				{
 					query.Where(() => complaintAlias.ComplaintKind.Id == FilterViewModel.ComplaintKind.Id);
+				}
 
 				if(FilterViewModel.ComplaintObject != null)
 				{
@@ -858,9 +893,13 @@ namespace Vodovoz.Journals.JournalViewModels
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))
+							{
 								ShowWarningMessage(msg, "Не удалось закрыть");
+							}
 							else
+							{
 								currentComplaintVM.Save();
+							}
 						}
 					}
 				)

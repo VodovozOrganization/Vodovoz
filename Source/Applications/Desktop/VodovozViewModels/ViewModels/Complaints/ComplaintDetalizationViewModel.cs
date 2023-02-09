@@ -16,11 +16,13 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 		private IEnumerable<ComplaintKind> _visibleComplaintKinds;
 
 		public ComplaintDetalizationViewModel(
-					IEntityUoWBuilder uowBuilder,
-					IUnitOfWorkFactory unitOfWorkFactory,
-					ICommonServices commonServices,
-					INavigationManager navigation = null)
-					: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			INavigationManager navigation = null,
+			ComplaintObject complaintObject = null,
+			ComplaintKind complaintKind = null)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			TabName = "Детализация рекламации";
 
@@ -29,6 +31,12 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 			VisibleComplaintKinds = ComplaintKinds;
 			SelectedComplainObject = Entity.ComplaintKind?.ComplaintObject;
 			Entity.PropertyChanged += EntityPropertyChanged;
+
+			CanChangeComplaintObject = complaintObject is null;
+			CanChangeComplaintKind = complaintKind is null;
+
+			SelectedComplainObject = ComplaintObjects.FirstOrDefault(x => x.Id == complaintObject?.Id);
+			Entity.ComplaintKind = ComplaintKinds.FirstOrDefault(x => x.Id == complaintKind?.Id);
 		}
 
 		public IList<ComplaintObject> ComplaintObjects { get; }
@@ -60,6 +68,10 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 				}
 			}
 		}
+
+		public bool CanChangeComplaintKind { get; }
+
+		public bool CanChangeComplaintObject { get; }
 
 		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{

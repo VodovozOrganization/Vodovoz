@@ -22,11 +22,13 @@ namespace Vodovoz.Views.Complaints
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjects, w => w.ItemsList)
 				.AddBinding(vm => vm.SelectedComplainObject, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanChangeComplaintObject, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspeccomboboxComplaintKind.ShowSpecialStateNot = true;
 			yspeccomboboxComplaintKind.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.VisibleComplaintKinds, w => w.ItemsList)
+				.AddBinding(vm => vm.CanChangeComplaintKind, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspeccomboboxComplaintKind.Binding
@@ -40,12 +42,12 @@ namespace Vodovoz.Views.Complaints
 			buttonCancel.Clicked += ButtonCancelClicked;
 		}
 
-		private void ButtonSaveClicked (object sender, EventArgs e)
+		private void ButtonSaveClicked(object sender, EventArgs e)
 		{
 			ViewModel.SaveAndClose();
 		}
 
-		private void ButtonCancelClicked (object sender, EventArgs e)
+		private void ButtonCancelClicked(object sender, EventArgs e)
 		{
 			ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}

@@ -13,6 +13,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.FilterViewModels
@@ -40,6 +41,8 @@ namespace Vodovoz.FilterViewModels
 		private DateTime _endDate = DateTime.Now;
 		private bool? _isForRetail;
 		IList<ComplaintKind> _complaintKindSource;
+		ComplaintDetalizationJournalFilterViewModel _complaintDetalizationFilterViewModel;
+		private ComplaintDetalization _complainDetalization;
 
 		public ComplaintFilterViewModel()
 		{
@@ -88,10 +91,15 @@ namespace Vodovoz.FilterViewModels
 				throw new ArgumentNullException(nameof(complaintDetalizationAutocompleteSelectorFactory));
 			}
 
+			_complaintDetalizationFilterViewModel = new ComplaintDetalizationJournalFilterViewModel();
+
+			ComplaintDetalizationAutocompleteSelectorFactory = complaintDetalizationAutocompleteSelectorFactory
+				.CreateComplaintDetalizationAutocompleteSelectorFactory(_complaintDetalizationFilterViewModel);
+
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 			CanChangeSubdivision = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_subdivision_on_complaint");
 
-			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => 
+			GuiltyItemVM.Entity.OnGuiltyTypeChange = () =>
 			{
 				if(GuiltyItemVM.Entity.Responsible == null || !GuiltyItemVM.Entity.Responsible.IsEmployeeResponsible)
 				{
@@ -116,6 +124,7 @@ namespace Vodovoz.FilterViewModels
 				x => x.Subdivision,
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
+				x => x.ComplainDetalization,
 				x => x.ComplaintDiscussionStatus,
 				x => x.ComplaintObject,
 				x => x.CurrentUserSubdivision);
@@ -126,6 +135,8 @@ namespace Vodovoz.FilterViewModels
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory ComplaintDetalizationAutocompleteSelectorFactory { get; }
 
 		public virtual bool CanChangeSubdivision { get; }
 
@@ -138,7 +149,19 @@ namespace Vodovoz.FilterViewModels
 		public virtual ComplaintKind ComplaintKind
 		{
 			get => _complaintKind;
-			set => SetField(ref _complaintKind, value);
+			set
+			{
+				if(SetField(ref _complaintKind, value))
+				{
+					_complaintDetalizationFilterViewModel.RestrictComplaintKind = value;
+				}
+			}
+		}
+
+		public ComplaintDetalization ComplainDetalization
+		{
+			get => _complainDetalization;
+			set => SetField(ref _complainDetalization, value);
 		}
 
 		public IList<Subdivision> AllDepartments
@@ -155,6 +178,7 @@ namespace Vodovoz.FilterViewModels
 				if(SetField(ref _complaintObject, value))
 				{
 					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
+					_complaintDetalizationFilterViewModel.RestrictComplaintObject = value;
 				}
 			}
 		}
@@ -252,12 +276,13 @@ namespace Vodovoz.FilterViewModels
 			Employee = EmployeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId);
 		}
 
-		public IList<ComplaintKind> ComplaintKindSource {
+		public IList<ComplaintKind> ComplaintKindSource
+		{
 			get => _complaintKindSource;
 			set => SetField(ref _complaintKindSource, value);
 		}
 
-		public IEnumerable<ComplaintObject> ComplaintObjectSource => 
+		public IEnumerable<ComplaintObject> ComplaintObjectSource =>
 			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().ToList());
 	}
 

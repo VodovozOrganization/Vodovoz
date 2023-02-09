@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Детализации видов рекламаций";
+
 			UpdateOnChanges(
 				typeof(ComplaintKind),
 				typeof(ComplaintObject),
@@ -72,6 +73,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 		protected override void CreateNodeActions()
 		{
+			NodeActionsList.Clear();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 			CreateDefaultSelectAction();
@@ -81,12 +83,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			() => new ComplaintDetalizationViewModel(
 			   EntityUoWBuilder.ForCreate(),
 			   UnitOfWorkFactory,
-			   commonServices);
+			   commonServices,
+			   null,
+			   FilterViewModel.RestrictComplaintObject,
+			   FilterViewModel.RestrictComplaintKind);
 
 		protected override Func<ComplaintDetalizationJournalNode, ComplaintDetalizationViewModel> OpenDialogFunction =>
 			(node) => new ComplaintDetalizationViewModel(
 				EntityUoWBuilder.ForOpen(node.Id),
 				UnitOfWorkFactory,
-				commonServices);
+				commonServices,
+				null,
+				FilterViewModel.RestrictComplaintObject,
+				FilterViewModel.RestrictComplaintKind);
 	}
 }

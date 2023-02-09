@@ -19,12 +19,14 @@ namespace Vodovoz.Filters.GtkViews
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjects, w => w.ItemsList)
 				.AddBinding(vm => vm.ComplaintObject, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanChangeComplaintObject, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspeccomboboxComplaintKind.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintKind.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.VisibleComplaintKinds, w => w.ItemsList)
 				.AddBinding(vm => vm.ComplaintKind, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanChangeComplaintKind, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 	}

@@ -39,6 +39,11 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
+			entryComplainDetalization.SetEntityAutocompleteSelectorFactory(ViewModel.ComplaintDetalizationAutocompleteSelectorFactory);
+			entryComplainDetalization.Binding
+				.AddBinding(ViewModel, vm => vm.ComplainDetalization, w => w.Subject)
+				.InitializeFromSource();
+
 			//FIXME заменить на evme когда будут новые журналы с рекурсией
 			yCmbCurrentSubdivision.ItemsList = ViewModel.AllDepartments;
 			yCmbCurrentSubdivision.Binding.AddBinding(ViewModel, s => s.CurrentUserSubdivision, w => w.SelectedItem).InitializeFromSource();
