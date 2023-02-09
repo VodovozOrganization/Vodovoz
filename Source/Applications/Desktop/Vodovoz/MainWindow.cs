@@ -2813,19 +2813,6 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintDetalizationJournalActivated(object sender, EventArgs e)
 	{
-		//var employeeJournalFactory = new EmployeeJournalFactory();
-		//var salesPlanJournalFactory = new SalesPlanJournalFactory();
-		//var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
-
-		//tdiMain.OpenTab(() => new ComplaintDetalizationJournalViewModel(
-		//	new ComplaintDetalizationJournalFilterViewModel
-		//	{
-		//		HidenByDefault = true
-		//	},
-		//	UnitOfWorkFactory.GetDefaultFactory,
-		//	ServicesConfig.CommonServices)
-		//);
-
 		NavigationManager.OpenViewModel<ComplaintDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }

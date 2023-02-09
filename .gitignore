@@ -34,4 +34,3 @@ WinInstall/*
 #Docker Volumes
 Services/Docker/db-data/*
 *.mwb.bak
-/Source/Libraries/Core/Business/Vodovoz.Reports/Reports/Complaints/Complaints.rdl
