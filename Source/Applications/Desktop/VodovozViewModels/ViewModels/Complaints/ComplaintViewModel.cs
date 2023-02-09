@@ -153,6 +153,8 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
+		public bool CanChangeDetalization => CanEdit && Entity.ComplaintKind != null;
+
 		public bool AskSaveOnClose => CanEdit;
 
 		public Employee CurrentEmployee
@@ -510,6 +512,10 @@ namespace Vodovoz.ViewModels.Complaints
 			SetPropertyChangeRelation(
 				e => e.Counterparty,
 				() => CanSelectDeliveryPoint);
+
+			SetPropertyChangeRelation(
+				e => e.ComplaintKind,
+				() => CanChangeDetalization);
 		}
 
 		private void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
