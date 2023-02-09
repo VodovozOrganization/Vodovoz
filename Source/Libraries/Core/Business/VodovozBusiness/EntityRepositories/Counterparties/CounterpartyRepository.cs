@@ -87,7 +87,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			counterpartiesWithDesiredPhoneNumber.AddRange(
 				phoneEntitiesWithDesiredPhoneNumber
-				.Where(p => !p.IsArchive && p.Counterparty != null)
+				.Where(p => !p.IsArchive && p.Counterparty != null && !p.Counterparty.IsArchive)
 				.Select(p => p.Counterparty));
 
 			var deliveryPointIdsWithDesiredPhoneNumber = phoneEntitiesWithDesiredPhoneNumber
@@ -100,6 +100,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(() => deliveryPointAlias.IsActive)
 				.Where(Restrictions.In(Projections.Property(() => deliveryPointAlias.Id), deliveryPointIdsWithDesiredPhoneNumber))
 				.JoinAlias(d => d.Counterparty, () => counterpartyAlias)
+				.Where(() => !counterpartyAlias.IsArchive)
 				.Select(Projections.Distinct(Projections.Property<DeliveryPoint>(d => d.Counterparty)))
 				.List<Counterparty>();
 
