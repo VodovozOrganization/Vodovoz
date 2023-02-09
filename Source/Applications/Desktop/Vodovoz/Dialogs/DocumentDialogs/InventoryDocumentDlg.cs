@@ -537,6 +537,10 @@ namespace Vodovoz
 			_fineEditItem.Fine = UoW.GetById<Fine>(id);
 		}
 
+		protected void OnYbtnFillByAccountingClicked(object sender, EventArgs e)
+		{
+		}
+
 		#endregion
 	}
 }
