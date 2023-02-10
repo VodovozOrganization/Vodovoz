@@ -125,8 +125,7 @@ namespace Vodovoz
 			{
 				if(item.Nomenclature.Unit == null)
 				{
-					errorMessage += string.Format("Номер: {0}. Название: {1}{2}",
-						item.Nomenclature.Id, item.Nomenclature.Name, Environment.NewLine);
+					errorMessage += $"Номер: {item.Nomenclature.Id}. Название: {item.Nomenclature.Name}{Environment.NewLine}";
 					wrongNomenclatures++;
 				}
 			}
@@ -165,7 +164,7 @@ namespace Vodovoz
 
 			var nomenclatureParam = _filter.CreateParameterSet(
 				"Номенклатуры",
-				"nomenclature",
+				nameof(Nomenclature),
 				new ParametersFactory(UoW, (filters) =>
 				{
 					SelectableEntityParameter<Nomenclature> resultAlias = null;
@@ -194,7 +193,7 @@ namespace Vodovoz
 
 			var nomenclatureTypeParam = _filter.CreateParameterSet(
 				"Типы номенклатур",
-				"nomenclature_type",
+				nameof(NomenclatureCategory),
 				new ParametersEnumFactory<NomenclatureCategory>()
 			);
 
@@ -221,7 +220,7 @@ namespace Vodovoz
 
 			_filter.CreateParameterSet(
 				"Группы товаров",
-				"product_group",
+				nameof(ProductGroup),
 				new RecursiveParametersFactory<ProductGroup>(UoW,
 				(filters) =>
 				{
@@ -308,7 +307,7 @@ namespace Vodovoz
 
 			var reportInfo = new QS.Report.ReportInfo
 			{
-				Title = String.Format("Акт инвентаризации №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
+				Title = $"Акт инвентаризации №{Entity.Id} от {Entity.TimeStamp:d}",
 				Identifier = "Store.InventoryDoc",
 				Parameters = new Dictionary<string, object> {
 					{ "inventory_id",  Entity.Id }
@@ -346,10 +345,10 @@ namespace Vodovoz
 				.AddColumn("Кол-во по факту").AddNumericRenderer(x => x.AmountInFact).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
-				.AddColumn("Разница").AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
+				.AddColumn("Разница").AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : string.Empty)
 				.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
-				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
+				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
@@ -428,7 +427,7 @@ namespace Vodovoz
 			{
 				switch(parameterSet.ParameterName)
 				{
-					case "nomenclature":
+					case nameof(Nomenclature):
 						if(parameterSet.FilterType == SelectableFilterType.Include)
 						{
 							foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
@@ -444,7 +443,7 @@ namespace Vodovoz
 							}
 						}
 						break;
-					case "nomenclature_type":
+					case nameof(NomenclatureCategory):
 						if(parameterSet.FilterType == SelectableFilterType.Include)
 						{
 							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected))
@@ -460,7 +459,7 @@ namespace Vodovoz
 							}
 						}
 						break;
-					case "product_group":
+					case nameof(ProductGroup):
 						if(parameterSet.FilterType == SelectableFilterType.Include)
 						{
 							foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
