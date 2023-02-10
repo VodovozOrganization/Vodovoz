@@ -193,7 +193,16 @@ namespace Vodovoz.Domain.Client
 		[StringLength(10)]
 		public virtual string TypeOfOwnership {
 			get => typeOfOwnership;
-			set => SetField(ref typeOfOwnership, value, () => TypeOfOwnership);
+			set
+			{
+				if(SetField(ref typeOfOwnership, value))
+				{
+					if(value == "ИП")
+					{
+						Name = FullName = GetPersonFullName();
+					}
+				}
+			}
 		}
 
 		string fullName;
@@ -286,7 +295,10 @@ namespace Vodovoz.Domain.Client
 				SetField(ref personType, value, () => PersonType);
 
 				if(value == PersonType.natural)
+				{
 					PaymentMethod = PaymentType.cash;
+					Name = FullName = GetPersonFullName();
+				}
 			}
 		}
 
@@ -746,7 +758,7 @@ namespace Vodovoz.Domain.Client
 			{
 				if(SetField(ref _surname, value))
 				{
-					Name = FullName = PersonHelper.PersonFullName(Surname, FirstName, Patronymic);
+					Name = FullName = GetPersonFullName();
 				}
 			}
 		}
@@ -759,7 +771,7 @@ namespace Vodovoz.Domain.Client
 			{
 				if(SetField(ref _firstName, value))
 				{
-					Name = FullName = PersonHelper.PersonFullName(Surname, FirstName, Patronymic);
+					Name = FullName = GetPersonFullName();
 				}
 			}
 		}
@@ -772,7 +784,7 @@ namespace Vodovoz.Domain.Client
 			{
 				if(SetField(ref _patronymic, value))
 				{
-					Name = FullName = PersonHelper.PersonFullName(Surname, FirstName, Patronymic);
+					Name = FullName = GetPersonFullName();
 				}
 			}
 		}
@@ -1364,6 +1376,20 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
+
+		private string GetPersonFullName()
+		{
+			StringBuilder personFullName = new StringBuilder();
+
+			if(TypeOfOwnership == "ИП" && PersonType == PersonType.legal)
+			{
+				personFullName.Append("ИП ");
+			}
+
+			personFullName.Append(PersonHelper.PersonFullName(Surname, FirstName, Patronymic));
+
+			return personFullName.ToString();
+		}
 	}
 
 	public enum PersonType
