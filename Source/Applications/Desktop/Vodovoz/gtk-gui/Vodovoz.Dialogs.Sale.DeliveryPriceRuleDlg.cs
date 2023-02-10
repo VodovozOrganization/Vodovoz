@@ -20,9 +20,9 @@ namespace Vodovoz.Dialogs.Sale
 
 		private global::Gtk.Label lblRuleName;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+		private global::Gtk.ScrolledWindow GtkScrolledWindowRuleName;
 
-		private global::Gtk.TextView textviewRuleName;
+		private global::Gamma.GtkWidgets.yTextView ytextviewRuleName;
 
 		private global::Gtk.Table tableRuleParameters;
 
@@ -128,16 +128,17 @@ namespace Vodovoz.Dialogs.Sale
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vboxRuleName.Gtk.Box+BoxChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
-			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.textviewRuleName = new global::Gtk.TextView();
-			this.textviewRuleName.CanFocus = true;
-			this.textviewRuleName.Name = "textviewRuleName";
-			this.GtkScrolledWindow1.Add(this.textviewRuleName);
-			this.vboxRuleName.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxRuleName[this.GtkScrolledWindow1]));
+			this.GtkScrolledWindowRuleName = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowRuleName.Name = "GtkScrolledWindowRuleName";
+			this.GtkScrolledWindowRuleName.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowRuleName.Gtk.Container+ContainerChild
+			this.ytextviewRuleName = new global::Gamma.GtkWidgets.yTextView();
+			this.ytextviewRuleName.CanFocus = true;
+			this.ytextviewRuleName.Name = "ytextviewRuleName";
+			this.ytextviewRuleName.WrapMode = ((global::Gtk.WrapMode)(3));
+			this.GtkScrolledWindowRuleName.Add(this.ytextviewRuleName);
+			this.vboxRuleName.Add(this.GtkScrolledWindowRuleName);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxRuleName[this.GtkScrolledWindowRuleName]));
 			w8.Position = 1;
 			this.vboxRuleSettings.Add(this.vboxRuleName);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxRuleSettings[this.vboxRuleName]));

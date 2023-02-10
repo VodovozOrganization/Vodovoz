@@ -45,6 +45,7 @@ namespace Vodovoz.Dialogs.Sale
 			spin600mlQty.Binding.AddBinding(Entity, e => e.Water600mlCount, w => w.ValueAsInt).InitializeFromSource();
 			spin500mlQty.Binding.AddBinding(Entity, e => e.Water500mlCount, w => w.ValueAsInt).InitializeFromSource();
 			spinOrderMinSumEShopGoods.Binding.AddBinding(Entity, e => e.OrderMinSumEShopGoods, w => w.ValueAsDecimal).InitializeFromSource();
+			ytextviewRuleName.Binding.AddBinding(Entity, e => e.RuleName, w => w.Buffer.Text).InitializeFromSource();
 			vboxDistricts.Visible = Entity.Id > 0;
 			if(Entity.Id > 0) {
 				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()
