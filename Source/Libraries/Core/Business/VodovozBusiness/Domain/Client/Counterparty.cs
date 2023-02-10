@@ -1294,8 +1294,9 @@ namespace Vodovoz.Domain.Client
 			if (TechnicalProcessingDelay > 0 && Files.Count == 0)
 				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
 
-			StringBuilder phonesValidationStringBuilder = new StringBuilder();
-			
+			StringBuilder phonesValidationStringBuilder = new StringBuilder();			
+			List<string> phoneNumberDuplicatesIsChecked = new List<string>();
+
 			foreach(var phone in Phones)
 			{
 				if(phone.RoboAtsCounterpartyName == null)
@@ -1308,14 +1309,23 @@ namespace Vodovoz.Domain.Client
 					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
 				}
 
-				var counterpartiesWithTheSamePhoneNumber = CheckForPhoneNumberDuplicate(counterpartyRepository, UoW, phone.Number);
-				if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
+				if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
 				{
-					phonesValidationStringBuilder.Append($"Телефон {phone.Number} уже указан у контрагентов:\n");
-					foreach(var c in counterpartiesWithTheSamePhoneNumber)
+					if(Phones.Where(p => p.Number == phone.Number).Count() > 1)
 					{
-						phonesValidationStringBuilder.Append($"\t{c.Name}\n");
+						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
 					}
+
+					var counterpartiesWithTheSamePhoneNumber = CheckForPhoneNumberDuplicate(counterpartyRepository, UoW, phone.Number);
+					if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
+					{
+						phonesValidationStringBuilder.Append($"Телефон {phone.Number} уже указан у контрагентов:\n");
+						foreach(var c in counterpartiesWithTheSamePhoneNumber)
+						{
+							phonesValidationStringBuilder.Append($"\t{c.Name}\n");
+						}
+					}
+					phoneNumberDuplicatesIsChecked.Add(phone.Number);
 				}
 			}
 
