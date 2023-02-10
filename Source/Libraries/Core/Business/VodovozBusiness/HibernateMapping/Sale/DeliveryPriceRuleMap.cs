@@ -17,6 +17,7 @@ namespace Vodovoz.HibernateMapping.Order
 			Map(x => x.Water600mlCount).Column("wtr_600ml_qty");
 			Map(x => x.Water500mlCount).Column("wtr_500ml_qty");
 			Map(x => x.OrderMinSumEShopGoods).Column("order_min_sum_eshop_goods");
+			Map(x => x.RuleName).Column("rule_name");
 		}
 	}
 }

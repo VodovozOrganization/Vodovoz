@@ -76,6 +76,14 @@ namespace Vodovoz.Domain.Sale
 			set => SetField(ref water500mlCount, value);
 		}
 
+		private string ruleName;
+		[Display(Name = "Название или краткое описание правила")]
+		public virtual string RuleName
+		{
+			get => ruleName;
+			set => SetField(ref ruleName, value);
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -102,7 +110,12 @@ namespace Vodovoz.Domain.Sale
 		{
 			StringBuilder sb = new StringBuilder();
 
-			if(Water19LCount > 0) {
+			if(Water19LCount > 0 
+				|| Water6LCount > 0 
+				|| Water1500mlCount > 0 
+				|| Water600mlCount > 0 
+				|| Water500mlCount > 0) 
+			{
 				sb.Append("Если");
 				sb.Append($" 19л б. < {Water19LCount}шт.");
 				sb.Append($" или 6л б. < {water6LCount}шт.");
