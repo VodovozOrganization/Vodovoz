@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
@@ -285,10 +285,10 @@ namespace Vodovoz.Configuration
                 .End();
             OrmMain.AddObjectDescription<DeliveryPriceRule>().Dialog<DeliveryPriceRuleDlg>().DefaultTableView()
                 .Column("< 19л б.", x => x.Water19LCount.ToString())
-                .Column("< 6л б.", x => x.Water6LCount)
-                .Column("< 1,5л б.", x => x.Water1500mlCount)
-                .Column("< 0,6л б.", x => x.Water600mlCount)
-                .Column("< 0,5л б.", x => x.Water500mlCount)
+                .Column("< 6л б.", x => x.Water6LCount.ToString())
+                .Column("< 1,5л б.", x => x.Water1500mlCount.ToString())
+                .Column("< 0,6л б.", x => x.Water600mlCount.ToString())
+                .Column("< 0,5л б.", x => x.Water500mlCount.ToString())
                 .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
                 .SearchColumn("Описание правила", x => x.Title)
                 .End();

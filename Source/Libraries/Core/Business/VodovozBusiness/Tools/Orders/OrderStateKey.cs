@@ -201,10 +201,10 @@ namespace Vodovoz.Tools.Orders
 		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
 		{
 			var total19LWater = Water19LCount + DisposableWater19LCount;
-			decimal totalNo19LWater = DisposableWater6LCount / rule.EqualsCount6LFor19L;
-			totalNo19LWater += DisposableWater1500mlCount / rule.EqualsCount1500mlFor19L;
-			totalNo19LWater += DisposableWater600mlCount / rule.EqualsCount600mlFor19L;
-			totalNo19LWater += DisposableWater500mlCount / rule.EqualsCount500mlFor19L;
+			decimal totalNo19LWater = DisposableWater6LCount / rule.Water6LCount;
+			totalNo19LWater += DisposableWater1500mlCount / rule.Water1500mlCount;
+			totalNo19LWater += DisposableWater600mlCount / rule.Water600mlCount;
+			totalNo19LWater += DisposableWater500mlCount / rule.Water500mlCount;
 			total19LWater += (int)totalNo19LWater;
 
 			bool result = total19LWater < rule.Water19LCount;
