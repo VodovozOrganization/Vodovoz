@@ -254,14 +254,19 @@ namespace Vodovoz
 		{
 			if(e.PropertyName == nameof(SortByNomenclatureTitle))
 			{
-				if(SortByNomenclatureTitle)
-				{
-					Entity.SortItems(x => x.Nomenclature.OfficialName);
-				}
-				else
-				{
-					Entity.SortItems(x => x.Nomenclature.Id);
-				}
+				SortDocumentItems();
+			}
+		}
+
+		private void SortDocumentItems()
+		{
+			if(SortByNomenclatureTitle)
+			{
+				Entity.SortItems(x => x.Nomenclature.OfficialName);
+			}
+			else
+			{
+				Entity.SortItems(x => x.Nomenclature.Id);
 			}
 		}
 
@@ -500,7 +505,7 @@ namespace Vodovoz
 					productGroupToInclude: productGroupToInclude.ToArray(),
 					productGroupToExclude: productGroupToExclude.ToArray());
 			}
-
+			SortDocumentItems();
 			UpdateButtonState();
 		}
 
@@ -538,6 +543,8 @@ namespace Vodovoz
 					var nomenclature = UoW.GetById<Nomenclature>(node.Id);
 					Entity.AddItem(nomenclature, 0, 0);
 				}
+
+				SortDocumentItems();
 			}
 		}
 
@@ -584,6 +591,10 @@ namespace Vodovoz
 
 		protected void OnYbtnFillByAccountingClicked(object sender, EventArgs e)
 		{
+			foreach(var inventoryDocumentItem in Entity.ObservableItems)
+			{
+				inventoryDocumentItem.AmountInFact = inventoryDocumentItem.AmountInDB;
+			}
 		}
 
 		#endregion
