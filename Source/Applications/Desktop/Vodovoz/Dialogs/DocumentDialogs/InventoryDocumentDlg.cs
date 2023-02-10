@@ -55,12 +55,14 @@ namespace Vodovoz
 			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<InventoryDocument>();
 			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+
 			if(Entity.Author == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
+
 			var storeDocument = new StoreDocumentHelper();
 			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.InventoryEdit);
 
@@ -109,18 +111,29 @@ namespace Vodovoz
 				buttonFine.Sensitive =
 				buttonDeleteFine.Sensitive = editing;
 
-			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
-			yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissionsType.InventoryEdit);
-			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			ydatepickerDocDate.Binding
+				.AddBinding(Entity, e => e.TimeStamp, w => w.Date)
+				.InitializeFromSource();
 
-			ychkSortNomenclaturesByTitle.Binding.AddBinding(this, dlg => dlg.SortByNomenclatureTitle, w => w.Active).InitializeFromSource();
+			yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissionsType.InventoryEdit);
+
+			yentryrefWarehouse.Binding
+				.AddBinding(Entity, e => e.Warehouse, w => w.Subject)
+				.InitializeFromSource();
+
+			ychkSortNomenclaturesByTitle.Binding
+				.AddBinding(this, dlg => dlg.SortByNomenclatureTitle, w => w.Active)
+				.InitializeFromSource();
 
 			PropertyChanged += InventoryDocumentDlgPropertyChanged;
 
-			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+			ytextviewCommnet.Binding
+				.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text)
+				.InitializeFromSource();
 
 			string errorMessage = "Не установлены единицы измерения у следующих номенклатур :" + Environment.NewLine;
 			int wrongNomenclatures = 0;
+
 			foreach(var item in UoWGeneric.Root.Items)
 			{
 				if(item.Nomenclature.Unit == null)
@@ -129,6 +142,7 @@ namespace Vodovoz
 					wrongNomenclatures++;
 				}
 			}
+
 			if(wrongNomenclatures > 0)
 			{
 				MessageDialogHelper.RunErrorDialog(errorMessage);
@@ -145,9 +159,18 @@ namespace Vodovoz
 
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date)
 			{
-				ydatepickerDocDate.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				yentryrefWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ydatepickerDocDate.Binding
+					.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive)
+					.InitializeFromSource();
+
+				yentryrefWarehouse.Binding
+					.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive)
+					.InitializeFromSource();
+
+				ytextviewCommnet.Binding
+					.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive)
+					.InitializeFromSource();
+
 				buttonSave.Sensitive = false;
 				ytreeviewItems.Sensitive =
 					buttonAdd.Sensitive =
@@ -170,6 +193,7 @@ namespace Vodovoz
 					SelectableEntityParameter<Nomenclature> resultAlias = null;
 					var query = UoW.Session.QueryOver<Nomenclature>()
 						.Where(x => !x.IsArchive);
+
 					if(filters != null && filters.Any())
 					{
 						foreach(var f in filters)
@@ -183,19 +207,17 @@ namespace Vodovoz
 					}
 
 					query.SelectList(list => list
-							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-							.Select(x => x.OfficialName).WithAlias(() => resultAlias.EntityTitle)
-						);
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(x => x.OfficialName).WithAlias(() => resultAlias.EntityTitle));
+
 					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Nomenclature>>());
 					return query.List<SelectableParameter>();
-				})
-			);
+				}));
 
 			var nomenclatureTypeParam = _filter.CreateParameterSet(
 				"Типы номенклатур",
 				nameof(NomenclatureCategory),
-				new ParametersEnumFactory<NomenclatureCategory>()
-			);
+				new ParametersEnumFactory<NomenclatureCategory>());
 
 			nomenclatureParam.AddFilterOnSourceSelectionChanged(nomenclatureTypeParam,
 				() =>
@@ -206,8 +228,7 @@ namespace Vodovoz
 						return null;
 					}
 					return Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
-				}
-			);
+				});
 
 			ProductGroup productGroupChildAlias = null;
 			//Предзагрузка. Для избежания ленивой загрузки
@@ -238,8 +259,7 @@ namespace Vodovoz
 					return query.List();
 				},
 				x => x.Name,
-				x => x.Childs)
-			);
+				x => x.Childs));
 
 			var filterViewModel = new SelectableParameterReportFilterViewModel(_filter);
 			var filterWidget = new SelectableParameterReportFilterView(filterViewModel);
@@ -309,15 +329,15 @@ namespace Vodovoz
 			{
 				Title = $"Акт инвентаризации №{Entity.Id} от {Entity.TimeStamp:d}",
 				Identifier = "Store.InventoryDoc",
-				Parameters = new Dictionary<string, object> {
+				Parameters = new Dictionary<string, object>
+				{
 					{ "inventory_id",  Entity.Id }
 				}
 			};
 
 			TabParent.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
-				() => new QSReport.ReportViewDlg(reportInfo)
-			);
+				() => new QSReport.ReportViewDlg(reportInfo));
 		}
 
 		protected void OnYentryrefWarehouseBeforeChangeByUser(object sender, EntryReferenceBeforeChangeEventArgs e)
@@ -383,6 +403,7 @@ namespace Vodovoz
 			{
 				return $"<b>{nomenclature.Name}</b>";
 			}
+
 			return nomenclature.Name;
 		}
 
@@ -390,6 +411,7 @@ namespace Vodovoz
 		{
 			var selected = ytreeviewItems.GetSelectedObject<InventoryDocumentItem>();
 			buttonFine.Sensitive = selected != null;
+
 			if(selected != null)
 			{
 				if(selected.Fine != null)
@@ -401,6 +423,7 @@ namespace Vodovoz
 					buttonFine.Label = "Добавить штраф";
 				}
 			}
+
 			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
@@ -504,6 +527,7 @@ namespace Vodovoz
 					productGroupToInclude: productGroupToInclude.ToArray(),
 					productGroupToExclude: productGroupToExclude.ToArray());
 			}
+
 			SortDocumentItems();
 			UpdateButtonState();
 		}
@@ -511,6 +535,7 @@ namespace Vodovoz
 		private void UpdateButtonState()
 		{
 			buttonFillItems.Sensitive = Entity.Warehouse != null;
+
 			if(Entity.Items.Count == 0)
 			{
 				buttonFillItems.Label = "Заполнить по складу";
@@ -551,6 +576,7 @@ namespace Vodovoz
 		{
 			var selected = ytreeviewItems.GetSelectedObject<InventoryDocumentItem>();
 			FineDlg fineDlg;
+
 			if(selected.Fine != null)
 			{
 				fineDlg = new FineDlg(selected.Fine);
@@ -561,6 +587,7 @@ namespace Vodovoz
 				fineDlg = new FineDlg("Недостача");
 				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
 			}
+
 			fineDlg.Entity.TotalMoney = selected.SumOfDamage;
 			_fineEditItem = selected;
 			TabParent.AddSlaveTab(this, fineDlg);
