@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Gamma.GtkWidgets;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -38,6 +39,9 @@ namespace Vodovoz.Dialogs.Sale
 		void ConfigureDlg()
 		{
 			ConfigureValidationContext();
+
+			spinOrderMinSumEShopGoods.Visibility = false;
+			lblOrderMinSumEShopGoods.Visible = false;
 			
 			spin19LQty.Binding.AddBinding(Entity, e => e.Water19LCount, w => w.ValueAsInt).InitializeFromSource();
 			spin6LQty.Binding.AddBinding(Entity, e => e.Water6LCount, w => w.ValueAsInt).InitializeFromSource();
@@ -50,9 +54,20 @@ namespace Vodovoz.Dialogs.Sale
 			if(Entity.Id > 0) {
 				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()
 					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.DistrictName)
+					//.AddColumn("Версия района:").AddTextRenderer(d => d.DistrictsSet.Name)
 					.Finish();
 
-				treeDistricts.ItemsDataSource = _districtRuleRepository.GetDistrictsHavingRule(UoW, Entity);
+				var districtItems = _districtRuleRepository.GetDistrictsHavingRule(UoW, Entity).ToList();
+				//var districtItemsWithDistrictSetValues = _districtRuleRepository.GetDistrictsHavingRuleWithDistrictSetVersion(UoW, Entity).ToList();
+
+				treeDistricts.ItemsDataSource = districtItems;
+
+				if(districtItems.Count() > 0) 
+				{
+					vboxRuleName.Sensitive = false;
+					vboxRuleSettings.Sensitive = false;
+					buttonSave.Sensitive = false;
+				}
 			}
 		}
 
