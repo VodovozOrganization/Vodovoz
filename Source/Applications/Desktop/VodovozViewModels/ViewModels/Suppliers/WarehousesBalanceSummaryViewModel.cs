@@ -16,6 +16,7 @@ using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ViewModels.Reports;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private bool _isGenerating = false;
 		private BalanceSummaryReport _report;
+		private bool _isCreatedWithReserveData = false;
 
 		public WarehousesBalanceSummaryViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation, IFileDialogService fileDialogService)
@@ -49,6 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		#region Свойства
 
 		public DateTime? EndDate { get; set; } = DateTime.Today;
+		public bool ShowReserve { get; set; }
 
 		public bool AllNomenclatures { get; set; } = true;
 		public bool IsGreaterThanZeroByNomenclature { get; set; }
@@ -92,7 +95,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var uow = UnitOfWorkFactory.CreateWithoutRoot("Отчет остатков по складам");
 			try
 			{
-				return await GenerateAsync(EndDate ?? DateTime.Today, uow, cancellationToken);
+				return await GenerateAsync(EndDate ?? DateTime.Today, ShowReserve, uow, cancellationToken);
 			}
 			finally
 			{
@@ -102,10 +105,16 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private async Task<BalanceSummaryReport> GenerateAsync(
 			DateTime endDate,
+			bool createReportWithReserveData,
 			IUnitOfWork localUow,
 			CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
+
+			//Флаг типа отчета для экспорта в Эксель. Если выполнять проверку по ShowReserve,
+			//то если после формирования отчета переключить чекбокс и нажать экспорт, отчет выгрузится неправильно
+			_isCreatedWithReserveData = createReportWithReserveData;
+
 			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
 
 			var nomsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNom);
@@ -194,12 +203,28 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.Select(n => n.MinStockCount)
 				.OrderBy(n => n.Id).Asc;
 
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			OrderItem orderItemsAlias = null;
+			ReservedBalance reservedBalance = null;
+			ProductGroup productGroupAlias = null;
+
+			OrderStatus[] orderStatusesToCalcReservedItems = new[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
+
+			var reservedItemsQuery = localUow.Session.QueryOver(() => orderAlias)
+				.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), orderStatusesToCalcReservedItems))
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
+				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomAlias)
+				.JoinAlias(() => nomAlias.ProductGroup, () => productGroupAlias)
+				.Where(() => nomAlias.DoNotReserve == false)
+				.Where(() => !nomAlias.IsArchive && !nomAlias.IsSerial);
+
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
 				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				reservedItemsQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 			}
 
 			if(nomsSelected && !allNomsSelected)
@@ -207,6 +232,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				reservedItemsQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 			}
 
 			if(groupsSelected)
@@ -214,7 +240,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				inQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				reservedItemsQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 			}
+
+			reservedItemsQuery
+				.SelectList(list => list
+					.SelectGroup(() => nomAlias.Id).WithAlias(() => reservedBalance.ItemId)
+					.Select(Projections.Sum(() => orderItemsAlias.Count)).WithAlias(() => reservedBalance.ReservedItemsAmount))
+				.TransformUsing(Transformers.AliasToBean<ReservedBalance>());
 
 			#endregion
 
@@ -227,18 +260,28 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
 			var msResult = batch.GetResult<decimal>("ms").ToArray();
 
+			List<ReservedBalance> reservedItems = new List<ReservedBalance>();
+			if(createReportWithReserveData)
+			{
+				reservedItems = reservedItemsQuery.List<ReservedBalance>().ToList();
+			}
+
 			//Кол-во списаний != кол-во начислений, используется два счетчика
 			var addedCounter = 0;
 			var removedCounter = 0;
 			for(var nomsCounter = 0; nomsCounter < noms?.Count; nomsCounter++)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
+
 				var row = new BalanceSummaryRow
 				{
 					NomId = (int)noms[nomsCounter].Value,
 					NomTitle = noms[nomsCounter].Title,
 					Separate = new List<decimal>(),
-					Min = msResult[nomsCounter]
+					Min = msResult[nomsCounter],
+					ReservedItemsAmount = reservedItems
+						.Where(i => i.ItemId == (int)noms[nomsCounter].Value)
+						.Select(i => i.ReservedItemsAmount).FirstOrDefault() ?? 0
 				};
 
 				for(var warsCounter = 0; warsCounter < wars?.Count; warsCounter++)
@@ -283,7 +326,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
 				var ws = wb.Worksheets.Add(sheetName);
 
-				InsertValues(ws);
+				if(_isCreatedWithReserveData)
+				{
+					InsertValuesWithReserveAmount(ws);
+				}
+				else
+				{
+					InsertValues(ws);
+				}
 				ws.Columns().AdjustToContents();
 
 				if(TryGetSavePath(out string path))
@@ -318,6 +368,30 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						   row.NomId,
 						   row.NomTitle,
 						   row.Min,
+						   row.Common,
+						   row.Diff
+					   };
+			int index = 1;
+			foreach(var name in colNames)
+			{
+				ws.Cell(1, index).Value = name;
+				index++;
+			}
+			ws.Cell(2, 1).InsertData(rows);
+			AddWarehouseCloumns(ws, index);
+		}
+
+		private void InsertValuesWithReserveAmount(IXLWorksheet ws)
+		{
+			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "В резерве", "Доступно для заказа", "Общий остаток", "Разница" };
+			var rows = from row in Report.SummaryRows
+					   select new
+					   {
+						   row.NomId,
+						   row.NomTitle,
+						   row.Min,
+						   row.ReservedItemsAmount,
+						   row.AvailableItemsAmount,
 						   row.Common,
 						   row.Diff
 					   };
@@ -491,6 +565,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public decimal Common => Separate.Sum();
 		public decimal Diff => Common - Min;
 		public List<decimal> Separate { get; set; }
+		public decimal? ReservedItemsAmount { get; set; } = 0;
+		public decimal? AvailableItemsAmount => Common - ReservedItemsAmount;
 	}
 
 	public class BalanceSummaryReport
@@ -505,5 +581,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public int NomId { get; set; }
 		public int WarehouseId { get; set; }
 		public decimal Amount { get; set; }
+	}
+
+	public class ReservedBalance
+	{
+		public int ItemId { get; set; }
+		public decimal? ReservedItemsAmount { get; set; }
 	}
 }

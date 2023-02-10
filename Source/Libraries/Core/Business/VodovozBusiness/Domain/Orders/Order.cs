@@ -873,15 +873,10 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderDocuments, value, () => OrderDocuments);
 		}
 
-		GenericObservableList<OrderDocument> observableOrderDocuments;
+		GenericObservableList<OrderDocument> _observableOrderDocuments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments {
-			get {
-				if(observableOrderDocuments == null)
-					observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments);
-				return observableOrderDocuments;
-			}
-		}
+		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments => 
+			_observableOrderDocuments?.ReconnectToObject(OrderDocuments) ?? (_observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments));
 
 		IList<OrderItem> orderItems = new List<OrderItem>();
 
@@ -2007,7 +2002,7 @@ namespace Vodovoz.Domain.Orders
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{
 			var fixedPrice = GetFixedPriceOrNull(nomenclature);
-			if (fixedPrice != null) {
+			if (fixedPrice != null && promoSet == null) {
 				return fixedPrice.Price;
 			}
 
@@ -4243,6 +4238,32 @@ namespace Vodovoz.Domain.Orders
 			if(includeEquipment)
 				volume += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Volume * x.Count);
+			return volume;
+		}
+
+		/// <summary>
+		/// Расчёт объёма ВОЗВРАЩАЕМОГО оборудования (из тары включается только 19-литровая), имеющие наравление от клиента для этого заказа
+		/// </summary>
+		/// <param name="includeBottlesReturn">Если <c>true</c>, то в расчёт объема будут включены возвращаемые бутыли, количество которых указано в свойстве BottlesReturn.</param>
+		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт объема будет включено оборудование, имеющее направление "От клиента"</param>
+		/// <param name="one19LitersBottleVolume">Расчетное значение объема одного 19-литрового бутыля</param>
+		/// <returns>Объём</returns>
+		public virtual decimal FullReverseVolume(bool includeBottlesReturn = true, bool includeEquipment = true, decimal one19LitersBottleVolume = 0.03645m)
+		{
+			decimal volume = 0;
+			if (includeBottlesReturn)
+			{
+				volume += (BottlesReturn ?? 0) * one19LitersBottleVolume;
+			}
+			if (includeEquipment)
+			{
+				volume += OrderEquipments
+					.Where(
+						x => x.Direction == Direction.PickUp
+						&& (x.Nomenclature.Category == NomenclatureCategory.equipment
+							|| (x.Nomenclature.Category == NomenclatureCategory.bottle && x.Nomenclature.TareVolume == TareVolume.Vol19L)))
+					.Sum(x => x.Nomenclature.Volume * x.Count);
+			}
 			return volume;
 		}
 

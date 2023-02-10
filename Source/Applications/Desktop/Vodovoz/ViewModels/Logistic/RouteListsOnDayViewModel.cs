@@ -1112,13 +1112,16 @@ namespace Vodovoz.ViewModels.Logistic
 
 			bool overweight = routeList.HasOverweight();
 			bool volExcess = routeList.HasVolumeExecess();
+			bool reverseVolExcess = routeList.HasReverseVolumeExcess();
 
-			if(overweight || volExcess) {
+			if(overweight || volExcess || reverseVolExcess) {
 				StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", routeList.Car.Title, routeList.Id));
 				if(overweight)
 					warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", routeList.Overweight()));
 				if(volExcess)
 					warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", routeList.VolumeExecess()));
+				if(reverseVolExcess)
+					warningMsg.Append(string.Format("\n\t- объём возвращаемого груза превышен на {0} м<sup>3</sup>", routeList.ReverseVolumeExecess()));
 				ShowWarningMessage(warningMsg.ToString());
 			}
 			return true;

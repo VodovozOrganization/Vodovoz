@@ -1200,7 +1200,7 @@ namespace Vodovoz
 						{
 							c.ForegroundGdk = colorBlack;
 							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature);
-							if(fixedPrice != null) {
+							if(fixedPrice != null && node.PromoSet == null) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 								c.ForegroundGdk = colorBlue;
