@@ -15,6 +15,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
@@ -34,7 +35,7 @@ using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz
 {
-	public partial class InventoryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<InventoryDocument>
+	public partial class InventoryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<InventoryDocument>, INotifyPropertyChanged
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
@@ -45,6 +46,9 @@ namespace Vodovoz
 		private SelectableParametersReportFilter _filter;
 		private InventoryDocumentItem _fineEditItem;
 		private IEnumerable<Nomenclature> _nomenclaturesWithDiscrepancies = new List<Nomenclature>();
+		private bool _sortByNomenclatureTitle;
+
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public InventoryDocumentDlg()
 		{
@@ -75,6 +79,19 @@ namespace Vodovoz
 		{
 		}
 
+		public bool SortByNomenclatureTitle
+		{
+			get => _sortByNomenclatureTitle;
+			set
+			{
+				if(_sortByNomenclatureTitle != value)
+				{
+					_sortByNomenclatureTitle = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SortByNomenclatureTitle)));
+				}
+			}
+		}
+
 		private void ConfigureDlg(StoreDocumentHelper storeDocument)
 		{
 			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.InventoryEdit, Entity.Warehouse))
@@ -95,6 +112,10 @@ namespace Vodovoz
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissionsType.InventoryEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+
+			ychkSortNomenclaturesByTitle.Binding.AddBinding(this, dlg => dlg.SortByNomenclatureTitle, w => w.Active).InitializeFromSource();
+
+			PropertyChanged += InventoryDocumentDlgPropertyChanged;
 
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
@@ -229,6 +250,21 @@ namespace Vodovoz
 			ConfigNomenclatureColumns();
 		}
 
+		private void InventoryDocumentDlgPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(SortByNomenclatureTitle))
+			{
+				if(SortByNomenclatureTitle)
+				{
+					Entity.SortItems(x => x.Nomenclature.OfficialName);
+				}
+				else
+				{
+					Entity.SortItems(x => x.Nomenclature.Id);
+				}
+			}
+		}
+
 		public override bool Save()
 		{
 			if(!Entity.CanEdit)
@@ -325,7 +361,16 @@ namespace Vodovoz
 			ytreeviewItems.ItemsDataSource = Entity.ObservableItems;
 			ytreeviewItems.YTreeModel?.EmitModelChanged();
 
+			Entity.PropertyChanged += Entity_PropertyChanged;
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+		}
+
+		private void Entity_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.ObservableItems))
+			{
+				ytreeviewItems.YTreeModel?.EmitModelChanged();
+			}
 		}
 
 		private string GetNomenclatureName(Nomenclature nomenclature)
