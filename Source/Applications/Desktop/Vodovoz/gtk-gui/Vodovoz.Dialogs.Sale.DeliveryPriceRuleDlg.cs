@@ -28,17 +28,17 @@ namespace Vodovoz.Dialogs.Sale
 
 		private global::Gtk.Label lblOrderMinSumEShopGoods;
 
+		private global::Gamma.GtkWidgets.ySpinButton spin1500mlQty;
+
 		private global::Gamma.GtkWidgets.ySpinButton spin19LQty;
 
+		private global::Gamma.GtkWidgets.ySpinButton spin500mlQty;
+
+		private global::Gamma.GtkWidgets.ySpinButton spin600mlQty;
+
+		private global::Gamma.GtkWidgets.ySpinButton spin6LQty;
+
 		private global::Gamma.GtkWidgets.ySpinButton spinOrderMinSumEShopGoods;
-
-		private global::Gamma.GtkWidgets.yLabel ylabel1500mlBottles;
-
-		private global::Gamma.GtkWidgets.yLabel ylabel500mlBottles;
-
-		private global::Gamma.GtkWidgets.yLabel ylabel600mlBottles;
-
-		private global::Gamma.GtkWidgets.yLabel ylabel6LWater;
 
 		private global::Gtk.VBox vboxDistricts;
 
@@ -169,21 +169,88 @@ namespace Vodovoz.Dialogs.Sale
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
+			this.spin1500mlQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
+			this.spin1500mlQty.CanFocus = true;
+			this.spin1500mlQty.Name = "spin1500mlQty";
+			this.spin1500mlQty.Adjustment.PageIncrement = 10D;
+			this.spin1500mlQty.ClimbRate = 2D;
+			this.spin1500mlQty.Numeric = true;
+			this.spin1500mlQty.ValueAsDecimal = 0m;
+			this.spin1500mlQty.ValueAsInt = 0;
+			this.table2.Add(this.spin1500mlQty);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table2[this.spin1500mlQty]));
+			w12.TopAttach = ((uint)(2));
+			w12.BottomAttach = ((uint)(3));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
 			this.spin19LQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
 			this.spin19LQty.CanFocus = true;
 			this.spin19LQty.Name = "spin19LQty";
 			this.spin19LQty.Adjustment.PageIncrement = 10D;
 			this.spin19LQty.ClimbRate = 2D;
 			this.spin19LQty.Numeric = true;
-			this.spin19LQty.Value = 2D;
 			this.spin19LQty.ValueAsDecimal = 0m;
 			this.spin19LQty.ValueAsInt = 0;
 			this.table2.Add(this.spin19LQty);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table2[this.spin19LQty]));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table2[this.spin19LQty]));
+			w13.LeftAttach = ((uint)(1));
+			w13.RightAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.spin500mlQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
+			this.spin500mlQty.CanFocus = true;
+			this.spin500mlQty.Name = "spin500mlQty";
+			this.spin500mlQty.Adjustment.PageIncrement = 10D;
+			this.spin500mlQty.ClimbRate = 2D;
+			this.spin500mlQty.Numeric = true;
+			this.spin500mlQty.ValueAsDecimal = 0m;
+			this.spin500mlQty.ValueAsInt = 0;
+			this.table2.Add(this.spin500mlQty);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table2[this.spin500mlQty]));
+			w14.TopAttach = ((uint)(4));
+			w14.BottomAttach = ((uint)(5));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.spin600mlQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
+			this.spin600mlQty.CanFocus = true;
+			this.spin600mlQty.Name = "spin600mlQty";
+			this.spin600mlQty.Adjustment.PageIncrement = 10D;
+			this.spin600mlQty.ClimbRate = 2D;
+			this.spin600mlQty.Numeric = true;
+			this.spin600mlQty.ValueAsDecimal = 0m;
+			this.spin600mlQty.ValueAsInt = 0;
+			this.table2.Add(this.spin600mlQty);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table2[this.spin600mlQty]));
+			w15.TopAttach = ((uint)(3));
+			w15.BottomAttach = ((uint)(4));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.spin6LQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
+			this.spin6LQty.CanFocus = true;
+			this.spin6LQty.Name = "spin6LQty";
+			this.spin6LQty.Adjustment.PageIncrement = 10D;
+			this.spin6LQty.ClimbRate = 2D;
+			this.spin6LQty.Numeric = true;
+			this.spin6LQty.ValueAsDecimal = 0m;
+			this.spin6LQty.ValueAsInt = 0;
+			this.table2.Add(this.spin6LQty);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table2[this.spin6LQty]));
+			w16.TopAttach = ((uint)(1));
+			w16.BottomAttach = ((uint)(2));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.spinOrderMinSumEShopGoods = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
 			this.spinOrderMinSumEShopGoods.CanFocus = true;
@@ -195,57 +262,9 @@ namespace Vodovoz.Dialogs.Sale
 			this.spinOrderMinSumEShopGoods.ValueAsDecimal = 0m;
 			this.spinOrderMinSumEShopGoods.ValueAsInt = 0;
 			this.table2.Add(this.spinOrderMinSumEShopGoods);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table2[this.spinOrderMinSumEShopGoods]));
-			w13.TopAttach = ((uint)(5));
-			w13.BottomAttach = ((uint)(6));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.ylabel1500mlBottles = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel1500mlBottles.Name = "ylabel1500mlBottles";
-			this.ylabel1500mlBottles.Xalign = 0F;
-			this.table2.Add(this.ylabel1500mlBottles);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel1500mlBottles]));
-			w14.TopAttach = ((uint)(2));
-			w14.BottomAttach = ((uint)(3));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.ylabel500mlBottles = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel500mlBottles.Name = "ylabel500mlBottles";
-			this.ylabel500mlBottles.Xalign = 0F;
-			this.table2.Add(this.ylabel500mlBottles);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel500mlBottles]));
-			w15.TopAttach = ((uint)(4));
-			w15.BottomAttach = ((uint)(5));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.ylabel600mlBottles = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel600mlBottles.Name = "ylabel600mlBottles";
-			this.ylabel600mlBottles.Xalign = 0F;
-			this.table2.Add(this.ylabel600mlBottles);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel600mlBottles]));
-			w16.TopAttach = ((uint)(3));
-			w16.BottomAttach = ((uint)(4));
-			w16.LeftAttach = ((uint)(1));
-			w16.RightAttach = ((uint)(2));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.ylabel6LWater = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel6LWater.Name = "ylabel6LWater";
-			this.ylabel6LWater.Xalign = 0F;
-			this.table2.Add(this.ylabel6LWater);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabel6LWater]));
-			w17.TopAttach = ((uint)(1));
-			w17.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table2[this.spinOrderMinSumEShopGoods]));
+			w17.TopAttach = ((uint)(5));
+			w17.BottomAttach = ((uint)(6));
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));

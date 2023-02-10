@@ -41,10 +41,10 @@ namespace Vodovoz.Dialogs.Sale
 			
 			spin19LQty.Binding.AddBinding(Entity, e => e.Water19LCount, w => w.ValueAsInt).InitializeFromSource();
 			spinOrderMinSumEShopGoods.Binding.AddBinding(Entity, e => e.OrderMinSumEShopGoods, w => w.ValueAsDecimal).InitializeFromSource();
-			ylabel6LWater.Binding.AddBinding(Entity, e => e.Water6LCount.ToString(), w => w.LabelProp).InitializeFromSource();
-			ylabel1500mlBottles.Binding.AddBinding(Entity, e => e.Water1500mlCount.ToString(), w => w.LabelProp).InitializeFromSource();
-			ylabel600mlBottles.Binding.AddBinding(Entity, e => e.Water600mlCount.ToString(), w => w.LabelProp).InitializeFromSource();
-			ylabel500mlBottles.Binding.AddBinding(Entity, e => e.Water500mlCount.ToString(), w => w.LabelProp).InitializeFromSource();
+			//ylabel6LWater.Binding.AddBinding(Entity, e => e.Water6LCount.ToString(), w => w.LabelProp).InitializeFromSource();
+			//ylabel1500mlBottles.Binding.AddBinding(Entity, e => e.Water1500mlCount.ToString(), w => w.LabelProp).InitializeFromSource();
+			//ylabel600mlBottles.Binding.AddBinding(Entity, e => e.Water600mlCount.ToString(), w => w.LabelProp).InitializeFromSource();
+			//ylabel500mlBottles.Binding.AddBinding(Entity, e => e.Water500mlCount.ToString(), w => w.LabelProp).InitializeFromSource();
 			vboxDistricts.Visible = Entity.Id > 0;
 			if(Entity.Id > 0) {
 				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()
