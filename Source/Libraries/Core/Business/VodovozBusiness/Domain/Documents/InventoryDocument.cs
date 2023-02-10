@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -77,7 +77,24 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual void AddItem (Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
+		public virtual void SortItems<TResult>(Expression<Func<InventoryDocumentItem, TResult>> expression)
+			where TResult : IComparable
+		{
+			if(expression == null)
+			{
+				return;
+			}
+			var compiled = expression.Compile();
+
+			var comparison = new Comparison<InventoryDocumentItem>((x, y) => compiled.Invoke(x).CompareTo(compiled.Invoke(y)));
+
+			(Items as List<InventoryDocumentItem>)
+				.Sort(comparison);
+
+			OnPropertyChanged(nameof(ObservableItems));
+		}
+
+		public virtual void AddItem(Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
 		{
 			var item = new InventoryDocumentItem()
 			{ 
