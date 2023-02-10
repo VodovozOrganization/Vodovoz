@@ -1125,6 +1125,13 @@ namespace Vodovoz.Domain.Client
 			return false;
 		}
 
+		public virtual IList<Counterparty> CheckForPhoneNumberDuplicate(ICounterpartyRepository counterpartyRepository, IUnitOfWork uow, string phoneNumber)
+		{
+			IList<Counterparty> counterarties = counterpartyRepository.GetNotArchivedCounterpartiesByPhoneNumber(uow, phoneNumber);
+
+			return counterarties.Where(x => x?.Id != Id).ToList();
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(!(validationContext.ServiceContainer.GetService(typeof(IBottlesRepository)) is IBottlesRepository bottlesRepository))
@@ -1287,8 +1294,9 @@ namespace Vodovoz.Domain.Client
 			if (TechnicalProcessingDelay > 0 && Files.Count == 0)
 				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
 
-			StringBuilder phonesValidationStringBuilder = new StringBuilder();
-			
+			StringBuilder phonesValidationStringBuilder = new StringBuilder();			
+			List<string> phoneNumberDuplicatesIsChecked = new List<string>();
+
 			foreach(var phone in Phones)
 			{
 				if(phone.RoboAtsCounterpartyName == null)
@@ -1299,6 +1307,25 @@ namespace Vodovoz.Domain.Client
 				if(phone.RoboAtsCounterpartyPatronymic == null)
 				{
 					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
+				}
+
+				if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
+				{
+					if(Phones.Where(p => p.Number == phone.Number).Count() > 1)
+					{
+						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
+					}
+
+					var counterpartiesWithTheSamePhoneNumber = CheckForPhoneNumberDuplicate(counterpartyRepository, UoW, phone.Number);
+					if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
+					{
+						phonesValidationStringBuilder.Append($"Телефон {phone.Number} уже указан у контрагентов:\n");
+						foreach(var c in counterpartiesWithTheSamePhoneNumber)
+						{
+							phonesValidationStringBuilder.Append($"\t{c.Name}\n");
+						}
+					}
+					phoneNumberDuplicatesIsChecked.Add(phone.Number);
 				}
 			}
 
