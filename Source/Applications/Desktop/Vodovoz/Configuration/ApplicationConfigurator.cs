@@ -289,7 +289,8 @@ namespace Vodovoz.Configuration
                 .Column("< 1,5л б.", x => x.Water1500mlCount.ToString())
                 .Column("< 0,6л б.", x => x.Water600mlCount.ToString())
                 .Column("< 0,5л б.", x => x.Water500mlCount.ToString())
-                .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
+				.Column("Название правила", x => x.RuleName)
+				//.Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
                 .SearchColumn("Описание правила", x => x.Title)
                 .End();
             OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
