@@ -581,6 +581,7 @@
     <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
     <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\DriverMessageFilterViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\Documents\InventoryDocumentViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReportViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintDetalizationJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintDetalizationJournalNode.cs" />
@@ -716,6 +717,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
+    <Folder Include="ViewModels\Warehouses\Documents\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

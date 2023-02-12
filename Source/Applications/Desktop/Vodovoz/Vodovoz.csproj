@@ -726,8 +726,6 @@
     <Compile Include="Representations\EquipmentKindsForRentVM.cs" />
     <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.InventoryDocumentDlg.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentItemsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.InventoryDocumentItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentItemsView.cs" />
@@ -1774,6 +1772,8 @@
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
     <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
+    <Compile Include="Views\Warehouse\Documents\InventoryDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.Documents.InventoryDocumentView.cs" />
     <Compile Include="Views\Reports\FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="Views\Complaints\ComplaintDetalizationView.cs" />
@@ -1784,6 +1784,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Warehouse\Documents\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
