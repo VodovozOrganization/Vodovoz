@@ -34,7 +34,7 @@ namespace Vodovoz.Views.Warehouse.Documents
 
 		private global::QS.Widgets.GtkUI.DatePicker ydatepickerDocDate;
 
-		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox ylstWarehouse;
 
 		private global::Gtk.VBox vboxRightSide;
 
@@ -216,11 +216,14 @@ namespace Vodovoz.Views.Warehouse.Documents
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.yentryrefWarehouse = new global::Gamma.Widgets.yEntryReference();
-			this.yentryrefWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.yentryrefWarehouse.Name = "yentryrefWarehouse";
-			this.tableWriteoff.Add(this.yentryrefWarehouse);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryrefWarehouse]));
+			this.ylstWarehouse = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.ylstWarehouse.Name = "ylstWarehouse";
+			this.ylstWarehouse.AddIfNotExist = false;
+			this.ylstWarehouse.DefaultFirst = false;
+			this.ylstWarehouse.ShowSpecialStateAll = false;
+			this.ylstWarehouse.ShowSpecialStateNot = false;
+			this.tableWriteoff.Add(this.ylstWarehouse);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.ylstWarehouse]));
 			w16.TopAttach = ((uint)(1));
 			w16.BottomAttach = ((uint)(2));
 			w16.LeftAttach = ((uint)(1));
