@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -33,58 +34,35 @@ namespace Vodovoz.EntityRepositories.Sale
 			return res;
 		}
 
-		public IDictionary<District, DistrictsSet> GetDistrictsHavingRuleWithDistrictSetVersion(IUnitOfWork uow, DeliveryPriceRule rule)
+		/// <summary>
+		/// Получить данные по районам, в которых используется правило доставки
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="rule">DeliveryPriceRule</param>
+		/// <returns>Список массивов строк, где: 
+		/// string[0] - название района; 
+		/// string[1] - название DistrictSet; 
+		/// string[2] - дата создания DistrictSet</returns>
+		public List<string[]> GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(IUnitOfWork uow, DeliveryPriceRule rule)
 		{
-			CommonDistrictRuleItem commonDistrictRuleItemAlias = null;
+			CommonDistrictRuleItem districtRuleItemAlias = null;
 			District districtAlias = null;
-			DeliveryPriceRule deliveryPriceRuleAlias = null;
-			DistrictsSet districtsSetAlias = null;
+			DistrictsSet districtSetAlias = null;
 
-			var query = uow.Session.QueryOver(() => commonDistrictRuleItemAlias)
-				.JoinAlias(c => c.DeliveryPriceRule, () => deliveryPriceRuleAlias)
-				.Where(() => deliveryPriceRuleAlias.Id == rule.Id)
-				.JoinAlias(c => c.District, () => districtAlias)
-				.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
-				.List() ;
+			ProjectionList projectionList = Projections.ProjectionList()
+				.Add(Projections.Property(() => districtAlias.DistrictName))
+				.Add(Projections.Property(() => districtSetAlias.Name))
+				.Add(Projections.Property(() => districtSetAlias.DateCreated));
 
+			var districtsList = uow.Session.QueryOver(() => districtRuleItemAlias)
+				.Where(d => d.DeliveryPriceRule.Id == rule.Id)
+				.JoinAlias(d => d.District, () => districtAlias)
+				.JoinAlias(() => districtAlias.DistrictsSet, () => districtSetAlias)
+				.Select(projectionList)
+				.List<object[]>()
+				.Select(d => new string[] { d[0] as string, d[1].ToString(), ((DateTime)d[2]).ToShortDateString() });
 
-			//Получаем все CommonDistrictRuleItem у которых DeliveryPriceRule.Id == rule.Id
-			var districtRuleItems = uow.Session.QueryOver<CommonDistrictRuleItem>()
-				.Where(i => i.DeliveryPriceRule.Id == rule.Id)
-				.List();
-
-			//Получаем все найденные District районы
-			var desiredDistrics = districtRuleItems.Select(d => d.District).ToList();
-
-			//Из найденных районов получаем версии районов
-			var versions = desiredDistrics.Select(d => d.DistrictsSet).ToList();
-
-			ICriteria districts = uow.Session.CreateCriteria<District>();
-			DetachedCriteria desiredDistrictIds = DetachedCriteria.For<CommonDistrictRuleItem>()
-				.SetProjection(Projections.Property(nameof(CommonDistrictRuleItem.District)))
-				.Add(Restrictions.Eq(nameof(CommonDistrictRuleItem.DeliveryPriceRule), rule.Id));
-
-			districts.Add(Subqueries.PropertyIn(nameof(District.Id), desiredDistrictIds));
-
-			
-			var districtItems = districts.List();
-
-			//	ICriteria consult = Session.CreateCriteria<Car>();
-			//DetachedCriteria c = DetachedCriteria.For<Employee>()
-			//   .SetProjection(Projections.Property("Companies"))
-			//   .Add(Restrictions.Eq("Id", employee.Id));
-			//consult.Add(Subqueries.PropertyIn("Company.Id", c));
-
-			//var res = uow.Session.QueryOver<CommonDistrictRuleItem>()
-			//			 .Where(d => d.DeliveryPriceRule.Id == rule.Id)
-			//			 .List()
-			//			 .Select(r => r.District)
-			//			 .ToList()
-			//			 .Select(d=>d.DistrictsSet)
-			//			 .ToList();
-
-			//return res;
-			return new Dictionary<District, DistrictsSet>();
+			return districtsList.ToList(); 
 		}
 
 		public IList<District> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)

@@ -40,7 +40,7 @@ namespace Vodovoz.Dialogs.Sale
 		{
 			ConfigureValidationContext();
 
-			spinOrderMinSumEShopGoods.Visibility = false;
+			spinOrderMinSumEShopGoods.Visible = false;
 			lblOrderMinSumEShopGoods.Visible = false;
 			
 			spin19LQty.Binding.AddBinding(Entity, e => e.Water19LCount, w => w.ValueAsInt).InitializeFromSource();
@@ -52,17 +52,17 @@ namespace Vodovoz.Dialogs.Sale
 			ytextviewRuleName.Binding.AddBinding(Entity, e => e.RuleName, w => w.Buffer.Text).InitializeFromSource();
 			vboxDistricts.Visible = Entity.Id > 0;
 			if(Entity.Id > 0) {
-				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()
-					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.DistrictName)
-					//.AddColumn("Версия района:").AddTextRenderer(d => d.DistrictsSet.Name)
+				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<string[]>()
+					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d[0])
+					.AddColumn("Версия района:").AddTextRenderer(d => d[1])
+					.AddColumn("Дата создания версии района:").AddTextRenderer(d => d[2])
 					.Finish();
+				
+				var districtItemsWithDistrictSetValues = _districtRuleRepository.GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(UoW, Entity);
 
-				var districtItems = _districtRuleRepository.GetDistrictsHavingRule(UoW, Entity).ToList();
-				//var districtItemsWithDistrictSetValues = _districtRuleRepository.GetDistrictsHavingRuleWithDistrictSetVersion(UoW, Entity).ToList();
+				treeDistricts.ItemsDataSource = districtItemsWithDistrictSetValues;
 
-				treeDistricts.ItemsDataSource = districtItems;
-
-				if(districtItems.Count() > 0) 
+				if(districtItemsWithDistrictSetValues.Count() > 0) 
 				{
 					vboxRuleName.Sensitive = false;
 					vboxRuleSettings.Sensitive = false;
