@@ -39,7 +39,9 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
-			entryComplainDetalization.SetEntityAutocompleteSelectorFactory(ViewModel.ComplaintDetalizationAutocompleteSelectorFactory);
+			entryComplainDetalization
+				.SetEntityAutocompleteSelectorFactory(
+					ViewModel.ComplaintDetalizationAutocompleteSelectorFactory);
 			entryComplainDetalization.Binding
 				.AddBinding(ViewModel, vm => vm.ComplainDetalization, w => w.Subject)
 				.InitializeFromSource();

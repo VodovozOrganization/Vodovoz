@@ -44,7 +44,7 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual string GetFullName => !IsArchive ? Name : $"(Архив) {Name}";
 
-		public virtual string Title => $"Детализация рекламации №{Id} ({Name})";
+		public virtual string Title => Name;
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using QS.Project.Filter;
+using System.Collections.Generic;
 using System.Linq;
-using QS.Project.Filter;
 using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
