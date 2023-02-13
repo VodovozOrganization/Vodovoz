@@ -42,7 +42,10 @@ namespace Vodovoz.Dialogs.Sale
 
 			spinOrderMinSumEShopGoods.Visible = false;
 			lblOrderMinSumEShopGoods.Visible = false;
-			
+			spin600mlQty.Visible = false;
+			lbl600mlQty.Visible = false;
+
+
 			spin19LQty.Binding.AddBinding(Entity, e => e.Water19LCount, w => w.ValueAsInt).InitializeFromSource();
 			spin6LQty.Binding.AddBinding(Entity, e => e.Water6LCount, w => w.ValueAsInt).InitializeFromSource();
 			spin1500mlQty.Binding.AddBinding(Entity, e => e.Water1500mlCount, w => w.ValueAsInt).InitializeFromSource();

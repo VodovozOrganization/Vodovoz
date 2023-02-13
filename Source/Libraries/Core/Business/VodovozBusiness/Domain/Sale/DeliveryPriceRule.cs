@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual int Id { get; set; }
 
-		public virtual string Title => $"{this} или сумма товаров ИМ < {OrderMinSumEShopGoods}р.";
+		public virtual string Title => $"{this}"; //$"{this} или сумма товаров ИМ < {OrderMinSumEShopGoods}р.";
 		
 		private int water19LCount;
 		[Display(Name = "Количество 19л бутылей в заказе")]
@@ -120,7 +120,7 @@ namespace Vodovoz.Domain.Sale
 				sb.Append($" 19л б. < {Water19LCount}шт.");
 				sb.Append($" или 6л б. < {water6LCount}шт.");
 				sb.Append($" или 1500мл б. < {water1500mlCount}шт.");
-				sb.Append($" или 600мл б. < {water600mlCount}шт.");
+				//sb.Append($" или 600мл б. < {water600mlCount}шт.");
 				sb.Append($" или 500мл б. < {Water500mlCount}шт.");
 			}
 
