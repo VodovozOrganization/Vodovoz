@@ -29,7 +29,6 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			ComplaintKinds = UoW.Session.QueryOver<ComplaintKind>().List();
 			VisibleComplaintKinds = ComplaintKinds;
-
 			SelectedComplainObject = complaintObject ?? Entity.ComplaintKind?.ComplaintObject;
 
 			if(complaintKind != null)
@@ -39,8 +38,13 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 
 			SelectedComplainObject = Entity.ComplaintKind?.ComplaintObject;
 
-			CanChangeComplaintObject = complaintObject is null && !(SelectedComplainObject?.IsArchive ?? false) && !(Entity.ComplaintKind?.IsArchive ?? false);
-			CanChangeComplaintKind = complaintKind is null && !(Entity.ComplaintKind?.IsArchive ?? false);
+			CanChangeComplaintObject = CanEdit
+				&& complaintObject is null
+				&& !(SelectedComplainObject?.IsArchive ?? false)
+				&& !(Entity.ComplaintKind?.IsArchive ?? false);
+			CanChangeComplaintKind = CanEdit
+				&& complaintKind is null
+				&& !(Entity.ComplaintKind?.IsArchive ?? false);
 
 			Entity.PropertyChanged += EntityPropertyChanged;
 		}
@@ -48,6 +52,9 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 		public IList<ComplaintObject> ComplaintObjects { get; }
 
 		public IList<ComplaintKind> ComplaintKinds { get; }
+
+		public bool CanEdit => CommonServices.CurrentPermissionService
+			.ValidateEntityPermission(typeof(ComplaintDetalization)).CanUpdate;
 
 		public IEnumerable<ComplaintKind> VisibleComplaintKinds
 		{

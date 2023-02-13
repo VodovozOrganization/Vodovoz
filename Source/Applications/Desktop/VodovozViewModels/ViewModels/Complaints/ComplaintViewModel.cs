@@ -166,6 +166,9 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
+		public bool CanEditDetalization => CommonServices.CurrentPermissionService
+			.ValidateEntityPermission(typeof(ComplaintDetalization)).CanUpdate;
+
 		public bool CanChangeDetalization => CanEdit && Entity.ComplaintKind != null;
 
 		public bool AskSaveOnClose => CanEdit;

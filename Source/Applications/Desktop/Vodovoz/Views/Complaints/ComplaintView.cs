@@ -84,6 +84,7 @@ namespace Vodovoz.Views.Complaints
 			entryComplainDetalization.Binding
 				.AddBinding(ViewModel.Entity, e => e.ComplaintDetalization, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanChangeDetalization, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditDetalization, w => w.IsEditable)
 				.InitializeFromSource();
 
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;

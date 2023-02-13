@@ -15,18 +15,22 @@ namespace Vodovoz.Views.Complaints
 
 		private void Configure()
 		{
-			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+			yentryName.Binding
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspeccomboboxComplaintObject.ShowSpecialStateNot = true;
-			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
+			yspeccomboboxComplaintObject.Binding
+				.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjects, w => w.ItemsList)
 				.AddBinding(vm => vm.SelectedComplainObject, w => w.SelectedItem)
 				.AddBinding(vm => vm.CanChangeComplaintObject, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspeccomboboxComplaintKind.ShowSpecialStateNot = true;
-			yspeccomboboxComplaintKind.Binding.AddSource(ViewModel)
+			yspeccomboboxComplaintKind.Binding
+				.AddSource(ViewModel)
 				.AddBinding(vm => vm.VisibleComplaintKinds, w => w.ItemsList)
 				.AddBinding(vm => vm.CanChangeComplaintKind, w => w.Sensitive)
 				.InitializeFromSource();
@@ -35,7 +39,13 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem)
 				.InitializeFromSource();
 
-			chkIsArchive.Binding.AddBinding(ViewModel.Entity, vm => vm.IsArchive, w => w.Active)
+			chkIsArchive.Binding
+				.AddBinding(ViewModel.Entity, vm => vm.IsArchive, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			buttonSave.Clicked += ButtonSaveClicked;
