@@ -75,9 +75,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
-			CreateDefaultSelectAction();
 		}
 
 		protected override Func<ComplaintDetalizationViewModel> CreateDialogFunction =>
