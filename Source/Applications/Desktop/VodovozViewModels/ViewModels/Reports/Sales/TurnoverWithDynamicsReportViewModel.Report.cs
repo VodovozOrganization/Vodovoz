@@ -22,6 +22,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				bool showDynamics,
 				DynamicsInEnum dynamicsIn,
 				bool showLastSale,
+				bool showResidueForNomenclaturesWithoutSales,
 				Func<int, decimal> warehouseNomenclatureBalanceCallback,
 				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
@@ -33,6 +34,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				ShowDynamics = showDynamics;
 				DynamicsIn = dynamicsIn;
 				ShowLastSale = showLastSale;
+				ShowResidueForNomenclaturesWithoutSales = showResidueForNomenclaturesWithoutSales;
 				_warehouseNomenclatureBalanceCallback = warehouseNomenclatureBalanceCallback;
 				Slices = DateTimeSliceFactory.CreateSlices(slicingType, startDate, endDate).ToList();
 				CreatedAt = DateTime.Now;
@@ -55,6 +57,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public DynamicsInEnum DynamicsIn { get; }
 
 			public bool ShowLastSale { get; }
+
+			public bool ShowResidueForNomenclaturesWithoutSales { get; }
 
 			public DateTime CreatedAt { get; }
 			#endregion
@@ -166,6 +170,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 								DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
 								WarhouseResidue = _warehouseNomenclatureBalanceCallback(nomenclatureGroup.Key)
 							};
+						}
+
+						if(ShowResidueForNomenclaturesWithoutSales)
+						{
+							if(row.LastSaleDetails.WarhouseResidue == 0
+								&& row.RowTotal == 0)
+							{
+								continue;
+							}
 						}
 
 						productGroupRows.Add(row);
@@ -305,6 +318,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				bool showDynamics,
 				DynamicsInEnum dynamicsIn,
 				bool showLastSale,
+				bool showResidueForNomenclaturesWithoutSales,
 				Func<int, decimal> warehouseNomenclatureBalanceCallback,
 				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
@@ -317,6 +331,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							showDynamics,
 							dynamicsIn,
 							showLastSale,
+							showResidueForNomenclaturesWithoutSales,
 							warehouseNomenclatureBalanceCallback,
 							dataFetchCallback);
 			}
