@@ -5,6 +5,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
+using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints;
@@ -19,11 +20,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			ComplaintDetalizationJournalNode,
 			ComplaintDetalizationJournalFilterViewModel>
 	{
+		private ComplaintDetalization _selectedComplaintDetalization;
+
 		public ComplaintDetalizationJournalViewModel(
-			ComplaintDetalizationJournalFilterViewModel filterViewModel,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+					ComplaintDetalizationJournalFilterViewModel filterViewModel,
+					IUnitOfWorkFactory unitOfWorkFactory,
+					ICommonServices commonServices)
+					: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Детализации видов рекламаций";
 
@@ -32,6 +35,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				typeof(ComplaintObject),
 				typeof(ComplaintDetalization));
 		}
+
+		public ComplaintDetalization SelectedComplaintDetalization
+		{
+			get => _selectedComplaintDetalization;
+			set
+			{
+				if(SetField(ref _selectedComplaintDetalization, value))
+				{
+					OnPropertyChanged(nameof(CanSelect));
+				}
+			}
+		}
+
+		public bool CanSelect => !SelectedComplaintDetalization.IsArchive;
 
 		protected override Func<IUnitOfWork, IQueryOver<ComplaintDetalization>> ItemsSourceQueryFunction => (unitOfWork) =>
 		{
@@ -75,9 +92,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
+			CreateSelectAction();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
+		}
+
+		private void CreateSelectAction()
+		{
+			var selectAction = new JournalAction("Выбрать",
+				(selected) => selected.Any() && selected.All(x => !(x as ComplaintDetalizationJournalNode).IsArchive),
+				(selected) => SelectionMode != JournalSelectionMode.None,
+				(selected) => OnItemsSelected(selected)
+			);
+			if(SelectionMode == JournalSelectionMode.Single || SelectionMode == JournalSelectionMode.Multiple)
+			{
+				RowActivatedAction = selectAction;
+			}
+			NodeActionsList.Add(selectAction);
 		}
 
 		protected override Func<ComplaintDetalizationViewModel> CreateDialogFunction =>

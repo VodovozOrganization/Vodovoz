@@ -104,6 +104,8 @@ namespace Vodovoz.ViewModels.Complaints
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 
+			_detalizationJournalFilterViewModel = new ComplaintDetalizationJournalFilterViewModel();
+
 			if(orderSelectorFactory == null)
 			{
 				throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -150,8 +152,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
-
-			_detalizationJournalFilterViewModel = new ComplaintDetalizationJournalFilterViewModel();
+			
 			InitializeComplaintDetalizationAutocompleteSelectorFactory(complaintDetalizationSelectorFactory);
 		}
 
