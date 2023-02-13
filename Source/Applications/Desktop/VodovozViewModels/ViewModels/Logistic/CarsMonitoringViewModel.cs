@@ -458,7 +458,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				trackSubquery.Inner.JoinAlias(x => x.TrackPoints, () => trackPointAlias)
 					.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), HistoryDateTime))
-					.Where(Restrictions.Ge(Projections.Property(() => trackPointAlias.TimeStamp), HistoryDateTime.Add(DriverDisconnectedTimespan)))
+					.And(Restrictions.Gt(Projections.Property(() => trackPointAlias.TimeStamp), HistoryDateTime.Add(DriverDisconnectedTimespan)))
 					.Take(1);
 
 				query.Where(Restrictions.IsNotNull(Projections.SubQuery(trackSubquery)));
