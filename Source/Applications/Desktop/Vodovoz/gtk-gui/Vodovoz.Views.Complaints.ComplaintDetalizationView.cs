@@ -80,7 +80,7 @@ namespace Vodovoz.Views.Complaints
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vboxContainer.Gtk.Box+BoxChild
-			this.tableControlsContainer = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
+			this.tableControlsContainer = new global::Gtk.Table(((uint)(5)), ((uint)(2)), false);
 			this.tableControlsContainer.Name = "tableControlsContainer";
 			this.tableControlsContainer.RowSpacing = ((uint)(6));
 			this.tableControlsContainer.ColumnSpacing = ((uint)(6));
@@ -99,8 +99,8 @@ namespace Vodovoz.Views.Complaints
 			this.hseparator2.Name = "hseparator2";
 			this.tableControlsContainer.Add(this.hseparator2);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableControlsContainer[this.hseparator2]));
-			w7.TopAttach = ((uint)(5));
-			w7.BottomAttach = ((uint)(6));
+			w7.TopAttach = ((uint)(4));
+			w7.BottomAttach = ((uint)(5));
 			w7.RightAttach = ((uint)(2));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -179,6 +179,8 @@ namespace Vodovoz.Views.Complaints
 			this.vboxContainer.Add(this.tableControlsContainer);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxContainer[this.tableControlsContainer]));
 			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child vboxContainer.Gtk.Box+BoxChild
 			this.chkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkIsArchive.CanFocus = true;
