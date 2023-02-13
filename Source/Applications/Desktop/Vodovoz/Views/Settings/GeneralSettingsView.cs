@@ -33,6 +33,14 @@ namespace Vodovoz.Views.Settings
 				.InitializeFromSource();
 
 			roboatssettingsview1.ViewModel = ViewModel.RoboatsSettingsViewModel;
+
+
+			btnSaveOrderAutoComment.Clicked += (sender, args) => ViewModel.SaveOrderAutoCommentCommand.Execute();
+			btnOrderAutoCommentInfo.Clicked += (sender, args) => ViewModel.ShowAutoCommentInfoCommand.Execute();
+
+			entryOrderAutoComment.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.OrderAutoComment, w => w.Text)
+				.InitializeFromSource();
 		}
 	}
 }
