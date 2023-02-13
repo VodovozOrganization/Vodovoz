@@ -155,9 +155,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							row.DynamicColumns = CalculateDynamics(row.SliceColumnValues);
 						}
 
-						row.Index = index.ToString();
-						index++;
-
 						if(ShowLastSale)
 						{
 							var lastDelivery = nomenclatureGroup
@@ -180,6 +177,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 								continue;
 							}
 						}
+
+						row.Index = index.ToString();
+						index++;
 
 						productGroupRows.Add(row);
 					}
