@@ -368,6 +368,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Domain.Orders.Order orderAlias = null;
 			OrderItem ordItemsAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			TrackPoint trackPointAlias = null;
 
 			var completedSubquery = QueryOver.Of<RouteListItem>()
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
@@ -425,6 +426,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(ShowFastDeliveryOnly)
 			{
 				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
+
+				if(!ShowHistory)
+				{
+					trackSubquery.Inner.JoinAlias(x => x.TrackPoints, () => trackPointAlias)
+						.Where(Restrictions.Gt(Projections.Property(() => trackPointAlias.TimeStamp), DateTime.Now.Add(DriverDisconnectedTimespan)))
+						.OrderBy(Projections.Property(() => trackPointAlias.TimeStamp)).Desc
+						.Take(1);
+				}
 			}
 
 			query.JoinAlias(rl => rl.Driver, () => driverAlias)
@@ -453,12 +462,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 							Restrictions.Ge(Projections.Property(() => routeListAlias.DeliveredAt), HistoryDateTime),
 							Restrictions.IsNull(Projections.Property(() => routeListAlias.DeliveredAt))),
 						Restrictions.In(Projections.Property(() => routeListAlias.Status), routeListHistoryStatuses)));
-						
-				TrackPoint trackPointAlias = null;
 
 				trackSubquery.Inner.JoinAlias(x => x.TrackPoints, () => trackPointAlias)
 					.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), HistoryDateTime))
 					.And(Restrictions.Gt(Projections.Property(() => trackPointAlias.TimeStamp), HistoryDateTime.Add(DriverDisconnectedTimespan)))
+					.OrderBy(Projections.Property(() => trackPointAlias.TimeStamp)).Desc
 					.Take(1);
 
 				query.Where(Restrictions.IsNotNull(Projections.SubQuery(trackSubquery)));
