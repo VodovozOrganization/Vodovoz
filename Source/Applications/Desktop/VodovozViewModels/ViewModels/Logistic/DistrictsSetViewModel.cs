@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.Logistic
 
             var districtPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
             CanEditDistrict = districtPermissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
-            CanEditDeliveryRules = CanEditDistrict || commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_rules");
+            CanEditDeliveryRules = (CanEditDistrict || commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_rules")) && Entity.Status != DistrictsSetStatus.Active;
 			CanDeleteDistrict = (districtPermissionResult.CanDelete || districtPermissionResult.CanCreate && Entity.Id == 0) && Entity.Status != DistrictsSetStatus.Active;
             CanCreateDistrict = districtPermissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
 
