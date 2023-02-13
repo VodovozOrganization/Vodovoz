@@ -5,7 +5,8 @@ using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 {
-	public class ComplaintDetalizationJournalFilterViewModel : FilterViewModelBase<ComplaintDetalizationJournalFilterViewModel>
+	public class ComplaintDetalizationJournalFilterViewModel
+		: FilterViewModelBase<ComplaintDetalizationJournalFilterViewModel>
 	{
 		private ComplaintObject _complaintObject;
 		private ComplaintKind _complaintOKind;
@@ -35,6 +36,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 						VisibleComplaintKinds = ComplaintKinds
 							.Where(ck => ck.ComplaintObject == value);
 					}
+					OnPropertyChanged(nameof(CanChangeComplaintKind));
 				}
 			}
 		}
@@ -78,7 +80,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 
 		public bool CanChangeComplaintObject => RestrictComplaintObject is null;
 
-		public bool CanChangeComplaintKind => RestrictComplaintKind is null;
+		public bool CanChangeComplaintKind => RestrictComplaintKind is null
+			&& ComplaintObject != null;
 
 		public IEnumerable<ComplaintKind> VisibleComplaintKinds
 		{

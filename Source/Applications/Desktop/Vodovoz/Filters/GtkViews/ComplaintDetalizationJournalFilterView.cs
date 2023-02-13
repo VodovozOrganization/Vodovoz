@@ -1,12 +1,13 @@
-﻿using System;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 
 namespace Vodovoz.Filters.GtkViews
 {
-	public partial class ComplaintDetalizationJournalFilterView : FilterViewBase<ComplaintDetalizationJournalFilterViewModel>
+	public partial class ComplaintDetalizationJournalFilterView
+		: FilterViewBase<ComplaintDetalizationJournalFilterViewModel>
 	{
-		public ComplaintDetalizationJournalFilterView(ComplaintDetalizationJournalFilterViewModel filterViewModel)
+		public ComplaintDetalizationJournalFilterView(
+			ComplaintDetalizationJournalFilterViewModel filterViewModel)
 			: base(filterViewModel)
 		{
 			Build();
