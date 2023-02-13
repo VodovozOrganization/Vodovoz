@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private List<ComplaintSource> _complaintSources;
 		private IEnumerable<ComplaintResultOfCounterparty> _complaintResults;
 		private IList<ComplaintKind> _complaintKindSource;
-		private ComplaintDetalization _complaintDetalization;
+		private ComplaintDetalizationJournalFilterViewModel _detalizationJournalFilterViewModel;
 
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -84,7 +84,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationSelectorFactory,
-			ILifetimeScope scope) : base(uowBuilder, uowFactory, commonServices)
+			ILifetimeScope scope)
+			: base(uowBuilder, uowFactory, commonServices)
 		{
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -111,6 +112,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
+			Entity.PropertyChanged += EntityPropertyChanged;
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -148,7 +150,17 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
+
+			_detalizationJournalFilterViewModel = new ComplaintDetalizationJournalFilterViewModel();
 			InitializeComplaintDetalizationAutocompleteSelectorFactory(complaintDetalizationSelectorFactory);
+		}
+
+		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.ComplaintKind))
+			{
+				_detalizationJournalFilterViewModel.RestrictComplaintKind = Entity.ComplaintKind;
+			}
 		}
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
@@ -307,6 +319,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(SetField(ref _complaintObject, value))
 				{
 					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
+					_detalizationJournalFilterViewModel.RestrictComplaintObject = value;
 				}
 			}
 		}
@@ -469,17 +482,14 @@ namespace Vodovoz.ViewModels.Complaints
 
 		private void InitializeComplaintDetalizationAutocompleteSelectorFactory(IComplaintDetalizationAutocompleteSelectorFactory complainDetalizationSelectorFactory)
 		{
-			var complainDetalizationFilter =
-				new ComplaintDetalizationJournalFilterViewModel();
-
 			if(Entity.ComplaintKind != null)
 			{
-				complainDetalizationFilter.RestrictComplaintKind = Entity.ComplaintKind;
+				_detalizationJournalFilterViewModel.RestrictComplaintKind = Entity.ComplaintKind;
 			}
 
 			ComplaintDetalizationAutocompleteSelectorFactory =
 				(complainDetalizationSelectorFactory ?? throw new ArgumentNullException(nameof(complainDetalizationSelectorFactory)))
-				.CreateComplaintDetalizationAutocompleteSelectorFactory(complainDetalizationFilter);
+				.CreateComplaintDetalizationAutocompleteSelectorFactory(_detalizationJournalFilterViewModel);
 		}
 
 		protected void ConfigureEntityChangingRelations()
