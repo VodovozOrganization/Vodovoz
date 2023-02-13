@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 				{
 					ComplaintKind = value;
 					RestrictComplaintObject = ComplaintObjects
-						.Where(x => x.Id == value.ComplaintObject.Id)
+						.Where(x => x.Id == value?.ComplaintObject?.Id)
 						.FirstOrDefault();
 				}
 			}
