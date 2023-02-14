@@ -44,8 +44,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			var query = uow.Session.QueryOver<DeliveryPriceRule>()
 				.SelectList(list => list
 				.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-				.Select(x => x.RuleName).WithAlias(() => resultAlias.RuleName)
-				.Select(x => x.ToString()).WithAlias(() => resultAlias.RuleDescription))
+				.Select(x => x.Water19LCount).WithAlias(() => resultAlias.Water19LCount)
+				.Select(x => x.Water6LCount).WithAlias(() => resultAlias.Water6LCount)
+				.Select(x => x.Water1500mlCount).WithAlias(() => resultAlias.Water1500mlCount)
+				.Select(x => x.Water600mlCount).WithAlias(() => resultAlias.Water600mlCount)
+				.Select(x => x.Water500mlCount).WithAlias(() => resultAlias.Water500mlCount)
+				.Select(x => x.RuleName).WithAlias(() => resultAlias.Name)
+				.Select(x => x.OrderMinSumEShopGoods).WithAlias(() => resultAlias.OrderMinSumEShopGoods))
 				.TransformUsing(Transformers.AliasToBean<DeliveryPriceRuleJournalNode>()).OrderBy(x => x.Id).Desc;
 
 			query.Where(
@@ -82,7 +87,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 
 	public class DeliveryPriceRuleJournalNode : JournalEntityNodeBase<DeliveryPriceRule>
 	{
-		public string RuleName { get; set; }
-		public string RuleDescription { get; set; }
+		public int Water19LCount { get; set; }
+		public int Water6LCount { get; set; }
+		public int Water1500mlCount { get; set; }
+		public int Water600mlCount { get; set; }
+		public int Water500mlCount { get; set; }
+		public string Name { get; set; }
+		public decimal OrderMinSumEShopGoods { get; set; }
+
+		public string Description => $"Если " +
+			$"19л б. < {Water19LCount}шт. " +
+			$"или 6л б. < {Water6LCount}шт. " +
+			$"или 1500мл б. < {Water1500mlCount}шт. " +
+			$"или 500мл б. < {Water500mlCount}шт.";
 	}
 }
