@@ -41,6 +41,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_route_List_printed_form_phones");
 			CanEditCanAddForwardersToLargus =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_largus");
+			CanEditOrderAutoComment =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
 
 			OrderAutoComment = _generalSettingsParametersProvider.OrderAutoComment;
 		}
@@ -120,10 +122,13 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			set => SetField(ref _orderAutoComment, value);
 		}
 
+		public bool CanEditOrderAutoComment { get; }
+
 		public DelegateCommand SaveOrderAutoCommentCommand =>
 			_saveOrderAutoCommentCommand ?? (_saveOrderAutoCommentCommand = new DelegateCommand(() =>
 			{
 				_generalSettingsParametersProvider.UpdateOrderAutoComment(OrderAutoComment);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 			}));
 
 		public DelegateCommand ShowAutoCommentInfoCommand =>

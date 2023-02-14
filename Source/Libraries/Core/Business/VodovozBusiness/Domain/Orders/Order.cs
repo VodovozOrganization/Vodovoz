@@ -3763,8 +3763,11 @@ namespace Vodovoz.Domain.Orders
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
 			paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, this);
 
-			if(PromotionalSets.All(x => !x.CanBeReorderedWithoutRestriction)
+			var hasPromotionalSetForNewClient = PromotionalSets.Any(x => !x.CanBeReorderedWithoutRestriction);
+
+			if(hasPromotionalSetForNewClient
 			   && ContactlessDelivery
+			   && !SelfDelivery
 			   && !Comment.Contains(_generalSettingsParameters.OrderAutoComment))
 			{
 				Comment = $"{_generalSettingsParameters.OrderAutoComment}{Environment.NewLine}{Comment}";
