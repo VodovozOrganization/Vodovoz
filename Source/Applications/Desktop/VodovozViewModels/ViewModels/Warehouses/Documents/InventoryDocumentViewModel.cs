@@ -414,7 +414,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				return Save();
 			}
 
-			return false;
+			return true;
 		}
 
 		public void FillItems(
