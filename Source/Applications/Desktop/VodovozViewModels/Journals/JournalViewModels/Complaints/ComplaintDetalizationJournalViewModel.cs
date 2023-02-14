@@ -20,13 +20,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			ComplaintDetalizationJournalNode,
 			ComplaintDetalizationJournalFilterViewModel>
 	{
-		private ComplaintDetalization _selectedComplaintDetalization;
-
 		public ComplaintDetalizationJournalViewModel(
-					ComplaintDetalizationJournalFilterViewModel filterViewModel,
-					IUnitOfWorkFactory unitOfWorkFactory,
-					ICommonServices commonServices)
-					: base(filterViewModel, unitOfWorkFactory, commonServices)
+			ComplaintDetalizationJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Детализации видов рекламаций";
 
@@ -35,20 +33,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				typeof(ComplaintObject),
 				typeof(ComplaintDetalization));
 		}
-
-		public ComplaintDetalization SelectedComplaintDetalization
-		{
-			get => _selectedComplaintDetalization;
-			set
-			{
-				if(SetField(ref _selectedComplaintDetalization, value))
-				{
-					OnPropertyChanged(nameof(CanSelect));
-				}
-			}
-		}
-
-		public bool CanSelect => !SelectedComplaintDetalization.IsArchive;
 
 		protected override Func<IUnitOfWork, IQueryOver<ComplaintDetalization>> ItemsSourceQueryFunction => (unitOfWork) =>
 		{
@@ -63,12 +47,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			if(FilterViewModel.ComplaintObject != null)
 			{
-				itemsQuery.Where(() => complaintObjectAlias.Id == FilterViewModel.ComplaintObject.Id);
+				var complaintIbjectId = FilterViewModel.ComplaintObject.Id;
+				itemsQuery.Where(() => complaintObjectAlias.Id == complaintIbjectId);
 			}
 
 			if(FilterViewModel.ComplaintKind != null)
 			{
-				itemsQuery.Where(() => complaintKindAlias.Id == FilterViewModel.ComplaintKind.Id);
+				var complaintKindId = FilterViewModel.ComplaintKind.Id;
+				itemsQuery.Where(() => complaintKindAlias.Id == complaintKindId);
 			}
 
 			itemsQuery.Where(GetSearchCriterion(

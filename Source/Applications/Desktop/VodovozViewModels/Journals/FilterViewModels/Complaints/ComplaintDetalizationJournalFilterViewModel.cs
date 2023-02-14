@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 		{
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			ComplaintKinds = UoW.Session.QueryOver<ComplaintKind>().List();
+			VisibleComplaintKinds = Enumerable.Empty<ComplaintKind>();
 		}
 
 		public ComplaintObject ComplaintObject
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 					if(value is null)
 					{
 						VisibleComplaintKinds = Enumerable.Empty<ComplaintKind>();
+						ComplaintKind = null;
 					}
 					else
 					{
@@ -44,7 +46,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 		public ComplaintKind ComplaintKind
 		{
 			get => _complaintOKind;
-			set => UpdateFilterField(ref _complaintOKind, value);
+			set
+			{
+				UpdateFilterField(ref _complaintOKind, value);
+				OnPropertyChanged(nameof(CanChangeComplaintKind));
+			}
 		}
 
 		public IList<ComplaintObject> ComplaintObjects { get; }
