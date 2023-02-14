@@ -1,4 +1,6 @@
-﻿using FluentNHibernate.Mapping;
+﻿using FluentNHibernate;
+using FluentNHibernate.Mapping;
+using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.HibernateMapping
@@ -20,7 +22,13 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.Author).Column ("author_id");
 			References (x => x.LastEditor).Column ("last_editor_id");
 			References (x => x.Warehouse).Column ("warehouse_id");
-			HasMany (x => x.Items).Cascade.AllDeleteOrphan ().Inverse ().KeyColumn ("store_inventory_id");
+			Component(x => x.Items,
+				part => {
+					part.HasMany<InventoryDocumentItem>(
+							Reveal.Member<GenericObservableList<InventoryDocumentItem>>("items"))
+						.KeyColumn("store_inventory_id")
+						.Cascade.AllDeleteOrphan().Inverse();
+				});
 		}
 	}
 }

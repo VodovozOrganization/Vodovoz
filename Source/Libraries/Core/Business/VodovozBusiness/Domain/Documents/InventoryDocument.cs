@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -61,31 +61,20 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		IList<InventoryDocumentItem> _items = new List<InventoryDocumentItem>();
-
 		[Display(Name = "Строки")]
-		public virtual IList<InventoryDocumentItem> Items
-		{
-			get { return _items; }
-			set
-			{
-				SetField(ref _items, value);
-				_observableItems = null;
-			}
-		}
 
-		GenericObservableList<InventoryDocumentItem> _observableItems;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<InventoryDocumentItem> ObservableItems
+
+		GenericObservableList<InventoryDocumentItem> _items;
+		public virtual GenericObservableList<InventoryDocumentItem> Items
 		{
 			get
 			{
-				if(_observableItems == null)
+				if(_items == null)
 				{
-					_observableItems = new GenericObservableList<InventoryDocumentItem>(Items);
+					_items = new GenericObservableList<InventoryDocumentItem>();
 				}
 
-				return _observableItems;
+				return _items;
 			}
 		}
 
@@ -104,10 +93,20 @@ namespace Vodovoz.Domain.Documents
 
 			var comparison = new Comparison<InventoryDocumentItem>((x, y) => compiled.Invoke(x).CompareTo(compiled.Invoke(y)));
 
-			(Items as List<InventoryDocumentItem>)
-				.Sort(comparison);
+			var listForSort = Items.ToList();
+			listForSort.Sort(comparison);
 
-			OnPropertyChanged(nameof(ObservableItems));
+			Items.Clear();
+
+			foreach(var item in listForSort)
+			{
+				Items.Add(item);
+			}
+		}
+
+		public virtual void ClearItems()
+		{
+			Items.Clear();
 		}
 
 		public virtual void AddItem(Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
@@ -119,7 +118,7 @@ namespace Vodovoz.Domain.Documents
 				AmountInFact = amountInFact,
 				Document = this
 			};
-			ObservableItems.Add(item);
+			Items.Add(item);
 		}
 
 		public virtual void FillItemsFromStock(IUnitOfWork uow, Dictionary<int, decimal> selectedNomenclature)
@@ -133,10 +132,10 @@ namespace Vodovoz.Domain.Documents
 
 			var nomenclatures = uow.GetById<Nomenclature>(inStock.Select(p => p.Key).ToArray());
 
-			ObservableItems.Clear();
+			Items.Clear();
 			foreach(var itemInStock in inStock)
 			{
-				ObservableItems.Add(
+				Items.Add(
 					new InventoryDocumentItem()
 					{
 						Nomenclature = nomenclatures.First(x => x.Id == itemInStock.Key),
@@ -211,7 +210,7 @@ namespace Vodovoz.Domain.Documents
 				}
 				else
 				{
-					ObservableItems.Add(
+					Items.Add(
 						new InventoryDocumentItem()
 						{
 							Nomenclature = uow.GetById<Nomenclature>(itemInStock.Key),
@@ -233,7 +232,7 @@ namespace Vodovoz.Domain.Documents
 
 			foreach(var item in itemsToRemove)
 			{
-				ObservableItems.Remove(item);
+				Items.Remove(item);
 			}
 		}
 

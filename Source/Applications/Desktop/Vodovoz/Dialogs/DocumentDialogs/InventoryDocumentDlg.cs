@@ -346,7 +346,7 @@ namespace Vodovoz
 			{
 				if(MessageDialogHelper.RunQuestionDialog("При изменении склада табличная часть документа будет очищена. Продолжить?"))
 				{
-					Entity.ObservableItems.Clear();
+					Entity.Items.Clear();
 				}
 				else
 				{
@@ -382,7 +382,7 @@ namespace Vodovoz
 				})
 				.Finish();
 
-			ytreeviewItems.ItemsDataSource = Entity.ObservableItems;
+			ytreeviewItems.ItemsDataSource = Entity.Items;
 			ytreeviewItems.YTreeModel?.EmitModelChanged();
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
@@ -391,7 +391,7 @@ namespace Vodovoz
 
 		private void Entity_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(Entity.ObservableItems))
+			if(e.PropertyName == nameof(Entity.Items))
 			{
 				ytreeviewItems.YTreeModel?.EmitModelChanged();
 			}
@@ -617,7 +617,7 @@ namespace Vodovoz
 
 		protected void OnYbtnFillByAccountingClicked(object sender, EventArgs e)
 		{
-			foreach(var inventoryDocumentItem in Entity.ObservableItems)
+			foreach(var inventoryDocumentItem in Entity.Items)
 			{
 				inventoryDocumentItem.AmountInFact = inventoryDocumentItem.AmountInDB;
 			}
