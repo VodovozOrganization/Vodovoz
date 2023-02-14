@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace TrueMarkApi.Dto.Participants
+namespace TrueMarkApi.Library.Dto
 {
 	public class ParticipantRegistrationDto
 	{
@@ -21,7 +21,7 @@ namespace TrueMarkApi.Dto.Participants
 		[JsonPropertyName("productGroups")]
 		public IEnumerable<string> ProductGroups { get; set; }
 
-		[JsonIgnore] 
+		[JsonIgnore]
 		public bool IsRegisteredForWater => ProductGroups != null && ProductGroups.Any(pg => pg == "water") && IsRegistered;
 	}
 }
