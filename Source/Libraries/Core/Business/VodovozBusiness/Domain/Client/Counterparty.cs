@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities;
+using QS.Utilities.Text;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -59,6 +60,9 @@ namespace Vodovoz.Domain.Client
 		private string _specialContractNumber;
 		private DateTime? _specialContractDate;
 		private bool _doNotMixMarkedAndUnmarkedGoodsInOrder;
+		private string _patronymic;
+		private string _firstName;
+		private string _surname;
 
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
 		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
@@ -189,7 +193,16 @@ namespace Vodovoz.Domain.Client
 		[StringLength(10)]
 		public virtual string TypeOfOwnership {
 			get => typeOfOwnership;
-			set => SetField(ref typeOfOwnership, value, () => TypeOfOwnership);
+			set
+			{
+				if(SetField(ref typeOfOwnership, value))
+				{
+					if(value == "ИП")
+					{
+						Name = FullName = GetPersonFullName();
+					}
+				}
+			}
 		}
 
 		string fullName;
@@ -282,7 +295,10 @@ namespace Vodovoz.Domain.Client
 				SetField(ref personType, value, () => PersonType);
 
 				if(value == PersonType.natural)
+				{
 					PaymentMethod = PaymentType.cash;
+					Name = FullName = GetPersonFullName();
+				}
 			}
 		}
 
@@ -733,7 +749,46 @@ namespace Vodovoz.Domain.Client
 			get => _edoOperator;
 			set => SetField(ref _edoOperator, value);
 		}
-		
+
+		[Display(Name = "Фамилия")]
+		public virtual string Surname
+		{
+			get => _surname;
+			set
+			{
+				if(SetField(ref _surname, value))
+				{
+					Name = FullName = GetPersonFullName();
+				}
+			}
+		}
+
+		[Display(Name = "Имя")]
+		public virtual string FirstName
+		{
+			get => _firstName;
+			set
+			{
+				if(SetField(ref _firstName, value))
+				{
+					Name = FullName = GetPersonFullName();
+				}
+			}
+		}
+
+		[Display(Name = "Отчество")]
+		public virtual string Patronymic
+		{
+			get => _patronymic;
+			set
+			{
+				if(SetField(ref _patronymic, value))
+				{
+					Name = FullName = GetPersonFullName();
+				}
+			}
+		}
+
 		[Display(Name = "Не смешивать в одном заказе маркированные и немаркированные товары")]
 		public virtual bool DoNotMixMarkedAndUnmarkedGoodsInOrder
 		{
@@ -1348,6 +1403,20 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
+
+		private string GetPersonFullName()
+		{
+			StringBuilder personFullName = new StringBuilder();
+
+			if(TypeOfOwnership == "ИП" && PersonType == PersonType.legal)
+			{
+				personFullName.Append("ИП ");
+			}
+
+			personFullName.Append(PersonHelper.PersonFullName(Surname, FirstName, Patronymic));
+
+			return personFullName.ToString();
+		}
 	}
 
 	public enum PersonType

@@ -458,17 +458,39 @@ namespace Vodovoz
 			entryFIO.Binding
 				.AddBinding(Entity, e => e.Name, w => w.Text)
 				.InitializeFromSource();
-			entryFIO.Sensitive = CanEdit;
+			entryFIO.Sensitive = false;
+
+			yhboxPersonFullName.Binding
+				.AddFuncBinding(Entity, e => e.TypeOfOwnership == "ИП" || e.PersonType == PersonType.natural, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelPersonFullName.Binding
+				.AddFuncBinding(Entity, e => e.TypeOfOwnership == "ИП" || e.PersonType == PersonType.natural, w => w.Visible)
+				.InitializeFromSource();
+
+			yentrySurname.Binding
+				.AddBinding(Entity, e => e.Surname, w => w.Text)
+				.InitializeFromSource();
+
+			yentryFirstName.Binding
+				.AddBinding(Entity, e => e.FirstName, w => w.Text)
+				.InitializeFromSource();
+
+			yentryPatronymic.Binding
+				.AddBinding(Entity, e => e.Patronymic, w => w.Text)
+				.InitializeFromSource();
 
 			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			datalegalname1.Binding.AddSource(Entity)
 				.AddBinding(s => s.Name, t => t.OwnName)
 				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
+				.AddFuncBinding(s => s.TypeOfOwnership != "ИП", t => t.EntryName.Sensitive)
 				.InitializeFromSource();
 
 			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			entryFullName.Binding
 				.AddBinding(Entity, e => e.FullName, w => w.Text)
+				.AddFuncBinding(s => s.TypeOfOwnership != "ИП", w => w.Sensitive)
 				.InitializeFromSource();
 
 			entryMainCounterparty
