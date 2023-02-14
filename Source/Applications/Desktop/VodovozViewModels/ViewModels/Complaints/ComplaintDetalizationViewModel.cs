@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
@@ -33,28 +34,36 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 
 			if(complaintKind != null)
 			{
-				Entity.ComplaintKind = complaintKind;
+				RestrictComplainKind = Entity.ComplaintKind = complaintKind;
 			}
+
+			RestrictComplaintObject = complaintObject;
 
 			SelectedComplainObject = Entity.ComplaintKind?.ComplaintObject;
 
-			CanChangeComplaintObject = CanEdit
-				&& complaintObject is null
-				&& !(SelectedComplainObject?.IsArchive ?? false)
-				&& !(Entity.ComplaintKind?.IsArchive ?? false);
-			CanChangeComplaintKind = CanEdit
-				&& complaintKind is null
-				&& !(Entity.ComplaintKind?.IsArchive ?? false);
-
 			Entity.PropertyChanged += EntityPropertyChanged;
+
+			SetPropertyChangeRelation(
+				complaintDetalization => complaintDetalization.Id,
+				() => CanEdit);
 		}
+
+		[PropertyChangedAlso(nameof(CanChangeComplaintKind))]
+		public ComplaintKind RestrictComplainKind { get; }
+
+		[PropertyChangedAlso(nameof(CanChangeComplaintObject))]
+		public ComplaintObject RestrictComplaintObject { get; }
 
 		public IList<ComplaintObject> ComplaintObjects { get; }
 
 		public IList<ComplaintKind> ComplaintKinds { get; }
 
+		public bool CanCreate => CommonServices.CurrentPermissionService
+			.ValidateEntityPermission(typeof(ComplaintDetalization)).CanCreate;
+
 		public bool CanEdit => CommonServices.CurrentPermissionService
-			.ValidateEntityPermission(typeof(ComplaintDetalization)).CanUpdate;
+			.ValidateEntityPermission(typeof(ComplaintDetalization)).CanUpdate
+			|| (UoW.IsNew && CanCreate);
 
 		public IEnumerable<ComplaintKind> VisibleComplaintKinds
 		{
@@ -82,9 +91,14 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 			}
 		}
 
-		public bool CanChangeComplaintKind { get; }
+		public bool CanChangeComplaintKind => CanEdit
+			&& RestrictComplainKind is null
+			&& !(Entity.ComplaintKind?.IsArchive ?? false);
 
-		public bool CanChangeComplaintObject { get; }
+		public bool CanChangeComplaintObject => CanEdit
+			&& RestrictComplaintObject is null
+			&& !(SelectedComplainObject?.IsArchive ?? false)
+			&& !(Entity.ComplaintKind?.IsArchive ?? false);
 
 		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
