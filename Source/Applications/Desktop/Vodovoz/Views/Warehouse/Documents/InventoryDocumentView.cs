@@ -8,8 +8,6 @@ using QSOrmProject;
 using QSProjectsLib;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -74,6 +72,8 @@ namespace Vodovoz.Views.Warehouse.Documents
 				.AddBinding(e => e.CanEdit, w => w.Sensitive)
 				.AddBinding(e => e.Warehouse, w => w.Subject)
 				.InitializeFromSource();
+
+			yentryrefWarehouse.BeforeChangeByUser += OnYentryrefWarehouseBeforeChangeByUser;
 
 			ychkSortNomenclaturesByTitle.Binding
 				.AddBinding(ViewModel, vm => vm.SortByNomenclatureTitle, w => w.Active)
@@ -155,27 +155,11 @@ namespace Vodovoz.Views.Warehouse.Documents
 				.InitializeFromSource();
 
 			ytreeviewItems.YTreeModel?.EmitModelChanged();
-			ViewModel.Entity.PropertyChanged += EntityPropertyChanged;
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			if(ViewModel.Print())
-			{
-				var reportInfo = new QS.Report.ReportInfo
-				{
-					Title = $"Акт инвентаризации №{ViewModel.Entity.Id} от {ViewModel.Entity.TimeStamp:d}",
-					Identifier = "Store.InventoryDoc",
-					Parameters = new Dictionary<string, object>
-					{
-						{ "inventory_id",  ViewModel.Entity.Id }
-					}
-				};
-
-				Tab.TabParent.OpenTab(
-					QSReport.ReportViewDlg.GenerateHashName(reportInfo),
-					() => new QSReport.ReportViewDlg(reportInfo));
-			}
+			ViewModel.Print();
 		}
 
 		protected void OnYentryrefWarehouseBeforeChangeByUser(object sender, EntryReferenceBeforeChangeEventArgs e)
@@ -201,14 +185,6 @@ namespace Vodovoz.Views.Warehouse.Documents
 			}
 
 			return nomenclature.Name;
-		}
-
-		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.Entity.Items))
-			{
-				ytreeviewItems.YTreeModel?.EmitModelChanged();
-			}
 		}
 
 		private void FillDiscrepancies()
@@ -360,6 +336,20 @@ namespace Vodovoz.Views.Warehouse.Documents
 		protected void OnYbtnFillByAccountingClicked(object sender, EventArgs e)
 		{
 			ViewModel.FillByAccounting();
+		}
+
+		public override void Dispose()
+		{
+			buttonSave.Clicked -= OnButtonSaveClicked;
+			buttonCancel.Clicked -= OnButtonCancelClicked;
+			buttonPrint.Clicked -= OnButtonPrintClicked;
+			ybtnFillItems.Clicked -= OnButtonFillItemsClicked;
+			ybtnAdd.Clicked -= OnButtonAddClicked;
+			ybtnAddFine.Clicked -= OnButtonFineClicked;
+			ybtnDeleteFine.Clicked -= OnButtonDeleteFineClicked;
+			ybtnFillByAccounting.Clicked -= OnYbtnFillByAccountingClicked;
+
+			base.Dispose();
 		}
 	}
 }

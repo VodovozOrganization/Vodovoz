@@ -29,6 +29,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Models;
 using Vodovoz.Views.Warehouse.Documents;
 using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
+using Vodovoz.ViewWidgets;
 
 namespace Vodovoz
 {
@@ -156,7 +157,8 @@ namespace Vodovoz
 							new StockRepository(),
 							new NomenclatureJournalFactory(),
 							new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), employeeRepository),
-							null),
+							new GtkReportViewOpener(),
+							MainClass.MainWin.NavigationManager),
 						this);
 					break;
 				case DocumentType.IncomingWater:
@@ -285,7 +287,8 @@ namespace Vodovoz
 								new StockRepository(),
 								new NomenclatureJournalFactory(),
 								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), employeeRepository),
-								null),
+								new GtkReportViewOpener(),
+								MainClass.MainWin.NavigationManager),
 							this);
 						break;
 					case DocumentType.ShiftChangeDocument:

@@ -51,6 +51,7 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Users;
 using VodovozInfrastructure.Configuration;
@@ -219,6 +220,7 @@ namespace Vodovoz.Configuration
 
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
             OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
+			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentViewModel>();
             OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
             OrmMain.AddObjectDescription<RegradingOfGoodsDocument>().Dialog<RegradingOfGoodsDocumentDlg>();
             OrmMain.AddObjectDescription<SelfDeliveryDocument>().Dialog<SelfDeliveryDocumentDlg>();

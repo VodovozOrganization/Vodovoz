@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
@@ -25,6 +24,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 		private readonly IStockRepository _stockRepository;
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private readonly IEntityExtendedPermissionValidator _entityExtendedPermissionValidator;
+		private readonly IReportViewOpener _reportViewOpener;
 
 		public InventoryDocumentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -53,7 +54,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			IStockRepository stockRepository,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
-			INavigationManager navigation = null)
+			IReportViewOpener reportViewOpener,
+			INavigationManager navigation)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_employeeRepository = employeeRepository
@@ -67,6 +69,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			_nomenclatureJournalFactory = nomenclatureJournalFactory
 				?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_entityExtendedPermissionValidator = entityExtendedPermissionValidator;
+			_reportViewOpener = reportViewOpener
+				?? throw new ArgumentNullException(nameof(reportViewOpener));
 			NomenclaturesWithDiscrepancies = new List<Nomenclature>();
 
 			ConfigureEntity();
@@ -402,17 +406,27 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			return true;
 		}
 
-		public bool Print()
+		public void Print()
 		{
 			if(UoWGeneric.HasChanges
 				&& CommonServices.InteractiveService.Question(
 					"Для печати необходимо сохранить документ." +
 					" Сохранить акт инвентаризации?"))
 			{
-				return Save();
+				Save();
 			}
 
-			return true;
+			var reportInfo = new QS.Report.ReportInfo
+			{
+				Title = $"Акт инвентаризации №{Entity.Id} от {Entity.TimeStamp:d}",
+				Identifier = "Store.InventoryDoc",
+				Parameters = new Dictionary<string, object>
+				{
+					{ "inventory_id",  Entity.Id }
+				}
+			};
+
+			_reportViewOpener.OpenReport(TabParent, reportInfo);
 		}
 
 		public void FillItems(
