@@ -511,7 +511,7 @@
     <DataSet Name="Sales">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     T.counterparty,
     T.delivery_point,
@@ -763,7 +763,7 @@ GROUP BY nomenclature_id
     <DataSet Name="Criterions">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     CONCAT(
             (IF(included_noms!=0,
@@ -1037,7 +1037,7 @@ FROM
     <DataSet Name="bottles">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     SUM(t.plan) AS plan,
     ROUND(SUM(t.fact), 0) AS fact
@@ -1220,7 +1220,7 @@ FROM
     <DataSet Name="orders_count">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     COUNT(DISTINCT orders.id) as count
 FROM
