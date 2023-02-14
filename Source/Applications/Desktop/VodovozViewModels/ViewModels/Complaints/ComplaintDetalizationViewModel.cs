@@ -27,9 +27,26 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 		{
 			TabName = "Детализация рекламации";
 
-			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
-			ComplaintKinds = UoW.Session.QueryOver<ComplaintKind>().List();
-			VisibleComplaintKinds = ComplaintKinds;
+			var entityComplaintObjectId = Entity.ComplaintKind?.ComplaintObject?.Id;
+			var restrictedComplaintObjectId = complaintObject?.Id;
+
+			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>()
+				.Where(co => !co.IsArchive
+					|| co.Id == entityComplaintObjectId
+					|| co.Id == restrictedComplaintObjectId)
+				.List();
+
+			var entityComplaintKindId = Entity.ComplaintKind?.Id;
+			var restrictedComplaintKindId = complaintKind?.Id;
+
+			ComplaintKinds = UoW.Session.QueryOver<ComplaintKind>()
+				.Where(ck => !ck.IsArchive
+					|| ck.Id == entityComplaintKindId
+					|| ck.Id == restrictedComplaintKindId)
+				.List();
+
+			VisibleComplaintKinds = Enumerable.Empty<ComplaintKind>();
+
 			SelectedComplainObject = complaintObject ?? Entity.ComplaintKind?.ComplaintObject;
 
 			if(complaintKind != null)
@@ -92,13 +109,10 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 		}
 
 		public bool CanChangeComplaintKind => CanEdit
-			&& RestrictComplainKind is null
-			&& !(Entity.ComplaintKind?.IsArchive ?? false);
+			&& RestrictComplainKind is null;
 
 		public bool CanChangeComplaintObject => CanEdit
-			&& RestrictComplaintObject is null
-			&& !(SelectedComplainObject?.IsArchive ?? false)
-			&& !(Entity.ComplaintKind?.IsArchive ?? false);
+			&& RestrictComplaintObject is null;
 
 		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
