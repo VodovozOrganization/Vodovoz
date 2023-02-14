@@ -213,7 +213,7 @@ namespace Vodovoz.Views.Sale
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableRuleParameters.Gtk.Table+TableChild
-			this.spin1500mlQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
+			this.spin1500mlQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 30000D, 2D);
 			this.spin1500mlQty.CanFocus = true;
 			this.spin1500mlQty.Name = "spin1500mlQty";
 			this.spin1500mlQty.Adjustment.PageIncrement = 10D;
@@ -230,7 +230,7 @@ namespace Vodovoz.Views.Sale
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableRuleParameters.Gtk.Table+TableChild
-			this.spin19LQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
+			this.spin19LQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 2D);
 			this.spin19LQty.CanFocus = true;
 			this.spin19LQty.Name = "spin19LQty";
 			this.spin19LQty.Adjustment.PageIncrement = 10D;
@@ -245,7 +245,7 @@ namespace Vodovoz.Views.Sale
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableRuleParameters.Gtk.Table+TableChild
-			this.spin500mlQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
+			this.spin500mlQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 30000D, 2D);
 			this.spin500mlQty.CanFocus = true;
 			this.spin500mlQty.Name = "spin500mlQty";
 			this.spin500mlQty.Adjustment.PageIncrement = 10D;
@@ -262,7 +262,7 @@ namespace Vodovoz.Views.Sale
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableRuleParameters.Gtk.Table+TableChild
-			this.spin600mlQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
+			this.spin600mlQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 30000D, 2D);
 			this.spin600mlQty.CanFocus = true;
 			this.spin600mlQty.Name = "spin600mlQty";
 			this.spin600mlQty.Adjustment.PageIncrement = 10D;
@@ -279,7 +279,7 @@ namespace Vodovoz.Views.Sale
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableRuleParameters.Gtk.Table+TableChild
-			this.spin6LQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 500D, 2D);
+			this.spin6LQty = new global::Gamma.GtkWidgets.ySpinButton(0D, 30000D, 2D);
 			this.spin6LQty.CanFocus = true;
 			this.spin6LQty.Name = "spin6LQty";
 			this.spin6LQty.Adjustment.PageIncrement = 10D;
@@ -296,13 +296,12 @@ namespace Vodovoz.Views.Sale
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableRuleParameters.Gtk.Table+TableChild
-			this.spinOrderMinSumEShopGoods = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
+			this.spinOrderMinSumEShopGoods = new global::Gamma.GtkWidgets.ySpinButton(0D, 3000000D, 1D);
 			this.spinOrderMinSumEShopGoods.CanFocus = true;
 			this.spinOrderMinSumEShopGoods.Name = "spinOrderMinSumEShopGoods";
 			this.spinOrderMinSumEShopGoods.Adjustment.PageIncrement = 10D;
 			this.spinOrderMinSumEShopGoods.ClimbRate = 2D;
 			this.spinOrderMinSumEShopGoods.Numeric = true;
-			this.spinOrderMinSumEShopGoods.Value = 1000D;
 			this.spinOrderMinSumEShopGoods.ValueAsDecimal = 0m;
 			this.spinOrderMinSumEShopGoods.ValueAsInt = 0;
 			this.tableRuleParameters.Add(this.spinOrderMinSumEShopGoods);
