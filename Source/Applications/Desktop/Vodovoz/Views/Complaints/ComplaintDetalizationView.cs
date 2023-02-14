@@ -1,5 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using System;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -28,6 +29,7 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(vm => vm.CanChangeComplaintObject, w => w.Sensitive)
 				.InitializeFromSource();
 
+			yspeccomboboxComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			yspeccomboboxComplaintKind.ShowSpecialStateNot = true;
 			yspeccomboboxComplaintKind.Binding
 				.AddSource(ViewModel)
