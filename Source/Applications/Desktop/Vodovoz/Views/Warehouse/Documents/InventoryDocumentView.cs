@@ -296,41 +296,12 @@ namespace Vodovoz.Views.Warehouse.Documents
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)
 		{
-			FineDlg fineDlg;
-
-			if(ViewModel.SelectedInventoryDocumentItem.Fine != null)
-			{
-				fineDlg = new FineDlg(ViewModel.SelectedInventoryDocumentItem.Fine);
-				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
-			}
-			else
-			{
-				fineDlg = new FineDlg("Недостача");
-				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
-			}
-
-			fineDlg.Entity.TotalMoney = ViewModel.SelectedInventoryDocumentItem.SumOfDamage;
-			_fineEditItem = ViewModel.SelectedInventoryDocumentItem;
-			Tab.TabParent.AddSlaveTab(Tab, fineDlg);
-		}
-
-		private void FineDlgNew_EntitySaved(object sender, EntitySavedEventArgs e)
-		{
-			_fineEditItem.Fine = e.Entity as Fine;
-			_fineEditItem = null;
+			ViewModel.AddOrEditFine();
 		}
 
 		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
 		{
 			ViewModel.DeleteFine();
-		}
-
-		private void FineDlgExist_EntitySaved(object sender, EntitySavedEventArgs e)
-		{
-			//Мы здесь не можем выполнить просто рефреш, так как если удалить сотрудника из штрафа, получаем эксепшен.
-			int id = _fineEditItem.Fine.Id;
-			ViewModel.UoW.Session.Evict(_fineEditItem.Fine);
-			_fineEditItem.Fine = ViewModel.UoW.GetById<Fine>(id);
 		}
 
 		protected void OnYbtnFillByAccountingClicked(object sender, EventArgs e)

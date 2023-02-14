@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
@@ -8,6 +9,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -16,6 +18,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
@@ -25,6 +28,7 @@ using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModelBased;
+using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
@@ -471,6 +475,46 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			{
 				inventoryDocumentItem.AmountInFact = inventoryDocumentItem.AmountInDB;
 			}
+		}
+
+		public void AddOrEditFine()
+		{
+			EntityUoWBuilder entityUoWBuilder;
+			IPage fineView;
+
+			if(SelectedInventoryDocumentItem.Fine != null)
+			{
+				entityUoWBuilder = EntityUoWBuilder.ForOpen(SelectedInventoryDocumentItem.Fine.Id);
+				fineView = NavigationManager.OpenViewModel<FineViewModel>(this, addingRegistrations: (cb) =>
+					cb.RegisterInstance(entityUoWBuilder).As<IEntityUoWBuilder>() );
+
+				(fineView.ViewModel as FineViewModel).EntitySaved += ExistingFineEntitySaved;
+			}
+			else
+			{
+				entityUoWBuilder = EntityUoWBuilder.ForCreate();
+				fineView = NavigationManager.OpenViewModel<FineViewModel>(this, addingRegistrations: (cb) =>
+					cb.RegisterInstance(entityUoWBuilder).As<IEntityUoWBuilder>());
+
+				(fineView.ViewModel as FineViewModel).Entity.FineReasonString = "Недостача";
+				(fineView.ViewModel as FineViewModel).EntitySaved += NewFineSaved;
+			}
+
+			(fineView.ViewModel as FineViewModel).Entity.TotalMoney = SelectedInventoryDocumentItem.SumOfDamage;
+		}
+
+		private void NewFineSaved(object sender, EntitySavedEventArgs e)
+		{
+			SelectedInventoryDocumentItem.Fine = e.Entity as Fine;
+			SelectedInventoryDocumentItem = null;
+		}
+
+		private void ExistingFineEntitySaved(object sender, EntitySavedEventArgs e)
+		{
+			//Мы здесь не можем выполнить просто рефреш, так как если удалить сотрудника из штрафа, получаем эксепшен.
+			int id = SelectedInventoryDocumentItem.Fine.Id;
+			UoW.Session.Evict(SelectedInventoryDocumentItem.Fine);
+			SelectedInventoryDocumentItem.Fine = UoW.GetById<Fine>(id);
 		}
 	}
 }
