@@ -31,11 +31,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 {
 	public class InventoryDocumentViewModel : EntityTabViewModelBase<InventoryDocument>
 	{
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private IEnumerable<Nomenclature> _nomenclaturesWithDiscrepancies = new List<Nomenclature>();
 		private bool _sortByNomenclatureTitle;
 		private SelectableParametersReportFilter _filter;
 		private InventoryDocumentItem _selectedInventoryDocumentItem;
-		//private readonly ILogger<InventoryDocumentViewModel> _logger;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
@@ -44,7 +44,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 		private readonly IEntityExtendedPermissionValidator _entityExtendedPermissionValidator;
 
 		public InventoryDocumentViewModel(
-			//ILogger<InventoryDocumentViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -57,7 +56,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			INavigationManager navigation = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			//_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeRepository = employeeRepository
 				?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository
@@ -398,9 +396,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 			Entity.UpdateOperations(UoW);
 
-			//_logger.LogInformation("Сохраняем акт списания...");
+			_logger.Info("Сохраняем акт списания...");
 			UoWGeneric.Save();
-			//_logger.LogInformation("Ok.");
+			_logger.Info("Ok.");
 			return true;
 		}
 
