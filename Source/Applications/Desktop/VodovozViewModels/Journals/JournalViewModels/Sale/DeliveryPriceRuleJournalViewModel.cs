@@ -62,6 +62,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			return query;
 		};
 
+		#region Properites
+		//public List<string[]> DistrictSetsUsingThisRule => 
+		//	districtRuleRepository.GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(UoW,nod);
+
+		
+		#endregion
+
 		protected override Func<DeliveryPriceRuleViewModel> CreateDialogFunction => () => new DeliveryPriceRuleViewModel(
 			EntityUoWBuilder.ForCreate(),
 			unitOfWorkFactory,
@@ -69,11 +76,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			districtRuleRepository
 		);
 
-		protected override Func<DeliveryPriceRuleJournalNode, DeliveryPriceRuleViewModel> OpenDialogFunction => node => new DeliveryPriceRuleViewModel(
-			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			commonServices,
-			districtRuleRepository
+		protected override Func<DeliveryPriceRuleJournalNode, DeliveryPriceRuleViewModel> OpenDialogFunction =>
+			node => new DeliveryPriceRuleViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				unitOfWorkFactory,
+				commonServices,
+				districtRuleRepository
 		);
 
 		protected override void CreateNodeActions()
@@ -82,6 +90,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			CreateDefaultSelectAction();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
+
+			if(commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			{
+				CreateDefaultDeleteAction();
+			}
 		}
 	}
 
