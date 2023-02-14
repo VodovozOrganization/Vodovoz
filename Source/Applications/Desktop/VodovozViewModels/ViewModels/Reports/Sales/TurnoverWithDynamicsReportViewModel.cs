@@ -1,4 +1,4 @@
-using ClosedXML.Report;
+﻿using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -587,6 +587,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					ShowDynamics,
 					DynamicsIn,
 					ShowLastSale,
+					ShowResidueForNomenclaturesWithoutSales,
 					GetWarhouseBalance,
 					GetData);
 			}, cancellationToken);
