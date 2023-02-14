@@ -164,39 +164,20 @@ namespace Vodovoz.ViewModels.ViewModels.Sale
 		}
 		#endregion
 
-
-
+		public List<string[]> DistrictsHavingCurrentRule =>
+			districtRuleRepository.GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(UoW, this.Entity);
+		
 		public override bool Save(bool close)
 		{
-			ValidationContext = ConfigureValidationContext(UoW, districtRuleRepository);
 			return base.Save(close);
-		}
-
-		private ValidationContext ConfigureValidationContext(IUnitOfWork uow, IDistrictRuleRepository districtRuleRepository)
-		{
-			if(uow == null)
-			{
-				throw new ArgumentNullException(nameof(uow));
-			}
-			if(districtRuleRepository == null)
-			{
-				throw new ArgumentNullException(nameof(districtRuleRepository));
-			}
-
-			ValidationContext context = new ValidationContext(this, new Dictionary<object, object> {
-				{"Reason", nameof(ConfigureValidationContext)}
-			});
-			context.ServiceContainer.AddService(typeof(IUnitOfWork), uow);
-			context.ServiceContainer.AddService(typeof(IDistrictRuleRepository), districtRuleRepository);
-			return context;
 		}
 
 		#region Permissions
 
 		public bool CanCreate => PermissionResult.CanCreate;
 		public bool CanRead => PermissionResult.CanRead;
-		public bool CanUpdate => PermissionResult.CanUpdate;
-		public bool CanDelete => PermissionResult.CanDelete;
+		public bool CanUpdate => PermissionResult.CanUpdate && DistrictsHavingCurrentRule.Count == 0;
+		public bool CanDelete => PermissionResult.CanDelete && DistrictsHavingCurrentRule.Count == 0;
 
 		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
 

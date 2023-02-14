@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Parameters;
 

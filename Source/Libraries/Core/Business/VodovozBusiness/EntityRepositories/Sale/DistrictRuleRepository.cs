@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
-using Vodovoz.HibernateMapping.Logistic;
 
 namespace Vodovoz.EntityRepositories.Sale
 {
@@ -62,7 +58,7 @@ namespace Vodovoz.EntityRepositories.Sale
 				.List<object[]>()
 				.Select(d => new string[] { d[0] as string, d[1].ToString(), ((DateTime)d[2]).ToShortDateString() });
 
-			return districtsList.ToList(); 
+			return districtsList.ToList();
 		}
 
 		public IList<District> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)

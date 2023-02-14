@@ -54,24 +54,22 @@ namespace Vodovoz.Dialogs.Sale
 			spinOrderMinSumEShopGoods.Binding.AddBinding(Entity, e => e.OrderMinSumEShopGoods, w => w.ValueAsDecimal).InitializeFromSource();
 			ytextviewRuleName.Binding.AddBinding(Entity, e => e.RuleName, w => w.Buffer.Text).InitializeFromSource();
 			vboxDistricts.Visible = Entity.Id > 0;
-			if(Entity.Id > 0) {
-				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<string[]>()
-					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d[0])
-					.AddColumn("Версия района:").AddTextRenderer(d => d[1])
-					.AddColumn("Дата создания версии района:").AddTextRenderer(d => d[2])
-					.Finish();
+			//if(Entity.Id > 0) {
+			//	treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<CommonDistrictRuleItem>()
+			//		.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.District.DistrictName)
+			//		.Finish();
 				
-				var districtItemsWithDistrictSetValues = _districtRuleRepository.GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(UoW, Entity);
+			//	var commonDistrictRuleItems = _districtRuleRepository.GetCommonDistrictRuleItemsForDistrict(UoW, Entity);
 
-				treeDistricts.ItemsDataSource = districtItemsWithDistrictSetValues;
+			//	treeDistricts.ItemsDataSource = commonDistrictRuleItems;
 
-				if(districtItemsWithDistrictSetValues.Count() > 0) 
-				{
-					vboxRuleName.Sensitive = false;
-					vboxRuleSettings.Sensitive = false;
-					buttonSave.Sensitive = false;
-				}
-			}
+			//	if(commonDistrictRuleItems.Count() > 0) 
+			//	{
+			//		vboxRuleName.Sensitive = false;
+			//		vboxRuleSettings.Sensitive = false;
+			//		buttonSave.Sensitive = false;
+			//	}
+			//}
 		}
 
 		private void ConfigureValidationContext()

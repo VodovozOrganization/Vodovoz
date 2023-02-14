@@ -21,7 +21,6 @@ namespace Vodovoz.Views.Sale
 			spin600mlQty.Visible = false;
 			lbl600mlQty.Visible = false;
 
-
 			spin19LQty.Binding.AddBinding(ViewModel.Entity, e => e.Water19LCount, w => w.ValueAsInt).InitializeFromSource();
 			spin6LQty.Binding.AddBinding(ViewModel.Entity, e => e.Water6LCount, w => w.ValueAsInt).InitializeFromSource();
 			spin1500mlQty.Binding.AddBinding(ViewModel.Entity, e => e.Water1500mlCount, w => w.ValueAsInt).InitializeFromSource();
@@ -31,39 +30,16 @@ namespace Vodovoz.Views.Sale
 			ytextviewRuleName.Binding.AddBinding(ViewModel.Entity, e => e.RuleName, w => w.Buffer.Text).InitializeFromSource();
 			vboxDistricts.Visible = ViewModel.Entity.Id > 0;
 
-			if(ViewModel.Entity.Id > 0)
-			{
-				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<string[]>()
-					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d[0])
-					.AddColumn("Версия района:").AddTextRenderer(d => d[1])
-					.AddColumn("Дата создания версии района:").AddTextRenderer(d => d[2])
-					.Finish();
+			treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<string[]>()
+				.AddColumn("Правило используется в районах:").AddTextRenderer(d => d[0])
+				.AddColumn("Версия района:").AddTextRenderer(d => d[1])
+				.AddColumn("Дата создания версии района:").AddTextRenderer(d => d[2])
+				.Finish();
+			treeDistricts.ItemsDataSource = ViewModel.DistrictsHavingCurrentRule;
 
-				//var districtItemsWithDistrictSetValues = _districtRuleRepository.GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(UoW, Entity);
-
-				//treeDistricts.ItemsDataSource = districtItemsWithDistrictSetValues;
-
-				//if(districtItemsWithDistrictSetValues.Count() > 0)
-				//{
-				//	vboxRuleName.Sensitive = false;
-				//	vboxRuleSettings.Sensitive = false;
-				//	buttonSave.Sensitive = false;
-				//}
-			}
-
-			//yenumcomboPurpose.ItemsEnum = typeof(PhonePurpose);
-			//yenumcomboPurpose.Binding.AddBinding(ViewModel, vm => vm.PhonePurpose, w => w.SelectedItem).InitializeFromSource();
-			//yenumcomboPurpose.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
-			//yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
-			//yentryName.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
-
-			//buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			//buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive);
-			//buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
-
-			//yenumcomboPurpose.ItemsEnum = typeof(PhonePurpose);
-			//yenumcomboPurpose.Binding.AddBinding(ViewModel, vm => vm.PhonePurpose, w => w.SelectedItem).InitializeFromSource();
-			//yenumcomboPurpose.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
+			buttonSave.Sensitive = ViewModel.CanCreateOrUpdate;
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 		}
 	}
 }

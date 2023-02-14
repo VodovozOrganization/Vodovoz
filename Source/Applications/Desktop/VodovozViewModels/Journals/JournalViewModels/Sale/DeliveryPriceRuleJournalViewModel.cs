@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.districtRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
 
-			TabName = "Типы телефонов";
+			TabName = "Правила цен доставки";
 
 			UpdateOnChanges(typeof(DeliveryPriceRule));
 		}
@@ -61,13 +61,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 
 			return query;
 		};
-
-		#region Properites
-		//public List<string[]> DistrictSetsUsingThisRule => 
-		//	districtRuleRepository.GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(UoW,nod);
-
-		
-		#endregion
 
 		protected override Func<DeliveryPriceRuleViewModel> CreateDialogFunction => () => new DeliveryPriceRuleViewModel(
 			EntityUoWBuilder.ForCreate(),
