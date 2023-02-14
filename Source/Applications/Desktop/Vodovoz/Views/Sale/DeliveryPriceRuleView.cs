@@ -40,6 +40,9 @@ namespace Vodovoz.Views.Sale
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonSave.Sensitive = ViewModel.CanCreateOrUpdate;
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
+
+			vboxRuleName.Sensitive = ViewModel.CanCreateOrUpdate;
+			vboxRuleSettings.Sensitive = ViewModel.CanCreateOrUpdate;
 		}
 	}
 }

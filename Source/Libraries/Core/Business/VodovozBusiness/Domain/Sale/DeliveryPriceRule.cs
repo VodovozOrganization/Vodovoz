@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Sale
 	[EntityPermission]
 	public class DeliveryPriceRule : BusinessObjectBase<DeliveryPriceRule>, IDomainObject, IDeliveryPriceRule, IValidatableObject
 	{
-		//private readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		
 		#region Свойства
 

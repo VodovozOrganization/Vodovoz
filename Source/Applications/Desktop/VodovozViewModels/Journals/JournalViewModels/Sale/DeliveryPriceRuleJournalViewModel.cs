@@ -5,12 +5,6 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vodovoz.Domain.Contacts;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.ViewModels.Sale;
 using Vodovoz.EntityRepositories.Sale;
@@ -51,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 				.Select(x => x.Water500mlCount).WithAlias(() => resultAlias.Water500mlCount)
 				.Select(x => x.RuleName).WithAlias(() => resultAlias.Name)
 				.Select(x => x.OrderMinSumEShopGoods).WithAlias(() => resultAlias.OrderMinSumEShopGoods))
-				.TransformUsing(Transformers.AliasToBean<DeliveryPriceRuleJournalNode>()).OrderBy(x => x.Id).Desc;
+				.TransformUsing(Transformers.AliasToBean<DeliveryPriceRuleJournalNode>()).OrderBy(x => x.Id).Asc;
 
 			query.Where(
 			GetSearchCriterion<DeliveryPriceRule>(
@@ -83,11 +77,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			CreateDefaultSelectAction();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
-
-			if(commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
-			{
-				CreateDefaultDeleteAction();
-			}
 		}
 	}
 

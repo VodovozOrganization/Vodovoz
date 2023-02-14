@@ -1,34 +1,19 @@
-﻿using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories;
-using Vodovoz.Infrastructure.Print;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.PermissionExtensions;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.Factories;
 using System.ComponentModel.DataAnnotations;
-using QS.Project.Services;
-using Vodovoz.Domain.Contacts;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels.ViewModels.Sale
 {
 	public class DeliveryPriceRuleViewModel : EntityTabViewModelBase<DeliveryPriceRule>
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IDistrictRuleRepository districtRuleRepository;
 
 		public DeliveryPriceRuleViewModel(
@@ -41,6 +26,12 @@ namespace Vodovoz.ViewModels.ViewModels.Sale
 			this.districtRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
 
 			ValidationContext.ServiceContainer.AddService(typeof(IDistrictRuleRepository), districtRuleRepository);
+
+
+			if(!CanRead)
+				AbortOpening("У вас недостаточно прав для просмотра");
+
+			TabName = (CanCreateOrUpdate) ? "Редактирование правила цен доставки" : "Просмотр правила цен доставки";
 		}
 
 		#region Свойства
@@ -169,6 +160,7 @@ namespace Vodovoz.ViewModels.ViewModels.Sale
 		
 		public override bool Save(bool close)
 		{
+			logger.Info("Сохраняем правило для цены доставки...");
 			return base.Save(close);
 		}
 
