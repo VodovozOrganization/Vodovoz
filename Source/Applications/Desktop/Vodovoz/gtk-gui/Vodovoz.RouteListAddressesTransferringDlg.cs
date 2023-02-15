@@ -16,7 +16,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryreferenceRLFrom;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeRouteListFrom;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAddOrder;
 
@@ -44,7 +44,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryreferenceRLTo;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeRouteListTo;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
@@ -100,11 +100,13 @@ namespace Vodovoz
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentryreferenceRLFrom = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yentryreferenceRLFrom.Events = ((global::Gdk.EventMask)(256));
-			this.yentryreferenceRLFrom.Name = "yentryreferenceRLFrom";
-			this.hbox3.Add(this.yentryreferenceRLFrom);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryreferenceRLFrom]));
+			this.evmeRouteListFrom = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeRouteListFrom.Events = ((global::Gdk.EventMask)(256));
+			this.evmeRouteListFrom.Name = "evmeRouteListFrom";
+			this.evmeRouteListFrom.CanEditReference = true;
+			this.evmeRouteListFrom.CanOpenWithoutTabParent = false;
+			this.hbox3.Add(this.evmeRouteListFrom);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.evmeRouteListFrom]));
 			w2.Position = 1;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.ybuttonAddOrder = new global::Gamma.GtkWidgets.yButton();
@@ -222,11 +224,13 @@ namespace Vodovoz
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.yentryreferenceRLTo = new global::QS.Widgets.GtkUI.RepresentationEntry();
-			this.yentryreferenceRLTo.Events = ((global::Gdk.EventMask)(256));
-			this.yentryreferenceRLTo.Name = "yentryreferenceRLTo";
-			this.hbox5.Add(this.yentryreferenceRLTo);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yentryreferenceRLTo]));
+			this.evmeRouteListTo = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeRouteListTo.Events = ((global::Gdk.EventMask)(256));
+			this.evmeRouteListTo.Name = "evmeRouteListTo";
+			this.evmeRouteListTo.CanEditReference = true;
+			this.evmeRouteListTo.CanOpenWithoutTabParent = false;
+			this.hbox5.Add(this.evmeRouteListTo);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.evmeRouteListTo]));
 			w18.Position = 1;
 			this.vbox5.Add(this.hbox5);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox5]));
