@@ -155,7 +155,7 @@ namespace Vodovoz.ViewModels.ViewModels.Sale
 		}
 		#endregion
 
-		public List<string[]> DistrictsHavingCurrentRule =>
+		public List<DeliveryPriceRuleDistrictRelation> DistrictsHavingCurrentRule =>
 			districtRuleRepository.GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(UoW, this.Entity);
 		
 		public override bool Save(bool close)

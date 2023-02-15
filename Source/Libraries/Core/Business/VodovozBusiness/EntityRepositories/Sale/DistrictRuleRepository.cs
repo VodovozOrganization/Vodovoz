@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -39,24 +40,24 @@ namespace Vodovoz.EntityRepositories.Sale
 		/// string[0] - название района; 
 		/// string[1] - название DistrictSet; 
 		/// string[2] - дата создания DistrictSet</returns>
-		public List<string[]> GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(IUnitOfWork uow, DeliveryPriceRule rule)
+		public List<DeliveryPriceRuleDistrictRelation> GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(IUnitOfWork uow, DeliveryPriceRule rule)
 		{
 			CommonDistrictRuleItem districtRuleItemAlias = null;
 			District districtAlias = null;
 			DistrictsSet districtSetAlias = null;
-
-			ProjectionList projectionList = Projections.ProjectionList()
-				.Add(Projections.Property(() => districtAlias.DistrictName))
-				.Add(Projections.Property(() => districtSetAlias.Name))
-				.Add(Projections.Property(() => districtSetAlias.DateCreated));
+			DeliveryPriceRuleDistrictRelation ruleDistrictRelationAlias = null;
 
 			var districtsList = uow.Session.QueryOver(() => districtRuleItemAlias)
-				.Where(d => d.DeliveryPriceRule.Id == rule.Id)
-				.JoinAlias(d => d.District, () => districtAlias)
-				.JoinAlias(() => districtAlias.DistrictsSet, () => districtSetAlias)
-				.Select(projectionList)
-				.List<object[]>()
-				.Select(d => new string[] { d[0] as string, d[1].ToString(), ((DateTime)d[2]).ToShortDateString() });
+					.Where(d => d.DeliveryPriceRule.Id == 1)
+					.JoinAlias(d => d.District, () => districtAlias)
+					.JoinAlias(() => districtAlias.DistrictsSet, () => districtSetAlias)
+					.SelectList(list => list
+						.Select(() => districtAlias.DistrictName).WithAlias(() => ruleDistrictRelationAlias.DistrictName)
+						.Select(() => districtSetAlias.Name).WithAlias(() => ruleDistrictRelationAlias.DistrictSetName)
+						.Select(() => districtSetAlias.DateCreated).WithAlias(() => ruleDistrictRelationAlias.DistrictSetCreationDate)
+					)
+					.TransformUsing(Transformers.AliasToBean<DeliveryPriceRuleDistrictRelation>())
+					.List<DeliveryPriceRuleDistrictRelation>();
 
 			return districtsList.ToList();
 		}
@@ -71,5 +72,12 @@ namespace Vodovoz.EntityRepositories.Sale
 
 			return res;
 		}
+	}
+
+	public class DeliveryPriceRuleDistrictRelation
+	{
+		public string DistrictName { get; set; }
+		public string DistrictSetName { get; set; }
+		public DateTime DistrictSetCreationDate { get; set; }
 	}
 }

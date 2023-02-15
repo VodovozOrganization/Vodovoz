@@ -2,6 +2,7 @@
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.ViewModels.Sale;
 using Gamma.GtkWidgets;
+using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.Views.Sale
 {
@@ -30,10 +31,10 @@ namespace Vodovoz.Views.Sale
 			ytextviewRuleName.Binding.AddBinding(ViewModel.Entity, e => e.RuleName, w => w.Buffer.Text).InitializeFromSource();
 			vboxDistricts.Visible = ViewModel.Entity.Id > 0;
 
-			treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<string[]>()
-				.AddColumn("Правило используется в районах:").AddTextRenderer(d => d[0])
-				.AddColumn("Версия района:").AddTextRenderer(d => d[1])
-				.AddColumn("Дата создания версии района:").AddTextRenderer(d => d[2])
+			treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<DeliveryPriceRuleDistrictRelation>()
+				.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.DistrictName)
+				.AddColumn("Версия района:").AddTextRenderer(d => d.DistrictSetName)
+				.AddColumn("Дата создания версии района:").AddTextRenderer(d => d.DistrictSetCreationDate.ToShortDateString())
 				.Finish();
 			treeDistricts.ItemsDataSource = ViewModel.DistrictsHavingCurrentRule;
 
