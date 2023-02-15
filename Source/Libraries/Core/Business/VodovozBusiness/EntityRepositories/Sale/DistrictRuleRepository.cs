@@ -36,16 +36,13 @@ namespace Vodovoz.EntityRepositories.Sale
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="rule">DeliveryPriceRule</param>
-		/// <returns>Список массивов строк, где: 
-		/// string[0] - название района; 
-		/// string[1] - название DistrictSet; 
-		/// string[2] - дата создания DistrictSet</returns>
-		public List<DeliveryPriceRuleDistrictRelation> GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(IUnitOfWork uow, DeliveryPriceRule rule)
+		/// <returns>Название района, название версии районов, в которую входит район, дата создания версии районов</returns>
+		public List<DistrictAndDistrictSet> GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(IUnitOfWork uow, DeliveryPriceRule rule)
 		{
 			CommonDistrictRuleItem districtRuleItemAlias = null;
 			District districtAlias = null;
 			DistrictsSet districtSetAlias = null;
-			DeliveryPriceRuleDistrictRelation ruleDistrictRelationAlias = null;
+			DistrictAndDistrictSet ruleDistrictRelationAlias = null;
 
 			var districtsList = uow.Session.QueryOver(() => districtRuleItemAlias)
 					.Where(d => d.DeliveryPriceRule.Id == 1)
@@ -56,8 +53,8 @@ namespace Vodovoz.EntityRepositories.Sale
 						.Select(() => districtSetAlias.Name).WithAlias(() => ruleDistrictRelationAlias.DistrictSetName)
 						.Select(() => districtSetAlias.DateCreated).WithAlias(() => ruleDistrictRelationAlias.DistrictSetCreationDate)
 					)
-					.TransformUsing(Transformers.AliasToBean<DeliveryPriceRuleDistrictRelation>())
-					.List<DeliveryPriceRuleDistrictRelation>();
+					.TransformUsing(Transformers.AliasToBean<DistrictAndDistrictSet>())
+					.List<DistrictAndDistrictSet>();
 
 			return districtsList.ToList();
 		}
@@ -74,7 +71,7 @@ namespace Vodovoz.EntityRepositories.Sale
 		}
 	}
 
-	public class DeliveryPriceRuleDistrictRelation
+	public class DistrictAndDistrictSet
 	{
 		public string DistrictName { get; set; }
 		public string DistrictSetName { get; set; }

@@ -11,7 +11,7 @@ namespace Vodovoz.EntityRepositories.Sale
 		QueryOver<DeliveryPriceRule> GetQueryOverWithAllDeliveryPriceRules();
 		IList<DeliveryPriceRule> GetAllDeliveryPriceRules(IUnitOfWork uow);
 		IList<CommonDistrictRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, District district);
-		List<DeliveryPriceRuleDistrictRelation> GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(IUnitOfWork uow, DeliveryPriceRule rule);
+		List<DistrictAndDistrictSet> GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(IUnitOfWork uow, DeliveryPriceRule rule);
 		IList<District> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule);
 	}
 }

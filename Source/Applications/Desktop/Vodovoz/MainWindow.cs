@@ -1632,19 +1632,6 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveryPriceRulesActivated(object sender, EventArgs e)
 	{
-		//bool right = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_price_rules");
-		//tdiMain.OpenTab(
-		//	OrmReference.GenerateHashName<DeliveryPriceRule>(),
-		//	() =>
-		//	{
-		//		var dlg = new OrmReference(typeof(DeliveryPriceRule))
-		//		{
-		//			ButtonMode = right ? ReferenceButtonMode.CanAll : ReferenceButtonMode.None
-		//		};
-		//		return dlg;
-		//	}
-		//);
-
 		NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(null);
 	}
 

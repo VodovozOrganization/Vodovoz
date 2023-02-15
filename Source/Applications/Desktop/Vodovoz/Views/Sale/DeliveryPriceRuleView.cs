@@ -31,7 +31,7 @@ namespace Vodovoz.Views.Sale
 			ytextviewRuleName.Binding.AddBinding(ViewModel.Entity, e => e.RuleName, w => w.Buffer.Text).InitializeFromSource();
 			vboxDistricts.Visible = ViewModel.Entity.Id > 0;
 
-			treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<DeliveryPriceRuleDistrictRelation>()
+			treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<DistrictAndDistrictSet>()
 				.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.DistrictName)
 				.AddColumn("Версия района:").AddTextRenderer(d => d.DistrictSetName)
 				.AddColumn("Дата создания версии района:").AddTextRenderer(d => d.DistrictSetCreationDate.ToShortDateString())
