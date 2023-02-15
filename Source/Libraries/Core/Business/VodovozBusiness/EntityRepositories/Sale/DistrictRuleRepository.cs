@@ -45,7 +45,7 @@ namespace Vodovoz.EntityRepositories.Sale
 			DistrictAndDistrictSet ruleDistrictRelationAlias = null;
 
 			var districtsList = uow.Session.QueryOver(() => districtRuleItemAlias)
-					.Where(d => d.DeliveryPriceRule.Id == 1)
+					.Where(d => d.DeliveryPriceRule.Id == rule.Id)
 					.JoinAlias(d => d.District, () => districtAlias)
 					.JoinAlias(() => districtAlias.DistrictsSet, () => districtSetAlias)
 					.SelectList(list => list
