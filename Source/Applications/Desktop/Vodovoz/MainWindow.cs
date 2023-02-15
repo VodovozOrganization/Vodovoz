@@ -164,6 +164,7 @@ using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using Vodovoz.ViewModels.Reports.Sales;
+using Vodovoz.EntityRepositories.Roboats;
 
 public partial class MainWindow : Gtk.Window
 {

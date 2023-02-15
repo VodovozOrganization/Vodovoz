@@ -85,6 +85,7 @@ using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using QS.Attachments.Domain;
 using Vodovoz.Core;
+using Vodovoz.Settings.Database;
 
 namespace Vodovoz
 {
@@ -300,7 +301,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			var roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);

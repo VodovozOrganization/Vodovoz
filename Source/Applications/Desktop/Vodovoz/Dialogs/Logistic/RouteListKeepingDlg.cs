@@ -33,6 +33,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -475,7 +476,7 @@ namespace Vodovoz
 					.Cast<RouteListKeepingItemNode>()
 					.FirstOrDefault();
 
-				RoboatsSettings roboatsSettings = new RoboatsSettings(new ParametersProvider());
+				RoboatsSettings roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 				RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 				IDeliveryScheduleRepository deliveryScheduleRepository = new DeliveryScheduleRepository();
 				IFileDialogService fileDialogService = new FileDialogService();

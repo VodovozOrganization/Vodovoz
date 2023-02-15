@@ -59,6 +59,9 @@ namespace Vodovoz.Domain.Client
 		private string _specialContractNumber;
 		private DateTime? _specialContractDate;
 		private bool _doNotMixMarkedAndUnmarkedGoodsInOrder;
+		private string _firstName;
+		private string _surname;
+		private string _patronymic;
 
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
 		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
@@ -899,6 +902,24 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _worksThroughOrganization;
 			set => SetField(ref _worksThroughOrganization, value);
+		}
+		
+		public virtual string FirstName
+		{
+			get => _firstName;
+			set => SetField(ref _firstName, value);
+		}
+		
+		public virtual string Surname
+		{
+			get => _surname;
+			set => SetField(ref _surname, value);
+		}
+		
+		public virtual string Patronymic
+		{
+			get => _patronymic;
+			set => SetField(ref _patronymic, value);
 		}
 
 		#region Calculated Properties

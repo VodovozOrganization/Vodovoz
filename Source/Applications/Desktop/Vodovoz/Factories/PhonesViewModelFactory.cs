@@ -5,6 +5,7 @@ using QS.Project.Services.FileDialog;
 using System;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -22,7 +23,7 @@ namespace Vodovoz.Factories
 		{
 			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 
-			RoboatsSettings roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			RoboatsSettings roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 			RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			IFileDialogService fileDialogService = new FileDialogService();
 			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);

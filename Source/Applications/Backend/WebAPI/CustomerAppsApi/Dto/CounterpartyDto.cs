@@ -1,0 +1,25 @@
+﻿using Vodovoz.Domain.Client;
+
+namespace CustomerAppsApi.Controllers
+{
+	public class CounterpartyDto
+	{
+		public string Name { get; set; }
+		public string FullName { get; set; }
+		public int ExternalCounterpartyId { get; set; }
+		public int ErpCounterpartyId { get; set; }
+		public string FirstName { get; set; }
+		public string Surname { get; set; }
+		public string Patronymic { get; set; }
+		public string PhoneNumber { get; set; }
+		public string Email { get; set; }
+		public CounterpartyFrom CounterpartyFrom { get; set; }
+		public PersonType PersonType { get; set; }
+		public string Inn { get; set; }
+		public string Kpp { get; set; }
+		public string TypeOfOwnership { get; set; }
+		public TaxType? TaxType { get; set; }
+		public int CameFromId { get; set; }
+		public string JurAddress { get; set; }
+	}
+}

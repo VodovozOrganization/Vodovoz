@@ -102,6 +102,18 @@ namespace Vodovoz.Domain.Contacts
 			get => _roboAtsCounterpartyPatronymic;
 			set => SetField(ref _roboAtsCounterpartyPatronymic, value);
 		}
+		
+		/*[Display(Name = "Только цифры")]
+		public virtual string ExternalCounterpartyId
+		{
+			get => digitsNumber;
+			protected set
+			{
+				var formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
+				string phone = formatter.FormatString(value);
+				SetField(ref digitsNumber, phone, () => DigitsNumber);
+			}
+		}*/
 
 		#endregion
 

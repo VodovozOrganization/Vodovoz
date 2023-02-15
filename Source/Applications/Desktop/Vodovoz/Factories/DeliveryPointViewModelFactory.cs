@@ -1,5 +1,4 @@
-﻿
-using QS.Dialog.GtkUI.FileDialog;
+﻿using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
@@ -16,6 +15,7 @@ using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
@@ -38,7 +38,7 @@ namespace Vodovoz.Factories
 			_fiasApiClient = fiasApiClient ?? throw new ArgumentNullException(nameof(fiasApiClient));
 			//Необходимо исправить получение всех этих зависимостей из скоупа
 			_parametersProvider = new ParametersProvider();
-			RoboatsSettings roboatsSettings = new RoboatsSettings(_parametersProvider);
+			RoboatsSettings roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 			RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			IDeliveryScheduleRepository deliveryScheduleRepository = new DeliveryScheduleRepository();
 			IFileDialogService fileDialogService = new FileDialogService();

@@ -54,9 +54,19 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
+    <Compile Include="Controllers\ContactManagerForExternalCounterparty.cs" />
+    <Compile Include="Controllers\ContactsForExternalCounterparty\ContactFinderForExternalCounterparty.cs" />
+    <Compile Include="Controllers\ContactsForExternalCounterparty\FoundContact.cs" />
+    <Compile Include="Controllers\ContactsForExternalCounterparty\FoundContactStatus.cs" />
+    <Compile Include="Controllers\ContactsForExternalCounterparty\IContactFinderForExternalCounterparty.cs" />
+    <Compile Include="Controllers\ContactsForExternalCounterparty\ContactFinderForExternalCounterpartyFromOne.cs" />
+    <Compile Include="Controllers\ContactsForExternalCounterparty\ContactFinderForExternalCounterpartyFromMany.cs" />
+    <Compile Include="Controllers\ContactsForExternalCounterparty\ProcessedContacts.cs" />
+    <Compile Include="Controllers\ContactsForExternalCounterparty\ContactFinderForExternalCounterpartyFromTwo.cs" />
     <Compile Include="Controllers\EmployeeRegistrationVersionController.cs" />
     <Compile Include="Controllers\FuelPriceVersionsController.cs" />
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
+    <Compile Include="Controllers\IContactManagerForExternalCounterparty.cs" />
     <Compile Include="Controllers\IEmployeeRegistrationVersionController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
     <Compile Include="Controllers\IRouteListProfitabilityController.cs" />
@@ -87,6 +97,7 @@
     <Compile Include="Domain\Client\BulkEmailEvent.cs" />
     <Compile Include="Domain\Client\LocalityType.cs" />
     <Compile Include="Domain\Client\EdoOperator.cs" />
+    <Compile Include="Domain\Client\ExternalCounterparty.cs" />
     <Compile Include="Domain\Client\RoomType.cs" />
     <Compile Include="Domain\Client\SubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\UnsubscribingBulkEmailEvent.cs" />
@@ -437,6 +448,7 @@
     <Compile Include="HibernateMapping\Counterparty\BulkEmailEventMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\BulkEmailEventReasonMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyEdoOperatorMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\ExternalCounterpartyMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\OperatorEdoMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyPatronymicMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyNameMap.cs" />
@@ -564,6 +576,7 @@
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
+    <Compile Include="Parameters\CounterpartySettings.cs" />
     <Compile Include="Parameters\EdoSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
@@ -584,6 +597,7 @@
     <Compile Include="Parameters\EmailParametersProvider.cs" />
     <Compile Include="Parameters\GlobalSettings.cs" />
     <Compile Include="Parameters\IArchiveDataSettings.cs" />
+    <Compile Include="Parameters\ICounterpartySettings.cs" />
     <Compile Include="Parameters\IEmailParametersProvider.cs" />
     <Compile Include="Parameters\GMapPararmetersProviders.cs" />
     <Compile Include="Parameters\IExpenseParametersProvider.cs" />

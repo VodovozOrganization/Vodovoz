@@ -63,6 +63,34 @@ namespace Vodovoz.EntityRepositories
 
 		#endregion
 
+		public IList<Phone> GetPhonesByNumber(IUnitOfWork uow, string digitsPhone)
+		{
+			return uow.Session.QueryOver<Phone>()
+				.Where(p => p.DigitsNumber == digitsPhone)
+				.And(p => p.Counterparty != null || p.DeliveryPoint != null)
+				.And(p => !p.IsArchive)
+				.List();
+		}
+
+		public ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, int externalCounterpartyId, CounterpartyFrom counterpartyFrom)
+		{
+			return uow.Session.QueryOver<ExternalCounterparty>()
+				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
+				.And(ec => ec.ExternalCounterpartyId == externalCounterpartyId)
+				.SingleOrDefault();
+		}
+		
+		public ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, string phoneNumber, CounterpartyFrom counterpartyFrom)
+		{
+			Phone phoneAlias = null;
+			
+			return uow.Session.QueryOver<ExternalCounterparty>()
+				.JoinAlias(ec => ec.Phone, () => phoneAlias)
+				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
+				.And(() => phoneAlias.DigitsNumber == phoneNumber)
+				.SingleOrDefault();
+		}
+
 		public IList<IncomingCallsAnalysisReportNode> GetLastOrderIdAndDeliveryDateByPhone(
 			IUnitOfWork uow, IEnumerable<string> incomingCallsNumbers)
 		{
