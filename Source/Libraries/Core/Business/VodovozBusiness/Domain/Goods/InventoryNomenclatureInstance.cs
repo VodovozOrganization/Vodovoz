@@ -16,5 +16,15 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		public override NomenclatureInstanceType Type => NomenclatureInstanceType.InventoryNomenclatureInstance;
+
+		public override string ToString()
+		{
+			if(Id == 0 && Nomenclature == null)
+			{
+				return "Новый экземпляр";
+			}
+			
+			return $"{Nomenclature.Name} инв. номер: {InventoryNumber}";
+		}
 	}
 }

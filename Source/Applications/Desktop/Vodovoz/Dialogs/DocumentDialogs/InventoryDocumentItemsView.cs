@@ -4,34 +4,30 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Gtk;
 using Gdk;
-using Vodovoz.Parameters;
+using QS.Project.Services;
+using Vodovoz.Controllers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class InventoryDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		InventoryDocumentItem FineEditItem;
-
-		INomenclatureRepository nomenclatureRepository { get; } =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private InventoryDocumentItem FineEditItem;
+		private InventoryDocumentController _inventoryDocumentController;
 
 		public InventoryDocumentItemsView()
 		{
-			this.Build();
+			Build();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<InventoryDocumentItem>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => GetNomenclatureName(x.Nomenclature), useMarkup: true)
@@ -55,8 +51,6 @@ namespace Vodovoz
 				.Finish();
 
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
-
-
 		}
 
 		private string GetNomenclatureName(Nomenclature nomenclature)
@@ -85,21 +79,32 @@ namespace Vodovoz
 
 		private IUnitOfWorkGeneric<InventoryDocument> documentUoW;
 
-		public IUnitOfWorkGeneric<InventoryDocument> DocumentUoW {
-			get { return documentUoW; }
-			set {
-				if (documentUoW == value)
+		public IUnitOfWorkGeneric<InventoryDocument> DocumentUoW
+		{
+			get => documentUoW;
+			set
+			{
+				if(documentUoW == value)
+				{
 					return;
+				}
+
 				documentUoW = value;
-				if (DocumentUoW.Root.NomenclatureItems == null)
+				if(DocumentUoW.Root.NomenclatureItems == null)
+				{
 					DocumentUoW.Root.NomenclatureItems = new List<InventoryDocumentItem> ();
+				}
 
 				FillDiscrepancies();
 
 				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableNomenclatureItems;
 				UpdateButtonState();
-				if (DocumentUoW.Root.Warehouse != null && DocumentUoW.Root.NomenclatureItems.Count == 0)
+				if(DocumentUoW.Root.Warehouse != null && DocumentUoW.Root.NomenclatureItems.Count == 0)
+				{
 					buttonFillItems.Click();
+				}
+
+				_inventoryDocumentController = new InventoryDocumentController(DocumentUoW.Root, ServicesConfig.InteractiveService);
 				DocumentUoW.Root.PropertyChanged += DocumentUoW_Root_PropertyChanged;
 			}
 		}
@@ -158,9 +163,11 @@ namespace Vodovoz
 
 			var selectedNomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
 			if(DocumentUoW.Root.NomenclatureItems.Any(x => x.Nomenclature.Id == selectedNomenclature.Id))
+			{
 				return;
+			}
 
-			DocumentUoW.Root.AddNomenclatureItem(selectedNomenclature, 0, 0);
+			_inventoryDocumentController.AddNomenclatureItem(selectedNomenclature, 0, 0);
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)

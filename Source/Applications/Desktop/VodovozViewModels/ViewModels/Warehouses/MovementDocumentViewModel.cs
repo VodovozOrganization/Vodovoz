@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			IRDLPreviewOpener rdlPreviewOpener,
 			ICommonServices commonServices,
 			IStockRepository stockRepository) 
-		: base(uowBuilder, unitOfWorkFactory, commonServices)
+			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));

@@ -26,12 +26,12 @@ using QS.Project.Services;
 using QS.Project.Journal;
 using Vodovoz.Domain.Employees;
 using QS.Tdi;
+using Vodovoz.Controllers;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
@@ -41,8 +41,7 @@ namespace Vodovoz
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IStockRepository _stockRepository = new StockRepository();
-		private INomenclatureRepository nomenclatureRepository { get; } =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private InventoryDocumentController _inventoryDocumentController;
 		private SelectableParametersReportFilter filter;
 		private InventoryDocumentItem FineEditItem;
 
@@ -81,6 +80,8 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
+
+			_inventoryDocumentController = new InventoryDocumentController(Entity, ServicesConfig.InteractiveService);
 
 			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.InventoryEdit, Entity.Warehouse);
 			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
@@ -227,7 +228,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.UpdateOperations(UoW);
+			_inventoryDocumentController.UpdateOperations(UoW);
 
 			logger.Info ("Сохраняем акт списания...");
 			UoWGeneric.Save ();
@@ -379,7 +380,7 @@ namespace Vodovoz
 
 			if(Entity.NomenclatureItems.Count == 0)
 			{
-				Entity.FillNomenclatureItemsFromStock(
+				_inventoryDocumentController.FillNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -391,7 +392,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				Entity.UpdateNomenclatureItemsFromStock(
+				_inventoryDocumentController.UpdateNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -433,7 +434,7 @@ namespace Vodovoz
 					}
 
 					var nomenclature = UoW.GetById<Nomenclature>(node.Id);
-					Entity.AddNomenclatureItem(nomenclature, 0, 0);
+					_inventoryDocumentController.AddNomenclatureItem(nomenclature, 0, 0);
 				}
 			}
 		}

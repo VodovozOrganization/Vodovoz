@@ -7,7 +7,6 @@ using Gamma.GtkWidgets;
 using Gdk;
 using Gtk;
 using Vodovoz.ReportsParameters;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Utilities;
 
@@ -25,7 +24,7 @@ namespace Vodovoz.Views.Warehouse
 		{
 			btnSave.Clicked += OnSaveClicked;
 			btnCancel.Clicked += OnCancelClicked;
-			btnAccept.Clicked += OnAcceptClicked;
+			btnConfirm.Clicked += OnConfirmClicked;
 			btnPrint.Clicked += OnPrintClicked;
 			
 			radioBtnBulkAccounting.Binding
@@ -94,9 +93,9 @@ namespace Vodovoz.Views.Warehouse
 			ViewModel.PrintCommand.Execute();
 		}
 
-		private void OnAcceptClicked(object sender, EventArgs e)
+		private void OnConfirmClicked(object sender, EventArgs e)
 		{
-			ViewModel.AcceptCommand.Execute();
+			ViewModel.ConfirmCommand.Execute();
 		}
 
 		private void OnCancelClicked(object sender, EventArgs e)
@@ -109,7 +108,7 @@ namespace Vodovoz.Views.Warehouse
 			ViewModel.SaveAndClose();
 		}
 
-		#region объемный учет
+		#region Объемный учет
 
 		private void ConfigureBulkAccounting()
 		{
@@ -119,6 +118,10 @@ namespace Vodovoz.Views.Warehouse
 			btnAddMissingNomenclatures.Clicked += OnAddMissingNomenclaturesClicked;
 			btnAddFineToNomenclatureItem.Clicked += OnAddFineToNomenclatureItemClicked;
 			btnDeleteFineFromNomenclatureItem.Clicked += OnDeleteFineFromNomenclatureItemClicked;
+			
+			hboxHandleNomenclatureItemsBtns.Binding
+				.AddBinding(ViewModel, vm => vm.CanHandleInventoryItems, w => w.Sensitive)
+				.InitializeFromSource();
 			
 			btnFillNomenclatureItemsByStorage.Binding
 				.AddBinding(ViewModel, vm => vm.FillNomenclaturesByStorageTitle, w => w.Label)
@@ -203,15 +206,19 @@ namespace Vodovoz.Views.Warehouse
 			
 			btnFillNomenclatureInstanceItemsByStorage.Clicked += OnFillNomenclatureInstanceItemsByStorageClicked;
 			btnAddMissingNomenclatureInstances.Clicked += OnAddMissingNomenclatureInstancesClicked;
-			//btnAddFineToNomenclatureInstanceItem.Clicked += OnAddFineToNomenclatureItemClicked;
-			//btnDeleteFineFromNomenclatureInstanceItem.Clicked += OnDeleteFineFromNomenclatureItemClicked;
+			btnAddFineToNomenclatureInstanceItem.Clicked += OnAddFineToNomenclatureInstanceItemClicked;
+			btnDeleteFineFromNomenclatureInstanceItem.Clicked += OnDeleteFineFromNomenclatureInstanceItemClicked;
+			
+			hboxHandleInstanceItemsBtns.Binding
+				.AddBinding(ViewModel, vm => vm.CanHandleInventoryItems, w => w.Sensitive)
+				.InitializeFromSource();
 			
 			btnFillNomenclatureInstanceItemsByStorage.Binding
 				.AddBinding(ViewModel, vm => vm.FillNomenclatureInstancesByStorageTitle, w => w.Label)
 				.InitializeFromSource();
 			btnAddFineToNomenclatureInstanceItem.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.SelectedNomenclatureItemHasFine, w => w.Label)
+				.AddBinding(vm => vm.AddOrEditInstanceItemFineTitle, w => w.Label)
 				.AddBinding(vm => vm.HasSelectedInstanceItem, w => w.Sensitive)
 				.InitializeFromSource();
 			btnDeleteFineFromNomenclatureInstanceItem.Binding
@@ -228,25 +235,37 @@ namespace Vodovoz.Views.Warehouse
 		{
 			ViewModel.FillNomenclatureItemsByStorageCommand.Execute();
 		}
+		
+		private void OnAddFineToNomenclatureInstanceItemClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddOrEditNomenclatureInstanceItemFineCommand.Execute();
+		}
+		
+		private void OnDeleteFineFromNomenclatureInstanceItemClicked(object sender, EventArgs e)
+		{
+			ViewModel.DeleteFineToNomenclatureInstanceItemCommand.Execute();
+		}
 
 		private void ConfigureNomenclatureInstanceItemsTree()
 		{
 			treeViewInstanceItems.ColumnsConfig = ColumnsConfigFactory.Create<InstanceInventoryDocumentItem>()
 				.AddColumn("Отсутствует")
 					.AddToggleRenderer(x => x.IsMissing)
-					.Editing()
-				.AddColumn("Номенклатура")
-					.AddTextRenderer(x => ViewModel.GetNomenclatureName(x.InventoryNomenclatureInstance.Nomenclature), useMarkup: true)
+					.AddSetter((n, c) => n.Activatable = c.CanChangeIsMissing)
+				.AddColumn("Экземпляр")
+					.AddTextRenderer(x => x.InventoryNomenclatureInstance.ToString(), useMarkup: true)
 				.AddColumn("Штраф")
 					.AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
 				.AddColumn("Что произошло")
 					.AddTextRenderer(x => x.Comment)
 					.Editable()
+				.AddColumn("Описание расхождения")
+					.AddTextRenderer(x => x.DiscrepancyDescription)
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
 					var color = new Color(255, 255, 255);
-					if(ViewModel._nomenclaturesWithDiscrepancies.Any(x => x.Id == node.InventoryNomenclatureInstance.Nomenclature.Id))
+					if(!string.IsNullOrWhiteSpace(node.DiscrepancyDescription))
 					{
 						color = new Color(255, 125, 125);
 					}
@@ -254,9 +273,9 @@ namespace Vodovoz.Views.Warehouse
 				})
 				.Finish();
 
-			treeViewInstanceItems.ItemsDataSource = ViewModel.Entity.ObservableNomenclatureItems;
+			treeViewInstanceItems.ItemsDataSource = ViewModel.Entity.ObservableInstanceItems;
 			treeViewInstanceItems.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedNomenclatureInstanceItem, w => w.SelectedRow)
+				.AddBinding(ViewModel, vm => vm.SelectedInstanceItem, w => w.SelectedRow)
 				.InitializeFromSource();
 			
 			btnAddFineToNomenclatureInstanceItem.Binding

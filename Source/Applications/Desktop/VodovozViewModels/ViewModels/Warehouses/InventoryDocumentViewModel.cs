@@ -17,9 +17,12 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Tdi;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -28,6 +31,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
@@ -55,12 +59,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private IEmployeeService _employeeService;
 		private IWarehouseRepository _warehouseRepository;
 		private IStockRepository _stockRepository;
+		private INomenclatureInstanceRepository _nomenclatureInstanceRepository;
+		private InventoryDocumentController _inventoryDocumentController;
 		private CommonMessages _commonMessages;
 		private IReportViewOpener _reportViewOpener;
 		private SelectableParametersReportFilter _selectableFilter;
 		private InventoryDocumentItem _selectedNomenclatureItem;
 		private InstanceInventoryDocumentItem _selectedInstanceItem;
-		private DelegateCommand _acceptCommand;
+		private DelegateCommand _confirmCommand;
 		private DelegateCommand _printCommand;
 		private DelegateCommand _fillNomenclatureItemsByStorageCommand;
 		private DelegateCommand _addMissingNomenclatureCommand;
@@ -76,7 +82,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			ILifetimeScope scope) : base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			ILifetimeScope scope)
+			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
 			{
@@ -123,23 +130,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			get => _activeAccounting;
 			set => SetField(ref _activeAccounting, value);
 		}
-
-		public InventoryDocumentItem SelectedNomenclatureInstanceItem
-		{
-			get => _selectedNomenclatureItem;
-			set
-			{
-				if(SetField(ref _selectedNomenclatureItem, value))
-				{
-					OnPropertyChanged(nameof(SelectedNomenclatureInstanceItemHasFine));
-				}
-			}
-		}
 		
 		public bool CanShowWarehouseStorage => Entity.InventoryDocumentType == InventoryDocumentType.WarehouseInventory;
 		public bool CanShowEmployeeStorage => Entity.InventoryDocumentType == InventoryDocumentType.EmployeeInventory;
 		public bool CanShowCarStorage => Entity.InventoryDocumentType == InventoryDocumentType.CarInventory;
-		public bool SelectedNomenclatureInstanceItemHasFine => SelectedNomenclatureInstanceItem?.Fine != null;
 		
 		public IEntityEntryViewModel InventoryWarehouseViewModel { get; private set; }
 		public IEntityEntryViewModel InventoryEmployeeViewModel { get; private set; }
@@ -148,10 +142,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		
 		public IEnumerable<Nomenclature> _nomenclaturesWithDiscrepancies = new List<Nomenclature>();
 
-		public DelegateCommand AcceptCommand => _acceptCommand ?? (_acceptCommand = new DelegateCommand(
+		public DelegateCommand ConfirmCommand => _confirmCommand ?? (_confirmCommand = new DelegateCommand(
 			() =>
 			{
-				
+				_inventoryDocumentController.ConfirmInventoryDocument();
 			}
 		));
 		
@@ -175,6 +169,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				_reportViewOpener.OpenReport(this, reportInfo);
 			}
 			));
+
+		public bool CanHandleInventoryItems => Entity.Warehouse != null || Entity.Employee != null || Entity.Car != null;
 
 		#region Объемный учет
 		
@@ -274,7 +270,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 					if(Entity.NomenclatureItems.Count == 0)
 					{
-						Entity.FillNomenclatureItemsFromStock(
+						_inventoryDocumentController.FillNomenclatureItemsFromStock(
 							UoW,
 							_stockRepository,
 							nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -286,7 +282,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					}
 					else
 					{
-						Entity.UpdateNomenclatureItemsFromStock(
+						_inventoryDocumentController.UpdateNomenclatureItemsFromStock(
 							UoW,
 							_stockRepository,
 							nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -306,6 +302,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				() =>
 				{
 					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave);
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 					page.ViewModel.OnEntitySelectedResult += OnMissingNomenclatureSelectedResult;
 				}
 			));
@@ -384,86 +381,42 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_fillNomenclatureInstanceItemsCommand = new DelegateCommand(
 				() =>
 				{
-					// Костыль для передачи из фильтра предназначенного только для отчетов данных в подходящем виде
-					List<int> nomenclaturesToInclude = new List<int>();
-					List<int> nomenclaturesToExclude = new List<int>();
-					var nomenclatureCategoryToInclude = new List<NomenclatureCategory>();
-					var nomenclatureCategoryToExclude = new List<NomenclatureCategory>();
-					List<int> productGroupToInclude = new List<int>();
-					List<int> productGroupToExclude = new List<int>();
+					IList<NomenclatureInstanceRepository.NomenclatureInstanceBalanceNode> instances = null;
 
-					foreach(SelectableParameterSet parameterSet in _selectableFilter.ParameterSets)
+					switch(Entity.InventoryDocumentType)
 					{
-						switch(parameterSet.ParameterName)
+						case InventoryDocumentType.WarehouseInventory:
+							instances = _nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
+								UoW, OperationTypeByStorage.Warehouse, Entity.Warehouse.Id);
+							break;
+						case InventoryDocumentType.EmployeeInventory:
+							instances = _nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
+								UoW, OperationTypeByStorage.Employee, Entity.Employee.Id);
+							break;
+						case InventoryDocumentType.CarInventory:
+							instances = _nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
+								UoW, OperationTypeByStorage.Car, Entity.Car.Id);
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+
+					foreach(var item in instances)
+					{
+						if(Entity.ObservableInstanceItems.Any(x => x.InventoryNomenclatureInstance.Id == item.InstanceId))
 						{
-							case "nomenclature":
-								if(parameterSet.FilterType == SelectableFilterType.Include)
-								{
-									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										nomenclaturesToInclude.Add(value.EntityId);
-									}
-								}
-								else
-								{
-									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										nomenclaturesToExclude.Add(value.EntityId);
-									}
-								}
-								break;
-							case "nomenclature_type":
-								if(parameterSet.FilterType == SelectableFilterType.Include) {
-									foreach(var value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-										nomenclatureCategoryToInclude.Add((NomenclatureCategory)value.Value);
-									}
-								} else {
-									foreach(var value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-										nomenclatureCategoryToExclude.Add((NomenclatureCategory)value.Value);
-									}
-								}
-								break;
-							case "product_group":
-								if(parameterSet.FilterType == SelectableFilterType.Include) {
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-										productGroupToInclude.Add(value.EntityId);
-									}
-								} else {
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-										productGroupToExclude.Add(value.EntityId);
-									}
-								}
-								break;
+							continue;
 						}
+						
+						var instanceItem = new InstanceInventoryDocumentItem
+						{
+							Document = Entity,
+							InventoryNomenclatureInstance = item.InventoryNomenclatureInstance,
+							IsMissing = true
+						};
+						_inventoryDocumentController.AddInstanceItem(instanceItem);
 					}
-
-					FillDiscrepancies();
-
-					if(Entity.NomenclatureItems.Count == 0)
-					{
-						Entity.FillNomenclatureItemsFromStock(
-							UoW,
-							_stockRepository,
-							nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
-							nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
-							nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
-							nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
-							productGroupToInclude: productGroupToInclude.ToArray(),
-							productGroupToExclude: productGroupToExclude.ToArray());
-					}
-					else
-					{
-						Entity.UpdateNomenclatureItemsFromStock(
-							UoW,
-							_stockRepository,
-							nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
-							nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
-							nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
-							nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
-							productGroupToInclude: productGroupToInclude.ToArray(),
-							productGroupToExclude: productGroupToExclude.ToArray());
-					}
-
+					
 					OnPropertyChanged(nameof(FillNomenclaturesByStorageTitle));
 				}
 			));
@@ -473,6 +426,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				() =>
 				{
 					var page = NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(this, OpenPageOptions.AsSlave);
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 					page.ViewModel.OnSelectResult += OnNomenclatureInstanceSelectResult;
 				}
 			));
@@ -481,7 +435,21 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_addOrEditNomenclatureInstanceItemFineCommand = new DelegateCommand(
 				() =>
 				{
-					
+					FineViewModel fineViewModel;
+					if(SelectedInstanceItem.Fine != null)
+					{
+						fineViewModel = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(SelectedInstanceItem.Fine.Id), OpenPageOptions.AsSlave).ViewModel;
+						fineViewModel.EntitySaved += OnExistingInstanceItemFineSaved;
+					}
+					else
+					{
+						fineViewModel = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave).ViewModel;
+						fineViewModel.Entity.FineReasonString = "Недостача";
+						fineViewModel.EntitySaved += OnNewInstanceItemFineSaved;
+					}
+					fineViewModel.Entity.TotalMoney = SelectedInstanceItem.SumOfDamage;
 				}
 			));
 		
@@ -489,7 +457,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_deleteFineFromNomenclatureInstanceItemCommand = new DelegateCommand(
 				() =>
 				{
-					
+					UoW.Delete(SelectedInstanceItem.Fine);
+					SelectedInstanceItem.Fine = null;
 				}
 			));
 
@@ -514,7 +483,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				return false;
 			}
 
-			Entity.UpdateOperations(UoW);
+			_inventoryDocumentController.UpdateOperations(UoW);
 			return true;
 		}
 
@@ -588,6 +557,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_stockRepository = _scope.Resolve<IStockRepository>();
 			_commonMessages = _scope.Resolve<CommonMessages>();
 			_reportViewOpener = _scope.Resolve<IReportViewOpener>();
+			_nomenclatureInstanceRepository = _scope.Resolve<INomenclatureInstanceRepository>();
+
+			_inventoryDocumentController = _scope.Resolve<InventoryDocumentController>(
+				new TypedParameter(typeof(InventoryDocument), Entity));
 		}
 		
 		private void ConfigureSelectableFilter()
@@ -680,8 +653,17 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				x => x.InventoryDocumentType,
 				() => FillNomenclaturesByStorageTitle,
 				() => FillNomenclatureInstancesByStorageTitle);
+			
+			SetStoragePropertiesChangeRelation();
 		}
-		
+
+		private void SetStoragePropertiesChangeRelation()
+		{
+			SetPropertyChangeRelation(x => x.Warehouse, () => CanHandleInventoryItems);
+			SetPropertyChangeRelation(x => x.Employee, () => CanHandleInventoryItems);
+			SetPropertyChangeRelation(x => x.Car, () => CanHandleInventoryItems);
+		}
+
 		private void FillDiscrepancies()
 		{
 			if(Entity.Warehouse != null && Entity.Warehouse.Id > 0)
@@ -705,13 +687,36 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				}
 
 				var nomenclature = UoW.GetById<Nomenclature>(node.Id);
-				Entity.AddNomenclatureItem(nomenclature, 0, 0);
+				_inventoryDocumentController.AddNomenclatureItem(nomenclature, 0, 0);
 			}
 		}
 
 		private void OnNomenclatureInstanceSelectResult(object sender, JournalSelectedEventArgs e)
 		{
-			throw new NotImplementedException();
+			var selectedNodes = e.GetSelectedObjects<InventoryInstancesJournalNode>();
+			if(!selectedNodes.Any())
+			{
+				return;
+			}
+
+			foreach(var node in selectedNodes)
+			{
+				if(Entity.InstanceItems.Any(x => x.InventoryNomenclatureInstance.Id == node.Id))
+				{
+					continue;
+				}
+				
+				var instance = UoW.GetById<InventoryNomenclatureInstance>(node.Id);
+				var instanceItem = new InstanceInventoryDocumentItem
+				{
+					Document = Entity,
+					InventoryNomenclatureInstance = instance,
+					IsMissing = true,
+					CanChangeIsMissing = false
+				};
+				
+				_inventoryDocumentController.AddInstanceItem(instanceItem);
+			}
 		}
 		
 		private void OnNewNomenclatureItemFineSaved(object sender, EntitySavedEventArgs e)
@@ -725,6 +730,19 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			int id = SelectedNomenclatureItem.Fine.Id;
 			UoW.Session.Evict(SelectedNomenclatureItem.Fine);
 			SelectedNomenclatureItem.Fine = UoW.GetById<Fine>(id);
+		}
+		
+		private void OnNewInstanceItemFineSaved(object sender, EntitySavedEventArgs e)
+		{
+			SelectedInstanceItem.Fine = e.Entity as Fine;
+		}
+
+		private void OnExistingInstanceItemFineSaved(object sender, EntitySavedEventArgs e)
+		{
+			//Мы здесь не можем выполнить просто рефреш, так как если удалить сотрудника из штрафа, получаем эксепшен.
+			int id = SelectedInstanceItem.Fine.Id;
+			UoW.Session.Evict(SelectedInstanceItem.Fine);
+			SelectedInstanceItem.Fine = UoW.GetById<Fine>(id);
 		}
 	}
 }

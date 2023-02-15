@@ -36,6 +36,7 @@ namespace Vodovoz.Domain.Documents
 		private DateTime? _receiveTime;
 		private Employee _discrepancyAccepter;
 		private DateTime? _discrepancyAcceptTime;
+		private MovementDocumentTypeByStorage _movementDocumentTypeByStorage;
 		private IList<MovementDocumentItem> _items = new List<MovementDocumentItem>();
 		private GenericObservableList<MovementDocumentItem> _observableItems;
 
@@ -156,6 +157,12 @@ namespace Vodovoz.Domain.Documents
 				SetField(ref _items, value);
 				_observableItems = null;
 			}
+		}
+
+		public virtual MovementDocumentTypeByStorage MovementDocumentTypeByStorage
+		{
+			get => _movementDocumentTypeByStorage;
+			set => SetField(ref _movementDocumentTypeByStorage, value);
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
@@ -475,6 +482,16 @@ namespace Vodovoz.Domain.Documents
 		InnerTransfer,
 		[Display(Name = "Транспортировка")]
 		Transportation
+	}
+
+	public enum MovementDocumentTypeByStorage
+	{
+		[Display(Name = "Для склада")]
+		ForWarehouse,
+		[Display(Name = "Для сотрудника")]
+		ForEmployee,
+		[Display(Name = "Для автомобиля")]
+		ForCar
 	}
 
 	public class MovementDocumentCategoryStringType : NHibernate.Type.EnumStringType

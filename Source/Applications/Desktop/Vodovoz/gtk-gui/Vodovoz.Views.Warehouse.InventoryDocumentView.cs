@@ -8,7 +8,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gamma.GtkWidgets.yHBox hboxHandleDlgBtns;
 
-		private global::Gamma.GtkWidgets.yButton btnAccept;
+		private global::Gamma.GtkWidgets.yButton btnConfirm;
 
 		private global::Gamma.GtkWidgets.yButton btnSave;
 
@@ -76,7 +76,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewNomenclatureItems;
 
-		private global::Gtk.HBox hboxHandleItemsBtns;
+		private global::Gamma.GtkWidgets.yHBox hboxHandleNomenclatureItemsBtns;
 
 		private global::Gamma.GtkWidgets.yButton btnFillNomenclatureItemsByStorage;
 
@@ -96,7 +96,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewInstanceItems;
 
-		private global::Gtk.HBox hboxHandleItemsBtns1;
+		private global::Gamma.GtkWidgets.yHBox hboxHandleInstanceItemsBtns;
 
 		private global::Gamma.GtkWidgets.yButton btnFillNomenclatureInstanceItemsByStorage;
 
@@ -123,13 +123,13 @@ namespace Vodovoz.Views.Warehouse
 			this.hboxHandleDlgBtns.Name = "hboxHandleDlgBtns";
 			this.hboxHandleDlgBtns.Spacing = 6;
 			// Container child hboxHandleDlgBtns.Gtk.Box+BoxChild
-			this.btnAccept = new global::Gamma.GtkWidgets.yButton();
-			this.btnAccept.CanFocus = true;
-			this.btnAccept.Name = "btnAccept";
-			this.btnAccept.UseUnderline = true;
-			this.btnAccept.Label = global::Mono.Unix.Catalog.GetString("Подтвердить");
-			this.hboxHandleDlgBtns.Add(this.btnAccept);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxHandleDlgBtns[this.btnAccept]));
+			this.btnConfirm = new global::Gamma.GtkWidgets.yButton();
+			this.btnConfirm.CanFocus = true;
+			this.btnConfirm.Name = "btnConfirm";
+			this.btnConfirm.UseUnderline = true;
+			this.btnConfirm.Label = global::Mono.Unix.Catalog.GetString("Подтвердить");
+			this.hboxHandleDlgBtns.Add(this.btnConfirm);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxHandleDlgBtns[this.btnConfirm]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
@@ -429,17 +429,17 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatureItems[this.GtkScrolledWindow1]));
 			w32.Position = 1;
 			// Container child vboxNomenclatureItems.Gtk.Box+BoxChild
-			this.hboxHandleItemsBtns = new global::Gtk.HBox();
-			this.hboxHandleItemsBtns.Name = "hboxHandleItemsBtns";
-			this.hboxHandleItemsBtns.Spacing = 6;
+			this.hboxHandleNomenclatureItemsBtns = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxHandleNomenclatureItemsBtns.Name = "hboxHandleNomenclatureItemsBtns";
+			this.hboxHandleNomenclatureItemsBtns.Spacing = 6;
 			// Container child hboxHandleItemsBtns.Gtk.Box+BoxChild
 			this.btnFillNomenclatureItemsByStorage = new global::Gamma.GtkWidgets.yButton();
 			this.btnFillNomenclatureItemsByStorage.CanFocus = true;
 			this.btnFillNomenclatureItemsByStorage.Name = "btnFillNomenclatureItemsByStorage";
 			this.btnFillNomenclatureItemsByStorage.UseUnderline = true;
 			this.btnFillNomenclatureItemsByStorage.Label = global::Mono.Unix.Catalog.GetString("Заполнить по складу");
-			this.hboxHandleItemsBtns.Add(this.btnFillNomenclatureItemsByStorage);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hboxHandleItemsBtns[this.btnFillNomenclatureItemsByStorage]));
+			this.hboxHandleNomenclatureItemsBtns.Add(this.btnFillNomenclatureItemsByStorage);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hboxHandleNomenclatureItemsBtns[this.btnFillNomenclatureItemsByStorage]));
 			w33.Position = 0;
 			w33.Expand = false;
 			w33.Fill = false;
@@ -449,8 +449,8 @@ namespace Vodovoz.Views.Warehouse
 			this.btnAddMissingNomenclatures.Name = "btnAddMissingNomenclatures";
 			this.btnAddMissingNomenclatures.UseUnderline = true;
 			this.btnAddMissingNomenclatures.Label = global::Mono.Unix.Catalog.GetString("Добавить отсутствующие");
-			this.hboxHandleItemsBtns.Add(this.btnAddMissingNomenclatures);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hboxHandleItemsBtns[this.btnAddMissingNomenclatures]));
+			this.hboxHandleNomenclatureItemsBtns.Add(this.btnAddMissingNomenclatures);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hboxHandleNomenclatureItemsBtns[this.btnAddMissingNomenclatures]));
 			w34.Position = 1;
 			w34.Expand = false;
 			w34.Fill = false;
@@ -460,8 +460,8 @@ namespace Vodovoz.Views.Warehouse
 			this.btnAddFineToNomenclatureItem.Name = "btnAddFineToNomenclatureItem";
 			this.btnAddFineToNomenclatureItem.UseUnderline = true;
 			this.btnAddFineToNomenclatureItem.Label = global::Mono.Unix.Catalog.GetString("Добавить штраф");
-			this.hboxHandleItemsBtns.Add(this.btnAddFineToNomenclatureItem);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hboxHandleItemsBtns[this.btnAddFineToNomenclatureItem]));
+			this.hboxHandleNomenclatureItemsBtns.Add(this.btnAddFineToNomenclatureItem);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hboxHandleNomenclatureItemsBtns[this.btnAddFineToNomenclatureItem]));
 			w35.Position = 2;
 			w35.Expand = false;
 			w35.Fill = false;
@@ -471,13 +471,13 @@ namespace Vodovoz.Views.Warehouse
 			this.btnDeleteFineFromNomenclatureItem.Name = "btnDeleteFineFromNomenclatureItem";
 			this.btnDeleteFineFromNomenclatureItem.UseUnderline = true;
 			this.btnDeleteFineFromNomenclatureItem.Label = global::Mono.Unix.Catalog.GetString("Удалить штраф");
-			this.hboxHandleItemsBtns.Add(this.btnDeleteFineFromNomenclatureItem);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hboxHandleItemsBtns[this.btnDeleteFineFromNomenclatureItem]));
+			this.hboxHandleNomenclatureItemsBtns.Add(this.btnDeleteFineFromNomenclatureItem);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hboxHandleNomenclatureItemsBtns[this.btnDeleteFineFromNomenclatureItem]));
 			w36.Position = 3;
 			w36.Expand = false;
 			w36.Fill = false;
-			this.vboxNomenclatureItems.Add(this.hboxHandleItemsBtns);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatureItems[this.hboxHandleItemsBtns]));
+			this.vboxNomenclatureItems.Add(this.hboxHandleNomenclatureItemsBtns);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatureItems[this.hboxHandleNomenclatureItemsBtns]));
 			w37.Position = 2;
 			w37.Expand = false;
 			w37.Fill = false;
@@ -514,17 +514,17 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatureInstanceItems[this.GtkScrolledWindow2]));
 			w41.Position = 1;
 			// Container child vboxNomenclatureInstanceItems.Gtk.Box+BoxChild
-			this.hboxHandleItemsBtns1 = new global::Gtk.HBox();
-			this.hboxHandleItemsBtns1.Name = "hboxHandleItemsBtns1";
-			this.hboxHandleItemsBtns1.Spacing = 6;
+			this.hboxHandleInstanceItemsBtns = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxHandleInstanceItemsBtns.Name = "hboxHandleInstanceItemsBtns";
+			this.hboxHandleInstanceItemsBtns.Spacing = 6;
 			// Container child hboxHandleItemsBtns1.Gtk.Box+BoxChild
 			this.btnFillNomenclatureInstanceItemsByStorage = new global::Gamma.GtkWidgets.yButton();
 			this.btnFillNomenclatureInstanceItemsByStorage.CanFocus = true;
 			this.btnFillNomenclatureInstanceItemsByStorage.Name = "btnFillNomenclatureInstanceItemsByStorage";
 			this.btnFillNomenclatureInstanceItemsByStorage.UseUnderline = true;
 			this.btnFillNomenclatureInstanceItemsByStorage.Label = global::Mono.Unix.Catalog.GetString("Заполнить по складу");
-			this.hboxHandleItemsBtns1.Add(this.btnFillNomenclatureInstanceItemsByStorage);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hboxHandleItemsBtns1[this.btnFillNomenclatureInstanceItemsByStorage]));
+			this.hboxHandleInstanceItemsBtns.Add(this.btnFillNomenclatureInstanceItemsByStorage);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hboxHandleInstanceItemsBtns[this.btnFillNomenclatureInstanceItemsByStorage]));
 			w42.Position = 0;
 			w42.Expand = false;
 			w42.Fill = false;
@@ -534,8 +534,8 @@ namespace Vodovoz.Views.Warehouse
 			this.btnAddMissingNomenclatureInstances.Name = "btnAddMissingNomenclatureInstances";
 			this.btnAddMissingNomenclatureInstances.UseUnderline = true;
 			this.btnAddMissingNomenclatureInstances.Label = global::Mono.Unix.Catalog.GetString("Добавить отсутствующие");
-			this.hboxHandleItemsBtns1.Add(this.btnAddMissingNomenclatureInstances);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hboxHandleItemsBtns1[this.btnAddMissingNomenclatureInstances]));
+			this.hboxHandleInstanceItemsBtns.Add(this.btnAddMissingNomenclatureInstances);
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hboxHandleInstanceItemsBtns[this.btnAddMissingNomenclatureInstances]));
 			w43.Position = 1;
 			w43.Expand = false;
 			w43.Fill = false;
@@ -545,8 +545,8 @@ namespace Vodovoz.Views.Warehouse
 			this.btnAddFineToNomenclatureInstanceItem.Name = "btnAddFineToNomenclatureInstanceItem";
 			this.btnAddFineToNomenclatureInstanceItem.UseUnderline = true;
 			this.btnAddFineToNomenclatureInstanceItem.Label = global::Mono.Unix.Catalog.GetString("Добавить штраф");
-			this.hboxHandleItemsBtns1.Add(this.btnAddFineToNomenclatureInstanceItem);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxHandleItemsBtns1[this.btnAddFineToNomenclatureInstanceItem]));
+			this.hboxHandleInstanceItemsBtns.Add(this.btnAddFineToNomenclatureInstanceItem);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxHandleInstanceItemsBtns[this.btnAddFineToNomenclatureInstanceItem]));
 			w44.Position = 2;
 			w44.Expand = false;
 			w44.Fill = false;
@@ -556,13 +556,13 @@ namespace Vodovoz.Views.Warehouse
 			this.btnDeleteFineFromNomenclatureInstanceItem.Name = "btnDeleteFineFromNomenclatureInstanceItem";
 			this.btnDeleteFineFromNomenclatureInstanceItem.UseUnderline = true;
 			this.btnDeleteFineFromNomenclatureInstanceItem.Label = global::Mono.Unix.Catalog.GetString("Удалить штраф");
-			this.hboxHandleItemsBtns1.Add(this.btnDeleteFineFromNomenclatureInstanceItem);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hboxHandleItemsBtns1[this.btnDeleteFineFromNomenclatureInstanceItem]));
+			this.hboxHandleInstanceItemsBtns.Add(this.btnDeleteFineFromNomenclatureInstanceItem);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hboxHandleInstanceItemsBtns[this.btnDeleteFineFromNomenclatureInstanceItem]));
 			w45.Position = 3;
 			w45.Expand = false;
 			w45.Fill = false;
-			this.vboxNomenclatureInstanceItems.Add(this.hboxHandleItemsBtns1);
-			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatureInstanceItems[this.hboxHandleItemsBtns1]));
+			this.vboxNomenclatureInstanceItems.Add(this.hboxHandleInstanceItemsBtns);
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vboxNomenclatureInstanceItems[this.hboxHandleInstanceItemsBtns]));
 			w46.Position = 2;
 			w46.Expand = false;
 			w46.Fill = false;
