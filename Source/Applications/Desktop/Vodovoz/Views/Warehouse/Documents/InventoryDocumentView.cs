@@ -2,7 +2,6 @@
 using Gtk;
 using QS.Navigation;
 using QS.Project.Journal;
-using QS.Tdi;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
@@ -10,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;

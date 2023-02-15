@@ -1,5 +1,4 @@
-﻿using Autofac;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
@@ -27,7 +26,6 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Reports;
 
@@ -480,33 +478,31 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 		public void AddOrEditFine()
 		{
 			EntityUoWBuilder entityUoWBuilder;
-			IPage fineView;
+			FineViewModel fineViewModel;
 
 			if(SelectedInventoryDocumentItem.Fine != null)
 			{
 				entityUoWBuilder = EntityUoWBuilder.ForOpen(SelectedInventoryDocumentItem.Fine.Id);
-				fineView = NavigationManager.OpenViewModel<FineViewModel>(this, addingRegistrations: (cb) =>
-					cb.RegisterInstance(entityUoWBuilder).As<IEntityUoWBuilder>() );
+				fineViewModel = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, entityUoWBuilder).ViewModel;
 
-				(fineView.ViewModel as FineViewModel).EntitySaved += ExistingFineEntitySaved;
+				fineViewModel.EntitySaved += ExistingFineEntitySaved;
 			}
 			else
 			{
 				entityUoWBuilder = EntityUoWBuilder.ForCreate();
-				fineView = NavigationManager.OpenViewModel<FineViewModel>(this, addingRegistrations: (cb) =>
-					cb.RegisterInstance(entityUoWBuilder).As<IEntityUoWBuilder>());
+				fineViewModel = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, entityUoWBuilder).ViewModel;
 
-				(fineView.ViewModel as FineViewModel).Entity.FineReasonString = "Недостача";
-				(fineView.ViewModel as FineViewModel).EntitySaved += NewFineSaved;
+				fineViewModel.Entity.FineReasonString = "Недостача";
+
+				fineViewModel.EntitySaved += NewFineSaved;
 			}
 
-			(fineView.ViewModel as FineViewModel).Entity.TotalMoney = SelectedInventoryDocumentItem.SumOfDamage;
+			fineViewModel.Entity.TotalMoney = SelectedInventoryDocumentItem.SumOfDamage;
 		}
 
 		private void NewFineSaved(object sender, EntitySavedEventArgs e)
 		{
 			SelectedInventoryDocumentItem.Fine = e.Entity as Fine;
-			SelectedInventoryDocumentItem = null;
 		}
 
 		private void ExistingFineEntitySaved(object sender, EntitySavedEventArgs e)
