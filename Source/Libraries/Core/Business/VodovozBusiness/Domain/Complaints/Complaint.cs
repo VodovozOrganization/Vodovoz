@@ -194,7 +194,13 @@ namespace Vodovoz.Domain.Complaints
 		public virtual ComplaintKind ComplaintKind
 		{
 			get => _complaintKind;
-			set => SetField(ref _complaintKind, value);
+			set
+			{
+				if(SetField(ref _complaintKind, value))
+				{
+					ComplaintDetalization = null;
+				}
+			}
 		}
 
 		[Display(Name = "Детализация")]

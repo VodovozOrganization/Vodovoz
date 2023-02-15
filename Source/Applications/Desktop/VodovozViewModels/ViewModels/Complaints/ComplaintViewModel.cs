@@ -161,6 +161,7 @@ namespace Vodovoz.ViewModels.Complaints
 			if(e.PropertyName == nameof(Entity.ComplaintKind))
 			{
 				_detalizationJournalFilterViewModel.RestrictComplaintKind = Entity.ComplaintKind;
+				OnPropertyChanged(nameof(CanChangeDetalization));
 			}
 		}
 
@@ -352,7 +353,8 @@ namespace Vodovoz.ViewModels.Complaints
 			nameof(CanAttachFine),
 			nameof(CanSelectDeliveryPoint),
 			nameof(CanAddGuilty),
-			nameof(CanClose))]
+			nameof(CanClose),
+			nameof(CanChangeDetalization))]
 		public bool CanEdit => PermissionResult.CanUpdate;
 
 		public bool CanAddGuilty => CanEdit && _canAddGuiltyInComplaintsPermissionResult;
