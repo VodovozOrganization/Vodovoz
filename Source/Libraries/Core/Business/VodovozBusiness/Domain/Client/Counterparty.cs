@@ -197,9 +197,10 @@ namespace Vodovoz.Domain.Client
 			{
 				if(SetField(ref typeOfOwnership, value))
 				{
-					if(value == "ИП")
+					var personFullName = GetPersonFullName();
+					if(value == "ИП" && !string.IsNullOrEmpty(personFullName))
 					{
-						Name = FullName = GetPersonFullName();
+						Name = FullName = personFullName;
 					}
 				}
 			}
@@ -297,7 +298,11 @@ namespace Vodovoz.Domain.Client
 				if(value == PersonType.natural)
 				{
 					PaymentMethod = PaymentType.cash;
-					Name = FullName = GetPersonFullName();
+					var personFullName = GetPersonFullName();
+					if(!string.IsNullOrEmpty(personFullName))
+					{
+						Name = FullName = personFullName;
+					}
 				}
 			}
 		}
@@ -758,7 +763,11 @@ namespace Vodovoz.Domain.Client
 			{
 				if(SetField(ref _surname, value))
 				{
-					Name = FullName = GetPersonFullName();
+					var personFullName = GetPersonFullName();
+					if(!string.IsNullOrEmpty(personFullName))
+					{
+						Name = FullName = personFullName;
+					}
 				}
 			}
 		}
@@ -771,7 +780,11 @@ namespace Vodovoz.Domain.Client
 			{
 				if(SetField(ref _firstName, value))
 				{
-					Name = FullName = GetPersonFullName();
+					var personFullName = GetPersonFullName();
+					if(!string.IsNullOrEmpty(personFullName))
+					{
+						Name = FullName = personFullName;
+					}
 				}
 			}
 		}
@@ -784,7 +797,11 @@ namespace Vodovoz.Domain.Client
 			{
 				if(SetField(ref _patronymic, value))
 				{
-					Name = FullName = GetPersonFullName();
+					var personFullName = GetPersonFullName();
+					if(!string.IsNullOrEmpty(personFullName))
+					{
+						Name = FullName = personFullName;
+					}
 				}
 			}
 		}
