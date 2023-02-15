@@ -39,7 +39,7 @@ namespace Vodovoz.EntityRepositories.Sale
 		/// <returns>Название района, название версии районов, в которую входит район, дата создания версии районов</returns>
 		public List<DistrictAndDistrictSet> GetDistrictNameDistrictSetNameAndCreationDateByDeliveryPriceRule(IUnitOfWork uow, DeliveryPriceRule rule)
 		{
-			CommonDistrictRuleItem districtRuleItemAlias = null;
+			DistrictRuleItemBase districtRuleItemAlias = null;
 			District districtAlias = null;
 			DistrictsSet districtSetAlias = null;
 			DistrictAndDistrictSet ruleDistrictRelationAlias = null;

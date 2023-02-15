@@ -4,6 +4,7 @@ using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -34,9 +35,10 @@ namespace Vodovoz.Journals.JournalViewModels
 			IEntityDeleteWorker entityDeleteWorker,
 			IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			INavigationManager navigation,
 			bool hideJournalForOpenDialog = false, 
 			bool hideJournalForCreateDialog = false)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog, navigation)
 		{
 			this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
 			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
@@ -104,7 +106,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				entityDeleteWorker,
 				employeeRepository,
 				new DistrictRuleRepository(),
-				_deliveryScheduleJournalFactory);
+				_deliveryScheduleJournalFactory,
+				NavigationManager);
 
 		protected override Func<DistrictsSetJournalNode, DistrictsSetViewModel> OpenDialogFunction => node =>
 			new DistrictsSetViewModel(
@@ -114,7 +117,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				entityDeleteWorker,
 				employeeRepository,
 				new DistrictRuleRepository(),
-				_deliveryScheduleJournalFactory);
+				_deliveryScheduleJournalFactory,
+				NavigationManager);
 		
 		protected override void CreateNodeActions()
 		{

@@ -200,11 +200,12 @@ namespace Vodovoz.Tools.Orders
 
 		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
 		{
-			bool result = DisposableWater19LCount > rule.Water19LCount
-				|| DisposableWater6LCount > rule.Water6LCount
-				|| DisposableWater1500mlCount > rule.Water1500mlCount
-				|| DisposableWater600mlCount > rule.Water600mlCount
-				|| DisposableWater500mlCount > rule.Water500mlCount;
+			bool result = 
+				(DisposableWater19LCount + Water19LCount) < rule.Water19LCount
+				&& DisposableWater6LCount < rule.Water6LCount
+				&& DisposableWater1500mlCount < rule.Water1500mlCount
+				&& DisposableWater600mlCount < rule.Water600mlCount
+				&& DisposableWater500mlCount < rule.Water500mlCount;
 
 			return result;
 		}

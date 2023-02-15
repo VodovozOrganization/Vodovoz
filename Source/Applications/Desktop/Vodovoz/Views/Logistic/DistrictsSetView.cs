@@ -20,6 +20,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -169,14 +170,9 @@ namespace Vodovoz.Views.Logistic
 			btnAddCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanEditDeliveryRules, w => w.Sensitive).InitializeFromSource();
 			btnAddCommonRule.Clicked += (sender, args) =>
 			{
-				var selectRules = new OrmReference(ViewModel.UoW, ViewModel.DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules())
-				{
-					Mode = OrmReferenceMode.MultiSelect,
-					ButtonMode = QS.Project.Dialogs.ReferenceButtonMode.None
-				};
-				
-				selectRules.ObjectSelected +=
-					(o, e) => ViewModel.AddCommonDistrictRuleItemCommand.Execute(e.GetEntities<DeliveryPriceRule>());
+				var selectRules = ViewModel.NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(null).ViewModel;
+				selectRules.SelectionMode = JournalSelectionMode.Single;
+				selectRules.OnSelectResult += (o, e) => ViewModel.AddCommonDistrictRuleItemCommand.Execute(e.GetSelectedObjects<DeliveryPriceRuleJournalNode>());
 				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
 			};
 
@@ -237,14 +233,9 @@ namespace Vodovoz.Views.Logistic
 			btnAddWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
 			btnAddWeekDayRule.Clicked += (sender, args) =>
 			{
-				var selectRules = new OrmReference(ViewModel.UoW, ViewModel.DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules())
-				{
-					Mode = OrmReferenceMode.MultiSelect,
-					ButtonMode = QS.Project.Dialogs.ReferenceButtonMode.None
-				};
-				
-				selectRules.ObjectSelected += (o, e) =>
-					ViewModel.AddWeekDayDistrictRuleItemCommand.Execute(e.GetEntities<DeliveryPriceRule>());
+				var selectRules = ViewModel.NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(null).ViewModel;
+				selectRules.SelectionMode = JournalSelectionMode.Single;
+				selectRules.OnSelectResult += (o, e) => ViewModel.AddWeekDayDistrictRuleItemCommand.Execute(e.GetSelectedObjects<DeliveryPriceRuleJournalNode>());
 				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
 			};
 
