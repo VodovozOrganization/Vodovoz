@@ -6,17 +6,17 @@ namespace Vodovoz.Views.Sale
 	{
 		private global::Gtk.VBox vboxMain;
 
-		private global::Gtk.HBox hboxButtons;
+		private global::Gamma.GtkWidgets.yHBox hboxButtons;
 
 		private global::Gamma.GtkWidgets.yButton buttonSave;
 
 		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gtk.HBox hboxRuleOptionsAndDistrictsTree;
+		private global::Gamma.GtkWidgets.yHBox hboxRuleOptionsAndDistrictsTree;
 
-		private global::Gtk.VBox vboxRuleSettings;
+		private global::Gamma.GtkWidgets.yVBox vboxRuleSettings;
 
-		private global::Gtk.VBox vboxRuleName;
+		private global::Gamma.GtkWidgets.yVBox vboxRuleName;
 
 		private global::Gtk.Label lblRuleName;
 
@@ -50,7 +50,7 @@ namespace Vodovoz.Views.Sale
 
 		private global::Gamma.GtkWidgets.ySpinButton spinOrderMinSumEShopGoods;
 
-		private global::Gtk.VBox vboxDistricts;
+		private global::Gamma.GtkWidgets.yVBox vboxDistricts;
 
 		private global::Gtk.Label lblDistricts;
 
@@ -69,7 +69,7 @@ namespace Vodovoz.Views.Sale
 			this.vboxMain.Name = "vboxMain";
 			this.vboxMain.Spacing = 6;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.hboxButtons = new global::Gtk.HBox();
+			this.hboxButtons = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxButtons.Name = "hboxButtons";
 			this.hboxButtons.Spacing = 6;
 			// Container child hboxButtons.Gtk.Box+BoxChild
@@ -106,15 +106,15 @@ namespace Vodovoz.Views.Sale
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.hboxRuleOptionsAndDistrictsTree = new global::Gtk.HBox();
+			this.hboxRuleOptionsAndDistrictsTree = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxRuleOptionsAndDistrictsTree.Name = "hboxRuleOptionsAndDistrictsTree";
 			this.hboxRuleOptionsAndDistrictsTree.Spacing = 6;
 			// Container child hboxRuleOptionsAndDistrictsTree.Gtk.Box+BoxChild
-			this.vboxRuleSettings = new global::Gtk.VBox();
+			this.vboxRuleSettings = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxRuleSettings.Name = "vboxRuleSettings";
 			this.vboxRuleSettings.Spacing = 6;
 			// Container child vboxRuleSettings.Gtk.Box+BoxChild
-			this.vboxRuleName = new global::Gtk.VBox();
+			this.vboxRuleName = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxRuleName.Name = "vboxRuleName";
 			this.vboxRuleName.Spacing = 6;
 			// Container child vboxRuleName.Gtk.Box+BoxChild
@@ -321,7 +321,7 @@ namespace Vodovoz.Views.Sale
 			w23.Expand = false;
 			w23.Fill = false;
 			// Container child hboxRuleOptionsAndDistrictsTree.Gtk.Box+BoxChild
-			this.vboxDistricts = new global::Gtk.VBox();
+			this.vboxDistricts = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxDistricts.Name = "vboxDistricts";
 			this.vboxDistricts.Spacing = 6;
 			// Container child vboxDistricts.Gtk.Box+BoxChild
@@ -350,11 +350,12 @@ namespace Vodovoz.Views.Sale
 			this.hboxRuleOptionsAndDistrictsTree.Add(this.vboxDistricts);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hboxRuleOptionsAndDistrictsTree[this.vboxDistricts]));
 			w27.Position = 1;
+			w27.Expand = false;
+			w27.Fill = false;
 			this.vboxMain.Add(this.hboxRuleOptionsAndDistrictsTree);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxRuleOptionsAndDistrictsTree]));
+			w28.PackType = ((global::Gtk.PackType)(1));
 			w28.Position = 1;
-			w28.Expand = false;
-			w28.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
