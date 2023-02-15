@@ -1,11 +1,14 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
@@ -20,6 +23,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
@@ -27,6 +31,7 @@ using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
@@ -80,10 +85,39 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			FilterViewModel = ConfigureFilter();
 			_sortByNomenclatureTitle = false;
 
+			PrintCommand = new DelegateCommand(Print);
+
+			FillDiscrepanciesCommand = new DelegateCommand(
+				FillDiscrepancies,
+				() => CanFillDiscrepancies);
+
+			FillItemsCommand = new DelegateCommand(
+				FillItems,
+				() => CanFillItems);
+
+			AddItemCommand = new DelegateCommand(
+				AddItem,
+				() => CanAddItem);
+
+			AddOrEditFineCommand = new DelegateCommand(
+				AddOrEditFine,
+				() => CanAddFine);
+
+			DeleteFineCommand = new DelegateCommand(
+				DeleteFine,
+				() => CanDeleteFine);
+
+			ClearItemsCommand = new DelegateCommand(ClearItems);
+
+			FillFactByAccountingCommand = new DelegateCommand(FillFactByAccounting);
+
 			SubscribeOnEntityChanges();
 		}
 
-		public override string Title => Entity.Id == 0 ? "Новая инвентаризация" : Entity.Title;
+		private void ClearItems()
+		{
+			Entity.ClearItems();
+		}
 
 		private void ValidateNomenclatures()
 		{
@@ -153,6 +187,91 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				Entity.CanEdit = true;
 			}
 		}
+		
+		public bool SortByNomenclatureTitle
+		{
+			get => _sortByNomenclatureTitle;
+			set
+			{
+				if(SetField(ref _sortByNomenclatureTitle, value))
+				{
+					SortDocumentItems();
+				}
+			}
+		}
+
+		public InventoryDocumentItem SelectedInventoryDocumentItem
+		{
+			get => _selectedInventoryDocumentItem;
+			set
+			{
+				if(SetField(ref _selectedInventoryDocumentItem, value))
+				{
+					OnPropertyChanged(nameof(CanAddFine));
+					OnPropertyChanged(nameof(CanDeleteFine));
+				}
+			}
+		}
+
+		public override string Title => Entity.Id == 0 ? "Новая инвентаризация" : Entity.Title;
+
+		public bool CanAddFine => Entity.CanEdit && SelectedInventoryDocumentItem != null;
+
+		public string AddFineButtonTitle =>
+			SelectedInventoryDocumentItem?.Fine != null
+			? "Изменить штраф"
+			: "Добавить штраф";
+
+		public bool CanDeleteFine => Entity.CanEdit
+			&& SelectedInventoryDocumentItem != null
+			&& SelectedInventoryDocumentItem.Fine != null;
+
+		public bool CanSave => Entity.CanEdit;
+
+		public bool CanAddItem => Entity.CanEdit;
+
+		public bool CanFillItems => Entity.CanEdit && Entity.Warehouse != null;
+
+		public string FillItemsButtonTitle => Entity.Items.Count > 0
+			? "Обновить остатки"
+			: "Заполнить по складу";
+
+		public SelectableParametersReportFilter Filter { get => _filter; set => _filter = value; }
+
+		public IEnumerable<Nomenclature> NomenclaturesWithDiscrepancies
+		{
+			get => _nomenclaturesWithDiscrepancies;
+			set => _nomenclaturesWithDiscrepancies = value;
+		}
+
+		public INomenclatureJournalFactory NomenclatureJournalFactory => _nomenclatureJournalFactory;
+
+		#region Commands
+
+		public DelegateCommand PrintCommand { get; }
+		
+		public DelegateCommand FillDiscrepanciesCommand { get; }
+
+		public DelegateCommand FillItemsCommand { get; }
+
+		public DelegateCommand FillFactByAccountingCommand { get; }
+
+		public DelegateCommand AddItemCommand { get; }
+
+		public DelegateCommand AddOrEditFineCommand { get; }
+
+		public DelegateCommand DeleteFineCommand { get; }
+
+		public DelegateCommand ClearItemsCommand { get; }
+
+		public SelectableParameterReportFilterViewModel FilterViewModel { get; }
+
+		#endregion
+
+		public QueryOver<Warehouse> GetRestrictedWarehouseQuery()
+		{
+			return _storeDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissionsType.InventoryEdit);
+		}
 
 		private void SubscribeOnEntityChanges()
 		{
@@ -174,80 +293,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				iDoc => iDoc.CanEdit,
 				() => CanFillItems,
 				() => CanAddFine,
-				() => CanAddNomenclature,
+				() => CanAddItem,
 				() => CanDeleteFine,
 				() => CanSave);
-		}
-
-		public bool SortByNomenclatureTitle
-		{
-			get => _sortByNomenclatureTitle;
-			set
-			{
-				if(SetField(ref _sortByNomenclatureTitle, value))
-				{
-					SortDocumentItems();
-				}
-			}
-		}
-
-		public bool CanSave => Entity.CanEdit;
-
-		public bool CanAddNomenclature => Entity.CanEdit;
-
-		public bool CanFillItems => Entity.CanEdit && Entity.Warehouse != null;
-
-		public string FillItemsButtonTitle => Entity.Items.Count > 0
-			? "Обновить остатки"
-			: "Заполнить по складу";
-
-		public InventoryDocumentItem SelectedInventoryDocumentItem
-		{
-			get => _selectedInventoryDocumentItem;
-			set
-			{
-				if(SetField(ref _selectedInventoryDocumentItem, value))
-				{
-					OnPropertyChanged(nameof(CanAddFine));
-					OnPropertyChanged(nameof(CanDeleteFine));
-				}
-			}
-		}
-
-		public bool CanAddFine => Entity.CanEdit && SelectedInventoryDocumentItem != null;
-
-		public string AddFineButtonTitle =>
-			SelectedInventoryDocumentItem?.Fine != null
-			? "Изменить штраф"
-			: "Добавить штраф";
-
-		public bool CanDeleteFine => Entity.CanEdit
-			&& SelectedInventoryDocumentItem != null
-			&& SelectedInventoryDocumentItem.Fine != null;
-
-		public void DeleteFine()
-		{
-			UoW.Delete(SelectedInventoryDocumentItem.Fine);
-			SelectedInventoryDocumentItem.Fine = null;
-			OnPropertyChanged(nameof(CanAddFine));
-			OnPropertyChanged(nameof(CanDeleteFine));
-		}
-
-		public SelectableParameterReportFilterViewModel FilterViewModel { get; }
-
-		public IEnumerable<Nomenclature> NomenclaturesWithDiscrepancies
-		{
-			get => _nomenclaturesWithDiscrepancies;
-			set => _nomenclaturesWithDiscrepancies = value;
-		}
-
-		public SelectableParametersReportFilter Filter { get => _filter; set => _filter = value; }
-
-		public INomenclatureJournalFactory NomenclatureJournalFactory => _nomenclatureJournalFactory;
-
-		public QueryOver<Domain.Store.Warehouse> GetRestrictedWarehouseQuery()
-		{
-			return _storeDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissionsType.InventoryEdit);
 		}
 
 		private SelectableParameterReportFilterViewModel ConfigureFilter()
@@ -330,16 +378,41 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			return new SelectableParameterReportFilterViewModel(Filter);
 		}
 
-		public void FillDiscrepancies()
+		private void FillDiscrepancies()
 		{
-			if(Entity.Warehouse != null && Entity.Warehouse.Id > 0)
+			_nomenclaturesWithDiscrepancies = _warehouseRepository
+				.GetDiscrepancyNomenclatures(UoW, Entity.Warehouse.Id);
+		}
+
+		public bool CanFillDiscrepancies => Entity.Warehouse != null && Entity.Warehouse.Id > 0;
+
+		private void AddItem()
+		{
+			var nomenclatureSelector = NomenclatureJournalFactory.CreateNomenclatureSelector();
+			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
+			var nomenclatureJournalViewModel = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, IEntitySelector>(this, nomenclatureSelector).ViewModel;
+		}
+
+		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			if(e.SelectedNodes.Any())
 			{
-				_nomenclaturesWithDiscrepancies = _warehouseRepository
-					.GetDiscrepancyNomenclatures(UoW, Entity.Warehouse.Id);
+				foreach(var node in e.SelectedNodes)
+				{
+					if(Entity.Items.Any(x => x.Nomenclature.Id == node.Id))
+					{
+						continue;
+					}
+
+					var nomenclature = UoW.GetById<Nomenclature>(node.Id);
+					Entity.AddItem(nomenclature, 0, 0);
+				}
+
+				SortDocumentItems();
 			}
 		}
 
-		public void SortDocumentItems()
+		private void SortDocumentItems()
 		{
 			if(SortByNomenclatureTitle)
 			{
@@ -405,10 +478,15 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			_logger.Info("Сохраняем акт списания...");
 			UoWGeneric.Save();
 			_logger.Info("Ok.");
+
+			if(close)
+			{
+				Close(false, CloseSource.Save);
+			}
 			return true;
 		}
 
-		public void Print()
+		private void Print()
 		{
 			if(UoWGeneric.HasChanges
 				&& CommonServices.InteractiveService.Question(
@@ -431,43 +509,102 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			_reportViewOpener.OpenReport(TabParent, reportInfo);
 		}
 
-		public void FillItems(
-			int[] nomenclaturesToInclude,
-			int[] nomenclaturesToExclude,
-			string[] nomenclatureCategoryToInclude,
-			string[] nomenclatureCategoryToExclude,
-			int[] productGroupToInclude,
-			int[] productGroupToExclude)
+		private void FillItems()
 		{
+			// Костыль для передачи из фильтра предназначенного только для отчетов данных в подходящем виде
+			var nomenclaturesToInclude = new List<int>();
+			var nomenclaturesToExclude = new List<int>();
+			var nomenclatureCategoryToInclude = new List<string>();
+			var nomenclatureCategoryToExclude = new List<string>();
+			var productGroupToInclude = new List<int>();
+			var productGroupToExclude = new List<int>();
+
+			foreach(SelectableParameterSet parameterSet in Filter.ParameterSets)
+			{
+				switch(parameterSet.ParameterName)
+				{
+					case nameof(Nomenclature):
+						if(parameterSet.FilterType == SelectableFilterType.Include)
+						{
+							foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
+							{
+								nomenclaturesToInclude.Add(value.EntityId);
+							}
+						}
+						else
+						{
+							foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
+							{
+								nomenclaturesToExclude.Add(value.EntityId);
+							}
+						}
+						break;
+					case nameof(NomenclatureCategory):
+						if(parameterSet.FilterType == SelectableFilterType.Include)
+						{
+							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected))
+							{
+								nomenclatureCategoryToInclude.Add(value.Value.ToString());
+							}
+						}
+						else
+						{
+							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected))
+							{
+								nomenclatureCategoryToExclude.Add(value.Value.ToString());
+							}
+						}
+						break;
+					case nameof(ProductGroup):
+						if(parameterSet.FilterType == SelectableFilterType.Include)
+						{
+							foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
+							{
+								productGroupToInclude.Add(value.EntityId);
+							}
+						}
+						else
+						{
+							foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
+							{
+								productGroupToExclude.Add(value.EntityId);
+							}
+						}
+						break;
+				}
+			}
+
+			FillDiscrepancies();
+
 			if(Entity.Items.Count == 0)
 			{
 				Entity.FillItemsFromStock(
 					UoW,
 					_stockRepository,
-					nomenclaturesToInclude: nomenclaturesToInclude,
-					nomenclaturesToExclude: nomenclaturesToExclude,
-					nomenclatureTypeToInclude: nomenclatureCategoryToInclude,
-					nomenclatureTypeToExclude: nomenclatureCategoryToExclude,
-					productGroupToInclude: productGroupToInclude,
-					productGroupToExclude: productGroupToExclude);
+					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
+					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
+					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
+					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
+					productGroupToInclude: productGroupToInclude.ToArray(),
+					productGroupToExclude: productGroupToExclude.ToArray());
 			}
 			else
 			{
 				Entity.UpdateItemsFromStock(
 					UoW,
 					_stockRepository,
-					nomenclaturesToInclude: nomenclaturesToInclude,
-					nomenclaturesToExclude: nomenclaturesToExclude,
-					nomenclatureTypeToInclude: nomenclatureCategoryToInclude,
-					nomenclatureTypeToExclude: nomenclatureCategoryToExclude,
-					productGroupToInclude: productGroupToInclude,
-					productGroupToExclude: productGroupToExclude);
+					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
+					nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
+					nomenclatureTypeToInclude: nomenclatureCategoryToInclude.ToArray(),
+					nomenclatureTypeToExclude: nomenclatureCategoryToExclude.ToArray(),
+					productGroupToInclude: productGroupToInclude.ToArray(),
+					productGroupToExclude: productGroupToExclude.ToArray());
 			}
 
 			SortDocumentItems();
 		}
 
-		public void FillByAccounting()
+		private void FillFactByAccounting()
 		{
 			foreach(var inventoryDocumentItem in Entity.Items)
 			{
@@ -475,7 +612,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			}
 		}
 
-		public void AddOrEditFine()
+		private void AddOrEditFine()
 		{
 			EntityUoWBuilder entityUoWBuilder;
 			FineViewModel fineViewModel;
@@ -498,6 +635,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			}
 
 			fineViewModel.Entity.TotalMoney = SelectedInventoryDocumentItem.SumOfDamage;
+		}
+
+		private void DeleteFine()
+		{
+			UoW.Delete(SelectedInventoryDocumentItem.Fine);
+			SelectedInventoryDocumentItem.Fine = null;
+			OnPropertyChanged(nameof(CanAddFine));
+			OnPropertyChanged(nameof(CanDeleteFine));
 		}
 
 		private void NewFineSaved(object sender, EntitySavedEventArgs e)

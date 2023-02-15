@@ -1,16 +1,13 @@
 ﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Navigation;
-using QS.Project.Journal;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 
@@ -18,8 +15,6 @@ namespace Vodovoz.Views.Warehouse.Documents
 {
 	public partial class InventoryDocumentView : TabViewBase<InventoryDocumentViewModel>
 	{
-		private InventoryDocumentItem _fineEditItem;
-
 		public InventoryDocumentView(InventoryDocumentViewModel viewModel)
 			: base(viewModel)
 		{
@@ -93,7 +88,7 @@ namespace Vodovoz.Views.Warehouse.Documents
 			ybtnFillItems.Clicked += OnButtonFillItemsClicked;
 
 			ybtnAdd.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanAddNomenclature, w => w.Sensitive)
+				.AddBinding(vm => vm.CanAddItem, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybtnAdd.Clicked += OnButtonAddClicked;
@@ -157,7 +152,7 @@ namespace Vodovoz.Views.Warehouse.Documents
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			ViewModel.Print();
+			ViewModel.PrintCommand.Execute();
 		}
 
 		protected void OnYentryrefWarehouseBeforeChangeByUser(object sender, EntryReferenceBeforeChangeEventArgs e)
@@ -166,7 +161,7 @@ namespace Vodovoz.Views.Warehouse.Documents
 			{
 				if(ViewModel.AskQuestion("При изменении склада табличная часть документа будет очищена. Продолжить?"))
 				{
-					ViewModel.Entity.ClearItems();
+					ViewModel.ClearItemsCommand.Execute();
 				}
 				else
 				{
@@ -185,126 +180,29 @@ namespace Vodovoz.Views.Warehouse.Documents
 			return nomenclature.Name;
 		}
 
-		private void FillDiscrepancies()
-		{
-			ViewModel.FillDiscrepancies();
-		}
-
 		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
 		{
-			// Костыль для передачи из фильтра предназначенного только для отчетов данных в подходящем виде
-			var nomenclaturesToInclude = new List<int>();
-			var nomenclaturesToExclude = new List<int>();
-			var nomenclatureCategoryToInclude = new List<string>();
-			var nomenclatureCategoryToExclude = new List<string>();
-			var productGroupToInclude = new List<int>();
-			var productGroupToExclude = new List<int>();
-
-			foreach(SelectableParameterSet parameterSet in ViewModel.Filter.ParameterSets)
-			{
-				switch(parameterSet.ParameterName)
-				{
-					case nameof(Nomenclature):
-						if(parameterSet.FilterType == SelectableFilterType.Include)
-						{
-							foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
-							{
-								nomenclaturesToInclude.Add(value.EntityId);
-							}
-						}
-						else
-						{
-							foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
-							{
-								nomenclaturesToExclude.Add(value.EntityId);
-							}
-						}
-						break;
-					case nameof(NomenclatureCategory):
-						if(parameterSet.FilterType == SelectableFilterType.Include)
-						{
-							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected))
-							{
-								nomenclatureCategoryToInclude.Add(value.Value.ToString());
-							}
-						}
-						else
-						{
-							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected))
-							{
-								nomenclatureCategoryToExclude.Add(value.Value.ToString());
-							}
-						}
-						break;
-					case nameof(ProductGroup):
-						if(parameterSet.FilterType == SelectableFilterType.Include)
-						{
-							foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
-							{
-								productGroupToInclude.Add(value.EntityId);
-							}
-						}
-						else
-						{
-							foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
-							{
-								productGroupToExclude.Add(value.EntityId);
-							}
-						}
-						break;
-				}
-			}
-
-			FillDiscrepancies();
-
-			ViewModel.FillItems(
-				nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
-				nomenclaturesToExclude: nomenclaturesToExclude.ToArray(),
-				nomenclatureCategoryToInclude: nomenclatureCategoryToInclude.ToArray(),
-				nomenclatureCategoryToExclude: nomenclatureCategoryToExclude.ToArray(),
-				productGroupToInclude: productGroupToInclude.ToArray(),
-				productGroupToExclude: productGroupToExclude.ToArray());
+			ViewModel.FillItemsCommand.Execute();
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelector = ViewModel.NomenclatureJournalFactory.CreateNomenclatureSelector();
-			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
-			Tab.TabParent.AddSlaveTab(Tab, nomenclatureSelector);
-		}
-
-		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-		{
-			if(e.SelectedNodes.Any())
-			{
-				foreach(var node in e.SelectedNodes)
-				{
-					if(ViewModel.Entity.Items.Any(x => x.Nomenclature.Id == node.Id))
-					{
-						continue;
-					}
-
-					var nomenclature = ViewModel.UoW.GetById<Nomenclature>(node.Id);
-					ViewModel.Entity.AddItem(nomenclature, 0, 0);
-				}
-
-				ViewModel.SortDocumentItems();
-			}
+			ViewModel.AddItemCommand.Execute();
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)
 		{
-			ViewModel.AddOrEditFine();
+			ViewModel.AddOrEditFineCommand.Execute();
 		}
 
 		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
 		{
-			ViewModel.DeleteFine();
+			ViewModel.DeleteFineCommand.Execute();
 		}
 
 		protected void OnYbtnFillByAccountingClicked(object sender, EventArgs e)
 		{
-			ViewModel.FillByAccounting();
+			ViewModel.FillFactByAccountingCommand.Execute();
 		}
 
 		public override void Dispose()
