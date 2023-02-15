@@ -992,8 +992,6 @@
     <Compile Include="Representations\TraineeVM.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureCharacteristicsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView.cs" />
-    <Compile Include="Dialogs\Sale\DeliveryPriceRuleDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceRuleDlg.cs" />
     <Compile Include="ServiceDialogs\ImportPaymentsFromTinkoffDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ImportPaymentsFromTinkoffDlg.cs" />
     <Compile Include="ServiceDialogs\PaymentsFromTinkoffParser.cs" />
