@@ -200,14 +200,15 @@ namespace Vodovoz.Tools.Orders
 
 		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
 		{
-			bool result = 
-				(DisposableWater19LCount + Water19LCount) < rule.Water19LCount
-				&& DisposableWater6LCount < rule.Water6LCount
-				&& DisposableWater1500mlCount < rule.Water1500mlCount
-				&& DisposableWater600mlCount < rule.Water600mlCount
-				&& DisposableWater500mlCount < rule.Water500mlCount;
+			decimal totalWater19LCount = DisposableWater19LCount + Water19LCount;
+			bool deliveryIsFree = 
+				(totalWater19LCount > 0 && totalWater19LCount >= rule.Water19LCount)
+				|| (DisposableWater6LCount > 0 && DisposableWater6LCount >= rule.Water6LCount)
+				|| (DisposableWater1500mlCount > 0 && DisposableWater1500mlCount >= rule.Water1500mlCount)
+				|| (DisposableWater600mlCount > 0 && DisposableWater600mlCount >= rule.Water600mlCount)
+				|| (DisposableWater500mlCount > 0 && DisposableWater500mlCount >= rule.Water500mlCount);
 
-			return result;
+			return !deliveryIsFree;
 		}
 	}
 }
