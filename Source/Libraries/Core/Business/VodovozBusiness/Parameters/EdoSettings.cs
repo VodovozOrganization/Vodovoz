@@ -20,6 +20,7 @@ namespace Vodovoz.Parameters
 		public string TaxcomGetContactListUpdatesUri => _parametersProvider.GetStringValue("TaxcomGetContactListUpdatesUri");
 		public string TrueMarkApiBaseUrl => _parametersProvider.GetStringValue("TrueMarkApiBaseUrl");
 		public string TrueMarkApiParticipantRegistrationForWaterUri => _parametersProvider.GetStringValue("TrueMarkApiParticipantRegistrationForWaterUri");
+		public string TrueMarkApiParticipantsUri => _parametersProvider.GetStringValue("TrueMarkApiParticipantsUri");
 		public string TrueMarkApiToken => _parametersProvider.GetStringValue("TrueMarkApiToken"); 
 		public int EdoCheckPeriodDays => _parametersProvider.GetIntValue("EdoCheckPeriodDays");
 		public int TaxcomManualInvitationFileId => _parametersProvider.GetIntValue("TaxcomManualInvitationFileId");
