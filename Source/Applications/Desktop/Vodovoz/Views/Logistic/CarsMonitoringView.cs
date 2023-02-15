@@ -104,7 +104,7 @@ namespace Vodovoz.Views.Logistic
 
 			ylblCoveragePercent.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowDistrictsOverlay, w => w.Visible)
-				.AddBinding(vm => vm.CoveragePercent, w => w.Text)
+				.AddBinding(vm => vm.CoveragePercentString, w => w.Text)
 				.InitializeFromSource();
 
 			ylblCoveragePercentBefore.Binding.AddBinding(ViewModel, vm => vm.ShowDistrictsOverlay, w => w.Visible)

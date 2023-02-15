@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using GMap.NET;
 using GMap.NET.MapProviders;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Operation.Union;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 
@@ -79,6 +82,49 @@ namespace Vodovoz.Tools.Logistic
 			var endLonRads = startLonRad + Math.Atan2(Math.Sin(initialRadians) * distRatioSine * startLatCos, distRatioCosine - startLatSin * Math.Sin(endLatRads));
 
 			return new Coordinate(multiplierRad2Deg * endLatRads, multiplierRad2Deg * endLonRads);
+		}
+
+		public static double CalculateCoveragePercent(ICollection<Geometry> districtsBorders, ICollection<Coordinate> driversCoordinates, double fastDeliveryRadius)
+		{
+			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
+
+			if(districtsBorders.Any())
+			{
+				Geometry allDistricts = CascadedPolygonUnion.Union(districtsBorders);
+
+				var totalDistrictsArea = allDistricts.Area;
+
+				Geometry allRadiuces =
+					CascadedPolygonUnion.Union(
+						driversCoordinates.Select(x => CreateCircle(x, fastDeliveryRadius))
+					.ToList());
+
+				var difference = allDistricts.Difference(allRadiuces).Area;
+
+				return totalDistrictsArea != 0 ? (totalDistrictsArea - difference) / totalDistrictsArea : 0;
+
+			}
+			return 0;
+		}
+
+		private Geometry CreateCircle(Coordinate center, double radius)
+		{
+			var twoPi = 2 * Math.PI;
+
+			var segmentsPointsCount = 36;
+
+			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
+
+			var perimetralRingPoints = new List<Coordinate>();
+
+			for(double radian = 0; radian < twoPi; radian += twoPi / segmentsPointsCount)
+			{
+				perimetralRingPoints.Add(FindPointByDistanceAndRadians(center, radian, radius));
+			}
+
+			Polygon polyCircle = geometryFactory.CreatePolygon(perimetralRingPoints.ToArray());
+
+			return polyCircle;
 		}
 
 		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)

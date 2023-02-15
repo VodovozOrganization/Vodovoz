@@ -1,10 +1,12 @@
 ﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Operation.Union;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Utilities.Text;
@@ -141,7 +143,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			RefreshFastDeliveryMaxKmValueCommand?.Execute();
 			SelectedWorkingDrivers.CollectionChanged += SelectedWorkingDriversCollectionChanged;
+			LastDriverPositions.CollectionChanged += LastDriverPositionsCollectionChanged;
+			FastDeliveryDistricts.CollectionChanged += FastDeliveryDistrictsCollectionChanged;
 		}
+
+		private void LastDriverPositionsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			OnPropertyChanged(nameof(CoveragePercent));
+		}
+
+		private void FastDeliveryDistrictsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			OnPropertyChanged(nameof(CoveragePercent));
+		}
+
 		#region Full properties
 
 		public bool ShowDistrictsOverlay
@@ -272,6 +287,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CoveragePercent))]
 		public double FastDeliveryMaxDistance
 		{
 			get => _fastDeliveryMaxDistance;
@@ -308,7 +324,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public Color[] AvailableTrackColors => _availableTrackColors;
 
-		public string CoveragePercent => $"{CalculateCoveragePercent():P}";
+		public string CoveragePercentString => $"{CoveragePercent:P}";
+
+		[PropertyChangedAlso(nameof(CoveragePercentString))]
+		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
+			FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
+			LastDriverPositions.Select(pos => pos.ToCoordinate()).ToList(),
+			FastDeliveryMaxDistance);
+
 		#endregion
 
 		#region Observable Collections
@@ -560,7 +583,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				FastDeliveryDistricts.Add(district);
 			}
-			OnPropertyChanged(nameof(CoveragePercent));
+			OnPropertyChanged(nameof(CoveragePercentString));
 		}
 
 		public void RefreshFastDeliveryMaxKmValue()
@@ -599,65 +622,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		#endregion
 
-		private double CalculateCoveragePercent()
-		{
-			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
-
-			IEnumerable<Geometry> districtsBorders = FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder);
-
-			if(districtsBorders.Any())
-			{
-				Geometry allDistricts = districtsBorders.First();
-
-				foreach(var distr in districtsBorders.Skip(1))
-				{
-					allDistricts = allDistricts.Union(distr);
-				}
-
-				var totalDistrictsArea = allDistricts.Area;
-
-				var polyCircles = new List<Polygon>();
-
-				Geometry allRadiuces = geometryFactory.CreatePolygon();
-
-				foreach(var position in LastDriverPositions)
-				{
-					polyCircles.Add(CreateCircle(position.ToCoordinate(), FastDeliveryMaxDistance));
-				}
-
-				foreach(var circle in polyCircles)
-				{
-					allRadiuces = allRadiuces.Union(circle);
-				}
-
-				var difference = allDistricts.Difference(allRadiuces).Area;
-
-				return totalDistrictsArea != 0 ? (totalDistrictsArea - difference) / totalDistrictsArea : 0;
-
-			}
-			return 0;
-		}
-
-		private Polygon CreateCircle(Coordinate center, double radius)
-		{
-			var twoPi = 2 * Math.PI;
-
-			var segmentsPointsCount = 36;
-
-			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
-
-			var perimetralRingPoints = new List<Coordinate>();
-
-			for(double radian = 0; radian < twoPi; radian += twoPi / segmentsPointsCount)
-			{
-				perimetralRingPoints.Add(DistanceCalculator.FindPointByDistanceAndRadians(center, radian, radius));
-			}
-
-			Polygon polyCircle = geometryFactory.CreatePolygon(perimetralRingPoints.ToArray());
-
-			return polyCircle;
-		}
-
 		public int[] GetDriversWithAdditionalLoadingFrom(int[] ids)
 		{
 			return _routeListRepository.GetDriversWithAdditionalLoading(_unitOfWork, ids)
@@ -689,13 +653,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Nomenclature nomenclatureAlias = null;
 
 			var result = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
-							.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
-							.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
-							.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-							.Where(() => !orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
-							.And(() => nomenclatureAlias.Category == NomenclatureCategory.water
-								&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-							.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id);
+				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => !orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water
+					&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id);
 
 			if(ShowHistory)
 			{

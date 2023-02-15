@@ -217,7 +217,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 				var activeDistrictsAtDateTime = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDeliveryAtDateTime(UoW, date).Select(d => d.DistrictBorder);
 
-				var percentCoverage = CalculateCoveragePercent(activeDistrictsAtDateTime, lastDriversCoordinates, serviceRadiusAtDateTime);
+				var percentCoverage = DistanceCalculator.CalculateCoveragePercent(
+					activeDistrictsAtDateTime.ToList(),
+					lastDriversCoordinates.Select(coordinate => coordinate.ToCoordinate()).ToList(),
+					serviceRadiusAtDateTime);
 
 				rawRows.Add(new ValueRow(date, carsCount, serviceRadiusAtDateTime, percentCoverage));
 			}
@@ -242,65 +245,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			dayGroupings.Add(new DayGrouping(groupingDate, currentDayGroupRows));
 
 			return await Task.FromResult(new TotalsRow(dayGroupings));
-		}
-
-		private double CalculateCoveragePercent(IEnumerable<Geometry> districtsBorders, IList<DriverPosition> lastDriversCoordinates, double serviceRadiusAtDateTime)
-		{
-			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
-
-			if(districtsBorders.Any())
-			{
-				Geometry allDistricts = districtsBorders.First();
-
-				foreach(var distr in districtsBorders.Skip(1))
-				{
-					allDistricts = allDistricts.Union(distr);
-				}
-
-				var totalDistrictsArea = allDistricts.Area;
-
-				var polyCircles = new List<Polygon>();
-
-				Geometry allRadiuces = geometryFactory.CreatePolygon();
-
-				foreach(var position in lastDriversCoordinates)
-				{
-					polyCircles.Add(CreateCircle(position.ToCoordinate(), serviceRadiusAtDateTime));
-				}
-
-				foreach(var circle in polyCircles)
-				{
-					allRadiuces = allRadiuces.Union(circle);
-				}
-
-				var difference = allDistricts.Difference(allRadiuces).Area;
-
-				return totalDistrictsArea != 0 ? (totalDistrictsArea - difference) / totalDistrictsArea : 0;
-
-			}
-			return 0;
-		}
-
-		private Polygon CreateCircle(Coordinate center, double radius)
-		{
-			var twoPi = 2 * Math.PI;
-
-			var segmentsPointsCount = 36;
-
-			var geometryFactory = GeometryFactory.Default;
-
-			var perimetralRingPoints = new List<Coordinate>();
-
-			for(double radian = 0; radian < twoPi; radian += twoPi / segmentsPointsCount)
-			{
-				perimetralRingPoints.Add(DistanceCalculator.FindPointByDistanceAndRadians(center, radian, radius));
-			}
-
-			perimetralRingPoints.Add(DistanceCalculator.FindPointByDistanceAndRadians(center, 0, radius));
-
-			Polygon polyCircle = geometryFactory.CreatePolygon(perimetralRingPoints.ToArray());
-
-			return polyCircle;
 		}
 
 		private static IList<DateTime> GenerateDateTimes(DateTime startDate, DateTime endDate, TimeSpan startHour, TimeSpan endHour)
