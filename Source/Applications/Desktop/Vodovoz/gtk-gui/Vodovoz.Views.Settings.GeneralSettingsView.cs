@@ -46,6 +46,20 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gtk.Label frameRoboatsLabel;
 
+		private global::Gtk.Frame frameOrderAutoComment;
+
+		private global::Gtk.Alignment GtkAlignment2;
+
+		private global::Gamma.GtkWidgets.yHBox hboxOrderAutoComment;
+
+		private global::Gamma.GtkWidgets.yButton btnSaveOrderAutoComment;
+
+		private global::Gamma.GtkWidgets.yEntry entryOrderAutoComment;
+
+		private global::Gamma.GtkWidgets.yButton btnOrderAutoCommentInfo;
+
+		private global::Gtk.Label frameOrderAutoCommentLabel;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -208,11 +222,72 @@ namespace Vodovoz.Views.Settings
 			w17.Position = 1;
 			w17.Expand = false;
 			w17.Fill = false;
-			this.hboxMain.Add(this.vboxMain);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxMain]));
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.frameOrderAutoComment = new global::Gtk.Frame();
+			this.frameOrderAutoComment.Name = "frameOrderAutoComment";
+			this.frameOrderAutoComment.BorderWidth = ((uint)(1));
+			// Container child frameOrderAutoComment.Gtk.Container+ContainerChild
+			this.GtkAlignment2 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment2.Name = "GtkAlignment2";
+			this.GtkAlignment2.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment2.Gtk.Container+ContainerChild
+			this.hboxOrderAutoComment = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxOrderAutoComment.WidthRequest = 0;
+			this.hboxOrderAutoComment.HeightRequest = 0;
+			this.hboxOrderAutoComment.Name = "hboxOrderAutoComment";
+			this.hboxOrderAutoComment.Spacing = 6;
+			// Container child hboxOrderAutoComment.Gtk.Box+BoxChild
+			this.btnSaveOrderAutoComment = new global::Gamma.GtkWidgets.yButton();
+			this.btnSaveOrderAutoComment.CanFocus = true;
+			this.btnSaveOrderAutoComment.Name = "btnSaveOrderAutoComment";
+			this.btnSaveOrderAutoComment.UseUnderline = true;
+			this.btnSaveOrderAutoComment.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.hboxOrderAutoComment.Add(this.btnSaveOrderAutoComment);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAutoComment[this.btnSaveOrderAutoComment]));
 			w18.Position = 0;
 			w18.Expand = false;
 			w18.Fill = false;
+			// Container child hboxOrderAutoComment.Gtk.Box+BoxChild
+			this.entryOrderAutoComment = new global::Gamma.GtkWidgets.yEntry();
+			this.entryOrderAutoComment.CanFocus = true;
+			this.entryOrderAutoComment.Name = "entryOrderAutoComment";
+			this.entryOrderAutoComment.IsEditable = true;
+			this.entryOrderAutoComment.InvisibleChar = '•';
+			this.hboxOrderAutoComment.Add(this.entryOrderAutoComment);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAutoComment[this.entryOrderAutoComment]));
+			w19.Position = 1;
+			// Container child hboxOrderAutoComment.Gtk.Box+BoxChild
+			this.btnOrderAutoCommentInfo = new global::Gamma.GtkWidgets.yButton();
+			this.btnOrderAutoCommentInfo.TooltipMarkup = "Справка по работе с отчётом";
+			this.btnOrderAutoCommentInfo.CanFocus = true;
+			this.btnOrderAutoCommentInfo.Name = "btnOrderAutoCommentInfo";
+			this.btnOrderAutoCommentInfo.UseUnderline = true;
+			this.btnOrderAutoCommentInfo.Relief = ((global::Gtk.ReliefStyle)(1));
+			global::Gtk.Image w20 = new global::Gtk.Image();
+			w20.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.btnOrderAutoCommentInfo.Image = w20;
+			this.hboxOrderAutoComment.Add(this.btnOrderAutoCommentInfo);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAutoComment[this.btnOrderAutoCommentInfo]));
+			w21.Position = 2;
+			w21.Expand = false;
+			w21.Fill = false;
+			this.GtkAlignment2.Add(this.hboxOrderAutoComment);
+			this.frameOrderAutoComment.Add(this.GtkAlignment2);
+			this.frameOrderAutoCommentLabel = new global::Gtk.Label();
+			this.frameOrderAutoCommentLabel.Name = "frameOrderAutoCommentLabel";
+			this.frameOrderAutoCommentLabel.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка автокомментария заказа</b>");
+			this.frameOrderAutoCommentLabel.UseMarkup = true;
+			this.frameOrderAutoComment.LabelWidget = this.frameOrderAutoCommentLabel;
+			this.vboxMain.Add(this.frameOrderAutoComment);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameOrderAutoComment]));
+			w24.Position = 2;
+			w24.Expand = false;
+			w24.Fill = false;
+			this.hboxMain.Add(this.vboxMain);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxMain]));
+			w25.Position = 0;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{

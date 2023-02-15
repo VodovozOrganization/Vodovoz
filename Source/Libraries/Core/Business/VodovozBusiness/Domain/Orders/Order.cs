@@ -72,6 +72,9 @@ namespace Vodovoz.Domain.Orders
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
+
 		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
 			new OrderItemComparerForCopyingFromUndelivery();
 		private readonly double _futureDeliveryDaysLimit = 30;
@@ -3759,6 +3762,17 @@ namespace Vodovoz.Domain.Orders
 			orderDailyNumberController.UpdateDailyNumber(this);
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
 			paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, this);
+
+			var hasPromotionalSetForNewClient = PromotionalSets.Any(x => !x.CanBeReorderedWithoutRestriction);
+
+			if(hasPromotionalSetForNewClient
+			   && ContactlessDelivery
+			   && !SelfDelivery
+			   && !Comment.Contains(_generalSettingsParameters.OrderAutoComment))
+			{
+				Comment = $"{_generalSettingsParameters.OrderAutoComment}{Environment.NewLine}{Comment}";
+			}
+
 			uow.Save();
 		}
 
@@ -4238,6 +4252,32 @@ namespace Vodovoz.Domain.Orders
 			if(includeEquipment)
 				volume += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Volume * x.Count);
+			return volume;
+		}
+
+		/// <summary>
+		/// Расчёт объёма ВОЗВРАЩАЕМОГО оборудования (из тары включается только 19-литровая), имеющие наравление от клиента для этого заказа
+		/// </summary>
+		/// <param name="includeBottlesReturn">Если <c>true</c>, то в расчёт объема будут включены возвращаемые бутыли, количество которых указано в свойстве BottlesReturn.</param>
+		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт объема будет включено оборудование, имеющее направление "От клиента"</param>
+		/// <param name="one19LitersBottleVolume">Расчетное значение объема одного 19-литрового бутыля</param>
+		/// <returns>Объём</returns>
+		public virtual decimal FullReverseVolume(bool includeBottlesReturn = true, bool includeEquipment = true, decimal one19LitersBottleVolume = 0.03645m)
+		{
+			decimal volume = 0;
+			if (includeBottlesReturn)
+			{
+				volume += (BottlesReturn ?? 0) * one19LitersBottleVolume;
+			}
+			if (includeEquipment)
+			{
+				volume += OrderEquipments
+					.Where(
+						x => x.Direction == Direction.PickUp
+						&& (x.Nomenclature.Category == NomenclatureCategory.equipment
+							|| (x.Nomenclature.Category == NomenclatureCategory.bottle && x.Nomenclature.TareVolume == TareVolume.Vol19L)))
+					.Sum(x => x.Nomenclature.Volume * x.Count);
+			}
 			return volume;
 		}
 
