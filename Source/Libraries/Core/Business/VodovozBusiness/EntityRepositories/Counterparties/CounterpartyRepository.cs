@@ -67,6 +67,46 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(c => c.INN == inn).List<Counterparty>();
 		}
 
+		public IList<Counterparty> GetNotArchivedCounterpartiesByPhoneNumber(IUnitOfWork uow, string phoneNumber)
+		{
+			var counterpartiesWithDesiredPhoneNumber = new List<Counterparty>();
+
+			if(string.IsNullOrWhiteSpace(phoneNumber))
+			{
+				return counterpartiesWithDesiredPhoneNumber;
+			}
+
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+
+			var phoneEntitiesWithDesiredPhoneNumber = uow.Session.QueryOver<Phone>()
+				.Where(p => p.Number == phoneNumber)
+				.List<Phone>();
+
+			counterpartiesWithDesiredPhoneNumber.AddRange(
+				phoneEntitiesWithDesiredPhoneNumber
+				.Where(p => !p.IsArchive && p.Counterparty != null && !p.Counterparty.IsArchive)
+				.Select(p => p.Counterparty));
+
+			var deliveryPointIdsWithDesiredPhoneNumber = phoneEntitiesWithDesiredPhoneNumber
+				.Where(p => !p.IsArchive && p.DeliveryPoint != null)
+				.Select(p => p.DeliveryPoint?.Id)
+				.ToList();
+
+			var counterapartiesWithDesiredPhoneNumberFoundByDeliveryPoint =
+				uow.Session.QueryOver(() => deliveryPointAlias)
+				.Where(() => deliveryPointAlias.IsActive)
+				.Where(Restrictions.In(Projections.Property(() => deliveryPointAlias.Id), deliveryPointIdsWithDesiredPhoneNumber))
+				.JoinAlias(d => d.Counterparty, () => counterpartyAlias)
+				.Where(() => !counterpartyAlias.IsArchive)
+				.Select(Projections.Distinct(Projections.Property<DeliveryPoint>(d => d.Counterparty)))
+				.List<Counterparty>();
+
+			counterpartiesWithDesiredPhoneNumber.AddRange(counterapartiesWithDesiredPhoneNumberFoundByDeliveryPoint);
+
+			return counterpartiesWithDesiredPhoneNumber.Distinct().ToList();
+		}
+
 		public Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber)
 		{
 			if(string.IsNullOrWhiteSpace(accountNumber))
