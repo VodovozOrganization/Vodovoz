@@ -1008,7 +1008,7 @@ namespace Vodovoz.Domain.Logistic
 
 			#endregion
 
-			#region Товары от клиента
+			#region Недовeзённое кол-во
 
 			foreach(var address in Addresses) {
 				foreach(var orderItem in address.Order.OrderItems) {
@@ -1019,7 +1019,8 @@ namespace Vodovoz.Domain.Logistic
 					}
 					Discrepancy discrepancy = null;
 
-					if(address.TransferedTo == null || address.TransferedTo.AddressTransferType == AddressTransferType.NeedToReload)
+					if(address.TransferedTo == null
+						   || new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }.Contains(address.TransferedTo.AddressTransferType.Value))
 					{
 						discrepancy = new Discrepancy
 						{
@@ -1065,7 +1066,7 @@ namespace Vodovoz.Domain.Logistic
 						}
 						AddDiscrepancy(result, discrepancy);
 					}
-					else if (address.TransferedTo.AddressTransferType == AddressTransferType.NeedToReload)
+					else if (new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }.Contains(address.TransferedTo.AddressTransferType.Value))
 					{
 						if (orderEquipment.Direction == Direction.Deliver)
 						{// не обрабатываем pickup, т.к. водитель физически не был на адресе, чтобы забрать оборудование

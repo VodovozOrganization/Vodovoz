@@ -306,9 +306,6 @@ namespace Vodovoz
 
 			if(OrmMain.DeleteObject (Document.GetDocClass(item.DocTypeEnum), item.Id))
 				tableDocuments.RepresentationModel.UpdateNodes ();
-
-			uow.Commit();
-
 		}
 
 		protected void OnButtonFilterToggled (object sender, EventArgs e)

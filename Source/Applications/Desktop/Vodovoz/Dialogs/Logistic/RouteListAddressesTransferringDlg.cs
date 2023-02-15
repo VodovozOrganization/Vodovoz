@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -14,7 +13,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -41,9 +39,10 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
-using GC = System.GC;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -140,10 +139,10 @@ namespace Vodovoz
 			switch(param)
 			{
 				case OpenParameter.Sender:
-					yentryreferenceRLFrom.Subject = rl;
+					evmeRouteListFrom.Subject = rl;
 					break;
 				case OpenParameter.Receiver:
-					yentryreferenceRLTo.Subject = rl;
+					evmeRouteListTo.Subject = rl;
 					break;
 			}
 		}
@@ -162,45 +161,37 @@ namespace Vodovoz
 
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
 			
-			var filterFrom = new RouteListsFilter(UoW);
-			filterFrom.SetAndRefilterAtOnce(
-				f => f.OnlyStatuses = new[] {
-					RouteListStatus.EnRoute,
-					RouteListStatus.OnClosing
-				},
-				f => f.SetFilterDates(
-					DateTime.Today.AddDays(-3),
-					DateTime.Today.AddDays(1)
-				)
-			);
 
-			var vmFrom = new RouteListsVM(filterFrom);
-			GC.KeepAlive(vmFrom);
-			yentryreferenceRLFrom.RepresentationModel = vmFrom;
-			yentryreferenceRLFrom.JournalButtons = QS.Project.Dialogs.GtkUI.Buttons.Edit;
-			yentryreferenceRLFrom.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			IRouteListJournalFactory routeListJournalFactory = new RouteListJournalFactory();
+			var scope = MainClass.AppDIContainer.BeginLifetimeScope();
 
-			var filterTo = new RouteListsFilter(UoW);
-			filterTo.SetAndRefilterAtOnce(
-				f => f.OnlyStatuses = new[] {
+			var routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
+			{
+				DisplayableStatuses = new[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing },
+				StartDate = DateTime.Today.AddDays(-3),
+				EndDate = DateTime.Today.AddDays(1)
+			};
+
+			evmeRouteListFrom.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
+				.CreateRouteListJournalAutocompleteSelectorFactory(scope, routeListJournalFilterViewModelFrom));
+
+			var routeListJournalFilterViewModelTo = new RouteListJournalFilterViewModel()
+			{
+				DisplayableStatuses = new[] {
 					RouteListStatus.New,
 					RouteListStatus.InLoading,
 					RouteListStatus.EnRoute,
 					RouteListStatus.OnClosing
 				},
-				f => f.SetFilterDates(
-					DateTime.Today.AddDays(-3),
-					DateTime.Today.AddDays(1)
-				)
-			);
+				StartDate = DateTime.Today.AddDays(-3),
+				EndDate = DateTime.Today.AddDays(1)
+			};
 
-			var vmTo = new RouteListsVM(filterTo);
-			yentryreferenceRLTo.RepresentationModel = vmTo;
-			yentryreferenceRLTo.JournalButtons = QS.Project.Dialogs.GtkUI.Buttons.Edit;
-			yentryreferenceRLTo.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+			evmeRouteListTo.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
+				.CreateRouteListJournalAutocompleteSelectorFactory(scope, routeListJournalFilterViewModelTo));
 
-			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
-			yentryreferenceRLTo.Changed += YentryreferenceRLTo_Changed;
+			evmeRouteListFrom.Changed += YentryreferenceRLFrom_Changed;
+			evmeRouteListTo.Changed += YentryreferenceRLTo_Changed;
 
 			//Для каждой TreeView нужен свой экземпляр ColumnsConfig
 			ytreeviewRLFrom.ColumnsConfig = GetColumnsConfig(false);
@@ -268,7 +259,7 @@ namespace Vodovoz
 					.AddToggleRenderer(x => x.IsNeedToReload).Radio()
 					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
 					.AddTextRenderer(x => x.Status != RouteListItemStatus.Transfered ? "Дозагрузка\nна складе" : "")
-					.AddToggleRenderer(x => x.IsFromDriverToDriver).Radio()
+					.AddToggleRenderer(x => x.IsFromDriverToDriverTransfer).Radio()
 					.AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
 					.AddTextRenderer(x => x.Status != RouteListItemStatus.Transfered ? "От водителя\nк водителю" : "")
 					.AddToggleRenderer(x => x.IsFromFreeBalance).Radio()
@@ -302,18 +293,18 @@ namespace Vodovoz
 
 		void YentryreferenceRLFrom_Changed(object sender, EventArgs e)
 		{
-			if(yentryreferenceRLFrom.Subject == null)
+			if(evmeRouteListFrom.Subject == null)
 			{
 				ytreeviewRLFrom.ItemsDataSource = null;
 				return;
 			}
 
-			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
-			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
+			RouteList routeListFrom = evmeRouteListFrom.Subject as RouteList;
+			RouteList routeListTo = evmeRouteListTo.Subject as RouteList;
 
 			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo))
 			{
-				yentryreferenceRLFrom.Subject = null;
+				evmeRouteListFrom.Subject = null;
 				MessageDialogHelper.RunErrorDialog( "Вы не можете забирать адреса из того же МЛ, в который собираетесь передавать.");
 				return;
 			}
@@ -327,7 +318,7 @@ namespace Vodovoz
 					if(tab != null)
 					{
 						MessageDialogHelper.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
-						yentryreferenceRLFrom.Subject = null;
+						evmeRouteListFrom.Subject = null;
 						return;
 					}
 				}
@@ -352,18 +343,18 @@ namespace Vodovoz
 
 		void YentryreferenceRLTo_Changed(object sender, EventArgs e)
 		{
-			if(yentryreferenceRLTo.Subject == null)
+			if(evmeRouteListTo.Subject == null)
 			{
 				ytreeviewRLTo.ItemsDataSource = null;
 				return;
 			}
 
-			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
-			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+			RouteList routeListTo = evmeRouteListTo.Subject as RouteList;
+			RouteList routeListFrom = evmeRouteListFrom.Subject as RouteList;
 
 			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo))
 			{
-				yentryreferenceRLTo.Subject = null;
+				evmeRouteListTo.Subject = null;
 				MessageDialogHelper.RunErrorDialog("Вы не можете передавать адреса в тот же МЛ, из которого забираете.");
 				return;
 			}
@@ -376,7 +367,7 @@ namespace Vodovoz
 					if(tab != null)
 					{
 						MessageDialogHelper.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
-						yentryreferenceRLTo.Subject = null;
+						evmeRouteListTo.Subject = null;
 						return;
 					}
 				}
@@ -421,8 +412,8 @@ namespace Vodovoz
 		protected void OnButtonTransferClicked(object sender, EventArgs e)
 		{
 			//Дополнительные проверки
-			var routeListTo = yentryreferenceRLTo.Subject as RouteList;
-			var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+			var routeListTo = evmeRouteListTo.Subject as RouteList;
+			var routeListFrom = evmeRouteListFrom.Subject as RouteList;
 			var messages = new List<string>();
 
 			if(routeListTo == null || routeListFrom == null || routeListTo.Id == routeListFrom.Id)
@@ -444,7 +435,7 @@ namespace Vodovoz
 					continue;
 				}
 
-				if(!row.IsNeedToReload && !row.IsFromDriverToDriver && !row.IsFromFreeBalance)
+				if(!row.IsNeedToReload && !row.IsFromDriverToDriverTransfer && !row.IsFromFreeBalance)
 				{
 					transferTypeNotSet.Add(row);
 					continue;
@@ -487,7 +478,7 @@ namespace Vodovoz
 						WasTransfered = true,
 						AddressTransferType = row.IsNeedToReload
 							? AddressTransferType.NeedToReload
-							: row.IsFromDriverToDriver
+							: row.IsFromDriverToDriverTransfer
 								? AddressTransferType.FromDriverToDriver 
 								: AddressTransferType.FromFreeBalance,
 						WithForwarder = routeListTo.Forwarder != null
@@ -564,7 +555,7 @@ namespace Vodovoz
 
 		private void CheckSensitivities()
 		{
-			bool routeListToIsSelected = yentryreferenceRLTo.Subject != null;
+			bool routeListToIsSelected = evmeRouteListTo.Subject != null;
 			bool existToTransfer = ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>().Any(x => x.Status != RouteListItemStatus.Transfered);
 
 			buttonTransfer.Sensitive = existToTransfer && routeListToIsSelected;
@@ -589,7 +580,7 @@ namespace Vodovoz
 				}
 
 				RouteListItem pastPlace = 
-					(yentryreferenceRLFrom.Subject as RouteList)
+					(evmeRouteListFrom.Subject as RouteList)
 						?.Addresses
 						?.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id)
 					?? _routeListItemRepository.GetTransferedFrom(UoW, address);
@@ -598,7 +589,7 @@ namespace Vodovoz
 
 				if(pastPlace != null)
 				{
-					if(address.Order.IsFastDelivery || address.AddressTransferType != AddressTransferType.NeedToReload)
+					if(new[] { AddressTransferType.FromFreeBalance, AddressTransferType.FromDriverToDriver }.Contains(address.AddressTransferType.Value))
 					{
 						var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(UoW, address.Order, pastPlace.RouteList);
 
@@ -665,8 +656,8 @@ namespace Vodovoz
 						return;
 					}
 
-					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
-					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+					var routeListFrom = evmeRouteListFrom.Subject as RouteList;
+					var routeListTo = evmeRouteListTo.Subject as RouteList;
 
 					var giveoutDocFrom = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListFrom?.Driver);
 					if(giveoutDocFrom is DriverAttachedTerminalGiveoutDocument)
@@ -724,7 +715,7 @@ namespace Vodovoz
 					FillObservableDriverBalance(ObservableDriverBalanceTo, routeListTo);
 				}
 			},
-			() => yentryreferenceRLFrom.Subject != null && yentryreferenceRLTo.Subject != null
+			() => evmeRouteListFrom.Subject != null && evmeRouteListTo.Subject != null
 		));
 		
 		private DelegateCommand _revertTerminal = null;
@@ -745,7 +736,7 @@ namespace Vodovoz
 						return;
 					}
 
-					var routeListFrom = yentryreferenceRLTo.Subject as RouteList;
+					var routeListFrom = evmeRouteListTo.Subject as RouteList;
 
 					var giveoutDocTo = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, routeListFrom?.Driver);
 					if(giveoutDocTo is DriverAttachedTerminalGiveoutDocument)
@@ -765,7 +756,7 @@ namespace Vodovoz
 						OperationTime = DateTime.Now
 					};
 
-					var routeListTo = yentryreferenceRLFrom.Subject as RouteList;
+					var routeListTo = evmeRouteListFrom.Subject as RouteList;
 					
 					var operationTo = new EmployeeNomenclatureMovementOperation {
 						Employee = routeListTo.Driver,
@@ -795,7 +786,7 @@ namespace Vodovoz
 					FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListTo);
 				}
 			},
-			() => yentryreferenceRLFrom.Subject != null && yentryreferenceRLTo.Subject != null
+			() => evmeRouteListFrom.Subject != null && evmeRouteListTo.Subject != null
 		));
 
 
@@ -803,7 +794,7 @@ namespace Vodovoz
 		public DelegateCommand AddOrderCommand => _addOrderCommand ?? (_addOrderCommand = new DelegateCommand(
 			() =>
 			{
-				var routeList = yentryreferenceRLTo.Subject as RouteList;
+				var routeList = evmeRouteListTo.Subject as RouteList;
 				if(routeList == null)
 				{
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Выберите МЛ");
@@ -855,7 +846,7 @@ namespace Vodovoz
 
 		private void OnOrderSelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
-			var routeList = yentryreferenceRLTo.Subject as RouteList;
+			var routeList = evmeRouteListTo.Subject as RouteList;
 
 			List<int> notEnoughLeftovers = new List<int>();
 
@@ -931,7 +922,7 @@ namespace Vodovoz
 			}
 		}
 		
-		public bool IsFromDriverToDriver
+		public bool IsFromDriverToDriverTransfer
 		{
 			get => RouteListItem.AddressTransferType == AddressTransferType.FromDriverToDriver;
 			set

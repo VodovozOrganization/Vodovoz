@@ -247,7 +247,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || (r.WasTransfered && r.AddressTransferType == AddressTransferType.NeedToReload))
+				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -275,7 +275,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || (r.WasTransfered && r.AddressTransferType == AddressTransferType.NeedToReload))
+				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -332,7 +332,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || (r.WasTransfered && r.AddressTransferType == AddressTransferType.NeedToReload))
+				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -366,7 +366,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || (r.WasTransfered && r.AddressTransferType == AddressTransferType.NeedToReload))
+				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
