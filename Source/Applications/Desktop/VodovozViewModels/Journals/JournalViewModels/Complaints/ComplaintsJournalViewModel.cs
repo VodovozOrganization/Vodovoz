@@ -965,6 +965,14 @@ namespace Vodovoz.Journals.JournalViewModels
 						return;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
+
+					if(selectedNode.EntityType == typeof(Complaint))
+					{
+						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+						HideJournal(TabParent);
+						return;
+					}
+
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
 					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
