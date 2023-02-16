@@ -7,10 +7,5 @@
 		int Water1500mlCount { get; set; }
 		int Water600mlCount { get; set; }
 		int Water500mlCount { get; set; }
-
-		//int EqualsCount6LFor19L { get; }
-		//int EqualsCount1500mlFor19L { get; }
-		//int EqualsCount600mlFor19L { get; }
-		//int EqualsCount500mlFor19L { get; }
 	}
 }
