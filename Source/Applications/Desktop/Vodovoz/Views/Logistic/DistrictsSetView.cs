@@ -168,17 +168,7 @@ namespace Vodovoz.Views.Logistic
 			ytextComment.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			
 			btnAddCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanEditDeliveryRules, w => w.Sensitive).InitializeFromSource();
-
 			btnAddCommonRule.Clicked += (sender, args) => ViewModel.AddCommonDeliveryPriceRuleCommand.Execute();
-
-			//btnAddCommonRule.Clicked += (sender, args) =>
-			//{
-			//	var selectRules = ViewModel.TabParent.OpenTab<DeliveryPriceRuleJournalViewModel>(null);
-			//var selectRules = ViewModel.NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(null).ViewModel;
-			//	//selectRules.SelectionMode = JournalSelectionMode.Single;
-			//	//selectRules.OnSelectResult += (o, e) => ViewModel.AddCommonDistrictRuleItemCommand.Execute(e.GetSelectedObjects<DeliveryPriceRuleJournalNode>());
-			//	Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
-			//};
 
 			btnRemoveCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedCommonDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveCommonRule.Clicked += (sender, args) => ViewModel.RemoveCommonDistrictRuleItemCommand.Execute();
