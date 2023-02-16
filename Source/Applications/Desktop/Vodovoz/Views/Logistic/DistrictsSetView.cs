@@ -173,7 +173,6 @@ namespace Vodovoz.Views.Logistic
 				var selectRules = ViewModel.NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(null).ViewModel;
 				selectRules.SelectionMode = JournalSelectionMode.Single;
 				selectRules.OnSelectResult += (o, e) => ViewModel.AddCommonDistrictRuleItemCommand.Execute(e.GetSelectedObjects<DeliveryPriceRuleJournalNode>());
-				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
 			};
 
 			btnRemoveCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedCommonDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
@@ -236,7 +235,6 @@ namespace Vodovoz.Views.Logistic
 				var selectRules = ViewModel.NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(null).ViewModel;
 				selectRules.SelectionMode = JournalSelectionMode.Single;
 				selectRules.OnSelectResult += (o, e) => ViewModel.AddWeekDayDistrictRuleItemCommand.Execute(e.GetSelectedObjects<DeliveryPriceRuleJournalNode>());
-				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
 			};
 
 			btnRemoveWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedWeekDayDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
