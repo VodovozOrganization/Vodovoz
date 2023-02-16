@@ -10,6 +10,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.Tdi;
 using QS.Utilities.Text;
 using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
@@ -18,6 +19,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;
@@ -26,7 +28,7 @@ namespace Vodovoz.ViewModels.Logistic
 {
     public sealed class DistrictsSetViewModel : EntityTabViewModelBase<DistrictsSet>
     {
-        public DistrictsSetViewModel(IEntityUoWBuilder uowBuilder,
+		public DistrictsSetViewModel(IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IEntityDeleteWorker entityDeleteWorker,
@@ -39,6 +41,7 @@ namespace Vodovoz.ViewModels.Logistic
             _entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
             DistrictRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
 			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Районы с графиками доставки";
 
@@ -76,8 +79,9 @@ namespace Vodovoz.ViewModels.Logistic
         private readonly IEntityDeleteWorker _entityDeleteWorker;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
 		private readonly GeometryFactory _geometryFactory;
+		private ICommonServices _commonServices;
 
-        public readonly bool CanChangeDistrictWageTypePermissionResult;
+		public readonly bool CanChangeDistrictWageTypePermissionResult;
         public readonly bool CanEditDistrict;
         public readonly bool CanEditDeliveryRules;
 		public readonly bool CanEditDeliveryScheduleRestriction;
@@ -379,27 +383,27 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedWeekDayDistrictRuleItem != null
         ));
 
-		private DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> addCommonDistrictRuleItemCommand;
-		public DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> AddCommonDistrictRuleItemCommand => addCommonDistrictRuleItemCommand ?? (addCommonDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>>(
-			ruleItems =>
-			{
-				foreach(var ruleItem in ruleItems)
-				{
-					if(CommonDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id))
-					{
-						CommonDistrictRuleItems.Add(new CommonDistrictRuleItem
-						{
-							District = SelectedDistrict,
-							Price = 0,
-							DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
-							.Where(d => d.Id == ruleItem.Id)
-							.First()
-						});
-					}
-				}
-			},
-			ruleItems => ruleItems.Any()
-		));
+		//private DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> addCommonDistrictRuleItemCommand;
+		//public DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> AddCommonDistrictRuleItemCommand => addCommonDistrictRuleItemCommand ?? (addCommonDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>>(
+		//	ruleItems =>
+		//	{
+		//		foreach(var ruleItem in ruleItems)
+		//		{
+		//			if(CommonDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id))
+		//			{
+		//				CommonDistrictRuleItems.Add(new CommonDistrictRuleItem
+		//				{
+		//					District = SelectedDistrict,
+		//					Price = 0,
+		//					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
+		//					.Where(d => d.Id == ruleItem.Id)
+		//					.First()
+		//				});
+		//			}
+		//		}
+		//	},
+		//	ruleItems => ruleItems.Any()
+		//));
 
 		private DelegateCommand removeCommonDistrictRuleItemCommand;
         public DelegateCommand RemoveCommonDistrictRuleItemCommand => removeCommonDistrictRuleItemCommand ?? (removeCommonDistrictRuleItemCommand = new DelegateCommand(
@@ -409,7 +413,57 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedCommonDistrictRuleItem != null
         ));
 
-        private DelegateCommand<AcceptBefore> addAcceptBeforeCommand;
+		private DelegateCommand _addCommonDeliveryPriceRuleCommand;
+		public DelegateCommand AddCommonDeliveryPriceRuleCommand
+		{
+			get
+			{
+				if(_addCommonDeliveryPriceRuleCommand == null)
+				{
+					_addCommonDeliveryPriceRuleCommand = new DelegateCommand(SelectCommonDeliveryPriceRule, () => canEditRules);
+					_addCommonDeliveryPriceRuleCommand.CanExecuteChangedWith(this, x => x.canEditRules);
+				}
+				return _addCommonDeliveryPriceRuleCommand;
+			}
+		}
+
+		private bool canEditRules => CanEditDeliveryRules;
+
+		private void SelectCommonDeliveryPriceRule()
+		{
+			var journalFunction = new Func<ITdiTab>(() =>
+			{
+				var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
+				journal.SelectionMode = JournalSelectionMode.Single;
+				journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
+				return journal;
+			});
+			var selectDeliveryPriceRule = TabParent.OpenTab(journalFunction, this);
+		}
+
+		private void JournalOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var node = e.SelectedNodes.FirstOrDefault();
+
+			if(node == null)
+			{
+				return;
+			}
+
+			if(CommonDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != node.Id))
+			{
+				CommonDistrictRuleItems.Add(new CommonDistrictRuleItem
+				{
+					District = SelectedDistrict,
+					Price = 0,
+					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
+					.Where(d => d.Id == node.Id)
+					.First()
+				});
+			}
+		}
+
+		private DelegateCommand<AcceptBefore> addAcceptBeforeCommand;
         public DelegateCommand<AcceptBefore> AddAcceptBeforeCommand => addAcceptBeforeCommand ?? (addAcceptBeforeCommand = new DelegateCommand<AcceptBefore>(
             acceptBefore => {
                 SelectedScheduleRestriction.AcceptBefore = acceptBefore;
