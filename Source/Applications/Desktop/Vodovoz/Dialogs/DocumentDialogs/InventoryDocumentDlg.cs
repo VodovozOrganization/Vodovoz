@@ -176,8 +176,14 @@ namespace Vodovoz
 				}
 			);
 
+			ProductGroup productGroupChildAlias = null;
 			//Предзагрузка. Для избежания ленивой загрузки
-			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+			UoW.Session.QueryOver<ProductGroup>()
+				.Left.JoinAlias(p => p.Childs,
+					() => productGroupChildAlias,
+					() => !productGroupChildAlias.IsArchive)
+				.Fetch(SelectMode.Fetch, () => productGroupChildAlias)
+				.List();
 
 			filter.CreateParameterSet(
 				"Группы товаров",
@@ -186,7 +192,8 @@ namespace Vodovoz
 				(filters) =>
 				{
 					var query = UoW.Session.QueryOver<ProductGroup>()
-						.Where(p => p.Parent == null);
+						.Where(p => p.Parent == null)
+						.And(p => !p.IsArchive);
 					
 					if(filters != null && filters.Any())
 					{
