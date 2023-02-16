@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual int Id { get; set; }
 
-		public virtual string Title => $"{this}"; //$"{this} или сумма товаров ИМ < {OrderMinSumEShopGoods}р.";
+		public virtual string Title => $"{this}";
 		
 		private int water19LCount;
 		[Display(Name = "Количество 19л бутылей в заказе")]
