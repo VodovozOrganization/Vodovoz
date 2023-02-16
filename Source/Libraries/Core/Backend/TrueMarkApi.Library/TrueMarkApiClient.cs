@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -6,7 +7,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMarkApi.Library.Dto;
-using Vodovoz.Domain.Client;
 
 namespace TrueMarkApi.Library
 {
@@ -33,6 +33,25 @@ namespace TrueMarkApi.Library
 			var responseResult = await JsonSerializer.DeserializeAsync<TrueMarkResponseResultDto>(responseBody, cancellationToken: cancellationToken);
 
 			return responseResult;
+		}
+
+		public async Task<IList<ParticipantRegistrationDto>> GetParticipantsRegistrations(string url, IList<string> notRegisteredInns,
+			CancellationToken cancellationToken)
+		{
+			var serializedNotRegisteredInns = JsonSerializer.Serialize(notRegisteredInns);
+			var content = new StringContent(serializedNotRegisteredInns, Encoding.UTF8, "application/json");
+			var response = await _httpClient.PostAsync(url, content, cancellationToken);
+
+			if(response.IsSuccessStatusCode)
+			{
+				var responseBody = await response.Content.ReadAsStreamAsync();
+
+				var registrations = await JsonSerializer.DeserializeAsync<IList<ParticipantRegistrationDto>>(responseBody, cancellationToken: cancellationToken);
+
+				return registrations;
+			}
+
+			return null;
 		}
 	}
 }

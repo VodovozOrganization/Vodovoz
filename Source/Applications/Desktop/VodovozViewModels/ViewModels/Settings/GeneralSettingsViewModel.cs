@@ -18,6 +18,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private bool _canAddForwardersToLargus;
 		private DelegateCommand _saveRouteListPrintedFormPhonesCommand;
 		private DelegateCommand _saveCanAddForwardersToLargusCommand;
+		private DelegateCommand _saveOrderAutoCommentCommand;
+		private DelegateCommand _showAutoCommentInfoCommand;
+		private string _orderAutoComment;
 
 		public GeneralSettingsViewModel(
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
@@ -38,6 +41,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_route_List_printed_form_phones");
 			CanEditCanAddForwardersToLargus =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_largus");
+			CanEditOrderAutoComment =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
+
+			OrderAutoComment = _generalSettingsParametersProvider.OrderAutoComment;
 		}
 
 		#region RouteListPrintedFormPhones
@@ -104,6 +111,35 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			);
 
 		public RoboatsSettingsViewModel RoboatsSettingsViewModel { get; }
+
+		#endregion
+
+		#region OrderAutoComment
+
+		public string OrderAutoComment
+		{
+			get => _orderAutoComment;
+			set => SetField(ref _orderAutoComment, value);
+		}
+
+		public bool CanEditOrderAutoComment { get; }
+
+		public DelegateCommand SaveOrderAutoCommentCommand =>
+			_saveOrderAutoCommentCommand ?? (_saveOrderAutoCommentCommand = new DelegateCommand(() =>
+			{
+				_generalSettingsParametersProvider.UpdateOrderAutoComment(OrderAutoComment);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+			}));
+
+		public DelegateCommand ShowAutoCommentInfoCommand =>
+			_showAutoCommentInfoCommand ?? (_showAutoCommentInfoCommand = new DelegateCommand(() =>
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Если в заказе стоит бесконтактная доставка и доставляется промонабор для новых клиентов (в наборе не стоит галочка \"для многократного использования\"),\n" +
+					"то в начало комментария к заказу добавляется текст из настройки."
+					);
+			}));
 
 		#endregion
 	}

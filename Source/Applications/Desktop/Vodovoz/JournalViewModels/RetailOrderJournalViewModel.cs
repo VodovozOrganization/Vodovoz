@@ -310,6 +310,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.PaymentByCardFrom.Id == FilterViewModel.PaymentByCardFrom.Id);
 			}
 
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
 			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
 			{
 				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
@@ -480,6 +485,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Author == FilterViewModel.Author);
 			}
 
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderWSDAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
 			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyNameLike) && FilterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
 			{
 				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
@@ -632,6 +642,11 @@ namespace Vodovoz.JournalViewModels
 												   )
 											   );
 
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderWSPAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => orderWSPAlias.Id,
 				() => counterpartyAlias.Name,
@@ -769,6 +784,11 @@ namespace Vodovoz.JournalViewModels
 														Projections.Property(() => orderWSAPItemAlias.DiscountMoney)})
 												   )
 										   );
+
+			if(FilterViewModel.OrderId != null)
+			{
+				query.Where(() => orderWSAPAlias.Id == FilterViewModel.OrderId.Value);
+			}
 
 			query.Where(GetSearchCriterion(
 				() => orderWSAPAlias.Id,

@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUnitOfWork _uow;
+		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 		
 		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
@@ -55,9 +57,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void SelectExistConterparty()
 		{
-			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
-			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
+			_counterpartyJournalPage = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
+			_counterpartyJournalPage.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+			_counterpartyJournalPage.ViewModel.OnEntitySelectedResult += OnExistingCounterpartyPageClosed;
 		}
 
 		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
@@ -72,7 +74,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			}
 		}
 
-		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		void OnExistingCounterpartyPageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
@@ -122,6 +124,12 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void Dispose()
 		{
+			if(_counterpartyJournalPage?.ViewModel != null)
+			{
+				_counterpartyJournalPage.ViewModel.SelectionMode = JournalSelectionMode.None;
+				_counterpartyJournalPage.ViewModel.OnEntitySelectedResult -= OnExistingCounterpartyPageClosed;
+			}
+
 			_uow?.Dispose();
 		}
 
