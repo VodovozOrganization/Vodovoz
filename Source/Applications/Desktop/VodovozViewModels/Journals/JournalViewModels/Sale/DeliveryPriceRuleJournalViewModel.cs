@@ -82,6 +82,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 
 	public class DeliveryPriceRuleJournalNode : JournalEntityNodeBase<DeliveryPriceRule>
 	{
+		public override string Title => $"{Name} {Water19LCount}";
 		public int Water19LCount { get; set; }
 		public int Water6LCount { get; set; }
 		public int Water1500mlCount { get; set; }
