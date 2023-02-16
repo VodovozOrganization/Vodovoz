@@ -358,22 +358,22 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedScheduleRestriction != null
         ));
 
-        private DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> addWeekDayDistrictRuleItemCommand;
-        public DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> AddWeekDayDistrictRuleItemCommand => addWeekDayDistrictRuleItemCommand ?? (addWeekDayDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>>(
-            ruleItems => {
-                foreach (var ruleItem in ruleItems) {
-                    if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id)) {
-                        WeekDayDistrictRuleItems.Add(new WeekDayDistrictRuleItem {
-                            District = SelectedDistrict, WeekDay = SelectedWeekDayName.Value, Price = 0,
-                            DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
-							.Where(d => d.Id == ruleItem.Id)
-							.First()
-						});
-                    }
-                }
-            },
-            ruleItems => ruleItems.Any()
-        ));
+      //  private DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> addWeekDayDistrictRuleItemCommand;
+      //  public DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> AddWeekDayDistrictRuleItemCommand => addWeekDayDistrictRuleItemCommand ?? (addWeekDayDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>>(
+      //      ruleItems => {
+      //          foreach (var ruleItem in ruleItems) {
+      //              if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id)) {
+      //                  WeekDayDistrictRuleItems.Add(new WeekDayDistrictRuleItem {
+      //                      District = SelectedDistrict, WeekDay = SelectedWeekDayName.Value, Price = 0,
+      //                      DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
+						//	.Where(d => d.Id == ruleItem.Id)
+						//	.First()
+						//});
+      //              }
+      //          }
+      //      },
+      //      ruleItems => ruleItems.Any()
+      //  ));
 
         private DelegateCommand removeWeekDayDistrictRuleItemCommand;
         public DelegateCommand RemoveWeekDayDistrictRuleItemCommand => removeWeekDayDistrictRuleItemCommand ?? (removeWeekDayDistrictRuleItemCommand = new DelegateCommand(
@@ -413,6 +413,59 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedCommonDistrictRuleItem != null
         ));
 
+		#region Команда добавления правила цен доставки дня недели
+		private DelegateCommand _addWeekDayDeliveryPriceRuleCommand;
+		public DelegateCommand AddWeekDayDeliveryPriceRuleCommand
+		{
+			get
+			{
+				if(_addWeekDayDeliveryPriceRuleCommand == null)
+				{
+					_addWeekDayDeliveryPriceRuleCommand = new DelegateCommand(AddWeekDayDeliveryPriceRule, () => CanAddWeekDayDeliveryPriceRuleCommand);
+					_addWeekDayDeliveryPriceRuleCommand.CanExecuteChangedWith(this, x => x.CanAddWeekDayDeliveryPriceRuleCommand);
+				}
+				return _addWeekDayDeliveryPriceRuleCommand;
+			}
+		}
+
+		private bool CanAddWeekDayDeliveryPriceRuleCommand => CanEditDeliveryRules;
+
+		private void AddWeekDayDeliveryPriceRule()
+		{
+			var journalFunction = new Func<ITdiTab>(() =>
+			{
+				var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
+				journal.SelectionMode = JournalSelectionMode.Single;
+				journal.OnEntitySelectedResult += JournalOnWeekDayEntitySelectedResult;
+				return journal;
+			});
+			var selectDeliveryPriceRule = TabParent.OpenTab(journalFunction, this);
+		}
+
+		private void JournalOnWeekDayEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var node = e.SelectedNodes.FirstOrDefault();
+
+			if (node != null)
+			{
+				return;
+			}
+
+			if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != node.Id))
+			{
+				WeekDayDistrictRuleItems.Add(new WeekDayDistrictRuleItem
+				{
+					District = SelectedDistrict,
+					WeekDay = SelectedWeekDayName.Value,
+					Price = 0,
+					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
+					.Where(d => d.Id == node.Id)
+					.First()
+				});
+			}
+		}
+		#endregion
+
 		#region Команда добавления общего правила цен доставки
 		private DelegateCommand _addCommonDeliveryPriceRuleCommand;
 		public DelegateCommand AddCommonDeliveryPriceRuleCommand
@@ -421,16 +474,16 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				if(_addCommonDeliveryPriceRuleCommand == null)
 				{
-					_addCommonDeliveryPriceRuleCommand = new DelegateCommand(SelectCommonDeliveryPriceRule, () => canEditRules);
-					_addCommonDeliveryPriceRuleCommand.CanExecuteChangedWith(this, x => x.canEditRules);
+					_addCommonDeliveryPriceRuleCommand = new DelegateCommand(AddCommonDeliveryPriceRule, () => CanAddCommonDeliveryPriceRuleCommand);
+					_addCommonDeliveryPriceRuleCommand.CanExecuteChangedWith(this, x => x.CanAddCommonDeliveryPriceRuleCommand);
 				}
 				return _addCommonDeliveryPriceRuleCommand;
 			}
 		}
 
-		private bool canEditRules => CanEditDeliveryRules;
+		private bool CanAddCommonDeliveryPriceRuleCommand => CanEditDeliveryRules;
 
-		private void SelectCommonDeliveryPriceRule()
+		private void AddCommonDeliveryPriceRule()
 		{
 			var journalFunction = new Func<ITdiTab>(() =>
 			{

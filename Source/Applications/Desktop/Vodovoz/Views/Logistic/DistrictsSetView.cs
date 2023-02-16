@@ -225,12 +225,7 @@ namespace Vodovoz.Views.Logistic
 			btnRemoveAcceptBefore.Clicked += (sender, args) => ViewModel.RemoveAcceptBeforeCommand.Execute();
 			
 			btnAddWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
-			btnAddWeekDayRule.Clicked += (sender, args) =>
-			{
-				var selectRules = ViewModel.NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(ViewModel, OpenPageOptions.AsSlave).ViewModel;
-				selectRules.SelectionMode = JournalSelectionMode.Single;
-				selectRules.OnSelectResult += (o, e) => ViewModel.AddWeekDayDistrictRuleItemCommand.Execute(e.GetSelectedObjects<DeliveryPriceRuleJournalNode>());
-			};
+			btnAddWeekDayRule.Clicked += (sender, args) => ViewModel.AddWeekDayDeliveryPriceRuleCommand.Execute();
 
 			btnRemoveWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDeliveryRules && vm.SelectedDistrict != null && vm.SelectedWeekDayDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveWeekDayRule.Clicked += (sender, args) => ViewModel.RemoveWeekDayDistrictRuleItemCommand.Execute();
