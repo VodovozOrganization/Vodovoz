@@ -413,6 +413,7 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedCommonDistrictRuleItem != null
         ));
 
+		#region Команда добавления общего правила цен доставки
 		private DelegateCommand _addCommonDeliveryPriceRuleCommand;
 		public DelegateCommand AddCommonDeliveryPriceRuleCommand
 		{
@@ -435,13 +436,13 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
 				journal.SelectionMode = JournalSelectionMode.Single;
-				journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
+				journal.OnEntitySelectedResult += JournalOnCommonEntitySelectedResult;
 				return journal;
 			});
 			var selectDeliveryPriceRule = TabParent.OpenTab(journalFunction, this);
 		}
 
-		private void JournalOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void JournalOnCommonEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
 			var node = e.SelectedNodes.FirstOrDefault();
 
@@ -462,6 +463,7 @@ namespace Vodovoz.ViewModels.Logistic
 				});
 			}
 		}
+		#endregion
 
 		private DelegateCommand<AcceptBefore> addAcceptBeforeCommand;
         public DelegateCommand<AcceptBefore> AddAcceptBeforeCommand => addAcceptBeforeCommand ?? (addAcceptBeforeCommand = new DelegateCommand<AcceptBefore>(
