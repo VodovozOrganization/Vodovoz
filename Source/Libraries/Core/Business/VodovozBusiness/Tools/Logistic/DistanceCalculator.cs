@@ -107,7 +107,7 @@ namespace Vodovoz.Tools.Logistic
 			return 0;
 		}
 
-		private Geometry CreateCircle(Coordinate center, double radius)
+		private static Geometry CreateCircle(Coordinate center, double radius)
 		{
 			var twoPi = 2 * Math.PI;
 
