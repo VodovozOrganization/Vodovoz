@@ -491,13 +491,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.And(Restrictions.Gt(Projections.Property(() => trackPointAlias.TimeStamp), HistoryDateTime.Add(DriverDisconnectedTimespan)))
 					.OrderBy(Projections.Property(() => trackPointAlias.TimeStamp)).Desc
 					.Take(1);
-
-				query.Where(Restrictions.IsNotNull(Projections.SubQuery(trackSubquery)));
 			}
 			else
 			{
 				query.Where(rl => rl.Status == RouteListStatus.EnRoute);
 			}
+
+			query.Where(Restrictions.IsNotNull(Projections.SubQuery(trackSubquery)));
 
 			var result = query.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)
