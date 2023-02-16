@@ -28,17 +28,16 @@ namespace Sms.Internal.Service
 			try
 			{
 				smsResult = SendSms(smsMessage);
-				_logger.LogInformation($"Смс отправлена на номер {smsMessage.MobilePhone}");
+				_logger.LogInformation("Смс отправлена на номер {0}", smsMessage.MobilePhone);
 			}
 			catch(Exception ex)
 			{
-				var message = $"Ошибка при отправке смс сообщения на номер {smsMessage.MobilePhone}.";
 				smsResult = new ResultMessage
 				{
 					Status = ResultStatus.Error, 
-					ErrorDescription = $"{message} {ex.Message}" 
+					ErrorDescription = $"Ошибка при отправке смс сообщения на номер {smsMessage.MobilePhone}. {ex.Message}" 
 				};
-				_logger.LogError(ex, message);
+				_logger.LogError(ex, "Ошибка при отправке смс сообщения на номер {0}.", smsMessage.MobilePhone);
 			}
 
 			return Task.FromResult(smsResult);
@@ -58,7 +57,7 @@ namespace Sms.Internal.Service
 
 			var result = _smsSender.SendSms(externalSms);
 
-			_logger.LogInformation($"Отправлено уведомление. Тел.: {externalSms.MobilePhoneNumber}, результат: {result.Status}");
+			_logger.LogInformation("Отправлено уведомление. Тел.: {0}, результат: {1}", externalSms.MobilePhoneNumber, result.Status);
 
 			switch(result.Status)
 			{

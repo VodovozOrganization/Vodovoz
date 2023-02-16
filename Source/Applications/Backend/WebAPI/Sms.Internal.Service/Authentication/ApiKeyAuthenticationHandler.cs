@@ -28,7 +28,7 @@ namespace Sms.Internal.Service.Authentication
 		{
 			if(!Request.Headers.TryGetValue(ApiKeyAuthenticationOptions.HeaderName, out var apiKeyFromRequest) || apiKeyFromRequest.Count != 1)
 			{
-				Logger.LogWarning($"An API request was received without the {ApiKeyAuthenticationOptions.HeaderName} header");
+				Logger.LogWarning("An API request was received without the {0} header", ApiKeyAuthenticationOptions.HeaderName);
 				return AuthenticateResult.Fail("Invalid parameters");
 			}
 
