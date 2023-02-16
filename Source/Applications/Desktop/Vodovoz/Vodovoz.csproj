@@ -2268,6 +2268,10 @@
       <Project>{6E56E39A-F886-4645-98E1-8619F75F7AEA}</Project>
       <Name>VodovozViewModels</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
+      <Project>{08DCE339-CA3B-4D68-AF84-9625483283D5}</Project>
+      <Name>RevenueService.Client</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ContentWithTargetPath Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports\Reports\**">

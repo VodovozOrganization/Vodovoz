@@ -88,6 +88,7 @@ using QS.Attachments.Domain;
 using QS.Utilities.Text;
 using Vodovoz.Core;
 using Autofac;
+using RevenueService.Client;
 
 namespace Vodovoz
 {
@@ -2128,6 +2129,17 @@ namespace Vodovoz
 		{
 			_cancellationTokenSource.Cancel();
 			base.Dispose();
+		}
+
+		protected void OnButtonRequestByInnClicked(object sender, EventArgs e)
+		{
+			var token = "86d39d5fd5c9c9f6436acce73a8cc298561e5975";
+			var client = new RevenueServiceClient(token);
+			var res = client.GetCounterpartyInfoFromRevenueService(Entity.INN);
+		}
+
+		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)
+		{
 		}
 	}
 
