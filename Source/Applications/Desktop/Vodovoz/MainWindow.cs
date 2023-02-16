@@ -1103,6 +1103,7 @@ public partial class MainWindow : Gtk.Window
 		var journal = new ComplaintsJournalViewModel(
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
+			NavigationManager,
 			undeliveredOrdersJournalOpener,
 			VodovozGtkServicesConfig.EmployeeService,
 			counterpartySelectorFactory,
@@ -2258,6 +2259,7 @@ public partial class MainWindow : Gtk.Window
 				return new ComplaintsJournalViewModel(
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
+					NavigationManager,
 					undeliveredOrdersJournalOpener,
 					VodovozGtkServicesConfig.EmployeeService,
 					counterpartySelectorFactory,

@@ -1321,6 +1321,7 @@ namespace Vodovoz
 			var complaintsJournalViewModel = new ComplaintsJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
+				MainClass.MainWin.NavigationManager,
 				UndeliveredOrdersJournalOpener,
 				_employeeService,
 				CounterpartySelectorFactory,

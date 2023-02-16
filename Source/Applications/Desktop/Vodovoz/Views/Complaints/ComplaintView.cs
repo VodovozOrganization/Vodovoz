@@ -1,11 +1,13 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Widgets;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -80,12 +82,11 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem)
 				.InitializeFromSource();
 
-			//entryComplainDetalization.SetEntityAutocompleteSelectorFactory(ViewModel.ComplaintDetalizationAutocompleteSelectorFactory);
-			//entryComplainDetalization.Binding
-				//.AddBinding(ViewModel.Entity, e => e.ComplaintDetalization, w => w.Subject)
-				//.AddBinding(ViewModel, vm => vm.CanChangeDetalization, w => w.Sensitive)
-				//.AddBinding(ViewModel, vm => vm.CanEditDetalization, w => w.IsEditable)
-				//.InitializeFromSource();
+			entryComplaintDetalization.ViewModel = ViewModel.ComplaintDetalizationEntryViewModel;
+			entryComplaintDetalization.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeDetalization, w => w.Sensitive)
+				.AddBinding(vm => vm.CanEditDetalization, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)

@@ -35,6 +35,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using Order = Vodovoz.Domain.Orders.Order;
+using QS.Navigation;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -76,6 +77,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		public ComplaintsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
@@ -102,6 +104,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
@@ -685,6 +688,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						EntityUoWBuilder.ForOpen(node.Id),
 						_unitOfWorkFactory,
 						_commonServices,
+						NavigationManager,
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
 						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
@@ -728,6 +732,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						EntityUoWBuilder.ForOpen(node.Id),
 						_unitOfWorkFactory,
 						_commonServices,
+						NavigationManager,
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
 						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
@@ -840,6 +845,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
 								_unitOfWorkFactory,
 								_commonServices,
+								NavigationManager,
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
 								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
@@ -877,6 +883,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
 								_unitOfWorkFactory,
 								_commonServices,
+								NavigationManager,
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
 								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),

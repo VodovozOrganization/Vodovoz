@@ -12,6 +12,7 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,9 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -68,6 +71,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
@@ -85,7 +89,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationSelectorFactory,
 			ILifetimeScope scope)
-			: base(uowBuilder, uowFactory, commonServices)
+			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -134,6 +138,19 @@ namespace Vodovoz.ViewModels.Complaints
 
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
 
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
+			var builder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope);
+
+			ComplaintDetalizationEntryViewModel = builder
+				.ForProperty(x => x.ComplaintDetalization)
+				.UseViewModelDialog<ComplaintDetalizationViewModel>()
+				.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel>()
+				.Finish();
+
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 
 			_canAddGuiltyInComplaintsPermissionResult = CommonServices.CurrentPermissionService
@@ -155,6 +172,8 @@ namespace Vodovoz.ViewModels.Complaints
 			
 			InitializeComplaintDetalizationAutocompleteSelectorFactory(complaintDetalizationSelectorFactory);
 		}
+
+		public IEntityEntryViewModel ComplaintDetalizationEntryViewModel { get; }
 
 		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
