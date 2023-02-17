@@ -193,13 +193,13 @@ LIMIT 1
 
 SELECT
 	nom_id,
-	official_name,
+	nomenclature_name,
 	SUM(count) AS count
 FROM
 (
 	SELECT
 		n.id as nom_id,
-		n.official_name,
+		n.name as nomenclature_name,
 		SUM(oi.count) as count
 	FROM
 		order_items oi
@@ -215,13 +215,13 @@ FROM
 	UNION ALL
 	SELECT
 		n.id as nom_id,
-		CASE oe.own_type
-			WHEN 'None'  THEN n.official_name
-			WHEN 'Client'THEN CONCAT(n.official_name, ' (Клиент)')
-			WHEN 'Duty'	 THEN CONCAT(n.official_name, ' (Дежурный)')
-			WHEN 'Rent'	 THEN CONCAT(n.official_name, ' (Аренда)')
-			ELSE n.official_name
-		END as official_name,
+		(CASE oe.own_type
+			WHEN 'None'  THEN n.name
+			WHEN 'Client'THEN CONCAT(n.name, ' (Клиент)')
+			WHEN 'Duty'	 THEN CONCAT(n.name, ' (Дежурный)')
+			WHEN 'Rent'	 THEN CONCAT(n.name, ' (Аренда)')
+			ELSE n.name
+		END) as nomenclature_name,
 		SUM(oe.count) as count
 	FROM
 		order_equipment oe
@@ -238,7 +238,7 @@ FROM
 	#AdditionalLoading
 	SELECT
 		n.id as nom_id,
-		n.official_name,
+		n.name as nomenclature_name,
 		SUM(aldi.amount) as count
 	FROM
 		additional_loading_document_items aldi 
@@ -255,9 +255,7 @@ FROM
 	GROUP BY nom_id
 ) t
 
-GROUP BY nom_id
-
-</CommandText>
+GROUP BY nom_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
             <Value>={?route_list_id}</Value>
@@ -265,8 +263,8 @@ GROUP BY nom_id
         </QueryParameters>
       </Query>
       <Fields>
-        <Field Name="official_name">
-          <DataField>official_name</DataField>
+        <Field Name="nomenclature_name">
+          <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="count">
@@ -1928,7 +1926,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox89">
-                      <Value>={official_name}</Value>
+                      <Value>={nomenclature_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>

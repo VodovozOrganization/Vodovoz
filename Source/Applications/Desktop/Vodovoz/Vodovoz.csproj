@@ -407,7 +407,6 @@
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
-    <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Core\DocumentPrinter.cs" />
@@ -2079,13 +2078,9 @@
       <Project>{3c82a870-3f2f-4f5e-9b7b-15710141fd93}</Project>
       <Name>MangoController</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\InstantSmsService\InstantSmsService.csproj">
-      <Project>{b1ab54eb-59c6-486b-a0c8-01ed960f1fa0}</Project>
-      <Name>InstantSmsService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\Sms.Internal.Client\Sms.Internal.Client.csproj">
-      <Project>{293D7B89-C070-422E-89B5-88650DBB48B0}</Project>
-      <Name>Sms.Internal.Client</Name>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
+      <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
+      <Name>Sms.Internal.Client.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
