@@ -65,7 +65,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private List<ComplaintSource> _complaintSources;
 		private IEnumerable<ComplaintResultOfCounterparty> _complaintResults;
 		private IList<ComplaintKind> _complaintKindSource;
-		private ComplaintDetalizationJournalFilterViewModel _detalizationJournalFilterViewModel;
 
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -106,8 +105,6 @@ namespace Vodovoz.ViewModels.Complaints
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-
-			_detalizationJournalFilterViewModel = new ComplaintDetalizationJournalFilterViewModel();
 
 			if(orderSelectorFactory == null)
 			{
@@ -179,7 +176,6 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			if(e.PropertyName == nameof(Entity.ComplaintKind))
 			{
-				_detalizationJournalFilterViewModel.RestrictComplaintKind = Entity.ComplaintKind;
 				OnPropertyChanged(nameof(CanChangeDetalization));
 			}
 		}
@@ -344,7 +340,6 @@ namespace Vodovoz.ViewModels.Complaints
 				if(SetField(ref _complaintObject, value))
 				{
 					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
-					_detalizationJournalFilterViewModel.RestrictComplaintObject = value;
 				}
 			}
 		}
