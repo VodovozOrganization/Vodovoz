@@ -399,7 +399,7 @@ namespace Vodovoz.Views.Logistic
 					.SelectMany(x => x.RouteListsIds.Keys)
 					.ToArray();
 
-				var start = ViewModel.ShowHistory ? ViewModel.HistoryDate.Add(ViewModel.HistoryHour) : DateTime.Now; // Значение времени? 0_о
+				var start = ViewModel.ShowHistory ? ViewModel.HistoryDateTime : DateTime.Now; // Значение времени? 0_о
 				var startRequest = DateTime.Now;
 				DateTime disconnectedDateTime = start.Add(ViewModel.DriverDisconnectedTimespan);
 
@@ -411,10 +411,7 @@ namespace Vodovoz.Views.Logistic
 
 				IList<DriverPosition> ere20Minuts = new List<DriverPosition>();
 
-				if(!ViewModel.ShowFastDeliveryOnly)
-				{
-					ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDriversRouteListsIds, disconnectedDateTime);
-				}
+				ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDriversRouteListsIds, disconnectedDateTime);
 					
 				_logger.Debug("Время запроса точек: {0}", DateTime.Now - startRequest);
 

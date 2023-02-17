@@ -1,4 +1,4 @@
-using NetTopologySuite.Geometries;
+﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -615,9 +615,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var routeListIds = WorkingDrivers.SelectMany(x => x.RouteListsIds.Keys).ToArray();
 
 			IList<DriverPosition> lastPoints;
-			if(ShowHistory)
+			if(ShowFastDeliveryOnly)
 			{
-				lastPoints = GetLastRouteListTrackPoints(routeListIds, HistoryDateTime);
+				if(ShowHistory)
+				{
+					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan, HistoryDateTime);
+				}
+				else
+				{
+					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan);
+				}
 			}
 			else
 			{
