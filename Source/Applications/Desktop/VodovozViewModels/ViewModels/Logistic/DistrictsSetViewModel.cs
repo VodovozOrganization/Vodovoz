@@ -356,23 +356,6 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedScheduleRestriction != null
         ));
 
-      //  private DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> addWeekDayDistrictRuleItemCommand;
-      //  public DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> AddWeekDayDistrictRuleItemCommand => addWeekDayDistrictRuleItemCommand ?? (addWeekDayDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>>(
-      //      ruleItems => {
-      //          foreach (var ruleItem in ruleItems) {
-      //              if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id)) {
-      //                  WeekDayDistrictRuleItems.Add(new WeekDayDistrictRuleItem {
-      //                      District = SelectedDistrict, WeekDay = SelectedWeekDayName.Value, Price = 0,
-      //                      DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
-						//	.Where(d => d.Id == ruleItem.Id)
-						//	.First()
-						//});
-      //              }
-      //          }
-      //      },
-      //      ruleItems => ruleItems.Any()
-      //  ));
-
         private DelegateCommand removeWeekDayDistrictRuleItemCommand;
         public DelegateCommand RemoveWeekDayDistrictRuleItemCommand => removeWeekDayDistrictRuleItemCommand ?? (removeWeekDayDistrictRuleItemCommand = new DelegateCommand(
             () => {
@@ -380,28 +363,6 @@ namespace Vodovoz.ViewModels.Logistic
             },
             () => SelectedWeekDayDistrictRuleItem != null
         ));
-
-		//private DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> addCommonDistrictRuleItemCommand;
-		//public DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>> AddCommonDistrictRuleItemCommand => addCommonDistrictRuleItemCommand ?? (addCommonDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRuleJournalNode>>(
-		//	ruleItems =>
-		//	{
-		//		foreach(var ruleItem in ruleItems)
-		//		{
-		//			if(CommonDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id))
-		//			{
-		//				CommonDistrictRuleItems.Add(new CommonDistrictRuleItem
-		//				{
-		//					District = SelectedDistrict,
-		//					Price = 0,
-		//					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
-		//					.Where(d => d.Id == ruleItem.Id)
-		//					.First()
-		//				});
-		//			}
-		//		}
-		//	},
-		//	ruleItems => ruleItems.Any()
-		//));
 
 		private DelegateCommand removeCommonDistrictRuleItemCommand;
         public DelegateCommand RemoveCommonDistrictRuleItemCommand => removeCommonDistrictRuleItemCommand ?? (removeCommonDistrictRuleItemCommand = new DelegateCommand(
