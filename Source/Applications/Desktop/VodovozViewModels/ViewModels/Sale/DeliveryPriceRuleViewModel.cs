@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Sale;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels.ViewModels.Sale
 {
@@ -26,7 +25,6 @@ namespace Vodovoz.ViewModels.ViewModels.Sale
 			this.districtRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
 
 			ValidationContext.ServiceContainer.AddService(typeof(IDistrictRuleRepository), districtRuleRepository);
-
 
 			if(!CanRead)
 				AbortOpening("У вас недостаточно прав для просмотра");

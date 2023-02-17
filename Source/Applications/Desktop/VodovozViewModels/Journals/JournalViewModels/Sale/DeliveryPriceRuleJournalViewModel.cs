@@ -31,8 +31,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 
 		IUnitOfWorkFactory unitOfWorkFactory;
 
-		protected override Func<IUnitOfWork, IQueryOver<DeliveryPriceRule>> ItemsSourceQueryFunction => (uow) => {
-
+		protected override Func<IUnitOfWork, IQueryOver<DeliveryPriceRule>> ItemsSourceQueryFunction => (uow) =>
+		{
 			DeliveryPriceRuleJournalNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<DeliveryPriceRule>()

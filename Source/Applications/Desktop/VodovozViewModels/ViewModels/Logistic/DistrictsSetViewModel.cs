@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using GMap.NET;
@@ -19,7 +18,6 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;
@@ -446,7 +444,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			var node = e.SelectedNodes.FirstOrDefault();
 
-			if (node != null)
+			if (node == null)
 			{
 				return;
 			}
