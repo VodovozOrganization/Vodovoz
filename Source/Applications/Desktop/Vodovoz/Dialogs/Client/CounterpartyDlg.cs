@@ -378,7 +378,6 @@ namespace Vodovoz
 			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			enumPersonType.ItemsEnum = typeof(PersonType);
 			enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
-			enumPersonType.EnumItemSelected += OnEnumPersonTypeOnEnumItemSelected;
 
 			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yEnumCounterpartyType.Binding
@@ -493,8 +492,6 @@ namespace Vodovoz
 				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
 				.AddFuncBinding(s => s.TypeOfOwnership != "ИП", t => t.EntryName.Sensitive)
 				.InitializeFromSource();
-
-			datalegalname1.OwnershipChanged += OnDatalegalnameOwnershipChanged;
 
 			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			entryFullName.Binding
@@ -1562,6 +1559,15 @@ namespace Vodovoz
 			{
 				Entity.TaxType = TaxType.None;
 			}
+
+			if(Entity.PersonType == PersonType.natural)
+			{
+				var personFullName = GetPersonFullName();
+				if(!string.IsNullOrEmpty(personFullName))
+				{
+					Entity.Name = personFullName;
+				}
+			}
 		}
 
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -1642,6 +1648,11 @@ namespace Vodovoz
 		protected void OnDatalegalname1OwnershipChanged(object sender, EventArgs e)
 		{
 			validatedKPP.Sensitive = Entity.TypeOfOwnership != "ИП";
+			var personFullName = GetPersonFullName();
+			if(Entity.TypeOfOwnership == "ИП" && !string.IsNullOrEmpty(personFullName))
+			{
+				Entity.Name = Entity.FullName = personFullName;
+			}
 		}
 
 		protected void OnChkNeedNewBottlesToggled(object sender, EventArgs e)
@@ -1652,27 +1663,6 @@ namespace Vodovoz
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
-		}
-
-		private void OnEnumPersonTypeOnEnumItemSelected(object sender, ItemSelectedEventArgs e)
-		{
-			if(Entity.PersonType == PersonType.natural)
-			{
-				var personFullName = GetPersonFullName();
-				if(!string.IsNullOrEmpty(personFullName))
-				{
-					Entity.Name = personFullName;
-				}
-			}
-		}
-
-		private void OnDatalegalnameOwnershipChanged(object sender, EventArgs e)
-		{
-			var personFullName = GetPersonFullName();
-			if(Entity.TypeOfOwnership == "ИП" && !string.IsNullOrEmpty(personFullName))
-			{
-				Entity.Name = Entity.FullName = personFullName;
-			}
 		}
 
 		private void OnEntryPersonNamePartChanged(object sender, EventArgs e)
