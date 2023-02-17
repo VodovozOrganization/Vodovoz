@@ -54,7 +54,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			ytreeviewOrders.ColumnsConfig = FluentColumnsConfig<OrderWithoutShipmentForPaymentNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(node => node.IsSelected).ToggledEvent(UseFine_Toggled)
 				.AddColumn("Номер").AddTextRenderer(node => node.OrderId.ToString())
-				.AddColumn("Дата").AddTextRenderer(node => node.OrderDate.ToShortDateString())
+				.AddColumn("Дата\nдоставки").AddTextRenderer(node => node.OrderDate.ToShortDateString())
 				.AddColumn("Статус").AddEnumRenderer(node => node.OrderStatus)
 				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.Bottles:N0}")
 				.AddColumn("Сумма").AddTextRenderer(node => node.OrderSum.ToString())
