@@ -93,9 +93,9 @@ parallel (
 			stage('Build docker'){
 				// if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				// {
-				// 	PublishBuildWebServiceToFolder('Sms.Internal.Service', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Sms.Internal.Service\\Sms.Internal.Service.csproj')
+				// 	PublishBuildWebServiceToDockerRegistry('Sms.Internal.Service', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Sms.Internal.Service\\Sms.Internal.Service.csproj')
 				// }
-				PublishBuildWebServiceToFolder('Sms.Internal.Service', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Sms.Internal.Service\\Sms.Internal.Service.csproj')
+				PublishBuildWebServiceToDockerRegistry('Sms.Internal.Service', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Sms.Internal.Service\\Sms.Internal.Service.csproj')
 			}
 		}						
 	}
