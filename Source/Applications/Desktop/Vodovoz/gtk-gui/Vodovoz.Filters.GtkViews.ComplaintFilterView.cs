@@ -50,7 +50,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox cmbComplaintKind;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryComplainDetalization;
+		private global::QS.Views.Control.EntityEntry entryComplaintDetalization;
 
 		private global::Gtk.Label label1;
 
@@ -297,13 +297,11 @@ namespace Vodovoz.Filters.GtkViews
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryComplainDetalization = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryComplainDetalization.Events = ((global::Gdk.EventMask)(256));
-			this.entryComplainDetalization.Name = "entryComplainDetalization";
-			this.entryComplainDetalization.CanEditReference = true;
-			this.entryComplainDetalization.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.entryComplainDetalization);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.entryComplainDetalization]));
+			this.entryComplaintDetalization = new global::QS.Views.Control.EntityEntry();
+			this.entryComplaintDetalization.Events = ((global::Gdk.EventMask)(256));
+			this.entryComplaintDetalization.Name = "entryComplaintDetalization";
+			this.table1.Add(this.entryComplaintDetalization);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.entryComplaintDetalization]));
 			w20.TopAttach = ((uint)(4));
 			w20.BottomAttach = ((uint)(5));
 			w20.LeftAttach = ((uint)(1));
