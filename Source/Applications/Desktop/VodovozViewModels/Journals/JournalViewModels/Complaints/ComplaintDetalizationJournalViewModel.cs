@@ -9,7 +9,6 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using QS.Tdi;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Complaints;

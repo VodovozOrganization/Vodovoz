@@ -2179,62 +2179,12 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-		IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
-
-		var parametersProvider = new ParametersProvider();
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(parametersProvider));
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var userRepository = new UserRepository();
-
-		ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
-
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
-		IFileDialogService fileDialogService = new FileDialogService();
-		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
-
-		tdiMain.OpenTab(
-			() =>
-			{
-				return new ComplaintsJournalViewModel(
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					NavigationManager,
-					undeliveredOrdersJournalOpener,
-					VodovozGtkServicesConfig.EmployeeService,
-					counterpartySelectorFactory,
-					routeListItemRepository,
-					new SubdivisionParametersProvider(new ParametersProvider()),
-					new ComplaintFilterViewModel(
-						ServicesConfig.CommonServices,
-						subdivisionRepository,
-						employeeJournalFactory,
-						counterpartySelectorFactory,
-						subdivisionParametersProvider)
-					{
-						IsForRetail = true
-					},
-					fileDialogService,
-					subdivisionRepository,
-					new GtkTabsOpener(),
-					nomenclatureRepository,
-					userRepository,
-					new OrderSelectorFactory(),
-					employeeJournalFactory,
-					counterpartySelectorFactory,
-					new DeliveryPointJournalFactory(),
-					subdivisionJournalFactory,
-					new SalesPlanJournalFactory(),
-					new NomenclatureJournalFactory(),
-					new EmployeeSettings(new ParametersProvider()),
-					new UndeliveredOrdersRepository(),
-					complaintParametersProvider,
-					autofacScope.BeginLifetimeScope());
-			}
-		);
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash, addingRegistrations =>
+			addingRegistrations.RegisterInstance(
+				new Action<ComplaintFilterViewModel>[]
+				{
+					filter => filter.IsForRetail = true
+				}));
 	}
 
 	protected void OnActionRetailUndeliveredOrdersJournalActivated(object sender, EventArgs e)
