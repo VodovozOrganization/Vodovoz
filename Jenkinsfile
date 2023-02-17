@@ -1,12 +1,12 @@
 stage('Checkout'){
 	parallel (
-		"Desktop" : {
-			node('DESKTOP_BUILD'){
+		"Win" : {
+			node('WIN_BUILD'){
 				PrepareSources("${JENKINS_HOME_WIN}")
 			}
 		},
-		"WCF" : {
-			node('WCF_BUILD'){
+		"Linux" : {
+			node('LINUX_BUILD'){
 				PrepareSources("${JENKINS_HOME}")
 			}						
 		}
@@ -14,13 +14,13 @@ stage('Checkout'){
 }
 stage('Restore'){
 	parallel (
-		"Desktop" : {
-			node('DESKTOP_BUILD'){
+		"Win" : {
+			node('WIN_BUILD'){
 				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86 -maxcpucount:2'
 			}
 		},
-		"WCF" : {
-			node('WCF_BUILD'){
+		"Linux" : {
+			node('LINUX_BUILD'){
 				sh 'nuget restore Vodovoz/Source/Vodovoz.sln'
 				sh 'nuget restore Vodovoz/Source/Libraries/External/QSProjects/QSProjectsLib.sln'
 				sh 'nuget restore Vodovoz/Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
@@ -29,8 +29,8 @@ stage('Restore'){
 	)				
 }
 parallel (
-	"Desktop" : {
-		node('DESKTOP_BUILD'){
+	"Win" : {
+		node('WIN_BUILD'){
 			stage('Build Desktop'){
 				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
 
@@ -68,8 +68,6 @@ parallel (
 
 					PublishBuildWebServiceToFolder('TaxcomEdoApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\bin\\Release\\net5.0_publish')
-
-					PublishBuildWebServiceToDockerRegistry('Sms.Internal.Service', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Sms.Internal.Service\\Sms.Internal.Service.csproj')
 				}
 				else
 				{
@@ -80,8 +78,8 @@ parallel (
 			
 		}
 	},
-	"WCF" : {
-		node('WCF_BUILD'){
+	"Linux" : {
+		node('LINUX_BUILD'){
 			stage('Build WCF'){
 				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
 
@@ -90,6 +88,14 @@ parallel (
 				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/', 'SmsPaymentService')
 
 				archiveArtifacts artifacts: '*Service.zip', onlyIfSuccessful: true
+			}
+
+			stage('Build docker'){
+				// if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				// {
+				// 	PublishBuildWebServiceToFolder('Sms.Internal.Service', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Sms.Internal.Service\\Sms.Internal.Service.csproj')
+				// }
+				PublishBuildWebServiceToFolder('Sms.Internal.Service', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Sms.Internal.Service\\Sms.Internal.Service.csproj')
 			}
 		}						
 	}
@@ -123,8 +129,8 @@ parallel (
 			}		
 		}
 	},
-	"WCF" : {
-		node('WCF_RUNTIME'){
+	"Linux" : {
+		node('LINUX_RUNTIME'){
 			stage('Deploy WCF'){
 				script{					
 					if(env.BRANCH_NAME == 'master')
@@ -204,11 +210,9 @@ def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
 	archiveArtifacts artifacts: "${serviceName}.zip", onlyIfSuccessful: true
 }
 
-def PublishBuildWebServiceToDockerRegistry(serviceName, csprojPath) {
-	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
-	
+def PublishBuildWebServiceToDockerRegistry(serviceName, csprojPath) {	
 	echo "Publish ${serviceName} to docker registry"
-	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=DockerRegistry -maxcpucount:2'
+	sh 'msbuild ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=DockerRegistry -maxcpucount:2'
 }
 
 def DeployWebService(serviceName) {
