@@ -166,11 +166,10 @@ namespace Vodovoz.Views.Logistic
 
 		private void SubscribeToEvents()
 		{
-			ViewModel.WorkingDrivers.CollectionChanged += (s, e) => { yTreeViewDrivers.YTreeModel.EmitModelChanged(); };
-			ViewModel.RouteListAddresses.CollectionChanged += (s, e) => { yTreeAddresses.YTreeModel.EmitModelChanged(); };
-			ViewModel.FastDeliveryDistricts.CollectionChanged += FastDeliveryDistrictsGeometryChanged;
-			ViewModel.SelectedWorkingDrivers.CollectionChanged += SelectedDriversChanged;
-			ViewModel.WorkingDrivers.CollectionChanged += WorkingDriversChanged;
+			ViewModel.WorkingDriversChanged += yTreeViewDrivers.YTreeModel.EmitModelChanged;
+			ViewModel.RouteListAddressesChanged += yTreeAddresses.YTreeModel.EmitModelChanged;
+			ViewModel.FastDeliveryDistrictChanged += UpdateDeliveryDistrictsOverlay;
+			ViewModel.WorkingDriversChanged += WorkingDriversChanged;
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
@@ -188,9 +187,11 @@ namespace Vodovoz.Views.Logistic
 
 		private void UnSubscribeFromEvents()
 		{
-			ViewModel.FastDeliveryDistricts.CollectionChanged -= FastDeliveryDistrictsGeometryChanged;
-			ViewModel.SelectedWorkingDrivers.CollectionChanged -= SelectedDriversChanged;
-			ViewModel.WorkingDrivers.CollectionChanged -= WorkingDriversChanged;
+			ViewModel.WorkingDriversChanged -= yTreeViewDrivers.YTreeModel.EmitModelChanged;
+			ViewModel.RouteListAddressesChanged -= yTreeAddresses.YTreeModel.EmitModelChanged;
+
+			ViewModel.FastDeliveryDistrictChanged -= UpdateDeliveryDistrictsOverlay;
+			ViewModel.WorkingDriversChanged -= WorkingDriversChanged;
 			
 			ViewModel.PropertyChanged -= ViewModelPropertyChanged;
 
@@ -206,14 +207,14 @@ namespace Vodovoz.Views.Logistic
 			buttonMapInWindow.Clicked -= OnButtonMapInWindowClicked;
 		}
 
-		private void WorkingDriversChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void WorkingDriversChanged()
 		{
 			_tracksOverlay.Clear();
 			_carsOverlay.Clear();
 			UpdateCarPosition();
 		}
 
-		private void SelectedDriversChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void SelectedDriversChanged()
 		{
 			foreach(var driver in ViewModel.SelectedWorkingDrivers)
 			{
@@ -249,12 +250,6 @@ namespace Vodovoz.Views.Logistic
 			{
 				swAddressesListContainer.Visible = ViewModel.ShowAddresses;
 			}
-		}
-
-		private void FastDeliveryDistrictsGeometryChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			UpdateDeliveryDistrictsOverlay();
-			UpdateCarPosition();
 		}
 
 		private void UpdateDeliveryDistrictsOverlay()
@@ -304,8 +299,8 @@ namespace Vodovoz.Views.Logistic
 			_logger.Info("Обновляем данные диалога...");
 			ViewModel.RefreshWorkingDriversCommand?.Execute();
 			ViewModel.RefreshFastDeliveryDistrictsCommand?.Execute();
-			UpdateCarPosition();
 			_logger.Info("Ок");
+			UpdateCarPosition();
 		}
 
 		private void OnButtonTrackPointsClicked(object sender, EventArgs e)
@@ -393,6 +388,7 @@ namespace Vodovoz.Views.Logistic
 			{
 				ViewModel.SelectedWorkingDrivers.Add(selectedNode);
 			}
+			SelectedDriversChanged();
 		}
 
 		private bool UpdateCarPosition()
