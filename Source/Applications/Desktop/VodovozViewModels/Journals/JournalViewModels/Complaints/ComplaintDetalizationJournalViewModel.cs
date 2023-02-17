@@ -1,9 +1,15 @@
-﻿using NHibernate;
+﻿using Autofac;
+using Autofac.Core;
+using NHibernate;
 using NHibernate.Transform;
+using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.Tdi;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
@@ -14,19 +20,29 @@ using Vodovoz.ViewModels.ViewModels.Complaints;
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
 	public class ComplaintDetalizationJournalViewModel
-		: FilterableSingleEntityJournalViewModelBase<
+		: EntityJournalViewModelBase<
 			ComplaintDetalization,
 			ComplaintDetalizationViewModel,
-			ComplaintDetalizationJournalNode,
-			ComplaintDetalizationJournalFilterViewModel>
+			ComplaintDetalizationJournalNode>
 	{
+		private ComplaintDetalizationJournalFilterViewModel _filterViewModel;
+		private IPermissionResult _premissionResult;
+		private readonly ILifetimeScope _scope;
+
 		public ComplaintDetalizationJournalViewModel(
-			ComplaintDetalizationJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices)
-			: base(filterViewModel, unitOfWorkFactory, commonServices)
+			IInteractiveService interactiveService,
+			INavigationManager navigationManager,
+			ICurrentPermissionService currentPermissionService,
+			ILifetimeScope scope,
+			params Action<ComplaintDetalizationJournalFilterViewModel>[] filterParams)
+			: base(unitOfWorkFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService)
 		{
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+
 			TabName = "Детализации видов рекламаций";
+
+			CreateFilter(filterParams);
 
 			UpdateOnChanges(
 				typeof(ComplaintKind),
@@ -34,7 +50,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				typeof(ComplaintDetalization));
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<ComplaintDetalization>> ItemsSourceQueryFunction => (unitOfWork) =>
+		private void CreateFilter(params Action<ComplaintDetalizationJournalFilterViewModel>[] filterParams)
+		{
+			Parameter[] parameters = {
+				new TypedParameter(typeof(Action<ComplaintDetalizationJournalFilterViewModel>[]), filterParams)
+			};
+
+			_filterViewModel = _scope.Resolve<ComplaintDetalizationJournalFilterViewModel>(parameters);
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+			JournalFilter = _filterViewModel;
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
+		}
+
+		protected override IQueryOver<ComplaintDetalization> ItemsQuery(IUnitOfWork unitOfWork)
 		{
 			ComplaintDetalization complaintDetalizationAlias = null;
 			ComplaintKind complaintKindAlias = null;
@@ -45,15 +77,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.Left.JoinAlias(x => x.ComplaintKind, () => complaintKindAlias)
 				.Left.JoinAlias(() => complaintKindAlias.ComplaintObject, () => complaintObjectAlias);
 
-			if(FilterViewModel.ComplaintObject != null)
+			if(_filterViewModel.ComplaintObject != null)
 			{
-				var complaintIbjectId = FilterViewModel.ComplaintObject.Id;
+				var complaintIbjectId = _filterViewModel.ComplaintObject.Id;
 				itemsQuery.Where(() => complaintObjectAlias.Id == complaintIbjectId);
 			}
 
-			if(FilterViewModel.ComplaintKind != null)
+			if(_filterViewModel.ComplaintKind != null)
 			{
-				var complaintKindId = FilterViewModel.ComplaintKind.Id;
+				var complaintKindId = _filterViewModel.ComplaintKind.Id;
 				itemsQuery.Where(() => complaintKindAlias.Id == complaintKindId);
 			}
 
@@ -73,14 +105,35 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.TransformUsing(Transformers.AliasToBean<ComplaintDetalizationJournalNode>());
 
 			return itemsQuery;
-		};
+		}
 
 		protected override void CreateNodeActions()
 		{
+			_premissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(ComplaintDetalization));
+
 			NodeActionsList.Clear();
+
 			CreateSelectAction();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+
+			var addAction = new JournalAction("Добавить",
+				(selected) => _premissionResult.CanCreate,
+				(selected) => VisibleCreateAction,
+				(selected) => CreateEntityDialog(),
+				"Insert"
+			);
+			NodeActionsList.Add(addAction);
+
+			var editAction = new JournalAction("Изменить",
+				(selected) => _premissionResult.CanUpdate && selected.Any(),
+				(selected) => VisibleEditAction,
+				(selected) => selected.OfType<ComplaintDetalizationJournalNode>().ToList().ForEach(EditEntityDialog)
+			);
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
 		}
 
 		private void CreateSelectAction()
@@ -97,22 +150,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			NodeActionsList.Add(selectAction);
 		}
 
-		protected override Func<ComplaintDetalizationViewModel> CreateDialogFunction =>
-			() => new ComplaintDetalizationViewModel(
-			   EntityUoWBuilder.ForCreate(),
-			   UnitOfWorkFactory,
-			   commonServices,
-			   null,
-			   FilterViewModel.RestrictComplaintObject,
-			   FilterViewModel.RestrictComplaintKind);
+		protected override void EditEntityDialog(ComplaintDetalizationJournalNode node)
+		{
+			NavigationManager.OpenViewModel<ComplaintDetalizationViewModel, IEntityUoWBuilder, ComplaintObject, ComplaintKind>(
+				this, EntityUoWBuilder.ForOpen(DomainHelper.GetId(node)),
+				_filterViewModel.RestrictComplaintObject,
+				_filterViewModel.RestrictComplaintKind);
+		}
 
-		protected override Func<ComplaintDetalizationJournalNode, ComplaintDetalizationViewModel> OpenDialogFunction =>
-			(node) => new ComplaintDetalizationViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				UnitOfWorkFactory,
-				commonServices,
-				null,
-				FilterViewModel.RestrictComplaintObject,
-				FilterViewModel.RestrictComplaintKind);
+		protected override void CreateEntityDialog()
+		{
+			NavigationManager.OpenViewModel<ComplaintDetalizationViewModel, IEntityUoWBuilder, ComplaintObject, ComplaintKind>(
+				this,
+				EntityUoWBuilder.ForCreate(),
+				_filterViewModel.RestrictComplaintObject,
+				_filterViewModel.RestrictComplaintKind);
+		}
 	}
 }

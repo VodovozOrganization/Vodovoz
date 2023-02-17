@@ -87,7 +87,6 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationSelectorFactory,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -148,7 +147,10 @@ namespace Vodovoz.ViewModels.Complaints
 			ComplaintDetalizationEntryViewModel = builder
 				.ForProperty(x => x.ComplaintDetalization)
 				.UseViewModelDialog<ComplaintDetalizationViewModel>()
-				.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
+					filter => filter.RestrictComplaintObject = Entity.ComplaintKind?.ComplaintObject,
+					filter => filter.RestrictComplaintKind = Entity.ComplaintKind
+				)
 				.Finish();
 
 			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
@@ -169,8 +171,6 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
-			
-			InitializeComplaintDetalizationAutocompleteSelectorFactory(complaintDetalizationSelectorFactory);
 		}
 
 		public IEntityEntryViewModel ComplaintDetalizationEntryViewModel { get; }
@@ -186,10 +186,11 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
-		public bool CanEditDetalization => CommonServices.CurrentPermissionService
-			.ValidateEntityPermission(typeof(ComplaintDetalization)).CanUpdate;
+		[PropertyChangedAlso(nameof(CanChangeDetalization))]
+		public bool CanReadDetalization => CommonServices.CurrentPermissionService
+			.ValidateEntityPermission(typeof(ComplaintDetalization)).CanRead;
 
-		public bool CanChangeDetalization => CanEdit && Entity.ComplaintKind != null;
+		public bool CanChangeDetalization => CanReadDetalization && Entity.ComplaintKind != null;
 
 		public bool AskSaveOnClose => CanEdit;
 
@@ -483,7 +484,6 @@ namespace Vodovoz.ViewModels.Complaints
 		#endregion Commands
 
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
-		public IEntityAutocompleteSelectorFactory ComplaintDetalizationAutocompleteSelectorFactory { get; private set; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		private ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
@@ -503,18 +503,6 @@ namespace Vodovoz.ViewModels.Complaints
 			OrderAutocompleteSelectorFactory =
 				(orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory)))
 				.CreateOrderAutocompleteSelectorFactory(orderFilter);
-		}
-
-		private void InitializeComplaintDetalizationAutocompleteSelectorFactory(IComplaintDetalizationAutocompleteSelectorFactory complainDetalizationSelectorFactory)
-		{
-			if(Entity.ComplaintKind != null)
-			{
-				_detalizationJournalFilterViewModel.RestrictComplaintKind = Entity.ComplaintKind;
-			}
-
-			ComplaintDetalizationAutocompleteSelectorFactory =
-				(complainDetalizationSelectorFactory ?? throw new ArgumentNullException(nameof(complainDetalizationSelectorFactory)))
-				.CreateComplaintDetalizationAutocompleteSelectorFactory(_detalizationJournalFilterViewModel);
 		}
 
 		protected void ConfigureEntityChangingRelations()

@@ -1,4 +1,6 @@
 ﻿using QS.Project.Filter;
+using QS.Project.Journal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
@@ -6,7 +8,7 @@ using Vodovoz.Domain.Complaints;
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 {
 	public class ComplaintDetalizationJournalFilterViewModel
-		: FilterViewModelBase<ComplaintDetalizationJournalFilterViewModel>
+		: FilterViewModelBase<ComplaintDetalizationJournalFilterViewModel>, IJournalFilterViewModel
 	{
 		private ComplaintObject _complaintObject;
 		private ComplaintKind _complaintOKind;
@@ -14,11 +16,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 		private ComplaintKind _restrictComplaintKind;
 		private ComplaintObject _restrictComplaintObject;
 
-		public ComplaintDetalizationJournalFilterViewModel()
+		public ComplaintDetalizationJournalFilterViewModel(params Action<ComplaintDetalizationJournalFilterViewModel>[] filterParams)
 		{
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			ComplaintKinds = UoW.Session.QueryOver<ComplaintKind>().List();
 			VisibleComplaintKinds = Enumerable.Empty<ComplaintKind>();
+
+			SetAndRefilterAtOnce(filterParams);
 		}
 
 		public ComplaintObject ComplaintObject
@@ -94,5 +98,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 			get => _visibleComplaintKinds;
 			private set => UpdateFilterField(ref _visibleComplaintKinds, value);
 		}
+
+		public bool IsShow { get; set; }
 	}
 }

@@ -14,7 +14,6 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.FilterViewModels
 {
@@ -66,8 +65,7 @@ namespace Vodovoz.FilterViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationAutocompleteSelectorFactory)
+			ISubdivisionParametersProvider subdivisionParametersProvider)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
@@ -86,15 +84,8 @@ namespace Vodovoz.FilterViewModels
 				UoW,
 				true);
 
-			if(complaintDetalizationAutocompleteSelectorFactory is null)
-			{
-				throw new ArgumentNullException(nameof(complaintDetalizationAutocompleteSelectorFactory));
-			}
 
 			_complaintDetalizationFilterViewModel = new ComplaintDetalizationJournalFilterViewModel();
-
-			ComplaintDetalizationAutocompleteSelectorFactory = complaintDetalizationAutocompleteSelectorFactory
-				.CreateComplaintDetalizationAutocompleteSelectorFactory(_complaintDetalizationFilterViewModel);
 
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 			CanChangeSubdivision = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_subdivision_on_complaint");
@@ -135,8 +126,6 @@ namespace Vodovoz.FilterViewModels
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
-
-		public IEntityAutocompleteSelectorFactory ComplaintDetalizationAutocompleteSelectorFactory { get; }
 
 		public virtual bool CanChangeSubdivision { get; }
 

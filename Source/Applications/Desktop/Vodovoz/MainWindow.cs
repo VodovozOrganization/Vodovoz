@@ -2196,8 +2196,6 @@ public partial class MainWindow : Gtk.Window
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
 
-		IComplaintDetalizationAutocompleteSelectorFactory complaintDetalizationAutocompleteSelectorFactory = new ComplaintDetalizationAutocompleteSelectorFactory();
-
 		tdiMain.OpenTab(
 			() =>
 			{
@@ -2215,8 +2213,7 @@ public partial class MainWindow : Gtk.Window
 						subdivisionRepository,
 						employeeJournalFactory,
 						counterpartySelectorFactory,
-						subdivisionParametersProvider,
-						complaintDetalizationAutocompleteSelectorFactory)
+						subdivisionParametersProvider)
 					{
 						IsForRetail = true
 					},
@@ -2235,7 +2232,6 @@ public partial class MainWindow : Gtk.Window
 					new EmployeeSettings(new ParametersProvider()),
 					new UndeliveredOrdersRepository(),
 					complaintParametersProvider,
-					complaintDetalizationAutocompleteSelectorFactory,
 					autofacScope.BeginLifetimeScope());
 			}
 		);

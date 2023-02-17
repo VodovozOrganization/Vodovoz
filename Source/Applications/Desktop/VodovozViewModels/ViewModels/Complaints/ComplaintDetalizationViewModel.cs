@@ -4,6 +4,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -11,7 +12,7 @@ using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.ViewModels.Complaints
 {
-	public class ComplaintDetalizationViewModel : EntityTabViewModelBase<ComplaintDetalization>
+	public class ComplaintDetalizationViewModel : EntityTabViewModelBase<ComplaintDetalization>, IAskSaveOnCloseViewModel
 	{
 		private ComplaintObject _selectedComplainObject;
 		private IEnumerable<ComplaintKind> _visibleComplaintKinds;
@@ -113,6 +114,8 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 
 		public bool CanChangeComplaintObject => CanEdit
 			&& RestrictComplaintObject is null;
+
+		public bool AskSaveOnClose => CanEdit;
 
 		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
