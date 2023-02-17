@@ -95,6 +95,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.Where(wage => wage.Employee.Id == employeeAlias.Id)
 				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
 
+			if(FilterViewModel?.MinBalance != null)
+			{
+				wageQuery.Where(w => w.Money < FilterViewModel.MinBalance);
+			}
+
 			var employeeProjection = CustomProjections.Concat_WS(
 				" ",
 				() => employeeAlias.LastName,
