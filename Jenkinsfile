@@ -89,6 +89,14 @@ parallel (
 
 				archiveArtifacts artifacts: '*Service.zip', onlyIfSuccessful: true
 			}
+
+			stage('Build docker'){
+				// if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				// {
+				// 	PublishBuildWebServiceToDockerRegistry('Sms.Internal.Service', 'Vodovoz/Source/Applications/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj')
+				// }
+				PublishBuildWebServiceToDockerRegistry('Sms.Internal.Service', 'Vodovoz/Source/Applications/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj')
+			}
 		}						
 	}
 )
