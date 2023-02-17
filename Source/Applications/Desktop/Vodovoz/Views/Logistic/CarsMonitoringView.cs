@@ -413,7 +413,13 @@ namespace Vodovoz.Views.Logistic
 					.Select(x => x.RouteListId)
 					.ToArray();
 
-				var ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDriversRouteListsIds, disconnectedDateTime);
+				IList<DriverPosition> ere20Minuts = new List<DriverPosition>();
+
+				if(!ViewModel.ShowFastDeliveryOnly)
+				{
+					ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDriversRouteListsIds, disconnectedDateTime);
+				}
+					
 				_logger.Debug("Время запроса точек: {0}", DateTime.Now - startRequest);
 
 				var driversWithAdditionalLoading = ViewModel.GetDriversWithAdditionalLoadingFrom(routesIds);

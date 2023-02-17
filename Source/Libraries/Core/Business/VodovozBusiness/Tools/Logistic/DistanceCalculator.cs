@@ -5,6 +5,7 @@ using GMap.NET;
 using GMap.NET.MapProviders;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Operation.Union;
+using NHibernate.Util;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 
@@ -121,6 +122,7 @@ namespace Vodovoz.Tools.Logistic
 			{
 				perimetralRingPoints.Add(FindPointByDistanceAndRadians(center, radian, radius));
 			}
+			perimetralRingPoints.Add(perimetralRingPoints.First());
 
 			Polygon polyCircle = geometryFactory.CreatePolygon(perimetralRingPoints.ToArray());
 

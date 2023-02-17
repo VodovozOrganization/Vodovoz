@@ -95,6 +95,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
 			TabName = "Мониторинг";
 
@@ -124,8 +125,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_historyHour = TimeSpan.FromHours(9);
 
 			_fastDeliveryTime = _deliveryRulesParametersProvider.MaxTimeForFastDelivery;
-
-			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
 			FastDeliveryDistricts = new ObservableCollection<District>();
 			RouteListAddresses = new ObservableCollection<RouteListAddressNode>();
@@ -358,6 +357,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand RefreshFastDeliveryDistrictsCommand { get; }
 
 		public DelegateCommand RefreshFastDeliveryMaxKmValueCommand { get; }
+
 		public DelegateCommand RefreshLastDriverPositionsCommand { get; }
 		#endregion
 
@@ -463,8 +463,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.JoinAlias(rl => rl.Car, () => carAlias)
 				.JoinEntityAlias(() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id
-						&& carVersionAlias.StartDate <= routeListAlias.Date &&
-						(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
+						&& carVersionAlias.StartDate <= routeListAlias.Date
+						&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
 				.Where(rl => rl.Driver != null)
 				.Where(rl => rl.Car != null);
 
@@ -496,8 +496,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				query.Where(rl => rl.Status == RouteListStatus.EnRoute);
 			}
-
-			query.Where(Restrictions.IsNotNull(Projections.SubQuery(trackSubquery)));
 
 			var result = query.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)
@@ -569,21 +567,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void RefreshFastDeliveryDistricts()
 		{
 			FastDeliveryDistricts.Clear();
-			IList<District> districts;
-			if(ShowHistory)
+			if(ShowDistrictsOverlay)
 			{
-				districts = _scheduleRestrictionRepository
-					.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDateTime);
+				IList<District> districts;
+				if(ShowHistory)
+				{
+					districts = _scheduleRestrictionRepository
+						.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDateTime);
+				}
+				else
+				{
+					districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDelivery(_unitOfWork);
+				}
+				foreach(var district in districts)
+				{
+					FastDeliveryDistricts.Add(district);
+				}
+				OnPropertyChanged(nameof(CoveragePercentString));
 			}
-			else
-			{
-				districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDelivery(_unitOfWork);
-			}
-			foreach(var district in districts)
-			{
-				FastDeliveryDistricts.Add(district);
-			}
-			OnPropertyChanged(nameof(CoveragePercentString));
 		}
 
 		public void RefreshFastDeliveryMaxKmValue()
