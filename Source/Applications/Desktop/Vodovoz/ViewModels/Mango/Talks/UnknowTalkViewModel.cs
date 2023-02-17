@@ -126,7 +126,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		{
 			if(_counterpartyJournalPage?.ViewModel != null)
 			{
-				_counterpartyJournalPage.ViewModel.SelectionMode = JournalSelectionMode.None;
 				_counterpartyJournalPage.ViewModel.OnEntitySelectedResult -= OnExistingCounterpartyPageClosed;
 			}
 
