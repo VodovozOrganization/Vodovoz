@@ -1,10 +1,9 @@
 ﻿using Grpc.Net.Client;
+using Grpc.Net.Client.Web;
 using System;
 using System.Net.Http;
-using System.Reflection;
-using System.Runtime.InteropServices;
 
-namespace Sms.Internal.Client
+namespace Sms.Internal.Client.Framework
 {
 	public class SmsClientChannel : IDisposable
 	{
@@ -24,25 +23,16 @@ namespace Sms.Internal.Client
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
-			CheckFramework();
-
-			_httpClient = new HttpClient();
+			var handler = new GrpcWebHandler(new HttpClientHandler());
+			_httpClient = new HttpClient(handler);
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", apiKey);
 
 			var options = new GrpcChannelOptions();
 			options.HttpClient = _httpClient;
+
 			var channel = GrpcChannel.ForAddress(url, options);
 			_grpcChannel = channel;
 			_client = new SmsSender.SmsSenderClient(channel);
-		}
-
-		private void CheckFramework()
-		{
-			if(RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework"))
-			{
-				throw new InvalidOperationException($"Сборка {Assembly.GetExecutingAssembly().GetName().Name} не предназначена " +
-					$"для использования в .NET Framework. Воспользуйтесь специальной версией сборки с приставкой Framework.");
-			}
 		}
 
 		public SmsSender.SmsSenderClient Client => _client;

@@ -22,7 +22,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using GMap.NET.MapProviders;
-using InstantSmsService;
 using MySql.Data.MySqlClient;
 using QS.BaseParameters;
 using QS.ChangePassword.Views;
@@ -291,12 +290,6 @@ namespace Vodovoz
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 			
-			//Настройка сервисов
-			if(parametersProvider.ContainsParameter("instant_sms_enabled_database") && parametersProvider.ContainsParameter("sms_service_address")) {
-				if(parametersProvider.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
-					InstantSmsServiceSetting.Init(parametersProvider.GetParameterValue("sms_service_address"));
-				}
-			}
 			if(parametersProvider.ContainsParameter("sms_payment_send_enabled_database") && parametersProvider.ContainsParameter("sms_payment_send_service_address")) {
 				if(parametersProvider.GetParameterValue("sms_payment_send_enabled_database") == loginDialogName) {
 					SmsPaymentServiceSetting.Init(parametersProvider.GetParameterValue("sms_payment_send_service_address"));

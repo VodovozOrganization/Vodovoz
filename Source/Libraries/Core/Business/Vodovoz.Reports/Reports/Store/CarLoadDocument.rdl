@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     IF (scldi.item_expiration_date_percent IS NOT NULL
@@ -49,7 +49,7 @@ ORDER BY clmn_for_sorting;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -163,12 +163,12 @@ LIMIT 1
 	mu.digits,
 	IF(scldi.own_type IS NOT NULL,
 		CASE scldi.own_type
-			WHEN 'None'  THEN n.official_name
-			WHEN 'Client'THEN CONCAT(n.official_name, ' (Клиент)')
-			WHEN 'Duty'	 THEN CONCAT(n.official_name, ' (Дежурный)')
-			WHEN 'Rent'	 THEN CONCAT(n.official_name, ' (Аренда)')
-			ELSE n.official_name
-		END, n.official_name) as official_name
+			WHEN 'None'  THEN n.name
+			WHEN 'Client'THEN CONCAT(n.name, ' (Клиент)')
+			WHEN 'Duty'	 THEN CONCAT(n.name, ' (Дежурный)')
+			WHEN 'Rent'	 THEN CONCAT(n.name, ' (Аренда)')
+			ELSE n.name
+		END, n.name) as nomenclature_name
 FROM
 	store_car_load_document_items scldi 
 LEFT JOIN 
@@ -187,8 +187,8 @@ GROUP BY n.id, scldi.own_type </CommandText>
         </QueryParameters>
       </Query>
       <Fields>
-        <Field Name="official_name">
-          <DataField>official_name</DataField>
+        <Field Name="nomenclature_name">
+          <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="count">
@@ -1750,7 +1750,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox89">
-                      <Value>={official_name}</Value>
+                      <Value>={nomenclature_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
