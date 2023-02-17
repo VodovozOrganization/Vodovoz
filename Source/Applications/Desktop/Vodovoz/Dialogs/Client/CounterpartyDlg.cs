@@ -1,7 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
-using Gdk;
 using Gtk;
 using NHibernate;
 using NHibernate.Transform;
@@ -29,6 +28,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Services;
@@ -80,10 +80,12 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using EdoService.Dto;
 using System.Threading;
+using Gamma.Widgets;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using QS.Attachments.Domain;
+using QS.Utilities.Text;
 using Vodovoz.Core;
 
 namespace Vodovoz
@@ -376,6 +378,7 @@ namespace Vodovoz
 			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			enumPersonType.ItemsEnum = typeof(PersonType);
 			enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumPersonType.EnumItemSelected += OnEnumPersonTypeOnEnumItemSelected;
 
 			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yEnumCounterpartyType.Binding
@@ -480,12 +483,18 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.Patronymic, w => w.Text)
 				.InitializeFromSource();
 
+			yentrySurname.Changed += OnEntryPersonNamePartChanged;
+			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
+			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
+
 			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			datalegalname1.Binding.AddSource(Entity)
 				.AddBinding(s => s.Name, t => t.OwnName)
 				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
 				.AddFuncBinding(s => s.TypeOfOwnership != "ИП", t => t.EntryName.Sensitive)
 				.InitializeFromSource();
+
+			datalegalname1.OwnershipChanged += OnDatalegalnameOwnershipChanged;
 
 			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			entryFullName.Binding
@@ -1643,6 +1652,50 @@ namespace Vodovoz
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
+		}
+
+		private void OnEnumPersonTypeOnEnumItemSelected(object sender, ItemSelectedEventArgs e)
+		{
+			if(Entity.PersonType == PersonType.natural)
+			{
+				var personFullName = GetPersonFullName();
+				if(!string.IsNullOrEmpty(personFullName))
+				{
+					Entity.Name = personFullName;
+				}
+			}
+		}
+
+		private void OnDatalegalnameOwnershipChanged(object sender, EventArgs e)
+		{
+			var personFullName = GetPersonFullName();
+			if(Entity.TypeOfOwnership == "ИП" && !string.IsNullOrEmpty(personFullName))
+			{
+				Entity.Name = Entity.FullName = personFullName;
+			}
+		}
+
+		private void OnEntryPersonNamePartChanged(object sender, EventArgs e)
+		{
+			var personFullName = GetPersonFullName();
+			if(!string.IsNullOrEmpty(personFullName))
+			{
+				Entity.Name = Entity.FullName = personFullName;
+			}
+		}
+
+		private string GetPersonFullName()
+		{
+			StringBuilder personFullName = new StringBuilder();
+
+			if(Entity.TypeOfOwnership == "ИП" && Entity.PersonType == PersonType.legal)
+			{
+				personFullName.Append("ИП ");
+			}
+
+			personFullName.Append(PersonHelper.PersonFullName(Entity.Surname, Entity.FirstName, Entity.Patronymic));
+
+			return personFullName.ToString();
 		}
 
 		#region CloseDelivery //Переделать на PermissionCommentView
