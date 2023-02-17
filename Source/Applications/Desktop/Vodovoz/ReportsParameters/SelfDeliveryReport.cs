@@ -14,7 +14,8 @@ namespace Vodovoz.ReportsParameters
 		public SelfDeliveryReport()
 		{
 			this.Build();
-			ydatepicker.Date = DateTime.Now.Date;
+			dateperiodpicker.StartDate = DateTime.Now.Date;
+			dateperiodpicker.EndDate = DateTime.Now.Date;
 		}
 
 		#region IParametersWidget implementation
@@ -35,7 +36,7 @@ namespace Vodovoz.ReportsParameters
 				Identifier = "Orders.SelfDeliveryReport",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "date", ydatepicker.Date }
+					{ "date", dateperiodpicker.StartDate }
 				}
 			};
 		}
