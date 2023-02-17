@@ -23,6 +23,8 @@ namespace Vodovoz.Filters.GtkViews
 
 			comboSubdivision.ItemsList = ViewModel.Subdivisions;
 			comboSubdivision.Binding.AddBinding(ViewModel, vm => vm.Subdivision, w => w.SelectedItem).InitializeFromSource();
+
+			yspinbuttonMinBalance.Binding.AddBinding(ViewModel, vm => vm.MinBalance, w => w.ValueAsDecimal).InitializeFromSource();
 		}
 	}
 }

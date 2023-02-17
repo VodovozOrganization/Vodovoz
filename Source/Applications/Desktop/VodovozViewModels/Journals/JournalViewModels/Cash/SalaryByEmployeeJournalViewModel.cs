@@ -92,7 +92,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			}
 
 			var wageQuery = QueryOver.Of(() => wageAlias)
-				.Where(wage => wage.Employee.Id == employeeAlias.Id)
 				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
 
 			if(FilterViewModel?.MinBalance != null)
@@ -111,6 +110,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				() => employeeAlias.Id,
 				() => employeeProjection
 			));
+
+			wageQuery.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
 
 			employeesQuery
 				.SelectList(list => list
