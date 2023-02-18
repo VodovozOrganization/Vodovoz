@@ -92,11 +92,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			}
 
 			var wageQuery = QueryOver.Of(() => wageAlias)
+				.Where(wage => wage.Employee.Id == employeeAlias.Id)
 				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
 
 			if(FilterViewModel?.MinBalance != null)
 			{
-				wageQuery.Where(w => w.Money < FilterViewModel.MinBalance);
+				wageQuery.Where(() => wageAlias.Money < FilterViewModel.MinBalance);
 			}
 
 			var employeeProjection = CustomProjections.Concat_WS(
@@ -110,8 +111,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				() => employeeAlias.Id,
 				() => employeeProjection
 			));
-
-			wageQuery.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
 
 			employeesQuery
 				.SelectList(list => list
