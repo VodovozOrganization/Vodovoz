@@ -135,6 +135,8 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			FinishJournalConfiguration();
 
+			FilterViewModel.JournalViewModel = this;
+
 			FilterViewModel.EmployeeService = employeeService;
 
 			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);

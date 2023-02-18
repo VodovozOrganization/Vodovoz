@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels;
+using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -39,12 +40,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
-			//entryComplainDetalization
-			//	.SetEntityAutocompleteSelectorFactory(
-			//		ViewModel.ComplaintDetalizationAutocompleteSelectorFactory);
-			//entryComplainDetalization.Binding
-			//	.AddBinding(ViewModel, vm => vm.ComplainDetalization, w => w.Subject)
-			//	.InitializeFromSource();
+			entryComplaintDetalization.ViewModel = ViewModel.ComplaintDetalizationEntiryEntryViewModel;
 
 			//FIXME заменить на evme когда будут новые журналы с рекурсией
 			yCmbCurrentSubdivision.ItemsList = ViewModel.AllDepartments;
