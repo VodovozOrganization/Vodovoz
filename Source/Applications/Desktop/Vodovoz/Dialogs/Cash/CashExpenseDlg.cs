@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -311,6 +312,10 @@ namespace Vodovoz
 			if(evmeEmployee.Subject is Employee employee)
 			{
 				_currentEmployeeWage = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
+				if(employee.Category == EmployeeCategory.driver)
+				{
+					labelTemplate += "<span font='large' weight='bold'>Будущие штрафы: ---</span>";
+				}
 			}
 
 			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, _currentEmployeeWage);

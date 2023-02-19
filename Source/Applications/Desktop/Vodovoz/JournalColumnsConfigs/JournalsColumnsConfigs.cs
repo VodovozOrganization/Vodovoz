@@ -78,7 +78,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		public static void RegisterColumns()
 		{
 			TreeViewColumnsConfigFactory.Register<SalaryByEmployeeJournalViewModel>(
-				() => FluentColumnsConfig<EmployeeJournalNode>.Create()
+				() => FluentColumnsConfig<EmployeeWithLastWorkingDayJournalNode>.Create()
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
 					.AddColumn("Ф.И.О.").AddTextRenderer(node => node.FullName)
 					.AddColumn("Категория").AddEnumRenderer(node => node.EmpCatEnum)
@@ -86,6 +86,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Подразделение").AddTextRenderer(node => node.SubdivisionTitle)
 					.AddColumn("Баланс").AddNumericRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Balance)).Digits(2)
 					.AddColumn("Комментарий по сотруднику").AddTextRenderer(node => node.EmployeeComment)
+					.AddColumn("Последний рабочий день").AddTextRenderer(node => node.LastWorkingDay)
 					.AddColumn("")
 					.Finish()
 			);

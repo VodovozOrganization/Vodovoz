@@ -19,7 +19,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
 	public class SalaryByEmployeeJournalViewModel : FilterableSingleEntityJournalViewModelBase
-		<Employee, EmployeeViewModel, EmployeeJournalNode, SalaryByEmployeeJournalFilterViewModel>
+		<Employee, EmployeeViewModel, EmployeeWithLastWorkingDayJournalNode, SalaryByEmployeeJournalFilterViewModel>
 	{
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 
@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				selected => true,
 				selected =>
 				{
-					var selectedNodes = selected.OfType<EmployeeJournalNode>();
+					var selectedNodes = selected.OfType<EmployeeWithLastWorkingDayJournalNode>();
 					var node = selectedNodes.FirstOrDefault();
 					if(node == null)
 					{
@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		{
 			Employee employeeAlias = null;
 			Subdivision subdivisionAlias = null;
-			EmployeeJournalNode resultAlias = null;
+			EmployeeWithLastWorkingDayJournalNode resultAlias = null;
 			WagesMovementOperations wageAlias = null;
 
 			var employeesQuery = uow.Session.QueryOver(() => employeeAlias)
@@ -97,7 +97,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			if(FilterViewModel?.MinBalance != null)
 			{
-				wageQuery.Where(() => wageAlias.Money < FilterViewModel.MinBalance);
+				//wageQuery.Where(Restrictions.Lt(Projections.Sum(Projections.Property(() => wageAlias.Money)), FilterViewModel.MinBalance));
+				//wageQuery.Where(() => wageAlias.Money < FilterViewModel.MinBalance);
 			}
 
 			var employeeProjection = CustomProjections.Concat_WS(
@@ -127,7 +128,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.OrderBy(e => e.LastName).Asc
 				.OrderBy(e => e.Name).Asc
 				.OrderBy(e => e.Patronymic).Asc
-				.TransformUsing(Transformers.AliasToBean<EmployeeJournalNode>());
+				.TransformUsing(Transformers.AliasToBean<EmployeeWithLastWorkingDayJournalNode>());
 
 			return employeesQuery;
 		};
@@ -135,7 +136,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		protected override Func<EmployeeViewModel> CreateDialogFunction => () =>
 			throw new NotSupportedException("Не поддерживается создание сотрудника из журнала");
 
-		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction => (node) =>
+		protected override Func<EmployeeWithLastWorkingDayJournalNode, EmployeeViewModel> OpenDialogFunction => (node) =>
 			throw new NotSupportedException("Не поддерживается изменение сотрудника из журнала");
 	}
 }
