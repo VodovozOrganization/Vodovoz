@@ -89,6 +89,14 @@ parallel (
 
 				archiveArtifacts artifacts: '*Service.zip', onlyIfSuccessful: true
 			}
+
+			stage('Build docker'){
+				// if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+				// {
+				// 	PublishBuildWebServiceToDockerRegistry('Sms.Internal.Service', 'Vodovoz/Source/Applications/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj')
+				// }
+				PublishBuildWebServiceToDockerRegistry('Sms.Internal.Service', 'Vodovoz/Source/Applications/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj')
+			}
 		}						
 	}
 )
@@ -204,7 +212,7 @@ def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
 
 def PublishBuildWebServiceToDockerRegistry(serviceName, csprojPath) {	
 	echo "Publish ${serviceName} to docker registry"
-	sh 'msbuild ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=DockerRegistry -maxcpucount:2'
+	sh 'msbuild ' + csprojPath + ' /p:Configuration=Docker /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=DockerRegistry -maxcpucount:2'
 }
 
 def DeployWebService(serviceName) {
