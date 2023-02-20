@@ -34,8 +34,8 @@ namespace Vodovoz.FilterViewModels
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
 		private bool _isForSalesDepartment;
-		GuiltyItemViewModel _guiltyItemVM;
-		ComplaintKind _complaintKind;
+		private GuiltyItemViewModel _guiltyItemVM;
+		private ComplaintKind _complaintKind;
 		private IList<Subdivision> _allDepartments;
 		private DateFilterType _filterDateType = DateFilterType.CreationDate;
 		private ComplaintType? _complaintType = Domain.Complaints.ComplaintType.Client;
@@ -48,8 +48,8 @@ namespace Vodovoz.FilterViewModels
 		private DateTime? _startDate;
 		private DateTime _endDate = DateTime.Now;
 		private bool? _isForRetail;
-		IList<ComplaintKind> _complaintKindSource;
-		ComplaintDetalizationJournalFilterViewModel _complaintDetalizationFilterViewModel;
+		private IList<ComplaintKind> _complaintKindSource;
+		private ComplaintDetalizationJournalFilterViewModel _complaintDetalizationFilterViewModel;
 		private ComplaintDetalization _complainDetalization;
 		private DialogViewModelBase _journalViewModel;
 
