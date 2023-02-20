@@ -1,11 +1,11 @@
-﻿using DateTimeHelpers;
-using NetTopologySuite.Geometries;
+﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Utilities.Text;
@@ -13,7 +13,6 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Drawing;
 using System.Linq;
 using Vodovoz.Domain.Client;
@@ -25,10 +24,12 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Extensions;
 using Vodovoz.NHibernateProjections.Logistics;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -77,6 +78,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private double _fastDeliveryMaxDistance;
 
+		private int _fastDeliveryDistrictsLastVersionId;
+		private IList<District> _cachedFastDeliveryDistricts;
+
 		public CarsMonitoringViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -92,6 +96,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
 			TabName = "Мониторинг";
 
@@ -122,12 +127,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			_fastDeliveryTime = _deliveryRulesParametersProvider.MaxTimeForFastDelivery;
 
-			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-
 			FastDeliveryDistricts = new ObservableCollection<District>();
 			RouteListAddresses = new ObservableCollection<RouteListAddressNode>();
 			WorkingDrivers = new ObservableCollection<WorkingDriverNode>();
 			SelectedWorkingDrivers = new ObservableCollection<WorkingDriverNode>();
+			LastDriverPositions = new ObservableCollection<DriverPosition>();
 
 			OpenKeepingDialogCommand = new DelegateCommand<int>(OpenRouteListKeepingTab);
 			OpenTrackPointsJournalTabCommand = new DelegateCommand(OpenTrackPointJournalTab);
@@ -135,9 +139,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RefreshRouteListAddressesCommand = new DelegateCommand<int>(RefreshRouteListAddresses);
 			RefreshFastDeliveryDistrictsCommand = new DelegateCommand(RefreshFastDeliveryDistricts);
 			RefreshFastDeliveryMaxKmValueCommand = new DelegateCommand(RefreshFastDeliveryMaxKmValue);
+			RefreshLastDriverPositionsCommand = new DelegateCommand(RefreshLastDriverPositions);
 
 			RefreshFastDeliveryMaxKmValueCommand?.Execute();
-			SelectedWorkingDrivers.CollectionChanged += SelectedWorkingDriversCollectionChanged;
 		}
 
 		#region Full properties
@@ -147,14 +151,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			get => _showDistrictsOverlay;
 			set
 			{
-				SetField(ref _showDistrictsOverlay, value);
-				if(value)
+				if(SetField(ref _showDistrictsOverlay, value))
 				{
 					RefreshFastDeliveryDistrictsCommand?.Execute();
-				}
-				else
-				{
-					FastDeliveryDistricts.Clear();
 				}
 			}
 		}
@@ -178,6 +177,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if(!value)
 				{
 					ShowCarCirclesOverlay = false;
+					ShowHistory = false;
 				}
 				RefreshWorkingDriversCommand?.Execute();
 			}
@@ -227,7 +227,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				RefreshWorkingDriversCommand?.Execute();
 				if(ShowDistrictsOverlay)
 				{
-					RefreshFastDeliveryDistrictsCommand.Execute();
+					RefreshFastDeliveryDistrictsCommand?.Execute();
 					RefreshFastDeliveryMaxKmValueCommand?.Execute();
 				}
 			}
@@ -244,7 +244,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					RefreshWorkingDriversCommand?.Execute();
 					if(ShowDistrictsOverlay)
 					{
-						RefreshFastDeliveryDistrictsCommand.Execute();
+						RefreshFastDeliveryDistrictsCommand?.Execute();
 						RefreshFastDeliveryMaxKmValueCommand?.Execute();
 					}
 				}
@@ -262,13 +262,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					RefreshWorkingDriversCommand?.Execute();
 					if(ShowDistrictsOverlay)
 					{
-						RefreshFastDeliveryDistrictsCommand.Execute();
+						RefreshFastDeliveryDistrictsCommand?.Execute();
 						RefreshFastDeliveryMaxKmValueCommand?.Execute();
 					}
 				}
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CoveragePercent))]
 		public double FastDeliveryMaxDistance
 		{
 			get => _fastDeliveryMaxDistance;
@@ -278,6 +279,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		#region Readoly Properties
 		public override bool HasChanges => false;
+
+		public DateTime HistoryDateTime => HistoryDate.Add(HistoryHour);
 
 		public TimeSpan DriverDisconnectedTimespan { get; }
 
@@ -302,6 +305,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public Color FastDeliveryCircleFillColor => _fastDeliveryCircleFillColor;
 
 		public Color[] AvailableTrackColors => _availableTrackColors;
+
+		public string CoveragePercentString => $"{CoveragePercent:P}";
+
+		[PropertyChangedAlso(nameof(CoveragePercentString))]
+		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
+			FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
+			LastDriverPositions.Select(pos => pos.ToCoordinate()).ToList(),
+			FastDeliveryMaxDistance);
+
 		#endregion
 
 		#region Observable Collections
@@ -312,6 +324,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public ObservableCollection<WorkingDriverNode> WorkingDrivers { get; }
 
 		public ObservableCollection<RouteListAddressNode> RouteListAddresses { get; }
+
+		public ObservableCollection<DriverPosition> LastDriverPositions { get; }
 		#endregion
 
 		#region Commands
@@ -326,12 +340,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand RefreshFastDeliveryDistrictsCommand { get; }
 
 		public DelegateCommand RefreshFastDeliveryMaxKmValueCommand { get; }
+
+		public DelegateCommand RefreshLastDriverPositionsCommand { get; }
 		#endregion
 
-		private void SelectedWorkingDriversCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			CanOpenKeepingTab = SelectedWorkingDrivers.Any();
-		}
+		#region Events
+		public event Action FastDeliveryDistrictChanged;
+
+		public event Action WorkingDriversChanged;
+
+		public event Action RouteListAddressesChanged;
+		#endregion
 
 		#region Command Handlers
 		private void OpenRouteListKeepingTab(int routeListId)
@@ -351,8 +370,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			WorkingDriverNode resultAlias = null;
 			Employee driverAlias = null;
 			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
 			Car carAlias = null;
 			CarVersion carVersionAlias = null;
+			Track trackAlias = null;
 
 			Domain.Orders.Order orderAlias = null;
 			OrderItem ordItemsAlias = null;
@@ -360,31 +381,53 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var completedSubquery = QueryOver.Of<RouteListItem>()
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
-				.Where(i => i.Status != RouteListItemStatus.EnRoute)
-				.Select(Projections.RowCount());
+				.Where(i => i.Status != RouteListItemStatus.EnRoute);
+
+			if(ShowHistory)
+			{
+				completedSubquery.JoinAlias(rli => rli.Order, () => orderAlias)
+					.Where(Restrictions.Le(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime));
+			}
+
+			completedSubquery.Select(Projections.RowCount());
 
 			var addressesSubquery = QueryOver.Of<RouteListItem>()
-				.Where(i => i.RouteList.Id == routeListAlias.Id)
-				.Select(Projections.RowCount());
+				.Where(i => i.RouteList.Id == routeListAlias.Id);
 
-			var uncompletedBottlesSubquery = QueryOver.Of<RouteListItem>()  // Запрашивает количество ещё не доставленных бутылей.
-				.Where(i => i.RouteList.Id == routeListAlias.Id)
-				.Where(i => i.Status == RouteListItemStatus.EnRoute)
-				.JoinAlias(rli => rli.Order, () => orderAlias)
+			if(ShowHistory)
+			{
+				addressesSubquery.And(ua => ua.CreationDate <= HistoryDateTime);
+			}
+
+			addressesSubquery.Select(Projections.RowCount());
+
+			var uncompletedBottlesSubquery = QueryOver.Of<RouteListItem>(() => routeListItemAlias)  // Запрашивает количество ещё не доставленных бутылей.
+				.Where(i => i.RouteList.Id == routeListAlias.Id);
+
+			if(ShowHistory)
+			{
+				uncompletedBottlesSubquery.Where(Restrictions.Or(
+						Restrictions.Ge(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime),
+						Restrictions.Eq(Projections.Property(() => routeListItemAlias.Status), RouteListItemStatus.EnRoute)))
+					.And(ua => ua.CreationDate <= HistoryDateTime);
+			}
+			else
+			{
+				uncompletedBottlesSubquery.Where(i => i.Status == RouteListItemStatus.EnRoute);
+			}
+
+			uncompletedBottlesSubquery.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => ordItemsAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(() => ordItemsAlias.Nomenclature, () => nomenclatureAlias)
 			   	.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(Projections.Sum(() => ordItemsAlias.Count));
 
-			var trackSubquery = QueryOver.Of<Track>()
-				.Where(x => x.RouteList.Id == routeListAlias.Id)
-				.Select(x => x.Id);
-
 			IProjection isCompanyCarProjection = CarProjections.GetIsCompanyCarProjection();
 
 			IProjection water19LReserveProjection = GetWater19LReserveProjection();
 
-			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
+			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
+				.JoinEntityAlias(() => trackAlias, () => routeListAlias.Id == trackAlias.RouteList.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 			if(ShowFastDeliveryOnly)
 			{
@@ -395,26 +438,29 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.JoinAlias(rl => rl.Car, () => carAlias)
 				.JoinEntityAlias(() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id
-						&& carVersionAlias.StartDate <= routeListAlias.Date &&
-						(carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
+						&& carVersionAlias.StartDate <= routeListAlias.Date
+						&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= routeListAlias.Date))
 				.Where(rl => rl.Driver != null)
 				.Where(rl => rl.Car != null);
 
 			if(ShowHistory)
 			{
-				query.Where(Restrictions.Between(
-					Projections.Property(() => routeListAlias.Date),
-					HistoryDate,
-					HistoryDate.Add(HistoryHour)));
+				var routeListHistoryStatuses = new RouteListStatus[]
+				{
+					RouteListStatus.EnRoute,
+					RouteListStatus.Delivered,
+					RouteListStatus.OnClosing,
+					RouteListStatus.MileageCheck,
+					RouteListStatus.Closed
+				};
 
-				TrackPoint trackPointAlias = null;
-
-				trackSubquery.Inner.JoinAlias(x => x.TrackPoints, () => trackPointAlias)
-					.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), HistoryDate.Add(HistoryHour)))
-					.Take(1);
-
-				query.Where(Restrictions.IsNotNull(Projections.SubQuery(trackSubquery)))
-					.And(x => x.DeliveredAt <= HistoryDate.Add(HistoryHour));
+				query.Where(
+					Restrictions.And(
+						Restrictions.Or(
+							Restrictions.Ge(Projections.Property(() => routeListAlias.DeliveredAt), HistoryDateTime),
+							Restrictions.IsNull(Projections.Property(() => routeListAlias.DeliveredAt))),
+						Restrictions.In(Projections.Property(() => routeListAlias.Status), routeListHistoryStatuses)))
+					.And(() => routeListAlias.Date == HistoryDateTime.Date);
 			}
 			else
 			{
@@ -431,28 +477,37 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
 					.SelectSubQuery(addressesSubquery).WithAlias(() => resultAlias.AddressesAll)
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
-					.SelectSubQuery(trackSubquery).WithAlias(() => resultAlias.TrackId)
+					.Select(() => trackAlias.Id).WithAlias(() => resultAlias.TrackId)
 					.SelectSubQuery(uncompletedBottlesSubquery).WithAlias(() => resultAlias.BottlesLeft)
 					.Select(water19LReserveProjection).WithAlias(() => resultAlias.Water19LReserve))
 				.TransformUsing(Transformers.AliasToBean<WorkingDriverNode>())
+				.SetTimeout(180)
 				.List<WorkingDriverNode>();
 
 			WorkingDrivers.Clear();
 
 			int rowNum = 0;
-			foreach(var driver in result.GroupBy(x => x.Id).OrderBy(x => x.First().ShortName))
+
+			WorkingDriverNode savedRow;
+
+			var driversNodes = result.GroupBy(x => x.Id).OrderBy(x => x.First().ShortName).ToList();
+
+			for(var i = 0; i < driversNodes.Count; i++)
 			{
-				var savedRow = driver.First();
-				savedRow.RouteListsText = string.Join("; ", driver.Select(x => x.TrackId != null
+				savedRow = driversNodes[i].First();
+				savedRow.RouteListsText = string.Join("; ", driversNodes[i].Select(x => x.TrackId != null
 						? $"<span foreground=\"green\"><b>{x.RouteListNumber}</b></span>"
 						: x.RouteListNumber.ToString()));
-				savedRow.RouteListsIds = driver.ToDictionary(x => x.RouteListNumber, x => x.TrackId);
-				savedRow.AddressesAll = driver.Sum(x => x.AddressesAll);
-				savedRow.AddressesCompleted = driver.Sum(x => x.AddressesCompleted);
-				savedRow.Water19LReserve = driver.Sum(x => x.Water19LReserve);
+				savedRow.RouteListsIds = driversNodes[i].ToDictionary(x => x.RouteListNumber, x => x.TrackId);
+				savedRow.AddressesAll = driversNodes[i].Sum(x => x.AddressesAll);
+				savedRow.AddressesCompleted = driversNodes[i].Sum(x => x.AddressesCompleted);
+				savedRow.Water19LReserve = driversNodes[i].Sum(x => x.Water19LReserve);
 				savedRow.RowNumber = ++rowNum;
+
 				WorkingDrivers.Add(savedRow);
 			}
+			WorkingDriversChanged?.Invoke();
+			CanOpenKeepingTab = SelectedWorkingDrivers.Any();
 		}
 
 		public void RefreshRouteListAddresses(int driverId)
@@ -486,38 +541,106 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				RouteListAddresses.Add(routeListAddress);
 			}
+
+			RouteListAddressesChanged?.Invoke();
 		}
 
 		private void RefreshFastDeliveryDistricts()
 		{
 			FastDeliveryDistricts.Clear();
-			IList<District> districts;
-			if(ShowHistory)
+
+			if(ShowDistrictsOverlay)
 			{
-				districts = _scheduleRestrictionRepository
-					.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDate.Add(HistoryHour));
+				IList<District> districts;
+				if(ShowHistory)
+				{
+					var historyDistrictsVersionId = _scheduleRestrictionRepository
+						.GetDistrictsForFastDeliveryHistoryVersionId(_unitOfWork, HistoryDateTime);
+
+					if(_fastDeliveryDistrictsLastVersionId == historyDistrictsVersionId)
+					{
+						districts = _cachedFastDeliveryDistricts;
+					}
+					else
+					{
+						districts = _scheduleRestrictionRepository
+							.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDateTime);
+
+						_cachedFastDeliveryDistricts = districts;
+						_fastDeliveryDistrictsLastVersionId = historyDistrictsVersionId;
+					}
+				}
+				else
+				{
+					var currentDistrictsVersionId = _scheduleRestrictionRepository
+						.GetDistrictsForFastDeliveryCurrentVersionId(_unitOfWork);
+
+					if(_fastDeliveryDistrictsLastVersionId == currentDistrictsVersionId)
+					{
+						districts = _cachedFastDeliveryDistricts;
+					}
+					else
+					{
+						districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDelivery(_unitOfWork);
+
+						_cachedFastDeliveryDistricts = districts;
+						_fastDeliveryDistrictsLastVersionId = currentDistrictsVersionId;
+					}
+				}
+
+				for(var i = 0; i < districts.Count; i++)
+				{
+					FastDeliveryDistricts.Add(districts[i]);
+				}
+
+				OnPropertyChanged(nameof(CoveragePercent));
 			}
-			else
-			{
-				districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDelivery(_unitOfWork);
-			}
-			foreach(var district in districts)
-			{
-				FastDeliveryDistricts.Add(district);
-			}
+			FastDeliveryDistrictChanged?.Invoke();
 		}
 
 		public void RefreshFastDeliveryMaxKmValue()
 		{
 			if(ShowHistory)
 			{
-				FastDeliveryMaxDistance = _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(HistoryDate.Add(HistoryHour));
+				FastDeliveryMaxDistance = _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(HistoryDateTime);
 			}
 			else
 			{
 				FastDeliveryMaxDistance = _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
 			}
 		}
+
+		private void RefreshLastDriverPositions()
+		{
+			var routeListIds = WorkingDrivers.SelectMany(x => x.RouteListsIds.Keys).ToArray();
+
+			IList<DriverPosition> lastPoints;
+			if(ShowFastDeliveryOnly)
+			{
+				if(ShowHistory)
+				{
+					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan, HistoryDateTime);
+				}
+				else
+				{
+					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan);
+				}
+			}
+			else
+			{
+				lastPoints = GetLastRouteListTrackPoints(routeListIds);
+			}
+
+			LastDriverPositions.Clear();
+
+			foreach(var driverPosition in lastPoints)
+			{
+				LastDriverPositions.Add(driverPosition);
+			}
+
+			OnPropertyChanged(nameof(CoveragePercent));
+		}
+
 		#endregion
 
 		public int[] GetDriversWithAdditionalLoadingFrom(int[] ids)
@@ -542,7 +665,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		#region Query Methods
-		private static QueryOver<RouteListItem, RouteListItem> CreateOwnOrdersSubquery()
+		private QueryOver<RouteListItem, RouteListItem> CreateOwnOrdersSubquery()
 		{
 			RouteListItem routeListItemAlias = null;
 			OrderItem orderItemAlias = null;
@@ -550,18 +673,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Domain.Orders.Order orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			return QueryOver.Of<RouteListItem>(() => routeListItemAlias)
-							.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
-							.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
-							.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-							.Where(() => !orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
-							.And(() => nomenclatureAlias.Category == NomenclatureCategory.water
-								&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-							.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
-							.Select(Projections.Sum(() => orderItemAlias.Count));
+			var result = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
+				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => !orderAlias.IsFastDelivery && !routeListItemAlias.WasTransfered)
+				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water
+					&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id);
+
+			if(ShowHistory)
+			{
+				result.And(Restrictions.Le(Projections.Property(() => routeListItemAlias.CreationDate), HistoryDateTime));
+			}
+
+			return result.Select(Projections.Sum(() => orderItemAlias.Count));
 		}
 
-		private QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> CreateAdditionalBalanceSuqquery()
+		private QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> CreateAdditionalBalanceSubquery()
 		{
 			RouteList routeListAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -569,25 +698,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
 
 			var subquery = QueryOver.Of<AdditionalLoadingDocumentItem>(() => additionalLoadingDocumentItemAlias)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
+				.Inner.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Inner.JoinAlias(() => additionalLoadingDocumentItemAlias.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water
 					&& nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.And(() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
-				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
+				.And(() => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id);
 
 			if(ShowHistory)
 			{
-				subquery.And(Restrictions.Between(
-					Projections.Property(() => additionalLoadingDocumentAlias.CreationDate),
-						HistoryDate,
-						HistoryDate.Add(HistoryHour)));
+				subquery.And(Restrictions.Le(Projections.Property(() => additionalLoadingDocumentAlias.CreationDate), HistoryDateTime));
 			}
 
-			return subquery;
+			return subquery.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount));
 		}
 
-		private static QueryOver<RouteListItem, RouteListItem> CreateDeliveredOrdersSubquery()
+		private QueryOver<RouteListItem, RouteListItem> CreateDeliveredOrdersSubquery()
 		{
 			RouteList routeListAlias = null;
 			Domain.Orders.Order orderAlias = null;
@@ -612,8 +737,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						|| (!transferedToAlias.NeedToReload && !orderAlias.IsFastDelivery)))
 				.And(() => nomenclatureAlias.Category == NomenclatureCategory.water &&
 					nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
-				.Select(OrderProjections.GetOrderItemCountSumProjection());
+				.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id);
+
+			if(ShowHistory)
+			{
+				deliveredOrdersSubquery
+					.And(Restrictions.Le(Projections.Property(() => routeListItemAlias.CreationDate), HistoryDateTime));
+			}
+
+			deliveredOrdersSubquery.Select(OrderProjections.GetOrderItemCountSumProjection());
 			return deliveredOrdersSubquery;
 		}
 
@@ -621,7 +753,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			QueryOver<RouteListItem, RouteListItem> ownOrdersSubquery = CreateOwnOrdersSubquery();
 
-			QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> additionalBalanceSubquery = CreateAdditionalBalanceSuqquery();
+			QueryOver<AdditionalLoadingDocumentItem, AdditionalLoadingDocumentItem> additionalBalanceSubquery = CreateAdditionalBalanceSubquery();
 
 			QueryOver<RouteListItem, RouteListItem> deliveredOrdersSubquery = CreateDeliveredOrdersSubquery();
 
@@ -629,30 +761,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			IProjection water19LReserveProjection;
 
-			if(ShowHistory)
-			{
-				water19LReserveProjection = Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
-					Projections.Constant(0m),
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"),
-						NHibernateUtil.Decimal,
-						Projections.SubQuery(ownOrdersSubquery),
-						Projections.SubQuery(additionalBalanceSubquery),
-						Projections.SubQuery(deliveredOrdersSubquery)));
-			}
-			else
-			{
-				water19LReserveProjection = Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
-					Projections.Constant(0m),
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"),
-						NHibernateUtil.Decimal,
-						Projections.SubQuery(ownOrdersSubquery),
-						Projections.SubQuery(additionalBalanceSubquery),
-						Projections.SubQuery(deliveredOrdersSubquery)));
-			}
+			water19LReserveProjection = Projections.Conditional(
+				Restrictions.Eq(Projections.Property(() => routeListAlias.AdditionalLoadingDocument), null),
+				Projections.Constant(0m),
+				Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) + IFNULL(?2, 0) - IFNULL(?3, 0)"),
+					NHibernateUtil.Decimal,
+					Projections.SubQuery(ownOrdersSubquery),
+					Projections.SubQuery(additionalBalanceSubquery),
+					Projections.SubQuery(deliveredOrdersSubquery)));
+
 
 			return water19LReserveProjection;
 		}
