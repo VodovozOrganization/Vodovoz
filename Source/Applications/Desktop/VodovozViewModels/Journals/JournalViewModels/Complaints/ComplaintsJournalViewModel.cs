@@ -511,10 +511,12 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintDiscussion discussionAlias = null;
 			ComplaintKind complaintKindAlias = null;
 			ComplaintObject complaintObjectAlias = null;
+			ComplaintDetalization complaintDelatizationAlias = null;
 
 			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
 				.Left.JoinAlias(() => complaintKindAlias.ComplaintObject, () => complaintObjectAlias);
 
@@ -652,6 +654,11 @@ namespace Vodovoz.Journals.JournalViewModels
 				if(FilterViewModel.ComplaintObject != null)
 				{
 					query.Where(() => complaintObjectAlias.Id == FilterViewModel.ComplaintObject.Id);
+				}
+
+				if(FilterViewModel.ComplainDetalization != null)
+				{
+					query.Where(() => complaintAlias.ComplaintDetalization.Id == FilterViewModel.ComplainDetalization.Id);
 				}
 			}
 
