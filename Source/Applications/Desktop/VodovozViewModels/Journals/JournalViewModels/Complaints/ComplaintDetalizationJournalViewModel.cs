@@ -170,5 +170,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				_filterViewModel.RestrictComplaintObject,
 				_filterViewModel.RestrictComplaintKind);
 		}
+
+		public override void Dispose()
+		{
+			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+			base.Dispose();
+		}
 	}
 }
