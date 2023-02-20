@@ -11,6 +11,7 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
@@ -130,6 +131,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.Where(wage => wage.Employee.Id == employeeAlias.Id)
 				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
 
+
+			//RouteList rouleListAlias = null;
+			//var lastWorkingDayQuery = QueryOver.Of(() => rouleListAlias)
+			//.Where(r => r.Status.IsIn(new object[] { RouteListStatus.Closed, RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck }));
+			
+			//if(employeeAlias.Category == EmployeeCategory.driver)
+			//{
+			//	lastWorkingDayQuery
+			//		.Where(r => r.Status.IsIn(new object[] { RouteListStatus.Closed, RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck }))
+			//		.Where(r => r.Driver.Id == employeeAlias.Id)
+			//		.Select(r => r.Date)
+			//		.OrderBy(r => r.Date);
+			//}
+
 			var employeeProjection = CustomProjections.Concat_WS(
 				" ",
 				() => employeeAlias.LastName,
@@ -153,6 +168,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => employeeAlias.Comment).WithAlias(() => resultAlias.EmployeeComment)
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionTitle)
 					.SelectSubQuery(wageQuery).WithAlias(() => resultAlias.Balance)
+					.Select(() => employeeAlias.DateFired).WithAlias(() => resultAlias.LastWorkingDay)
 				);
 
 			employeesQuery

@@ -86,7 +86,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Подразделение").AddTextRenderer(node => node.SubdivisionTitle)
 					.AddColumn("Баланс").AddNumericRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Balance)).Digits(2)
 					.AddColumn("Комментарий по сотруднику").AddTextRenderer(node => node.EmployeeComment)
-					.AddColumn("Последний рабочий день").AddTextRenderer(node => node.LastWorkingDay)
+					.AddColumn("Последний рабочий день").AddTextRenderer(node => node.LastWorkingDayString)
 					.AddColumn("")
 					.Finish()
 			);
