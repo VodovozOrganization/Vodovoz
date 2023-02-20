@@ -70,7 +70,7 @@ namespace Vodovoz.Parameters
 			{
 				FastDeliveryMaxDistanceParameterVersion fastDeliveryMaxDistanceParameterVersionAlias = null;
 
-				return unitOfWork.Session.QueryOver<FastDeliveryMaxDistanceParameterVersion>()
+				return unitOfWork.Session.QueryOver<FastDeliveryMaxDistanceParameterVersion>(() => fastDeliveryMaxDistanceParameterVersionAlias)
 					.Where(Restrictions.And(
 						Restrictions.Le(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.StartDate), dateTime),
 						Restrictions.Or(
