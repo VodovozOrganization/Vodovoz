@@ -40,7 +40,6 @@ namespace RoboatsService
 	public class Startup
     {
 		private IDataBaseInfo _dataBaseInfo;
-		private ILogger<Startup> _logger;
 
         public Startup(IConfiguration configuration)
 		{
