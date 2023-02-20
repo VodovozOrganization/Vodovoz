@@ -27,7 +27,6 @@ namespace Vodovoz
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
-		private decimal _currentEmployeeWage = default(decimal);
 		private readonly bool _canEdit = true;
 		private readonly bool _canCreate;
 		private readonly bool _canEditRectroactively;
@@ -305,20 +304,29 @@ namespace Vodovoz
 		private void UpdateEmployeeBalaceInfo()
 		{
 			UpdateEmployeeBalanceVisibility();
+			
+			var currentEmployeeWage = default(decimal);
 
-			_currentEmployeeWage = 0;
 			var labelTemplate = "<span font='large' weight='bold'>Текущий баланс сотрудника: {0}</span>";
 
 			if(evmeEmployee.Subject is Employee employee)
 			{
-				_currentEmployeeWage = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
-				if(employee.Category == EmployeeCategory.driver)
+				if (employee.Category == EmployeeCategory.driver && employee.Status == EmployeeStatus.IsWorking)
 				{
-					labelTemplate += "<span font='large' weight='bold'>Будущие штрафы: ---</span>";
+					var driverBalanceWithoutFutureFines = _wagesMovementRepository.GetDriverWageBalanceWithoutFutureFines(UoW, employee.Id);
+					var driverFutureFinesBalance = _wagesMovementRepository.GetDriverFutureFinesBalance(UoW, employee.Id);
+
+					labelTemplate += ". <span font='large' weight='bold'>Будущие штрафы: {1}</span>"; 
+					
+					ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, driverBalanceWithoutFutureFines, driverFutureFinesBalance);
+
+					return;
 				}
+
+				currentEmployeeWage = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
 			}
 
-			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, _currentEmployeeWage);
+			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, currentEmployeeWage);
 		}
 
 		private void UpdateEmployeeBalanceVisibility()
