@@ -318,7 +318,7 @@ namespace Vodovoz
 
 					labelTemplate += ". <span font='large' weight='bold'>Будущие штрафы: {1}</span>"; 
 					
-					ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, driverBalanceWithoutFutureFines, driverFutureFinesBalance);
+					ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, CurrencyWorks.GetShortCurrencyString(driverBalanceWithoutFutureFines), CurrencyWorks.GetShortCurrencyString(driverFutureFinesBalance));
 
 					return;
 				}
@@ -326,7 +326,7 @@ namespace Vodovoz
 				currentEmployeeWage = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
 			}
 
-			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, currentEmployeeWage);
+			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, CurrencyWorks.GetShortCurrencyString(currentEmployeeWage));
 		}
 
 		private void UpdateEmployeeBalanceVisibility()
