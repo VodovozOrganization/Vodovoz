@@ -91,15 +91,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				employeesQuery.Where(e => e.Subdivision == FilterViewModel.Subdivision);
 			}
 
+			if(FilterViewModel?.MinBalance != null)
+			{
+				var query = uow.Session.Query<WagesMovementOperations>()
+				.GroupBy(w => w.Employee.Id)
+				.Where(s => s.Sum(w => w.Money) < FilterViewModel.MinBalance)
+				.Select(w => w.Key)
+				.ToArray();
+
+				employeesQuery.Where(Restrictions.In(nameof(Employee.Id), query));
+			}
+
 			var wageQuery = QueryOver.Of(() => wageAlias)
 				.Where(wage => wage.Employee.Id == employeeAlias.Id)
 				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
-
-			if(FilterViewModel?.MinBalance != null)
-			{
-				//wageQuery.Where(Restrictions.Lt(Projections.Sum(Projections.Property(() => wageAlias.Money)), FilterViewModel.MinBalance));
-				//wageQuery.Where(() => wageAlias.Money < FilterViewModel.MinBalance);
-			}
 
 			var employeeProjection = CustomProjections.Concat_WS(
 				" ",
@@ -124,7 +129,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => employeeAlias.Comment).WithAlias(() => resultAlias.EmployeeComment)
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionTitle)
 					.SelectSubQuery(wageQuery).WithAlias(() => resultAlias.Balance)
-				)
+				);
+
+			employeesQuery
+				//.OrderBy(e => e.Id).Asc
 				.OrderBy(e => e.LastName).Asc
 				.OrderBy(e => e.Name).Asc
 				.OrderBy(e => e.Patronymic).Asc
