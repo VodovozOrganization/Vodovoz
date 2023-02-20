@@ -2179,12 +2179,10 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash, addingRegistrations =>
-			addingRegistrations.RegisterInstance(
-				new Action<ComplaintFilterViewModel>[]
-				{
-					filter => filter.IsForRetail = true
-				}));
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+			   null,
+			   filter => filter.IsForRetail = true,
+			   OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionRetailUndeliveredOrdersJournalActivated(object sender, EventArgs e)

@@ -17,13 +17,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 		private ComplaintObject _restrictComplaintObject;
 		private bool _hideArchieve = false;
 
-		public ComplaintDetalizationJournalFilterViewModel(params Action<ComplaintDetalizationJournalFilterViewModel>[] filterParams)
+		public ComplaintDetalizationJournalFilterViewModel(Action<ComplaintDetalizationJournalFilterViewModel> filterParams = null)
 		{
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			ComplaintKinds = UoW.Session.QueryOver<ComplaintKind>().List();
 			VisibleComplaintKinds = Enumerable.Empty<ComplaintKind>();
 
-			SetAndRefilterAtOnce(filterParams);
+			if(filterParams != null)
+			{
+				SetAndRefilterAtOnce(filterParams);
+			}
 		}
 
 		public ComplaintObject ComplaintObject

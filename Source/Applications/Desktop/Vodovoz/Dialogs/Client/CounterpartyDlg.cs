@@ -1306,12 +1306,10 @@ namespace Vodovoz
 
 		private void ComplaintViewOnActivated(object sender, EventArgs e)
 		{
-			MainClass.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash, addingRegistrations =>
-				addingRegistrations.RegisterInstance(
-					new Action<ComplaintFilterViewModel>[]
-					{
-						filter => filter.Counterparty = Entity
-					}));
+			MainClass.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+			   null,
+			   filter => filter.Counterparty = Entity,
+			   OpenPageOptions.IgnoreHash);
 		}
 
 		private bool _canClose = true;

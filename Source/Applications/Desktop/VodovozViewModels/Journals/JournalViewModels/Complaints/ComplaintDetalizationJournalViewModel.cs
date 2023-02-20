@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			INavigationManager navigationManager,
 			ICurrentPermissionService currentPermissionService,
 			ILifetimeScope scope,
-			params Action<ComplaintDetalizationJournalFilterViewModel>[] filterParams)
+			Action<ComplaintDetalizationJournalFilterViewModel> filterParams = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService)
 		{
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
@@ -49,13 +49,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				typeof(ComplaintDetalization));
 		}
 
-		private void CreateFilter(params Action<ComplaintDetalizationJournalFilterViewModel>[] filterParams)
+		private void CreateFilter(Action<ComplaintDetalizationJournalFilterViewModel> filterParams)
 		{
-			Parameter[] parameters = {
-				new TypedParameter(typeof(Action<ComplaintDetalizationJournalFilterViewModel>[]), filterParams)
-			};
-
-			_filterViewModel = _scope.Resolve<ComplaintDetalizationJournalFilterViewModel>(parameters);
+			_filterViewModel = (filterParams is null)
+				? _scope.Resolve<ComplaintDetalizationJournalFilterViewModel>()
+				: _scope.Resolve<ComplaintDetalizationJournalFilterViewModel>(
+				new TypedParameter(typeof(Action<ComplaintDetalizationJournalFilterViewModel>),
+				filterParams));
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			JournalFilter = _filterViewModel;
 		}

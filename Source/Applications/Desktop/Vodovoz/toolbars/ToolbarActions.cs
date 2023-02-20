@@ -1259,11 +1259,9 @@ public partial class MainWindow : Window
 
 	void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash, addingRegistrations =>
-			addingRegistrations.RegisterInstance(
-				new Action<ComplaintFilterViewModel>[]
-				{
-					filter => filter.IsForSalesDepartment = true
-				}));
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+			   null,
+			   filter => filter.IsForSalesDepartment = true,
+			   OpenPageOptions.IgnoreHash);
 	}
 }

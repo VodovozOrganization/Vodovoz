@@ -48,26 +48,8 @@ namespace Vodovoz.FilterViewModels
 		private DateTime _endDate = DateTime.Now;
 		private bool? _isForRetail;
 		private IList<ComplaintKind> _complaintKindSource;
-		private ComplaintDetalizationJournalFilterViewModel _complaintDetalizationFilterViewModel;
 		private ComplaintDetalization _complainDetalization;
 		private DialogViewModelBase _journalViewModel;
-
-		public ComplaintFilterViewModel()
-		{
-			UpdateWith(
-				x => x.ComplaintType,
-				x => x.ComplaintStatus,
-				x => x.Employee,
-				x => x.StartDate,
-				x => x.EndDate,
-				x => x.Subdivision,
-				x => x.FilterDateType,
-				x => x.ComplaintKind,
-				x => x.ComplaintDiscussionStatus,
-				x => x.ComplaintObject,
-				x => x.CurrentUserSubdivision
-			);
-		}
 
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
@@ -77,7 +59,7 @@ namespace Vodovoz.FilterViewModels
 			IEmployeeJournalFactory employeeSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			params Action<ComplaintFilterViewModel>[] filterParams)
+			Action<ComplaintFilterViewModel> filterParams = null)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
@@ -116,7 +98,10 @@ namespace Vodovoz.FilterViewModels
 
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().ToList();
 
-			SetAndRefilterAtOnce(filterParams);
+			if(filterParams != null)
+			{
+				SetAndRefilterAtOnce(filterParams);
+			}
 
 			UpdateWith(
 				x => x.ComplaintType,
@@ -156,13 +141,7 @@ namespace Vodovoz.FilterViewModels
 		public virtual ComplaintKind ComplaintKind
 		{
 			get => _complaintKind;
-			set
-			{
-				if(SetField(ref _complaintKind, value))
-				{
-					_complaintDetalizationFilterViewModel.RestrictComplaintKind = value;
-				}
-			}
+			set => SetField(ref _complaintKind, value);
 		}
 
 		public ComplaintDetalization ComplainDetalization
@@ -185,7 +164,6 @@ namespace Vodovoz.FilterViewModels
 				if(SetField(ref _complaintObject, value))
 				{
 					ComplaintKindSource = value == null ? _complaintKinds : _complaintKinds.Where(x => x.ComplaintObject == value).ToList();
-					_complaintDetalizationFilterViewModel.RestrictComplaintObject = value;
 				}
 			}
 		}
@@ -304,16 +282,17 @@ namespace Vodovoz.FilterViewModels
 					.ForProperty(x => x.ComplainDetalization)
 					.UseViewModelDialog<ComplaintDetalizationViewModel>()
 					.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
-						filter => filter.RestrictComplaintObject = ComplaintObject,
-						filter => filter.RestrictComplaintKind = ComplaintKind
+						filter =>
+						{
+							filter.RestrictComplaintObject = ComplaintObject;
+							filter.RestrictComplaintKind = ComplaintKind;
+						}
 					)
 					.Finish();
 
 				entityEntryViewModel.CanViewEntity = false;
 
 				ComplaintDetalizationEntiryEntryViewModel = entityEntryViewModel;
-
-				_complaintDetalizationFilterViewModel = new ComplaintDetalizationJournalFilterViewModel();
 			}
 		}
 	}
