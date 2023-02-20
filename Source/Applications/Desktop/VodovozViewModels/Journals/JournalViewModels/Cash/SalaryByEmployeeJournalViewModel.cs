@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using FluentNHibernate.Utils;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -118,32 +119,34 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			if(FilterViewModel?.MinBalance != null)
 			{
-				var query = uow.Session.Query<WagesMovementOperations>()
-				.GroupBy(w => w.Employee.Id)
-				.Where(s => s.Sum(w => w.Money) < FilterViewModel.MinBalance)
-				.Select(w => w.Key)
-				.ToArray();
+				var minBalanceComparisonQuery = QueryOver.Of<WagesMovementOperations>()
+					.SelectList(list => list
+						.SelectGroup(w => w.Employee.Id))
+					.Where(Restrictions.Lt(
+						Projections.Sum<WagesMovementOperations>(w => w.Money),
+						FilterViewModel.MinBalance));
 
-				employeesQuery.Where(Restrictions.In(nameof(Employee.Id), query));
+				employeesQuery
+					.WithSubquery
+					.WhereProperty(x => x.Id).In(minBalanceComparisonQuery);
 			}
 
 			var wageQuery = QueryOver.Of(() => wageAlias)
 				.Where(wage => wage.Employee.Id == employeeAlias.Id)
 				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
 
+			var routeListStatusesForLastWorkingDay = new RouteListStatus[] { RouteListStatus.Closed, RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck };
 
-			//RouteList rouleListAlias = null;
-			//var lastWorkingDayQuery = QueryOver.Of(() => rouleListAlias)
-			//.Where(r => r.Status.IsIn(new object[] { RouteListStatus.Closed, RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck }));
-			
-			//if(employeeAlias.Category == EmployeeCategory.driver)
-			//{
-			//	lastWorkingDayQuery
-			//		.Where(r => r.Status.IsIn(new object[] { RouteListStatus.Closed, RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck }))
-			//		.Where(r => r.Driver.Id == employeeAlias.Id)
-			//		.Select(r => r.Date)
-			//		.OrderBy(r => r.Date);
-			//}
+			RouteList routeListAlias = null;
+			var lastWorkingDayForDriversQuery = QueryOver.Of(() => routeListAlias)
+				.Where(() => routeListAlias.Driver.Id == employeeAlias.Id)
+				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
+				.Select(Projections.Max(Projections.Property(() => routeListAlias.Date)));
+
+			var lastWorkingDayForForwardersQuery = QueryOver.Of(() => routeListAlias)
+				.Where(() => routeListAlias.Forwarder.Id == employeeAlias.Id)
+				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
+				.Select(Projections.Max(Projections.Property(() => routeListAlias.Date)));
 
 			var employeeProjection = CustomProjections.Concat_WS(
 				" ",
@@ -157,6 +160,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				() => employeeProjection
 			));
 
+			//var emplSelector = Projections.Conditional(
+			//	Expression.In(nameof(employeeAlias.Category), routeListStatusesForLastWorkingDay), 
+			//	Projections.SubQuery(lastWorkingDayForDriversQuery), 
+			//	Projections.SubQuery(lastWorkingDayForForwardersQuery));
+
+			//Func<EmployeeCategory, QueryOver> subquerySelector = (e) =>
+			//{
+			//	if(e == EmployeeCategory.driver) return lastWorkingDayForDriversQuery;
+				
+			//	return lastWorkingDayForForwardersQuery;
+			//};
+
 			employeesQuery
 				.SelectList(list => list
 					.SelectGroup(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
@@ -168,7 +183,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => employeeAlias.Comment).WithAlias(() => resultAlias.EmployeeComment)
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionTitle)
 					.SelectSubQuery(wageQuery).WithAlias(() => resultAlias.Balance)
-					.Select(() => employeeAlias.DateFired).WithAlias(() => resultAlias.LastWorkingDay)
+					.SelectSubQuery(lastWorkingDayForDriversQuery).WithAlias(() => resultAlias.LastWorkingDay)
+				//.Select(() => employeeAlias.DateFired).WithAlias(() => resultAlias.LastWorkingDay)
 				);
 
 			employeesQuery
