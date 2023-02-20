@@ -144,6 +144,9 @@ namespace Vodovoz.FilterViewModels
 
 		public virtual bool CanChangeSubdivision { get; }
 
+		public bool CanReadDetalization => _commonServices.CurrentPermissionService
+					.ValidateEntityPermission(typeof(ComplaintDetalization)).CanRead;
+
 		public virtual GuiltyItemViewModel GuiltyItemVM
 		{
 			get => _guiltyItemVM;

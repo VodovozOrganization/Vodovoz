@@ -41,6 +41,8 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
 			entryComplaintDetalization.ViewModel = ViewModel.ComplaintDetalizationEntiryEntryViewModel;
+			entryComplaintDetalization.Binding.AddBinding(ViewModel, vm => vm.CanReadDetalization, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
 			//FIXME заменить на evme когда будут новые журналы с рекурсией
 			yCmbCurrentSubdivision.ItemsList = ViewModel.AllDepartments;
