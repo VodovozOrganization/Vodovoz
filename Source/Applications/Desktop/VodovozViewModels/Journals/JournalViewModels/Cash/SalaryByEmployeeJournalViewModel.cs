@@ -7,14 +7,17 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Journal;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Reports.SalaryByEmployeeJournalReport;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
@@ -22,12 +25,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		<Employee, EmployeeViewModel, EmployeeWithLastWorkingDayJournalNode, SalaryByEmployeeJournalFilterViewModel>
 	{
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IFileDialogService _fileDialogService;
 
 		public SalaryByEmployeeJournalViewModel(
 			SalaryByEmployeeJournalFilterViewModel filterViewModel,
 			IGtkTabsOpener gtkTabsOpener,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			IFileDialogService fileDialogService,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
@@ -35,6 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			TabName = "Журнал выдач З/П";
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
 			UpdateOnChanges(
 				typeof(Employee),
@@ -45,6 +51,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateAddAction();
+			CreateExportAction();
+		}
+
+		private void CreateAddAction()
+		{
 			var addAction = new JournalAction("Добавить расходный ордер",
 				selected => true,
 				selected => true,
@@ -64,6 +76,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				hotKeys: "Insert");
 			RowActivatedAction = addAction;
 			NodeActionsList.Add(addAction);
+		}
+
+		private void CreateExportAction()
+		{
+			NodeActionsList.Add(new JournalAction("Экспорт в Excel", x => true, x => true,
+				selectedItems =>
+				{
+					var nodes = ItemsSourceQueryFunction(UoW).List<EmployeeWithLastWorkingDayJournalNode>();
+
+					var report = new SalaryByEmployeeJournalReport(nodes, _fileDialogService);
+					report.Export();
+				}));
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Employee>> ItemsSourceQueryFunction => (uow) =>
