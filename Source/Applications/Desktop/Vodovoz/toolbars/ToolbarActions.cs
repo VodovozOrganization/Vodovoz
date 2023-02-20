@@ -90,6 +90,7 @@ using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Autofac;
 
 public partial class MainWindow : Window
 {
@@ -1258,17 +1259,9 @@ public partial class MainWindow : Window
 
 	void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
-		ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
-		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-
-		var complaintFilterViewModel = new ComplaintFilterViewModel(ServicesConfig.CommonServices, subdivisionRepository, employeeJournalFactory,
-			counterpartySelectorFactory, subdivisionParametersProvider)
-		{
-			IsForSalesDepartment = true
-		};
-
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(null, complaintFilterViewModel, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+			   null,
+			   filter => filter.IsForSalesDepartment = true,
+			   OpenPageOptions.IgnoreHash);
 	}
 }

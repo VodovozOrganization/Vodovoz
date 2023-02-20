@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
+using FluentNHibernate.Conventions.Helpers;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -52,7 +53,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
 			_subdivisionsOnStart = new List<Subdivision>(Entity.Subdivisions);
 
-			TabName = "Виды рекламаций";
+			TabName = "Вид рекламаций";
 		}
 
 		protected override void AfterSave()
@@ -95,19 +96,34 @@ namespace Vodovoz.ViewModels.Complaints
 					};
 					TabParent.AddSlaveTab(this, subdivisionJournalViewModel);
 				},
-				() => true
-			));
-
+				() => true));
 
 		public DelegateCommand<Subdivision> RemoveSubdivisionCommand => _removeSubdivisionCommand ?? (_removeSubdivisionCommand =
 			new DelegateCommand<Subdivision>((subdivision) =>
 				{
 					Entity.RemoveSubdivision(subdivision);
 				},
-				(subdivision) => true
-			));
+				(subdivision) => true));
 
 		#endregion Commands
 
+		protected override bool BeforeSave()
+		{
+			if(Entity.IsArchive && UoW.HasChanges)
+			{
+				if(!AskQuestion("Будут архивированы все детализации привязанные к этому виду рекламаций, вы уверены?", "Внимание!!"))
+				{
+					return false;
+				}
+
+				foreach(var detalizationst in UoW.Query<ComplaintDetalization>()
+					.Where(x => x.ComplaintKind.Id == Entity.Id).List())
+				{
+					detalizationst.IsArchive = true;
+				}
+			}
+
+			return base.BeforeSave();
+		}
 	}
 }
