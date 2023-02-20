@@ -146,7 +146,8 @@ namespace Vodovoz.ViewModels.Complaints
 				.UseViewModelDialog<ComplaintDetalizationViewModel>()
 				.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
 					filter => filter.RestrictComplaintObject = Entity.ComplaintKind?.ComplaintObject,
-					filter => filter.RestrictComplaintKind = Entity.ComplaintKind
+					filter => filter.RestrictComplaintKind = Entity.ComplaintKind,
+					filter => filter.HideArchieve = true
 				)
 				.Finish();
 

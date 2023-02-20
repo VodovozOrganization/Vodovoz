@@ -15,6 +15,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 		private IEnumerable<ComplaintKind> _visibleComplaintKinds;
 		private ComplaintKind _restrictComplaintKind;
 		private ComplaintObject _restrictComplaintObject;
+		private bool _hideArchieve = false;
 
 		public ComplaintDetalizationJournalFilterViewModel(params Action<ComplaintDetalizationJournalFilterViewModel>[] filterParams)
 		{
@@ -60,6 +61,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 		public IList<ComplaintObject> ComplaintObjects { get; }
 
 		public IList<ComplaintKind> ComplaintKinds { get; }
+
+		public bool HideArchieve
+		{
+			get => _hideArchieve;
+			set => UpdateFilterField(ref _hideArchieve, value);
+		}
 
 		public ComplaintKind RestrictComplaintKind
 		{

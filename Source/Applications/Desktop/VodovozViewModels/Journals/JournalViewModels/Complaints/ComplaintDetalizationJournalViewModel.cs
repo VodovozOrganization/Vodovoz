@@ -88,6 +88,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				itemsQuery.Where(() => complaintKindAlias.Id == complaintKindId);
 			}
 
+			if(_filterViewModel.HideArchieve)
+			{
+				itemsQuery.Where(() => complaintDetalizationAlias.IsArchive == false);
+			}
+
 			itemsQuery.Where(GetSearchCriterion(
 				() => complaintDetalizationAlias.Id,
 				() => complaintDetalizationAlias.Name,
@@ -138,7 +143,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private void CreateSelectAction()
 		{
 			var selectAction = new JournalAction("Выбрать",
-				(selected) => selected.Any() && selected.All(x => !(x as ComplaintDetalizationJournalNode).IsArchive),
+				(selected) => selected.Any(),
 				(selected) => SelectionMode != JournalSelectionMode.None,
 				(selected) => OnItemsSelected(selected)
 			);
