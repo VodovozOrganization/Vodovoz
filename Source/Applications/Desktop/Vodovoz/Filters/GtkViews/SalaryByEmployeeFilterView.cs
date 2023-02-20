@@ -25,6 +25,9 @@ namespace Vodovoz.Filters.GtkViews
 			comboSubdivision.Binding.AddBinding(ViewModel, vm => vm.Subdivision, w => w.SelectedItem).InitializeFromSource();
 
 			yspinbuttonMinBalance.Binding.AddBinding(ViewModel, vm => vm.MinBalance, w => w.ValueAsDecimal).InitializeFromSource();
+
+			ycheckbuttonBalanceFilterEnable.Binding.AddBinding(ViewModel, vm => vm.MinBalanceFilterEnable, w => w.Active).InitializeFromSource();
+			yhboxMinBalanceSettings.Binding.AddBinding(ViewModel, vm => vm.MinBalanceFilterEnable, w => w.Sensitive).InitializeFromSource();
 		}
 	}
 }

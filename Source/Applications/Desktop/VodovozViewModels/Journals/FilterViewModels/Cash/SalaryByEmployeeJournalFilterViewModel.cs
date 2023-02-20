@@ -12,7 +12,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Cash
 		private Subdivision _subdivision;
 		private EmployeeCategory? _category;
 		private IEnumerable<Subdivision> _subdivisions;
-		private decimal? _minBalance;
+		private decimal _minBalance;
+		private bool _minBalanceFilterEnable;
 
 		#region Свойства
 
@@ -40,10 +41,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Cash
 			set => UpdateFilterField(ref _subdivisions, value);
 		}
 
-		public decimal? MinBalance
+		public decimal MinBalance
 		{
 			get => _minBalance;
 			set => UpdateFilterField(ref _minBalance, value);
+		}
+
+		public bool MinBalanceFilterEnable
+		{
+			get => _minBalanceFilterEnable;
+			set => UpdateFilterField(ref _minBalanceFilterEnable, value);
 		}
 
 		#endregion

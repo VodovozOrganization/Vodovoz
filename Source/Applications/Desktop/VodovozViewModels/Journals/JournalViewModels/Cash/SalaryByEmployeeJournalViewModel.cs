@@ -117,7 +117,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				employeesQuery.Where(e => e.Subdivision == FilterViewModel.Subdivision);
 			}
 
-			if(FilterViewModel?.MinBalance != null)
+			if(FilterViewModel.MinBalanceFilterEnable)
 			{
 				var minBalanceComparisonQuery = QueryOver.Of<WagesMovementOperations>()
 					.SelectList(list => list
