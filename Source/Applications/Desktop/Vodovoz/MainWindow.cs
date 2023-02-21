@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -1082,7 +1082,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null);
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
@@ -2179,9 +2179,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+		Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.IsForRetail = true;
+
+		var filter = autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
+
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
 			   null,
-			   filter => filter.IsForRetail = true,
+			   filter,
 			   OpenPageOptions.IgnoreHash);
 	}
 
