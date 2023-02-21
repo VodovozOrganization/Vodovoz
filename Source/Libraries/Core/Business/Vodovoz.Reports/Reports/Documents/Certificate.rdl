@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
-  <PageHeight>11.69in</PageHeight>
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>12.19in</PageHeight>
   <PageWidth>8.27in</PageWidth>
   <Width>.1pt</Width>
   <TopMargin>0mm</TopMargin>
@@ -24,7 +22,7 @@
         <Height>831.90pt</Height>
         <Width>582.66pt</Width>
         <Left>7.53pt</Left>
-        <Top>6.78pt</Top>
+        <Top>15pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -34,8 +32,8 @@
           <Image Name="Image2">
             <Height>831.85pt</Height>
             <Width>582.67pt</Width>
-            <Left>0.00pt</Left>
-            <Top>0.00pt</Top>
+            <Left>0.0pt</Left>
+            <Top>5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -48,6 +46,30 @@
           </Image>
         </ReportItems>
       </List>
+      <Textbox Name="Textbox1" >
+        <Height>16.51pt</Height>
+        <Width>81.92pt</Width>
+        <Value>={?order_id}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>458.0pt</Left>
+        <Top>1.0pt</Top>
+        <Style>
+          <FontSize>12pt</FontSize>
+          <TextAlign>Left</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox2" >
+        <Height>16.51pt</Height>
+        <Width>81.92pt</Width>
+        <Value>К заказу №</Value>
+        <ZIndex>1</ZIndex>
+        <Left>376.0pt</Left>
+        <Top>1.0pt</Top>
+        <Style>
+          <FontSize>12pt</FontSize>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -96,7 +118,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="certificate_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -107,8 +129,14 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
