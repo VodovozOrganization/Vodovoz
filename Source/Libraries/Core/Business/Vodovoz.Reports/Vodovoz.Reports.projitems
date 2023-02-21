@@ -10,10 +10,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" />
-    <None Include="$(MSBuildThisFileDirectory)Reports\Cash\SalaryByEmployeeJournalReport.xlsx">
+    <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\WayBillReportOneDayGroupPrint.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\WayBillReportOneDayGroupPrint.rdl">
+    <None Include="$(MSBuildThisFileDirectory)Reports\Cash\SalaryByEmployeeJournalReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Orders\EdoUpdReport.xlsx">
