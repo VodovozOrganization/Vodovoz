@@ -1259,9 +1259,13 @@ public partial class MainWindow : Window
 
 	void OnActionSalesComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+		Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.IsForSalesDepartment = true;
+
+		var filter = autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
+
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
 			   null,
-			   filter => filter.IsForSalesDepartment = true,
+			   filter,
 			   OpenPageOptions.IgnoreHash);
 	}
 }
