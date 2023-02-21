@@ -73,7 +73,6 @@ namespace Vodovoz.ViewModels.Complaints
 			INavigationManager navigationManager,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
 			IUserRepository userRepository,
@@ -89,7 +88,6 @@ namespace Vodovoz.ViewModels.Complaints
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
-			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
@@ -183,8 +181,6 @@ namespace Vodovoz.ViewModels.Complaints
 				OnPropertyChanged(nameof(CanChangeDetalization));
 			}
 		}
-
-		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		[PropertyChangedAlso(nameof(CanChangeDetalization))]
 		public bool CanReadDetalization => CommonServices.CurrentPermissionService
@@ -484,7 +480,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
-		private ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
+		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 		private INomenclatureJournalFactory NomenclatureSelector { get; }
 		private ISubdivisionParametersProvider SubdivisionParametersProvider { get; }
