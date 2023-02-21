@@ -138,12 +138,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			var routeListStatusesForLastWorkingDay = new RouteListStatus[] { RouteListStatus.Closed, RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck };
 
 			RouteList routeListAlias = null;
-			var lastWorkingDayForDriversQuery = QueryOver.Of(() => routeListAlias)
+			var driverLastWorkingDateQuery = QueryOver.Of(() => routeListAlias)
 				.Where(() => routeListAlias.Driver.Id == employeeAlias.Id)
 				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
 				.Select(Projections.Max(Projections.Property(() => routeListAlias.Date)));
 
-			var lastWorkingDayForForwardersQuery = QueryOver.Of(() => routeListAlias)
+			var forwarderLastWorkingDateQuery = QueryOver.Of(() => routeListAlias)
 				.Where(() => routeListAlias.Forwarder.Id == employeeAlias.Id)
 				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
 				.Select(Projections.Max(Projections.Property(() => routeListAlias.Date)));
@@ -160,18 +160,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				() => employeeProjection
 			));
 
-			//var emplSelector = Projections.Conditional(
-			//	Expression.In(nameof(employeeAlias.Category), routeListStatusesForLastWorkingDay), 
-			//	Projections.SubQuery(lastWorkingDayForDriversQuery), 
-			//	Projections.SubQuery(lastWorkingDayForForwardersQuery));
-
-			//Func<EmployeeCategory, QueryOver> subquerySelector = (e) =>
-			//{
-			//	if(e == EmployeeCategory.driver) return lastWorkingDayForDriversQuery;
-				
-			//	return lastWorkingDayForForwardersQuery;
-			//};
-
 			employeesQuery
 				.SelectList(list => list
 					.SelectGroup(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
@@ -183,12 +171,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => employeeAlias.Comment).WithAlias(() => resultAlias.EmployeeComment)
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionTitle)
 					.SelectSubQuery(wageQuery).WithAlias(() => resultAlias.Balance)
-					.SelectSubQuery(lastWorkingDayForDriversQuery).WithAlias(() => resultAlias.LastWorkingDay)
-				//.Select(() => employeeAlias.DateFired).WithAlias(() => resultAlias.LastWorkingDay)
+					.Select(Projections.Conditional(
+								Expression.In(nameof(employeeAlias.Category), new[] { EmployeeCategory.driver, EmployeeCategory.forwarder }),
+								(Projections.Conditional(
+									Expression.Eq(nameof(employeeAlias.Category), EmployeeCategory.driver),
+									Projections.SubQuery(driverLastWorkingDateQuery),
+									Projections.SubQuery(forwarderLastWorkingDateQuery))),
+								Projections.Property(nameof(employeeAlias.DateFired)))).WithAlias(() => resultAlias.LastWorkingDay)
 				);
 
 			employeesQuery
-				//.OrderBy(e => e.Id).Asc
 				.OrderBy(e => e.LastName).Asc
 				.OrderBy(e => e.Name).Asc
 				.OrderBy(e => e.Patronymic).Asc
