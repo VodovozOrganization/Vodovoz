@@ -136,8 +136,8 @@ namespace Vodovoz.Additions.Logistic
 		protected PointMarker(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
-			this.type = Extensions.GetStruct<PointMarkerType>(info, "type", PointMarkerType.none);
-			this.Shape = Extensions.GetStruct<PointMarkerShape>(info, "shape", PointMarkerShape.none);
+			this.type = GMap.NET.Extensions.GetStruct<PointMarkerType>(info, "type", PointMarkerType.none);
+			this.Shape = GMap.NET.Extensions.GetStruct<PointMarkerShape>(info, "shape", PointMarkerShape.none);
 		}
 
 		#endregion

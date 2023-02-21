@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using GLib;
 using GMap.NET;
@@ -21,7 +21,6 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	[ToolboxItem(true)]
 	public partial class CarsMonitoringView : TabViewBase<CarsMonitoringViewModel>
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -94,31 +93,30 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ylblHistoryHour.Binding.AddBinding(ViewModel, vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
+				.InitializeFromSource();
+
 			yspeccomboboxHistoryHour.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.HistoryHours, w => w.ItemsList)
 				.AddBinding(vm => vm.HistoryHour, w => w.SelectedItem)
 				.AddBinding(vm => vm.ShowCarCirclesOverlay, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ylblCoveragePercent.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowDistrictsOverlay, w => w.Visible)
+				.AddBinding(vm => vm.CoveragePercentString, w => w.Text)
+				.InitializeFromSource();
+
+			ylblCoveragePercentBefore.Binding.AddBinding(ViewModel, vm => vm.ShowDistrictsOverlay, w => w.Visible)
+				.InitializeFromSource();
+
 			ConfigureMap();
 			SubscribeToEvents();
-
-			Disable4206();
 
 			ViewModel.RefreshWorkingDriversCommand?.Execute();
 
 			UpdateCarPosition();
 			StartTimer(_timeoutTimerHandler);
-		}
-
-		private void Disable4206()
-		{
-			hboxHistory.Visible = false;
-			ychkbtnShowHistory.Visible = false;
-			ydatepickerHistoryDate.Visible = false;
-			yspeccomboboxHistoryHour.Visible = false;
-			ylblCoveragePercentBefore.Visible = false;
-			ylblCoveragePercent.Visible = false;
 		}
 
 		private void StartTimer(TimeoutHandler timeoutHandler)
@@ -168,11 +166,10 @@ namespace Vodovoz.Views.Logistic
 
 		private void SubscribeToEvents()
 		{
-			ViewModel.WorkingDrivers.CollectionChanged += (s, e) => { yTreeViewDrivers.YTreeModel.EmitModelChanged(); };
-			ViewModel.RouteListAddresses.CollectionChanged += (s, e) => { yTreeAddresses.YTreeModel.EmitModelChanged(); };
-			ViewModel.FastDeliveryDistricts.CollectionChanged += FastDeliveryDistrictsGeometryChanged;
-			ViewModel.SelectedWorkingDrivers.CollectionChanged += SelectedDriversChanged;
-			ViewModel.WorkingDrivers.CollectionChanged += WorkingDriversChanged;
+			ViewModel.WorkingDriversChanged += yTreeViewDrivers.YTreeModel.EmitModelChanged;
+			ViewModel.RouteListAddressesChanged += yTreeAddresses.YTreeModel.EmitModelChanged;
+			ViewModel.FastDeliveryDistrictChanged += UpdateDeliveryDistrictsOverlay;
+			ViewModel.WorkingDriversChanged += WorkingDriversChanged;
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 
@@ -190,9 +187,11 @@ namespace Vodovoz.Views.Logistic
 
 		private void UnSubscribeFromEvents()
 		{
-			ViewModel.FastDeliveryDistricts.CollectionChanged -= FastDeliveryDistrictsGeometryChanged;
-			ViewModel.SelectedWorkingDrivers.CollectionChanged -= SelectedDriversChanged;
-			ViewModel.WorkingDrivers.CollectionChanged -= WorkingDriversChanged;
+			ViewModel.WorkingDriversChanged -= yTreeViewDrivers.YTreeModel.EmitModelChanged;
+			ViewModel.RouteListAddressesChanged -= yTreeAddresses.YTreeModel.EmitModelChanged;
+
+			ViewModel.FastDeliveryDistrictChanged -= UpdateDeliveryDistrictsOverlay;
+			ViewModel.WorkingDriversChanged -= WorkingDriversChanged;
 			
 			ViewModel.PropertyChanged -= ViewModelPropertyChanged;
 
@@ -208,14 +207,14 @@ namespace Vodovoz.Views.Logistic
 			buttonMapInWindow.Clicked -= OnButtonMapInWindowClicked;
 		}
 
-		private void WorkingDriversChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void WorkingDriversChanged()
 		{
 			_tracksOverlay.Clear();
 			_carsOverlay.Clear();
 			UpdateCarPosition();
 		}
 
-		private void SelectedDriversChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void SelectedDriversChanged()
 		{
 			foreach(var driver in ViewModel.SelectedWorkingDrivers)
 			{
@@ -251,12 +250,6 @@ namespace Vodovoz.Views.Logistic
 			{
 				swAddressesListContainer.Visible = ViewModel.ShowAddresses;
 			}
-		}
-
-		private void FastDeliveryDistrictsGeometryChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			UpdateDeliveryDistrictsOverlay();
-			UpdateCarPosition();
 		}
 
 		private void UpdateDeliveryDistrictsOverlay()
@@ -305,8 +298,9 @@ namespace Vodovoz.Views.Logistic
 		{
 			_logger.Info("Обновляем данные диалога...");
 			ViewModel.RefreshWorkingDriversCommand?.Execute();
-			UpdateCarPosition();
+			ViewModel.RefreshFastDeliveryDistrictsCommand?.Execute();
 			_logger.Info("Ок");
+			UpdateCarPosition();
 		}
 
 		private void OnButtonTrackPointsClicked(object sender, EventArgs e)
@@ -394,6 +388,7 @@ namespace Vodovoz.Views.Logistic
 			{
 				ViewModel.SelectedWorkingDrivers.Add(selectedNode);
 			}
+			SelectedDriversChanged();
 		}
 
 		private bool UpdateCarPosition()
@@ -404,25 +399,20 @@ namespace Vodovoz.Views.Logistic
 					.SelectMany(x => x.RouteListsIds.Keys)
 					.ToArray();
 
-				var start = ViewModel.ShowHistory ? ViewModel.HistoryDate.Add(ViewModel.HistoryHour) : DateTime.Now; // Значение времени? 0_о
+				var start = ViewModel.ShowHistory ? ViewModel.HistoryDateTime : DateTime.Now; // Значение времени? 0_о
 				var startRequest = DateTime.Now;
 				DateTime disconnectedDateTime = start.Add(ViewModel.DriverDisconnectedTimespan);
 
-				IList<DriverPosition> lastPoints;
-				if(ViewModel.ShowHistory)
-				{
-					lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds, ViewModel.HistoryDate.Add(ViewModel.HistoryHour));
-				}
-				else
-				{
-					lastPoints = ViewModel.GetLastRouteListTrackPoints(routesIds);
-				}
+				ViewModel.RefreshLastDriverPositionsCommand?.Execute();
 
-				var movedDriversRouteListsIds = lastPoints.Where(x => x.Time > disconnectedDateTime)
+				var movedDriversRouteListsIds = ViewModel.LastDriverPositions.Where(x => x.Time > disconnectedDateTime)
 					.Select(x => x.RouteListId)
 					.ToArray();
 
-				var ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDriversRouteListsIds, disconnectedDateTime);
+				IList<DriverPosition> ere20Minuts = new List<DriverPosition>();
+
+				ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDriversRouteListsIds, disconnectedDateTime);
+					
 				_logger.Debug("Время запроса точек: {0}", DateTime.Now - startRequest);
 
 				var driversWithAdditionalLoading = ViewModel.GetDriversWithAdditionalLoadingFrom(routesIds);
@@ -431,7 +421,7 @@ namespace Vodovoz.Views.Logistic
 				_fastDeliveryCarCirclesOverlay.Clear();
 				_carMarkers.Clear();
 
-				foreach(var pointsForDriver in lastPoints.GroupBy(x => x.DriverId))
+				foreach(var pointsForDriver in ViewModel.LastDriverPositions.GroupBy(x => x.DriverId))
 				{
 					var lastPoint = pointsForDriver.OrderBy(x => x.Time).Last();
 					var driverRow = ViewModel.WorkingDrivers.First(x => x.Id == lastPoint.DriverId);
