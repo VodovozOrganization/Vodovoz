@@ -50,12 +50,12 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
 using WrapMode = Pango.WrapMode;
@@ -77,6 +77,20 @@ namespace Vodovoz.JournalColumnsConfigs
 
 		public static void RegisterColumns()
 		{
+			var registratorGeneric = typeof(IColumnsConfigRegistrar<,>);
+			var types = AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(s => s.GetTypes())
+				.Where(p => p.IsClass
+					&& !p.IsAbstract
+					&& p.GetInterfaces().Any(x =>
+						x.IsGenericType &&
+						x.GetGenericTypeDefinition() == registratorGeneric));
+
+			foreach(var type in types)
+			{
+				Activator.CreateInstance(type);
+			}
+
 			TreeViewColumnsConfigFactory.Register<SalaryByEmployeeJournalViewModel>(
 				() => FluentColumnsConfig<EmployeeJournalNode>.Create()
 					.AddColumn("Код").AddNumericRenderer(node => node.Id)
@@ -150,35 +164,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Статус версии районов").AddTextRenderer(node => node.DistrictsSetStatus.GetEnumTitle())
 					.AddColumn("Код версии").AddNumericRenderer(node => node.DistrictsSetId)
 					.AddColumn("")
-					.Finish()
-			);
-
-			//OrderJournalViewModel
-			TreeViewColumnsConfigFactory.Register<OrderJournalViewModel>(
-				() => FluentColumnsConfig<OrderJournalNode>.Create()
-					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
-					.AddColumn("Дата").AddTextRenderer(node => node.Date != null ? ((DateTime)node.Date).ToString("d") : String.Empty)
-					.AddColumn("Автор").AddTextRenderer(node => node.Author)
-					.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
-					.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
-					.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
-						.WrapMode(WrapMode.WordChar)
-						.WrapWidth(100)
-					.AddColumn("Бутыли").AddTextRenderer(node => $"{node.BottleAmount:N0}")
-					.AddColumn("Кол-во с/о").AddTextRenderer(node => $"{node.SanitisationAmount:N0}")
-					.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
-					.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
-					.AddColumn("Статус оплаты").AddTextRenderer(x =>
-						(x.OrderPaymentStatus != OrderPaymentStatus.None) ? x.OrderPaymentStatus.GetEnumTitle() : "")
-					.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
-					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
-					.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)
-					.AddColumn("Послед. изменения").AddTextRenderer(node =>
-						node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString(CultureInfo.CurrentCulture) : string.Empty)
-					.AddColumn("Номер звонка").AddTextRenderer(node => node.DriverCallId.ToString())
-					.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
-					.AddColumn("Номер заказа интернет-магазина").AddTextRenderer(node => node.EShopNumber)
-					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 
