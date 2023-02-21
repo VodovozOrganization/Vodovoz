@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -1082,60 +1082,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-		IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
-
-		var parametersProvider = new ParametersProvider();
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(parametersProvider));
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var userRepository = new UserRepository();
-
-		ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
-
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
-		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
-		IFileDialogService fileDialogService = new FileDialogService();
-		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
-
-		var journal = new ComplaintsJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			undeliveredOrdersJournalOpener,
-			VodovozGtkServicesConfig.EmployeeService,
-			counterpartySelectorFactory,
-			routeListItemRepository,
-			new SubdivisionParametersProvider(new ParametersProvider()),
-			new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices,
-				subdivisionRepository,
-				employeeJournalFactory,
-				counterpartySelectorFactory,
-				subdivisionParametersProvider
-			)
-			{
-				HidenByDefault = true
-			},
-			fileDialogService,
-			subdivisionRepository,
-			new GtkTabsOpener(),
-			nomenclatureRepository,
-			userRepository,
-			new OrderSelectorFactory(),
-			employeeJournalFactory,
-			counterpartySelectorFactory,
-			new DeliveryPointJournalFactory(),
-			subdivisionJournalFactory,
-			new SalesPlanJournalFactory(),
-			new NomenclatureJournalFactory(),
-			new EmployeeSettings(new ParametersProvider()),
-			new UndeliveredOrdersRepository(),
-			complaintParametersProvider,
-			autofacScope.BeginLifetimeScope()
-		);
-
-		tdiMain.AddTab(journal);
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null);
 	}
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
@@ -2232,61 +2179,10 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-		IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
-
-		var parametersProvider = new ParametersProvider();
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(parametersProvider));
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var userRepository = new UserRepository();
-
-		ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
-
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
-		IFileDialogService fileDialogService = new FileDialogService();
-		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
-
-		tdiMain.OpenTab(
-			() =>
-			{
-				return new ComplaintsJournalViewModel(
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					undeliveredOrdersJournalOpener,
-					VodovozGtkServicesConfig.EmployeeService,
-					counterpartySelectorFactory,
-					routeListItemRepository,
-					new SubdivisionParametersProvider(new ParametersProvider()),
-					new ComplaintFilterViewModel(
-						ServicesConfig.CommonServices,
-						subdivisionRepository,
-						employeeJournalFactory,
-						counterpartySelectorFactory,
-						subdivisionParametersProvider
-					)
-					{ IsForRetail = true },
-					fileDialogService,
-					subdivisionRepository,
-					new GtkTabsOpener(),
-					nomenclatureRepository,
-					userRepository,
-					new OrderSelectorFactory(),
-					employeeJournalFactory,
-					counterpartySelectorFactory,
-					new DeliveryPointJournalFactory(),
-					subdivisionJournalFactory,
-					new SalesPlanJournalFactory(),
-					new NomenclatureJournalFactory(),
-					new EmployeeSettings(new ParametersProvider()),
-					new UndeliveredOrdersRepository(),
-					complaintParametersProvider,
-					autofacScope.BeginLifetimeScope()
-				);
-			}
-		);
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+			   null,
+			   filter => filter.IsForRetail = true,
+			   OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionRetailUndeliveredOrdersJournalActivated(object sender, EventArgs e)
@@ -2804,5 +2700,10 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionFastDeliveryPercentCoverageReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<FastDeliveryPercentCoverageReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnActionComplaintDetalizationJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ComplaintDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }

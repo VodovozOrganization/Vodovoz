@@ -87,6 +87,7 @@ using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using QS.Attachments.Domain;
 using QS.Utilities.Text;
 using Vodovoz.Core;
+using Autofac;
 
 namespace Vodovoz
 {
@@ -1305,40 +1306,10 @@ namespace Vodovoz
 
 		private void ComplaintViewOnActivated(object sender, EventArgs e)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory, _subdivisionParametersProvider);
-			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
-
-			var complaintsJournalViewModel = new ComplaintsJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				UndeliveredOrdersJournalOpener,
-				_employeeService,
-				CounterpartySelectorFactory,
-				RouteListItemRepository,
-				_subdivisionParametersProvider,
-				filter,
-				FilePickerService,
-				SubdivisionRepository,
-				new GtkTabsOpener(),
-				NomenclatureRepository,
-				_userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
-				new SalesPlanJournalFactory(),
-				new NomenclatureJournalFactory(),
-				new EmployeeSettings(new ParametersProvider()),
-				new UndeliveredOrdersRepository(),
-				new ComplaintParametersProvider(new ParametersProvider()),
-				MainClass.AppDIContainer.BeginLifetimeScope()
-			);
-
-			TabParent.AddTab(complaintsJournalViewModel, this, false);
+			MainClass.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+			   null,
+			   filter => filter.Counterparty = Entity,
+			   OpenPageOptions.IgnoreHash);
 		}
 
 		private bool _canClose = true;
