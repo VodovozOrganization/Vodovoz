@@ -1,12 +1,56 @@
-﻿using System;
+﻿using Gamma.ColumnConfig;
+using Gdk;
+using Gtk;
+using QS.Views.Dialog;
+using RevenueService.Client.Dto;
+using System.Data.Bindings;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
+
 namespace Vodovoz.Views.Client
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CounterpartyDetailsFromRevenueServiceView : Gtk.Bin
+	[WindowSize(800, 600)]
+	public partial class CounterpartyDetailsFromRevenueServiceView : DialogViewBase<CounterpartyDetailsFromRevenueServiceViewModel>
 	{
-		public CounterpartyDetailsFromRevenueServiceView()
+		private static readonly Color _redColor = new Color(200, 0, 0);
+
+		public CounterpartyDetailsFromRevenueServiceView(CounterpartyDetailsFromRevenueServiceViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			ConfigureView();
+		}
+
+		private void ConfigureView()
+		{
+			lblMessage.Binding
+				.AddBinding(ViewModel, vm => vm.Message, w => w.LabelProp)
+				.InitializeFromSource();
+
+			btnReplaceDetails.Binding
+				.AddFuncBinding(ViewModel, vm => vm.SelectedNode != null, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnReplaceDetails.Clicked += (sender, args) => ViewModel.ReplaceDetailsCommand.Execute();
+
+			ConfigureTreeDetails();
+		}
+
+		private void ConfigureTreeDetails()
+		{
+			treeViewDetails.ColumnsConfig = FluentColumnsConfig<CounterpartyDto>.Create()
+				.AddColumn("№").AddNumericRenderer(n => ViewModel.Nodes.IndexOf(n) + 1)
+				.AddColumn("КПП").AddTextRenderer(n => n.Kpp)
+				.AddColumn("Наименование").AddTextRenderer(n => n.Name)
+				.AddColumn("ФИО").AddTextRenderer(n => n.PersonFullName)
+				.AddColumn("Адрес").AddTextRenderer(n => n.Address)
+				.AddColumn("Головная/\nФилиал").AddTextRenderer(n => n.BranchType.GetEnumTitle())
+				.AddColumn("Статус\n(действующая/нет) )").AddTextRenderer(n => n.IsActive ? "Да" : "Нет")
+				.AddColumn("")
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsActive ? Color.Zero : _redColor)
+				.Finish();
+
+			treeViewDetails.Binding.AddBinding(ViewModel, vm => vm.SelectedNode, w => w.SelectedRow).InitializeFromSource();
+
+			treeViewDetails.ItemsDataSource = ViewModel.Nodes;
 		}
 	}
 }

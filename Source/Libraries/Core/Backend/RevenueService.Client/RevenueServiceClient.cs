@@ -1,29 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Dadata;
+using Dadata.Model;
+using RevenueService.Client.Dto;
+using RevenueService.Client.Parsers;
 
 namespace RevenueService.Client
 {
 	public class RevenueServiceClient : IRevenueServiceClient
 	{
 		private readonly string _accessToken;
+		private const int _queryCount = 100;
 
 		public RevenueServiceClient(string accessToken)
 		{
-			_accessToken = accessToken?? throw new ArgumentNullException(nameof(accessToken));
+			_accessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
 		}
 
-		public IList<RevenueServiceCounterpartyDto> GetCounterpartyInfoFromRevenueService(string inn, string kpp = null)
+		public async Task<IList<CounterpartyDto>> GetCounterpartyInfoAsync(DadataRequestDto query, CancellationToken cancellationToken)
 		{
-			//var token =  "86d39d5fd5c9c9f6436acce73a8cc298561e5975";
 			var api = new SuggestClientAsync(_accessToken);
-			var response = api.SuggestParty(inn).Result;
-			var suggestionList = new List<RevenueServiceCounterpartyDto>();
+			var request = string.IsNullOrEmpty(query.Kpp) ? new FindPartyRequest(query.Inn, count: _queryCount) : new FindPartyRequest(query.Inn, query.Kpp, _queryCount);
+			var response = await api.FindParty(request, cancellationToken);
+			var suggestionList = new List<CounterpartyDto>();
+
+			var branchTypeParser = new BranchTypeParsser();
+			var typeOfOwnershipParser = new TypeOfOwnershipParser();
 
 			foreach(var suggestion in response.suggestions)
 			{
-				var dto = new RevenueServiceCounterpartyDto
+				var dto = new CounterpartyDto
 				{
 					Inn = suggestion.data.inn,
 					Kpp = suggestion.data.kpp,
@@ -33,11 +42,12 @@ namespace RevenueService.Client
 					PersonSurname = suggestion.data.fio?.surname,
 					PersonName = suggestion.data.fio?.name,
 					PersonPatronymic = suggestion.data.fio?.patronymic,
-					LegalPersonFullName = suggestion.data.management?.name,
-					BranchType = suggestion.data.branch_type.ToString(),
-					TypeOfOwnerShip = suggestion.data.type.ToString(),
+					ManagerFullName = suggestion.data.management?.name,
+					BranchType = branchTypeParser.Parse(suggestion.data.branch_type),
+					TypeOfOwnerShip = typeOfOwnershipParser.Parse(suggestion.data.type),
 					Emails = suggestion.data.emails?.Select(x => x.value).ToArray(),
-					Phones = suggestion.data.phones?.Select(x => x.value).ToArray()
+					Phones = suggestion.data.phones?.Select(x => x.value).ToArray(),
+					State = suggestion.data.state.status.ToString()
 				};
 
 				suggestionList.Add(dto);

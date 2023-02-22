@@ -89,6 +89,8 @@ using QS.Utilities.Text;
 using Vodovoz.Core;
 using Autofac;
 using RevenueService.Client;
+using RevenueService.Client.Dto;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz
 {
@@ -130,10 +132,12 @@ namespace Vodovoz
 		private double _emailLastScrollPosition;
 		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 		private IContactListService _contactListService;
-		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
+		private TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings = new EdoSettings(new ParametersProvider());
+		private ICounterpartySettings _counterpartySettings = new CounterpartySettings(new ParametersProvider());
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
+		private IRevenueServiceClient _revenueServiceClient;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -735,6 +739,16 @@ namespace Vodovoz
 
 		private void ConfigureTabRequisites()
 		{
+			_revenueServiceClient = new RevenueServiceClient(_counterpartySettings.RevenueServiceClientAccessToken);
+
+			btnRequestByInn.Binding
+				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.INN), w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnRequestByInnAndKpp.Binding
+				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.INN) && !string.IsNullOrWhiteSpace(e.KPP), w => w.Sensitive)
+				.InitializeFromSource();
+
 			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			
 			validatedOGRN.Binding
@@ -2133,13 +2147,87 @@ namespace Vodovoz
 
 		protected void OnButtonRequestByInnClicked(object sender, EventArgs e)
 		{
-			var token = "86d39d5fd5c9c9f6436acce73a8cc298561e5975";
-			var client = new RevenueServiceClient(token);
-			var res = client.GetCounterpartyInfoFromRevenueService(Entity.INN);
+			var revenueServiceCounterpartyDto = new DadataRequestDto{ Inn = Entity.INN };
+			var revenueServicePage = MainClass.MainWin.NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
+				IRevenueServiceClient, CancellationToken >(null, revenueServiceCounterpartyDto, _revenueServiceClient, _cancellationTokenSource.Token);
+
+			revenueServicePage.ViewModel.OnSelectResult  += (o, a) =>
+			{
+				if(!a.IsActive 
+				   && !_commonServices.InteractiveService.Question("Вы действительно хотите подгрузить недействующие реквизиты?"))
+				{
+					return;
+				}
+
+				FillEntityDetailsFromRevenueService(a);
+			};
+		}
+
+		private void FillEntityDetailsFromRevenueService(CounterpartyDto revenueServiceDto)
+		{
+			Entity.KPP = revenueServiceDto.Kpp;
+			Entity.Name = revenueServiceDto.ShortName ?? revenueServiceDto.FullName;
+			Entity.FullName = revenueServiceDto.FullName ?? Entity.Name;
+			Entity.RawJurAddress = revenueServiceDto.Address;
+
+			if(Entity.TypeOfOwnership == "ИП" || Entity.PersonType == PersonType.natural)
+			{
+				Entity.Surname = revenueServiceDto.PersonSurname;
+				Entity.FirstName = revenueServiceDto.PersonName;
+				Entity.Patronymic = revenueServiceDto.PersonPatronymic;
+			}
+			else
+			{
+				Entity.SignatoryFIO = revenueServiceDto.PersonFullName ?? revenueServiceDto.ManagerFullName;
+			}
+
+			if(revenueServiceDto.Phones != null)
+			{
+				foreach(var number in revenueServiceDto.Phones)
+				{
+					if(Entity.Phones.All(x => x.Number != number))
+					{
+						_phonesViewModel.PhonesList.Add(new Phone
+						{
+							Counterparty = Entity,
+							Number = number
+						});
+					}
+				}
+			}
+
+			if(revenueServiceDto.Emails != null)
+			{
+				foreach(var email in revenueServiceDto.Emails)
+				{
+					if(Entity.Emails.All(x => x.Address != email))
+					{
+						emailsView.EmailsList.Add(new Email
+						{
+							Counterparty = Entity,
+							Address = email
+						});
+					}
+				}
+			}
 		}
 
 		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)
 		{
+			var revenueServiceCounterpartyDto = new DadataRequestDto { Inn = Entity.INN, Kpp = Entity.KPP};
+			var revenueServicePage = MainClass.MainWin.NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
+				IRevenueServiceClient, CancellationToken>(null, revenueServiceCounterpartyDto, _revenueServiceClient, _cancellationTokenSource.Token);
+
+			revenueServicePage.ViewModel.OnSelectResult += (o, a) =>
+			{
+				if(!a.IsActive
+				   && !_commonServices.InteractiveService.Question("Вы действительно хотите подгрузить недействующие реквизиты?"))
+				{
+					return;
+				}
+
+				FillEntityDetailsFromRevenueService(a);
+			};
 		}
 	}
 

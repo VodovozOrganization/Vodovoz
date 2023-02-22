@@ -935,6 +935,7 @@ namespace Vodovoz.Domain.Client
 				StringBuilder sb = new StringBuilder(value);
 				sb.Replace("\n", "");
 				JurAddress = sb.ToString();
+				OnPropertyChanged(nameof(RawJurAddress));
 			}
 		}
 
