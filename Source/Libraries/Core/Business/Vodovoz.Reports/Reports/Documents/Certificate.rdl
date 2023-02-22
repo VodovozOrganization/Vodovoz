@@ -22,7 +22,7 @@
         <Height>831.90pt</Height>
         <Width>582.66pt</Width>
         <Left>7.53pt</Left>
-        <Top>15pt</Top>
+        <Top>35pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -46,28 +46,30 @@
           </Image>
         </ReportItems>
       </List>
-      <Textbox Name="Textbox1" >
-        <Height>16.51pt</Height>
-        <Width>81.92pt</Width>
+      <Textbox Name="Textbox1">
+        <Height>20.00pt</Height>
+        <Width>117.24pt</Width>
         <Value>={?order_id}</Value>
         <ZIndex>1</ZIndex>
-        <Left>458.0pt</Left>
-        <Top>1.0pt</Top>
+        <Left>467.60pt</Left>
+        <Top>15.00pt</Top>
         <Style>
-          <FontSize>12pt</FontSize>
+          <FontSize>17pt</FontSize>
           <TextAlign>Left</TextAlign>
+          <FontFamily >Times New Roman</FontFamily>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox2" >
-        <Height>16.51pt</Height>
-        <Width>81.92pt</Width>
+      <Textbox Name="Textbox2">
+        <Height>20.00pt</Height>
+        <Width>129.27pt</Width>
         <Value>К заказу №</Value>
         <ZIndex>1</ZIndex>
-        <Left>376.0pt</Left>
-        <Top>1.0pt</Top>
+        <Left>339.0pt</Left>
+        <Top>15.0pt</Top>
         <Style>
-          <FontSize>12pt</FontSize>
+          <FontSize>17pt</FontSize>
           <TextAlign>Right</TextAlign>
+          <FontFamily >Times New Roman</FontFamily>
         </Style>
       </Textbox>
     </ReportItems>
@@ -118,7 +120,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="certificate_id">
       <DataType>Integer</DataType>
       <DefaultValue>
