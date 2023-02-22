@@ -127,9 +127,8 @@ namespace Vodovoz.ViewModels.Goods
 			?? (_addNomenclatureDistributionCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, IEntityAutocompleteSelectorFactory>(
+					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(
 						this,
-						_nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory(),
 						OpenPageOptions.AsSlave
 					);
 					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;

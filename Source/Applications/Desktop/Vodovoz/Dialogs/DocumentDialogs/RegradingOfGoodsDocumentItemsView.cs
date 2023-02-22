@@ -167,7 +167,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseJournalFactory());
 			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
@@ -259,7 +259,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
+			var filter = new NomenclatureStockFilterViewModel(new WarehouseJournalFactory());
 			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(

@@ -4,17 +4,19 @@ using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels
 {
     public class OrganizationCashTransferDocumentFilterViewModel : FilterViewModelBase<OrganizationCashTransferDocumentFilterViewModel>
     {
         public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
-        public OrganizationCashTransferDocumentFilterViewModel(IEntityAutocompleteSelectorFactory employeeSelectorFactory)
+        public OrganizationCashTransferDocumentFilterViewModel(IEmployeeJournalFactory employeeJournalFactory)
         {
-            this.EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-            Organizations = UoW.GetAll<Organization>();
-        }
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+            EmployeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			Organizations = UoW.GetAll<Organization>();
+		}
 
         private DateTime? startDate;
         public DateTime? StartDate
@@ -47,7 +49,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
         }
 
         private Organization organizationTo;
-        public virtual Organization OrganizationTo
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+
+		public virtual Organization OrganizationTo
         {
             get => organizationTo;
             set => UpdateFilterField(ref organizationTo, value);

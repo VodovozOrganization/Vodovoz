@@ -51,7 +51,7 @@ namespace Vodovoz.JournalViewers
 			_callTasksVm.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			_callTasksVm.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			_callTasksVm.Filter =
-				new CallTaskFilterViewModel(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(), _deliveryPointRepository);
+				new CallTaskFilterViewModel(_employeeJournalFactory, _deliveryPointRepository);
 			_callTasksVm.PropertyChanged += CreateCallTaskFilterView;
 			representationtreeviewTask.RepresentationModel = _callTasksVm;
 			buttonExport.Clicked += (sender, args) => Export();

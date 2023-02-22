@@ -28,7 +28,8 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IUnitOfWorkFactory uowFactory;
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IEntitySelectorFactory _employeeSelectorFactory;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly ICategoryRepository _categoryRepository;
 
@@ -37,7 +38,7 @@ namespace Vodovoz.ViewModels.Employees
 			IUnitOfWorkFactory uowFactory,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
-			IEntitySelectorFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeSettings employeeSettings,
 			ICommonServices commonServices
 		) : base(uowBuilder, uowFactory, commonServices)
@@ -45,7 +46,8 @@ namespace Vodovoz.ViewModels.Employees
 			this.uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			this._employeeSelectorFactory = _employeeSelectorFactory ?? throw new ArgumentNullException(nameof(_employeeSelectorFactory));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
@@ -310,7 +312,7 @@ namespace Vodovoz.ViewModels.Employees
 		{
 			AddFineItemCommand = new DelegateCommand(
 				() => {
-					var employeeSelector = employeeSelectorFactory.CreateSelector();
+					var employeeSelector = _employeeSelectorFactory.CreateSelector();
 					employeeSelector.OnEntitySelectedResult += (sender, e) => {
 						var node = e.SelectedNodes.FirstOrDefault();
 						if(node == null) {
