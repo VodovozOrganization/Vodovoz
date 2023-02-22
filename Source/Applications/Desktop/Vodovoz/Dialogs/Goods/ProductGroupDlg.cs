@@ -2,12 +2,12 @@
 using Gamma.Binding.Converters;
 using Gamma.Widgets.Additions;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Representations;
 using Vodovoz.Representations.ProductGroups;
 
 namespace Vodovoz.Dialogs.Goods
@@ -16,14 +16,14 @@ namespace Vodovoz.Dialogs.Goods
 	{
 		public ProductGroupDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ProductGroup>();
 			ConfigureDialog();
 		}
 
 		public ProductGroupDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ProductGroup>(id);
 			ConfigureDialog();
 		}
@@ -45,10 +45,7 @@ namespace Vodovoz.Dialogs.Goods
 			ycheckExportToOnlineStore.Binding.AddBinding(Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
 			
 			ycheckArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			ycheckArchived.Toggled += (sender, args) => {
-				Entity.FetchChilds(UoW);
-				Entity.SetIsArchiveRecursively(ycheckArchived.Active);
-			};
+			ycheckArchived.Toggled += OnArchiveToggled;
 			
 			entryParent.JournalButtons = Buttons.None;
 			entryParent.RepresentationModel = new ProductGroupVM(UoW, new ProductGroupFilterViewModel
@@ -82,5 +79,35 @@ namespace Vodovoz.Dialogs.Goods
 		}
 
 		#endregion
+
+		private void OnArchiveToggled(object sender, EventArgs e)
+		{
+			var archiving = ycheckArchived.Active;
+			if(!archiving)
+			{
+				var parent = Entity.Parent;
+				if(parent != null && parent.IsArchive)
+				{
+					ycheckArchived.Active = true;
+					MessageDialogHelper.RunWarningDialog(
+						$"Родительская группа {parent.Name} архивирована.\n" +
+						"Выполните одно из действий:\n" +
+						"Либо уберите родительскую группу у данной группы\n" +
+						"Либо разархивируйте родителя\n" +
+						"Либо перенесите эту группу в действующую неархивную группу товаров");
+				}
+			}
+			else
+			{
+				Entity.FetchChilds(UoW);
+				Entity.SetIsArchiveRecursively(archiving);
+			}
+		}
+
+		public override void Destroy()
+		{
+			ycheckArchived.Toggled -= OnArchiveToggled;
+			base.Destroy();
+		}
 	}
 }
