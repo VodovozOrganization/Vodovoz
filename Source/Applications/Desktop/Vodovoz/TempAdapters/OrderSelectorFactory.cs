@@ -21,7 +21,7 @@ namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
-		private readonly OrderJournalFilterViewModel _orderJournalFilter;
+		private OrderJournalFilterViewModel _orderJournalFilter;
 
 		public OrderSelectorFactory(OrderJournalFilterViewModel orderFilter = null)
 		{
@@ -151,9 +151,13 @@ namespace Vodovoz.TempAdapters
 			var userRepository = new UserRepository();
 			var employeeJournalFactory = new EmployeeJournalFactory();
 
+			if(filterViewModel != null)
+			{
+				_orderJournalFilter = filterViewModel;
+			}
+
 			return new OrderJournalViewModel(
 				_orderJournalFilter
-					?? filterViewModel
 					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
