@@ -1,14 +1,15 @@
-﻿using System;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using System;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -20,11 +21,15 @@ namespace Vodovoz.ViewModels.Orders
 			IUnitOfWork uow, 
 			PromotionalSet promotionalSet, 
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory) 
+			INomenclatureJournalFactory nomenclatureJournalFactory) 
 		{
-			NomenclatureSelectorFactory = nomenclatureSelectorFactory ??
-			                              throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			
+			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
+
+			var filter = new NomenclatureFilterViewModel();
+			filter.RestrictCategory = NomenclatureCategory.water;
+
+			NomenclatureSelectorFactory = _nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(filter);
+
 			CreateCommands();
 			PromotionalSet = promotionalSet;
 			CommonServices = commonServices;
@@ -96,6 +101,7 @@ namespace Vodovoz.ViewModels.Orders
 		}
 
 		public DelegateCommand CancelCommand;
+		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 
 		private void CreateCancelCommand()
 		{

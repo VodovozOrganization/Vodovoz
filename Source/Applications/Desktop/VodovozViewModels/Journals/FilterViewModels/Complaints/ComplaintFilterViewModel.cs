@@ -56,7 +56,7 @@ namespace Vodovoz.FilterViewModels
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			ISubdivisionRepository subdivisionRepository,
-			IEmployeeJournalFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			Action<ComplaintFilterViewModel> filterParams = null)
@@ -69,13 +69,13 @@ namespace Vodovoz.FilterViewModels
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
 			EmployeeSelectorFactory =
-				(employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory)))
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
 				subdivisionRepository,
-				employeeSelectorFactory.CreateEmployeeAutocompleteSelectorFactory(),
+				employeeJournalFactory,
 				_subdivisionParametersProvider,
 				UoW,
 				true);

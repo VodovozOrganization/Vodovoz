@@ -8,14 +8,16 @@ using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class GuiltyItemsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
-		readonly ISubdivisionRepository subdivisionRepository;
-		readonly ICommonServices commonServices;
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		readonly ICommonServices _commonServices;
+		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public GuiltyItemsViewModel(
@@ -23,14 +25,15 @@ namespace Vodovoz.ViewModels.Complaints
 			IUnitOfWork uow,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			bool isForSalesDepartment = false
 		) : base(entity, commonServices)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			this.commonServices = commonServices;
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_commonServices = commonServices;
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
@@ -72,9 +75,9 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			CurrentGuiltyVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
-				commonServices,
-				subdivisionRepository,
-				employeeSelectorFactory,
+				_commonServices,
+				_subdivisionRepository,
+				_employeeJournalFactory,
 				_subdivisionParametersProvider,
 				UoW
 			);

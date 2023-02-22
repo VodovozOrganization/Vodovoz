@@ -1,8 +1,10 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -12,7 +14,6 @@ using QS.Services;
 using System;
 using System.Collections;
 using System.Linq;
-using Autofac;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -35,7 +36,6 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using Order = Vodovoz.Domain.Orders.Order;
-using QS.Navigation;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -723,7 +723,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_employeeService,
 						_subdivisionRepository,
 						_commonServices,
-						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+						_employeeJournalFactory,
 						_fileDialogService,
 						new UserRepository(),
 						_subdivisionParametersProvider
