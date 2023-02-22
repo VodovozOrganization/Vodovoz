@@ -1306,9 +1306,13 @@ namespace Vodovoz
 
 		private void ComplaintViewOnActivated(object sender, EventArgs e)
 		{
-			MainClass.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel, Action<ComplaintFilterViewModel>>(
+			Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.Counterparty = Entity;
+
+			var filter = MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
+
+			MainClass.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
 			   null,
-			   filter => filter.Counterparty = Entity,
+			   filter,
 			   OpenPageOptions.IgnoreHash);
 		}
 

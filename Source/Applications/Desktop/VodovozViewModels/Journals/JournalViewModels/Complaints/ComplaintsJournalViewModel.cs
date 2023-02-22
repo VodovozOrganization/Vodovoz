@@ -45,7 +45,6 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -79,7 +78,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			INavigationManager navigationManager,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ComplaintFilterViewModel filterViewModel,
@@ -105,7 +103,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -697,7 +694,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						NavigationManager,
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
-						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 						_fileDialogService,
 						_subdivisionRepository,
 						_userRepository,
@@ -740,7 +736,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						NavigationManager,
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
-						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 						_fileDialogService,
 						_subdivisionRepository,
 						_userRepository,
@@ -852,7 +847,6 @@ namespace Vodovoz.Journals.JournalViewModels
 								NavigationManager,
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
-								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 								_fileDialogService,
 								_subdivisionRepository,
 								_userRepository,
@@ -889,7 +883,6 @@ namespace Vodovoz.Journals.JournalViewModels
 								NavigationManager,
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
-								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 								_fileDialogService,
 								_subdivisionRepository,
 								_userRepository,
