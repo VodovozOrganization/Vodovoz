@@ -2204,8 +2204,6 @@ public partial class MainWindow : Gtk.Window
 	{
 		var carJournalFactory = new CarJournalFactory(NavigationManager);
 
-		carJournalFactory.CreateCarAutocompleteSelectorFactory();
-
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = new CastomInteractiveService();
 
