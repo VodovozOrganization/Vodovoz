@@ -422,7 +422,7 @@ namespace Vodovoz.ViewModels.Logistic
             {
                 for(int j = 0; j < Entity.Districts.Count - 2 - i; j++)
                 {
-                    switch (NaturalStringComparer.CompareStrings(Entity.Districts[j].TariffZone.Name, Entity.Districts[j + 1].TariffZone.Name)) {
+                    switch (NaturalStringComparer.CompareStrings(Entity.Districts[j].TariffZone?.Name ?? "", Entity.Districts[j + 1].TariffZone?.Name ?? "")) {
                         case -1:
                             break;
                         case 1: (Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]);
