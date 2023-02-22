@@ -679,10 +679,6 @@ public partial class MainWindow : Gtk.Window
 		var userRepository = new UserRepository();
 		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
-
 		tdiMain.OpenTab(
 			() => new NomenclaturesJournalViewModel(
 				new NomenclatureFilterViewModel() { HidenByDefault = true },
@@ -1703,10 +1699,6 @@ public partial class MainWindow : Gtk.Window
 		var userRepository = new UserRepository();
 
 		var counterpartyJournalFactory = new CounterpartyJournalFactory();
-
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		tdiMain.AddTab(
 			new PromotionalSetsJournalViewModel(
