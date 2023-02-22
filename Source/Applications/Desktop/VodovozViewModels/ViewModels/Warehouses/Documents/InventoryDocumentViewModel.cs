@@ -112,6 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			FillFactByAccountingCommand = new DelegateCommand(FillFactByAccounting);
 
 			SubscribeOnEntityChanges();
+			Entity.Items.Reconnect();
 		}
 
 		private void ClearItems()
@@ -389,8 +390,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 		private void AddItem()
 		{
 			var nomenclatureSelector = NomenclatureJournalFactory.CreateNomenclatureSelector();
-			nomenclatureSelector.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
 			var nomenclatureJournalViewModel = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, IEntitySelector>(this, nomenclatureSelector).ViewModel;
+			nomenclatureJournalViewModel.SelectionMode = JournalSelectionMode.Single;
+			nomenclatureJournalViewModel.OnEntitySelectedResult += NomenclatureSelectorOnEntitySelectedResult;
 		}
 
 		private void NomenclatureSelectorOnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
@@ -606,9 +608,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 		private void FillFactByAccounting()
 		{
-			foreach(var inventoryDocumentItem in Entity.Items)
+			for(int i = 0; i < Entity.Items.Count; i++)
 			{
-				inventoryDocumentItem.AmountInFact = inventoryDocumentItem.AmountInDB;
+				if(Entity.Items[i].AmountInFact != Entity.Items[i].AmountInDB)
+				{
+					Entity.Items[i].AmountInFact = Entity.Items[i].AmountInDB;
+					Entity.Items.OnPropertyChanged(nameof(Entity.Items));
+				}
 			}
 		}
 

@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -62,21 +62,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		[Display(Name = "Строки")]
-
-
-		GenericObservableList<InventoryDocumentItem> _items;
-		public virtual GenericObservableList<InventoryDocumentItem> Items
-		{
-			get
-			{
-				if(_items == null)
-				{
-					_items = new GenericObservableList<InventoryDocumentItem>();
-				}
-
-				return _items;
-			}
-		}
+		public virtual GenericObservableList<InventoryDocumentItem> Items { get; } = new GenericObservableList<InventoryDocumentItem>();
 
 		public virtual string Title => $"Инвентаризация №{Id} от {TimeStamp:d}";
 

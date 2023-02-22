@@ -137,17 +137,14 @@ namespace Vodovoz.Views.Warehouse.Documents
 				})
 				.Finish();
 
-			ytreeviewItems.ItemsDataSource = ViewModel.Entity.Items;
-
 			ytreeviewItems.Binding
 				.AddBinding(
 					ViewModel,
 					vm => vm.SelectedInventoryDocumentItem,
 					w => w.SelectedRow)
 				.AddBinding(ViewModel.Entity, e => e.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.Items, w => w.ItemsDataSource)
 				.InitializeFromSource();
-
-			ytreeviewItems.YTreeModel?.EmitModelChanged();
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
