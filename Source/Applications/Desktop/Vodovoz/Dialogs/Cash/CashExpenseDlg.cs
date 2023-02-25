@@ -19,6 +19,7 @@ using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
 using QSProjectsLib;
+using System.Globalization;
 
 namespace Vodovoz
 {
@@ -152,6 +153,8 @@ namespace Vodovoz
 			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.SelectedItem).InitializeFromSource();
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
+			yspinMoney.Output += YspinMoneyOnOutput;
+			yspinMoney.Input += YspinMoneyOnInput;
 
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 
@@ -379,6 +382,39 @@ namespace Vodovoz
 			{
 				yspinMoney.Text = "";
 			}
+		}
+
+		private void YspinMoneyOnOutput(object o, Gtk.OutputArgs args)
+		{
+			yspinMoney.Numeric = false;
+
+			NumberFormatInfo valueFormatInfo = new NumberFormatInfo();
+			valueFormatInfo.NumberDecimalSeparator = ".";
+			valueFormatInfo.NumberGroupSeparator = " ";
+
+			yspinMoney.Text = string.Format(valueFormatInfo, "{0:#,0.00}", yspinMoney.Value);
+			yspinMoney.Numeric = true;
+
+			args.RetVal = 1;
+		}
+
+		private void YspinMoneyOnInput(object o, Gtk.InputArgs args)
+		{
+			if(yspinMoney.Text.Length == 0)
+			{
+				yspinMoney.Text = "0";
+			}
+
+			double newValue;
+			if(double.TryParse(yspinMoney.Text.Replace(" ", ""), NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"), out newValue))
+			{
+				args.NewValue = newValue;
+			}
+			else
+			{
+				args.NewValue = yspinMoney.Value;
+			}
+			args.RetVal = 1;
 		}
 	}
 }
