@@ -103,7 +103,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckbuttonBalanceFilterEnable = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonBalanceFilterEnable.CanFocus = true;
 			this.ycheckbuttonBalanceFilterEnable.Name = "ycheckbuttonBalanceFilterEnable";
-			this.ycheckbuttonBalanceFilterEnable.Label = global::Mono.Unix.Catalog.GetString("Включить фильтр по сумме баланса:");
+			this.ycheckbuttonBalanceFilterEnable.Label = "";
 			this.ycheckbuttonBalanceFilterEnable.DrawIndicator = true;
 			this.ycheckbuttonBalanceFilterEnable.UseUnderline = true;
 			this.hbox1.Add(this.ycheckbuttonBalanceFilterEnable);
