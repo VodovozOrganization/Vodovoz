@@ -4,6 +4,8 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class SalaryByEmployeeFilterView
 	{
+		private global::Gtk.VBox vbox1;
+
 		private global::Gtk.HBox hbox1;
 
 		private global::Gtk.Label labelCategory;
@@ -17,6 +19,8 @@ namespace Vodovoz.Filters.GtkViews
 		private global::Gamma.GtkWidgets.yLabel ylabelSubdivision;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox comboSubdivision;
+
+		private global::Gtk.HBox hbox2;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonBalanceFilterEnable;
 
@@ -33,6 +37,10 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.SalaryByEmployeeFilterView";
 			// Container child Vodovoz.Filters.GtkViews.SalaryByEmployeeFilterView.Gtk.Container+ContainerChild
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -99,19 +107,28 @@ namespace Vodovoz.Filters.GtkViews
 			w6.Position = 5;
 			w6.Expand = false;
 			w6.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.ycheckbuttonBalanceFilterEnable = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonBalanceFilterEnable.CanFocus = true;
 			this.ycheckbuttonBalanceFilterEnable.Name = "ycheckbuttonBalanceFilterEnable";
 			this.ycheckbuttonBalanceFilterEnable.Label = "";
 			this.ycheckbuttonBalanceFilterEnable.DrawIndicator = true;
 			this.ycheckbuttonBalanceFilterEnable.UseUnderline = true;
-			this.hbox1.Add(this.ycheckbuttonBalanceFilterEnable);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ycheckbuttonBalanceFilterEnable]));
-			w7.Position = 6;
-			w7.Expand = false;
-			w7.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hbox2.Add(this.ycheckbuttonBalanceFilterEnable);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ycheckbuttonBalanceFilterEnable]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.yhboxMinBalanceSettings = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxMinBalanceSettings.Name = "yhboxMinBalanceSettings";
 			this.yhboxMinBalanceSettings.Spacing = 6;
@@ -120,10 +137,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.labelMinBalance.Name = "labelMinBalance";
 			this.labelMinBalance.LabelProp = global::Mono.Unix.Catalog.GetString("Баланс менее:");
 			this.yhboxMinBalanceSettings.Add(this.labelMinBalance);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhboxMinBalanceSettings[this.labelMinBalance]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxMinBalanceSettings[this.labelMinBalance]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child yhboxMinBalanceSettings.Gtk.Box+BoxChild
 			this.yspinbuttonMinBalance = new global::Gamma.GtkWidgets.ySpinButton(-10000000D, 10000000D, 100D);
 			this.yspinbuttonMinBalance.CanFocus = true;
@@ -134,16 +151,21 @@ namespace Vodovoz.Filters.GtkViews
 			this.yspinbuttonMinBalance.ValueAsDecimal = 0m;
 			this.yspinbuttonMinBalance.ValueAsInt = 0;
 			this.yhboxMinBalanceSettings.Add(this.yspinbuttonMinBalance);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxMinBalanceSettings[this.yspinbuttonMinBalance]));
-			w9.Position = 1;
-			w9.Expand = false;
-			w9.Fill = false;
-			this.hbox1.Add(this.yhboxMinBalanceSettings);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yhboxMinBalanceSettings]));
-			w10.Position = 7;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxMinBalanceSettings[this.yspinbuttonMinBalance]));
+			w10.Position = 1;
 			w10.Expand = false;
 			w10.Fill = false;
-			this.Add(this.hbox1);
+			this.hbox2.Add(this.yhboxMinBalanceSettings);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yhboxMinBalanceSettings]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
