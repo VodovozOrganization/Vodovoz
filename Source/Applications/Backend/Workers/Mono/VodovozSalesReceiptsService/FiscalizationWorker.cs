@@ -90,12 +90,6 @@ namespace VodovozSalesReceiptsService
 			{
 				logger.Info("Подготовка чеков к отправке на сервер фискализации...");
 
-				/*var order = uow.GetById<Order>(2595127);
-				var trueMarkOrder = uow.GetById<TrueMarkCashReceiptOrder>(74);
-				var doc = new SalesDocumentDTO(order, trueMarkOrder, order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
-
-				var content = System.Text.Json.JsonSerializer.Serialize(doc);*/
-
 				var receiptForOrderNodes = orderRepository
 					.GetOrdersForCashReceiptServiceToSend(uow, orderParametersProvider, DateTime.Today.AddDays(-3)).ToList();
 

@@ -18,8 +18,7 @@ namespace VodovozSalesReceiptsService
 	class Service
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-		//private const string configFile = "/etc/vodovoz-sales-receipts-service-test.json";
-		private const string configFile = @"E:\Repositories\Vodovoz\TestConfigs\vodovoz-sales-receipts-service-test.json";
+		private const string configFile = "/etc/vodovoz-sales-receipts-service.json";
 
 		//Mysql
 		private static string mysqlServerHostName;

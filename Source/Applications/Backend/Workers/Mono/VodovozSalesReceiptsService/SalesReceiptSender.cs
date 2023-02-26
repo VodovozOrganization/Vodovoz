@@ -137,7 +137,7 @@ namespace VodovozSalesReceiptsService
                         logger.Warn("Клиент успешно связан с розничной точкой, " +
                             $"но касса еще ни разу не вышла на связь и не сообщила свое состояние. " +
                             $"Отправка чеков для фискального регистратора №{cashBox.Id} отменена");
-                        return true; //ТЕСТ исправить на false ОБЯЗАТЕЛЬНО
+                        return false;
                     default:
                         logger.Warn($"Провал с сообщением: \"{finscalizatorStatusResponse.Message}\". " +
                             $"Отправка чеков для фискального регистратора №{cashBox.Id} отменена");

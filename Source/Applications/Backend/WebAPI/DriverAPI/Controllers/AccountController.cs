@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,28 +37,6 @@ namespace DriverAPI.Controllers
 
 				throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 			}
-		}
-
-		[HttpPost]
-		[AllowAnonymous]
-		[Route("/api/ChangePassword")]
-		public async Task ChangePassword([FromBody] PasswordDto password)
-		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			var user = await _userManager.GetUserAsync(User);
-
-			var result = await _userManager.ChangePasswordAsync(user, password.CurrentPassword, password.NewPassword);
-
-			if(!result.Succeeded)
-			{
-				throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
-			}
-		}
-
-		public class PasswordDto
-		{
-			public string CurrentPassword { get; set; }
-			public string NewPassword { get; set; }
 		}
 	}
 }

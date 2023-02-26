@@ -336,6 +336,11 @@ namespace DriverAPI.Library.Models
 
 		private void SaveScannedCodes(DateTime actionTime, IDriverCompleteOrderInfo completeOrderInfo)
 		{
+			if(completeOrderInfo.ScannedItems == null)
+			{
+				return;
+			}
+
 			var trueMarkCashReceiptOrder = _uow.Session.QueryOver<TrueMarkCashReceiptOrder>()
 				.Where(x => x.Order.Id == completeOrderInfo.OrderId)
 				.SingleOrDefault();

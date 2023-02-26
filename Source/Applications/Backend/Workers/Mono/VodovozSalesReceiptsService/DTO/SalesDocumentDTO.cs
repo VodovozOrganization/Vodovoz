@@ -14,7 +14,7 @@ namespace VodovozSalesReceiptsService.DTO
 		public SalesDocumentDTO(Order order, TrueMarkCashReceiptOrder trueMarkOrder, string cashier)
 		{
 			CheckoutDateTime = (order.TimeDelivered ?? DateTime.Now).ToString("O");
-			DocNum = Id = string.Concat("test_vod_", order.Id, "_2");
+			DocNum = Id = string.Concat("vod_", order.Id);
 			Email = order.GetContact();
 			CashierName = cashier;
 			InventPositions = new List<InventPositionDTO>();
