@@ -5,10 +5,10 @@ namespace Vodovoz.Models.TrueMark
 {
 	public class TrueMarkTransactionalCodesPool : TrueMarkCodesPool
 	{
-		private IList<string> _codesToPut;
-		private IList<string> _codesToTake;
-		private IList<string> _defectiveCodesToPut;
-		private IList<string> _defectiveCodesToTake;
+		private IList<int> _codesToPut = new List<int>();
+		private IList<int> _codesToTake = new List<int>();
+		private IList<int> _defectiveCodesToPut = new List<int>();
+		private IList<int> _defectiveCodesToTake = new List<int>();
 
 		public TrueMarkTransactionalCodesPool(IUnitOfWorkFactory uowFactory) : base(uowFactory)
 		{
@@ -17,34 +17,42 @@ namespace Vodovoz.Models.TrueMark
 
 		private void RefreshCache()
 		{
-			_codesToPut = new List<string>();
-			_codesToTake = new List<string>();
-			_defectiveCodesToPut = new List<string>();
-			_defectiveCodesToTake = new List<string>();
+			_codesToPut.Clear();
+			_codesToTake.Clear();
+			_defectiveCodesToPut.Clear();
+			_defectiveCodesToTake.Clear();
 		}
 
-		public override void PutCode(string code)
+		public override void PutCode(int codeId)
 		{
-			_codesToPut.Add(code);
+			_codesToPut.Add(codeId);
 		}
 
-		public override string TakeCode()
+		public override int TakeCode()
 		{
-			var code = base.TakeCode();
-			_codesToTake.Add(code);
-			return code;
+			var codeId = base.TakeCode();
+			if(codeId == 0)
+			{
+				throw new TrueMarkException("В пуле отсутствуют коды для получения.");
+			}
+			_codesToTake.Add(codeId);
+			return codeId;
 		}
 
-		public override void PutDefectiveCode(string code)
+		public override void PutDefectiveCode(int codeId)
 		{
-			_defectiveCodesToPut.Add(code);
+			_defectiveCodesToPut.Add(codeId);
 		}
 
-		public override string TakeDefectiveCode()
+		public override int TakeDefectiveCode()
 		{
-			var code = base.TakeDefectiveCode();
-			_defectiveCodesToTake.Add(code);
-			return code;
+			var codeId = base.TakeDefectiveCode();
+			if(codeId == 0)
+			{
+				throw new TrueMarkException("В пуле отсутствуют коды для получения.");
+			}
+			_defectiveCodesToTake.Add(codeId);
+			return codeId;
 		}
 
 		public void Commit()
@@ -53,12 +61,12 @@ namespace Vodovoz.Models.TrueMark
 			{
 				foreach(var codeToPut in _codesToPut)
 				{
-					PutCode(codeToPut);
+					base.PutCode(codeToPut);
 				}
 
 				foreach(var defectiveCodeToPut in _defectiveCodesToPut)
 				{
-					PutCode(defectiveCodeToPut);
+					base.PutDefectiveCode(defectiveCodeToPut);
 				}
 			}
 			finally
@@ -73,12 +81,12 @@ namespace Vodovoz.Models.TrueMark
 			{
 				foreach(var codeToTake in _codesToTake)
 				{
-					PutCode(codeToTake);
+					base.PutCode(codeToTake);
 				}
 
 				foreach(var defectiveCodeToTake in _defectiveCodesToTake)
 				{
-					PutCode(defectiveCodeToTake);
+					base.PutDefectiveCode(defectiveCodeToTake);
 				}
 			}
 			finally

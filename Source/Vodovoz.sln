@@ -295,9 +295,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMarkCodesWorker", "Appl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstantSmsService", "Libraries\Core\Backend\Sms\InstantSmsService\InstantSmsService.csproj", "{B1AB54EB-59C6-486B-A0C8-01ED960F1FA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsRuSendService", "Libraries\Core\Backend\Sms\SmsRuSendService\SmsRuSendService.csproj", "{737E26DC-96D1-4D8A-A2C0-99F886EC3EEA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmsRuSendService", "Libraries\Core\Backend\Sms\SmsRuSendService\SmsRuSendService.csproj", "{737E26DC-96D1-4D8A-A2C0-99F886EC3EEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsSendInterface", "Libraries\Core\Backend\Sms\SmsSendInterface\SmsSendInterface.csproj", "{FFB05559-F1ED-4806-AAEA-A21DF3A3DCC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmsSendInterface", "Libraries\Core\Backend\Sms\SmsSendInterface\SmsSendInterface.csproj", "{FFB05559-F1ED-4806-AAEA-A21DF3A3DCC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrueMarkAuthorization", "Applications\Backend\WebAPI\TrueMarkAuthorization\TrueMarkAuthorization.csproj", "{AF583BA8-6669-4D76-843A-5ED956446D04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -3483,6 +3485,42 @@ Global
 		{FFB05559-F1ED-4806-AAEA-A21DF3A3DCC7}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{FFB05559-F1ED-4806-AAEA-A21DF3A3DCC7}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{FFB05559-F1ED-4806-AAEA-A21DF3A3DCC7}.WinDesktop|x86.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Debug|x86.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Docker|x86.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Docker|x86.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Release|x86.ActiveCfg = Release|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Release|x86.Build.0 = Release|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.ReleaseWin|Any CPU.Build.0 = Release|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.ReleaseWin|x86.Build.0 = Release|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.WCF|Any CPU.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.WCF|x86.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.WCF|x86.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Web|Any CPU.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Web|x86.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.Web|x86.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{AF583BA8-6669-4D76-843A-5ED956446D04}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -3622,6 +3660,7 @@ Global
 		{B1AB54EB-59C6-486B-A0C8-01ED960F1FA0} = {B9A88135-73D4-42CF-98BF-1ACB3CBABE30}
 		{737E26DC-96D1-4D8A-A2C0-99F886EC3EEA} = {B9A88135-73D4-42CF-98BF-1ACB3CBABE30}
 		{FFB05559-F1ED-4806-AAEA-A21DF3A3DCC7} = {B9A88135-73D4-42CF-98BF-1ACB3CBABE30}
+		{AF583BA8-6669-4D76-843A-5ED956446D04} = {9A64FD38-1065-4C74-A62A-666EA82BECF9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
@@ -3630,8 +3669,8 @@ Global
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{8ff7c332-e6d1-456f-8067-11ce62aaef5a}*SharedItemsImports = 5
-		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
 		Libraries\Core\Backend\Sms\Sms.Internal.Grpc\Sms.Internal.Grpc.projitems*{bd7720d3-8b1a-4568-950e-9b45fffad776}*SharedItemsImports = 13
+		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution

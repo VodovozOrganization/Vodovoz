@@ -4,11 +4,9 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -126,6 +124,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow,
 			IOrderParametersProvider orderParametersProvider,
 			DateTime? startDate = null);
+
+		/// <summary>
+		/// Возвращает id заказов самовывоза на которые необходима отправка чека
+		/// </summary>
+		IEnumerable<int> GetSelfdeliveryOrderIdsForCashReceipt(IUnitOfWork uow, IOrderParametersProvider orderParametersProvider);
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Order order);
 

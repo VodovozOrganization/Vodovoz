@@ -75,7 +75,7 @@ namespace Vodovoz.Settings.Database
 			{
 				Setting setting = uow.Session.QueryOver<Setting>()
 					.Where(x => x.Name == settingName)
-					.SingleOrDefault<Setting>();
+					.List<Setting>().First();
 
 				if(setting == null)
 				{

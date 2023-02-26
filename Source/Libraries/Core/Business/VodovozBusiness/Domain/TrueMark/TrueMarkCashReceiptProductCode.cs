@@ -15,9 +15,9 @@ namespace Vodovoz.Domain.TrueMark
 	{
 		private TrueMarkCashReceiptOrder _trueMarkCashReceiptOrder;
 		private OrderItem _orderItem;
-		private bool _isDefectiveSourceCode;
-		private string _codeSource;
-		private string _codeResult;
+		private bool _isDefectiveSourceCode;	
+		private TrueMarkWaterIdentificationCode _sourceCode;
+		private TrueMarkWaterIdentificationCode _resultCode;
 
 		public virtual int Id { get; set; }
 
@@ -42,18 +42,26 @@ namespace Vodovoz.Domain.TrueMark
 			set => SetField(ref _isDefectiveSourceCode, value);
 		}
 
-		[Display(Name = "Код источник")]
-		public virtual string CodeSource
+		private bool _isDuplicateSourceCode;
+		[Display(Name = "Дубликат кода источника")]
+		public virtual bool IsDuplicateSourceCode
 		{
-			get => _codeSource;
-			set => SetField(ref _codeSource, value);
+			get => _isDuplicateSourceCode;
+			set => SetField(ref _isDuplicateSourceCode, value);
+		}
+
+		[Display(Name = "Код источник")]
+		public virtual TrueMarkWaterIdentificationCode SourceCode
+		{
+			get => _sourceCode;
+			set => SetField(ref _sourceCode, value);
 		}
 
 		[Display(Name = "Код результат")]
-		public virtual string CodeResult
+		public virtual TrueMarkWaterIdentificationCode ResultCode
 		{
-			get => _codeResult;
-			set => SetField(ref _codeResult, value);
+			get => _resultCode;
+			set => SetField(ref _resultCode, value);
 		}
 	}
 }

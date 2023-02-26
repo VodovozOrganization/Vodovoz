@@ -1,11 +1,25 @@
-﻿namespace Vodovoz.Domain.TrueMark
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Vodovoz.Domain.TrueMark
 {
 	public enum TrueMarkCashReceiptOrderStatus
 	{
+		[Display(Name = "Новый")]
 		New,
+
+		[Display(Name = "Готово к отправке")]
 		ReadyToSend,
-		Error,
+
+		[Display(Name = "Ошибка кода")]
+		CodeError,
+
+		[Display(Name = "Ошибка отправки")]
+		ReceiptSendError,
+
+		[Display(Name = "Чек не требуется")]
 		ReceiptNotNeeded,
+
+		[Display(Name = "Отправлен")]
 		Sended
 	}
 }

@@ -585,7 +585,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 			CashReceipt cashReceiptAlias = null;
 			Counterparty counterpartyAlias = null;
-			TrueMarkCashReceiptOrder trueMarkCashReceiptOrder = null;
+			TrueMarkCashReceiptOrder trueMarkCashReceiptOrderAlias = null;
 
 			var orderSumProjection = Projections.Sum(
 				Projections.SqlFunction(
@@ -626,11 +626,11 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var ordersToSendQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityQueryOver(() => trueMarkCashReceiptOrder, Restrictions.Where(() => orderAlias.Id == trueMarkCashReceiptOrder.Order.Id))
+				.JoinEntityQueryOver(() => trueMarkCashReceiptOrderAlias, Restrictions.Where(() => orderAlias.Id == trueMarkCashReceiptOrderAlias.Order.Id))
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(paymentTypeRestriction)
-				.Where(Restrictions.In(Projections.Property(() => trueMarkCashReceiptOrder.Status), new[] { TrueMarkCashReceiptOrderStatus.ReadyToSend, TrueMarkCashReceiptOrderStatus.Error } ))
+				.Where(Restrictions.In(Projections.Property(() => trueMarkCashReceiptOrderAlias.Status), new[] { TrueMarkCashReceiptOrderStatus.ReadyToSend, TrueMarkCashReceiptOrderStatus.ReceiptSendError } ))
 				.And(statusRestriction)
 				.And(positiveSumRestriction)
 				.And(notSentRestriction);
@@ -644,9 +644,71 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SelectList(list => list
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => cashReceiptAlias.Id).WithAlias(() => resultAlias.ReceiptId)
-					.Select(() => cashReceiptAlias.Sent).WithAlias(() => resultAlias.WasSent))
+					.Select(() => cashReceiptAlias.Sent).WithAlias(() => resultAlias.WasSent)
+					.Select(() => trueMarkCashReceiptOrderAlias.Id).WithAlias(() => resultAlias.TrueMarkCashReceiptOrderId))
 				.TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
 				.List<ReceiptForOrderNode>();
+
+			return ordersToSend;
+		}
+
+		public IEnumerable<int> GetSelfdeliveryOrderIdsForCashReceipt(IUnitOfWork uow, IOrderParametersProvider orderParametersProvider)
+		{
+			OrderItem orderItemAlias = null;
+			VodovozOrder orderAlias = null;
+			CashReceipt cashReceiptAlias = null;
+			Counterparty counterpartyAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			TrueMarkCashReceiptOrder trueMarkCashReceiptOrderAlias = null;
+
+			var orderSumProjection = Projections.Sum(
+				Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "CAST(IFNULL(?1 * ?2 - ?3, 0) AS DECIMAL(14,2))"),
+					NHibernateUtil.Decimal,
+					Projections.Property(() => orderItemAlias.Count),
+					Projections.Property(() => orderItemAlias.Price),
+					Projections.Property(() => orderItemAlias.DiscountMoney)
+				)
+			);
+
+			var paymentTypeRestriction = Restrictions.Disjunction()
+				.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
+				.Add(Restrictions.Conjunction()
+					.Add(() => orderAlias.PaymentType == PaymentType.cash)
+					.Add(() => counterpartyAlias.AlwaysSendReceipts))
+				.Add(Restrictions.Conjunction()
+					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
+					.Add(Restrictions.Disjunction()
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
+						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
+
+			var statusRestriction = Restrictions.Conjunction()
+				.Add(() => orderAlias.SelfDelivery)
+				.Add(() => orderAlias.IsSelfDeliveryPaid);
+
+			var positiveSumRestriction = Restrictions.Gt(orderSumProjection, 0);
+
+			var notSentRestriction = Restrictions.Disjunction()
+				.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
+				.Add(() => !cashReceiptAlias.Sent);
+
+			var ordersToSendQuery = uow.Session.QueryOver(() => orderAlias)
+				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityQueryOver(() => trueMarkCashReceiptOrderAlias, Restrictions.Where(() => orderAlias.Id == trueMarkCashReceiptOrderAlias.Order.Id), JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Where(Restrictions.IsNull(Projections.Property(() => trueMarkCashReceiptOrderAlias.Id)))
+				.Where(paymentTypeRestriction)
+				.And(statusRestriction)
+				.And(positiveSumRestriction)
+				.And(notSentRestriction);
+
+			ordersToSendQuery.Where(() => orderAlias.DeliveryDate >= DateTime.Today.AddDays(-3));
+
+			var ordersToSend = ordersToSendQuery.Select(Projections.Id()).List<int>();
 
 			return ordersToSend;
 		}

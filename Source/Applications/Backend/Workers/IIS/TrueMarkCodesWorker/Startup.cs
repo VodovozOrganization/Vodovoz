@@ -12,11 +12,12 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using System.Linq;
 using System.Reflection;
+using TrueMarkApi.Library;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.NhibernateExtensions;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Edo;
 using Vodovoz.Tools;
 
@@ -48,19 +49,20 @@ namespace TrueMarkCodesWorker
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
+			builder.RegisterModule<DatabaseSettingsModule>();
+
 			builder.RegisterType<DefaultSessionProvider>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<EdoSettings>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<TrueMarkCodesPool>().AsSelf().AsImplementedInterfaces();
-			
+			builder.RegisterType<TrueMarkApiClientFactory>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<TrueMarkCodesHandler>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<TrueMarkSelfDeliveriesHandler>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<TrueMarkTransactionalCodesPool>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<TrueMarkWaterCodeParser>().AsSelf().AsImplementedInterfaces();
 
 			builder.RegisterInstance(ErrorReporter.Instance).AsImplementedInterfaces();
-
-			builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
-				.Where(t => t.Name.EndsWith("Handler"))
-				.AsSelf()
-				.AsImplementedInterfaces();
 
 			var vodovozBusinessAssembly = typeof(VodovozBusinessAssemblyFinder).Assembly;
 
@@ -121,7 +123,8 @@ namespace TrueMarkCodesWorker
 					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
 		}

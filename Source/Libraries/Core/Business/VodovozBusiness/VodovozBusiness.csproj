@@ -261,6 +261,7 @@
     <Compile Include="Domain\TrueMark\TrueMarkCashReceiptOrder.cs" />
     <Compile Include="Domain\TrueMark\TrueMarkCashReceiptOrderStatus.cs" />
     <Compile Include="Domain\TrueMark\TrueMarkCashReceiptProductCode.cs" />
+    <Compile Include="Domain\TrueMark\TrueMarkIdentificationCode.cs" />
     <Compile Include="Domain\Versions\VersionEntityBase.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
@@ -522,6 +523,7 @@
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
     <Compile Include="HibernateMapping\TrueMark\TrueMarkCashReceiptOrderMap.cs" />
+    <Compile Include="HibernateMapping\TrueMark\TrueMarkWaterIdentificationCodeMap.cs" />
     <Compile Include="HibernateMapping\TrueMark\TrueMarkCashReceiptProductCodeMap.cs" />
     <Compile Include="HibernateMapping\Users\AvailableDatabaseMap.cs" />
     <Compile Include="HibernateMapping\Users\DatabasePrivilegeMap.cs" />
@@ -561,11 +563,15 @@
     <Compile Include="Models\RoboatsFileStorage.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderItemScannedInfo.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderScannedInfo.cs" />
+    <Compile Include="Models\TrueMark\ITrueMarkWaterCode.cs" />
     <Compile Include="Models\TrueMark\TrueMarkApiRegistrationStatusConverter.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesHandler.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
     <Compile Include="Models\TrueMark\TrueMarkException.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkSelfDeliveriesHandler.cs" />
     <Compile Include="Models\TrueMark\TrueMarkTransactionalCodesPool.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkWaterCode.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkWaterCodeParser.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />

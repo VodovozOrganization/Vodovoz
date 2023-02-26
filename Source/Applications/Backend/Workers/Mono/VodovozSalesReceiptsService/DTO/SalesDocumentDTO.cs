@@ -14,7 +14,7 @@ namespace VodovozSalesReceiptsService.DTO
 		public SalesDocumentDTO(Order order, TrueMarkCashReceiptOrder trueMarkOrder, string cashier)
 		{
 			CheckoutDateTime = (order.TimeDelivered ?? DateTime.Now).ToString("O");
-			DocNum = Id = string.Concat("vod_", order.Id);
+			DocNum = Id = string.Concat("test_vod_", order.Id, "_2");
 			Email = order.GetContact();
 			CashierName = cashier;
 			InventPositions = new List<InventPositionDTO>();
@@ -29,17 +29,16 @@ namespace VodovozSalesReceiptsService.DTO
 				}
 
 				var orderItemsCodes = trueMarkOrder.ScannedCodes
-					.Where(x => !x.IsDefectiveSourceCode)
 					.Where(x => x.OrderItem.Id == orderItem.Id)
 					.ToList();
 
-				if(orderItemsCodes.Any(x => string.IsNullOrWhiteSpace(x.CodeResult)))
+				if(orderItemsCodes.Any(x => string.IsNullOrWhiteSpace(x.ResultCode.RawCode)))
 				{
 					throw new TrueMarkException("У одного из кодов не заполнен итоговый код который должен быть использован для записи в чек. " +
 						"Возможно он оказался не обработанным службной обработки кодов честного знака");
 				}
 
-				if(orderItem.Nomenclature.IsAccountableInTrueMark && orderItemsCodes.Count != orderItem.Count)
+				if(orderItemsCodes.Count != orderItem.Count)
 				{
 					throw new TrueMarkException($"Невозможно сформировать строку в чеке. У номенклатуры Id {orderItem.Nomenclature.Id} " +
 						$"включена обязательная маркировка, но для строки заказа Id {orderItem.Id} количество кодов ({orderItemsCodes.Count}) не " +
@@ -49,15 +48,15 @@ namespace VodovozSalesReceiptsService.DTO
 				if(orderItem.Count == 1)
 				{
 					var inventPosition = CreateInventPosition(orderItem);
-					inventPosition.ProductMark = orderItemsCodes.First().CodeResult;
+					inventPosition.ProductMark = orderItemsCodes.First().ResultCode.RawCode;
 					InventPositions.Add(inventPosition);
 					continue;
 				}
 
 				decimal wholeDiscount= 0;
 
-				//-2 чтобы пропутить последний элемент,  у него расчет происходит из остатков
-				for(int i = 0; i < orderItemsCodes.Count - 2; i++)
+				//i == 1 чтобы пропуcтить последний элемент, у него расчет происходит из остатков
+				for(int i = 1; i <= orderItemsCodes.Count - 1; i++)
 				{
 					decimal partDiscount = Math.Floor(orderItem.DiscountMoney / orderItem.Count);
 					wholeDiscount += partDiscount;
@@ -65,7 +64,7 @@ namespace VodovozSalesReceiptsService.DTO
 					var inventPosition = CreateInventPosition(orderItem);
 					inventPosition.Quantity = 1;
 					inventPosition.DiscSum = partDiscount;
-					inventPosition.ProductMark = orderItemsCodes[0].CodeResult;
+					inventPosition.ProductMark = orderItemsCodes[i-1].ResultCode.RawCode;
 					InventPositions.Add(inventPosition);
 				}
 
@@ -76,26 +75,13 @@ namespace VodovozSalesReceiptsService.DTO
 				var lastInventPosition = CreateInventPosition(orderItem);
 				lastInventPosition.Quantity = 1;
 				lastInventPosition.DiscSum = residueDiscount;
-				lastInventPosition.ProductMark = orderItemCode.CodeResult;
+				lastInventPosition.ProductMark = orderItemCode.ResultCode.RawCode;
 				InventPositions.Add(lastInventPosition);
 			}
 
 			MoneyPositions = new List<MoneyPositionDTO> {
 				new MoneyPositionDTO(order, order.OrderItems.Sum(i => Math.Round(i.Price * i.Count - i.DiscountMoney, 2)))
 			};
-		}
-
-		private InventPositionDTO CreateInventPosition(OrderItem orderItem)
-		{
-			var inventPosition = new InventPositionDTO
-			{
-				Name = orderItem.Nomenclature.OfficialName,
-				PriceWithoutDiscount = Math.Round(orderItem.Price, 2),
-				Quantity = orderItem.Count,
-				DiscSum = orderItem.DiscountMoney,
-				VatTag = (int)VatTag.VatFree
-			};
-			return inventPosition;
 		}
 
 		[DataMember(IsRequired = true)]
@@ -192,6 +178,19 @@ namespace VodovozSalesReceiptsService.DTO
 					&& InventPositions.Any()
 					&& MoneyPositions.Sum(x => x.Sum) > 0;
 			}
+		}
+
+		private InventPositionDTO CreateInventPosition(OrderItem orderItem)
+		{
+			var inventPosition = new InventPositionDTO
+			{
+				Name = orderItem.Nomenclature.OfficialName,
+				PriceWithoutDiscount = Math.Round(orderItem.Price, 2),
+				Quantity = orderItem.Count,
+				DiscSum = orderItem.DiscountMoney,
+				VatTag = (int)VatTag.VatFree
+			};
+			return inventPosition;
 		}
 	}
 }

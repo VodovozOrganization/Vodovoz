@@ -1,11 +1,11 @@
-﻿using System;
+﻿using NLog;
+using QS.DomainModel.UoW;
+using QS.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using NLog;
-using QS.DomainModel.UoW;
-using QS.Utilities;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Orders;
@@ -90,6 +90,14 @@ namespace VodovozSalesReceiptsService
 			{
 				logger.Info("Подготовка чеков к отправке на сервер фискализации...");
 
+				/*var order = uow.GetById<Order>(2595127);
+				var trueMarkOrder = uow.GetById<TrueMarkCashReceiptOrder>(74);
+				var doc = new SalesDocumentDTO(order, trueMarkOrder, order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
+
+				var content = System.Text.Json.JsonSerializer.Serialize(doc);*/
+
+
+
 				var receiptForOrderNodes = orderRepository
 					.GetOrdersForCashReceiptServiceToSend(uow, orderParametersProvider, DateTime.Today.AddDays(-3)).ToList();
 
@@ -121,7 +129,7 @@ namespace VodovozSalesReceiptsService
 		{
 			IList<PreparedReceiptNode> receiptNodesToSend = new List<PreparedReceiptNode>();
 			var orders = uow.GetById<Order>(nodes.Select(x => x.OrderId));
-			var trueMarkOrders = uow.GetById<Order>(nodes.Select(x => x.TrueMarkCashReceiptOrderId));
+			var trueMarkOrders = uow.GetById<TrueMarkCashReceiptOrder>(nodes.Select(x => x.TrueMarkCashReceiptOrderId));
 
 			foreach(var node in nodes)
 			{
@@ -162,10 +170,15 @@ namespace VodovozSalesReceiptsService
 						logger.Warn($"Для заказа №{order.Id} не удалось подобрать кассовый аппарат для отправки. Пропускаю");
 					}
 
+					trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptSendError;
+					trueMarkOrder.ErrorDescription = $"Для заказа №{order.Id} не удалось подобрать кассовый аппарат для отправки.";
+					trueMarkOrder.CashReceipt = newReceipt;
+
 					notValidCount++;
 					newReceipt.HttpCode = 0;
 					newReceipt.Sent = false;
 					uow.Save(newReceipt);
+					uow.Save(trueMarkOrder);
 				}
 			}
 
@@ -182,16 +195,21 @@ namespace VodovozSalesReceiptsService
 				var receiptSent = sendReceiptNode.SendResultCode == HttpStatusCode.OK;
 				var trueMarkOrder = sendReceiptNode.TrueMarkCashReceiptOrder;
 
-				sendReceiptNode.CashReceipt.Sent = sendReceiptNode.SendResultCode == HttpStatusCode.OK;
+				sendReceiptNode.CashReceipt.Sent = receiptSent;
 				sendReceiptNode.CashReceipt.HttpCode = (int)sendReceiptNode.SendResultCode;
 				uow.Save(sendReceiptNode.CashReceipt);
 
 				if(receiptSent)
 				{
 					trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.Sended;
-					trueMarkOrder.CashReceipt = sendReceiptNode.CashReceipt;
-					uow.Save(trueMarkOrder);
 				}
+				else
+				{
+					trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptSendError;
+					trueMarkOrder.ErrorDescription = $"Код ошибки: {(int)sendReceiptNode.SendResultCode}";
+				}
+				trueMarkOrder.CashReceipt = sendReceiptNode.CashReceipt;
+				uow.Save(trueMarkOrder);
 			}
 		}
 
@@ -251,10 +269,15 @@ namespace VodovozSalesReceiptsService
 						logger.Warn($"Для заказа №{receipt.Order.Id} не удалось подобрать кассовый аппарат для отправки. Пропускаю");
 					}
 
+					trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptSendError;
+					trueMarkOrder.ErrorDescription = $"Для заказа №{receipt.Order.Id} не удалось подобрать кассовый аппарат для отправки.";
+					trueMarkOrder.CashReceipt = receipt;
+
 					notValidCount++;
 					receipt.HttpCode = 0;
 					receipt.Sent = false;
 					uow.Save(receipt);
+					uow.Save(trueMarkOrder);
 				}
 			}
 
@@ -283,9 +306,14 @@ namespace VodovozSalesReceiptsService
 				if(receiptSent)
 				{
 					trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.Sended;
-					trueMarkOrder.CashReceipt = sendReceiptNode.CashReceipt;
-					uow.Save(trueMarkOrder);
 				}
+				else
+				{
+					trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptSendError;
+					trueMarkOrder.ErrorDescription = $"Код ошибки: {(int)sendReceiptNode.SendResultCode}";
+				}
+				trueMarkOrder.CashReceipt = sendReceiptNode.CashReceipt;
+				uow.Save(trueMarkOrder);
 			}
 		}
 	}

@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Services;
 using Vodovoz.Settings.Edo;
 
 namespace TrueMarkCodesWorker
@@ -14,14 +13,20 @@ namespace TrueMarkCodesWorker
 		private readonly ILogger<CodesHandleWorker> _logger;
 		private readonly IEdoSettings _edoSettings;
 		private readonly TrueMarkCodesHandler _trueMarkCodesHandler;
+		private readonly TrueMarkSelfDeliveriesHandler _trueMarkSelfDeliveriesHandler;
 		private readonly TimeSpan _interval;
 		private bool _isRunning = false;
 
-		public CodesHandleWorker(ILogger<CodesHandleWorker> logger, IEdoSettings edoSettings, TrueMarkCodesHandler trueMarkCodesHandler)
+		public CodesHandleWorker(
+			ILogger<CodesHandleWorker> logger, 
+			IEdoSettings edoSettings, 
+			TrueMarkCodesHandler trueMarkCodesHandler, 
+			TrueMarkSelfDeliveriesHandler trueMarkSelfDeliveriesHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_trueMarkCodesHandler = trueMarkCodesHandler ?? throw new ArgumentNullException(nameof(trueMarkCodesHandler));
+			_trueMarkSelfDeliveriesHandler = trueMarkSelfDeliveriesHandler ?? throw new ArgumentNullException(nameof(trueMarkSelfDeliveriesHandler));
 			_interval = TimeSpan.FromMinutes(_edoSettings.TrueMarkCodesHandleInterval);
 		}
 		protected override TimeSpan Interval => _interval;
@@ -39,6 +44,11 @@ namespace TrueMarkCodesWorker
 			{
 				_logger.LogInformation("Вызов обработки кодов честного знака");
 				await _trueMarkCodesHandler.HandleOrders(stoppingToken);
+				_trueMarkSelfDeliveriesHandler.HandleOrders();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogCritical(ex, "Поймано необработанное исключение");
 			}
 			finally
 			{

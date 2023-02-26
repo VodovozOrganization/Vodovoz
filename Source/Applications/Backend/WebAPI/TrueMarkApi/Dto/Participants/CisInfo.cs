@@ -10,9 +10,15 @@ namespace TrueMarkApi.Dto.Participants
 		public string RequestedCis { get; set; }
 
 		[JsonPropertyName("packageType")]
-		public bool PackageType { get; set; }
+		public string PackageType { get; set; }
 
 		[JsonPropertyName("status")]
 		public string Status { get; set; }
+	}
+
+	public class CisInfoRoot
+	{
+		[JsonPropertyName("cisInfo")]
+		public CisInfo CisInfo { get; set; }
 	}
 }

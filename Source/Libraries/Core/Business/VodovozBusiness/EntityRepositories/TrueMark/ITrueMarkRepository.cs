@@ -6,6 +6,6 @@ namespace Vodovoz.EntityRepositories.TrueMark
 {
 	public interface ITrueMarkRepository
 	{
-		IEnumerable<TrueMarkCashReceiptOrder> GetNewCashReceiptOrders(IUnitOfWork uow);
+		IEnumerable<int> GetNewCashReceiptOrderIds(IUnitOfWork uow);
 	}
 }
