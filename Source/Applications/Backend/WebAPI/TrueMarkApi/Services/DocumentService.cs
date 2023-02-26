@@ -13,8 +13,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMarkApi.Dto;
 using TrueMarkApi.Dto.Documents;
-using TrueMarkApi.Dto.Participants;
 using TrueMarkApi.Factories;
+using TrueMarkApi.Library;
 using TrueMarkApi.Models;
 using TrueMarkApi.Services.Authorization;
 using Vodovoz.Domain.Client;
@@ -39,6 +39,7 @@ namespace TrueMarkApi.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly OrganizationCertificate[] _organizationsCertificates;
+		private readonly TrueMarkApiClient _trueMarkApiClient;
 		private const int _workerDelaySec = 300;
 		private const int _createDocumentDelaySec = 5;
 
@@ -63,6 +64,7 @@ namespace TrueMarkApi.Services
 
 			var organizationsCertificateSection = _apiSection.GetSection("OrganizationCertificates");
 			_organizationsCertificates = organizationsCertificateSection.Get<OrganizationCertificate[]>();
+			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -85,11 +87,11 @@ namespace TrueMarkApi.Services
 						{
 							var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, organizationCertificate.EdxClientId);
 							_logger.LogInformation("Запускаем необходимые транзакции для организации {OrganizationId}. " + 
-							                       "Отпечаток сертификата {organizationCertificate.CertificateThumbPrint}, " +
+							                       "Отпечаток сертификата {CertificateThumbPrint}, " +
 							                       "Id кабинета ЭДО {OrganizationCertificateEdxClientId}", 
 								organization.Id, organizationCertificate.CertificateThumbPrint, organizationCertificate.EdxClientId);
 
-							await ProcessOrganizationDocuments(uow, startDate, organization, organizationCertificate);
+							await ProcessOrganizationDocuments(uow, startDate, organization, organizationCertificate, stoppingToken);
 						}
 					}
 
@@ -103,7 +105,8 @@ namespace TrueMarkApi.Services
 			}
 		}
 
-		private async Task ProcessOrganizationDocuments(IUnitOfWork uow, DateTime startDate, Organization organization, OrganizationCertificate organizationCertificate)
+		private async Task ProcessOrganizationDocuments(IUnitOfWork uow, DateTime startDate, Organization organization,
+			OrganizationCertificate organizationCertificate, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -112,9 +115,6 @@ namespace TrueMarkApi.Services
 					_logger.LogError("Не найдена организация по edxClientId {OrganizationCertificateEdxClientId}", organizationCertificate.EdxClientId);
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
-
-				// На данный момент не проверяем в ЧЗ и не сохраняем в контрагенте
-				// await CheckAndSaveRegistrationInTrueApi(orders, uow);
 
 				var token = await _authorizationService.Login(organizationCertificate.CertificateThumbPrint);
 
@@ -125,7 +125,7 @@ namespace TrueMarkApi.Services
 				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 				httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
 
-				await ProcessNewOrders(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint);
+				await ProcessNewOrders(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
 
 				await ProcessOldOrdersWithErrors(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint);
 
@@ -137,7 +137,7 @@ namespace TrueMarkApi.Services
 		}
 
 		private async Task ProcessNewOrders(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
-			string organizationCertificateThumbPrint)
+			string organizationCertificateThumbPrint, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем заказы для организации {OrganizationId}, " +
 			                       "отпечаток сертификата {OrganizationCertificateThumbPrint}, " +
@@ -152,6 +152,8 @@ namespace TrueMarkApi.Services
 			{
 				return;
 			}
+
+			await CheckAndSaveRegistrationInTrueApi(orders, uow, cancellationToken);
 
 			foreach(var order in orders)
 			{
@@ -355,59 +357,47 @@ namespace TrueMarkApi.Services
 			};
 		}
 
-		private async Task CheckAndSaveRegistrationInTrueApi(IList<Order> orders, IUnitOfWork uow, string certificateThumbPrint)
+		private async Task CheckAndSaveRegistrationInTrueApi(IList<Order> orders, IUnitOfWork uow, CancellationToken cancellationToken)
 		{
-			var url = "participants";
-
-			var token = await _authorizationService.Login(certificateThumbPrint);
-
-			var httpClient = _httpClientClientFactory.CreateClient();
-			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("ParticipantsUrl"));
+			_logger.LogInformation("Проверям регистрацию клиентов в Четсном Знаке");
 
 			var notRegisteredInns =
 				orders.Where(o => o.Client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
 					.Select(o => o.Client.INN).ToList();
 
-			var serializedNotRegisteredInns = JsonSerializer.Serialize(notRegisteredInns);
-			var content = new StringContent(serializedNotRegisteredInns, Encoding.UTF8, "application/json");
-			var response = await httpClient.PostAsync(url, content);
-
-			if(response.IsSuccessStatusCode)
+			if(!notRegisteredInns.Any())
 			{
-				var responseBody = await response.Content.ReadAsStreamAsync();
-
-				var registrations = await JsonSerializer.DeserializeAsync<IList<ParticipantRegistrationDto>>(responseBody);
-
-				foreach(var registration in registrations)
-				{
-					var orderForUpdate = orders.FirstOrDefault(o =>
-							o.Client.INN == registration.Inn
-							&& (o.Client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered
-								&& registration.IsRegisteredForWater));
-
-					if(orderForUpdate?.Client is Counterparty counterparty)
-					{
-						counterparty.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
-						uow.Save(counterparty);
-						CheckAndRemoveOrder(orders, orderForUpdate);
-					}
-				}
-
-				uow.Commit();
+				return;
 			}
+
+			var registrations = await _trueMarkApiClient.GetParticipantsRegistrations(_edoSettings.TrueMarkApiParticipantsUri, notRegisteredInns, cancellationToken);
+
+			foreach(var registration in registrations)
+			{
+				var orderForUpdate = orders.FirstOrDefault(o =>
+						o.Client.INN == registration.Inn
+						&& (o.Client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered
+							&& registration.IsRegisteredForWater));
+
+				if(orderForUpdate?.Client is Counterparty counterparty)
+				{
+					_logger.LogInformation("Найдено изменение статуса регистрации клиента {CounterpartyId} в Честном Знаке, сохраняем изменение в базу.", counterparty.Id);
+
+					counterparty.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
+
+					uow.Save(counterparty);
+
+					CheckAndRemoveOrderFromProcessingList(orders, orderForUpdate);
+				}
+			}
+
+			uow.Commit();
 		}
 
-		private void CheckAndRemoveOrder(IList<Order> orders, Order order)
+		private void CheckAndRemoveOrderFromProcessingList(IList<Order> orders, Order order)
 		{
 			if(order.Client is Counterparty counterparty
-			   && counterparty.PersonType == PersonType.legal
-			   && counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
-			   && order.PaymentType == PaymentType.cashless
-			   && counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-			   && (counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
-				   || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered))
+			   && counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 			{
 				orders.Remove(order);
 			}

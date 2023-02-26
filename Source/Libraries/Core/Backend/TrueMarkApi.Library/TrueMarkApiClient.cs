@@ -47,5 +47,24 @@ namespace TrueMarkApi.Library
 
 			return responseResult;
 		}
+		
+		public async Task<IList<ParticipantRegistrationDto>> GetParticipantsRegistrations(string url, IList<string> notRegisteredInns,
+			CancellationToken cancellationToken)
+		{
+			var serializedNotRegisteredInns = JsonSerializer.Serialize(notRegisteredInns);
+			var content = new StringContent(serializedNotRegisteredInns, Encoding.UTF8, "application/json");
+			var response = await _httpClient.PostAsync(url, content, cancellationToken);
+
+			if(response.IsSuccessStatusCode)
+			{
+				var responseBody = await response.Content.ReadAsStreamAsync();
+
+				var registrations = await JsonSerializer.DeserializeAsync<IList<ParticipantRegistrationDto>>(responseBody, cancellationToken: cancellationToken);
+
+				return registrations;
+			}
+
+			return null;
+		}
 	}
 }

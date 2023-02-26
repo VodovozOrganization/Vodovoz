@@ -89,6 +89,7 @@ using Vodovoz.ViewModels.ViewModels.Suppliers;
 using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 public partial class MainWindow : Window
 {
@@ -874,7 +875,8 @@ public partial class MainWindow : Window
 					ServicesConfig.CommonServices,
 					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 					new SalesPlanJournalFactory(),
-					new NomenclatureJournalFactory()
+					new NomenclatureJournalFactory(),
+					autofacScope.BeginLifetimeScope()
 				);
 			});
 
@@ -970,8 +972,6 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTracking_Activated(object sender, System.EventArgs e)
 	{
-		var employeeRepository = new EmployeeRepository();
-		var chatRepository = new ChatRepository();
 		var trackRepository = new TrackRepository();
 		var stockRepository = new StockRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(new ParametersProvider());
@@ -979,11 +979,17 @@ public partial class MainWindow : Window
 		var scheduleRestrictionRepository = new ScheduleRestrictionRepository();
 		var deliveryRulesParametersProvider = new DeliveryRulesParametersProvider(new ParametersProvider());
 
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
-			() => new RouteListTrackDlg(employeeRepository, chatRepository, trackRepository, routeListRepository, scheduleRestrictionRepository,
-				deliveryRulesParametersProvider, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
-		);
+		var carsMonitoringViewModel = new CarsMonitoringViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService,
+			NavigationManager,
+			trackRepository,
+			routeListRepository,
+			scheduleRestrictionRepository,
+			deliveryRulesParametersProvider,
+			new GtkTabsOpener());
+
+		tdiMain.AddTab(carsMonitoringViewModel);
 	}
 
 	void ActionRouteListDistanceValidation_Activated(object sender, System.EventArgs e)

@@ -1,4 +1,6 @@
-using Autofac;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
@@ -15,6 +17,7 @@ using QS.Navigation;
 using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Project.Services.GtkUI;
@@ -37,7 +40,6 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
@@ -47,6 +49,8 @@ using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -74,9 +78,11 @@ using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Orders;
+using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Services;
 using Vodovoz.Services.Permissions;
 using Vodovoz.TempAdapters;
@@ -88,6 +94,7 @@ using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Logistic;
@@ -97,9 +104,11 @@ using Vodovoz.ViewModels.Dialogs.Sales;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -109,12 +118,15 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.Reports.Sales;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels.ViewModels;
@@ -132,6 +144,7 @@ using Vodovoz.ViewModels.ViewModels.Proposal;
 using Vodovoz.ViewModels.ViewModels.Rent;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Retail;
 using Vodovoz.ViewModels.ViewModels.Security;
@@ -156,6 +169,7 @@ using Vodovoz.Views.Orders;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Organization;
 using Vodovoz.Views.Payments;
+using Vodovoz.Views.Permissions;
 using Vodovoz.Views.Print;
 using Vodovoz.Views.Proposal;
 using Vodovoz.Views.Rent;
@@ -174,30 +188,8 @@ using Vodovoz.ViewWidgets;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
-using Vodovoz.Views.Permissions;
-using UserView = Vodovoz.Views.Users.UserView;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
-using Vodovoz.ReportsParameters.Orders;
-using QS.DomainModel.NotifyChange;
-using QS.Project.Domain;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
-using Vodovoz.ViewModels.Dialogs.Sales;
-using Vodovoz.Views.Sale;
-using Vodovoz.Models;
-using QS.Validation;
-using Vodovoz.ViewWidgets;
-using Vodovoz.ViewModels.Dialogs.Complaints;
-using Vodovoz.ViewModels.ReportsParameters.Profitability;
-using Vodovoz.Reports;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
-using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
-using Vodovoz.Domain.Permissions;
-using Vodovoz.ViewModels.Dialogs.Email;
-using Vodovoz.ViewModels.Infrastructure.Services;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using UserView = Vodovoz.Views.Users.UserView;
 
 namespace Vodovoz
 {
@@ -416,6 +408,9 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ProfitabilitySalesReportViewModel, ProfitabilitySalesReportView>()
 				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<CarsMonitoringViewModel, CarsMonitoringView>()
+				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
+				.RegisterWidgetForWidgetViewModel<FastDeliveryPercentCoverageReportViewModel, FastDeliveryPercentCoverageReportView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -482,7 +477,17 @@ namespace Vodovoz
 
 		static void AutofacClassConfig()
 		{
+			ILoggerProvider nLogProvider = new NLogLoggerProvider();
+
+			var loggerFactory = new LoggerFactory();
+
+			loggerFactory.AddProvider(nLogProvider);
+
 			var builder = new ContainerBuilder();
+
+			builder.RegisterInstance(loggerFactory).As<ILoggerFactory>().SingleInstance();
+
+			builder.RegisterGeneric(typeof(Logger<>)).As(typeof(ILogger<>)).SingleInstance();
 
 			#region База
 
@@ -607,6 +612,9 @@ namespace Vodovoz
 			builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
 			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
 			builder.RegisterType<WarehousePermissionService>().AsImplementedInterfaces().AsSelf();
+			builder.RegisterType<UsersPresetPermissionValuesGetter>().AsSelf();
+			builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
+			builder.RegisterType<UserPermissionsExporter>().AsSelf();
 
 			#endregion
 

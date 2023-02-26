@@ -178,6 +178,7 @@
     <Compile Include="Domain\Logistic\DeliverySummaryNode.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
+    <Compile Include="Domain\Logistic\FastDeliveryMaxDistanceParameterVersion.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
     <Compile Include="Domain\Orders\TrueMarkApiDocument.cs" />
@@ -356,10 +357,16 @@
     <Compile Include="EntityRepositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\SmsPaymentRepository.cs" />
     <Compile Include="EntityRepositories\Organizations\IOrganizationRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\EntityExtendedPermission.cs" />
     <Compile Include="EntityRepositories\Permissions\IPrivilegesRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\IUserRoleRepository.cs" />
     <Compile Include="EntityRepositories\Permissions\PrivilegesRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserEntityExtendedPermissionNode.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserEntityExtendedPermissionWithSubdivisionNode.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserNode.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserPresetPermissionWithSubdivisionNode.cs" />
     <Compile Include="EntityRepositories\Permissions\UserRoleRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\UserWithSubdivisionNode.cs" />
     <Compile Include="EntityRepositories\Profitability\IProfitabilityConstantsRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\IRouteListProfitabilityRepository.cs" />
     <Compile Include="EntityRepositories\Profitability\ProfitabilityConstantsRepository.cs" />
@@ -401,6 +408,7 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCountNode.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
+    <Compile Include="Extensions\DriverPositionExtensions.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationVersionFactory.cs" />
@@ -468,6 +476,7 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureInnerDeliveryPriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\FastDeliveryMaxDistanceParameterVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelPriceVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventTypeMap.cs" />
@@ -572,6 +581,9 @@
     <Compile Include="Models\TrueMark\TrueMarkTransactionalCodesPool.cs" />
     <Compile Include="Models\TrueMark\TrueMarkWaterCode.cs" />
     <Compile Include="Models\TrueMark\TrueMarkWaterCodeParser.cs" />
+    <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
+    <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
+    <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
@@ -1337,7 +1349,7 @@
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.16" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.7" />
-    <PackageReference Include="morelinq" Version="2.9.0" />
+    <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="MySql.Data" Version="8.0.28" />
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
@@ -1426,9 +1438,9 @@
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client\Sms.Internal.Client.csproj">
-      <Project>{293D7B89-C070-422E-89B5-88650DBB48B0}</Project>
-      <Name>Sms.Internal.Client</Name>
+    <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
+      <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
+      <Name>Sms.Internal.Client.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Backend\TrueMarkApi.Library\TrueMarkApi.Library.csproj">
       <Project>{D8D2EC1E-5F3B-4699-87E7-C85274A2BE66}</Project>

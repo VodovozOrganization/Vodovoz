@@ -43,9 +43,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
 				.Where(() => subPoint.Track.Id == trackAlias.Id);
 			
-			if (beforeTime.HasValue)
+			if(beforeTime.HasValue)
 			{
-				lastTimeTrackQuery.Where(p => p.TimeStamp <= beforeTime);
+				lastTimeTrackQuery.Where(p => p.ReceiveTimeStamp < beforeTime);
 			}
 
 			lastTimeTrackQuery.Select(Projections.Max(() => subPoint.TimeStamp));
@@ -60,8 +60,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Select(() => trackAlias.RouteList.Id).WithAlias(() => result.RouteListId)
 					.Select(x => x.TimeStamp).WithAlias(() => result.Time)
 					.Select(x => x.Latitude).WithAlias(() => result.Latitude)
-					.Select(x => x.Longitude).WithAlias(() => result.Longitude)
-				).TransformUsing(Transformers.AliasToBean<DriverPosition>())
+					.Select(x => x.Longitude).WithAlias(() => result.Longitude))
+				.TransformUsing(Transformers.AliasToBean<DriverPosition>())
 				.List<DriverPosition>();
 		}
 
@@ -91,6 +91,43 @@ namespace Vodovoz.EntityRepositories.Logistic
 				+ $"FROM {tpPersister.TableName} "
 				+ $"WHERE {tpPersister.TableName}.{timeStampColumn} BETWEEN '{dateFrom:yyyy-MM-dd}' AND '{dateTo:yyyy-MM-dd HH:mm:ss}';";
 			uow.Session.CreateSQLQuery(query).SetTimeout(180).ExecuteUpdate();
+		}
+
+		public IList<DriverPosition> GetLastRouteListFastDeliveryTrackPoints(IUnitOfWork uow, int[] routeListsIds, TimeSpan timeSpanDisconnected, DateTime? beforeTime = null)
+		{
+			Track trackAlias = null;
+			TrackPoint subPoint = null;
+			DriverPosition result = null;
+			RouteList routeListsAlias = null;
+
+			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
+				.Where(() => subPoint.Track.Id == trackAlias.Id);
+				
+			if(beforeTime.HasValue)
+			{
+				lastTimeTrackQuery.Where(p => p.ReceiveTimeStamp < beforeTime)
+					.And(() => subPoint.TimeStamp >= beforeTime.Value.Add(timeSpanDisconnected));
+			}
+			else
+			{
+				lastTimeTrackQuery.Where(() => subPoint.TimeStamp >= DateTime.Now.Add(timeSpanDisconnected));
+			}
+
+			lastTimeTrackQuery.Select(Projections.Max(() => subPoint.TimeStamp));
+
+			return uow.Session.QueryOver<TrackPoint>()
+				.JoinAlias(p => p.Track, () => trackAlias)
+				.JoinAlias(() => trackAlias.RouteList, () => routeListsAlias)
+				.Where(() => trackAlias.RouteList.Id.IsIn(routeListsIds))
+				.WithSubquery.WhereProperty(p => p.TimeStamp).Eq(lastTimeTrackQuery)
+				.SelectList(list => list
+					.Select(() => routeListsAlias.Driver.Id).WithAlias(() => result.DriverId)
+					.Select(() => trackAlias.RouteList.Id).WithAlias(() => result.RouteListId)
+					.Select(x => x.TimeStamp).WithAlias(() => result.Time)
+					.Select(x => x.Latitude).WithAlias(() => result.Latitude)
+					.Select(x => x.Longitude).WithAlias(() => result.Longitude))
+				.TransformUsing(Transformers.AliasToBean<DriverPosition>())
+				.List<DriverPosition>();
 		}
 	}
 }

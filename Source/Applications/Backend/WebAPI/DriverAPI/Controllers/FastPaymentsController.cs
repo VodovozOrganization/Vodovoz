@@ -82,14 +82,23 @@ namespace DriverAPI.Controllers
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
-			_logger.LogInformation($"Запрос смены оплаты заказа: { payByQRRequestDTO.OrderId }" +
-				$" на оплату по QR-коду пользователем {HttpContext.User.Identity?.Name ?? "Unknown"} ({driver?.Id})");
+			_logger.LogInformation("Запрос смены оплаты заказа: {OrderId}" +
+				" на оплату по QR-коду пользователем {Username} ({DriverId})",
+				payByQRRequestDTO.OrderId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				driver?.Id);
 
 			var resultMessage = "OK";
 			
 			try
 			{
 				_actionTimeHelper.ThrowIfNotValid(recievedTime, payByQRRequestDTO.ActionTime);
+
+				if(payByQRRequestDTO.BottlesByStockActualCount.HasValue)
+				{
+					_aPIOrderData.UpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
+				}
+
 				return await _aPIOrderData.SendQRPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id);
 			}
 			catch(Exception ex)

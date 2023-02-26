@@ -1,7 +1,5 @@
 ﻿using Gamma.Utilities;
-using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -20,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Print;
+using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Email;
@@ -47,10 +46,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 		
-		public GenericObservableList<OrderWithoutShipmentForPaymentNode> ObservableNodes { get; set; }
+		public GenericObservableList<OrderWithoutShipmentForPaymentNode> ObservableAvailableOrders { get; }
 		
 		public Action<string> OpenCounterpartyJournal;
-		public IEntityUoWBuilder EntityUoWBuilder { get; }
 		
 		public OrderWithoutShipmentForPaymentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -93,7 +91,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			TabName = "Счет без отгрузки на постоплату";
 			
-			EntityUoWBuilder = uowBuilder;
 			SendDocViewModel = new SendDocumentByEmailViewModel(
 				new EmailRepository(),
 				new EmailParametersProvider(parametersProvider),
@@ -101,7 +98,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				commonServices.InteractiveService,
 				UoW);
 			
-			ObservableNodes = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
+			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 		}
 
 		#region Commands
@@ -136,12 +133,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		
 		#endregion
 
-		public void UpdateNodes(object sender, EventArgs e)
+		public void UpdateAvailableOrders()
 		{
-			ObservableNodes.Clear();
+			ObservableAvailableOrders.Clear();
 			
-			if (Entity.Client == null)
+			if(Entity.Client == null)
+			{
 				return;
+			}
 
 			OrderWithoutShipmentForPaymentNode resultAlias = null;
 			VodOrder orderAlias = null;
@@ -156,80 +155,76 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					.Where(x => x.PaymentType == PaymentType.cashless);
 
 			if(Entity.Client != null)
+			{
 				cashlessOrdersQuery.Where(x => x.Client == Entity.Client);
+			}
 
-			if(StartDate.HasValue && EndDate.HasValue)
-				cashlessOrdersQuery.Where(x => x.CreateDate >= StartDate && x.CreateDate <= EndDate);
+			if(StartDate.HasValue)
+			{
+				cashlessOrdersQuery.Where(x => x.DeliveryDate >= StartDate);
+			}
 			
-			var bottleCountSubquery = QueryOver.Of(() => orderItemAlias)
+			if(EndDate.HasValue)
+			{
+				cashlessOrdersQuery.Where(x => x.DeliveryDate <= EndDate);
+			}
+
+			var bottleCountSubQuery = QueryOver.Of(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(Projections.Sum(() => orderItemAlias.Count));
-			
-			var totalSum = QueryOver.Of(() => orderItemAlias)
-					.Where(x => x.Order.Id == orderAlias.Id)
-					.Select(
-						Projections.Sum(
-							Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
-							NHibernateUtil.Decimal, new IProjection[] {
-							Projections.Property(() => orderItemAlias.Price),
-							Projections.Property(() => orderItemAlias.ActualCount),
-							Projections.Property(() => orderItemAlias.Count),
-							Projections.Property(() => orderItemAlias.DiscountMoney)})
-						)
-					);
 
 			var resultQuery = cashlessOrdersQuery
 					.SelectList(list => list
-					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				   	.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
-				   	.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.OrderDate)
+				   	.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
 				    .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.DeliveryAddress)
-					.SelectSubQuery(totalSum).WithAlias(() => resultAlias.OrderSum)
-				    .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.Bottles)
+					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
+				    .SelectSubQuery(bottleCountSubQuery).WithAlias(() => resultAlias.Bottles)
 					)
-				.OrderBy(x => x.CreateDate).Desc
+				.OrderBy(x => x.DeliveryDate).Desc
 				.TransformUsing(Transformers.AliasToBean<OrderWithoutShipmentForPaymentNode>())
 				.List<OrderWithoutShipmentForPaymentNode>();
 
 			foreach (var item in resultQuery)
 			{
-				ObservableNodes.Add(item);
+				ObservableAvailableOrders.Add(item);
 			}
 		}
 
 		public void OnTabAdded()
 		{
-			if(EntityUoWBuilder.IsNewEntity)
+			if(Entity.Id == 0)
+			{
 				OpenCounterpartyJournal?.Invoke(string.Empty);
+			}
 		}
 		
 		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)
 		{
 			var email = Entity.GetEmailAddressForBill();
-
-			if(email != null)
-				SendDocViewModel.Update(Entity, email.Address);
-			else
-				SendDocViewModel.Update(Entity, string.Empty);
-			
-			UpdateNodes(this, EventArgs.Empty);
+			SendDocViewModel.Update(Entity, email != null ? email.Address : string.Empty);
+			UpdateAvailableOrders();
 		}
 
 		public void UpdateItems()
 		{
 			var order = UoW.GetById<VodOrder>(SelectedNode.OrderId);
-			
-			if (SelectedNode.IsSelected)
+
+			if(order is null)
 			{
-				if(order != null)
-					Entity.AddOrder(order);
+				return;
+			}
+			
+			if(SelectedNode.IsSelected)
+			{
+				Entity.AddOrder(order);
 			}
 			else
 			{
-				if(order != null)
-					Entity.RemoveItem(order);
+				Entity.RemoveItem(order);
 			}
 		}
 	}

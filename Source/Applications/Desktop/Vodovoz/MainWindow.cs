@@ -163,6 +163,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
+using Vodovoz.ViewModels.Reports.Sales;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -174,7 +175,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly IApplicationConfigurator applicationConfigurator;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private readonly bool _hasAccessToSalariesForLogistics;
-	
+
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
 
@@ -1130,7 +1131,8 @@ public partial class MainWindow : Gtk.Window
 			new NomenclatureJournalFactory(),
 			new EmployeeSettings(new ParametersProvider()),
 			new UndeliveredOrdersRepository(),
-			complaintParametersProvider
+			complaintParametersProvider,
+			autofacScope.BeginLifetimeScope()
 		);
 
 		tdiMain.AddTab(journal);
@@ -1194,7 +1196,7 @@ public partial class MainWindow : Gtk.Window
 
 		employeeFilter.HidenByDefault = true;
 		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
-		
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport(employeeJournalFactory))
@@ -1969,7 +1971,8 @@ public partial class MainWindow : Gtk.Window
 			ServicesConfig.CommonServices,
 			employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
 			salesPlanJournalFactory,
-			nomenclatureSelectorFactory)
+			nomenclatureSelectorFactory,
+			autofacScope.BeginLifetimeScope())
 		);
 	}
 
@@ -2027,9 +2030,12 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
 			() => new QSReport.ReportViewDlg(
-				new WayBillReport(
+				new WayBillReportGroupPrint(
 					autofacScope.Resolve<IEmployeeJournalFactory>(),
-					autofacScope.Resolve<ICarJournalFactory>()
+					autofacScope.Resolve<ICarJournalFactory>(),
+					autofacScope.Resolve<IOrganizationJournalFactory>(),
+					autofacScope.Resolve<IInteractiveService>(),
+					autofacScope.Resolve<ISubdivisionRepository>()
 				)
 			)
 		);
@@ -2276,7 +2282,8 @@ public partial class MainWindow : Gtk.Window
 					new NomenclatureJournalFactory(),
 					new EmployeeSettings(new ParametersProvider()),
 					new UndeliveredOrdersRepository(),
-					complaintParametersProvider
+					complaintParametersProvider,
+					autofacScope.BeginLifetimeScope()
 				);
 			}
 		);
@@ -2770,7 +2777,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<EdoOperatorsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
-	
+
 	protected void OnUsersRolesActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<UserRolesJournalViewModel>(null);
@@ -2787,5 +2794,15 @@ public partial class MainWindow : Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
 			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory))
 		);
+	}
+
+	protected void OnActionTurnoverWithDynamicsReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<TurnoverWithDynamicsReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnActionFastDeliveryPercentCoverageReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FastDeliveryPercentCoverageReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }

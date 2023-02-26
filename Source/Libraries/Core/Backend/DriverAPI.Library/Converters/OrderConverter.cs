@@ -12,24 +12,22 @@ namespace DriverAPI.Library.Converters
 {
 	public class OrderConverter
 	{
-		private readonly ILogger<OrderConverter> _logger;
 		private readonly DeliveryPointConverter _deliveryPointConverter;
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly SignatureTypeConverter _signatureTypeConverter;
 		private readonly QRPaymentConverter _qrPaymentConverter;
 
-		public OrderConverter(ILogger<OrderConverter> logger,
+		public OrderConverter(
 			DeliveryPointConverter deliveryPointConverter,
 			SmsPaymentStatusConverter smsPaymentConverter,
 			PaymentTypeConverter paymentTypeConverter,
 			SignatureTypeConverter signatureTypeConverter,
 			QRPaymentConverter qrPaymentConverter)
 		{
-			this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			this._deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
-			this._smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
-			this._paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
+			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
+			_smsPaymentConverter = smsPaymentConverter ?? throw new ArgumentNullException(nameof(smsPaymentConverter));
+			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 			_signatureTypeConverter = signatureTypeConverter ?? throw new ArgumentNullException(nameof(signatureTypeConverter));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 		}
@@ -164,8 +162,13 @@ namespace DriverAPI.Library.Converters
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
-				TotalOrderItemPrice = saleItem.ActualSum,
 				NeedScanCode = saleItem.Nomenclature.IsAccountableInTrueMark
+				OrderItemPrice = saleItem.Price,
+				TotalOrderItemPrice = saleItem.ActualSum,
+				IsBottleStock = saleItem.Order.IsBottleStock && saleItem.DiscountByStock > 0,
+				IsDiscountInMoney = saleItem.IsDiscountInMoney,
+				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
+				DiscountReason = saleItem.DiscountReason?.Name
 			};
 
 			return result;

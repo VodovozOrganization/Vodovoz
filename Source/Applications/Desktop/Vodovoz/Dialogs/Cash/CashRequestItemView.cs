@@ -33,7 +33,8 @@ namespace Vodovoz.Dialogs.Cash
 				e => e.Comment, 
 				w => w.Text
 			).InitializeFromSource();
-		
+
+			yspinsum.Adjustment.Upper = 999_000_000d;
 			yspinsum.Binding.AddBinding(
 				ViewModel, 
 				e => e.Sum, 

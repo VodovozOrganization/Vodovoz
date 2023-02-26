@@ -12,6 +12,7 @@ using QS.ViewModels;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -30,7 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class CounterpartyOrderViewModel : ViewModelBase
+	public class CounterpartyOrderViewModel : ViewModelBase, IDisposable
 	{
 		#region Свойства
 		public Counterparty Client { get; private set; }
@@ -49,11 +50,31 @@ namespace Vodovoz.ViewModels.Mango
 		private readonly IRouteListItemRepository _routeListItemRepository = new RouteListItemRepository();
 
 		private IUnitOfWork UoW;
+		
+		private List<DeliveryPoint> _deliveryPoints = new List<DeliveryPoint>();
+		private DeliveryPoint _deliveryPoint;
 
 		public List<Order> LatestOrder { get; private set; }
 		public Order Order { get; set; }
 
 		public Action RefreshOrders { get; private set; }
+
+		public DeliveryPoint DeliveryPoint
+		{
+			get => _deliveryPoint;
+			set => SetField(ref _deliveryPoint, value);
+		}
+
+		public List<DeliveryPoint> DeliveryPoints
+		{
+			get => _deliveryPoints;
+			set => SetField(ref _deliveryPoints, value);
+		}
+
+		public bool IsDeliveryPointChoiceRequired => 
+			Client.Phones.All(p => p.DigitsNumber != MangoManager.CurrentCall.Phone.DigitsNumber)
+			&& DeliveryPoints.Count > 1;
+		
 		#endregion
 
 		#region Конструкторы
@@ -85,22 +106,86 @@ namespace Vodovoz.ViewModels.Mango
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
 			RefreshOrders = _RefreshOrders;
-			NotifyConfiguration.Instance.BatchSubscribe(_RefreshCounterparty)
+			NotifyConfiguration.Instance.BatchSubscribe(RefreshCounterparty)
 				.IfEntity<Counterparty>()
 				.AndWhere(c => c.Id == client.Id)
 				.Or.IfEntity<DeliveryPoint>()
-				.AndWhere(d => client.DeliveryPoints.Any(cd => cd.Id == d.Id));
+				.AndWhere(d => d.Counterparty?.Id == client.Id)
+				.Or.IfEntity<Phone>()
+				.AndWhere(p => p.Counterparty?.Id == client.Id || client.DeliveryPoints.Any(dp => dp.Id == p.DeliveryPoint?.Id));
 
+			FillDeliveryPoints();
 		}
+
 		#endregion
 
 		#region Функции
 
 		#region privates
-		private void _RefreshCounterparty(EntityChangeEvent[] entity)
+
+		private void RefreshCounterparty(EntityChangeEvent[] entities)
 		{
 			Client = UoW.GetById<Counterparty>(Client.Id);
+
+			foreach(var entity in entities)
+			{
+				if(entity.EventType != TypeOfChangeEvent.Delete)
+				{
+					continue;
+				}
+
+				if(entity.Entity is DeliveryPoint deliveryPoint)
+				{
+					Client.DeliveryPoints?.Remove(Client.DeliveryPoints.SingleOrDefault(dp => dp.Id == deliveryPoint.Id));
+				}
+
+				if(entity.Entity is Phone phone)
+				{
+					if(phone.Counterparty != null)
+					{
+						Client.Phones?.Remove(Client.Phones.SingleOrDefault(p => p.Id == phone.Id));
+					}
+
+					if(phone.DeliveryPoint != null)
+					{
+						var phoneDeliveryPoint = Client.DeliveryPoints?.SingleOrDefault(dp => dp.Id == phone.DeliveryPoint.Id);
+						phoneDeliveryPoint?.Phones?.Remove(phoneDeliveryPoint.Phones.SingleOrDefault(p => p.Id == phone.Id));
+					}
+				}
+			}
+
+			UoW.Session.Refresh(Client);
+
+			FillDeliveryPoints();
 		}
+
+		private void FillDeliveryPoints()
+		{
+			if(Client.Phones.Any(p => p.DigitsNumber == MangoManager.CurrentCall.Phone.DigitsNumber))
+			{
+				DeliveryPoints?.Clear();
+				DeliveryPoint = null;
+			}
+			else
+			{
+				DeliveryPoints = Client.DeliveryPoints?
+					.Where(dp => dp.Phones.Any(p => p.DigitsNumber == MangoManager.CurrentCall.Phone.DigitsNumber))
+					.ToList();
+
+
+				if(DeliveryPoints?.Count == 1)
+				{
+					DeliveryPoint = DeliveryPoints.Single();
+				}
+				else
+				{
+					DeliveryPoint = null;
+				}
+			}
+
+			OnPropertyChanged(nameof(IsDeliveryPointChoiceRequired));
+		}
+
 		private void _RefreshOrders()
 		{
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, Client, 5).ToList();
@@ -223,5 +308,12 @@ namespace Vodovoz.ViewModels.Mango
 			}
 		}
 		#endregion
+
+		public void Dispose()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			RefreshOrders = null;
+			UoW?.Dispose();
+		}
 	}
 }

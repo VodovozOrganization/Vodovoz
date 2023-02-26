@@ -17,8 +17,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 	{
 		public OrderWithoutShipmentForPaymentView(OrderWithoutShipmentForPaymentViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-
+			Build();
 			Configure();
 		}
 
@@ -50,19 +49,24 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			daterangepickerOrdersDate.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
 			daterangepickerOrdersDate.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
-			daterangepickerOrdersDate.PeriodChangedByUser += (s, e) => ViewModel.UpdateNodes(this, EventArgs.Empty);
+			daterangepickerOrdersDate.PeriodChangedByUser += UpdateAvailableOrders;
 
 			ytreeviewOrders.ColumnsConfig = FluentColumnsConfig<OrderWithoutShipmentForPaymentNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(node => node.IsSelected).ToggledEvent(UseFine_Toggled)
 				.AddColumn("Номер").AddTextRenderer(node => node.OrderId.ToString())
-				.AddColumn("Дата").AddTextRenderer(node => node.OrderDate.ToShortDateString())
+				.AddColumn("Дата\nдоставки").AddTextRenderer(node => node.OrderDate.ToShortDateString())
 				.AddColumn("Статус").AddEnumRenderer(node => node.OrderStatus)
 				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.Bottles:N0}")
 				.AddColumn("Сумма").AddTextRenderer(node => node.OrderSum.ToString())
 				.AddColumn("Адрес").AddTextRenderer(node => node.DeliveryAddress)
 				.Finish();
 
-			ytreeviewOrders.ItemsDataSource = ViewModel.ObservableNodes;
+			ytreeviewOrders.ItemsDataSource = ViewModel.ObservableAvailableOrders;
+		}
+
+		private void UpdateAvailableOrders(object sender, EventArgs e)
+		{
+			ViewModel.UpdateAvailableOrders();
 		}
 
 		void UseFine_Toggled(object o, ToggledArgs args) =>
@@ -84,7 +88,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		public override void Destroy()
 		{
 			entityViewModelEntryCounterparty.Changed -= ViewModel.OnEntityViewModelEntryChanged;
-
+			ViewModel.OpenCounterpartyJournal -= entityViewModelEntryCounterparty.OpenSelectDialog;
 			base.Destroy();
 		}
 	}

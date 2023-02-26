@@ -11,6 +11,7 @@
 		string TaxcomGetContactListUpdatesUri { get; }
 		string TrueMarkApiBaseUrl { get; }
 		string TrueMarkApiParticipantRegistrationForWaterUri { get; }
+		string TrueMarkApiParticipantsUri { get; }
 		string TrueMarkApiToken { get; }
 		int EdoCheckPeriodDays { get; }
 		int TaxcomManualInvitationFileId { get; }

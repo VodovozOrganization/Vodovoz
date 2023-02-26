@@ -1,8 +1,8 @@
-﻿namespace DateTimeHelpers
-{
-	using System;
-	using System.Globalization;
+﻿using System;
+using System.Globalization;
 
+namespace DateTimeHelpers
+{
 	public static class DateTimeExtensions
 	{
 		private static GregorianCalendar _calendar = new GregorianCalendar();
@@ -66,29 +66,47 @@
 		public static int GetQuarter(this DateTime dateTime)
 		{
 			if(dateTime >= new DateTime(dateTime.Year, 1, 1)
-			&& dateTime < new DateTime(dateTime.Year, 3, 31))
+			&& dateTime < new DateTime(dateTime.Year, 4, 1))
 			{
 				return 1;
 			}
 
 			if(dateTime >= new DateTime(dateTime.Year, 4, 1)
-			&& dateTime < new DateTime(dateTime.Year, 6, 30))
+			&& dateTime < new DateTime(dateTime.Year, 7, 1))
 			{
 				return 2;
 			}
 
 			if(dateTime >= new DateTime(dateTime.Year, 7, 1)
-			&& dateTime < new DateTime(dateTime.Year, 9, 30))
+			&& dateTime < new DateTime(dateTime.Year, 10, 1))
 			{
 				return 3;
 			}
 
 			if(dateTime >= new DateTime(dateTime.Year, 10, 1)
-			&& dateTime < new DateTime(dateTime.Year, 12, 31))
+			&& dateTime < new DateTime(dateTime.Year + 1, 1, 1))
 			{
 				return 4;
 			}
-			throw new InvalidOperationException("Imposible DateTime range");
+			throw new InvalidOperationException("Imposible DateTime");
+		}
+
+		public static DateTime LastQuarterDay(this DateTime dateTime)
+		{
+			var quarter = dateTime.GetQuarter();
+
+			switch(quarter)
+			{
+				case 1:
+					return new DateTime(dateTime.Year, 3, 31);
+				case 2:
+					return new DateTime(dateTime.Year, 6, 30);
+				case 3:
+					return new DateTime(dateTime.Year, 9, 30);
+				case 4:
+					return new DateTime(dateTime.Year, 12, 31);
+			} 
+			throw new InvalidOperationException("Imposible DateTime");
 		}
 
 		public static DateTime FirstDayOfYear(this DateTime dateTime)
@@ -99,6 +117,11 @@
 		public static DateTime LastDayOfYear(this DateTime dateTime)
 		{
 			return new DateTime(dateTime.Year, 12, 31);
+		}
+
+		public static DateTime FirstDayOfMonth(this DateTime dateTime)
+		{
+			return new DateTime(dateTime.Year, dateTime.Month, 1);
 		}
 
 		public static DateTime AddWeeks(this DateTime dateTime, int weeks)

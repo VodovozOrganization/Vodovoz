@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
-using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -35,12 +34,17 @@ namespace DriverAPI.Middleware
 			context.Request.EnableBuffering();
 			await using var requestStream = _recyclableMemoryStreamManager.GetStream();
 			await context.Request.Body.CopyToAsync(requestStream);
-			_logger.LogInformation($"Http Request Information: " +
-								   $"Schema:{context.Request.Scheme} " +
-								   $"Host: {context.Request.Host} " +
-								   $"Path: {context.Request.Path} " +
-								   $"QueryString: {context.Request.QueryString} " +
-								   $"Request Body: {ReadStreamInChunks(requestStream)}");
+			_logger.LogInformation("Http Request Information: " +
+								   "Schema: {RequestScheme} " +
+								   "Host: {RequestHost} " +
+								   "Path: {RequestPath} " +
+								   "QueryString: {RequestQueryString} " +
+								   "Request Body: {RequestBody}",
+								   context.Request.Scheme,
+								   context.Request.Host,
+								   context.Request.Path,
+								   context.Request.QueryString,
+								   ReadStreamInChunks(requestStream));
 
 			context.Request.Body.Position = 0;
 		}
@@ -84,13 +88,19 @@ namespace DriverAPI.Middleware
 
 			watcher.Stop();
 
-			_logger.LogInformation($"Http Response Information: " +
-								   $"Schema:{context.Request.Scheme} " +
-								   $"Host: {context.Request.Host} " +
-								   $"Path: {context.Request.Path} " +
-								   $"QueryString: {context.Request.QueryString} " +
-								   $"Response Body: {text} | " +
-								   $"Elapsed: {watcher.Elapsed.TotalMilliseconds}ms");
+			_logger.LogInformation("Http Response Information: " +
+								   "Schema: {RequestScheme} " +
+								   "Host: {RequestHost} " +
+								   "Path: {RequestPath} " +
+								   "QueryString: {RequestQueryString} " +
+								   "Response Body: {RequestBody} | " +
+								   "Elapsed: {RequestTotalMilliseconds}ms",
+								   context.Request.Scheme,
+								   context.Request.Host,
+								   context.Request.Path,
+								   context.Request.QueryString,
+								   text,
+								   watcher.Elapsed.TotalMilliseconds);
 
 			await responseBody.CopyToAsync(originalBodyStream);
 		}

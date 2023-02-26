@@ -1,4 +1,7 @@
-﻿using System;
+﻿using NHibernate.Criterion;
+using QS.DomainModel.UoW;
+using System;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Services;
 
 namespace Vodovoz.Parameters
@@ -14,8 +17,6 @@ namespace Vodovoz.Parameters
 			"additional_loading_flyer_for_new_counterparty_bottles_count";
 		private const string _additionalLoadingFlyerForNewCounterpartyEnabledParameter =
 			"additional_loading_flyer_for_new_counterparty_enabled";
-
-		private const string _maxDistanceToLatestTrackPointKm = "fast_delivery_max_distance_km";
 
 		public DeliveryRulesParametersProvider(IParametersProvider parametersProvider)
 		{
@@ -50,7 +51,35 @@ namespace Vodovoz.Parameters
 
 		#region FastDelivery
 
-		public double MaxDistanceToLatestTrackPointKm => _parametersProvider.GetValue<double>(_maxDistanceToLatestTrackPointKm);
+		public double MaxDistanceToLatestTrackPointKm
+		{
+			get
+			{
+				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("GetMaxDistanceToLatestTrackPointKm"))
+				{
+					return unitOfWork.Query<FastDeliveryMaxDistanceParameterVersion>()
+						.Where(x => x.EndDate == null)
+						.SingleOrDefault().Value;
+				}
+			}
+		}
+
+		public double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime)
+		{
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("GetMaxDistanceToLatestTrackPointKm"))
+			{
+				FastDeliveryMaxDistanceParameterVersion fastDeliveryMaxDistanceParameterVersionAlias = null;
+
+				return unitOfWork.Session.QueryOver<FastDeliveryMaxDistanceParameterVersion>(() => fastDeliveryMaxDistanceParameterVersionAlias)
+					.Where(Restrictions.And(
+						Restrictions.Le(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.StartDate), dateTime),
+						Restrictions.Or(
+							Restrictions.Gt(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.EndDate), dateTime),
+							Restrictions.IsNull(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.EndDate)))))
+					.SingleOrDefault().Value;
+			}
+		}
+
 		public int DriverGoodWeightLiftPerHandInKg => _parametersProvider.GetValue<int>("fast_delivery_driver_weight_lift_kg");
 		public int MaxFastOrdersPerSpecificTime => _parametersProvider.GetValue<int>("fast_delivery_max_orders_per_time");
 		public int FastDeliveryScheduleId => _parametersProvider.GetValue<int>("fast_delivery_schedule_id");
@@ -59,8 +88,35 @@ namespace Vodovoz.Parameters
 		public TimeSpan MinTimeForNewFastDeliveryOrder => _parametersProvider.GetValue<TimeSpan>("fast_delivery_min_new_order_time");
 		public TimeSpan DriverUnloadTime => _parametersProvider.GetValue<TimeSpan>("fast_delivery_driver_unload_time");
 		public TimeSpan SpecificTimeForMaxFastOrdersCount => _parametersProvider.GetValue<TimeSpan>("fast_delivery_time_for_max_orders");
-		public void UpdateFastDeliveryMaxDistanceParameter(string value) =>
-			_parametersProvider.CreateOrUpdateParameter(_maxDistanceToLatestTrackPointKm, value);
+		public void UpdateFastDeliveryMaxDistanceParameter(double value)
+		{
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("SetMaxDistanceToLatestTrackPointKm"))
+			{
+				var activationTime = DateTime.Now;
+
+				var lastVersion = unitOfWork.Query<FastDeliveryMaxDistanceParameterVersion>()
+					.Where(x => x.EndDate == null)
+					.SingleOrDefault();
+
+				if(lastVersion.Value == value)
+				{
+					return;
+				}
+
+				lastVersion.EndDate = activationTime;
+
+				var newVersion = new FastDeliveryMaxDistanceParameterVersion
+				{
+					StartDate = activationTime,
+					Value = value
+				};
+
+				unitOfWork.Save(lastVersion);
+				unitOfWork.Save(newVersion);
+
+				unitOfWork.Commit();
+			}
+		}
 
 		#endregion
 	}

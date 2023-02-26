@@ -271,6 +271,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				OnPropertyChanged(() => ExpenseCategorySensitive);
 				OnPropertyChanged(() => VisibleOnlyForFinancer);
 				OnPropertyChanged(() => CanSeeGiveSum);
+				OnPropertyChanged(() => CanGiveSum);
 				OnPropertyChanged(() => CanApprove);
 				OnPropertyChanged(() => CanConveyForResults);
 				OnPropertyChanged(() => CanCancel);
@@ -338,8 +339,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		                          && (Entity.PayoutRequestState == PayoutRequestState.GivenForTake
 		                           || Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed);
 
-		public bool CanGiveSum => Entity.ObservableSums.Any(x => x.ObservableExpenses == null
-		                                                      || !x.ObservableExpenses.Any());
+		public bool CanGiveSum => UserRole == PayoutRequestUserRole.Cashier
+								  && (Entity.PayoutRequestState == PayoutRequestState.GivenForTake
+								   || Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed);
 
 		public bool CanDeleteSum => IsNewEntity;
 

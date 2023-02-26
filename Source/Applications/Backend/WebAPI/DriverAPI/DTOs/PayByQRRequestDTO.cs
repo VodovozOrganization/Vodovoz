@@ -6,5 +6,6 @@ namespace DriverAPI.DTOs
 	{
 		public int OrderId { get; set; }
 		public DateTime ActionTime { get; set; }
+		public int? BottlesByStockActualCount { get; set; }
 	}
 }

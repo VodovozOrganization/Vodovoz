@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Permissions;
+using QS.Project.Services.FileDialog;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 
@@ -16,9 +17,11 @@ namespace Vodovoz.ViewModels.Permissions
 		public PresetSubdivisionPermissionsViewModel
 		(
 			IUnitOfWork unitOfWork, 
-			IPermissionRepository permissionRepository, 
-			Subdivision subdivision
-		): base(unitOfWork, permissionRepository)
+			IPermissionRepository permissionRepository,
+			Subdivision subdivision,
+			UsersPresetPermissionValuesGetter usersPresetPermissionValuesGetter,
+			UserPermissionsExporter userPermissionsExporter
+		): base(unitOfWork, permissionRepository, usersPresetPermissionValuesGetter, userPermissionsExporter)
 		{
 			this.subdivision = subdivision ?? throw new ArgumentNullException(nameof(subdivision));
 

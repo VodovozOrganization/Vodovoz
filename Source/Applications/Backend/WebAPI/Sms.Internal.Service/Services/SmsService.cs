@@ -1,4 +1,5 @@
 ﻿using Grpc.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Sms.External.Interface;
 using System;
@@ -8,6 +9,7 @@ using InternalSmsMessage = Sms.Internal.SmsMessage;
 
 namespace Sms.Internal.Service
 {
+	[Authorize]
 	public class SmsService : SmsSender.SmsSenderBase
     {
         private readonly ILogger<SmsService> _logger;
@@ -26,15 +28,16 @@ namespace Sms.Internal.Service
 			try
 			{
 				smsResult = SendSms(smsMessage);
+				_logger.LogInformation("Смс отправлена на номер {0}", smsMessage.MobilePhone);
 			}
 			catch(Exception ex)
 			{
-				var message = "Ошибка при отправке смс сообщения.";
-				smsResult = new ResultMessage { 
+				smsResult = new ResultMessage
+				{
 					Status = ResultStatus.Error, 
-					ErrorDescription = $"{message} {ex.Message}" 
+					ErrorDescription = $"Ошибка при отправке смс сообщения на номер {smsMessage.MobilePhone}. {ex.Message}" 
 				};
-				_logger.LogError(ex, message);
+				_logger.LogError(ex, "Ошибка при отправке смс сообщения на номер {0}.", smsMessage.MobilePhone);
 			}
 
 			return Task.FromResult(smsResult);
@@ -46,7 +49,7 @@ namespace Sms.Internal.Service
 
 			var externalSms = new ExternalSmsMessage(smsMessage.MobilePhone, smsMessage.ServerMessageId, smsMessage.MessageText);
 
-			if(smsMessage.ExpiredTime != null && DateTime.Now > smsMessage.ExpiredTime.ToDateTime())
+			if(smsMessage.ExpiredTime != null && DateTime.Now > smsMessage.ExpiredTime.ToDateTime().ToLocalTime())
 			{
 				smsResult.ErrorDescription = "Время отправки Sms сообщения вышло";
 				return smsResult;
@@ -54,7 +57,7 @@ namespace Sms.Internal.Service
 
 			var result = _smsSender.SendSms(externalSms);
 
-			_logger.LogInformation($"Отправлено уведомление. Тел.: {externalSms.MobilePhoneNumber}, результат: {result.Status}");
+			_logger.LogInformation("Отправлено уведомление. Тел.: {0}, результат: {1}", externalSms.MobilePhoneNumber, result.Status);
 
 			switch(result.Status)
 			{

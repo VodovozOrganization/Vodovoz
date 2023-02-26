@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace DriverAPI.Library.Models
@@ -40,6 +41,7 @@ namespace DriverAPI.Library.Models
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		public OrderModel(
 			ILogger<OrderModel> logger,
@@ -55,7 +57,8 @@ namespace DriverAPI.Library.Models
 			IUnitOfWork unitOfWork,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			QRPaymentConverter qrPaymentConverter,
-			IFastPaymentModel fastPaymentModel)
+			IFastPaymentModel fastPaymentModel,
+			IOrderParametersProvider orderParametersProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -71,6 +74,7 @@ namespace DriverAPI.Library.Models
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 		}
 
 		/// <summary>
@@ -213,14 +217,17 @@ namespace DriverAPI.Library.Models
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
 			{
-				throw new InvalidOperationException($"Нельзя изменить тип оплаты для заказа: { orderId }, заказ не в пути.");
+				throw new InvalidOperationException($"Нельзя изменить тип оплаты для заказа: {orderId}, заказ не в пути.");
 			}
 
 			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				_logger.LogWarning($"Водитель {driver.Id} попытался сменить тип оплаты заказа {orderId} водителя {routeList.Driver.Id}");
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался сменить тип оплаты заказа {OrderId} водителя {DriverId}",
+					driver.Id,
+					orderId,
+					routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя сменить тип оплаты заказа другого водителя");
 			}
 
@@ -238,44 +245,44 @@ namespace DriverAPI.Library.Models
 
 			if(vodovozOrder is null)
 			{
-				var error = $"Заказ не найден: { orderId }";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "Заказ не найден: {OrderId}";
+				_logger.LogWarning(errorFormat, orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			if(routeList is null)
 			{
-				var error = $"МЛ для заказа: { orderId } не найден";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "МЛ для заказа: {OrderId} не найден";
+				_logger.LogWarning(errorFormat, orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			if(routeListAddress is null)
 			{
-				var error = $"адрес МЛ для заказа: { orderId } не найден";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "Адрес МЛ для заказа: {OrderId} не найден";
+				_logger.LogWarning(errorFormat, orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			if(routeList.Driver.Id != driver.Id)
 			{
-				_logger.LogWarning("Водитель {DriverId} попытался завершить заказ {OrderId} водителя {RouteListDriverId}",
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался завершить заказ {OrderId} водителя {DriverId}",
 					driver.Id, orderId, routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя завершить заказ другого водителя");
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var error = $"Нельзя завершить заказ: { orderId }, МЛ не в пути";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "Нельзя завершить заказ: {OrderId}, МЛ не в пути";
+				_logger.LogWarning(errorFormat);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var error = $"Нельзя завершить заказ: { orderId }, адрес МЛ не в пути";
-				_logger.LogWarning(error);
-				throw new ArgumentOutOfRangeException(nameof(orderId), error);
+				var errorFormat = "Нельзя завершить заказ: {OrderId}, адрес МЛ не в пути";
+				_logger.LogWarning(errorFormat);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
 			}
 
 			SaveScannedCodes(actionTime, completeOrderInfo);
@@ -301,8 +308,8 @@ namespace DriverAPI.Library.Models
 					ChangedDate = actionTime,
 					CreatedBy = driver,
 					ChangedBy = driver,
-					ComplaintText = $"Заказ номер { orderId }\n" +
-						$"По причине { reason }"
+					ComplaintText = $"Заказ номер {orderId}\n" +
+						$"По причине {reason}"
 				};
 
 				_uow.Save(complaint);
@@ -417,7 +424,7 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Driver.Id != driverId)
 			{
-				_logger.LogWarning("Водитель {DriverId} попытался запросить оплату по СМС для заказа {OrderId} водителя {RouteListDriverId}",
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался запросить оплату по СМС для заказа {OrderId} водителя {DriverId}",
 					driverId, orderId, routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя запросить оплату по СМС для заказа другого водителя");
 			}
@@ -443,7 +450,7 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Driver.Id != driverId)
 			{
-				_logger.LogWarning("Водитель {DriverId} попытался запросить оплату по QR для заказа {OrderId} водителя {RouteListDriverId}",
+				_logger.LogWarning("Сотрудник {EmployeeId} попытался запросить оплату по QR для заказа {OrderId} водителя {DriverId}",
 					driverId, orderId, routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя запросить оплату по QR для заказа другого водителя");
 			}
@@ -463,6 +470,31 @@ namespace DriverAPI.Library.Models
 			}
 
 			return payByQRResponseDto;
+		}
+
+		public void UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
+
+			if(vodovozOrder is null)
+			{
+				var errorFormat = "Заказ не найден: {OrderId}";
+				_logger.LogWarning(errorFormat, orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+			}
+
+			if(!vodovozOrder.IsBottleStock
+			   || vodovozOrder.BottlesByStockCount == bottlesByStockActualCount
+			   || vodovozOrder.BottlesByStockActualCount == bottlesByStockActualCount)
+			{
+				return;
+			}
+
+			vodovozOrder.IsBottleStockDiscrepancy = true;
+			vodovozOrder.BottlesByStockActualCount = bottlesByStockActualCount;
+			vodovozOrder.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
+			_unitOfWork.Save(vodovozOrder);
+			_unitOfWork.Commit();
 		}
 	}
 }

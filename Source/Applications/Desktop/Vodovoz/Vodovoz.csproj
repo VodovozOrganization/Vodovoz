@@ -399,11 +399,14 @@
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
+    <Compile Include="Additions\Logistic\CoordinateExtensions.cs" />
     <Compile Include="Additions\Logistic\CustomPolygons.cs" />
+    <Compile Include="Additions\Logistic\DeliveryPointExtensions.cs" />
+    <Compile Include="Additions\Logistic\DriverPositionExtensions.cs" />
     <Compile Include="Additions\Logistic\RouteListPrintableDocs.cs" />
+    <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
-    <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Core\DocumentPrinter.cs" />
@@ -1765,6 +1768,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeeRegistrationView.cs" />
     <Compile Include="ReportsParameters\Employees\EmployeesTaxesSumReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Employees.EmployeesTaxesSumReport.cs" />
+    <Compile Include="Views\Logistic\CarsMonitoringView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarsMonitoringView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.cs" />
+    <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
+    <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
+    <Compile Include="Views\Reports\FastDeliveryPercentCoverageReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryPercentCoverageReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2069,13 +2080,9 @@
       <Project>{3c82a870-3f2f-4f5e-9b7b-15710141fd93}</Project>
       <Name>MangoController</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\InstantSmsService\InstantSmsService.csproj">
-      <Project>{b1ab54eb-59c6-486b-a0c8-01ed960f1fa0}</Project>
-      <Name>InstantSmsService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\Sms.Internal.Client\Sms.Internal.Client.csproj">
-      <Project>{293D7B89-C070-422E-89B5-88650DBB48B0}</Project>
-      <Name>Sms.Internal.Client</Name>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
+      <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
+      <Name>Sms.Internal.Client.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
@@ -2109,6 +2116,10 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\DateTime\DateTimeHelpers\DateTimeHelpers.csproj">
+      <Project>{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}</Project>
+      <Name>DateTimeHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{d0c39d9d-bed0-418b-9a5e-713176caf40c}</Project>
       <Name>GMap.NET.Core</Name>
@@ -2126,7 +2137,7 @@
       <Name>RdlCri</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\My-FyiReporting\RdlEngine\RdlEngine.csproj">
-      <Project>{C7571BBF-B005-4240-82FD-28ED785D1606}</Project>
+      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
       <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\My-FyiReporting\RdlGtkViewer\RdlGtkViewer\RdlGtkViewer.csproj">

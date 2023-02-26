@@ -6,6 +6,7 @@ using ClosedXML.Excel;
 using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
+using QSWidgetLib;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 
@@ -41,6 +42,13 @@ namespace Vodovoz.Views.Suppliers
 			buttonExport.Clicked += (sender, args) => Export();
 
 			datePicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.DateOrNull).InitializeFromSource();
+			ycheckbuttonShowReserv.Binding.AddBinding(ViewModel, vm => vm.ShowReserve, w => w.Active).InitializeFromSource();
+
+			ycheckbuttonShowReserv.Clicked += (object sender, EventArgs e) =>
+			{
+				datePicker.Sensitive = !ycheckbuttonShowReserv.Active;
+				datePicker.Date = DateTime.Now;
+			};
 
 			radioAllNoms.Binding.AddBinding(ViewModel, vm => vm.AllNomenclatures, w => w.Active).InitializeFromSource();
 			radioGtZNoms.Binding.AddBinding(ViewModel, vm => vm.IsGreaterThanZeroByNomenclature, w => w.Active).InitializeFromSource();
@@ -76,7 +84,16 @@ namespace Vodovoz.Views.Suppliers
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
 				.AddColumn("Код").AddNumericRenderer(row => row.NomId).XAlign(0.5f)
 				.AddColumn("Наименование").AddTextRenderer(row => row.NomTitle).XAlign(0.5f)
-				.AddColumn("Мин. остаток").AddNumericRenderer(row => row.Min).XAlign(0.5f)
+				.AddColumn("Мин. остаток").AddNumericRenderer(row => row.Min).XAlign(0.5f);
+
+			if(ViewModel.ShowReserve)
+			{
+				columnsConfig
+				.AddColumn("В резерве").AddNumericRenderer(row => row.ReservedItemsAmount).XAlign(0.5f)
+				.AddColumn("Доступно для заказа").AddNumericRenderer(row => row.AvailableItemsAmount).XAlign(0.5f);
+			}
+
+			columnsConfig
 				.AddColumn("Общий остаток").AddNumericRenderer(row => row.Common).XAlign(0.5f)
 				.AddColumn("Разница").AddNumericRenderer(row => row.Diff).XAlign(0.5f);
 

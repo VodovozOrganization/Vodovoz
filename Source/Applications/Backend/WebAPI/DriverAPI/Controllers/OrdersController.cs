@@ -52,9 +52,9 @@ namespace DriverAPI.Controllers
 		[Route("/api/GetOrder")]
 		public OrderDto Get(int orderId)
 		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation("(OrderId: {OrderId}) User token: {TokenString}",
-				orderId, tokenStr);
+			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
+				orderId,
+				Request.Headers[HeaderNames.Authorization]);
 
 			return _aPIOrderData.Get(orderId);
 		}
@@ -64,11 +64,10 @@ namespace DriverAPI.Controllers
 		[Route("/api/CompleteOrderDelivery")]
 		public async Task CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation("(OrderId: {OrderId}) User token: {TokenString}",
-				completedOrderRequestModel.OrderId, tokenStr);
-
-			_logger.LogInformation($"Завершение заказа: { completedOrderRequestModel.OrderId } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
+				completedOrderRequestModel.OrderId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
 
 			var recievedTime = DateTime.Now;
 
@@ -106,16 +105,19 @@ namespace DriverAPI.Controllers
 		[Route("/api/ChangeOrderPaymentType")]
 		public async Task ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
-			var tokenStr = Request.Headers[HeaderNames.Authorization];
-			_logger.LogInformation($"(OrderId: {changeOrderPaymentTypeRequestModel.OrderId}) User token: {tokenStr}");
-
 			var recievedTime = DateTime.Now;
 
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
-			_logger.LogInformation($"Смена типа оплаты заказа: { orderId } на { newPaymentType }" +
-				$" на стороне приложения в { changeOrderPaymentTypeRequestModel.ActionTime } пользователем {HttpContext.User.Identity?.Name ?? "Unknown"}");
+			_logger.LogInformation("Смена типа оплаты заказа: {OrderId} на {PaymentType}" +
+				" на стороне мобильного приложения в {ActionTime} пользователем {Username} в {RecievedTime} | User token: {AccessToken}",
+				orderId,
+				newPaymentType,
+				changeOrderPaymentTypeRequestModel.ActionTime,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				recievedTime,
+				Request.Headers[HeaderNames.Authorization]);
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
@@ -130,9 +132,10 @@ namespace DriverAPI.Controllers
 
 				if(!availableTypesToChange.Contains(newPaymentType))
 				{
-					var errorMessage = $"Попытка сменить тип оплаты у заказа { orderId } на недоступный для этого заказа тип оплаты { newPaymentType }";
-					_logger.LogWarning(errorMessage);
-					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType), errorMessage);
+					var errorFormat = "Попытка сменить тип оплаты у заказа {OrderId} на недоступный для этого заказа тип оплаты {PaymentType}";
+					_logger.LogWarning(errorFormat, orderId, newPaymentType);
+					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
+						string.Format(errorFormat, orderId, newPaymentType));
 				}
 
 				Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
@@ -147,9 +150,10 @@ namespace DriverAPI.Controllers
 				}
 				else
 				{
-					var errorMessage = $"Попытка сменить тип оплаты у заказа { orderId } на не поддерживаемый для смены тип оплаты { newPaymentType }";
-					_logger.LogWarning(errorMessage);
-					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType), errorMessage);
+					var errorFormat = "Попытка сменить тип оплаты у заказа {OrderId} на не поддерживаемый для смены тип оплаты {PaymentType}";
+					_logger.LogWarning(errorFormat, orderId, newPaymentType);
+					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
+						string.Format(errorFormat, orderId, newPaymentType));
 				}
 
 				_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver);

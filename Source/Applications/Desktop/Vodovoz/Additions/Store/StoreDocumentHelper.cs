@@ -58,12 +58,25 @@ namespace Vodovoz.Additions.Store
 
 			var permission =
 				WarehousePermissions.WarehousePermissions.Where(x =>
-					x.WarehousePermissionType == WarehousePermissionsType.WarehouseView);
-			var permissionEdit = WarehousePermissions.WarehousePermissions.Where(x => x.WarehousePermissionType == edit);
-			if(warehouses.Any(x => permission.SingleOrDefault(y=>y.Warehouse.Id == x.Id).PermissionValue.Value
-			                       || permissionEdit.SingleOrDefault(y=>y.Warehouse.Id == x.Id).PermissionValue.Value))
+					x.WarehousePermissionType == WarehousePermissionsType.WarehouseView).ToArray();
+			var permissionEdit =
+				WarehousePermissions.WarehousePermissions.Where(x => x.WarehousePermissionType == edit).ToArray();
+
+			foreach(var warehouse in warehouses)
 			{
-				return false;
+				var matchPermission = permission.FirstOrDefault(y => y.Warehouse.Id == warehouse.Id);
+				
+				if(matchPermission?.PermissionValue != null && matchPermission.PermissionValue.Value)
+				{
+					return false;
+				}
+
+				var matchPermissionEdit = permissionEdit.FirstOrDefault(y => y.Warehouse.Id == warehouse.Id);
+				
+				if(matchPermissionEdit?.PermissionValue != null && matchPermissionEdit.PermissionValue.Value)
+				{
+					return false;
+				}
 			}
 
 			MessageDialogHelper.RunErrorDialog($"У вас нет прав на просмотр документов склада '{string.Join(";", warehouses.Distinct().Select(x => x.Name))}'.");
