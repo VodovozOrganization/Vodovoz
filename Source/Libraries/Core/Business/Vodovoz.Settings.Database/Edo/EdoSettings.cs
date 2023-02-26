@@ -24,5 +24,6 @@ namespace Vodovoz.Settings.Database.Edo
 		public int EdoCheckPeriodDays => _settingsController.GetIntValue("EdoCheckPeriodDays");
 		public int TaxcomManualInvitationFileId => _settingsController.GetIntValue("TaxcomManualInvitationFileId");
 		public int TrueMarkCodesHandleInterval => _settingsController.GetIntValue("TrueMarkCodesHandleInterval");
+		public string TrueMarkApiParticipantsUri => _settingsController.GetStringValue("TrueMarkApiParticipantsUri");
 	}
 }

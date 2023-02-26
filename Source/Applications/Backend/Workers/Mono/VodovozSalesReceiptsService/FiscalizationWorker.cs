@@ -96,15 +96,20 @@ namespace VodovozSalesReceiptsService
 
 				var content = System.Text.Json.JsonSerializer.Serialize(doc);*/
 
-
-
 				var receiptForOrderNodes = orderRepository
 					.GetOrdersForCashReceiptServiceToSend(uow, orderParametersProvider, DateTime.Today.AddDays(-3)).ToList();
+
+				var receiptForLegalSelfdeliveriesNodes = orderRepository
+					.GetLegalSelfdeliveriesForCashReceiptServiceToSend(uow, orderParametersProvider, DateTime.Today.AddDays(-3)).ToList();
+				
 
 				var withoutReceipts = receiptForOrderNodes.Where(r => r.ReceiptId == null).ToList();
 				var withNotSentReceipts = receiptForOrderNodes.Where(r => r.ReceiptId.HasValue && r.WasSent != true).ToList();
 
-				var receiptsToSend = withoutReceipts.Count + withNotSentReceipts.Count;
+				var withoutSelfdeliveriesReceipts = receiptForLegalSelfdeliveriesNodes.Where(r => r.ReceiptId == null).ToList();
+				var withNotSentSelfdeliveriesReceipts = receiptForLegalSelfdeliveriesNodes.Where(r => r.ReceiptId.HasValue && r.WasSent != true).ToList();
+
+				var receiptsToSend = withoutReceipts.Count + withNotSentReceipts.Count + withoutSelfdeliveriesReceipts.Count + withNotSentSelfdeliveriesReceipts.Count;
 				if(receiptsToSend <= 0)
 				{
 					logger.Info("Нет чеков для отправки.");
@@ -115,6 +120,10 @@ namespace VodovozSalesReceiptsService
 				int notValidCount = 0;
 				SendForOrdersWithoutReceipts(uow, withoutReceipts, ref notValidCount);
 				SendForOrdersWithNotSendReceipts(uow, withNotSentReceipts, ref notValidCount);
+
+				//Отправка самовывозов для юрлиц по старой логике, не нужна будет после запуска сканирования кодов на складе
+				SendForLegalSelfdeliveryWithoutReceipts(uow, withoutSelfdeliveriesReceipts, ref notValidCount);
+				SendForLegalSelfdeliveryWithNotSendReceipts(uow, withoutSelfdeliveriesReceipts, ref notValidCount);
 
 				uow.Commit();
 
@@ -314,6 +323,140 @@ namespace VodovozSalesReceiptsService
 				}
 				trueMarkOrder.CashReceipt = sendReceiptNode.CashReceipt;
 				uow.Save(trueMarkOrder);
+			}
+		}
+
+		private void SendForLegalSelfdeliveryWithoutReceipts(IUnitOfWork uow, IEnumerable<ReceiptForOrderNode> nodes, ref int notValidCount)
+		{
+			IList<PreparedReceiptNode> receiptNodesToSend = new List<PreparedReceiptNode>();
+
+			foreach(var order in uow.GetById<Order>(nodes.Select(x => x.OrderId)))
+			{
+				var newReceipt = new CashReceipt { Order = order };
+				var doc = new SalesDocumentDTO(order, order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
+
+				CashBox cashBox = null;
+				if(order.Contract?.Organization?.CashBoxId != null)
+				{
+					cashBox = cashBoxes.FirstOrDefault(x => x.Id == order.Contract.Organization.CashBoxId);
+				}
+
+				if(doc.IsValid && cashBox != null)
+				{
+
+					var newPreparedReceiptNode = new PreparedReceiptNode
+					{
+						CashReceipt = newReceipt,
+						SalesDocumentDTO = doc,
+						CashBox = cashBox
+					};
+
+					receiptNodesToSend.Add(newPreparedReceiptNode);
+
+					if(receiptNodesToSend.Count >= maxReceiptsAllowedToSendInOneGo)
+					{
+						break;
+					}
+				}
+				else
+				{
+					if(cashBox == null)
+					{
+						logger.Warn($"Для заказа №{order.Id} не удалось подобрать кассовый аппарат для отправки. Пропускаю");
+					}
+
+					notValidCount++;
+					newReceipt.HttpCode = 0;
+					newReceipt.Sent = false;
+					uow.Save(newReceipt);
+				}
+			}
+
+			logger.Info($"Количество новых чеков для отправки: {receiptNodesToSend.Count} (Макс.: {maxReceiptsAllowedToSendInOneGo})");
+			if(!receiptNodesToSend.Any())
+			{
+				return;
+			}
+
+			var result = salesReceiptSender.SendReceipts(receiptNodesToSend.ToArray());
+
+			foreach(var sendReceiptNode in result)
+			{
+				sendReceiptNode.CashReceipt.Sent = sendReceiptNode.SendResultCode == HttpStatusCode.OK;
+				sendReceiptNode.CashReceipt.HttpCode = (int)sendReceiptNode.SendResultCode;
+				uow.Save(sendReceiptNode.CashReceipt);
+			}
+		}
+
+		private void SendForLegalSelfdeliveryWithNotSendReceipts(IUnitOfWork uow, IEnumerable<ReceiptForOrderNode> nodes, ref int notValidCount)
+		{
+			IList<PreparedReceiptNode> receiptNodesToSend = new List<PreparedReceiptNode>();
+			int sentBefore = 0;
+
+			foreach(var receipt in uow.GetById<CashReceipt>(nodes.Select(n => n.ReceiptId).Where(x => x.HasValue).Select(x => x.Value)))
+			{
+				if(receipt.Sent)
+				{
+					sentBefore++;
+					continue;
+				}
+
+				var doc = new SalesDocumentDTO(receipt.Order, receipt.Order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
+
+				CashBox cashBox = null;
+				if(receipt.Order.Contract?.Organization?.CashBoxId != null)
+				{
+					cashBox = cashBoxes.FirstOrDefault(x => x.Id == receipt.Order.Contract.Organization.CashBoxId);
+				}
+
+				if(doc.IsValid && cashBox != null)
+				{
+					var newPreparedReceiptNode = new PreparedReceiptNode
+					{
+						CashReceipt = receipt,
+						SalesDocumentDTO = doc,
+						CashBox = cashBox
+					};
+
+					receiptNodesToSend.Add(newPreparedReceiptNode);
+
+					if(receiptNodesToSend.Count >= maxReceiptsAllowedToSendInOneGo)
+					{
+						break;
+					}
+				}
+				else
+				{
+					if(cashBox == null)
+					{
+						logger.Warn($"Для заказа №{receipt.Order.Id} не удалось подобрать кассовый аппарат для отправки. Пропускаю");
+					}
+
+					notValidCount++;
+					receipt.HttpCode = 0;
+					receipt.Sent = false;
+					uow.Save(receipt);
+				}
+			}
+
+			if(sentBefore > 0)
+			{
+				logger.Info($"{sentBefore} {NumberToTextRus.Case(sentBefore, "документ был отправлен", "документа было отправлено", "документов было отправлено")} ранее.");
+			}
+
+			logger.Info($"Количество чеков для переотправки: {receiptNodesToSend.Count} (Макс.: {maxReceiptsAllowedToSendInOneGo})");
+			if(!receiptNodesToSend.Any())
+			{
+				return;
+			}
+
+			var result = salesReceiptSender.SendReceipts(receiptNodesToSend.ToArray());
+
+			foreach(var sendReceiptNode in result)
+			{
+				sendReceiptNode.CashReceipt.Sent = sendReceiptNode.SendResultCode == HttpStatusCode.OK;
+				sendReceiptNode.CashReceipt.HttpCode = (int)sendReceiptNode.SendResultCode;
+				uow.Save(sendReceiptNode.CashReceipt);
 			}
 		}
 	}

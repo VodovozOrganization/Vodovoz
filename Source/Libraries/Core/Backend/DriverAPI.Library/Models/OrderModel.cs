@@ -336,7 +336,17 @@ namespace DriverAPI.Library.Models
 
 		private void SaveScannedCodes(DateTime actionTime, IDriverCompleteOrderInfo completeOrderInfo)
 		{
-			var trueMarkCashReceiptOrder = new TrueMarkCashReceiptOrder();
+			var trueMarkCashReceiptOrder = _uow.Session.QueryOver<TrueMarkCashReceiptOrder>()
+				.Where(x => x.Order.Id == completeOrderInfo.OrderId)
+				.SingleOrDefault();
+
+			if(trueMarkCashReceiptOrder != null)
+			{
+				_logger.LogInformation("Получен повторный запрос на сохранение кодов для заказа {0}", completeOrderInfo.OrderId);
+				return;
+			}
+
+			trueMarkCashReceiptOrder = new TrueMarkCashReceiptOrder();
 			trueMarkCashReceiptOrder.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
 			trueMarkCashReceiptOrder.Order = new Order { Id = completeOrderInfo.OrderId };
 			trueMarkCashReceiptOrder.Date = actionTime;
@@ -373,31 +383,60 @@ namespace DriverAPI.Library.Models
 			var orderProductCode = new TrueMarkCashReceiptProductCode();
 			orderProductCode.TrueMarkCashReceiptOrder = trueMarkCashReceiptOrder;
 			orderProductCode.OrderItem = orderItem;
-			
+
+			TrueMarkWaterIdentificationCode codeEntity;
+
 			var parsed = _trueMarkWaterCodeParser.TryParse(code, out TrueMarkWaterCode parsedCode);
-			var codeEntity = _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>().Where(x => x.RawCode == code).SingleOrDefault();
-			if(codeEntity == null)
+			if(parsed)
 			{
-				codeEntity = new TrueMarkWaterIdentificationCode();
-				codeEntity.IsInvalid = !parsed;
-				codeEntity.RawCode = code;
-				if(parsed)
+				codeEntity = LoadCode(parsedCode.SourceCode);
+				if(codeEntity == null)
 				{
+					codeEntity = new TrueMarkWaterIdentificationCode();
+					codeEntity.IsInvalid = false;
+					codeEntity.RawCode = parsedCode.SourceCode;
 					codeEntity.GTIN = parsedCode.GTIN;
 					codeEntity.SerialNumber = parsedCode.SerialNumber;
 					codeEntity.CheckCode = parsedCode.CheckCode;
+
+					orderProductCode.SourceCode = codeEntity;
+					_uow.Save(codeEntity);
 				}
-				orderProductCode.SourceCode = codeEntity;
-				_uow.Save(codeEntity);
+				else
+				{
+					//Не можем создать код идентификации честного знака, потому что такой уже существует.
+					//Позже при обработке этого заказа будет подобран подходящий код
+					orderProductCode.IsDuplicateSourceCode = true;
+				}
 			}
 			else
 			{
-				//Не можем создать код идентификации честного знака, потому что такой уже существует.
-				//Позже при обработке этого заказа будет подобран подходящий код
-				orderProductCode.IsDuplicateSourceCode = true;
+				codeEntity = LoadCode(code);
+				if(codeEntity == null)
+				{
+					codeEntity = new TrueMarkWaterIdentificationCode();
+					codeEntity.IsInvalid = true;
+					codeEntity.RawCode = code;
+
+					orderProductCode.SourceCode = codeEntity;
+					_uow.Save(codeEntity);
+				}
+				else
+				{
+					//Не можем создать код идентификации честного знака, потому что такой уже существует.
+					//Позже при обработке этого заказа будет подобран подходящий код
+					orderProductCode.IsDuplicateSourceCode = true;
+				}
 			}
 
 			return orderProductCode;
+		}
+
+		private TrueMarkWaterIdentificationCode LoadCode(string code)
+		{
+			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+				.Where(x => x.RawCode == code)
+				.SingleOrDefault();
 		}
 
 		public void SendSmsPaymentRequest(
@@ -474,7 +513,7 @@ namespace DriverAPI.Library.Models
 
 		public void UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount)
 		{
-			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
+			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
 
 			if(vodovozOrder is null)
 			{
@@ -493,8 +532,8 @@ namespace DriverAPI.Library.Models
 			vodovozOrder.IsBottleStockDiscrepancy = true;
 			vodovozOrder.BottlesByStockActualCount = bottlesByStockActualCount;
 			vodovozOrder.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
-			_unitOfWork.Save(vodovozOrder);
-			_unitOfWork.Commit();
+			_uow.Save(vodovozOrder);
+			_uow.Commit();
 		}
 	}
 }

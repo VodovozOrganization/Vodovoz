@@ -130,13 +130,14 @@ namespace Vodovoz.Models.TrueMark
 			if(order.Client.PersonType == PersonType.legal)
 			{
 				ProcessLegalCounterparty(order, codeEntities);
+				trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptNotNeeded;
 			}
 			else
 			{
 				await ProcessNaturalCounterparty(uow, order, codeEntities, cancellationToken);
+				trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.ReadyToSend;
 			}
 
-			trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.ReadyToSend;
 			trueMarkCashReceiptOrder.ErrorDescription = null;
 		}
 

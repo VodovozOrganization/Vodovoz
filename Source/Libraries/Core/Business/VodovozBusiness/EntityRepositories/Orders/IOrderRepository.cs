@@ -130,6 +130,11 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// </summary>
 		IEnumerable<int> GetSelfdeliveryOrderIdsForCashReceipt(IUnitOfWork uow, IOrderParametersProvider orderParametersProvider);
 
+		IEnumerable<ReceiptForOrderNode> GetLegalSelfdeliveriesForCashReceiptServiceToSend(
+			IUnitOfWork uow,
+			IOrderParametersProvider orderParametersProvider,
+			DateTime? startDate = null);
+
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Order order);
 
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);

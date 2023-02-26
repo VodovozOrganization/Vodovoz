@@ -84,6 +84,33 @@ namespace VodovozSalesReceiptsService.DTO
 			};
 		}
 
+		//Используется по старой логики для отправки юрикам с самовывозами
+		//После запуска сканирования кодов на складе, необходимо будет отправлять с кодами
+		public SalesDocumentDTO(Order order, string cashier)
+		{
+			CheckoutDateTime = (order.TimeDelivered ?? DateTime.Now).ToString("O");
+			DocNum = Id = string.Concat("vod_", order.Id);
+			Email = order.GetContact();
+			CashierName = cashier;
+			InventPositions = new List<InventPositionDTO>();
+			foreach(var item in order.OrderItems)
+			{
+				InventPositions.Add(
+					new InventPositionDTO
+					{
+						Name = item.Nomenclature.OfficialName,
+						PriceWithoutDiscount = Math.Round(item.Price, 2),
+						Quantity = item.Count,
+						DiscSum = item.DiscountMoney,
+						VatTag = (int)VatTag.VatFree
+					}
+				);
+			}
+			MoneyPositions = new List<MoneyPositionDTO> {
+				new MoneyPositionDTO(order, order.OrderItems.Sum(i => Math.Round(i.Price * i.Count - i.DiscountMoney, 2)))
+			};
+		}
+
 		[DataMember(IsRequired = true)]
 		string id;
 		public string Id {
