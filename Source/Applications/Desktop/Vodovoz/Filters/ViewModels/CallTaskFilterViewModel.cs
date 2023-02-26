@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -26,14 +27,14 @@ namespace Vodovoz.Filters.ViewModels
 		private SortingParamType _sortingParam = SortingParamType.Id;
 		private DateTime _startDate;
 		private GeoGroup _geographicGroup;
+		private readonly IEmployeeJournalFactory _employeJournalFactory;
 
 		public CallTaskFilterViewModel(
-			IEntityAutocompleteSelectorFactory employeeAutocompleteSelectorFactory,
+			IEmployeeJournalFactory employeJournalFactory,
 			IDeliveryPointRepository deliveryPointRepository)
 		{
-			EmployeeAutocompleteSelectorFactory =
-				employeeAutocompleteSelectorFactory
-				?? throw new ArgumentNullException(nameof(employeeAutocompleteSelectorFactory));
+			_employeJournalFactory = employeJournalFactory ?? throw new ArgumentNullException(nameof(employeJournalFactory));
+			EmployeeAutocompleteSelectorFactory = _employeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			ActiveDeliveryPointCategories =
 				deliveryPointRepository?.GetActiveDeliveryPointCategories(UoW)
 				?? throw new ArgumentNullException(nameof(deliveryPointRepository));

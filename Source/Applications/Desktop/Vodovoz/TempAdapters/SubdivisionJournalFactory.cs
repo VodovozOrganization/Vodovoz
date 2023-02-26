@@ -38,7 +38,7 @@ namespace Vodovoz.TempAdapters
 					_filterViewModel ?? new SubdivisionFilterViewModel(),
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+					_employeeJournalFactory,
 					_salesPlanJournalFactory,
 					_nomenclatureSelectorFactory,
 					MainClass.AppDIContainer.BeginLifetimeScope()));
@@ -99,7 +99,7 @@ namespace Vodovoz.TempAdapters
 				filter ?? new SubdivisionFilterViewModel(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+				_employeeJournalFactory,
 				_salesPlanJournalFactory,
 				_nomenclatureSelectorFactory,
 				MainClass.AppDIContainer.BeginLifetimeScope()
