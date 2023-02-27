@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.Documents
 
 		public override AccountingType AccountingType => AccountingType.Instance;
 
-		[Display (Name = "Экземпляр номенклатуры")]
+		[Display(Name = "Экземпляр номенклатуры")]
 		public virtual InventoryNomenclatureInstance InventoryNomenclatureInstance
 		{
 			get => _inventoryNomenclatureInstance;

@@ -10,4 +10,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 		public string NomenclatureName { get; set; }
 		public string InventoryNumber { get; set; }
 	}
+	
+	public class InventoryInstancesStockJournalNode : InventoryInstancesJournalNode
+	{
+		public decimal Balance { get; set; }
+	}
 }

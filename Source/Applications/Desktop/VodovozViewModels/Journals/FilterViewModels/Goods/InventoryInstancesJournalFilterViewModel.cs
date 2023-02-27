@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Autofac;
 using QS.Navigation;
 using QS.Project.Filter;
@@ -15,26 +14,29 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 	public class InventoryInstancesJournalFilterViewModel : FilterViewModelBase<InventoryInstancesJournalFilterViewModel>, IJournalFilterViewModel
 	{
 		private Nomenclature _nomenclature;
-		private string _inventoryNumber;
 
 		public InventoryInstancesJournalFilterViewModel(
 			ILifetimeScope scope,
 			INavigationManager navigationManager,
 			DialogViewModelBase journalTab,
-			params Action<InventoryInstancesJournalFilterViewModel>[] filterParams)
+			Action<InventoryInstancesJournalFilterViewModel> filterParams = null)
 		{
 			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			JournalTab = journalTab ?? throw new ArgumentNullException(nameof(journalTab));
 
 			Initialize();
-			ReFilter(filterParams);
+
+			if(filterParams != null)
+			{
+				SetAndRefilterAtOnce(filterParams);
+			}
 		}
 		
 		public ILifetimeScope Scope { get; }
 		public INavigationManager NavigationManager { get; }
 		public DialogViewModelBase JournalTab { get; }
-		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
+		public IEntityEntryViewModel NomenclatureEntryViewModel { get; private set; }
 
 		public Nomenclature Nomenclature
 		{
@@ -42,12 +44,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			set => UpdateFilterField(ref _nomenclature, value);
 		}
 
-		public string InventoryNumber
-		{
-			get => _inventoryNumber;
-			set => SetField(ref _inventoryNumber, value);
-		}
-
+		public string InventoryNumber { get; set; }
 		public bool CanChangeNomenclature { get; set; } = true;
 		public bool IsShow { get; set; }
 
@@ -56,18 +53,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			var builder = new CommonEEVMBuilderFactory<InventoryInstancesJournalFilterViewModel>(
 				JournalTab, this, UoW, NavigationManager, Scope);
 
-			NomenclatureViewModel = builder.ForProperty(x => x.Nomenclature)
+			NomenclatureEntryViewModel = builder.ForProperty(x => x.Nomenclature)
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
 				.Finish();
-		}
-
-		private void ReFilter(Action<InventoryInstancesJournalFilterViewModel>[] filterParams)
-		{
-			if(filterParams.Any())
-			{
-				SetAndRefilterAtOnce(filterParams);
-			}
 		}
 	}
 }

@@ -97,27 +97,8 @@ namespace Vodovoz
 			DocumentType type = (DocumentType)e.ItemEnum;
 			switch(type) {
 				case DocumentType.MovementDocument:
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
-						() => {
-							return new MovementDocumentViewModel(
-								EntityUoWBuilder.ForCreate(),
-								UnitOfWorkFactory.GetDefaultFactory,
-								new WarehousePermissionService(),
-								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(
-									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-								new NomenclatureJournalFactory(),
-								new OrderSelectorFactory(),
-								new WarehouseRepository(),
-								new UserRepository(),
-								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices,
-								new StockRepository()
-							);
-						},
-						this
-					);
+					MainClass.MainWin.NavigationManager
+						.OpenViewModelOnTdi<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.IncomingInvoice:
 					TabParent.OpenTab(
@@ -208,27 +189,8 @@ namespace Vodovoz
 							this);
 						break;
 					case DocumentType.MovementDocument:
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<MovementDocument>(id),
-							() => {
-								return new MovementDocumentViewModel(
-									EntityUoWBuilder.ForOpen(id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									new WarehousePermissionService(),
-									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(
-										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-									new NomenclatureJournalFactory(),
-									new OrderSelectorFactory(),
-									new WarehouseRepository(),
-									new UserRepository(),
-									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices,
-									new StockRepository()
-								);
-							},
-							this
-						);
+						MainClass.MainWin.NavigationManager
+							.OpenViewModelOnTdi<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.DriverTerminalGiveout:
 						TabParent.OpenTab(
@@ -253,10 +215,6 @@ namespace Vodovoz
 						);
 						break;
 					case DocumentType.WriteoffDocument:
-						/*TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<WriteoffDocument>(id),
-							() => new WriteoffDocumentView(id),
-							this);*/
 						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(
 							this, EntityUoWBuilder.ForOpen(id));
 						break;

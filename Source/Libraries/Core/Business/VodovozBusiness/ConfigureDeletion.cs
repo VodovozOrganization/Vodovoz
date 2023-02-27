@@ -845,8 +845,8 @@ namespace Vodovoz
 				.AddDeleteDependence<MovementDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<MovementDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.WarehouseWriteoffOperation)
-				.AddDeleteCascadeDependence(x => x.WarehouseIncomeOperation);
+				.AddDeleteCascadeDependence(x => x.WriteOffOperation)
+				.AddDeleteCascadeDependence(x => x.IncomeOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<WriteOffDocument>()
 				.AddDeleteDependence<WriteOffDocumentItem>(x => x.Document);
@@ -938,8 +938,8 @@ namespace Vodovoz
 				//.AddDeleteDependence<IncomingInvoiceItem>(x => x.IncomeGoodsOperation)
 				.AddDeleteDependence<IncomingWater>(x => x.ProduceOperation)
 				.AddDeleteDependence<IncomingWaterMaterial>(x => x.ConsumptionMaterialOperation)
-				.AddDeleteDependence<MovementDocumentItem>(x => x.WarehouseWriteoffOperation)
-				.AddDeleteDependence<MovementDocumentItem>(x => x.WarehouseIncomeOperation)
+				.AddDeleteDependence<MovementDocumentItem>(x => x.WriteOffOperation)
+				.AddDeleteDependence<MovementDocumentItem>(x => x.IncomeOperation)
 				//.AddDeleteDependence<WriteoffDocumentItem>(x => x.WarehouseWriteoffOperation)
 				.AddDeleteDependence<InventoryDocumentItem>(x => x.WarehouseChangeOperation)
 				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.WarehouseIncomeOperation)

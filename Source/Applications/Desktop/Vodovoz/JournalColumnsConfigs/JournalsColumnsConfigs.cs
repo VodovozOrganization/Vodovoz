@@ -1837,6 +1837,23 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+			
+			//InventoryInstancesStockJournalViewModel
+			TreeViewColumnsConfigFactory.Register<InventoryInstancesStockBalanceJournalViewModel>(
+				() => FluentColumnsConfig<InventoryInstancesStockJournalNode>.Create()
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id)
+					.AddColumn("Инвентарный номер")
+						.AddTextRenderer(node => node.InventoryNumber)
+					.AddColumn("Код номенклатуры")
+						.AddNumericRenderer(node => node.NomenclatureId)
+					.AddColumn("Номенклатура")
+						.AddTextRenderer(node => node.NomenclatureName)
+					.AddColumn("Баланс")
+						.AddNumericRenderer(node => node.Balance)
+					.AddColumn("")
+					.Finish()
+			);
 		}
 	}
 }

@@ -83,6 +83,7 @@
     <Compile Include="Journals\JournalViewModels\Logistic\CarJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\CarModelJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryInstancesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryInstancesStockBalanceJournalViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
@@ -580,6 +581,7 @@
     <Compile Include="Journals\FilterViewModels\DriverMessageFilterViewModel.cs" />
     <Compile Include="ViewModels\Goods\InventoryInstanceViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\InventoryDocumentViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Store\InventoryInstancesStockBalanceJournalFilterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">

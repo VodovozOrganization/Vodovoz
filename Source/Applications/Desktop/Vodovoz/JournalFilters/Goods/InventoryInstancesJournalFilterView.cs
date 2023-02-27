@@ -1,5 +1,7 @@
-﻿using QS.Views.GtkUI;
+﻿using Gtk;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Key = Gdk.Key;
 
 namespace Vodovoz.JournalFilters.Goods
 {
@@ -14,7 +16,7 @@ namespace Vodovoz.JournalFilters.Goods
 
 		private void Configure()
 		{
-			nomenclatureEntry.ViewModel = ViewModel.NomenclatureViewModel;
+			nomenclatureEntry.ViewModel = ViewModel.NomenclatureEntryViewModel;
 			nomenclatureEntry.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeNomenclature, w => w.Sensitive)
 				.InitializeFromSource();
@@ -22,6 +24,15 @@ namespace Vodovoz.JournalFilters.Goods
 			inventoryNumberEntry.Binding
 				.AddBinding(ViewModel, vm => vm.InventoryNumber, w => w.Text)
 				.InitializeFromSource();
+			inventoryNumberEntry.KeyReleaseEvent += OnInventoryNumberEntryKeyReleaseEvent;
+		}
+
+		private void OnInventoryNumberEntryKeyReleaseEvent(object o, KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Key.Return)
+			{
+				ViewModel.Update();
+			}
 		}
 	}
 }

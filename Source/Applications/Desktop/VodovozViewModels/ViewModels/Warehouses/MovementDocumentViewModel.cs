@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
-using QS.Report;
+using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -18,71 +21,136 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Print;
-using Vodovoz.Infrastructure.Services;
+using Vodovoz.Journals;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Store;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
 	public class MovementDocumentViewModel : EntityTabViewModelBase<MovementDocument>
 	{
-		private readonly IEmployeeService employeeService;
-		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
-		private readonly IOrderSelectorFactory orderSelectorFactory;
-		private readonly IUserRepository userRepository;
-		private readonly IRDLPreviewOpener rdlPreviewOpener;
-		private readonly IStockRepository _stockRepository;
-		private readonly IWarehousePermissionValidator warehousePermissionValidator;
-		private readonly bool canEditRectroactively;
+		private readonly ILifetimeScope _scope;
+		private IEmployeeService _employeeService;
+		private INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private IOrderSelectorFactory _orderSelectorFactory;
+		private IUserRepository _userRepository;
+		private IRDLPreviewOpener _rdlPreviewOpener;
+		private IStockRepository _stockRepository;
+		private IWarehousePermissionValidator _warehousePermissionValidator;
+		private INomenclatureInstanceRepository _nomenclatureInstanceRepository;
+		private bool _canEditRectroactively;
+		private bool _canChangeAcceptedMovementDoc;
+		private bool _canAcceptMovementDocumentDiscrepancy;
+
+		private DelegateCommand _sendCommand;
+		private DelegateCommand _receiveCommand;
+		private DelegateCommand _acceptDiscrepancyCommand;
+		private DelegateCommand _addItemCommand;
+		private DelegateCommand<MovementDocumentItem> _deleteItemCommand;
+		private DelegateCommand _fillFromOrdersCommand;
+		private DelegateCommand _printCommand;
+		private DelegateCommand _addInventoryInstanceCommand;
 
 		public MovementDocumentViewModel(
 			IEntityUoWBuilder uowBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IWarehousePermissionService warehousePermissionService,
-			IEmployeeService employeeService,
-			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			IOrderSelectorFactory orderSelectorFactory,
-			IWarehouseRepository warehouseRepository,
-			IUserRepository userRepository,
-			IRDLPreviewOpener rdlPreviewOpener,
 			ICommonServices commonServices,
-			IStockRepository stockRepository) 
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			ILifetimeScope scope) 
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			warehousePermissionValidator = warehousePermissionService.GetValidator();
-			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
-
-			if(warehouseRepository is null)
-			{
-				throw new ArgumentNullException(nameof(warehouseRepository));
-			}
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
-			canEditRectroactively =
-				(entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator)))
-				.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
-			
+			ResolveInnerDependencies();
+			SetStoragesViewModels();
 			ConfigureEntityChangingRelations();
+
 			if(UoW.IsNew)
 			{
 				Entity.DocumentType = MovementDocumentType.Transportation;
 				SetDefaultWarehouseFrom();
 			}
+		}
+
+		private void ResolveInnerDependencies()
+		{
+			_employeeService = _scope.Resolve<IEmployeeService>();
+			_nomenclatureSelectorFactory = _scope.Resolve<INomenclatureJournalFactory>();
+			_orderSelectorFactory = _scope.Resolve<IOrderSelectorFactory>();
+			_userRepository = _scope.Resolve<IUserRepository>();
+			_rdlPreviewOpener = _scope.Resolve<IRDLPreviewOpener>();
+			_warehousePermissionValidator = _scope.Resolve<IWarehousePermissionValidator>();
+			_stockRepository = _scope.Resolve<IStockRepository>();
+			_nomenclatureInstanceRepository = _scope.Resolve<INomenclatureInstanceRepository>();
+			
+			var entityExtendedPermissionValidator = _scope.Resolve<IEntityExtendedPermissionValidator>();
+			var warehouseRepository = _scope.Resolve<IWarehouseRepository>();
+
+			SetPermissions(entityExtendedPermissionValidator);
 			ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
 		}
 
+		private void SetPermissions(IEntityExtendedPermissionValidator entityExtendedPermissionValidator)
+		{
+			_canEditRectroactively = entityExtendedPermissionValidator
+				.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			_canChangeAcceptedMovementDoc =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_accepted_movement_doc");
+			_canAcceptMovementDocumentDiscrepancy =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_movement_document_dicrepancy");
+		}
+		
+		private void SetStoragesViewModels()
+		{
+			var builder = new CommonEEVMBuilderFactory<MovementDocument>(this, Entity, UoW, NavigationManager, _scope);
+			
+			WagonEntryViewModel = builder.ForProperty(x => x.MovementWagon)
+				.UseViewModelDialog<MovementWagonViewModel>()
+				.UseViewModelJournalAndAutocompleter<MovementWagonJournalViewModel>()
+				.Finish();
+			
+			FromEmployeeStorageEntryViewModel = builder.ForProperty(x => x.FromEmployee)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.Finish();
+			
+			ToEmployeeStorageEntryViewModel = builder.ForProperty(x => x.ToEmployee)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.Finish();
+			
+			FromCarStorageEntryViewModel = builder.ForProperty(x => x.FromCar)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
+				.Finish();
+			
+			ToCarStorageEntryViewModel = builder.ForProperty(x => x.ToCar)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
+				.Finish();
+		}
+		
+		public IEntityEntryViewModel WagonEntryViewModel { get; private set; }
+		public IEntityEntryViewModel FromEmployeeStorageEntryViewModel { get; private set; }
+		public IEntityEntryViewModel ToEmployeeStorageEntryViewModel { get; private set; }
+		public IEntityEntryViewModel FromCarStorageEntryViewModel { get; private set; }
+		public IEntityEntryViewModel ToCarStorageEntryViewModel { get; private set; }
+
 		public bool CanEdit => 
-			(UoW.IsNew && PermissionResult.CanCreate) 
-			|| (PermissionResult.CanUpdate && (Entity.TimeStamp.Date >= DateTime.Today || DateTime.Today <= Entity.TimeStamp.Date.AddDays(4).AddHours(23).AddMinutes(59) ))
-			|| canEditRectroactively;
+			(UoW.IsNew && PermissionResult.CanCreate)
+			|| (PermissionResult.CanUpdate &&
+			    (Entity.TimeStamp.Date >= DateTime.Today || DateTime.Today <= Entity.TimeStamp.Date.AddDays(4).AddHours(23).AddMinutes(59)))
+			|| _canEditRectroactively;
 
 		private void ConfigureEntityChangingRelations()
 		{
@@ -96,12 +164,27 @@ namespace Vodovoz.ViewModels.Warehouses
 			SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem, () => CanFillFromOrders);
 			SetPropertyChangeRelation(e => e.CanDeleteItems, () => CanDeleteItems);
 
+			//TODO неиспользуемое свойство CanSelectWarehouseTo
 			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSelectWarehouseTo);
 			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanAddItem, () => CanFillFromOrders);
+			SetPropertyChangeRelation(
+				e => e.FromEmployee,
+				() => CanAddItem);
+			SetPropertyChangeRelation(
+				e => e.FromCar,
+				() => CanAddItem);
+			SetPropertyChangeRelation(
+				e => e.StorageFrom,
+				() => CanShowWarehouseFrom,
+				() => CanShowEmployeeFrom,
+				() => CanShowCarFrom);
+			SetPropertyChangeRelation(
+				e => e.MovementDocumentTypeByStorage,
+				() => CanChangeWagon,
+				() => CanShowWarehouseTo,
+				() => CanShowEmployeeTo,
+				() => CanShowCarTo);
 			OnEntityPropertyChanged(ReloadAllowedWarehousesTo, e => e.FromWarehouse);
-
-			Entity.ObservableItems.ElementAdded += (aList, aIdx) => OnPropertyChanged(nameof(CanChangeWarehouseFrom));
-			Entity.ObservableItems.ElementRemoved += (aList, aIdx, aObject) => OnPropertyChanged(nameof(CanChangeWarehouseFrom));
 		}
 
 		#region Header info
@@ -111,7 +194,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(Entity.Author == null) {
 					return null;
 				}
-				return $"{Entity.Author.GetPersonNameWithInitials()}, {Entity.TimeStamp.ToString("dd.MM.yyyy HH:mm")}";
+				return $"{Entity.Author.GetPersonNameWithInitials()}, {Entity.TimeStamp:dd.MM.yyyy HH:mm}";
 			}
 		}
 
@@ -120,7 +203,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(Entity.LastEditor == null) {
 					return null;
 				}
-				return $"{Entity.LastEditor.GetPersonNameWithInitials()}, {Entity.LastEditedTime.ToString("dd.MM.yyyy HH:mm")}";
+				return $"{Entity.LastEditor.GetPersonNameWithInitials()}, {Entity.LastEditedTime:dd.MM.yyyy HH:mm}";
 			}
 		}
 
@@ -129,7 +212,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(Entity.Sender == null || Entity.SendTime == null) {
 					return null;
 				}
-				return $"{Entity.Sender.GetPersonNameWithInitials()}, {Entity.SendTime.Value.ToString("dd.MM.yyyy HH:mm")}";
+				return $"{Entity.Sender.GetPersonNameWithInitials()}, {Entity.SendTime.Value:dd.MM.yyyy HH:mm}";
 			}
 		}
 
@@ -138,7 +221,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(Entity.Receiver == null || Entity.ReceiveTime == null) {
 					return null;
 				}
-				return $"{Entity.Receiver.GetPersonNameWithInitials()}, {Entity.ReceiveTime.Value.ToString("dd.MM.yyyy HH:mm")}";
+				return $"{Entity.Receiver.GetPersonNameWithInitials()}, {Entity.ReceiveTime.Value:dd.MM.yyyy HH:mm}";
 			}
 		}
 
@@ -147,7 +230,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(Entity.DiscrepancyAccepter == null || Entity.DiscrepancyAcceptTime == null) {
 					return null;
 				}
-				return $"{Entity.DiscrepancyAccepter.GetPersonNameWithInitials()}, {Entity.DiscrepancyAcceptTime.Value.ToString("dd.MM.yyyy HH:mm")}";
+				return $"{Entity.DiscrepancyAccepter.GetPersonNameWithInitials()}, {Entity.DiscrepancyAcceptTime.Value:dd.MM.yyyy HH:mm}";
 			}
 		}
 
@@ -155,23 +238,23 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		#region Warehouses
 
-		private IEnumerable<Warehouse> allowedWarehousesFrom;
+		private IEnumerable<Warehouse> _allowedWarehousesFrom;
 		public IEnumerable<Warehouse> AllowedWarehousesFrom {
 			get {
-				if(allowedWarehousesFrom == null) {
+				if(_allowedWarehousesFrom == null) {
 					ReloadAllowedWarehousesFrom();
 				}
-				return allowedWarehousesFrom;
+				return _allowedWarehousesFrom;
 			}
 		}
 
-		private IEnumerable<Warehouse> allowedWarehousesTo;
+		private IEnumerable<Warehouse> _allowedWarehousesTo;
 		public IEnumerable<Warehouse> AllowedWarehousesTo {
 			get {
-				if(allowedWarehousesTo == null) {
+				if(_allowedWarehousesTo == null) {
 					ReloadAllowedWarehousesTo();
 				}
-				return allowedWarehousesTo;
+				return _allowedWarehousesTo;
 			}
 		}
 
@@ -187,7 +270,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 		}
 
-		public bool CanChangeWarehouseFrom => CanEditNewDocument && !Entity.Items.Any();
+		public bool CanChangeDocumentTypeByStorageAndStorageFrom => CanEditNewDocument && !Entity.Items.Any();
 
 		public IEnumerable<Warehouse> WarehousesFrom {
 			get {
@@ -198,6 +281,14 @@ namespace Vodovoz.ViewModels.Warehouses
 				return result;
 			}
 		}
+
+		public bool CanShowWarehouseFrom => Entity.StorageFrom == Storage.Warehouse;
+		public bool CanShowEmployeeFrom => Entity.StorageFrom == Storage.Employee;
+		public bool CanShowCarFrom => Entity.StorageFrom == Storage.Car;
+		
+		public bool CanShowWarehouseTo => Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ForWarehouse;
+		public bool CanShowEmployeeTo => Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ForEmployee;
+		public bool CanShowCarTo => Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ForCar;
 
 		private void SetDefaultWarehouseFrom()
 		{
@@ -210,8 +301,9 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		private void ReloadAllowedWarehousesFrom()
 		{
-			var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissionsType.MovementEdit, CurrentEmployee);
-			allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
+			var allowedWarehouses =
+				_warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissionsType.MovementEdit, CurrentEmployee);
+			_allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
 				.Where(x => !x.IsArchive)
 				.WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
 				.List();
@@ -228,33 +320,23 @@ namespace Vodovoz.ViewModels.Warehouses
 			if(!allowedWarehouses.Contains(Entity.ToWarehouse)) {
 				Entity.ToWarehouse = null;
 			}
-			allowedWarehousesTo = allowedWarehouses;
+			_allowedWarehousesTo = allowedWarehouses;
 			OnPropertyChanged(nameof(AllowedWarehousesTo));
 			OnPropertyChanged(nameof(WarehousesTo));
 		}
 
 		#endregion Warehouses
 
+		private Employee _currentEmployee;
+		public Employee CurrentEmployee =>
+			_currentEmployee ??
+			(_currentEmployee = _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId));
 
-		private Employee currentEmployee;
-		public Employee CurrentEmployee {
-			get {
-				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId);
-				}
-				return currentEmployee;
-			}
-		}
+		private UserSettings _currentUserSettings;
 
-		private UserSettings currentUserSettings;
-		public UserSettings CurrentUserSettings {
-			get {
-				if(currentUserSettings == null) {
-					currentUserSettings = userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId);
-				}
-				return currentUserSettings;
-			}
-		}
+		public UserSettings CurrentUserSettings =>
+			_currentUserSettings ??
+			(_currentUserSettings = _userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId));
 
 		public override bool Save(bool close)
 		{
@@ -269,14 +351,16 @@ namespace Vodovoz.ViewModels.Warehouses
 			return base.Save(close);
 		}
 
-		public bool CanEditSendedAmount => CanSend;
-
+		public bool CanEditSentAmount => CanSend;
 		public bool CanEditReceivedAmount => CanReceive;
 
-		public bool CanEditNewDocument => CanEdit && (Entity.Status == MovementDocumentStatus.New || Entity.Status == MovementDocumentStatus.Sended);
+		public bool CanEditNewDocument =>
+			CanEdit && (Entity.Status == MovementDocumentStatus.New || Entity.Status == MovementDocumentStatus.Sended);
 
-		public bool CanChangeWagon => CanEditNewDocument || (Entity.Status == MovementDocumentStatus.Accepted && PermissionResult.CanUpdate &&
-			CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_accepted_movement_doc"));
+		public bool CanChangeWagon =>
+			Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ForWarehouse &&
+			(CanEditNewDocument ||
+				(Entity.Status == MovementDocumentStatus.Accepted && PermissionResult.CanUpdate && _canChangeAcceptedMovementDoc));
 
 		public bool CanVisibleWagon => Entity.DocumentType == MovementDocumentType.Transportation;
 
@@ -284,13 +368,12 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanSend => CanEdit
 			&& Entity.CanSend
-			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee);
+			&& _warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee);
 
-		private DelegateCommand sendCommand;
 		public DelegateCommand SendCommand {
 			get {
-				if(sendCommand == null) {
-					sendCommand = new DelegateCommand(
+				if(_sendCommand == null) {
+					_sendCommand = new DelegateCommand(
 						() => {
 							if(!Validate()) {
 								return;
@@ -300,22 +383,21 @@ namespace Vodovoz.ViewModels.Warehouses
 						},
 						() => CanSend
 					);
-					sendCommand.CanExecuteChangedWith(this, x => x.CanSend);
-					sendCommand.CanExecuteChanged += (sender, e) => PrintCommand.RaiseCanExecuteChanged();
+					_sendCommand.CanExecuteChangedWith(this, x => x.CanSend);
+					_sendCommand.CanExecuteChanged += (sender, e) => PrintCommand.RaiseCanExecuteChanged();
 				}
-				return sendCommand;
+				return _sendCommand;
 			}
 		}
 
 		public bool CanReceive => CanEdit
 			&& Entity.CanReceive
-			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.ToWarehouse, CurrentEmployee);
+			&& _warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.ToWarehouse, CurrentEmployee);
 
-		private DelegateCommand receiveCommand;
 		public DelegateCommand ReceiveCommand {
 			get {
-				if(receiveCommand == null) {
-					receiveCommand = new DelegateCommand(
+				if(_receiveCommand == null) {
+					_receiveCommand = new DelegateCommand(
 						() => {
 							if(!Validate()) {
 								return;
@@ -325,22 +407,21 @@ namespace Vodovoz.ViewModels.Warehouses
 						}, 
 						() => CanReceive
 					);
-					receiveCommand.CanExecuteChangedWith(this, x => x.CanReceive);
+					_receiveCommand.CanExecuteChangedWith(this, x => x.CanReceive);
 				}
-				return receiveCommand;
+				return _receiveCommand;
 			}
 		}
 
 		public bool CanAcceptDiscrepancy => CanEdit
 			&& Entity.CanAcceptDiscrepancy
-			&& CommonServices.PermissionService.ValidateUserPresetPermission("can_accept_movement_document_dicrepancy", CommonServices.UserService.CurrentUserId)
-			&& warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee);
+			&& _canAcceptMovementDocumentDiscrepancy
+			&& _warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee);
 
-		private DelegateCommand acceptDiscrepancyCommand;
 		public DelegateCommand AcceptDiscrepancyCommand {
 			get {
-				if(acceptDiscrepancyCommand == null) {
-					acceptDiscrepancyCommand = new DelegateCommand(
+				if(_acceptDiscrepancyCommand == null) {
+					_acceptDiscrepancyCommand = new DelegateCommand(
 						() => {
 							if(!Validate()) {
 								return;
@@ -350,22 +431,22 @@ namespace Vodovoz.ViewModels.Warehouses
 						},
 						() => CanAcceptDiscrepancy
 					);
-					acceptDiscrepancyCommand.CanExecuteChangedWith(this, x => x.CanAcceptDiscrepancy);
+					_acceptDiscrepancyCommand.CanExecuteChangedWith(this, x => x.CanAcceptDiscrepancy);
 				}
-				return acceptDiscrepancyCommand;
+				return _acceptDiscrepancyCommand;
 			}
 		}
 
-		public bool CanAddItem => CanEdit && Entity.CanAddItem && Entity.FromWarehouse != null;
+		public bool CanAddItem =>
+			CanEdit && Entity.CanAddItem && (Entity.FromWarehouse != null || Entity.FromEmployee != null || Entity.FromCar != null);
 
-		private DelegateCommand addItemCommand;
 		public DelegateCommand AddItemCommand {
 			get {
-				if(addItemCommand == null) {
-					addItemCommand = new DelegateCommand(
+				if(_addItemCommand == null) {
+					_addItemCommand = new DelegateCommand(
 						() => {
 							var alreadyAddedNomenclatures = Entity.Items.Where(x => x.Nomenclature != null).Select(x => x.Nomenclature.Id);
-							var nomenclatureSelector = nomenclatureSelectorFactory.CreateNomenclatureSelectorForWarehouse(Entity.FromWarehouse, alreadyAddedNomenclatures);
+							var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelectorForWarehouse(Entity.FromWarehouse, alreadyAddedNomenclatures);
 							nomenclatureSelector.OnEntitySelectedResult += (sender, e) => {
 								IEnumerable<NomenclatureStockJournalNode> selectedNodes = e.SelectedNodes.Cast<NomenclatureStockJournalNode>();
 								if(!selectedNodes.Any()) {
@@ -380,49 +461,49 @@ namespace Vodovoz.ViewModels.Warehouses
 								OnPropertyChanged(nameof(CanSend));
 								OnPropertyChanged(nameof(CanReceive));
 								OnPropertyChanged(nameof(CanAcceptDiscrepancy));
+								OnPropertyChanged(nameof(CanChangeDocumentTypeByStorageAndStorageFrom));
 							};
 							TabParent.AddSlaveTab(this, nomenclatureSelector);
 						},
 						() => CanAddItem
 					);
-					addItemCommand.CanExecuteChangedWith(this, x => x.CanAddItem);
+					_addItemCommand.CanExecuteChangedWith(this, x => x.CanAddItem);
 				}
-				return addItemCommand;
+				return _addItemCommand;
 			}
 		}
 
 		public bool CanDeleteItems => CanEdit && Entity.CanDeleteItems;
 
-		private DelegateCommand<MovementDocumentItem> deleteItemCommand;
 		public DelegateCommand<MovementDocumentItem> DeleteItemCommand {
 			get {
-				if(deleteItemCommand == null) {
-					deleteItemCommand = new DelegateCommand<MovementDocumentItem>(
-						(selectedItem) => {
+				if(_deleteItemCommand == null) {
+					_deleteItemCommand = new DelegateCommand<MovementDocumentItem>(
+						selectedItem => {
 							Entity.DeleteItem(selectedItem);
 							OnPropertyChanged(nameof(CanSend));
 							OnPropertyChanged(nameof(CanReceive));
 							OnPropertyChanged(nameof(CanAcceptDiscrepancy));
+							OnPropertyChanged(nameof(CanChangeDocumentTypeByStorageAndStorageFrom));
 						},
-						(selectedItem) => CanDeleteItems && selectedItem != null
+						selectedItem => CanDeleteItems && selectedItem != null
 					);
-					deleteItemCommand.CanExecuteChangedWith(this, x => x.CanDeleteItems);
+					_deleteItemCommand.CanExecuteChangedWith(this, x => x.CanDeleteItems);
 				}
-				return deleteItemCommand;
+				return _deleteItemCommand;
 			}
 		}
 
 		public bool CanFillFromOrders => CanEdit && Entity.CanAddItem && Entity.FromWarehouse != null;
 
-		private DelegateCommand fillFromOrdersCommand;
 		public DelegateCommand FillFromOrdersCommand {
 			get {
-				if(fillFromOrdersCommand == null) {
-					fillFromOrdersCommand = new DelegateCommand(
+				if(_fillFromOrdersCommand == null) {
+					_fillFromOrdersCommand = new DelegateCommand(
 						() => {
 							bool IsOnlineStoreOrders = true;
 							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
-							var orderSelector = orderSelectorFactory.CreateOrderSelectorForDocument(IsOnlineStoreOrders, orderStatuses);
+							var orderSelector = _orderSelectorFactory.CreateOrderSelectorForDocument(IsOnlineStoreOrders, orderStatuses);
 							orderSelector.OnEntitySelectedResult += (sender, e) => {
 								IEnumerable<OrderForMovDocJournalNode> selectedNodes = e.SelectedNodes.Cast<OrderForMovDocJournalNode>();
 								if(!selectedNodes.Any()) {
@@ -437,66 +518,98 @@ namespace Vodovoz.ViewModels.Warehouses
 									nomIds = nomIds.Distinct().ToList();
 									nomsAmount = _stockRepository.NomenclatureInStock(UoW, nomIds.ToArray(), Entity.FromWarehouse.Id);
 								}
-								foreach (var item in orderItems) {
+								foreach(var item in orderItems) {
 									var moveItem = Entity.Items.FirstOrDefault(x => x.Nomenclature.Id == item.Nomenclature.Id);
 									if (moveItem == null) {
 										var count = item.Count > nomsAmount[item.Nomenclature.Id] ? nomsAmount[item.Nomenclature.Id] : item.Count;
-										if (count == 0)
+										if(count == 0)
+										{
 											continue;
+										}
+
 										Entity.AddItem(item.Nomenclature, count, nomsAmount[item.Nomenclature.Id]);
 									} else {
 										var count = (moveItem.SentAmount + item.Count) > nomsAmount[item.Nomenclature.Id] ?
 											nomsAmount[item.Nomenclature.Id] :
 											(moveItem.SentAmount + item.Count);
 										if(count == 0)
+										{
 											continue;
+										}
+
 										moveItem.SentAmount = count;
 									}
 								}
 								OnPropertyChanged(nameof(CanSend));
 								OnPropertyChanged(nameof(CanReceive));
 								OnPropertyChanged(nameof(CanAcceptDiscrepancy));
+								OnPropertyChanged(nameof(CanChangeDocumentTypeByStorageAndStorageFrom));
 							};
 							TabParent.AddSlaveTab(this, orderSelector);
 						},
 						() => CanFillFromOrders
 					);
-					fillFromOrdersCommand.CanExecuteChangedWith(this, x => x.CanFillFromOrders);
+					_fillFromOrdersCommand.CanExecuteChangedWith(this, x => x.CanFillFromOrders);
 				}
-				return fillFromOrdersCommand;
+				return _fillFromOrdersCommand;
 			}
 		}
 
-		private DelegateCommand printCommand;
 		public DelegateCommand PrintCommand {
 			get {
-				if(printCommand == null) {
-					printCommand = new DelegateCommand(
+				if(_printCommand == null) {
+					_printCommand = new DelegateCommand(
 						() => {
 							if(Entity.Status == MovementDocumentStatus.New && SendCommand.CanExecute()) {
 								if(CommonServices.InteractiveService.Question("Перед печатью необходимо отправить перемещение. Отправить?", "Печать документа перемещения")) {
 									SendCommand.Execute();
 									var doc = new MovementDocumentRdl(Entity);
-									if(doc is IPrintableRDLDocument) {
-										rdlPreviewOpener.OpenRldDocument(typeof(MovementDocument), doc);
-									}
+									_rdlPreviewOpener.OpenRldDocument(typeof(MovementDocument), doc);
 								}
 							} 
 							else if(Entity.Status != MovementDocumentStatus.New && !UoW.IsNew) {
 								var doc = new MovementDocumentRdl(Entity);
-								if(doc is IPrintableRDLDocument) {
-									rdlPreviewOpener.OpenRldDocument(typeof(MovementDocument), doc);
-								}
+								_rdlPreviewOpener.OpenRldDocument(typeof(MovementDocument), doc);
 							}
 						},
 						() => (Entity.Status == MovementDocumentStatus.New && SendCommand.CanExecute()) || Entity.Status != MovementDocumentStatus.New
 					);
-					printCommand.CanExecuteChangedWith(this, x => x.CanSend);
+					_printCommand.CanExecuteChangedWith(this, x => x.CanSend);
 				}
-				return printCommand;
+				return _printCommand;
 			}
 		}
+		
+		public DelegateCommand AddInventoryInstanceCommand =>
+			_addInventoryInstanceCommand ?? (_addInventoryInstanceCommand = new DelegateCommand(
+				() =>
+				{
+					var page =
+						NavigationManager.OpenViewModel<InventoryInstancesStockBalanceJournalViewModel>(this, OpenPageOptions.AsSlave);
+					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.OnSelectResult += OnInventoryInstanceSelectResult;
+				}));
 
 		#endregion Commands
+		
+		private void OnInventoryInstanceSelectResult(object sender, JournalSelectedEventArgs e)
+		{
+			var selectedItem = e.GetSelectedObjects<InventoryInstancesStockJournalNode>().FirstOrDefault();
+
+			if(selectedItem is null)
+			{
+				return;
+			}
+
+			if(Entity.ObservableItems.Any(x => x.ItemEntityId == selectedItem.Id))
+			{
+				return;
+			}
+
+			var inventoryInstance = _nomenclatureInstanceRepository.GetInventoryNomenclatureInstance(UoW, selectedItem.Id);
+
+			Entity.AddItem(inventoryInstance, 1, 1);
+			OnPropertyChanged(nameof(CanChangeDocumentTypeByStorageAndStorageFrom));
+		}
 	}
 }

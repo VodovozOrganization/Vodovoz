@@ -424,6 +424,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<PhonesJournalFilterViewModel, PhonesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<InventoryInstancesJournalFilterViewModel, InventoryInstancesJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<InventoryInstancesStockBalanceJournalFilterViewModel, InventoryInstancesStockBalanceJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -617,6 +618,7 @@ namespace Vodovoz
 			builder.RegisterType<WarehousePermissionService>().AsImplementedInterfaces().AsSelf();
 			builder.RegisterType<UserSettingsGetter>().AsImplementedInterfaces();
 			builder.RegisterType<StoreDocumentHelper>().AsSelf();
+			builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 
 			#endregion
 

@@ -1761,6 +1761,8 @@
     <Compile Include="Views\Warehouse\WriteoffDocumentView.cs" />
     <Compile Include="Views\Warehouse\InventoryDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.InventoryDocumentView.cs" />
+    <Compile Include="Filters\Views\InventoryInstancesStockBalanceJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.InventoryInstancesStockBalanceJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2119,7 +2121,7 @@
       <Name>RdlCri</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\My-FyiReporting\RdlEngine\RdlEngine.csproj">
-      <Project>{C7571BBF-B005-4240-82FD-28ED785D1606}</Project>
+      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
       <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\My-FyiReporting\RdlGtkViewer\RdlGtkViewer\RdlGtkViewer.csproj">
