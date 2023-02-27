@@ -66,8 +66,6 @@ namespace TrueMarkCodesWorker
 
 			var vodovozBusinessAssembly = typeof(VodovozBusinessAssemblyFinder).Assembly;
 
-			var sdsf = new QS.Osrm.Route();
-
 			builder.RegisterAssemblyTypes(vodovozBusinessAssembly)
 				.Where(t => t.Name.EndsWith("Provider"))
 				.AsSelf()
