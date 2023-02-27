@@ -139,56 +139,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				foreach(var productGroup in productGroups)
 				{
-					IList<TurnoverWithDynamicsReportRow> productGroupRows = new List<TurnoverWithDynamicsReportRow>();
-
 					var productGroupTitle = productGroup.First().First().ProductGroupName;
 
-					foreach(var nomenclatureGroup in productGroup)
-					{
-						var row = new TurnoverWithDynamicsReportRow
-						{
-							Title = nomenclatureGroup.First().NomenclatureOfficialName,
-							RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
-							SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
-						};
-
-						row.SliceColumnValues = CalculateNomenclatureValuesRow(nomenclatureGroup);
-
-						if(ShowDynamics)
-						{
-							row.DynamicColumns = CalculateDynamics(row.SliceColumnValues);
-						}
-
-						if(ShowLastSale)
-						{
-							var lastDelivery = nomenclatureGroup
-								.OrderBy(oi => oi.OrderDeliveryDate)
-								.Last().OrderDeliveryDate.Value;
-
-							row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
-							{
-								LastSaleDate = lastDelivery,
-								DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
-								WarhouseResidue = _warehouseNomenclatureBalanceCallback(nomenclatureGroup.Key)
-							};
-						}
-
-						if(ShowResidueForNomenclaturesWithoutSales)
-						{
-							if(row.LastSaleDetails.WarhouseResidue == 0
-								&& row.RowTotal == 0)
-							{
-								continue;
-							}
-						}
-
-						row.Index = index.ToString();
-						index++;
-
-						productGroupRows.Add(row);
-					}
+					var productGroupRows = ProcessProductGroup(ref index, productGroup);
 
 					var groupTotal = AddGroupTotals(productGroupTitle, productGroupRows);
+
 					totalsRows.Add(groupTotal);
 					productGroupRows.Insert(0, groupTotal);
 					rows = rows.Union(productGroupRows).ToList();
@@ -197,6 +153,78 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				ReportTotal = AddGroupTotals("Сводные данные по отчету", totalsRows);
 
 				return rows;
+			}
+
+			private IList<TurnoverWithDynamicsReportRow> ProcessProductGroup(ref int index, IGrouping<int, IGrouping<int, OrderItemNode>> productGroup)
+			{
+				IList<TurnoverWithDynamicsReportRow> productGroupRows = ProcessSubGroups(ref index, productGroup);
+
+				return productGroupRows;
+			}
+
+			private IList<TurnoverWithDynamicsReportRow> ProcessSubGroups(ref int index, IGrouping<int, IGrouping<int, OrderItemNode>> productGroup)
+			{
+				var result = new List<TurnoverWithDynamicsReportRow>();
+
+				foreach(var nomenclatureGroup in productGroup)
+				{
+					TurnoverWithDynamicsReportRow row = ProcessNomenclatureGroup(nomenclatureGroup);
+
+					if(ShowResidueForNomenclaturesWithoutSales
+						&& row.LastSaleDetails.WarhouseResidue == 0
+						&& row.RowTotal == 0)
+					{
+						continue;
+					}
+
+					row.Index = index.ToString();
+					index++;
+
+					result.Add(row);
+				}
+
+				return result;
+			}
+
+			private TurnoverWithDynamicsReportRow ProcessNomenclatureGroup(IGrouping<int, OrderItemNode> nomenclatureGroup)
+			{
+				var row = new TurnoverWithDynamicsReportRow
+				{
+					Title = nomenclatureGroup.First().NomenclatureOfficialName,
+					RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
+					SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
+				};
+
+				row.SliceColumnValues = CalculateNomenclatureValuesRow(nomenclatureGroup);
+
+				ProcessDynamics(row);
+				ProcessLastSale(nomenclatureGroup, row);
+				return row;
+			}
+
+			private void ProcessLastSale(IGrouping<int, OrderItemNode> nomenclatureGroup, TurnoverWithDynamicsReportRow row)
+			{
+				if(ShowLastSale)
+				{
+					var lastDelivery = nomenclatureGroup
+						.OrderBy(oi => oi.OrderDeliveryDate)
+						.Last().OrderDeliveryDate.Value;
+
+					row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
+					{
+						LastSaleDate = lastDelivery,
+						DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
+						WarhouseResidue = _warehouseNomenclatureBalanceCallback(nomenclatureGroup.Key)
+					};
+				}
+			}
+
+			private void ProcessDynamics(TurnoverWithDynamicsReportRow row)
+			{
+				if(ShowDynamics)
+				{
+					row.DynamicColumns = CalculateDynamics(row.SliceColumnValues);
+				}
 			}
 
 			private IList<string> CalculateDynamics(IList<decimal> sliceColumnValues)
