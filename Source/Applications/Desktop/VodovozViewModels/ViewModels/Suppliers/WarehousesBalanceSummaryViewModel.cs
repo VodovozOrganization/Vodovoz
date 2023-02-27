@@ -499,13 +499,20 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				}
 			);
 
-			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+			ProductGroup productGroupChildAlias = null;
+			UoW.Session.QueryOver<ProductGroup>()
+				.Left.JoinAlias(p => p.Childs,
+					() => productGroupChildAlias,
+					() => !productGroupChildAlias.IsArchive)
+				.Fetch(SelectMode.Fetch, () => productGroupChildAlias)
+				.List();
 
 			_nomsFilter.CreateParameterSet("Группы товаров", _parameterProducGroups,
 				new RecursiveParametersFactory<ProductGroup>(UoW, (filters) =>
 					{
 						var query = UoW.Session.QueryOver<ProductGroup>()
-							.Where(p => p.Parent == null);
+							.Where(p => p.Parent == null)
+							.And(p => !p.IsArchive);
 						
 						if(filters != null && EnumerableExtensions.Any(filters))
 						{
