@@ -58,7 +58,7 @@ namespace VodovozSalesReceiptsService
 					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "service_port"));
 
 				var modulKassaConfig = configuration.GetSection("ModulKassa");
-				modulKassaBaseAddress = modulKassaConfig["test_base_address"]
+				modulKassaBaseAddress = modulKassaConfig["base_address"]
 					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "test_base_address"));
 
 				var mysqlConfig = configuration.GetSection("MySql");
@@ -74,8 +74,8 @@ namespace VodovozSalesReceiptsService
 					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "mysql_database"));
 
 				cashboxes = new List<CashBox>();
-				var cashboxesConfig = configuration.GetSection("TestCashboxes")?.GetChildren()
-					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "TestCashboxes"));
+				var cashboxesConfig = configuration.GetSection("Cashboxes")?.GetChildren()
+					?? throw new ConfigurationErrorsException(string.Format(configValueNotFoundString, "Cashboxes"));
 				foreach(var cashboxConfig in cashboxesConfig)
 				{
 					string stringId = cashboxConfig["id"];
