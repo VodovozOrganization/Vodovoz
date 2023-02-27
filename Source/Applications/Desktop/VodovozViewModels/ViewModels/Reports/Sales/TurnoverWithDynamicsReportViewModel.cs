@@ -1017,6 +1017,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(Projections.Property(() => orderItemAlias.Count).WithAlias(() => resultNodeAlias.Count))
 						.Select(Projections.Property(() => orderItemAlias.ActualCount).WithAlias(() => resultNodeAlias.ActualCount))
 						.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
+						.Select(Projections.Property(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId))
+						.Select(Projections.Property(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName))
 						.Select(Projections.Property(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName))
 						.Select(Projections.Property(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId))
 						.Select(Projections.Property(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
