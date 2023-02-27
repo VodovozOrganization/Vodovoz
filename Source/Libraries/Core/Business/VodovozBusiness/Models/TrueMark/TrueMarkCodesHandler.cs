@@ -135,6 +135,7 @@ namespace Vodovoz.Models.TrueMark
 			else
 			{
 				await ProcessNaturalCounterparty(uow, order, codeEntities, cancellationToken);
+				CreateUnscannedCodes(uow, trueMarkCashReceiptOrder);
 				trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.ReadyToSend;
 			}
 
@@ -184,6 +185,11 @@ namespace Vodovoz.Models.TrueMark
 			{
 				var goodValidCodes = goodCodeEntities.Where(x => x.SourceCode != null && !x.SourceCode.IsInvalid);
 
+				if(!goodValidCodes.Any())
+				{
+					return;
+				}
+
 				var productCodes = goodValidCodes
 					.ToDictionary(x => _trueMarkWaterCodeParser.GetWaterIdentificationCode(x.SourceCode));
 
@@ -232,6 +238,38 @@ namespace Vodovoz.Models.TrueMark
 					{
 						goodCodeEntity.ResultCode = goodCodeEntity.SourceCode;
 					}
+				}
+			}
+		}
+
+		private void CreateUnscannedCodes(IUnitOfWork uow, TrueMarkCashReceiptOrder trueMarkCashReceiptOrder)
+		{
+			var orderItems = trueMarkCashReceiptOrder.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark);
+
+			foreach(var orderItem in orderItems)
+			{
+				var codes = trueMarkCashReceiptOrder.ScannedCodes.Where(x => x.OrderItem.Id == orderItem.Id);
+				var unscannedCodesCount = orderItem.Count - codes.Count();
+				if(unscannedCodesCount < 0)
+				{
+					throw new TrueMarkException($"На одну номенклатуру отсканировано больше кодов чем товара в заказе. Заказ {trueMarkCashReceiptOrder.Order.Id}. Товар {orderItem.Id}");
+				}
+
+				if(unscannedCodesCount == 0)
+				{
+					continue;
+				}
+
+				for(int i = 0; i < unscannedCodesCount; i++)
+				{
+					var newCode = new TrueMarkCashReceiptProductCode();
+					newCode.TrueMarkCashReceiptOrder = trueMarkCashReceiptOrder;
+					newCode.OrderItem = orderItem;
+					newCode.IsUnscannedSourceCode = true;
+					newCode.ResultCode = GetCodeFromPool(uow);
+
+					uow.Save(newCode);
+					trueMarkCashReceiptOrder.ScannedCodes.Add(newCode);
 				}
 			}
 		}

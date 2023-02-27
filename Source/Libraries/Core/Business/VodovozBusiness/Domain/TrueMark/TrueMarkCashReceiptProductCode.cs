@@ -15,7 +15,9 @@ namespace Vodovoz.Domain.TrueMark
 	{
 		private TrueMarkCashReceiptOrder _trueMarkCashReceiptOrder;
 		private OrderItem _orderItem;
-		private bool _isDefectiveSourceCode;	
+		private bool _isUnscannedSourceCode;
+		private bool _isDuplicateSourceCode;
+		private bool _isDefectiveSourceCode;
 		private TrueMarkWaterIdentificationCode _sourceCode;
 		private TrueMarkWaterIdentificationCode _resultCode;
 
@@ -35,6 +37,17 @@ namespace Vodovoz.Domain.TrueMark
 			set => SetField(ref _orderItem, value);
 		}
 
+		/// <summary>
+		/// Заполняется автоматически, если водитель не отсканировал все коды.
+		/// Код же подбирается из пула
+		/// </summary>
+		[Display(Name = "Не отсканированный код источника")]
+		public virtual bool IsUnscannedSourceCode
+		{
+			get => _isUnscannedSourceCode;
+			set => SetField(ref _isUnscannedSourceCode, value);
+		}
+
 		[Display(Name = "Код источник бракованный")]
 		public virtual bool IsDefectiveSourceCode
 		{
@@ -42,7 +55,6 @@ namespace Vodovoz.Domain.TrueMark
 			set => SetField(ref _isDefectiveSourceCode, value);
 		}
 
-		private bool _isDuplicateSourceCode;
 		[Display(Name = "Дубликат кода источника")]
 		public virtual bool IsDuplicateSourceCode
 		{
