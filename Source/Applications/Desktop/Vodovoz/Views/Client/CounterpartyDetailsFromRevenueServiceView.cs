@@ -1,10 +1,12 @@
-﻿using Gamma.ColumnConfig;
+﻿using System.Linq;
+using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
+using QS.Navigation;
 using QS.Views.Dialog;
 using RevenueService.Client.Dto;
-using System.Data.Bindings;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Client
 {
@@ -31,18 +33,26 @@ namespace Vodovoz.Views.Client
 
 			btnReplaceDetails.Clicked += (sender, args) => ViewModel.ReplaceDetailsCommand.Execute();
 
+			btnExportToExcel.Binding
+				.AddFuncBinding(ViewModel, vm => vm.Nodes.Any(), w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnExportToExcel.Clicked += (sender, args) => ViewModel.ExportToExcelCommand.Execute();
+
+			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+
 			ConfigureTreeDetails();
 		}
 
 		private void ConfigureTreeDetails()
 		{
-			treeViewDetails.ColumnsConfig = FluentColumnsConfig<CounterpartyDto>.Create()
+			treeViewDetails.ColumnsConfig = FluentColumnsConfig<CounterpartyRevenueServiceDto>.Create()
 				.AddColumn("№").AddNumericRenderer(n => ViewModel.Nodes.IndexOf(n) + 1)
 				.AddColumn("КПП").AddTextRenderer(n => n.Kpp)
 				.AddColumn("Наименование").AddTextRenderer(n => n.Name)
 				.AddColumn("ФИО").AddTextRenderer(n => n.PersonFullName)
-				.AddColumn("Адрес").AddTextRenderer(n => n.Address)
-				.AddColumn("Головная/\nФилиал").AddTextRenderer(n => n.BranchType.GetEnumTitle())
+				.AddColumn("Адрес").AddTextRenderer(n => n.Address).WrapWidth(400).WrapMode(WrapMode.WordChar)
+				.AddColumn("Головная/\nФилиал").AddTextRenderer(n => n.BranchTypeString)
 				.AddColumn("Статус\n(действующая/нет) )").AddTextRenderer(n => n.IsActive ? "Да" : "Нет")
 				.AddColumn("")
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsActive ? Color.Zero : _redColor)

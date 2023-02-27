@@ -10,4 +10,9 @@
     <PackageReference Include="System.Text.Json" Version="6.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\External\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

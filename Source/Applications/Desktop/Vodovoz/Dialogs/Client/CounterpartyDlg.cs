@@ -2147,43 +2147,61 @@ namespace Vodovoz
 
 		protected void OnButtonRequestByInnClicked(object sender, EventArgs e)
 		{
-			var revenueServiceCounterpartyDto = new DadataRequestDto{ Inn = Entity.INN };
-			var revenueServicePage = MainClass.MainWin.NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
-				IRevenueServiceClient, CancellationToken >(null, revenueServiceCounterpartyDto, _revenueServiceClient, _cancellationTokenSource.Token);
-
-			revenueServicePage.ViewModel.OnSelectResult  += (o, a) =>
+			var dadataRequestDto = new DadataRequestDto
 			{
-				if(!a.IsActive 
-				   && !_commonServices.InteractiveService.Question("Вы действительно хотите подгрузить недействующие реквизиты?"))
-				{
-					return;
-				}
+				Inn = Entity.INN
+			};
 
-				FillEntityDetailsFromRevenueService(a);
+			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)
+		{
+			var dadataRequestDto = new DadataRequestDto
+			{
+				Inn = Entity.INN, 
+				Kpp = Entity.KPP
+			};
+
+			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		private void OpenRevenueServicePage(DadataRequestDto dadataRequestDto)
+		{
+			var revenueServicePage = MainClass.MainWin.NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
+				IRevenueServiceClient, CancellationToken>(null, dadataRequestDto, _revenueServiceClient, _cancellationTokenSource.Token);
+
+			revenueServicePage.ViewModel.OnSelectResult += (o, a) =>
+			{
+				if(a.IsActive
+				   || _commonServices.InteractiveService.Question("Вы действительно хотите подгрузить недействующие реквизиты?"))
+				{
+					FillEntityDetailsFromRevenueService(a);
+				}
 			};
 		}
 
-		private void FillEntityDetailsFromRevenueService(CounterpartyDto revenueServiceDto)
+		private void FillEntityDetailsFromRevenueService(CounterpartyRevenueServiceDto revenueServiceRevenueServiceRow)
 		{
-			Entity.KPP = revenueServiceDto.Kpp;
-			Entity.Name = revenueServiceDto.ShortName ?? revenueServiceDto.FullName;
-			Entity.FullName = revenueServiceDto.FullName ?? Entity.Name;
-			Entity.RawJurAddress = revenueServiceDto.Address;
+			Entity.KPP = revenueServiceRevenueServiceRow.Kpp;
+			Entity.Name = revenueServiceRevenueServiceRow.ShortName ?? revenueServiceRevenueServiceRow.FullName;
+			Entity.FullName = revenueServiceRevenueServiceRow.FullName ?? Entity.Name;
+			Entity.RawJurAddress = revenueServiceRevenueServiceRow.Address;
 
 			if(Entity.TypeOfOwnership == "ИП" || Entity.PersonType == PersonType.natural)
 			{
-				Entity.Surname = revenueServiceDto.PersonSurname;
-				Entity.FirstName = revenueServiceDto.PersonName;
-				Entity.Patronymic = revenueServiceDto.PersonPatronymic;
+				Entity.Surname = revenueServiceRevenueServiceRow.PersonSurname;
+				Entity.FirstName = revenueServiceRevenueServiceRow.PersonName;
+				Entity.Patronymic = revenueServiceRevenueServiceRow.PersonPatronymic;
 			}
 			else
 			{
-				Entity.SignatoryFIO = revenueServiceDto.PersonFullName ?? revenueServiceDto.ManagerFullName;
+				Entity.SignatoryFIO = revenueServiceRevenueServiceRow.PersonFullName ?? revenueServiceRevenueServiceRow.ManagerFullName;
 			}
 
-			if(revenueServiceDto.Phones != null)
+			if(revenueServiceRevenueServiceRow.Phones != null)
 			{
-				foreach(var number in revenueServiceDto.Phones)
+				foreach(var number in revenueServiceRevenueServiceRow.Phones)
 				{
 					if(Entity.Phones.All(x => x.Number != number))
 					{
@@ -2196,9 +2214,9 @@ namespace Vodovoz
 				}
 			}
 
-			if(revenueServiceDto.Emails != null)
+			if(revenueServiceRevenueServiceRow.Emails != null)
 			{
-				foreach(var email in revenueServiceDto.Emails)
+				foreach(var email in revenueServiceRevenueServiceRow.Emails)
 				{
 					if(Entity.Emails.All(x => x.Address != email))
 					{
@@ -2210,24 +2228,6 @@ namespace Vodovoz
 					}
 				}
 			}
-		}
-
-		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)
-		{
-			var revenueServiceCounterpartyDto = new DadataRequestDto { Inn = Entity.INN, Kpp = Entity.KPP};
-			var revenueServicePage = MainClass.MainWin.NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
-				IRevenueServiceClient, CancellationToken>(null, revenueServiceCounterpartyDto, _revenueServiceClient, _cancellationTokenSource.Token);
-
-			revenueServicePage.ViewModel.OnSelectResult += (o, a) =>
-			{
-				if(!a.IsActive
-				   && !_commonServices.InteractiveService.Question("Вы действительно хотите подгрузить недействующие реквизиты?"))
-				{
-					return;
-				}
-
-				FillEntityDetailsFromRevenueService(a);
-			};
 		}
 	}
 

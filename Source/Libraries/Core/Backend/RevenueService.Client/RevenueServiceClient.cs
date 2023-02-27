@@ -20,19 +20,19 @@ namespace RevenueService.Client
 			_accessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
 		}
 
-		public async Task<IList<CounterpartyDto>> GetCounterpartyInfoAsync(DadataRequestDto query, CancellationToken cancellationToken)
+		public async Task<IList<CounterpartyRevenueServiceDto>> GetCounterpartyInfoAsync(DadataRequestDto query, CancellationToken cancellationToken)
 		{
 			var api = new SuggestClientAsync(_accessToken);
 			var request = string.IsNullOrEmpty(query.Kpp) ? new FindPartyRequest(query.Inn, count: _queryCount) : new FindPartyRequest(query.Inn, query.Kpp, _queryCount);
 			var response = await api.FindParty(request, cancellationToken);
-			var suggestionList = new List<CounterpartyDto>();
+			var suggestionList = new List<CounterpartyRevenueServiceDto>();
 
 			var branchTypeParser = new BranchTypeParsser();
 			var typeOfOwnershipParser = new TypeOfOwnershipParser();
 
 			foreach(var suggestion in response.suggestions)
 			{
-				var dto = new CounterpartyDto
+				var dto = new CounterpartyRevenueServiceDto
 				{
 					Inn = suggestion.data.inn,
 					Kpp = suggestion.data.kpp,

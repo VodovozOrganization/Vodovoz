@@ -7,6 +7,6 @@ namespace RevenueService.Client
 {
 	public interface IRevenueServiceClient
 	{
-		Task<IList<CounterpartyDto>> GetCounterpartyInfoAsync(DadataRequestDto dadataRequest, CancellationToken cancellationToken);
+		Task<IList<CounterpartyRevenueServiceDto>> GetCounterpartyInfoAsync(DadataRequestDto dadataRequest, CancellationToken cancellationToken);
 	}
 }
