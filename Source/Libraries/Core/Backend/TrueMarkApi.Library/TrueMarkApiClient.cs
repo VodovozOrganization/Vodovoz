@@ -41,7 +41,7 @@ namespace TrueMarkApi.Library
 			string content = JsonSerializer.Serialize(identificationCodes.ToArray());
 			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-			var response = await _httpClient.PostAsync("api/RequestProductInstanceInfo", httpContent, cancellationToken);
+			var response = await _httpClient.PostAsync("RequestProductInstanceInfo", httpContent, cancellationToken);
 			var responseBody = await response.Content.ReadAsStreamAsync();
 			var responseResult = await JsonSerializer.DeserializeAsync<ProductInstancesInfo>(responseBody, cancellationToken: cancellationToken);
 
