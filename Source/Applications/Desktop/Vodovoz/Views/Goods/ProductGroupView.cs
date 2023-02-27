@@ -12,7 +12,7 @@ namespace Vodovoz.Views.Goods
 	{
 		public ProductGroupView(ProductGroupViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -26,7 +26,7 @@ namespace Vodovoz.Views.Goods
 			ycheckExportToOnlineStore.Binding.AddBinding(ViewModel.Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
 
 			ycheckArchived.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			ycheckArchived.Toggled += (sender, args) => ViewModel.SetArchiveCommand.Execute(ycheckArchived.Active);
+			ycheckArchived.Toggled += (sender, args) => ViewModel.SetArchiveCommand.Execute();
 
 			entityParent.SetEntityAutocompleteSelectorFactory(ViewModel.ProductGroupSelectorFactory);
 			entityParent.Binding.AddBinding(ViewModel.Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
