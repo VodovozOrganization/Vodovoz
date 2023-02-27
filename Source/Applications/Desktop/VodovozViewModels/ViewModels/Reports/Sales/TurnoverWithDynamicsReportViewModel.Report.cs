@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				DateTime startDate,
 				DateTime endDate,
 				string filters,
+				GroupingByEnum groupingBy,
 				DateTimeSliceType slicingType,
 				MeasurementUnitEnum measurementUnit,
 				bool showDynamics,
@@ -29,6 +30,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				StartDate = startDate;
 				EndDate = endDate;
 				Filters = filters;
+				GroupingBy = groupingBy;
 				SliceType = slicingType;
 				MeasurementUnit = measurementUnit;
 				ShowDynamics = showDynamics;
@@ -47,6 +49,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public DateTime EndDate { get; }
 
 			public string Filters { get; }
+
+			public GroupingByEnum GroupingBy { get; }
 
 			public DateTimeSliceType SliceType { get; }
 
@@ -313,6 +317,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				DateTime startDate,
 				DateTime endDate,
 				string filters,
+				GroupingByEnum groupingBy,
 				DateTimeSliceType slicingType,
 				MeasurementUnitEnum measurementUnit,
 				bool showDynamics,
@@ -326,6 +331,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							startDate,
 							endDate,
 							filters,
+							groupingBy,
 							slicingType,
 							measurementUnit,
 							showDynamics,
@@ -378,6 +384,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public int Id { get; set; }
 
 				public int OrderId { get; set; }
+
+				public int CounterpartyId { get; set; }
 
 				public DateTime? OrderDeliveryDate { get; set; }
 

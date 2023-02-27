@@ -55,6 +55,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
+		private GroupingByEnum _groupingBy;
 		private DateTimeSliceType _slice;
 		private MeasurementUnitEnum _measurementUnit;
 		private DynamicsInEnum _dynamicsIn;
@@ -122,6 +123,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			get => _showDynamics;
 			set => SetField(ref _showDynamics, value);
+		}
+
+		public GroupingByEnum GroupingBy
+		{
+			get => _groupingBy;
+			set => SetField(ref _groupingBy, value);
 		}
 
 		public MeasurementUnitEnum MeasurementUnit
@@ -582,6 +589,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					StartDate.Value,
 					EndDate.Value,
 					filters,
+					GroupingBy,
 					SlicingType,
 					MeasurementUnit,
 					ShowDynamics,
