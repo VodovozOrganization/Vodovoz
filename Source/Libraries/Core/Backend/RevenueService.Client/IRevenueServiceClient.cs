@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RevenueService.Client.Dto;
 using System.Threading;
 using System.Threading.Tasks;
-using RevenueService.Client.Dto;
 
 namespace RevenueService.Client
 {
 	public interface IRevenueServiceClient
 	{
-		Task<IList<CounterpartyRevenueServiceDto>> GetCounterpartyInfoAsync(DadataRequestDto dadataRequest, CancellationToken cancellationToken);
+		Task<RevenueServiceResponseDto> GetCounterpartyInfoAsync(DadataRequestDto dadataRequest, CancellationToken cancellationToken);
 	}
 }

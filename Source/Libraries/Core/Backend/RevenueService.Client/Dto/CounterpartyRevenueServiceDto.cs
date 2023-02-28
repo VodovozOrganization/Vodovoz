@@ -50,6 +50,10 @@ namespace RevenueService.Client.Dto
 			}
 		}
 
+		[ReportExportIgnore]
+		[Display(Name = "ФИО")]
+		public string TitlePersonFullName => PersonFullName ?? ManagerFullName;
+
 		[Display(Name = "Телефоны")]
 		public string[] Phones { get; set; }
 
@@ -65,10 +69,10 @@ namespace RevenueService.Client.Dto
 
 		[ReportExportIgnore]
 		[Display(Name = "Тип контрагента")]
-		public TypeOfOwnership TypeOfOwnerShip { get; set; }
+		public PersonType PersonType { get; set; }
 
 		[Display(Name = "Тип контрагента (строка)")]
-		public string TypeOfOwnershipString => TypeOfOwnerShip.GetEnumTitle();
+		public string PersonTypeString => PersonType.GetEnumTitle();
 
 		[Display(Name = "ФИО менеджера")]
 		public string ManagerFullName { get; set; }

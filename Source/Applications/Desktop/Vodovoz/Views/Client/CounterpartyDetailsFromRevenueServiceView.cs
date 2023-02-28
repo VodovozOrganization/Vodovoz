@@ -50,7 +50,7 @@ namespace Vodovoz.Views.Client
 				.AddColumn("№").AddNumericRenderer(n => ViewModel.Nodes.IndexOf(n) + 1)
 				.AddColumn("КПП").AddTextRenderer(n => n.Kpp)
 				.AddColumn("Наименование").AddTextRenderer(n => n.Name)
-				.AddColumn("ФИО").AddTextRenderer(n => n.PersonFullName)
+				.AddColumn("ФИО").AddTextRenderer(n => n.TitlePersonFullName)
 				.AddColumn("Адрес").AddTextRenderer(n => n.Address).WrapWidth(400).WrapMode(WrapMode.WordChar)
 				.AddColumn("Головная/\nФилиал").AddTextRenderer(n => n.BranchTypeString)
 				.AddColumn("Статус\n(действующая/нет) )").AddTextRenderer(n => n.IsActive ? "Да" : "Нет")

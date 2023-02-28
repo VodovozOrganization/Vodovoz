@@ -2181,27 +2181,27 @@ namespace Vodovoz
 			};
 		}
 
-		private void FillEntityDetailsFromRevenueService(CounterpartyRevenueServiceDto revenueServiceRevenueServiceRow)
+		private void FillEntityDetailsFromRevenueService(CounterpartyRevenueServiceDto revenueServiceRow)
 		{
-			Entity.KPP = revenueServiceRevenueServiceRow.Kpp;
-			Entity.Name = revenueServiceRevenueServiceRow.ShortName ?? revenueServiceRevenueServiceRow.FullName;
-			Entity.FullName = revenueServiceRevenueServiceRow.FullName ?? Entity.Name;
-			Entity.RawJurAddress = revenueServiceRevenueServiceRow.Address;
+			Entity.KPP = revenueServiceRow.Kpp;
+			Entity.Name = revenueServiceRow.ShortName ?? revenueServiceRow.FullName;
+			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
+			Entity.RawJurAddress = revenueServiceRow.Address;
 
 			if(Entity.TypeOfOwnership == "ИП" || Entity.PersonType == PersonType.natural)
 			{
-				Entity.Surname = revenueServiceRevenueServiceRow.PersonSurname;
-				Entity.FirstName = revenueServiceRevenueServiceRow.PersonName;
-				Entity.Patronymic = revenueServiceRevenueServiceRow.PersonPatronymic;
+				Entity.Surname = revenueServiceRow.PersonSurname;
+				Entity.FirstName = revenueServiceRow.PersonName;
+				Entity.Patronymic = revenueServiceRow.PersonPatronymic;
 			}
 			else
 			{
-				Entity.SignatoryFIO = revenueServiceRevenueServiceRow.PersonFullName ?? revenueServiceRevenueServiceRow.ManagerFullName;
+				Entity.SignatoryFIO = revenueServiceRow.TitlePersonFullName;
 			}
 
-			if(revenueServiceRevenueServiceRow.Phones != null)
+			if(revenueServiceRow.Phones != null)
 			{
-				foreach(var number in revenueServiceRevenueServiceRow.Phones)
+				foreach(var number in revenueServiceRow.Phones)
 				{
 					if(Entity.Phones.All(x => x.Number != number))
 					{
@@ -2214,9 +2214,9 @@ namespace Vodovoz
 				}
 			}
 
-			if(revenueServiceRevenueServiceRow.Emails != null)
+			if(revenueServiceRow.Emails != null)
 			{
-				foreach(var email in revenueServiceRevenueServiceRow.Emails)
+				foreach(var email in revenueServiceRow.Emails)
 				{
 					if(Entity.Emails.All(x => x.Address != email))
 					{

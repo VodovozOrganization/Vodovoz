@@ -1206,7 +1206,12 @@ namespace Vodovoz.Domain.Client
 						new[] { this.GetPropertyName(o => o.KPP) });
 			}
 			if(PersonType == PersonType.legal) {
-				if(KPP.Length != 9 && KPP.Length != 0 && TypeOfOwnership != "ИП")
+				if(TypeOfOwnership == null)
+				{
+					yield return new ValidationResult("Не заполнена Форма собственности.",
+						new[] { nameof(TypeOfOwnership) });
+				}
+				if(KPP?.Length != 9 && KPP?.Length != 0 && TypeOfOwnership != "ИП")
 					yield return new ValidationResult("Длина КПП должна равнятся 9-ти.",
 						new[] { this.GetPropertyName(o => o.KPP) });
 				if(INN.Length != 10 && INN.Length != 0 && TypeOfOwnership != "ИП")
@@ -1221,7 +1226,7 @@ namespace Vodovoz.Domain.Client
 				if(string.IsNullOrWhiteSpace(INN))
 					yield return new ValidationResult("Для организации необходимо заполнить ИНН.",
 						new[] { this.GetPropertyName(o => o.INN) });
-				if(!Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
+				if(KPP != null && !Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
 					yield return new ValidationResult("КПП может содержать только цифры.",
 						new[] { this.GetPropertyName(o => o.KPP) });
 				if(!Regex.IsMatch(INN, "^[0-9]*$"))

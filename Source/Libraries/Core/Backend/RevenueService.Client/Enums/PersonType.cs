@@ -2,7 +2,7 @@
 
 namespace RevenueService.Client.Enums
 {
-	public enum TypeOfOwnership
+	public enum PersonType
 	{
 		[Display(Name="Юр.лицо")]
 		Legal,

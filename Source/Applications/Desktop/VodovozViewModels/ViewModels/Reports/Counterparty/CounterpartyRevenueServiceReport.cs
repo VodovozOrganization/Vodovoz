@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Counterparty
 			{
 				foreach(var row in _rows)
 				{
-					var sheetName = $"{row.Kpp} {row.Name.Substring(0, Math.Min(row.Name.Length, 20))}";
+					var sheetName = $"{_rows.IndexOf(row) + 1}. {row.Name.Substring(0, Math.Min(row.Name.Length, 20))}";
 					var worksheet = workbook.Worksheets.Add(sheetName);
 
 					worksheet.Column(1).Width = 50;

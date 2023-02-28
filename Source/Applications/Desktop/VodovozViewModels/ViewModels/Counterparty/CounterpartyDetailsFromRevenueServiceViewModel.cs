@@ -18,24 +18,46 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 	{
 		private readonly IRevenueServiceClient _revenueServiceClient;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly IInteractiveService _interactiveService;
 		private DelegateCommand _replaceDetailsCommand;
 		private CounterpartyRevenueServiceDto _selectedNode;
 		private DelegateCommand _exportToExcelCommand;
 
 		public CounterpartyDetailsFromRevenueServiceViewModel(INavigationManager navigationManager, DadataRequestDto request, IRevenueServiceClient revenueServiceClient, 
-			IFileDialogService fileDialogService, CancellationToken cancellationToken)
+			IFileDialogService fileDialogService, IInteractiveService interactiveService, CancellationToken cancellationToken)
 			: base(navigationManager)
 		{
 			_revenueServiceClient = revenueServiceClient ?? throw new ArgumentNullException(nameof(revenueServiceClient));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			
 			WindowPosition = WindowGravity.None;
 
-			Nodes = LoadFromRevenueService(request, cancellationToken).Result
+			var response = LoadFromRevenueService(request, cancellationToken).Result;
+
+			if(!response.CounterpartyDetailsList.Any()
+			   && !string.IsNullOrEmpty(request.Kpp)
+			   && interactiveService.Question($"По комбинации ИНН {request.Inn} + КПП {request.Kpp} не найдено результатов. Попробовать загрузить только по ИНН?"))
+			{
+				request.Kpp = null;
+				response = LoadFromRevenueService(request, cancellationToken).Result;
+			}
+
+			Nodes = response
+				.CounterpartyDetailsList?
 				.OrderBy(x => !x.IsActive)
 				.ToList();
+
+			var kpp = string.IsNullOrEmpty(request.Kpp) ? "" : $"КПП: {request.Kpp}";
+			Message = $"ИНН: {request.Inn} {kpp}";
+
+			if(!string.IsNullOrEmpty(response.ErrorMessage))
+			{
+				Message += $" Ошибка: {response.ErrorMessage}";
+			}
 		}
 
-		private async Task<IList<CounterpartyRevenueServiceDto>> LoadFromRevenueService(DadataRequestDto request, CancellationToken cancellationToken)
+		private async Task<RevenueServiceResponseDto> LoadFromRevenueService(DadataRequestDto request, CancellationToken cancellationToken)
 		{
 			var counterpartyDetails = await _revenueServiceClient.GetCounterpartyInfoAsync(request, cancellationToken);
 
