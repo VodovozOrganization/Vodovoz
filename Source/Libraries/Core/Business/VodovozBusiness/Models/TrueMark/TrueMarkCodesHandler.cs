@@ -47,7 +47,7 @@ namespace Vodovoz.Models.TrueMark
 
 		public async Task HandleOrders(CancellationToken cancellationToken)
 		{
-			var trueMarkOrderIds = GetTrueMarkOrderIds();
+			var trueMarkOrderIds = new[] { 314 }; //GetTrueMarkOrderIds();
 
 			foreach(var trueMarkOrderId in trueMarkOrderIds)
 			{
@@ -252,7 +252,16 @@ namespace Vodovoz.Models.TrueMark
 				var unscannedCodesCount = orderItem.Count - codes.Count();
 				if(unscannedCodesCount < 0)
 				{
-					throw new TrueMarkException($"На одну номенклатуру отсканировано больше кодов чем товара в заказе. Заказ {trueMarkCashReceiptOrder.Order.Id}. Товар {orderItem.Id}");
+					var extraCodes = codes.Skip((int)orderItem.Count);
+					foreach(var extraCode in extraCodes)
+					{
+						if(extraCode.SourceCode == null || extraCode.SourceCode.IsInvalid)
+						{
+							continue;
+						}
+
+						_codePool.PutCode(extraCode.SourceCode.Id);
+					}
 				}
 
 				if(unscannedCodesCount == 0)

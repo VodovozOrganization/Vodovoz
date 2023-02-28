@@ -124,8 +124,7 @@ namespace VodovozSalesReceiptsService
 				};
 				
 				var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-					.ConnectionString(conStrBuilder.GetConnectionString(true))
-					.Driver<LoggedMySqlClientDriver>();
+					.ConnectionString(conStrBuilder.GetConnectionString(true));
 
 				OrmConfig.ConfigureOrm(
 					dbConfig,

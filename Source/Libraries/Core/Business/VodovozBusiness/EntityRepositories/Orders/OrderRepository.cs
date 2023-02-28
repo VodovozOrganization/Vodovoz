@@ -614,7 +614,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var statusRestriction = Restrictions.Disjunction()
 				.Add(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
-					new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock }))
+					new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed }))
 				.Add(Restrictions.Conjunction()
 					.Add(() => orderAlias.SelfDelivery)
 					.Add(() => orderAlias.IsSelfDeliveryPaid)
