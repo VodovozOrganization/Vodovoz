@@ -20,6 +20,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using TrueMarkApi.Services;
 using TrueMarkApi.Services.Authorization;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -64,7 +65,7 @@ namespace TrueMarkApi
 
 			services.AddControllers();
 
-			//services.AddHostedService<DocumentService>();
+			services.AddHostedService<DocumentService>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IAuthorizationService, AuthorizationService>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();

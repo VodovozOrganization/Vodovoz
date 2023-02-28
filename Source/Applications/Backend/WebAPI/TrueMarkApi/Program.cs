@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using TrueMarkApi.Controllers;
+using TrueMarkApi.Services;
 
 namespace TrueMarkApi
 {
