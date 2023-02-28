@@ -11,7 +11,7 @@ using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	public class OrderJournalRegistrar : ColumnsConfigRegistrarBase<OrderJournalViewModel, OrderJournalNode>
+	internal sealed class OrderJournalRegistrar : ColumnsConfigRegistrarBase<OrderJournalViewModel, OrderJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<OrderJournalNode> config) =>
 			config.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
