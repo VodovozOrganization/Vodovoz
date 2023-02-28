@@ -66,7 +66,6 @@ namespace TrueMarkApi
 			services.AddControllers();
 
 			services.AddHostedService<DocumentService>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IAuthorizationService, AuthorizationService>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
@@ -147,6 +146,7 @@ namespace TrueMarkApi
 				dbConfig,
 				new[]
 				{
+					Assembly.GetAssembly(typeof(SettingMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 					Assembly.GetAssembly(typeof(Bank)),
