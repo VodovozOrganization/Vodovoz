@@ -47,7 +47,7 @@ namespace Vodovoz.Models.TrueMark
 
 		public async Task HandleOrders(CancellationToken cancellationToken)
 		{
-			var trueMarkOrderIds = new[] { 314 }; //GetTrueMarkOrderIds();
+			var trueMarkOrderIds = GetTrueMarkOrderIds();
 
 			foreach(var trueMarkOrderId in trueMarkOrderIds)
 			{
@@ -185,35 +185,33 @@ namespace Vodovoz.Models.TrueMark
 			{
 				var goodValidCodes = goodCodeEntities.Where(x => x.SourceCode != null && !x.SourceCode.IsInvalid);
 
-				if(!goodValidCodes.Any())
+				if(goodValidCodes.Any())
 				{
-					return;
-				}
+					var productCodes = goodValidCodes
+						.ToDictionary(x => _trueMarkWaterCodeParser.GetWaterIdentificationCode(x.SourceCode));
 
-				var productCodes = goodValidCodes
-					.ToDictionary(x => _trueMarkWaterCodeParser.GetWaterIdentificationCode(x.SourceCode));
-
-				var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(productCodes.Keys, cancellationToken);
-				if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
-				{
-					throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
-				}
-
-				foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
-				{
-					var codeEntity = productCodes[instanceStatus.IdentificationCode];
-					if(codeEntity == null)
+					var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(productCodes.Keys, cancellationToken);
+					if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
 					{
-						throw new TrueMarkException("Проверенный в системе Честный знак, код не был найден среди отправленных на проверку.");
+						throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
 					}
 
-					if(instanceStatus.Status == ProductInstanceStatusEnum.Introduced)
+					foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
 					{
-						codeEntity.ResultCode = codeEntity.SourceCode;
-					}
-					else
-					{
-						codeEntity.ResultCode = GetCodeFromPool(uow);
+						var codeEntity = productCodes[instanceStatus.IdentificationCode];
+						if(codeEntity == null)
+						{
+							throw new TrueMarkException("Проверенный в системе Честный знак, код не был найден среди отправленных на проверку.");
+						}
+
+						if(instanceStatus.Status == ProductInstanceStatusEnum.Introduced)
+						{
+							codeEntity.ResultCode = codeEntity.SourceCode;
+						}
+						else
+						{
+							codeEntity.ResultCode = GetCodeFromPool(uow);
+						}
 					}
 				}
 
