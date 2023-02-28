@@ -298,7 +298,7 @@ namespace Vodovoz.Views.Warehouse.Documents
 			this.ybtnAddFine.CanFocus = true;
 			this.ybtnAddFine.Name = "ybtnAddFine";
 			this.ybtnAddFine.UseUnderline = true;
-			this.ybtnAddFine.Label = global::Mono.Unix.Catalog.GetString("Добавить штаф");
+			this.ybtnAddFine.Label = global::Mono.Unix.Catalog.GetString("Добавить штраф");
 			this.hboxNomenclaturesListButtonsContainer.Add(this.ybtnAddFine);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hboxNomenclaturesListButtonsContainer[this.ybtnAddFine]));
 			w26.Position = 2;

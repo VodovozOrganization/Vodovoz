@@ -298,7 +298,7 @@ namespace Vodovoz
 			this.buttonFine.CanFocus = true;
 			this.buttonFine.Name = "buttonFine";
 			this.buttonFine.UseUnderline = true;
-			this.buttonFine.Label = global::Mono.Unix.Catalog.GetString("Добавить штаф");
+			this.buttonFine.Label = global::Mono.Unix.Catalog.GetString("Добавить штраф");
 			this.hbox3.Add(this.buttonFine);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonFine]));
 			w26.Position = 2;
