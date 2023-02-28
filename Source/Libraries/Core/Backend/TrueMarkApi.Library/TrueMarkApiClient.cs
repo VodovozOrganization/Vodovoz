@@ -64,7 +64,7 @@ namespace TrueMarkApi.Library
 				return registrations;
 			}
 
-			return null;
+			return new List<ParticipantRegistrationDto>();
 		}
 	}
 }
