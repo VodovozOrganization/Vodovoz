@@ -205,6 +205,7 @@ namespace VodovozSalesReceiptsService
 				if(receiptSent)
 				{
 					trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.Sended;
+					trueMarkOrder.ErrorDescription = "";
 				}
 				else
 				{
