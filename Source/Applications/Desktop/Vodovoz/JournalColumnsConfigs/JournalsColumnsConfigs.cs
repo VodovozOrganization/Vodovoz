@@ -10,7 +10,6 @@ using System.Globalization;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Proposal;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.EntityRepositories.Payments;
@@ -33,7 +32,6 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Flyers;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
-using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
@@ -62,14 +60,11 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		private static readonly Color _colorBlack = new Color(0, 0, 0);
 		private static readonly Color _colorRed = new Color(0xfe, 0x5c, 0x5c);
-		private static readonly Color _colorPink = new Color(0xff, 0xc0, 0xc0);
 		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
 		private static readonly Color _colorLightGrey = new Color(0xcc, 0xcc, 0xcc);
 		private static readonly Color _colorDarkGrey = new Color(0x80, 0x80, 0x80);
-		private static readonly Color _colorLightGreen = new Color(0xc0, 0xff, 0xc0);
 		private static readonly Color _colorBlue = new Color(0x00, 0x18, 0xf9);
 		private static readonly Color _colorBabyBlue = new Color(0x89, 0xcf, 0xef);
-		private static readonly Color _colorOrange = new Color(0xfc, 0x66, 0x00);
 
 		public static void RegisterColumns()
 		{
@@ -86,114 +81,6 @@ namespace Vodovoz.JournalColumnsConfigs
 			{
 				Activator.CreateInstance(type);
 			}
-
-			//ClientCameFromFilterViewModel
-			TreeViewColumnsConfigFactory.Register<ClientCameFromJournalViewModel>(
-				() => FluentColumnsConfig<ClientCameFromJournalNode>.Create()
-					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
-						.AddColumn("Название").AddTextRenderer(n => n.Name)
-						.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
-						.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
-						.Finish()
-			);
-
-			//CarModelJournalViewModel
-			TreeViewColumnsConfigFactory.Register<CarModelJournalViewModel>(
-				() => FluentColumnsConfig<CarModelJournalNode>.Create()
-					.AddColumn("Код").HeaderAlignment(0.5f).AddTextRenderer(n => n.Id.ToString()).XAlign(0.5f)
-					.AddColumn("Производитель").HeaderAlignment(0.5f).AddTextRenderer(n => n.ManufactererName).XAlign(0.5f)
-					.AddColumn("Название").HeaderAlignment(0.5f).AddTextRenderer(n => n.Name).XAlign(0.5f)
-					.AddColumn("Тип").HeaderAlignment(0.5f).AddTextRenderer(n => n.TypeOfUse.GetEnumTitle()).XAlign(0.5f)
-					.AddColumn("")
-					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
-					.Finish()
-			);
-
-			//ComplaintsJournalViewModel
-			TreeViewColumnsConfigFactory.Register<ComplaintsJournalViewModel>(
-				() => FluentColumnsConfig<ComplaintJournalNode>.Create()
-					.AddColumn("№ п/п").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.SequenceNumber.ToString())
-						.XAlign(0.5f)
-					.AddColumn("№ рекламации").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.Id.ToString())
-						.XAlign(0.5f)
-					.AddColumn("Тип").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.TypeString)
-						.XAlign(0.5f)
-					.AddColumn("Дата").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.DateString)
-						.XAlign(0.5f)
-					.AddColumn("Время").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.TimeString)
-						.XAlign(0.5f)
-					.AddColumn("Статус").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.StatusString)
-						.XAlign(0.5f)
-					.AddColumn("В работе у").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.WorkInSubdivision)
-						.XAlign(0f)
-					.AddColumn("Дата план.\nзавершения").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.PlannedCompletionDate)
-						.XAlign(0.5f)
-					.AddColumn("Клиент и адрес").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ClientNameWithAddress)
-						.WrapWidth(300).WrapMode(WrapMode.WordChar)
-						.XAlign(0f)
-					.AddColumn("Ответственный").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.Guilties)
-						.XAlign(0f)
-					.AddColumn("Проблема").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ComplaintText)
-						.WrapWidth(450).WrapMode(WrapMode.WordChar)
-						.XAlign(0f)
-					.AddColumn("Объект рекламации").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ComplaintObjectString)
-						.XAlign(0.5f)
-					.AddColumn("Вид рекламации").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ComplaintKindString)
-						.XAlign(0.5f)
-					.AddColumn("Детализация").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ComplaintDetalizationString)
-						.XAlign(0.5f)
-					.AddColumn("Автор").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.Author)
-						.XAlign(0f)
-					.AddColumn("Штрафы").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.Fines)
-						.XAlign(0.5f)
-					.AddColumn("Результат").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ResultText)
-						.WrapWidth(450).WrapMode(WrapMode.WordChar)
-						.XAlign(0f)
-					.AddColumn("Дата факт.\nзавершения").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ActualCompletionDateString)
-						.XAlign(0.5f)
-					.AddColumn("Дни").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.DaysInWork)
-						.XAlign(0.5f)
-					.AddColumn("Мероприятия").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ArrangementText)
-						.XAlign(0f)
-					.AddColumn("Результат по клиенту").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ResultOfCounterparty)
-						.XAlign(0f)
-					.AddColumn("Результат по сотруднику").HeaderAlignment(0.5f)
-						.AddTextRenderer(node => node.ResultOfEmployees)
-						.XAlign(0f)
-					.RowCells()
-					.AddSetter<CellRenderer>(
-						(cell, node) => {
-							var color = _colorWhite;
-							if(node.Status != Domain.Complaints.ComplaintStatuses.Closed && node.LastPlannedCompletionDate.Date < DateTime.Today)
-							{
-								color = _colorPink;
-							}
-							cell.CellBackgroundGdk = color;
-						}
-					)
-					.Finish()
-			);
 
 			//SubdivisionsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<SubdivisionsJournalViewModel>(
@@ -502,63 +389,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//PaymentJournalViewModel
-			TreeViewColumnsConfigFactory.Register<PaymentsJournalViewModel>(
-				() => FluentColumnsConfig<PaymentJournalNode>.Create()
-					.AddColumn("№")
-						.AddTextRenderer(x => x.PaymentNum.ToString())
-					.AddColumn("Дата")
-						.AddTextRenderer(x => x.Date.ToShortDateString())
-					.AddColumn("Cумма")
-						.AddTextRenderer(x => x.Total.ToString())
-					.AddColumn("Заказы")
-						.AddTextRenderer(x => x.Orders)
-					.AddColumn("Плательщик")
-						.AddTextRenderer(x => x.PayerName)
-						.WrapWidth(450)
-						.WrapMode(WrapMode.WordChar)
-					.AddColumn("Контрагент")
-						.AddTextRenderer(x => x.CounterpartyName)
-						.WrapWidth(450)
-						.WrapMode(WrapMode.WordChar)
-					.AddColumn("Получатель")
-						.AddTextRenderer(x => x.Organization)
-					.AddColumn("Назначение платежа")
-						.AddTextRenderer(x => x.PaymentPurpose)
-						.WrapWidth(600)
-						.WrapMode(WrapMode.WordChar)
-					.AddColumn("Категория дохода/расхода")
-						.AddTextRenderer(x => x.ProfitCategory)
-						.XAlign(0.5f)
-					.AddColumn("Создан вручную?")
-						.AddToggleRenderer(x => x.IsManualCreated)
-						.Editing(false)
-					.AddColumn("Нераспределенная сумма")
-						.AddNumericRenderer(x => x.UnAllocatedSum)
-						.Digits(2)
-					.AddColumn("")
-					.RowCells().AddSetter<CellRenderer>(
-						(c, n) => {
-							var color = _colorWhite;
-
-							if(n.Status == PaymentState.undistributed)
-							{
-								color = _colorPink;
-							}
-							if(n.Status == PaymentState.distributed)
-							{
-								color = _colorLightGreen;
-							}
-							if(n.Status == PaymentState.Cancelled)
-							{
-								color = _colorLightGrey;
-							}
-
-							c.CellBackgroundGdk = color;
-						})
-					.Finish()
-			);
-
 			//BusinessTasksJournalViewModel
 			TreeViewColumnsConfigFactory.Register<BusinessTasksJournalViewModel>(
 				() => FluentColumnsConfig<BusinessTaskJournalNode>.Create()
@@ -612,135 +442,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
-					.Finish()
-			);
-
-			//IncomeCategoryJournalViewModel
-			TreeViewColumnsConfigFactory.Register<IncomeCategoryJournalViewModel>(
-				() => FluentColumnsConfig<IncomeCategoryJournalNode>.Create()
-					.AddColumn("Код")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Id.ToString())
-						.XAlign(0.5f)
-					.AddColumn("Уровень 1")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level1)
-						.XAlign(0.5f)
-					.AddColumn("Уровень 2")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level2)
-						.XAlign(0.5f)
-					.AddColumn("Уровень 3")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level3)
-						.XAlign(0.5f)
-					.AddColumn("Уровень 4")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level4)
-						.XAlign(0.5f)
-					.AddColumn("Уровень 5")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level5)
-						.XAlign(0.5f)
-					.AddColumn("В архиве?")
-						.HeaderAlignment(0.5f)
-						.AddToggleRenderer(n => n.IsArchive)
-						.Editing(false)
-						.XAlign(0.5f)
-					.AddColumn("Подразделение")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Subdivision)
-						.XAlign(0.5f)
-					.AddColumn("")
-					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
-						// .AddSetter<CellRendererText>((c, n) => c. = !n.isFiltered )
-					.Finish()
-			);
-
-			//IncomeCategoryJournalViewModel
-			TreeViewColumnsConfigFactory.Register<ExpenseCategoryJournalViewModel>(
-				() => FluentColumnsConfig<ExpenseCategoryJournalNode>.Create()
-					.AddColumn("Код")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Id.ToString())
-						.XAlign(0.5f)
-					.AddColumn("Уровень 1")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level1)
-						.XAlign(0.5f)
-					.AddColumn("Уровень 2")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level2)
-						.XAlign(0.5f)
-					.AddColumn("Уровень 3")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level3)
-						.XAlign(0.5f)
-					.AddColumn("Уровень 4")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level4)
-						.XAlign(0.5f)
-					.AddColumn("Уровень 5")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Level5)
-						.XAlign(0.5f)
-					.AddColumn("В архиве?")
-						.HeaderAlignment(0.5f)
-						.AddToggleRenderer(n => n.IsArchive)
-						.Editing(false)
-						.XAlign(0.5f)
-					.AddColumn("Подразделение")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Subdivision)
-						.XAlign(0.5f)
-					.AddColumn("")
-					.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
-					.Finish()
-			);
-
-			//PayoutRequestsJournalViewModel
-			TreeViewColumnsConfigFactory.Register<PayoutRequestsJournalViewModel>(
-				() => FluentColumnsConfig<PayoutRequestJournalNode>.Create()
-					.AddColumn("№")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Id.ToString())
-						.XAlign(0.5f)
-					.AddColumn("Дата создания")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Date.ToShortDateString())
-						.XAlign(0.5f)
-					.AddColumn("Тип документа")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.PayoutRequestDocumentType.GetEnumTitle())
-						.WrapWidth(155)
-						.WrapMode(WrapMode.WordChar)
-						.XAlign(0.5f)
-					.AddColumn("Статус")
-						.HeaderAlignment(0.5f)
-						.AddEnumRenderer(n => n.PayoutRequestState)
-						.XAlign(0.5f)
-					.AddColumn("Автор")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n =>  n.Author )
-						.XAlign(0.5f)
-					.AddColumn("Подотчетное лицо /\r\n\tПоставщик")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => !string.IsNullOrWhiteSpace(n.AccountablePerson) ? n.AccountablePerson : n.CounterpartyName)
-						.XAlign(0.5f)
-					.AddColumn("Сумма")
-						.HeaderAlignment(0.5f)
-						.AddNumericRenderer(n => CurrencyWorks.GetShortCurrencyString(n.Sum))
-						.XAlign(0.5f)
-					.AddColumn("Основание")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Basis)
-						.XAlign(0.5f)
-
-					.AddColumn("")
-					// .RowCells()
-					// .AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 
@@ -906,100 +607,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) =>
 							c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? _colorRed : _colorBlack)
-					.Finish()
-			);
-
-			//RouteListWorkingJournalViewModel
-			TreeViewColumnsConfigFactory.Register<RouteListWorkingJournalViewModel>(
-				() => FluentColumnsConfig<RouteListJournalNode>.Create()
-					.AddColumn("Номер")
-						.AddTextRenderer(node => node.Id.ToString())
-					.AddColumn("Дата")
-						.AddTextRenderer(node => node.Date.ToString("d"))
-					.AddColumn("Смена")
-						.AddTextRenderer(node => node.ShiftName)
-					.AddColumn("Статус")
-						.AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
-					.AddColumn("Водитель и машина")
-						.AddTextRenderer(node => node.DriverAndCar)
-					.AddColumn("Сдается в кассу")
-						.AddTextRenderer(node => node.ClosingSubdivision)
-					.AddColumn("Комментарий ЛО")
-						.AddTextRenderer(node => node.LogisticiansComment)
-						.WrapWidth(300)
-						.WrapMode(WrapMode.WordChar)
-					.AddColumn("Комментарий по закрытию")
-						.AddTextRenderer(node => node.ClosinComments)
-						.WrapWidth(300)
-						.WrapMode(WrapMode.WordChar)
-					.AddColumn("Комментарий по водителю")
-						.AddTextRenderer(node => node.DriverComment)
-						.WrapWidth(300)
-						.WrapMode(WrapMode.WordChar)
-					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.NotFullyLoaded ? _colorOrange : _colorBlack)
-					.AddSetter<CellRenderer>(
-						(c, n) =>
-						{
-							var color = _colorWhite;
-								
-							if(n.StatusEnum != RouteListStatus.New
-								&& n.GrossMarginPercents.HasValue
-								&& n.GrossMarginPercents.Value != 0
-								&& n.GrossMarginPercents.Value < n.RouteListProfitabilityIndicator)
-							{
-								color = _colorLightGrey;
-							}
-
-							c.CellBackgroundGdk = color;
-						})
-					.Finish()
-			);
-
-			//RouteListJournalViewModel
-			TreeViewColumnsConfigFactory.Register<RouteListJournalViewModel>(
-				() => FluentColumnsConfig<RouteListJournalNode>.Create()
-					.AddColumn("Номер")
-						.AddTextRenderer(node => node.Id.ToString())
-					.AddColumn("Дата")
-						.AddTextRenderer(node => node.Date.ToString("d"))
-					.AddColumn("Смена")
-						.AddTextRenderer(node => node.ShiftName)
-					.AddColumn("Статус")
-						.AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
-					.AddColumn("Водитель и машина")
-						.AddTextRenderer(node => node.DriverAndCar)
-					.AddColumn("Сдается в кассу")
-						.AddTextRenderer(node => node.ClosingSubdivision)
-					.AddColumn("Комментарий ЛО")
-						.AddTextRenderer(node => node.LogisticiansComment)
-						.WrapWidth(300)
-						.WrapMode(WrapMode.WordChar)
-					.AddColumn("Комментарий по закрытию")
-						.AddTextRenderer(node => node.ClosinComments)
-						.WrapWidth(300)
-						.WrapMode(WrapMode.WordChar)
-					.AddColumn("Комментарий по водителю")
-						.AddTextRenderer(node => node.DriverComment)
-						.WrapWidth(300)
-						.WrapMode(WrapMode.WordChar)
-					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.NotFullyLoaded ? _colorOrange : _colorBlack)
-						.AddSetter<CellRenderer>(
-							(c, n) =>
-							{
-								var color = _colorWhite;
-								
-								if(n.StatusEnum != RouteListStatus.New
-									&& n.GrossMarginPercents.HasValue
-									&& n.GrossMarginPercents.Value != 0
-									&& n.GrossMarginPercents.Value < n.RouteListProfitabilityIndicator)
-								{
-									color = _colorLightGrey;
-								}
-
-								c.CellBackgroundGdk = color;
-							})
 					.Finish()
 			);
 
@@ -1169,48 +776,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Комментарий").AddTextRenderer(node => node.Comment).WrapWidth(400).WrapMode(WrapMode.WordChar)
 					.AddColumn("Автор").AddTextRenderer(node => node.AuthorFullName)
 					.Finish()
-			);
-
-			//UndeliveredOrdersJournalViewModel
-			TreeViewColumnsConfigFactory.Register<UndeliveredOrdersJournalViewModel>(
-				() => FluentColumnsConfig<UndeliveredOrderJournalNode>.Create()
-				.AddColumn("№").HeaderAlignment(0.5f).AddNumericRenderer(node => node.NumberInList)
-				.AddColumn("Код").HeaderAlignment(0.5f).AddTextRenderer(node => node.Id != 0 ? node.Id.ToString() : "")
-				.AddColumn("Статус").HeaderAlignment(0.5f).AddTextRenderer(node => node.Status)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Дата\nзаказа").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldOrderDeliveryDate)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Автор\nзаказа").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldOrderAuthor)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Клиент и адрес").HeaderAlignment(0.5f).AddTextRenderer(node => node.ClientAndAddress)
-					.WrapWidth(300).WrapMode(WrapMode.WordChar)
-				.AddColumn("Интервал\nдоставки").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldDeliverySchedule)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Количество\nбутылей").HeaderAlignment(0.5f).AddTextRenderer(node => node.UndeliveredOrderItems)
-					.WrapWidth(75).WrapMode(WrapMode.WordChar)
-				.AddColumn("Статус\nначальный ➔\n ➔ текущий").HeaderAlignment(0.5f).AddTextRenderer(node => node.OldOrderStatus)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Ответственный").HeaderAlignment(0.5f).AddTextRenderer(node => node.Guilty)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Причина").HeaderAlignment(0.5f).AddTextRenderer(node => node.Reason)
-					.WrapWidth(200).WrapMode(WrapMode.WordChar)
-				.AddColumn("Звонок\nв офис").HeaderAlignment(0.5f).AddTextRenderer(node => node.DriversCall)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Звонок\nклиенту").HeaderAlignment(0.5f).AddTextRenderer(node => node.DispatcherCall)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Водитель").HeaderAlignment(0.5f).AddTextRenderer(node => node.DriverName)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Перенос").HeaderAlignment(0.5f).AddTextRenderer(node => node.TransferDateTime)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Кто недовоз\nзафиксировал").HeaderAlignment(0.5f).AddTextRenderer(node => node.Registrator)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Автор\nнедовоза").HeaderAlignment(0.5f).AddTextRenderer(node => node.UndeliveryAuthor)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("Оштрафованные").HeaderAlignment(0.5f).AddTextRenderer(node => node.FinedPeople)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.AddColumn("В работе\nу отдела").HeaderAlignment(0.5f).AddTextRenderer(node => node.InProcessAt)
-					.WrapWidth(450).WrapMode(WrapMode.WordChar)
-				.Finish()
 			);
 
 			//ComplaintObjectJournalViewModel
