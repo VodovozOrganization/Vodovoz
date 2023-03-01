@@ -273,7 +273,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					{
 						LastSaleDate = lastDelivery,
 						DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
-						WarhouseResidue = _warehouseNomenclatureBalanceCallback(nomenclatureGroup.Key)
+						WarhouseResidue = GroupingBy == GroupingByEnum.Nomenclature
+							? _warehouseNomenclatureBalanceCallback(nomenclatureGroup.Key)
+							: 0
 					};
 				}
 			}
