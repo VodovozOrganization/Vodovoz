@@ -38,7 +38,7 @@ namespace VodovozSalesReceiptsService.DTO
 						"Возможно он оказался не обработанным службной обработки кодов честного знака");
 				}
 
-				if(orderItemsCodes.Count != orderItem.Count)
+				if(orderItemsCodes.Count < orderItem.Count)
 				{
 					throw new TrueMarkException($"Невозможно сформировать строку в чеке. У номенклатуры Id {orderItem.Nomenclature.Id} " +
 						$"включена обязательная маркировка, но для строки заказа Id {orderItem.Id} количество кодов ({orderItemsCodes.Count}) не " +
