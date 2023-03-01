@@ -112,7 +112,7 @@ namespace Vodovoz.Views.Logistic
             phoneDataEntry.ValidationMode = ValidationType.phone;
             phoneDataEntry.Tag = responsiblePerson;
             phoneDataEntry.WidthChars = 19;
-            phoneDataEntry.WidthRequest = 50;
+            phoneDataEntry.WidthRequest = 70;
             phoneDataEntry.Binding.AddBinding(responsiblePerson, e => e.Phone, w => w.Text).InitializeFromSource();
             datatableResponsiblePersons.Attach(
                 phoneDataEntry,
@@ -127,7 +127,7 @@ namespace Vodovoz.Views.Logistic
                 (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
             var employeeEntry = new EntityViewModelEntry();
-            employeeEntry.WidthRequest = 50;
+            employeeEntry.WidthRequest = 200;
             employeeEntry.SetEntityAutocompleteSelectorFactory(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 
             employeeEntry.Binding.AddBinding(responsiblePerson, e => e.Employee, w => w.Subject).InitializeFromSource();
