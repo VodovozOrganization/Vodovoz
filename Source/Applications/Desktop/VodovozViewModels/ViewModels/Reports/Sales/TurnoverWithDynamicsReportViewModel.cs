@@ -7,6 +7,7 @@ using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
@@ -49,6 +50,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
 		private readonly string _templateFinancePath = @".\Reports\Sales\TurnoverFinanceReport.xlsx";
 		private readonly string _templateWithDynamicsFinancePath = @".\Reports\Sales\TurnoverWithDynamicsFinanceReport.xlsx";
+
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
@@ -125,10 +127,18 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			set => SetField(ref _showDynamics, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanShowResidueForNomenclaturesWithoutSales))]
 		public GroupingByEnum GroupingBy
 		{
 			get => _groupingBy;
-			set => SetField(ref _groupingBy, value);
+			set
+			{
+				if(SetField(ref _groupingBy, value)
+					&& value == GroupingByEnum.Counterparty)
+				{
+					ShowResidueForNomenclaturesWithoutSales = false;
+				}
+			}
 		}
 
 		public MeasurementUnitEnum MeasurementUnit
@@ -149,18 +159,21 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			set => SetField(ref _dynamicsIn, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanShowResidueForNomenclaturesWithoutSales))]
 		public bool ShowLastSale
 		{
 			get => _showLastSale;
 			set
 			{
-				SetField(ref _showLastSale, value);
-				if(!value)
+				if(SetField(ref _showLastSale, value) && !value)
 				{
-					ShowResidueForNomenclaturesWithoutSales = value;
+					ShowResidueForNomenclaturesWithoutSales = false;
 				}
 			}
 		}
+
+		public bool CanShowResidueForNomenclaturesWithoutSales =>
+			ShowLastSale && GroupingBy == GroupingByEnum.Nomenclature;
 
 		public bool ShowResidueForNomenclaturesWithoutSales
 		{
