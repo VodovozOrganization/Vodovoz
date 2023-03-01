@@ -198,10 +198,11 @@ namespace Vodovoz.Models.TrueMark
 
 					foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
 					{
-						var codeEntity = productCodes[instanceStatus.IdentificationCode];
-						if(codeEntity == null)
+
+						var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode, out TrueMarkCashReceiptProductCode codeEntity);
+						if(!codeFound)
 						{
-							throw new TrueMarkException("Проверенный в системе Честный знак, код не был найден среди отправленных на проверку.");
+							throw new TrueMarkException($"Проверенный в системе Честный знак, код ({instanceStatus.IdentificationCode}) не был найден среди отправленных на проверку.");
 						}
 
 						if(instanceStatus.Status == ProductInstanceStatusEnum.Introduced)

@@ -25,5 +25,8 @@ namespace Vodovoz.Settings.Database.Edo
 		public int TaxcomManualInvitationFileId => _settingsController.GetIntValue("TaxcomManualInvitationFileId");
 		public int TrueMarkCodesHandleInterval => _settingsController.GetIntValue("TrueMarkCodesHandleInterval");
 		public string TrueMarkApiParticipantsUri => _settingsController.GetStringValue("TrueMarkApiParticipantsUri");
+		public int CodePoolCheckCodesDepth => _settingsController.GetIntValue("TrueMarkCodePoolCheckCodesDepth");
+		public int CodePoolCheckIntervalMinutes => _settingsController.GetIntValue("TrueMarkCodePoolCheckIntervalMinutes");
+		public int CodePoolPromoteWithExtraSeconds => _settingsController.GetIntValue("TrueMarkCodePoolPromoteWithExtraSeconds");
 	}
 }

@@ -574,6 +574,7 @@
     <Compile Include="Models\TrueMark\ITrueMarkOrderScannedInfo.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkWaterCode.cs" />
     <Compile Include="Models\TrueMark\TrueMarkApiRegistrationStatusConverter.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkCodePoolChecker.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesHandler.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
     <Compile Include="Models\TrueMark\TrueMarkException.cs" />
