@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		{
 			IList<FastDeliveryFailsReportRow> rows;
 
-			using(var uow = _uowFactory.CreateWithoutRoot(this.GetType().Name))
+			using(var uow = _uowFactory.CreateWithoutRoot(GetType().Name))
 			{
 				rows = GetRows(uow);
 			}

@@ -22,6 +22,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -30,7 +32,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 {
 	public class DeliveryAnalyticsViewModel : TabViewModelBase
 	{
-		#region Поля
 		private const string _templatePath = @".\Reports\Logistic\DeliveryAnalyticsReport.xlsx";
 		private DeliveryAnalyticsReport _report;
 
@@ -55,20 +56,23 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private IEnumerable<DeliveryAnalyticsReportNode> _threeWave;
 
 		private readonly IInteractiveService _interactiveService;
+		private readonly IDistrictJournalFactory _districtJournalFactory;
 		public IEntityAutocompleteSelectorFactory DistrictSelectorFactory;
 		public string LoadingData = "Идет выгрузка данных...";
 
-
-		#endregion
 		public DeliveryAnalyticsViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			IEntityAutocompleteSelectorFactory districtSelectorFactory)
+			IDistrictJournalFactory districtJournalFactory)
 			: base(interactiveService, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			DistrictSelectorFactory = districtSelectorFactory ?? throw new ArgumentNullException(nameof(districtSelectorFactory));
+			_districtJournalFactory = districtJournalFactory ?? throw new ArgumentNullException(nameof(districtJournalFactory));
+
+			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
+
+			DistrictSelectorFactory = _districtJournalFactory.CreateDistrictAutocompleteSelectorFactory(filter, true);
 			if(unitOfWorkFactory is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));

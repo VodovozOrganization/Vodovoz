@@ -41,7 +41,6 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
@@ -81,7 +80,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelector,
+			INomenclatureJournalFactory nomenclatureJournalFactory,
 			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
@@ -96,10 +95,9 @@ namespace Vodovoz.ViewModels.Complaints
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			NomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
+			NomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
-			_employeeSelectorFactory = EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
@@ -221,9 +219,9 @@ namespace Vodovoz.ViewModels.Complaints
 						_fileDialogService,
 						_employeeService,
 						CommonServices,
-						_employeeSelectorFactory,
+						EmployeeJournalFactory,
 						_salesPlanJournalFactory,
-						NomenclatureSelector,
+						NomenclatureJournalFactory,
 						_userRepository,
 						_scope.BeginLifetimeScope()
 					);
@@ -239,7 +237,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(_guiltyItemsViewModel == null)
 				{
 					_guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory, SubdivisionParametersProvider);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, EmployeeJournalFactory, SubdivisionParametersProvider);
 				}
 
 				return _guiltyItemsViewModel;
@@ -405,7 +403,7 @@ namespace Vodovoz.ViewModels.Complaints
 						fineFilter,
 						_undeliveryViewOpener,
 						_employeeService,
-						_employeeSelectorFactory,
+						EmployeeJournalFactory,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						_employeeSettings,
 						CommonServices
@@ -443,7 +441,7 @@ namespace Vodovoz.ViewModels.Complaints
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						_undeliveryViewOpener,
 						_employeeService,
-						_employeeSelectorFactory,
+						EmployeeJournalFactory,
 						_employeeSettings,
 						CommonServices
 					);
@@ -482,7 +480,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
-		private INomenclatureJournalFactory NomenclatureSelector { get; }
+		private INomenclatureJournalFactory NomenclatureJournalFactory { get; }
 		private ISubdivisionParametersProvider SubdivisionParametersProvider { get; }
 
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)

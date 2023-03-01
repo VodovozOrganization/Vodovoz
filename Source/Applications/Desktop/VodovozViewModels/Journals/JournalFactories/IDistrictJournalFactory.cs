@@ -6,5 +6,6 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 	public interface IDistrictJournalFactory
 	{
 		IEntityAutocompleteSelectorFactory CreateDistrictAutocompleteSelectorFactory(DistrictJournalFilterViewModel districtJournalFilterViewModel = null);
+		IEntityAutocompleteSelectorFactory CreateDistrictAutocompleteSelectorFactory(DistrictJournalFilterViewModel districtJournalFilterViewModel, bool enableDfaultButtons);
 	}
 }
