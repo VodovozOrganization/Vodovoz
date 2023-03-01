@@ -1780,6 +1780,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintDetalizationView.cs" />
     <Compile Include="Filters\GtkViews\ComplaintDetalizationJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintDetalizationJournalFilterView.cs" />
+    <Compile Include="Views\Client\CounterpartyDetailsFromRevenueServiceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyDetailsFromRevenueServiceView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2268,6 +2270,10 @@
     <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
       <Project>{6E56E39A-F886-4645-98E1-8619F75F7AEA}</Project>
       <Name>VodovozViewModels</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
+      <Project>{08DCE339-CA3B-4D68-AF84-9625483283D5}</Project>
+      <Name>RevenueService.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
