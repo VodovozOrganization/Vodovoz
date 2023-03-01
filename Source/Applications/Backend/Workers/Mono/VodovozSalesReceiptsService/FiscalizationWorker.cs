@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
 using VodovozSalesReceiptsService.DTO;
 
@@ -140,7 +141,19 @@ namespace VodovozSalesReceiptsService
 				var trueMarkOrder = uow.GetById<TrueMarkCashReceiptOrder>(node.TrueMarkCashReceiptOrderId);
 
 				var newReceipt = new CashReceipt { Order = order };
-				var doc = new SalesDocumentDTO(order, trueMarkOrder, order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
+
+				SalesDocumentDTO doc = null;
+				try
+				{
+					doc = new SalesDocumentDTO(order, trueMarkOrder, order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
+				}
+				catch(TrueMarkException ex)
+				{
+					trueMarkOrder.ErrorDescription = ex.Message;
+					trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptSendError;
+					uow.Save(trueMarkOrder);
+					continue;
+				}
 
 				CashBox cashBox = null;
 				if(order.Contract?.Organization?.CashBoxId != null)
@@ -241,7 +254,19 @@ namespace VodovozSalesReceiptsService
 				}
 
 				var trueMarkOrder = uow.GetById<TrueMarkCashReceiptOrder>(receiptNode.TrueMarkCashReceiptOrderId);
-				var doc = new SalesDocumentDTO(receipt.Order, trueMarkOrder, receipt.Order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
+
+				SalesDocumentDTO doc = null;
+				try
+				{
+					doc = new SalesDocumentDTO(receipt.Order, trueMarkOrder, receipt.Order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName);
+				}
+				catch(TrueMarkException ex)
+				{
+					trueMarkOrder.ErrorDescription = ex.Message;
+					trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptSendError;
+					uow.Save(trueMarkOrder);
+					continue;
+				}
 
 				CashBox cashBox = null;
 				if(receipt.Order.Contract?.Organization?.CashBoxId != null)
