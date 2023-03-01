@@ -111,6 +111,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			FillFactByAccountingCommand = new DelegateCommand(FillFactByAccounting);
 
 			SubscribeOnEntityChanges();
+			SortDocumentItems();
 			Entity.Items.Reconnect();
 		}
 
@@ -285,7 +286,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				() => CanDeleteFine,
 				() => CanSave);
 
-			SortDocumentItems();
 			Entity.PropertyChanged += EntityPropertyChanged;
 		}
 
@@ -502,7 +502,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				Identifier = "Store.InventoryDoc",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "inventory_id",  Entity.Id }
+					{ "inventory_id",  Entity.Id },
+					{ "sorted_by_nomenclature_name", Entity.SortedByNomenclatureName }
 				}
 			};
 
