@@ -2471,7 +2471,7 @@ FROM
         LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
         LEFT JOIN employees AS driver ON driver.id = route_lists.driver_id
 
-        LEFT JOIN
+        LEFT JOIN # ПланПриход
         (
             SELECT rl_id, ROUND(SUM(TotalOrdersSum),2) AS TotalOrdersSum
             FROM
@@ -2504,7 +2504,7 @@ FROM
             GROUP BY rl_id
         ) AS Orders ON Orders.rl_id = route_lists.id
 
-        LEFT JOIN
+        LEFT JOIN # ПКО
         (
             SELECT
                 GROUP_CONCAT(GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.patronymic, employees.patronymic) SEPARATOR ', ') AS employee_name,
@@ -2522,7 +2522,7 @@ FROM
                 route_list_id
         ) AS CashIncomeDocument ON CashIncomeDocument.route_list_id = route_lists.id
 
-        LEFT JOIN
+        LEFT JOIN # РКО
         (
             SELECT
                 route_list_id,
@@ -2535,7 +2535,7 @@ FROM
             GROUP BY route_list_id
         ) AS CashExpenceDocument ON CashExpenceDocument.route_list_id = route_lists.id
 
-        LEFT JOIN
+        LEFT JOIN #недовозы
         (
             SELECT route_list_id, ROUND(SUM(order_sum),2) AS TotalNedovozSum
             FROM
@@ -2571,7 +2571,7 @@ FROM
             GROUP BY route_list_id
         ) AS nedovoz ON nedovoz.route_list_id = route_lists.id
 
-        LEFT JOIN
+        LEFT JOIN #переносы
         (
             SELECT
                 internal_trans.route_list_id,
@@ -2596,7 +2596,7 @@ FROM
                 internal_trans.route_list_id
         ) AS internal_transfer ON internal_transfer.route_list_id = route_lists.id
 
-        LEFT JOIN
+        LEFT JOIN #номера переносов
         (
             SELECT
                 route_list_addresses.route_list_id,
