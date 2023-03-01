@@ -113,7 +113,7 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
-		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
