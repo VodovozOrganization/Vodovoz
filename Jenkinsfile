@@ -125,16 +125,16 @@ parallel (
 		node('LINUX_RUNTIME'){
 			stage('Deploy WCF'){
 				script{					
-					if(env.BRANCH_NAME == 'master')
-					{					
+					// if(env.BRANCH_NAME == 'master')
+					// {					
 						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
 						UnzipArtifact('SalesReceiptsService')
 						UnzipArtifact('SmsInformerService')
 						UnzipArtifact('SmsPaymentService')
-					} else{
-						echo "Nothing to deploy"
-					}
+					// } else{
+					// 	echo "Nothing to deploy"
+					// }
 				}
 			}					
 		}	
