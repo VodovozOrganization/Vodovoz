@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>8.5in</PageHeight>
   <PageWidth>11in</PageWidth>
   <Width>7.5in</Width>
@@ -19,10 +17,10 @@
       <Textbox Name="Textbox20">
         <Height>23.34pt</Height>
         <Width>577.50pt</Width>
-        <Value>= "Отчёт по самовывозам за " + (Format(Cdate(Parameters!date), "dd/MM/yyyy"))</Value>
+        <Value>= "Отчёт по самовывозам за "  + (Format(Cdate(Parameters!startDate), "dd/MM/yyyy")) + Iif(Parameters!isOneDayReport = true, "", " - " + (Format(Cdate(Parameters!endDate), "dd/MM/yyyy")))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.8pt</Left>
-        <Top>5.9pt</Top>
+        <Top>7.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -55,6 +53,9 @@
             <Width>94.4pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>24.6pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>36.3pt</Width>
           </TableColumn>
           <TableColumn>
@@ -73,16 +74,16 @@
             <Width>37.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.5pt</Width>
+            <Width>51.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>113.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.4pt</Width>
+            <Width>50.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.4pt</Width>
+            <Width>50.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -131,6 +132,25 @@
                     <Textbox Name="Textbox4">
                       <Value>Клиент</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Юр./
+Физ.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -386,6 +406,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>=Iif({person_type} ="legal", "Юр.", "Физ.")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox11">
                       <Value>=Iif({payment_type} ="cash", {sum_to_receive}, 0)</Value>
                       <CanGrow>true</CanGrow>
@@ -405,7 +442,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>=Iif({payment_type} ="cashless", {sum_to_receive}, 0)</Value>
+                      <Value>=Iif({payment_type} &lt;&gt;"cash", {sum_to_receive}, 0)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -575,8 +612,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -593,8 +629,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -628,6 +663,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>=Sum(Iif({payment_type} ="cash", {sum_to_receive}, 0))</Value>
                       <CanGrow>true</CanGrow>
@@ -647,7 +699,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>=Sum(Iif({payment_type} ="cashless", {sum_to_receive}, 0))</Value>
+                      <Value>=Sum(Iif({payment_type} &lt;&gt; "cash", {sum_to_receive}, 0))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -698,8 +750,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -715,8 +766,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -733,8 +783,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -750,8 +799,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -767,8 +815,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -784,8 +831,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -828,7 +874,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id,
@@ -841,6 +887,7 @@
               '.'),
        '') AS author,
     counterparty.name,
+    counterparty.person_type,
     CAST(IF(orders.sum_to_receive &lt;&gt; 0,
             orders.sum_to_receive,
             IFNULL((SELECT
@@ -914,18 +961,22 @@ FROM
     employees ON employees.id = orders.author_employee_id
 WHERE
         self_delivery = 1
-  AND delivery_date = DATE(@date)
+  AND delivery_date &gt;= DATE(@startDate)
+  AND delivery_date &lt;= DATE(@endDate)
   AND orders.order_status NOT IN ('Canceled')
   AND (warehouses.id != 4 OR warehouses.id IS NULL ) #Не Псков
 GROUP BY orders.id
 ;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="date">
-            <Value>=Parameters!date</Value>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!startDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!endDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -978,26 +1029,15 @@ GROUP BY orders.id
           <DataField>author</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="person_type">
+          <DataField>person_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
-    <ReportParameter Name="date">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>2018-07-19</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-    </ReportParameter>
-  </ReportParameters>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -1007,4 +1047,32 @@ GROUP BY orders.id
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <ReportParameters >
+    <ReportParameter Name="startDate">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2018-07-19</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="endDate">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="isOneDayReport">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+  </ReportParameters>
 </Report>
