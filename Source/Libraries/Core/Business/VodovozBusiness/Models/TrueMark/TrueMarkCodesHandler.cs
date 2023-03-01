@@ -260,6 +260,8 @@ namespace Vodovoz.Models.TrueMark
 						}
 
 						_codePool.PutCode(extraCode.SourceCode.Id);
+						trueMarkCashReceiptOrder.ScannedCodes.Remove(extraCode);
+						uow.Delete(extraCode);
 					}
 				}
 
