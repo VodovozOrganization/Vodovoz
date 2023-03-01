@@ -1,37 +1,31 @@
-﻿using System;
-using System.Linq;
+﻿using Gamma.Utilities;
 using QS.Commands;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
-using QS.Project.Journal;
-using Vodovoz.Domain;
-using QS.DomainModel.Entity;
-using QS.Project.Journal.EntitySelector;
-using Gamma.Utilities;
-using Vodovoz.Domain.Logistic;
-using QS.DomainModel.UoW;
 using QS.ViewModels.Extension;
+using System;
+using System.Linq;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Services;
-using Vodovoz.Domain.Cash;
-using QS.Dialog;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Employees
 {
 	public class FineViewModel : EntityTabViewModelBase<Fine>, IAskSaveOnCloseViewModel
 	{
-		private readonly IUnitOfWorkFactory uowFactory;
-		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
-		private readonly IEmployeeService employeeService;
+		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
-		private readonly IEmployeeSettings _employeeSettings;
-		private readonly ICategoryRepository _categoryRepository;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -43,12 +37,11 @@ namespace Vodovoz.ViewModels.Employees
 			ICommonServices commonServices
 		) : base(uowBuilder, uowFactory, commonServices)
 		{
-			this.uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			this._employeeSelectorFactory = _employeeSelectorFactory ?? throw new ArgumentNullException(nameof(_employeeSelectorFactory));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 		}
@@ -105,7 +98,7 @@ namespace Vodovoz.ViewModels.Employees
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+					currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
 				return currentEmployee;
 			}
@@ -251,7 +244,7 @@ namespace Vodovoz.ViewModels.Employees
 		private void CreateAttachFineCommand()
 		{
 			OpenUndeliveryCommand = new DelegateCommand(
-				() => undeliveryViewOpener.OpenFromFine(this, Entity.UndeliveredOrder.OldOrder, Entity.UndeliveredOrder.OldOrder.DeliveryDate, Entity.UndeliveredOrder.UndeliveryStatus),
+				() => _undeliveryViewOpener.OpenFromFine(this, Entity.UndeliveredOrder.OldOrder, Entity.UndeliveredOrder.OldOrder.DeliveryDate, Entity.UndeliveredOrder.UndeliveryStatus),
 				() => true
 			);
 		}
@@ -281,8 +274,8 @@ namespace Vodovoz.ViewModels.Employees
 			SelectReasonTemplateCommand = new DelegateCommand(
 				() => {
 					var fineTemplatesJournalViewModel = new SimpleEntityJournalViewModel<FineTemplate, FineTemplateViewModel>(x => x.Reason,
-						() => new FineTemplateViewModel(EntityUoWBuilder.ForCreate(), uowFactory, CommonServices),
-						(node) => new FineTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), uowFactory, CommonServices),
+						() => new FineTemplateViewModel(EntityUoWBuilder.ForCreate(), _uowFactory, CommonServices),
+						(node) => new FineTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), _uowFactory, CommonServices),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					);

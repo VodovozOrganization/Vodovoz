@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
@@ -40,7 +40,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual decimal AmountInDB {
 			get { return amountInDB; }
 			set {
-				SetField (ref amountInDB, value, () => AmountInDB);
+				SetField (ref amountInDB, value);
 			}
 		}
 
@@ -51,7 +51,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual decimal AmountInFact {
 			get { return amountInFact; }
 			set {
-				SetField (ref amountInFact, value, () => AmountInFact);
+				SetField (ref amountInFact, value);
 			}
 		}
 
