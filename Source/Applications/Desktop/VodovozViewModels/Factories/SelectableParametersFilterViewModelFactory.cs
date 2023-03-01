@@ -14,8 +14,17 @@ namespace Vodovoz.ViewModels.Factories
 		{
 			var parametersFactory = new RecursiveParametersFactory<ProductGroup>(
 				uow,
-				filter => uow.Session.QueryOver<ProductGroup>()
-					.Where(p => p.Parent == null).List(),
+				filter =>
+				{
+					var query = uow.Session.QueryOver<ProductGroup>()
+						.Where(p => p.Parent == null);
+
+					if(uow.IsNew)
+					{
+						query.And(p => !p.IsArchive);
+					}
+					return	query.List();
+				},
 				x => x.Name,
 				x => x.Childs);
 			

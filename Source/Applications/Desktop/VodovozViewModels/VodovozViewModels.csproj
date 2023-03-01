@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -64,6 +64,9 @@
     <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\ISalesChannelJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IWarehouseJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\SalesChannelJournalFactory.cs" />
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderJournalNode.cs" />
@@ -72,6 +75,8 @@
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
+    <Compile Include="TempAdapters\IComplaintDetalizationAutocompleteSelectionFactory.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
@@ -284,7 +289,6 @@
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveredOrdersJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Sale\GeoGroupJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseJournalViewModel.cs" />
-    <Compile Include="Journals\JournalFactories\WarehouseSelectorFactory.cs" />
     <Compile Include="ReportsParameters\Cash\DayOfSalaryGiveoutReportViewModel.cs" />
     <Compile Include="TempAdapters\ICarModelJournalFactory.cs" />
     <Compile Include="TempAdapters\IDeliveryPointJournalFactory.cs" />
@@ -418,6 +422,7 @@
     <Compile Include="ViewModels\Reports\CostCarExploitationReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAdditionalLoadingReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryFailsReportRow.cs" />
+    <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />
@@ -576,6 +581,10 @@
     <Compile Include="Widgets\SelectableParametersFilterViewModel.cs" />
     <Compile Include="Widgets\Profitability\MonthPickerViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\DriverMessageFilterViewModel.cs" />
+    <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReportViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintDetalizationJournalViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Complaints\ComplaintDetalizationJournalNode.cs" />
+    <Compile Include="Journals\FilterViewModels\Complaints\ComplaintDetalizationJournalFilterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">

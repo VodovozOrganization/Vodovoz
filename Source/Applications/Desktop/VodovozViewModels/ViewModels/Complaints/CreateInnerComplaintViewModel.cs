@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -22,7 +21,7 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
-		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
         private readonly IFileDialogService _fileDialogService;
         private readonly IUserRepository _userRepository;
         private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
@@ -36,7 +35,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
             IFileDialogService fileDialogService,
 			IUserRepository userRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider
@@ -44,9 +43,9 @@ namespace Vodovoz.ViewModels.Complaints
 		{
             _fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			Entity.ComplaintType = ComplaintType.Inner;
 			Entity.SetStatus(ComplaintStatuses.Checking);
@@ -98,7 +97,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeSelectorFactory, _subdivisionParametersProvider);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionParametersProvider);
 				}
 
 				return guiltyItemsViewModel;

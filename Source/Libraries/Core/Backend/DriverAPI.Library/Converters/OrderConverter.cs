@@ -162,7 +162,12 @@ namespace DriverAPI.Library.Converters
 				OrderSaleItemId = saleItem.Id,
 				Name = saleItem.Nomenclature.Name,
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
-				TotalOrderItemPrice = saleItem.ActualSum
+				OrderItemPrice = saleItem.Price,
+				TotalOrderItemPrice = saleItem.ActualSum,
+				IsBottleStock = saleItem.Order.IsBottleStock && saleItem.DiscountByStock > 0,
+				IsDiscountInMoney = saleItem.IsDiscountInMoney,
+				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
+				DiscountReason = saleItem.DiscountReason?.Name
 			};
 
 			return result;

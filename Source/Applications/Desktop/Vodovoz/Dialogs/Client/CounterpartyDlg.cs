@@ -1,7 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
-using Gdk;
 using Gtk;
 using NHibernate;
 using NHibernate.Transform;
@@ -29,6 +28,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Services;
@@ -80,11 +80,14 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using EdoService.Dto;
 using System.Threading;
+using Gamma.Widgets;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using QS.Attachments.Domain;
+using QS.Utilities.Text;
 using Vodovoz.Core;
+using Autofac;
 
 namespace Vodovoz
 {
@@ -479,6 +482,10 @@ namespace Vodovoz
 			yentryPatronymic.Binding
 				.AddBinding(Entity, e => e.Patronymic, w => w.Text)
 				.InitializeFromSource();
+
+			yentrySurname.Changed += OnEntryPersonNamePartChanged;
+			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
+			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
 
 			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			datalegalname1.Binding.AddSource(Entity)
@@ -1299,40 +1306,14 @@ namespace Vodovoz
 
 		private void ComplaintViewOnActivated(object sender, EventArgs e)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+			Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.Counterparty = Entity;
 
-			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory, _subdivisionParametersProvider);
-			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
+			var filter = MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
 
-			var complaintsJournalViewModel = new ComplaintsJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				UndeliveredOrdersJournalOpener,
-				_employeeService,
-				CounterpartySelectorFactory,
-				RouteListItemRepository,
-				_subdivisionParametersProvider,
-				filter,
-				FilePickerService,
-				SubdivisionRepository,
-				new GtkTabsOpener(),
-				NomenclatureRepository,
-				_userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
-				new SalesPlanJournalFactory(),
-				new NomenclatureJournalFactory(),
-				new EmployeeSettings(new ParametersProvider()),
-				new UndeliveredOrdersRepository(),
-				new ComplaintParametersProvider(new ParametersProvider()),
-				MainClass.AppDIContainer.BeginLifetimeScope()
-			);
-
-			TabParent.AddTab(complaintsJournalViewModel, this, false);
+			MainClass.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
+			   null,
+			   filter,
+			   OpenPageOptions.IgnoreHash);
 		}
 
 		private bool _canClose = true;
@@ -1553,6 +1534,15 @@ namespace Vodovoz
 			{
 				Entity.TaxType = TaxType.None;
 			}
+
+			if(Entity.PersonType == PersonType.natural)
+			{
+				var personFullName = GetPersonFullName();
+				if(!string.IsNullOrEmpty(personFullName))
+				{
+					Entity.Name = personFullName;
+				}
+			}
 		}
 
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -1633,6 +1623,11 @@ namespace Vodovoz
 		protected void OnDatalegalname1OwnershipChanged(object sender, EventArgs e)
 		{
 			validatedKPP.Sensitive = Entity.TypeOfOwnership != "ИП";
+			var personFullName = GetPersonFullName();
+			if(Entity.TypeOfOwnership == "ИП" && !string.IsNullOrEmpty(personFullName))
+			{
+				Entity.Name = Entity.FullName = personFullName;
+			}
 		}
 
 		protected void OnChkNeedNewBottlesToggled(object sender, EventArgs e)
@@ -1643,6 +1638,29 @@ namespace Vodovoz
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
+		}
+
+		private void OnEntryPersonNamePartChanged(object sender, EventArgs e)
+		{
+			var personFullName = GetPersonFullName();
+			if(!string.IsNullOrEmpty(personFullName))
+			{
+				Entity.Name = Entity.FullName = personFullName;
+			}
+		}
+
+		private string GetPersonFullName()
+		{
+			StringBuilder personFullName = new StringBuilder();
+
+			if(Entity.TypeOfOwnership == "ИП" && Entity.PersonType == PersonType.legal)
+			{
+				personFullName.Append("ИП ");
+			}
+
+			personFullName.Append(PersonHelper.PersonFullName(Entity.Surname, Entity.FirstName, Entity.Patronymic));
+
+			return personFullName.ToString();
 		}
 
 		#region CloseDelivery //Переделать на PermissionCommentView

@@ -16,6 +16,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace DriverAPI.Library.Models
@@ -37,6 +38,7 @@ namespace DriverAPI.Library.Models
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		public OrderModel(
 			ILogger<OrderModel> logger,
@@ -51,7 +53,8 @@ namespace DriverAPI.Library.Models
 			IFastPaymentsServiceAPIHelper fastPaymentsServiceApiHelper,
 			IUnitOfWork unitOfWork,
 			QRPaymentConverter qrPaymentConverter,
-			IFastPaymentModel fastPaymentModel)
+			IFastPaymentModel fastPaymentModel,
+			IOrderParametersProvider orderParametersProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -66,6 +69,7 @@ namespace DriverAPI.Library.Models
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
 		}
 
 		/// <summary>
@@ -400,6 +404,31 @@ namespace DriverAPI.Library.Models
 			}
 
 			return payByQRResponseDto;
+		}
+
+		public void UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount)
+		{
+			var vodovozOrder = _orderRepository.GetOrder(_unitOfWork, orderId);
+
+			if(vodovozOrder is null)
+			{
+				var errorFormat = "Заказ не найден: {OrderId}";
+				_logger.LogWarning(errorFormat, orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+			}
+
+			if(!vodovozOrder.IsBottleStock
+			   || vodovozOrder.BottlesByStockCount == bottlesByStockActualCount
+			   || vodovozOrder.BottlesByStockActualCount == bottlesByStockActualCount)
+			{
+				return;
+			}
+
+			vodovozOrder.IsBottleStockDiscrepancy = true;
+			vodovozOrder.BottlesByStockActualCount = bottlesByStockActualCount;
+			vodovozOrder.CalculateBottlesStockDiscounts(_orderParametersProvider, true);
+			_unitOfWork.Save(vodovozOrder);
+			_unitOfWork.Commit();
 		}
 	}
 }

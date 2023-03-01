@@ -1,8 +1,10 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -12,7 +14,7 @@ using QS.Services;
 using System;
 using System.Collections;
 using System.Linq;
-using Autofac;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -44,7 +46,6 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -75,9 +76,9 @@ namespace Vodovoz.Journals.JournalViewModels
 		public ComplaintsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
-			ICounterpartyJournalFactory counterpartySelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ComplaintFilterViewModel filterViewModel,
@@ -100,9 +101,9 @@ namespace Vodovoz.Journals.JournalViewModels
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -131,6 +132,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			threadLoader.MergeInOrderBy(x => x.Id, true);
 
 			FinishJournalConfiguration();
+
+			FilterViewModel.JournalViewModel = this;
 
 			FilterViewModel.EmployeeService = employeeService;
 
@@ -163,11 +166,14 @@ namespace Vodovoz.Journals.JournalViewModels
 				typeof(Order),
 				typeof(RouteList),
 				typeof(RouteListItem),
-				typeof(ComplaintObject)
-			);
-			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
+				typeof(ComplaintObject),
+				typeof(ComplaintKind),
+				typeof(ComplaintDetalization));
+
+			DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
+			UseSlider = false;
 		}
 
 		private IQueryOver<Complaint> GetComplaintQuery(IUnitOfWork uow)
@@ -186,6 +192,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintDiscussion discussionAlias = null;
 			Subdivision subdivisionAlias = null;
 			ComplaintKind complaintKindAlias = null;
+			ComplaintDetalization complaintDelatizationAlias = null;
 			Subdivision superspecialAlias = null;
 			ComplaintObject complaintObjectAlias = null;
 			ComplaintResultOfCounterparty resultOfCounterpartyAlias = null;
@@ -305,6 +312,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Left.JoinAlias(() => complaintAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
 				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
@@ -388,13 +396,25 @@ namespace Vodovoz.Journals.JournalViewModels
 				}
 
 				if(dicussionQuery != null)
+				{
 					query.WithSubquery.WhereExists(dicussionQuery);
+				}
+
 				if(FilterViewModel.ComplaintType != null)
+				{
 					query = query.Where(() => complaintAlias.ComplaintType == FilterViewModel.ComplaintType);
+				}
+
 				if(FilterViewModel.ComplaintStatus != null)
+				{
 					query = query.Where(() => complaintAlias.Status == FilterViewModel.ComplaintStatus);
+				}
+
 				if(FilterViewModel.Employee != null)
+				{
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
+				}
+
 				if(FilterViewModel.Counterparty != null)
 				{
 					query = query.Where(() => complaintAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
@@ -423,8 +443,15 @@ namespace Vodovoz.Journals.JournalViewModels
 					query.WithSubquery.WhereProperty(x => x.Id).In(subquery.Select(x => x.Complaint));
 				}
 
+				if(FilterViewModel.ComplainDetalization != null)
+				{
+					query.Where(() => complaintAlias.ComplaintDetalization.Id == FilterViewModel.ComplainDetalization.Id);
+				}
+
 				if(FilterViewModel.ComplaintKind != null)
+				{
 					query.Where(() => complaintAlias.ComplaintKind.Id == FilterViewModel.ComplaintKind.Id);
+				}
 
 				if(FilterViewModel.ComplaintObject != null)
 				{
@@ -459,6 +486,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintAlias.ComplaintText).WithAlias(() => resultAlias.ComplaintText)
 				.Select(() => complaintKindAlias.Name).WithAlias(() => resultAlias.ComplaintKindString)
 				.Select(() => complaintKindAlias.IsArchive).WithAlias(() => resultAlias.ComplaintKindIsArchive)
+				.Select(() => complaintDelatizationAlias.Name).WithAlias(() => resultAlias.ComplaintDetalizationString)
+				.Select(() => complaintDelatizationAlias.IsArchive).WithAlias(() => resultAlias.ComplaintDetalizationIsArchive)
 				.Select(() => complaintAlias.ResultText).WithAlias(() => resultAlias.ResultText)
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
@@ -481,10 +510,12 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintDiscussion discussionAlias = null;
 			ComplaintKind complaintKindAlias = null;
 			ComplaintObject complaintObjectAlias = null;
+			ComplaintDetalization complaintDelatizationAlias = null;
 
 			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
 				.Left.JoinAlias(() => complaintKindAlias.ComplaintObject, () => complaintObjectAlias);
 
@@ -564,13 +595,25 @@ namespace Vodovoz.Journals.JournalViewModels
 				}
 
 				if(dicussionQuery != null)
+				{
 					query.WithSubquery.WhereExists(dicussionQuery);
+				}
+
 				if(FilterViewModel.ComplaintType != null)
+				{
 					query = query.Where(() => complaintAlias.ComplaintType == FilterViewModel.ComplaintType);
+				}
+
 				if(FilterViewModel.ComplaintStatus != null)
+				{
 					query = query.Where(() => complaintAlias.Status == FilterViewModel.ComplaintStatus);
+				}
+
 				if(FilterViewModel.Employee != null)
+				{
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
+				}
+
 				if(FilterViewModel.Counterparty != null)
 				{
 					query = query.Where(() => complaintAlias.Counterparty.Id == FilterViewModel.Counterparty.Id);
@@ -603,11 +646,18 @@ namespace Vodovoz.Journals.JournalViewModels
 				}
 
 				if(FilterViewModel.ComplaintKind != null)
+				{
 					query.Where(() => complaintAlias.ComplaintKind.Id == FilterViewModel.ComplaintKind.Id);
+				}
 
 				if(FilterViewModel.ComplaintObject != null)
 				{
 					query.Where(() => complaintObjectAlias.Id == FilterViewModel.ComplaintObject.Id);
+				}
+
+				if(FilterViewModel.ComplainDetalization != null)
+				{
+					query.Where(() => complaintAlias.ComplaintDetalization.Id == FilterViewModel.ComplainDetalization.Id);
 				}
 			}
 
@@ -643,9 +693,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						EntityUoWBuilder.ForOpen(node.Id),
 						_unitOfWorkFactory,
 						_commonServices,
+						NavigationManager,
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
-						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 						_fileDialogService,
 						_subdivisionRepository,
 						_userRepository,
@@ -675,7 +725,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_employeeService,
 						_subdivisionRepository,
 						_commonServices,
-						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+						_employeeJournalFactory,
 						_fileDialogService,
 						new UserRepository(),
 						_subdivisionParametersProvider
@@ -685,9 +735,9 @@ namespace Vodovoz.Journals.JournalViewModels
 						EntityUoWBuilder.ForOpen(node.Id),
 						_unitOfWorkFactory,
 						_commonServices,
+						NavigationManager,
 						_undeliveredOrdersJournalOpener,
 						_employeeService,
-						_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 						_fileDialogService,
 						_subdivisionRepository,
 						_userRepository,
@@ -796,9 +846,9 @@ namespace Vodovoz.Journals.JournalViewModels
 								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
 								_unitOfWorkFactory,
 								_commonServices,
+								NavigationManager,
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
-								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 								_fileDialogService,
 								_subdivisionRepository,
 								_userRepository,
@@ -832,9 +882,9 @@ namespace Vodovoz.Journals.JournalViewModels
 								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
 								_unitOfWorkFactory,
 								_commonServices,
+								NavigationManager,
 								_undeliveredOrdersJournalOpener,
 								_employeeService,
-								_counterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory(),
 								_fileDialogService,
 								_subdivisionRepository,
 								_userRepository,
@@ -851,9 +901,13 @@ namespace Vodovoz.Journals.JournalViewModels
 							);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))
+							{
 								ShowWarningMessage(msg, "Не удалось закрыть");
+							}
 							else
+							{
 								currentComplaintVM.Save();
+							}
 						}
 					}
 				)
@@ -864,7 +918,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
+			CreateAddActions();
 			CreateEditAction();
 			CreateDefaultDeleteAction();
 			CreateExportAction();
@@ -880,6 +934,55 @@ namespace Vodovoz.Journals.JournalViewModels
 					var report = new ComplaintJournalReport(nodes, _fileDialogService);
 					report.Export();
 				}));
+		}
+		
+		private void CreateAddActions()
+		{
+			if(!EntityConfigs.Any()) {
+				return;
+			}
+
+			var totalCreateDialogConfigs = EntityConfigs
+				.Where(x => x.Value.PermissionResult.CanCreate)
+				.Sum(x => x.Value.EntityDocumentConfigurations
+							.Select(y => y.GetCreateEntityDlgConfigs().Count())
+							.Sum());
+
+			if(EntityConfigs.Values.Count(x => x.PermissionResult.CanRead) > 1 || totalCreateDialogConfigs > 1) {
+				var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
+				foreach(var entityConfig in EntityConfigs.Values) {
+					foreach(var documentConfig in entityConfig.EntityDocumentConfigurations) {
+						foreach(var createDlgConfig in documentConfig.GetCreateEntityDlgConfigs()) {
+							var childNodeAction = new JournalAction(createDlgConfig.Title,
+								(selected) => entityConfig.PermissionResult.CanCreate,
+								(selected) => entityConfig.PermissionResult.CanCreate,
+								(selected) => {
+									TabParent.AddSlaveTab(this, createDlgConfig.OpenEntityDialogFunction());
+								}
+							);
+							addParentNodeAction.ChildActionsList.Add(childNodeAction);
+						}
+					}
+				}
+				NodeActionsList.Add(addParentNodeAction);
+			} else {
+				var entityConfig = EntityConfigs.First().Value;
+				var addAction = new JournalAction("Добавить",
+					(selected) => entityConfig.PermissionResult.CanCreate,
+					(selected) => entityConfig.PermissionResult.CanCreate,
+					(selected) => {
+						var docConfig = entityConfig.EntityDocumentConfigurations.First();
+						ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction();
+
+						if(tab is ITdiDialog)
+							((ITdiDialog)tab).EntitySaved += Tab_EntitySaved;
+
+						TabParent.AddSlaveTab(this, tab);
+					},
+					"Insert"
+					);
+				NodeActionsList.Add(addAction);
+			};
 		}
 
 		protected void CreateEditAction()
@@ -908,12 +1011,16 @@ namespace Vodovoz.Journals.JournalViewModels
 						return;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
-						HideJournal(TabParent);
+					if(selectedNode.EntityType == typeof(Complaint))
+					{
+						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+						return;
 					}
+
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+					TabParent.AddSlaveTab(this, foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode));
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None) {

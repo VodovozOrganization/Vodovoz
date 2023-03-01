@@ -93,6 +93,12 @@ namespace DriverAPI.Controllers
 			try
 			{
 				_actionTimeHelper.ThrowIfNotValid(recievedTime, payByQRRequestDTO.ActionTime);
+
+				if(payByQRRequestDTO.BottlesByStockActualCount.HasValue)
+				{
+					_aPIOrderData.UpdateBottlesByStockActualCount(payByQRRequestDTO.OrderId, payByQRRequestDTO.BottlesByStockActualCount.Value);
+				}
+
 				return await _aPIOrderData.SendQRPaymentRequestAsync(payByQRRequestDTO.OrderId, driver.Id);
 			}
 			catch(Exception ex)
