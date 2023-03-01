@@ -19,5 +19,6 @@ namespace DriverAPI.Library.Models
 		void CompleteOrderDelivery(Employee driver, int orderId, int bottlesReturnCount, int rating, int driverComplaintReasonId, string otherDriverComplaintReasonComment, string driverComment, DateTime actionTime);
 		void SendSmsPaymentRequest(int orderId, string phoneNumber, int driverId);
 		Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId);
+		void UpdateBottlesByStockActualCount(int orderId, int bottlesByStockActualCount);
 	}
 }

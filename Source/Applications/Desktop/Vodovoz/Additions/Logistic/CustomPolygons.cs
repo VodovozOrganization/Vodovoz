@@ -9,7 +9,7 @@ namespace Vodovoz.Additions.Logistic
 {
 	public class CustomPolygons
 	{
-		public const int _defaultCirclePointsCount = 30;
+		public const int _defaultCirclePointsCount = 36;
 		public const int _defaultBorderWidth = 1;
 		public const int _defaultFillAlpha = 30;
 

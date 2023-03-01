@@ -334,7 +334,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						   QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						   _undeliveryViewOpener,
 						   EmployeeService,
-						   _employeeSelectorFactory,
+						   EmployeeJournalFactory,
 						   _employeeSettings,
 						   CommonServices
 					   )
@@ -359,7 +359,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				fineFilter,
 				_undeliveryViewOpener,
 				EmployeeService,
-				_employeeSelectorFactory,
+				EmployeeJournalFactory,
 				QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 				_employeeSettings,
 				CommonServices

@@ -129,7 +129,7 @@ namespace Vodovoz.Additions.Logistic
       protected CarMarker(SerializationInfo info, StreamingContext context)
          : base(info, context)
       {
-         this.type = Extensions.GetStruct<CarMarkerType>(info, "type", CarMarkerType.none);
+         this.type = GMap.NET.Extensions.GetStruct<CarMarkerType>(info, "type", CarMarkerType.none);
          //this.Bearing = Extensions.GetStruct<float>(info, "Bearing", null);
       }
 

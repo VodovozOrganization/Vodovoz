@@ -3,26 +3,33 @@ using QS.Project.Filter;
 using Vodovoz.Domain.Store;
 using System.Collections.Generic;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.FilterViewModels.Goods
 {
 	public class NomenclatureStockFilterViewModel : FilterViewModelBase<NomenclatureStockFilterViewModel>
 	{
-		public NomenclatureStockFilterViewModel(IEntityAutocompleteSelectorFactory warehouseSelectorFactory)
+		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
+		private Warehouse _restrictWarehouse;
+		private Warehouse _warehouse;
+		private bool? _restrictShowArchive;
+		private bool _showArchive;
+
+		public NomenclatureStockFilterViewModel(IWarehouseJournalFactory warehouseJournalFactory)
 		{
-			WarehouseSelectorFactory = warehouseSelectorFactory ?? throw new ArgumentNullException(nameof(warehouseSelectorFactory));
+			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
+			WarehouseSelectorFactory = _warehouseJournalFactory.CreateSelectorFactory();
 		}
 
 		public IEntityAutocompleteSelectorFactory WarehouseSelectorFactory { get; }
 
 		public IEnumerable<int> ExcludedNomenclatureIds { get; set; }
 
-		private Warehouse restrictWarehouse;
 		public virtual Warehouse RestrictWarehouse {
-			get => restrictWarehouse;
+			get => _restrictWarehouse;
 			set {
-				if(SetField(ref restrictWarehouse, value, () => RestrictWarehouse)) {
-					Warehouse = restrictWarehouse;
+				if(SetField(ref _restrictWarehouse, value, () => RestrictWarehouse)) {
+					Warehouse = _restrictWarehouse;
 					OnPropertyChanged(nameof(CanChangeWarehouse));
 				}
 			}
@@ -30,19 +37,16 @@ namespace Vodovoz.FilterViewModels.Goods
 
 		public bool CanChangeWarehouse => RestrictWarehouse == null;
 
-		private Warehouse warehouse;
 		public virtual Warehouse Warehouse {
-			get => warehouse;
-			set => UpdateFilterField(ref warehouse, value, () => Warehouse);
+			get => _warehouse;
+			set => UpdateFilterField(ref _warehouse, value, () => Warehouse);
 		}
 
-
-		private bool? restrictShowArchive;
 		public virtual bool? RestrictShowArchive {
-			get => restrictShowArchive;
+			get => _restrictShowArchive;
 			set {
-				if(SetField(ref restrictShowArchive, value, () => RestrictShowArchive) && restrictShowArchive.HasValue) {
-					ShowArchive = restrictShowArchive.Value;
+				if(SetField(ref _restrictShowArchive, value, () => RestrictShowArchive) && _restrictShowArchive.HasValue) {
+					ShowArchive = _restrictShowArchive.Value;
 					OnPropertyChanged(nameof(CanChangeShowArchive));
 				}
 			}
@@ -50,11 +54,9 @@ namespace Vodovoz.FilterViewModels.Goods
 
 		public bool CanChangeShowArchive => RestrictShowArchive == null;
 
-		private bool showArchive;
-
 		public virtual bool ShowArchive {
-			get => showArchive;
-			set => UpdateFilterField(ref showArchive, value, () => ShowArchive);
+			get => _showArchive;
+			set => UpdateFilterField(ref _showArchive, value, () => ShowArchive);
 		}
 	}
 }

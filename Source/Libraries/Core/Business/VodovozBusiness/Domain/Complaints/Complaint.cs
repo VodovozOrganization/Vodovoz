@@ -53,6 +53,7 @@ namespace Vodovoz.Domain.Complaints
 		private GenericObservableList<ComplaintGuiltyItem> _observableGuilties;
 		private IList<ComplaintFile> _files = new List<ComplaintFile>();
 		private GenericObservableList<ComplaintFile> _observableFiles;
+		private ComplaintDetalization _complaintDetalization;
 
 		public virtual int Id { get; set; }
 
@@ -193,7 +194,20 @@ namespace Vodovoz.Domain.Complaints
 		public virtual ComplaintKind ComplaintKind
 		{
 			get => _complaintKind;
-			set => SetField(ref _complaintKind, value);
+			set
+			{
+				if(SetField(ref _complaintKind, value))
+				{
+					ComplaintDetalization = null;
+				}
+			}
+		}
+
+		[Display(Name = "Детализация")]
+		public virtual ComplaintDetalization ComplaintDetalization
+		{
+			get => _complaintDetalization;
+			set => SetField(ref _complaintDetalization, value);
 		}
 
 		[Display(Name = "Мероприятия")]
