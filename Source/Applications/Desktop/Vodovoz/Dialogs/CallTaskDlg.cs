@@ -42,7 +42,7 @@ namespace Vodovoz.Dialogs
 		private string _lastComment;
 		private readonly ICommonServices _commonServices;
 		private IParametersProvider _parametersProvider;
-		private IContactsParameters _contactsParameters;
+		private IContactParametersProvider _contactsParameters;
 
 		public CallTaskDlg()
 		{

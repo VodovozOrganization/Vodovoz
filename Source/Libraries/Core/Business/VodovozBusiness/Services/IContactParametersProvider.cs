@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Services
 {
-	public interface IContactsParameters
+	public interface IContactParametersProvider
 	{
 		int MinSavePhoneLength { get; }
 		string DefaultCityCode { get; }
