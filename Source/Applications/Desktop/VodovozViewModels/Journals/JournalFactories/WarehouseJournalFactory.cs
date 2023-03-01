@@ -1,17 +1,27 @@
-﻿using QS.Project.Journal.EntitySelector;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
+using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
-	public class WarehouseJournalFactory
+	public class WarehouseJournalFactory : IWarehouseJournalFactory
 	{
-		public IEntityAutocompleteSelectorFactory CreateSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateSelectorFactory(
+			WarehouseJournalFilterViewModel filterViewModel = null)
 		{
-			return new WarehouseSelectorFactory();
+			return new EntityAutocompleteSelectorFactory<WarehouseJournalViewModel>(typeof(Warehouse), () =>
+				new WarehouseJournalViewModel(
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					new SubdivisionRepository(new ParametersProvider()),
+					filterViewModel ?? new WarehouseJournalFilterViewModel())
+				{
+					SelectionMode = QS.Project.Journal.JournalSelectionMode.Single
+				});
 		}
 	}
 }

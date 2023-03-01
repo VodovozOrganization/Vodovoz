@@ -1,31 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog;
+﻿using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
-using QS.Services;
 using QSReport;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Sale;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ReportsParameters.Retail
 {
-    [System.ComponentModel.ToolboxItem(true)]
+	[System.ComponentModel.ToolboxItem(true)]
     public partial class CounterpartyReport : SingleUoWWidgetBase, IParametersWidget
     {
-        private readonly IInteractiveService interactiveService;
+		private readonly IDistrictJournalFactory _districtJournalFactory;
+		private readonly IInteractiveService _interactiveService;
         
-        public CounterpartyReport(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory districtSelectorFactory, IUnitOfWorkFactory unitOfWorkFactory,
+        public CounterpartyReport(
+			ISalesChannelJournalFactory salesChannelJournalFactory,
+			IDistrictJournalFactory districtJournalFactory,
+			IUnitOfWorkFactory unitOfWorkFactory,
             IInteractiveService interactiveService)
         {
-            this.Build();
-            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            Build();
+			_districtJournalFactory = districtJournalFactory ?? throw new ArgumentNullException(nameof(districtJournalFactory));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
             UoW = unitOfWorkFactory.CreateWithoutRoot();
-            ConfigureView(salesChannelSelectorFactory, districtSelectorFactory);
+            ConfigureView(salesChannelJournalFactory.CreateSalesChannelAutocompleteSelectorFactory(), _districtJournalFactory.CreateDistrictAutocompleteSelectorFactory());
         }
 
         public string Title => $"Отчет по контрагентам розницы";

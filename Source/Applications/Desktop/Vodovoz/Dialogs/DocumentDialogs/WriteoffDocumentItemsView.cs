@@ -99,7 +99,7 @@ namespace Vodovoz
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseJournalFactory());
 			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(

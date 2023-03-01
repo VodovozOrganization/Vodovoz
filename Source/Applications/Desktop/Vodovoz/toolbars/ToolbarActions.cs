@@ -487,10 +487,6 @@ public partial class MainWindow : Window
 		var userRepository = new UserRepository();
 		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
-
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
 			() => new RequestToSupplierViewModel(
@@ -828,7 +824,7 @@ public partial class MainWindow : Window
 		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
 
 		tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
-			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory())
+			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory)
 			{
 				HidenByDefault = true
 			},
@@ -847,7 +843,7 @@ public partial class MainWindow : Window
 			new FineFilterViewModel(true),
 			new UndeliveredOrdersJournalOpener(),
 			VodovozGtkServicesConfig.EmployeeService,
-			employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+			employeeJournalFactory,
 			UnitOfWorkFactory.GetDefaultFactory,
 			new EmployeeSettings(new ParametersProvider()),
 			ServicesConfig.CommonServices));
@@ -865,7 +861,7 @@ public partial class MainWindow : Window
 					new SubdivisionFilterViewModel() { SubdivisionType = SubdivisionType.Default },
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
-					employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+					employeeJournalFactory,
 					new SalesPlanJournalFactory(),
 					new NomenclatureJournalFactory(),
 					autofacScope.BeginLifetimeScope()
@@ -1051,8 +1047,10 @@ public partial class MainWindow : Window
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
 		}
 
+		var warhouseJournalFactory = new WarehouseJournalFactory();
+
 		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
-		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory())
+		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(warhouseJournalFactory)
 		{
 			ShowArchive = true
 		};
@@ -1135,7 +1133,7 @@ public partial class MainWindow : Window
 			bottlesRepository,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+			employeeJournalFactory,
 			subdivisionParametersProvider
 		);
 		tdiMain.AddTab(residueJournalViewModel);

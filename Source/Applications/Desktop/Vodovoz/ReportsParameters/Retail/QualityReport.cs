@@ -1,32 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog;
+﻿using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
-using QS.Services;
 using QSReport;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Retail;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ReportsParameters.Retail
 {
-    public partial class QualityReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class QualityReport : SingleUoWWidgetBase, IParametersWidget
     {
-        private readonly IInteractiveService interactiveService;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ISalesChannelJournalFactory _salesChannelJournalFactory;
+		private readonly IInteractiveService _interactiveService;
         
-        public QualityReport(IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-            IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+        public QualityReport(
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ISalesChannelJournalFactory salesChannelJournalFactory,
             IUnitOfWorkFactory unitOfWorkFactory,
             IInteractiveService interactiveService)
         {
-            this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-            this.Build();
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_salesChannelJournalFactory = salesChannelJournalFactory ?? throw new ArgumentNullException(nameof(salesChannelJournalFactory));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+            Build();
             UoW = unitOfWorkFactory.CreateWithoutRoot();
-            Configure(counterpartySelectorFactory, salesChannelSelectorFactory, employeeSelectorFactory);
+            Configure(
+				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(),
+				_salesChannelJournalFactory.CreateSalesChannelAutocompleteSelectorFactory(),
+				_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
         }
 
         private void Configure(IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
@@ -79,7 +90,7 @@ namespace Vodovoz.ReportsParameters.Retail
                   ydateperiodpickerShipping.EndDateOrNull.HasValue))
             {
                 errorString = "Не выбраны периоды";
-                interactiveService.ShowMessage(ImportanceLevel.Error, errorString);
+                _interactiveService.ShowMessage(ImportanceLevel.Error, errorString);
                 return false;
             }
 
