@@ -17,5 +17,19 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 			});
 		}
+
+		public IEntityAutocompleteSelectorFactory CreateDistrictAutocompleteSelectorFactory(DistrictJournalFilterViewModel districtJournalFilterViewModel, bool enableDfaultButtons)
+		{
+			return new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () =>
+			{
+				var filter = districtJournalFilterViewModel ?? new DistrictJournalFilterViewModel();
+				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
+				{
+					EnableDeleteButton = enableDfaultButtons,
+					EnableAddButton = enableDfaultButtons,
+					EnableEditButton = enableDfaultButtons
+				};
+			});
+		}
 	}
 }

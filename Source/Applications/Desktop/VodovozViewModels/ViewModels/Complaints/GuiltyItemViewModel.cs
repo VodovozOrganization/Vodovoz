@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class GuiltyItemViewModel : EntityWidgetViewModelBase<ComplaintGuiltyItem>
 	{
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private bool _isForSalesDepartment;
 
@@ -22,14 +23,15 @@ namespace Vodovoz.ViewModels.Complaints
 			ComplaintGuiltyItem entity,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IUnitOfWork uow,
 			bool fromComplaintsJournalFilter = false
 		) : base(entity, commonServices)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
-			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			EmployeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			if(subdivisionRepository == null) {
 				throw new ArgumentNullException(nameof(subdivisionRepository));
 			}

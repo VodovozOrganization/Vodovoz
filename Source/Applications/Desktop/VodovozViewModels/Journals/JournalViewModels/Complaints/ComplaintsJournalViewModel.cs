@@ -725,7 +725,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_employeeService,
 						_subdivisionRepository,
 						_commonServices,
-						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+						_employeeJournalFactory,
 						_fileDialogService,
 						new UserRepository(),
 						_subdivisionParametersProvider
