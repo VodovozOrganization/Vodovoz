@@ -242,6 +242,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					result.Add(row);
 				}
 
+				ReportTotal = AddGroupTotals("Сводные данные по отчету", result);
+
 				return result;
 			}
 
