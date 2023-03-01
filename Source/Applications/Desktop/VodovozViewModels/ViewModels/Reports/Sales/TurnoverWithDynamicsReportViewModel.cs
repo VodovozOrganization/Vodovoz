@@ -46,11 +46,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
+
 		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
 		private readonly string _templateFinancePath = @".\Reports\Sales\TurnoverFinanceReport.xlsx";
 		private readonly string _templateWithDynamicsFinancePath = @".\Reports\Sales\TurnoverWithDynamicsFinanceReport.xlsx";
-
+		private readonly string _templateByCounterpartyPath = @".\Reports\Sales\TurnoverByCounterpartyReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsReport.xlsx";
+		private readonly string _templateByCounterpartyFinancePath = @".\Reports\Sales\TurnoverByCounterpartyFinanceReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsFinancePath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsFinanceReport.xlsx";
+		
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
@@ -616,31 +621,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public void ExportReport(string path)
 		{
-			string templatePath;
-
-			if(ShowDynamics)
-			{
-				if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
-				{
-					templatePath = _templateWithDynamicsPath;
-				}
-				else
-				{
-					templatePath = _templateWithDynamicsFinancePath;
-				}
-
-			}
-			else
-			{
-				if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
-				{
-					templatePath = _templatePath;
-				}
-				else
-				{
-					templatePath = _templateFinancePath;
-				}
-			}
+			string templatePath = GetTrmplatePath();
 
 			var template = new XLTemplate(templatePath);
 
@@ -648,6 +629,61 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			template.Generate();
 
 			template.SaveAs(path);
+		}
+
+		private string GetTrmplatePath()
+		{
+			if(Report.GroupingBy == GroupingByEnum.Nomenclature)
+			{
+				if(Report.ShowDynamics)
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateWithDynamicsPath;
+					}
+					else
+					{
+						return _templateWithDynamicsFinancePath;
+					}
+				}
+				else
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templatePath;
+					}
+					else
+					{
+						return _templateFinancePath;
+					}
+				}
+			}
+			else if(Report.GroupingBy == GroupingByEnum.Counterparty)
+			{
+				if(Report.ShowDynamics)
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyWithDynamicsPath;
+					}
+					else
+					{
+						return _templateByCounterpartyWithDynamicsFinancePath;
+					}
+				}
+				else
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyPath;
+					}
+					else
+					{
+						return _templateByCounterpartyFinancePath;
+					}
+				}
+			}
+			throw new InvalidOperationException("Что-то пошло не так. Не достижимая ветка ветвления");
 		}
 
 		private decimal GetWarhouseBalance(int nomenclatureId)
