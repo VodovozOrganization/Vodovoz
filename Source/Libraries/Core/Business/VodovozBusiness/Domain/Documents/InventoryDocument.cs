@@ -49,6 +49,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		Warehouse _warehouse;
+		private bool _sortedByNomenclatureName;
 
 		[Display(Name = "Склад")]
 		[Required(ErrorMessage = "Склад должен быть указан.")]
@@ -59,6 +60,12 @@ namespace Vodovoz.Domain.Documents
 			{
 				SetField(ref _warehouse, value);
 			}
+		}
+
+		public virtual bool SortedByNomenclatureName
+		{
+			get => _sortedByNomenclatureName;
+			set => SetField(ref _sortedByNomenclatureName, value);
 		}
 
 		[Display(Name = "Строки")]

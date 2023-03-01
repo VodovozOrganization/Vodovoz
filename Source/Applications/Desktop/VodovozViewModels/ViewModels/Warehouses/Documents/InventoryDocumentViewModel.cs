@@ -15,6 +15,7 @@ using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private IEnumerable<Nomenclature> _nomenclaturesWithDiscrepancies = new List<Nomenclature>();
-		private bool _sortByNomenclatureTitle;
 		private SelectableParametersReportFilter _filter;
 		private InventoryDocumentItem _selectedInventoryDocumentItem;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -83,7 +83,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			ConfigureEntity();
 
 			FilterViewModel = ConfigureFilter();
-			_sortByNomenclatureTitle = false;
 
 			PrintCommand = new DelegateCommand(Print);
 
@@ -188,18 +187,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				Entity.CanEdit = true;
 			}
 		}
-		
-		public bool SortByNomenclatureTitle
-		{
-			get => _sortByNomenclatureTitle;
-			set
-			{
-				if(SetField(ref _sortByNomenclatureTitle, value))
-				{
-					SortDocumentItems();
-				}
-			}
-		}
 
 		public InventoryDocumentItem SelectedInventoryDocumentItem
 		{
@@ -297,6 +284,17 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				() => CanAddItem,
 				() => CanDeleteFine,
 				() => CanSave);
+
+			SortDocumentItems();
+			Entity.PropertyChanged += EntityPropertyChanged;
+		}
+
+		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.SortedByNomenclatureName))
+			{
+				SortDocumentItems();
+			}
 		}
 
 		private SelectableParameterReportFilterViewModel ConfigureFilter()
@@ -416,7 +414,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 		private void SortDocumentItems()
 		{
-			if(SortByNomenclatureTitle)
+			if(Entity.SortedByNomenclatureName)
 			{
 				Entity.SortItems(x => x.Nomenclature.OfficialName);
 			}
@@ -662,6 +660,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			int id = SelectedInventoryDocumentItem.Fine.Id;
 			UoW.Session.Evict(SelectedInventoryDocumentItem.Fine);
 			SelectedInventoryDocumentItem.Fine = UoW.GetById<Fine>(id);
+		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= EntityPropertyChanged;
+
+			base.Dispose();
 		}
 	}
 }

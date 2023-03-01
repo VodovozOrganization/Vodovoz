@@ -69,7 +69,7 @@ namespace Vodovoz.Views.Warehouse.Documents
 			yentryrefWarehouse.BeforeChangeByUser += OnYentryrefWarehouseBeforeChangeByUser;
 
 			ychkSortNomenclaturesByTitle.Binding
-				.AddBinding(ViewModel, vm => vm.SortByNomenclatureTitle, w => w.Active)
+				.AddBinding(ViewModel.Entity, e => e.SortedByNomenclatureName, w => w.Active)
 				.InitializeFromSource();
 
 			ytextviewCommnet.Binding.AddSource(ViewModel.Entity)
