@@ -4,16 +4,16 @@ using Dadata.Model;
 
 namespace RevenueService.Client.Parsers
 {
-	public class PersonTypeParser
+	public class CounterpartyTypeParser
 	{
-		public PersonType Parse(PartyType partyType)
+		public CounterpartyType Parse(PartyType partyType)
 		{
 			switch(partyType)
 			{
 				case PartyType.LEGAL:
-					return PersonType.Legal;
+					return CounterpartyType.Legal;
 				case PartyType.INDIVIDUAL:
-					return PersonType.Individual;
+					return CounterpartyType.Individual;
 				default:
 					throw new NotSupportedException($"{partyType} не поддерживается");
 			}

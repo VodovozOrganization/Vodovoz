@@ -41,7 +41,7 @@ namespace RevenueService.Client.Dto
 		{
 			get
 			{
-				if(PersonSurname == null && PersonName == null && PersonPatronymic == null)
+				if(string.IsNullOrWhiteSpace(PersonSurname) && string.IsNullOrWhiteSpace(PersonName) && string.IsNullOrWhiteSpace(PersonPatronymic))
 				{
 					return null;
 				}
@@ -52,7 +52,7 @@ namespace RevenueService.Client.Dto
 
 		[ReportExportIgnore]
 		[Display(Name = "ФИО")]
-		public string TitlePersonFullName => PersonFullName ?? ManagerFullName;
+		public string TitlePersonFullName => PersonFullName ?? ManagerFullName ?? string.Empty;
 
 		[Display(Name = "Телефоны")]
 		public string[] Phones { get; set; }
@@ -69,10 +69,13 @@ namespace RevenueService.Client.Dto
 
 		[ReportExportIgnore]
 		[Display(Name = "Тип контрагента")]
-		public PersonType PersonType { get; set; }
+		public CounterpartyType CounterpartyType { get; set; }
 
 		[Display(Name = "Тип контрагента (строка)")]
-		public string PersonTypeString => PersonType.GetEnumTitle();
+		public string CounterpartyTypeString => CounterpartyType.GetEnumTitle();
+
+		[Display(Name = "Организационно-правовая форма")]
+		public string Opf { get; set; }
 
 		[Display(Name = "ФИО менеджера")]
 		public string ManagerFullName { get; set; }

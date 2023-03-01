@@ -5,8 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dadata;
 using Dadata.Model;
-using QS.Dialog;
-using QS.Services;
+using NLog;
 using RevenueService.Client.Dto;
 using RevenueService.Client.Parsers;
 
@@ -16,6 +15,7 @@ namespace RevenueService.Client
 	{
 		private readonly string _accessToken;
 		private const int _queryCount = 100;
+		private static ILogger _logger = LogManager.GetCurrentClassLogger();
 
 		public RevenueServiceClient(string accessToken)
 		{
@@ -37,6 +37,8 @@ namespace RevenueService.Client
 			}
 			catch(Exception ex)
 			{
+				_logger.Error(ex, "Ошибка при загрузке реквизитов контрагента.");
+
 				return new RevenueServiceResponseDto()
 				{
 					ErrorMessage = $"Ошибка при загрузке реквизитов контрагента: {ex.Message}",
@@ -45,7 +47,7 @@ namespace RevenueService.Client
 			}
 
 			var branchTypeParser = new BranchTypeParsser();
-			var personTypeParser = new PersonTypeParser();
+			var personTypeParser = new CounterpartyTypeParser();
 
 			foreach(var suggestion in response.suggestions)
 			{
@@ -61,7 +63,8 @@ namespace RevenueService.Client
 					PersonPatronymic = suggestion.data.fio?.patronymic,
 					ManagerFullName = suggestion.data.management?.name,
 					BranchType = branchTypeParser.Parse(suggestion.data.branch_type),
-					PersonType = personTypeParser.Parse(suggestion.data.type),
+					CounterpartyType = personTypeParser.Parse(suggestion.data.type),
+					Opf = suggestion.data.opf?.@short,
 					Emails = suggestion.data.emails?.Select(x => x.value).ToArray(),
 					Phones = suggestion.data.phones?.Select(x => x.value).ToArray(),
 					State = suggestion.data.state.status.ToString()

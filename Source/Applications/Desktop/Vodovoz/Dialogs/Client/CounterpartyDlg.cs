@@ -88,6 +88,7 @@ using QS.Attachments.Domain;
 using QS.Utilities.Text;
 using Vodovoz.Core;
 using Autofac;
+using QSWidgetLib;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -2188,15 +2189,30 @@ namespace Vodovoz
 			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
 			Entity.RawJurAddress = revenueServiceRow.Address;
 
-			if(Entity.TypeOfOwnership == "ИП" || Entity.PersonType == PersonType.natural)
+			if(CommonValues.Ownerships.ContainsKey(revenueServiceRow.Opf))
 			{
-				Entity.Surname = revenueServiceRow.PersonSurname;
-				Entity.FirstName = revenueServiceRow.PersonName;
-				Entity.Patronymic = revenueServiceRow.PersonPatronymic;
+				Entity.TypeOfOwnership = revenueServiceRow.Opf;
+			}
+			else
+			{
+				Entity.TypeOfOwnership = null;
+			}
+
+			if(revenueServiceRow.Opf == "ИП")
+			{
+				Entity.SignatoryFIO = string.Empty;
+
+				Entity.Surname = revenueServiceRow.PersonSurname ?? string.Empty;
+				Entity.FirstName = revenueServiceRow.PersonName ?? string.Empty;
+				Entity.Patronymic = revenueServiceRow.PersonPatronymic ?? string.Empty;
 			}
 			else
 			{
 				Entity.SignatoryFIO = revenueServiceRow.TitlePersonFullName;
+
+				Entity.Surname = string.Empty;
+				Entity.FirstName = string.Empty;
+				Entity.Patronymic = string.Empty;
 			}
 
 			if(revenueServiceRow.Phones != null)
