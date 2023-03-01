@@ -255,10 +255,14 @@ namespace Vodovoz.ReportsParameters.Sales
 				columnsConfig.AddColumn("Кол-во дней с момента последней отгрузки")
 					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 						row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
-				columnsConfig
-					.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")
-					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
-						row.LastSaleDetails.WarhouseResidue.ToString("0"));
+
+				if(ViewModel.Report.GroupingBy == GroupingByEnum.Nomenclature)
+				{
+					columnsConfig
+						.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")
+						.AddTextRenderer(row => row.IsSubheaderRow ? "" :
+							row.LastSaleDetails.WarhouseResidue.ToString("0"));
+				}
 			}
 			
 			columnsConfig.AddColumn("");
