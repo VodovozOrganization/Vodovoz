@@ -357,7 +357,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				.Fetch(SelectMode.Fetch, () => productGroupChildAlias)
 				.List();
 
-			_filter.CreateParameterSet(
+			filter.CreateParameterSet(
 				"Группы товаров",
 				nameof(ProductGroup),
 				new RecursiveParametersFactory<ProductGroup>(UoW,
