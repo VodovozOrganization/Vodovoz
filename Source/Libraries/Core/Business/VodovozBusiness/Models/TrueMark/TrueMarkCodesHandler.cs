@@ -129,8 +129,7 @@ namespace Vodovoz.Models.TrueMark
 			var order = trueMarkCashReceiptOrder.Order;
 			if(order.Client.PersonType == PersonType.legal)
 			{
-				ProcessLegalCounterparty(order, codeEntities);
-				trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptNotNeeded;
+				await ProcessLegalCounterparty(uow, order, trueMarkCashReceiptOrder, codeEntities, cancellationToken);
 			}
 			else
 			{
@@ -157,23 +156,72 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		private void ProcessLegalCounterparty(Order order, IEnumerable<TrueMarkCashReceiptProductCode> codeEntities)
+		private async Task ProcessLegalCounterparty(IUnitOfWork uow, Order order, TrueMarkCashReceiptOrder trueMarkCashReceiptOrder, IEnumerable<TrueMarkCashReceiptProductCode> codeEntities, CancellationToken cancellationToken)
 		{
 			if(order.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
 			{
+				trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptNotNeeded;
 				return;
 			}
 
-			var goodCodeEntities = codeEntities.Where(x => !x.IsDefectiveSourceCode);
-
-			foreach(var goodCodeEntity in goodCodeEntities)
+			if(order.Client.AlwaysSendReceipts)
 			{
-				if(goodCodeEntity.SourceCode == null || goodCodeEntity.SourceCode.IsInvalid)
+				var goodCodeEntities = codeEntities.Where(x => !x.IsDefectiveSourceCode);
+				var goodValidCodes = goodCodeEntities.Where(x => x.SourceCode != null && !x.SourceCode.IsInvalid);
+
+				if(goodValidCodes.Any())
 				{
-					continue;
+					var productCodes = goodValidCodes
+						.ToDictionary(x => _trueMarkWaterCodeParser.GetWaterIdentificationCode(x.SourceCode));
+
+					var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(productCodes.Keys, cancellationToken);
+					if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
+					{
+						throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
+					}
+
+					foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
+					{
+						var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode, out TrueMarkCashReceiptProductCode codeEntity);
+						if(!codeFound)
+						{
+							throw new TrueMarkException($"Проверенный в системе Честный знак, код ({instanceStatus.IdentificationCode}) не был найден среди отправленных на проверку.");
+						}
+
+						if(instanceStatus.Status == ProductInstanceStatusEnum.Introduced)
+						{
+							codeEntity.ResultCode = codeEntity.SourceCode;
+						}
+						else
+						{
+							codeEntity.ResultCode = GetCodeFromPool(uow);
+						}
+					}
 				}
 
-				_codePool.PutCode(goodCodeEntity.SourceCode.Id);
+				var goodInvalidCodes = codeEntities.Where(x => x.SourceCode == null || x.SourceCode.IsInvalid);
+				foreach(var goodInvalidCode in goodInvalidCodes)
+				{
+					goodInvalidCode.ResultCode = GetCodeFromPool(uow);
+				}
+
+				CreateUnscannedCodes(uow, trueMarkCashReceiptOrder);
+				trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.ReadyToSend;
+			}
+			else
+			{
+				var goodCodeEntities = codeEntities.Where(x => !x.IsDefectiveSourceCode);
+				foreach(var goodCodeEntity in goodCodeEntities)
+				{
+					if(goodCodeEntity.SourceCode == null || goodCodeEntity.SourceCode.IsInvalid)
+					{
+						continue;
+					}
+
+					_codePool.PutCode(goodCodeEntity.SourceCode.Id);
+				}
+
+				trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.ReceiptNotNeeded;
 			}
 		}
 
