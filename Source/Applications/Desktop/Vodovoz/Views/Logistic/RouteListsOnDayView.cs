@@ -47,6 +47,7 @@ namespace Vodovoz.Views.Logistic
 		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		private readonly GMapOverlay driverDistrictsOverlay = new GMapOverlay("driverDistricts");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
+		private readonly GMapOverlay addressOverlapOverlay = new GMapOverlay("addressOverlaps");
 		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("driverAddresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
 		private readonly GMapOverlay routeOverlay = new GMapOverlay("route");
@@ -80,6 +81,7 @@ namespace Vodovoz.Views.Logistic
 			gmapWidget.Overlays.Add(driverDistrictsOverlay);
 			gmapWidget.Overlays.Add(routeOverlay);
 			gmapWidget.Overlays.Add(addressesOverlay);
+			gmapWidget.Overlays.Add(addressOverlapOverlay);
 			gmapWidget.Overlays.Add(driverAddressesOverlay);
 			gmapWidget.Overlays.Add(selectionOverlay);
 			gmapWidget.DisableAltForSelection = true;
@@ -541,9 +543,77 @@ namespace Vodovoz.Views.Logistic
 				else
 					addressesWithoutCoordinats++;
 			}
-			
+
+			PushApartAddresses(addressesOverlay);
+
 			UpdateOrdersInfo();
 			logger.Info("Ок.");
+		}
+
+		/// <summary>
+		/// Разведение друг от друга слишком близких маркеров адресов и рисование на верхнем слое спец знака,
+		/// информирующего о наличии нескольких заказов рядом
+		/// </summary>
+		/// <param name="addressOverlay"></param>
+		private void PushApartAddresses(GMapOverlay addressOverlay)
+		{
+			addressOverlapOverlay.Clear();
+
+			var pushApartPrecision = 0.0001d;
+
+			var addressMarkers = addressOverlay.Markers
+				.Where(x => x.Tag is Order)
+				.OrderBy(x => x.Position.Lat)
+				.ThenBy(x => x.Position.Lng)
+				.ToArray();
+
+			var overlapMarkers = new Dictionary<int, List<GMapMarker>>();
+
+			var index = 0;
+
+			foreach(var orderMarker in addressMarkers)
+			{
+				var intersections = addressMarkers
+					.Except(new[] { orderMarker })
+					.Where(g => Math.Abs(g.Position.Lat - orderMarker.Position.Lat) < pushApartPrecision
+								&& Math.Abs(g.Position.Lng - orderMarker.Position.Lng) < pushApartPrecision)
+					.ToList();
+
+				for(var i = 0; i < intersections.Count; i++)
+				{
+					var intersectMarker = addressMarkers.Single(x => x.Tag == intersections[i].Tag);
+
+					var lat = orderMarker.Position.Lat + (i + 1) * pushApartPrecision + pushApartPrecision / 10;
+					var lng = orderMarker.Position.Lng + (i + 1) * pushApartPrecision + pushApartPrecision / 10;
+
+					intersectMarker.Position = new PointLatLng(lat, lng);
+				}
+
+				if(intersections.Any() && !overlapMarkers.Values.Any(x => x.Contains(orderMarker)))
+				{
+					var intersectionsWithSelf = intersections.Concat(new[] { orderMarker }).ToList();
+					overlapMarkers.Add(index, intersectionsWithSelf);
+
+					index++;
+				}
+			}
+
+			foreach(var marker in overlapMarkers)
+			{
+				var lat = marker.Value.Min(x => x.Position.Lat) +
+						  (marker.Value.Max(x => x.Position.Lat) - marker.Value.Min(x => x.Position.Lat)) /
+						  2;
+				var lng = marker.Value.Min(x => x.Position.Lng) +
+						  (marker.Value.Max(x => x.Position.Lng) - marker.Value.Min(x => x.Position.Lng)) /
+						  2;
+
+				var overlapMarker = new PointMarker(new PointLatLng(lat, lng), PointMarkerType.color21, PointMarkerShape.overduestar)
+				{
+					ToolTipText = $"{marker.Value.Count} заказа(ов) рядом."
+				};
+
+				addressOverlapOverlay.Markers.Add(overlapMarker);
+			}
 		}
 
 		private void FillTypeAndShapeMarker(Order order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
@@ -613,15 +683,6 @@ namespace Vodovoz.Views.Logistic
 
 			var orderLat = (double)order.DeliveryPoint.Latitude;
 			var orderLong = (double)order.DeliveryPoint.Longitude;
-			var precision = 0.00001d;
-
-			var identicalPoint = overlay.Markers.Count(g => Math.Abs(g.Position.Lat - orderLat) < precision
-										&& Math.Abs(g.Position.Lng - orderLong) < precision);
-			if(identicalPoint >= 1)
-			{
-				orderLat -= identicalPoint * precision;
-				orderLong -= identicalPoint * precision;
-			}
 
 			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape)
 			{
