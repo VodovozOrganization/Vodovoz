@@ -63,6 +63,7 @@ namespace Vodovoz.Models.TrueMark
 				}
 				catch(Exception ex)
 				{
+					_codePool.Rollback();
 					RegisterException(trueMarkOrderId, ex);
 				}
 			}
@@ -84,16 +85,8 @@ namespace Vodovoz.Models.TrueMark
 				var trueMarkOrder = uow.GetById<TrueMarkCashReceiptOrder>(trueMarkOrderId);
 				await ProcessOrderCodes(uow, trueMarkOrder, cancellationToken);
 
-				try
-				{
-					uow.Save(trueMarkOrder);
-					uow.Commit();
-				}
-				catch(Exception)
-				{
-					_codePool.Rollback();
-					throw;
-				}
+				uow.Save(trueMarkOrder);
+				uow.Commit();
 
 				//не мешаем сохранению сущности, ошибка пула кода не важна если сущность сохранилась
 				try
@@ -145,7 +138,7 @@ namespace Vodovoz.Models.TrueMark
 		{
 			foreach(var codeEntity in codeEntities.Where(x => x.IsDefectiveSourceCode))
 			{
-				if(!codeEntity.SourceCode.IsInvalid && codeEntity.SourceCode != null)
+				if(codeEntity.SourceCode != null && !codeEntity.SourceCode.IsInvalid)
 				{
 					_codePool.PutDefectiveCode(codeEntity.SourceCode.Id);
 				}

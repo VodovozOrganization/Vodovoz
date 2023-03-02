@@ -1,35 +1,30 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Web;
 
 namespace TrueMarkCodesWorker
 {
 	public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+	{
+		public static void Main(string[] args)
+		{
+			try
+			{
+				CreateHostBuilder(args).Build().Run();
+			}
+			finally
+			{
+				// Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+				NLog.LogManager.Shutdown();
+			}
+		}
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+		public static IHostBuilder CreateHostBuilder(string[] args) =>
+			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-				.ConfigureServices(services =>
-				{
-					services.AddHostedService<CodesHandleWorker>();
-				})
 				.ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                })
-				.ConfigureLogging(logging =>
 				{
-					logging.ClearProviders();
-					logging.SetMinimumLevel(LogLevel.Trace);
-				})
-				.UseNLog();
-    }
+					webBuilder.UseStartup<Startup>();
+				});
+	}
 }

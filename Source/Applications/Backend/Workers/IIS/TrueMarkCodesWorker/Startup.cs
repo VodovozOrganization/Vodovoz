@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using NLog.Web;
 using QS.Attachments.Domain;
@@ -10,21 +11,23 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
-using System.Linq;
 using System.Reflection;
 using TrueMarkApi.Library;
-using Vodovoz;
-using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.NhibernateExtensions;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Settings.Database;
-using Vodovoz.Settings.Database.Edo;
 using Vodovoz.Tools;
 
 namespace TrueMarkCodesWorker
 {
 	public class Startup
     {
+		private const string _nLogSectionName = "NLog";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -35,14 +38,18 @@ namespace TrueMarkCodesWorker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-			NLogBuilder.ConfigureNLog("NLog.config");
+			services.AddLogging(
+				logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
+				});
+
+			services.AddHostedService<CodesHandleWorker>();
+
 			CreateBaseConfig();
 		}
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-        }
 
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
@@ -51,46 +58,65 @@ namespace TrueMarkCodesWorker
 
 			builder.RegisterModule<DatabaseSettingsModule>();
 
-			builder.RegisterType<DefaultSessionProvider>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<DefaultUnitOfWorkFactory>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<BaseParametersProvider>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<EdoSettings>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<TrueMarkCodesPool>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<TrueMarkApiClientFactory>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<TrueMarkCodesHandler>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<TrueMarkSelfDeliveriesHandler>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<TrueMarkTransactionalCodesPool>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<TrueMarkWaterCodeParser>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<DefaultSessionProvider>()
+				.As<ISessionProvider>()
+				.SingleInstance();
 
-			builder.RegisterInstance(ErrorReporter.Instance).AsImplementedInterfaces();
+			builder.RegisterType<DefaultUnitOfWorkFactory>()
+				.As<IUnitOfWorkFactory>()
+				.SingleInstance();
 
-			var vodovozBusinessAssembly = typeof(VodovozBusinessAssemblyFinder).Assembly;
+			builder.RegisterType<TrueMarkRepository>()
+				.As<ITrueMarkRepository>()
+				.SingleInstance();
 
-			builder.RegisterAssemblyTypes(vodovozBusinessAssembly)
-				.Where(t => t.Name.EndsWith("Provider"))
+			builder.RegisterType<OrderRepository>()
+				.As<IOrderRepository>()
+				.SingleInstance();
+
+			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
+			builder.RegisterType<OrderParametersProvider>()
+				.As<IOrderParametersProvider>()
+				.SingleInstance();
+
+			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
+			builder.RegisterType<ParametersProvider>()
+				.As<IParametersProvider>()
+				.SingleInstance();
+
+			builder.RegisterType<TrueMarkCodesHandler>()
 				.AsSelf()
-				.AsImplementedInterfaces();
+				.InstancePerLifetimeScope();
 
-			builder.RegisterAssemblyTypes(vodovozBusinessAssembly)
-				.Where(t => t.Name.EndsWith("Model"))
+			builder.RegisterType<TrueMarkSelfDeliveriesHandler>()
 				.AsSelf()
-				.AsImplementedInterfaces();
+				.InstancePerLifetimeScope();
 
-			builder.RegisterAssemblyTypes(vodovozBusinessAssembly)
-				.Where(t => t.Name.EndsWith("Repository"))
+			builder.RegisterType<TrueMarkApiClientFactory>()
 				.AsSelf()
-				.AsImplementedInterfaces();
+				.InstancePerLifetimeScope();
 
-			builder.RegisterAssemblyTypes(vodovozBusinessAssembly, Assembly.GetExecutingAssembly())
-				.Where(t => t.Name.EndsWith("Factory"))
+			builder.Register<TrueMarkApiClient>((context, instance) => context.Resolve<TrueMarkApiClientFactory>().GetClient())
 				.AsSelf()
-				.AsImplementedInterfaces();
+				.InstancePerLifetimeScope();
 
-			builder.RegisterAssemblyTypes(vodovozBusinessAssembly, Assembly.GetExecutingAssembly())
-				.Where(t => t.Name.EndsWith("Controller"))
+			builder.RegisterType<TrueMarkTransactionalCodesPool>()
 				.AsSelf()
-				.AsImplementedInterfaces();
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<TrueMarkWaterCodeParser>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterInstance(ErrorReporter.Instance)
+				.As<IErrorReporter>()
+				.SingleInstance();
 		}
+
+		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+        }
 
 		private void CreateBaseConfig()
 		{
