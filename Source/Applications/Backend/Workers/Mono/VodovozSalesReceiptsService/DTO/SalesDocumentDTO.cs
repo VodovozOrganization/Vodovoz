@@ -56,7 +56,7 @@ namespace VodovozSalesReceiptsService.DTO
 				decimal wholeDiscount= 0;
 
 				//i == 1 чтобы пропуcтить последний элемент, у него расчет происходит из остатков
-				for(int i = 1; i <= orderItemsCodes.Count - 1; i++)
+				for(int i = 1; i <= orderItem.Count - 1; i++)
 				{
 					decimal partDiscount = Math.Floor(orderItem.DiscountMoney / orderItem.Count);
 					wholeDiscount += partDiscount;
@@ -69,7 +69,7 @@ namespace VodovozSalesReceiptsService.DTO
 				}
 
 				//добавление последнего элемента с остатками от целой скидки
-				var orderItemCode = orderItemsCodes[orderItemsCodes.Count - 1];
+				var orderItemCode = orderItemsCodes[(int)orderItem.Count - 1];
 
 				var residueDiscount = orderItem.DiscountMoney - wholeDiscount;
 				var lastInventPosition = CreateInventPosition(orderItem);
