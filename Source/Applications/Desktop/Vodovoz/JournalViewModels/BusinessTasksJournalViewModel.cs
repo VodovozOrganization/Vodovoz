@@ -46,7 +46,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
-		private readonly IContactsParameters _contactsParameters;
+		private readonly IContactParametersProvider _contactsParameters;
 
 		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
 
@@ -63,7 +63,7 @@ namespace Vodovoz.JournalViewModels
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
-			IContactsParameters contactsParameters
+			IContactParametersProvider contactsParameters
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задач для обзвона";

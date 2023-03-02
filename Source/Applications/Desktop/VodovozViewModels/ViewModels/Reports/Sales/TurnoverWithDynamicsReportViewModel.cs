@@ -587,6 +587,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					ShowDynamics,
 					DynamicsIn,
 					ShowLastSale,
+					ShowResidueForNomenclaturesWithoutSales,
 					GetWarhouseBalance,
 					GetData);
 			}, cancellationToken);
@@ -784,7 +785,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Left.JoinAlias(() => counterpartyAlias.CounterpartyContracts, () => counterpartyContractAlias)
+				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -8,13 +6,13 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Utilities;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -26,7 +24,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 	{
 		private readonly IUndeliveredOrdersJournalOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly ICommonServices commonServices;
 
@@ -34,14 +32,15 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			FineFilterViewModel filterViewModel,
 			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
-			IEntitySelectorFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeSettings employeeSettings,
-			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
@@ -188,7 +187,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 			undeliveryViewOpener,
 			employeeService,
-			employeeSelectorFactory,
+			_employeeJournalFactory,
 			_employeeSettings,
 			commonServices
 		);
@@ -198,7 +197,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 			undeliveryViewOpener,
 			employeeService,
-			employeeSelectorFactory,
+			_employeeJournalFactory,
 			_employeeSettings,
 			commonServices
 		);

@@ -3,7 +3,6 @@ using QS.Commands;
 using QS.Dialog;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -12,9 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.Project.Journal.EntitySelector;
-using QS.Tdi;
-using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -35,6 +31,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly WageParameterService _wageParameterService;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IValidationContextFactory _validationContextFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ITdiTabParent _tabParent;
 		private readonly ITdiTab _tdiTab;
 		private readonly IRouteListRepository _routeListRepository;
@@ -42,7 +39,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeSettings _employeeSettings;
-		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IEmployeeService _employeeService;
 
 		private RouteListMileageDistributionNode _selectedNode;
@@ -70,12 +66,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_employeeSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			_tabParent = tabParent ?? throw new ArgumentNullException(nameof(tabParent)); ;
-			_tdiTab = tdiTab ?? throw new ArgumentNullException(nameof(tdiTab)); ;
+			_tabParent = tabParent ?? throw new ArgumentNullException(nameof(tabParent));
+			_tdiTab = tdiTab ?? throw new ArgumentNullException(nameof(tdiTab));
 
 			GenerateDistributionRows();
 		}
@@ -308,7 +304,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						UnitOfWorkFactory,
 						_undeliveryViewOpener,
 						_employeeService,
-						_employeeSelectorFactory,
+						_employeeJournalFactory,
 						_employeeSettings,
 						CommonServices
 					)
@@ -328,6 +324,5 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			SaveDistributionCommand.Execute();
 			return true;
 		}
-
 	}
 }

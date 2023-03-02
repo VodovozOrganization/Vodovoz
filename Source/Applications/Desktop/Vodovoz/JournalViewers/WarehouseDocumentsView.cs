@@ -29,6 +29,9 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Models;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Views.Warehouse.Documents;
+using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
+using Vodovoz.ViewWidgets;
 
 namespace Vodovoz
 {
@@ -141,12 +144,30 @@ namespace Vodovoz
 						this
 					);
 					break;
+				case DocumentType.InventoryDocument:
+					var employeeRepository = new EmployeeRepository();
+
+					TabParent.OpenTab(
+						DialogHelper.GenerateDialogHashName<InventoryDocument>(0),
+						() => new InventoryDocumentViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices,
+							employeeRepository,
+							new WarehouseRepository(),
+							new StoreDocumentHelper(),
+							new StockRepository(),
+							new NomenclatureJournalFactory(),
+							new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), employeeRepository),
+							new GtkReportViewOpener(),
+							MainClass.MainWin.NavigationManager),
+						this);
+					break;
 				case DocumentType.IncomingWater:
 				case DocumentType.WriteoffDocument:
 				case DocumentType.SelfDeliveryDocument:
 				case DocumentType.CarLoadDocument:
 				case DocumentType.CarUnloadDocument:
-				case DocumentType.InventoryDocument:
 				case DocumentType.ShiftChangeDocument:
 				case DocumentType.RegradingOfGoodsDocument:
 				default:
@@ -254,9 +275,22 @@ namespace Vodovoz
 							this);
 						break;
 					case DocumentType.InventoryDocument:
+						var employeeRepository = new EmployeeRepository();
+
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<InventoryDocument>(id),
-							() => new InventoryDocumentDlg (id),
+							() => new InventoryDocumentViewModel(
+								EntityUoWBuilder.ForOpen(id),
+								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.CommonServices,
+								employeeRepository,
+								new WarehouseRepository(),
+								new StoreDocumentHelper(),
+								new StockRepository(),
+								new NomenclatureJournalFactory(),
+								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), employeeRepository),
+								new GtkReportViewOpener(),
+								MainClass.MainWin.NavigationManager),
 							this);
 						break;
 					case DocumentType.ShiftChangeDocument:

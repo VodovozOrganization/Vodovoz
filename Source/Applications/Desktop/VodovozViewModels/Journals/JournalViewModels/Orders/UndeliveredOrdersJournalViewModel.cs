@@ -573,7 +573,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 							UnitOfWorkFactory,
 							_undeliveryViewOpener,
 							_employeeService,
-							_driverEmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(),
+							_driverEmployeeJournalFactory,
 							_employeeSettings,
 							_commonServices
 						);

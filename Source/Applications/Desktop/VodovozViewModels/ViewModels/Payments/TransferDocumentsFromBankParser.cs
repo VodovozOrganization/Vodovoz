@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			int i;
 			string line;
 
-			TransferDocument doc = new TransferDocument();
+			var doc = new TransferDocument();
 			TransferDocuments = new List<TransferDocument>();
 
 			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
@@ -40,24 +40,28 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			using(var reader = new StreamReader(DocPath, Encoding.GetEncoding(1251))) 
 			{
-				int count = 1;
+				var count = 1;
 
 				if(reader.ReadLine() != "1CClientBankExchange")
+				{
 					return;
+				}
 
 				var str = reader.ReadLine().Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
 
-				decimal version = decimal.Parse(str[1], culture);
+				var version = decimal.Parse(str[1], culture);
 
 				if(!curVersion.Contains(version))
+				{
 					throw new Exception("Изменилась версия выписки! Необходимо проверить формат данных.");
+				}
 
 				while((line = reader.ReadLine()) != null) 
 				{
 					//Читаем свойства документа
-					while(!line.StartsWith(tags[0])) 
+					while(line != null && !line.StartsWith(tags[0]))
 					{
-						if(!string.IsNullOrWhiteSpace(line)) 
+						if(!string.IsNullOrWhiteSpace(line))
 						{
 							var data = line.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -75,14 +79,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 					//Читаем рассчетные счета
 					i = -1;
-					while(!line.StartsWith(tags[1]))
+					while(line != null && !line.StartsWith(tags[1]))
 					{
-						if(!string.IsNullOrWhiteSpace(line)) 
+						if(!string.IsNullOrWhiteSpace(line))
 						{
 							if(line.StartsWith(tags[0]))
+							{
 								i++;
+							}
+
 							if(accounts.Count <= i)
+							{
 								accounts.Add(new Dictionary<string, string>());
+							}
+
 							var dataArray = line.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
 
 							if(dataArray.Length == 2) {
@@ -93,20 +103,26 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					}
 
 					//Читаем документы
-					while(!line.StartsWith(tags[3]))
+					while(line != null && !line.StartsWith(tags[3]))
 					{
-						if (line.StartsWith(tags[2]))
+						if(line.StartsWith(tags[2]))
+						{
 							TransferDocuments.Add(doc);
-						
-						if(line.StartsWith(tags[1])) 
+						}
+
+						if(line.StartsWith(tags[1]))
+						{
 							doc = new TransferDocument();
+						}
 
 						if(!string.IsNullOrWhiteSpace(line))
 						{
 							var data = line.Split(new char[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
 
 							if(data.Length == 2)
+							{
 								FillData(doc, data, culture);
+							}
 						}
 						line = reader.ReadLine();
 					}

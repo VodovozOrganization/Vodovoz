@@ -23,6 +23,61 @@ namespace Vodovoz.EntityRepositories.Sale
 				.And(x => x.DistrictBorder != null);
 		}
 
+		public IList<District> GetDistrictsWithBorder(IUnitOfWork uow)
+		{
+			return GetDistrictsWithBorder()
+				.GetExecutableQueryOver(uow.Session)
+				.List();
+		}
+
+		public int GetDistrictsForFastDeliveryCurrentVersionId(IUnitOfWork unitOfWork)
+		{
+			DistrictsSet districtsSetAlias = null;
+			District districtAlias = null;
+			TariffZone tariffZoneAlias = null;
+
+			return unitOfWork.Session.QueryOver(() => districtAlias)
+				.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
+				.JoinAlias(() => districtAlias.TariffZone, () => tariffZoneAlias)
+				.Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
+				.And(() => districtAlias.DistrictBorder != null)
+				.And(() => tariffZoneAlias.IsFastDeliveryAvailable)
+				.Select(Projections.Property(() => districtsSetAlias.Id))
+				.Take(1)
+				.SingleOrDefault<int>();
+		}
+
+		/// <summary>
+		/// Ввиду недоработок версий районов отображает некорректно
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="dateTime"></param>
+		/// <returns></returns>
+		public int GetDistrictsForFastDeliveryHistoryVersionId(IUnitOfWork unitOfWork, DateTime dateTime)
+		{
+			DistrictsSet districtsSetAlias = null;
+			District districtAlias = null;
+			TariffZone tariffZoneAlias = null;
+
+			return unitOfWork.Session.QueryOver(() => districtAlias)
+				.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
+				.JoinAlias(() => districtAlias.TariffZone, () => tariffZoneAlias)
+				.And(() => districtAlias.DistrictBorder != null)
+				.And(() => tariffZoneAlias.IsFastDeliveryAvailable)
+				.And(Restrictions.Or(
+						Restrictions.Le(Projections.Property(() => districtsSetAlias.DateActivated), dateTime),
+						Restrictions.Le(Projections.Property(() => districtsSetAlias.DateCreated), dateTime)))
+				.And(Restrictions.Or(
+						Restrictions.And(
+							Restrictions.IsNull(Projections.Property(() => districtsSetAlias.DateClosed)),
+							Restrictions.Eq(Projections.Property(() => districtsSetAlias.Status), DistrictsSetStatus.Active)),
+						Restrictions.Ge(Projections.Property(() => districtsSetAlias.DateClosed), dateTime)))
+				.Select(Projections.Property(() => districtsSetAlias.Id))
+				.OrderBy(Projections.Property(() => districtsSetAlias.DateClosed)).Desc
+				.Take(1)
+				.SingleOrDefault<int>();
+		}
+
 		public IList<District> GetDistrictsWithBorderForFastDelivery(IUnitOfWork uow)
 		{
 			DistrictsSet districtsSetAlias = null;
@@ -39,31 +94,35 @@ namespace Vodovoz.EntityRepositories.Sale
 				.List();
 		}
 
+		/// <summary>
+		/// Ввиду недоработок версий районов отображает некорректно
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="dateTime"></param>
+		/// <returns></returns>
 		public IList<District> GetDistrictsWithBorderForFastDeliveryAtDateTime(IUnitOfWork uow, DateTime dateTime)
 		{
 			DistrictsSet districtsSetAlias = null;
 			District districtAlias = null;
 			TariffZone tariffZoneAlias = null;
 
+			var historyVersionId = GetDistrictsForFastDeliveryHistoryVersionId(uow, dateTime);
+
 			return uow.Session.QueryOver(() => districtAlias)
 				.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
 				.JoinAlias(() => districtAlias.TariffZone, () => tariffZoneAlias)
 				.And(() => districtAlias.DistrictBorder != null)
 				.And(() => tariffZoneAlias.IsFastDeliveryAvailable)
-				.And(Restrictions.Le(Projections.Property(() => districtsSetAlias.DateActivated), dateTime))
+				.And(Restrictions.Or(
+						Restrictions.Le(Projections.Property(() => districtsSetAlias.DateActivated), dateTime),
+						Restrictions.Le(Projections.Property(() => districtsSetAlias.DateCreated), dateTime)))
 				.And(Restrictions.Or(
 					Restrictions.And(
 						Restrictions.IsNull(Projections.Property(() => districtsSetAlias.DateClosed)),
 						Restrictions.Eq(Projections.Property(() => districtsSetAlias.Status), DistrictsSetStatus.Active)),
 					Restrictions.Ge(Projections.Property(() => districtsSetAlias.DateClosed), dateTime)))
+				.And(() => districtsSetAlias.Id == historyVersionId)
 				.Select(Projections.Entity(() => districtAlias))
-				.List();
-		}
-
-		public IList<District> GetDistrictsWithBorder(IUnitOfWork uow)
-		{
-			return GetDistrictsWithBorder()
-				.GetExecutableQueryOver(uow.Session)
 				.List();
 		}
 

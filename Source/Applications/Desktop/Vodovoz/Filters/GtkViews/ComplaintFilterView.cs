@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels;
+using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -38,6 +39,10 @@ namespace Vodovoz.Filters.GtkViews
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
+
+			entryComplaintDetalization.ViewModel = ViewModel.ComplaintDetalizationEntiryEntryViewModel;
+			entryComplaintDetalization.Binding.AddBinding(ViewModel, vm => vm.CanReadDetalization, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
 			//FIXME заменить на evme когда будут новые журналы с рекурсией
 			yCmbCurrentSubdivision.ItemsList = ViewModel.AllDepartments;

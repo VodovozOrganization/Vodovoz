@@ -647,7 +647,10 @@ namespace Vodovoz.Domain.Logistic
 			foreach(var deposit in Order.OrderDepositItems)
 				deposit.ActualCount = IsDelivered() ? deposit.Count : 0;
 
-			Order.BottlesByStockActualCount = Order.BottlesByStockCount;
+			if(!Order.IsBottleStockDiscrepancy)
+			{
+				Order.BottlesByStockActualCount = Order.BottlesByStockCount;
+			}
 
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;

@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -25,8 +26,10 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IInteractiveQuestion _interactive;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUnitOfWork _uow;
+		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 		
 		public UnknowTalkViewModel(IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
@@ -34,12 +37,14 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			MangoManager manager,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
+			IWarehouseJournalFactory warehouseJournalFactory,
 			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
 		{
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}
@@ -55,9 +60,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void SelectExistConterparty()
 		{
-			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
-			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
+			_counterpartyJournalPage = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
+			_counterpartyJournalPage.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+			_counterpartyJournalPage.ViewModel.OnEntitySelectedResult += OnExistingCounterpartyPageClosed;
 		}
 
 		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
@@ -72,7 +77,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			}
 		}
 
-		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		void OnExistingCounterpartyPageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
@@ -111,7 +116,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void StockBalanceCommand()
 		{
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(_warehouseJournalFactory);
 			NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, NomenclatureStockFilterViewModel>(null, filter);
 		}
 
@@ -122,6 +127,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void Dispose()
 		{
+			if(_counterpartyJournalPage?.ViewModel != null)
+			{
+				_counterpartyJournalPage.ViewModel.OnEntitySelectedResult -= OnExistingCounterpartyPageClosed;
+			}
+
 			_uow?.Dispose();
 		}
 

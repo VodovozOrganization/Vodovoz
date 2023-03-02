@@ -1,6 +1,6 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Sms.Internal;
-using Sms.Internal.Client;
+using Sms.Internal.Client.Framework;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;

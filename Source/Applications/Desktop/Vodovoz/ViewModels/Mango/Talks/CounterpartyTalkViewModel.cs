@@ -40,6 +40,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
@@ -119,9 +120,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void ExistingClientCommand()
 		{
-			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
-			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
+			_counterpartyJournalPage = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
+			_counterpartyJournalPage.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+			_counterpartyJournalPage.ViewModel.OnEntitySelectedResult += OnExistingCounterpartyPageClosed;
 		}
 
 		private void OnNewCounterpartyPageClosed(object sender, PageClosedEventArgs e)
@@ -152,7 +153,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			(sender as IPage).PageClosed -= OnNewCounterpartyPageClosed;
 		}
 
-		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		void OnExistingCounterpartyPageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
@@ -241,7 +242,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void StockBalanceCommand()
 		{
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
+			var warehouseJournalFactory = new WarehouseJournalFactory();
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(warehouseJournalFactory);
 			NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, NomenclatureStockFilterViewModel>(null, filter);
 		}
 
@@ -254,6 +256,11 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void Dispose()
 		{
+			if(_counterpartyJournalPage?.ViewModel != null)
+			{
+				_counterpartyJournalPage.ViewModel.OnEntitySelectedResult -= OnExistingCounterpartyPageClosed;
+			}
+
 			foreach(var model in CounterpartyOrdersViewModels)
 			{
 				model.Dispose();

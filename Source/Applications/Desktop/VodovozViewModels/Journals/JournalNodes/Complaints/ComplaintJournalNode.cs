@@ -7,6 +7,9 @@ namespace Vodovoz.Journals.JournalNodes
 {
 	public class ComplaintJournalNode : JournalEntityNodeBase
 	{
+		private string _complaintKindString;
+		private string _complaintDetalizationString;
+
 		protected ComplaintJournalNode() : base(typeof(Complaint))
 		{
 		}
@@ -66,10 +69,17 @@ namespace Vodovoz.Journals.JournalNodes
 
 		public bool ComplaintKindIsArchive { get; set; }
 
-		string complaintKindString;
 		public string ComplaintKindString {
-			get => ComplaintKindIsArchive ? string.Format("(Архив) {0}", complaintKindString) : complaintKindString;
-			set => complaintKindString = value;
+			get => ComplaintKindIsArchive ? string.Format("(Архив) {0}", _complaintKindString) : _complaintKindString;
+			set => _complaintKindString = value;
+		}
+
+		public bool ComplaintDetalizationIsArchive { get; set; }
+
+		public string ComplaintDetalizationString
+		{
+			get => ComplaintDetalizationIsArchive ? string.Format("(Архив) {0}", _complaintDetalizationString) : _complaintDetalizationString;
+			set => _complaintDetalizationString = value;
 		}
 
 		public string ComplaintObjectString { get; set; }

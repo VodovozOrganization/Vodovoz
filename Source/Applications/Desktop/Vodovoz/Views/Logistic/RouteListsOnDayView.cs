@@ -432,12 +432,14 @@ namespace Vodovoz.Views.Logistic
 			var selectedBottle = orders.Sum(o => o.Total19LBottlesToDeliver);
 			var selectedKilos = orders.Sum(o => o.TotalWeight);
 			var selectedCbm = orders.Sum(o => o.TotalVolume);
+			var selectedReverseCbm = orders.Sum(o => o.FullReverseVolume());
 			labelSelected.Markup = string.Format(
-				"{0} адр.; {1} бут.;\n{2} кг; {3} м<sup>3</sup>",
+				"{0} адр.; {1} бут.; {2} кг; \nК клиентам: {3:F4} м<sup>3</sup>. От клиентов: {4:F4} м<sup>3</sup>",
 				orders.Count(),
 				selectedBottle,
 				selectedKilos,
-				selectedCbm
+				selectedCbm,
+				selectedReverseCbm
 			);
 			menuAddToRL.Sensitive = ViewModel.RoutesOnDay.Any() && !checkShowCompleted.Active;
 		}
@@ -595,10 +597,6 @@ namespace Vodovoz.Views.Logistic
 
 		private PointMarker FillAddressMarker(Order order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
 		{
-			var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude), type, shape) {
-				Tag = order
-			};
-
 			string ttText = order.DeliveryPoint.ShortAddress;
 			if(order.Total19LBottlesToDeliver > 0)
 				ttText += string.Format("\nБутылей 19л: {0}", order.Total19LBottlesToDeliver);
@@ -613,13 +611,23 @@ namespace Vodovoz.Views.Logistic
 				order.DeliverySchedule?.Name ?? "Не назначено",
 				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPoint.NetTopologyPoint))?.DistrictName);
 
-			addressMarker.ToolTipText = ttText;
+			var orderLat = (double)order.DeliveryPoint.Latitude;
+			var orderLong = (double)order.DeliveryPoint.Longitude;
+			var precision = 0.00001d;
 
-			var identicalPoint = overlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.Latitude && g.Position.Lng == (double)order.DeliveryPoint.Longitude);
-			var pointShift = 5;
-			if(identicalPoint >= 1) {
-				addressMarker.Offset = new System.Drawing.Point(identicalPoint * pointShift, identicalPoint * pointShift);
+			var identicalPoint = overlay.Markers.Count(g => Math.Abs(g.Position.Lat - orderLat) < precision
+										&& Math.Abs(g.Position.Lng - orderLong) < precision);
+			if(identicalPoint >= 1)
+			{
+				orderLat -= identicalPoint * precision;
+				orderLong -= identicalPoint * precision;
 			}
+
+			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape)
+			{
+				Tag = order,
+				ToolTipText = ttText
+			};
 
 			if(route != null)
 				addressMarker.ToolTipText += string.Format(" Везёт: {0}", route.Driver.ShortName);

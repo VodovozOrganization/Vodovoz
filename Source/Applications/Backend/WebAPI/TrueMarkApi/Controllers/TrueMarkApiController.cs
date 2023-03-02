@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using TrueMarkApi.Dto.Participants;
 using TrueMarkApi.Library.Dto;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using IAuthorizationService = TrueMarkApi.Services.Authorization.IAuthorizationService;
