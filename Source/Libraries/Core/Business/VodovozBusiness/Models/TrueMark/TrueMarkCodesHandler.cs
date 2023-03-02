@@ -293,7 +293,7 @@ namespace Vodovoz.Models.TrueMark
 				if(unscannedCodesCount < 0)
 				{
 					var extraCodes = codes.Skip((int)orderItem.Count);
-					foreach(var extraCode in extraCodes)
+					foreach(var extraCode in extraCodes.ToList())
 					{
 						if(extraCode.SourceCode == null || extraCode.SourceCode.IsInvalid)
 						{
