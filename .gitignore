@@ -28,8 +28,9 @@ WinInstall/*
 !*.sh
 *.sln.DotSettings.user
 
-#Production Environment Settings
+#Environment Settings
 *appsettings.Production.json
+*appsettings.Development.json
 
 #Docker Volumes
 Services/Docker/db-data/*
