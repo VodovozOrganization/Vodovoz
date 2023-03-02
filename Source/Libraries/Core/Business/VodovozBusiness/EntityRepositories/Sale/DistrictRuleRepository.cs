@@ -56,7 +56,7 @@ namespace Vodovoz.EntityRepositories.Sale
 					.TransformUsing(Transformers.AliasToBean<DistrictAndDistrictSet>())
 					.List<DistrictAndDistrictSet>();
 
-			return districtsList.ToList();
+			return districtsList.Distinct(new DistrictAndDistrictSetComparer()).ToList();
 		}
 
 		public IList<District> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)
@@ -71,10 +71,42 @@ namespace Vodovoz.EntityRepositories.Sale
 		}
 	}
 
+	#region class DistrictAndDistrictSet
 	public class DistrictAndDistrictSet
 	{
 		public string DistrictName { get; set; }
 		public string DistrictSetName { get; set; }
 		public DateTime DistrictSetCreationDate { get; set; }
 	}
+
+	public class DistrictAndDistrictSetComparer : IEqualityComparer<DistrictAndDistrictSet>
+	{
+		public bool Equals(DistrictAndDistrictSet x, DistrictAndDistrictSet y)
+		{
+			if(object.ReferenceEquals(x, y))
+			{
+				return true;
+			}
+
+			if(object.ReferenceEquals(x, null) || object.ReferenceEquals(y, null))
+			{
+				return false;
+			}
+
+			return x.DistrictName == y.DistrictName
+					&& x.DistrictSetName == y.DistrictSetName
+					&& x.DistrictSetCreationDate == y.DistrictSetCreationDate;
+		}
+
+		public int GetHashCode(DistrictAndDistrictSet obj)
+		{
+			if(obj == null)
+			{
+				return 0;
+			}
+
+			return (obj.DistrictName + obj.DistrictSetName + obj.DistrictSetCreationDate.ToString()).GetHashCode();
+		}
+	}
+	#endregion
 }
