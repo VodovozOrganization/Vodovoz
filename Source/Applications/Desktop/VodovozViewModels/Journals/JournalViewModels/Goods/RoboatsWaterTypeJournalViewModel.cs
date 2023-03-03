@@ -19,14 +19,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
 	public class RoboatsWaterTypeJournalViewModel : SingleEntityJournalViewModelBase<RoboatsWaterType, RoboatsWaterTypeViewModel, RoboatsWaterTypeJournalNode>
 	{
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private readonly ICommonServices _commonServices;
 		private OpenViewModelCommand _openViewModelCommand;
 
 		public RoboatsWaterTypeJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			RoboatsViewModelFactory roboatsViewModelFactory,
+			IRoboatsViewModelFactory roboatsViewModelFactory,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
 			ICommonServices commonServices
 		) : base(unitOfWorkFactory, commonServices)

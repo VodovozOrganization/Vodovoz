@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly bool _canEdit;
 		private readonly bool _canCreate;
 
@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IDeliveryScheduleRepository deliveryScheduleRepository,
-			RoboatsViewModelFactory roboatsViewModelFactory
+			IRoboatsViewModelFactory roboatsViewModelFactory
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
