@@ -11,11 +11,11 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 	public class RoboatsStreetViewModel : EntityTabViewModelBase<RoboatsStreet>
 	{
 		private RoboatsEntityViewModel _roboatsEntityViewModel;
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly bool _canEdit;
 		private readonly bool _canCreate;
 
-		public RoboatsStreetViewModel(IEntityUoWBuilder uowBuilder, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
+		public RoboatsStreetViewModel(IEntityUoWBuilder uowBuilder, IRoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
 		{
 			_roboatsViewModelFactory = roboatsViewModelFactory ?? throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 

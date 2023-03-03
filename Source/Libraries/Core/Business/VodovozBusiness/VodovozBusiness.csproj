@@ -409,6 +409,7 @@
     <Compile Include="Factories\EmployeeRegistrationVersionFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationVersionFactory.cs" />
+    <Compile Include="Factories\IRoboatsFileStorageFactory.cs" />
     <Compile Include="Factories\IRouteListProfitabilityFactory.cs" />
     <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
@@ -594,6 +595,7 @@
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
+    <Compile Include="Parameters\IRoboatsSettings.cs" />
     <Compile Include="Parameters\IRouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\IStoredResourcesSettings.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />

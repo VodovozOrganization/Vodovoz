@@ -7,8 +7,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 {
 	public class RoboatsSettingsViewModel : WidgetViewModelBase
 	{
-		private readonly RoboatsSettings _roboatsSettings;
-		public RoboatsSettingsViewModel(RoboatsSettings roboatsSettings, ICurrentPermissionService currentPermissionService)
+		private readonly IRoboatsSettings _roboatsSettings;
+		public RoboatsSettingsViewModel(IRoboatsSettings roboatsSettings, ICurrentPermissionService currentPermissionService)
 		{
 			if(currentPermissionService is null)
 			{
