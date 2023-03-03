@@ -283,6 +283,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMarkCodePoolCheckWorker
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevenueService.Client", "Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj", "{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DateTimeHelpers.Tests", "Libraries\External\DateTime\DateTimeHelpers.Tests\DateTimeHelpers.Tests.csproj", "{99207D6E-7D83-4B8D-A43D-3FDE15BB1C60}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashReceiptSendWorker", "Applications\Backend\Workers\IIS\CashReceiptSendWorker\CashReceiptSendWorker.csproj", "{E773AD72-7BEB-4EDE-B465-144A66DBB20D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CashReceiptApi", "Applications\Backend\WebAPI\CashReceiptApi\CashReceiptApi.csproj", "{4F664511-D85E-4F7D-BAA1-A761605E0831}"

@@ -17,7 +17,7 @@ namespace DateTimeHelpers
 			return dateTime.Date.AddDays(1).AddMilliseconds(-1);
 		}
 
-		public static DateTime FirstDayOfWeek(this DateTime dateTime)
+		public static DateTime FirstWeekDay(this DateTime dateTime)
 		{
 			switch(dateTime.DayOfWeek)
 			{
@@ -40,7 +40,7 @@ namespace DateTimeHelpers
 			}
 		}
 
-		public static DateTime LastDayOfWeek(this DateTime dateTime)
+		public static DateTime LastWeekDay(this DateTime dateTime)
 		{
 			switch(dateTime.DayOfWeek)
 			{
@@ -91,6 +91,24 @@ namespace DateTimeHelpers
 			throw new InvalidOperationException("Imposible DateTime");
 		}
 
+		public static DateTime FirstQuarterDay(this DateTime dateTime)
+		{
+			var quarter = dateTime.GetQuarter();
+
+			switch(quarter)
+			{
+				case 1:
+					return new DateTime(dateTime.Year, 1, 1);
+				case 2:
+					return new DateTime(dateTime.Year, 4, 1);
+				case 3:
+					return new DateTime(dateTime.Year, 7, 1);
+				case 4:
+					return new DateTime(dateTime.Year, 10, 1);
+			}
+			throw new InvalidOperationException("Imposible DateTime");
+		}
+
 		public static DateTime LastQuarterDay(this DateTime dateTime)
 		{
 			var quarter = dateTime.GetQuarter();
@@ -109,24 +127,34 @@ namespace DateTimeHelpers
 			throw new InvalidOperationException("Imposible DateTime");
 		}
 
-		public static DateTime FirstDayOfYear(this DateTime dateTime)
+		public static DateTime FirstYearDay(this DateTime dateTime)
 		{
 			return new DateTime(dateTime.Year, 1, 1);
 		}
 
-		public static DateTime LastDayOfYear(this DateTime dateTime)
+		public static DateTime LastYearDay(this DateTime dateTime)
 		{
 			return new DateTime(dateTime.Year, 12, 31);
 		}
 
-		public static DateTime FirstDayOfMonth(this DateTime dateTime)
+		public static DateTime FirstMonthDay(this DateTime dateTime)
 		{
 			return new DateTime(dateTime.Year, dateTime.Month, 1);
+		}
+
+		public static DateTime LastMonthDay(this DateTime dateTime)
+		{
+			return new DateTime(dateTime.Year, dateTime.Month, DateTime.DaysInMonth(dateTime.Year, dateTime.Month));
 		}
 
 		public static DateTime AddWeeks(this DateTime dateTime, int weeks)
 		{
 			return _calendar.AddWeeks(dateTime, weeks);
+		}
+
+		public static DateTime AddQuarters(this DateTime dateTime, int quarters)
+		{
+			return dateTime.AddMonths(quarters * 3);
 		}
 	}
 }

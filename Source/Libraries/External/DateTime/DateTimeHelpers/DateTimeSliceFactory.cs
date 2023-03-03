@@ -26,14 +26,19 @@ namespace DateTimeHelpers
 
 		public static IEnumerable<DateTimeYearSlice> CreateYearsSlices(DateTime startDate, DateTime endDate)
 		{
+			if(startDate > endDate)
+			{
+				throw new ArgumentException("End date can't be before start date", nameof(endDate));
+			}
+
 			var slices = new List<DateTimeYearSlice>();
 
 			if(endDate.Year == startDate.Year)
 			{
 				slices.Add(new DateTimeYearSlice
 				{
-					StartDate = startDate.Date,
-					EndDate = endDate.LatestDayTime(),
+					StartDate = startDate,
+					EndDate = endDate,
 					SliceType = DateTimeSliceType.Year
 				});
 				return slices;
@@ -45,19 +50,26 @@ namespace DateTimeHelpers
 			{
 				slices.Add(new DateTimeYearSlice
 				{
-					StartDate = date.Date,
-					EndDate = date.LastDayOfYear().LatestDayTime(),
+					StartDate = date,
+					EndDate = date.LastYearDay().LatestDayTime(),
 					SliceType = DateTimeSliceType.Year
 				});
 
-				date = date.AddYears(1).FirstDayOfYear();
+				date = date.AddYears(1).FirstYearDay();
 			}
+
+			slices[slices.Count - 1].EndDate = endDate;
 
 			return slices;
 		}
 
 		public static IEnumerable<DateTimeQuarterSlice> CreateQuartersSlices(DateTime startDate, DateTime endDate)
 		{
+			if(startDate > endDate)
+			{
+				throw new ArgumentException("End date can't be before start date", nameof(endDate));
+			}
+
 			var slices = new List<DateTimeQuarterSlice>();
 
 			if(startDate.Year == endDate.Year
@@ -65,8 +77,8 @@ namespace DateTimeHelpers
 			{
 				slices.Add(new DateTimeQuarterSlice
 				{
-					StartDate = startDate.Date,
-					EndDate = endDate.Date.LatestDayTime(),
+					StartDate = startDate,
+					EndDate = endDate,
 					SliceType = DateTimeSliceType.Quarter
 				});
 
@@ -79,7 +91,7 @@ namespace DateTimeHelpers
 			{
 				slices.Add(new DateTimeQuarterSlice
 				{
-					StartDate = date.Date,
+					StartDate = date,
 					EndDate = date.LastQuarterDay().LatestDayTime(),
 					SliceType = DateTimeSliceType.Quarter
 				});
@@ -87,11 +99,18 @@ namespace DateTimeHelpers
 				date = date.LastQuarterDay().AddDays(1);
 			}
 
+			slices[slices.Count - 1].EndDate = endDate;
+
 			return slices;
 		}
 
 		public static IEnumerable<DateTimeMonthSlice> CreateMonthsSlices(DateTime startDate, DateTime endDate)
 		{
+			if(startDate > endDate)
+			{
+				throw new ArgumentException("End date can't be before start date", nameof(endDate));
+			}
+
 			var slices = new List<DateTimeMonthSlice>();
 
 			if(startDate.Year == endDate.Year
@@ -99,8 +118,8 @@ namespace DateTimeHelpers
 			{
 				slices.Add(new DateTimeMonthSlice
 				{
-					StartDate = startDate.Date,
-					EndDate = endDate.LatestDayTime(),
+					StartDate = startDate,
+					EndDate = endDate,
 					SliceType = DateTimeSliceType.Month
 				});
 
@@ -120,14 +139,21 @@ namespace DateTimeHelpers
 					SliceType = DateTimeSliceType.Month
 				});
 
-				date = date.AddMonths(1).FirstDayOfMonth();
+				date = date.AddMonths(1).FirstMonthDay();
 			}
+
+			slices[slices.Count - 1].EndDate = endDate;
 
 			return slices;
 		}
 
 		public static IEnumerable<DateTimeWeekSlice> CreateWeeksSlices(DateTime startDate, DateTime endDate)
 		{
+			if(startDate > endDate)
+			{
+				throw new ArgumentException("End date can't be before start date", nameof(endDate));
+			}
+
 			var slices = new List<DateTimeWeekSlice>();
 
 			if(startDate.Year == endDate.Year
@@ -136,20 +162,20 @@ namespace DateTimeHelpers
 			{
 				slices.Add(new DateTimeWeekSlice
 				{
-					StartDate = startDate.Date.FirstDayOfWeek(),
-					EndDate = endDate.LastDayOfWeek().LatestDayTime(),
+					StartDate = startDate,
+					EndDate = endDate,
 					SliceType = DateTimeSliceType.Week
 				});
 				return slices;
 			}
 
-			var date = startDate.Date.FirstDayOfWeek();
+			var date = startDate.Date.FirstWeekDay();
 
 			while(date <= endDate)
 			{
-				var weekLastDay = date.LastDayOfWeek();
+				var weekLastDay = date.LastWeekDay();
 
-				var sliceEnd = weekLastDay.GetWeekNumber() == date.GetWeekNumber() ? weekLastDay : date.LastDayOfYear();
+				var sliceEnd = weekLastDay.GetWeekNumber() == date.GetWeekNumber() ? weekLastDay : date.LastYearDay();
 
 				slices.Add(new DateTimeWeekSlice
 				{
@@ -157,22 +183,30 @@ namespace DateTimeHelpers
 					EndDate = sliceEnd.LatestDayTime(),
 					SliceType = DateTimeSliceType.Week
 				});
-				date = date.AddWeeks(1).FirstDayOfWeek();
+				date = date.AddWeeks(1).FirstWeekDay();
 			}
+			
+			slices[slices.Count - 1].EndDate = endDate;
 
 			return slices;
 		}
 
-		public static IEnumerable<DateTimeDaySlice> CreateDaysSlices(DateTime startDate, DateTime endDate)
+		public static IEnumerable<DateTimeDaySlice> CreateDaysSlices(
+			DateTime startDate, DateTime endDate)
 		{
+			if(startDate > endDate)
+			{
+				throw new ArgumentException("End date can't be before start date", nameof(endDate));
+			}
+
 			var slices = new List<DateTimeDaySlice>();
 
 			if(startDate.Date == endDate.Date)
 			{
 				slices.Add(new DateTimeDaySlice
 				{
-					StartDate = startDate.Date,
-					EndDate = endDate.LatestDayTime(),
+					StartDate = startDate,
+					EndDate = endDate,
 					SliceType = DateTimeSliceType.Day
 				});
 				return slices;
@@ -190,6 +224,8 @@ namespace DateTimeHelpers
 				});
 				date = date.AddDays(1);
 			}
+
+			slices[slices.Count-1].EndDate = endDate;
 
 			return slices;
 		}
