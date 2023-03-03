@@ -1,8 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using NPOI.SS.Formula.Functions;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz.Domain.Organizations
 {
@@ -13,8 +19,17 @@ namespace Vodovoz.Domain.Organizations
 	[EntityPermission]
 	public class OrganizationOwnershipType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		#region Свойства
+		private IUnitOfWork _uow;
 
+		public OrganizationOwnershipType()
+		{
+			_uow = UnitOfWorkFactory.CreateWithoutRoot();
+
+			Abbreviation = string.Empty;
+			FullName = string.Empty;
+		}
+
+		#region Свойства
 		public virtual int Id { get; set; }
 
 		string abbreviation;
@@ -42,23 +57,42 @@ namespace Vodovoz.Domain.Organizations
 		}
 		#endregion
 
-		public OrganizationOwnershipType()
-		{
-			Abbreviation = string.Empty;
-			FullName = string.Empty;
-		}
-
 		public static IUnitOfWorkGeneric<OrganizationOwnershipType> Create() => UnitOfWorkFactory.CreateWithNewRoot<OrganizationOwnershipType>();
+
+
+		#region IValidatableObject implementation
+		public virtual bool CheckForAbbreviationDuplicate(IUnitOfWork uow, IOrganizationRepository organizationRepository)
+		{
+			var organizationOwnershipTypes = organizationRepository.GetOrganizationOwnershipTypeByAbbreviation(uow, Abbreviation);
+			if(organizationOwnershipTypes == null)
+				return false;
+			if(organizationOwnershipTypes.Any(x => x.Id != Id))
+				return true;
+			return false;
+		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(Abbreviation))
+			{
 				yield return new ValidationResult("Необходимо заполнить поле \"Аббревиатура\".");
+			}
 
 			if(string.IsNullOrWhiteSpace(FullName))
+			{
 				yield return new ValidationResult("Необходимо заполнить поле \"Полное название\".");
+			}
 
-			//TODO Проверка наличия в базе такой аббревиатуры
+			if(!(validationContext.ServiceContainer.GetService(typeof(IOrganizationRepository)) is IOrganizationRepository organizationRepository))
+			{
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(IOrganizationRepository)}");
+			}
+
+			if (CheckForAbbreviationDuplicate(_uow, organizationRepository))
+			{
+				yield return new ValidationResult($"Запись для формы собственности \"{Abbreviation}\" уже существует.");
+			}
 		}
+		#endregion
 	}
 }

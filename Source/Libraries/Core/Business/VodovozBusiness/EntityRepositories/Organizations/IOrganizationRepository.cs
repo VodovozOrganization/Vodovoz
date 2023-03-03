@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.EntityRepositories.Organizations
@@ -10,5 +11,6 @@ namespace Vodovoz.EntityRepositories.Organizations
 		Organization GetOrganizationById(IUnitOfWork uow, int organizationId);
 		Organization GetPaymentFromOrganizationById(IUnitOfWork uow, int paymentFromId);
 		Organization GetOrganizationByTaxcomEdoAccountId(IUnitOfWork uow, string edoAccountId);
+		IList<OrganizationOwnershipType> GetOrganizationOwnershipTypeByAbbreviation(IUnitOfWork uow, string abbreviation);
 	}
 }
