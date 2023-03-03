@@ -252,6 +252,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				var row = new TurnoverWithDynamicsReportRow
 				{
 					Title = counterpartyGroup.First().CounterpartyFullName,
+					Phones = counterpartyGroup.First().CounterpartyPhones,
 					RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
 					SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
 				};
@@ -437,6 +438,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				public string Title { get; set; }
 
+				public string Phones { get; set; } = string.Empty;
+
 				public string Index { get; set; } = string.Empty;
 
 				public RowTypes RowType { get; set; }
@@ -477,6 +480,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public int OrderId { get; set; }
 
 				public int CounterpartyId { get; set; }
+
+				public string CounterpartyPhones { get; set; }
 
 				public string CounterpartyFullName { get; set; }
 

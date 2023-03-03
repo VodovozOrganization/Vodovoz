@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Report;
 using DateTimeHelpers;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -21,6 +22,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -749,6 +751,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			District districtAlias = null;
 			VodovozCounterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
+			Phone phoneAlias = null;
 
 			OrderItemNode resultNodeAlias = null;
 
@@ -849,6 +852,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias);
 
+			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
+				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id)
+				.AndNot(() => phoneAlias.IsArchive)
+				.Select(
+					CustomProjections.GroupConcat(
+						CustomProjections.Concat_WS(
+							"",
+							Projections.Constant("8"),
+							Projections.Property(() => phoneAlias.DigitsNumber)),
+						separator: ",\n"));
 
 			#region filter parameters
 			if(parameters.ContainsKey(nameof(NomenclatureCategory) + _includeSuffix)
@@ -1060,19 +1073,20 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var result = query.Where(GetOrderCriterion(filterOrderStatusInclude, orderAlias))
 				.SelectList(list =>
 					list.SelectGroup(() => orderItemAlias.Id)
-						.Select(Projections.Property(() => orderItemAlias.Id).WithAlias(() => resultNodeAlias.Id))
-						.Select(Projections.Property(() => orderItemAlias.Price).WithAlias(() => resultNodeAlias.Price))
+						.Select(() => orderItemAlias.Id).WithAlias(() => resultNodeAlias.Id)
+						.Select(() => orderItemAlias.Price).WithAlias(() => resultNodeAlias.Price)
 						.Select(OrderProjections.GetOrderItemSumProjection()).WithAlias(() => resultNodeAlias.ActualSum)
-						.Select(Projections.Property(() => orderItemAlias.Count).WithAlias(() => resultNodeAlias.Count))
-						.Select(Projections.Property(() => orderItemAlias.ActualCount).WithAlias(() => resultNodeAlias.ActualCount))
-						.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
-						.Select(Projections.Property(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId))
-						.Select(Projections.Property(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName))
-						.Select(Projections.Property(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName))
-						.Select(Projections.Property(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId))
-						.Select(Projections.Property(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
-						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
-						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
+						.Select(() => orderItemAlias.Count).WithAlias(() => resultNodeAlias.Count)
+						.Select(() => orderItemAlias.ActualCount).WithAlias(() => resultNodeAlias.ActualCount)
+						.Select(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId)
+						.Select(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId)
+						.Select(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName)
+						.SelectSubQuery(counterpartyPhonesSubquery).WithAlias(() => resultNodeAlias.CounterpartyPhones)
+						.Select(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName)
+						.Select(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId)
+						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate)
+						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
+						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).List<OrderItemNode>();
 

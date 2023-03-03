@@ -1463,4 +1463,7 @@
       <Name>Vodovoz.Settings</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="NHibernateProjections\Counterparty\" />
+  </ItemGroup>
 </Project>

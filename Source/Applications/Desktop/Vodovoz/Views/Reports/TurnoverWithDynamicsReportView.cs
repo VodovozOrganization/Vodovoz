@@ -202,6 +202,11 @@ namespace Vodovoz.ReportsParameters.Sales
 			columnsConfig.AddColumn("Периоды продаж").AddTextRenderer(row =>
 				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true);
 
+			if(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty)
+			{
+				columnsConfig.AddColumn("Телефоны").AddTextRenderer(row => row.Phones);
+			}
+
 			if(ViewModel.Report.ShowDynamics)
 			{
 				var columnsCount = ViewModel.Report.Slices.Count * 2;
