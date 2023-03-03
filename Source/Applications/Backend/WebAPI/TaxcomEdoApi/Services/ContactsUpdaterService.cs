@@ -99,7 +99,7 @@ namespace TaxcomEdoApi.Services
 
 										foreach(var counterparty in counterparties)
 										{
-											_logger.LogInformation("Обновляем данные у клиента Id {counterpartyId}", counterparty.Id);
+											_logger.LogInformation("Обновляем данные у клиента Id {CounterpartyId}", counterparty.Id);
 											counterparty.EdoOperator =
 												_counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
 											counterparty.PersonalAccountIdInEdo = contact.EdxClientId;
@@ -132,8 +132,8 @@ namespace TaxcomEdoApi.Services
 											}
 
 											_logger.LogInformation(
-												"Обновляем согласие на ЭДО у клиента Id {counterpartyId}" +
-												" с {counterpartyConsentForEdoStatus} на {consentForEdoStatus}",
+												"Обновляем согласие на ЭДО у клиента Id {CounterpartyId}" +
+												" с {CounterpartyConsentForEdoStatus} на {ConsentForEdoStatus}",
 												counterparty.Id, counterparty.ConsentForEdoStatus, consentForEdoStatus);
 											
 											if(consentForEdoStatus == ConsentForEdoStatus.Rejected)
@@ -141,9 +141,9 @@ namespace TaxcomEdoApi.Services
 												if(counterparty.PersonalAccountIdInEdo != contact.EdxClientId)
 												{
 													_logger.LogInformation(
-														"Пришел отказ на ЭДО у клиента Id {counterpartyId}" +
+														"Пришел отказ на ЭДО у клиента Id {CounterpartyId}" +
 														" по кабинету {EdxClientId}," +
-														" хотя у клиента {counterpartyPersonalAccountIdInEdo} пропускаем...",
+														" хотя у клиента {CounterpartyPersonalAccountIdInEdo} пропускаем...",
 														counterparty.Id, contact.EdxClientId, counterparty.PersonalAccountIdInEdo);
 													continue;
 												}
@@ -181,7 +181,7 @@ namespace TaxcomEdoApi.Services
 
 		private async Task DelayAsync(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Ждем {_delaySec}сек", _delaySec);
+			_logger.LogInformation("Ждем {DelaySec}сек", _delaySec);
 			await Task.Delay(_delaySec * 1000, stoppingToken);
 		}
 	}

@@ -31,7 +31,7 @@ namespace TaxcomEdoApi.Services
 			{
 				try
 				{
-					_logger.LogInformation("Пауза перед запуском транзакций {_delaySec}сек", _delaySec);
+					_logger.LogInformation("Пауза перед запуском транзакций {DelaySec}сек", _delaySec);
 					await Task.Delay(_delaySec * 1000, stoppingToken);
 					_logger.LogInformation("Запускаем необходимые транзакции");
 					_taxcomApi.AutoSendReceive(stoppingToken);

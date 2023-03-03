@@ -103,7 +103,7 @@ namespace TaxcomEdoApi.Services
 
 				if(organization is null)
 				{
-					_logger.LogError("Не найдена организация по edxClientId {edoAccountId}", edoAccountId);
+					_logger.LogError("Не найдена организация по edxClientId {EdoAccountId}", edoAccountId);
 					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
 				}
 				
@@ -117,10 +117,10 @@ namespace TaxcomEdoApi.Services
 						.Where(o => o.OrderDocuments.Any(
 							x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD)).ToList();
 
-				_logger.LogInformation("Всего заказов для формирования УПД и отправки: {filteredOrdersCount}", filteredOrders.Count);
+				_logger.LogInformation("Всего заказов для формирования УПД и отправки: {FilteredOrdersCount}", filteredOrders.Count);
 				foreach(var order in filteredOrders)
 				{
-					_logger.LogInformation($"Создаем УПД по заказу №{order.Id}");
+					_logger.LogInformation("Создаем УПД по заказу №{OrderId}", order.Id);
 					try
 					{
 						var updXml = _edoUpdFactory.CreateNewUpdXml(order, edoAccountId, _certificate.Subject);
@@ -135,7 +135,7 @@ namespace TaxcomEdoApi.Services
 						if(!upd.Validate(out var errors))
 						{
 							var errorsString = string.Join(", ", errors);
-							_logger.LogError("УПД {orderId} не прошла валидацию\nОшибки: {errorsString}", order.Id, errorsString);
+							_logger.LogError("УПД {OrderId} не прошла валидацию\nОшибки: {ErrorsString}", order.Id, errorsString);
 							continue;
 						}
 
@@ -154,16 +154,16 @@ namespace TaxcomEdoApi.Services
 							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
 						};
 
-						_logger.LogInformation("Сохраняем контейнер по заказу №{orderId}", order.Id);
+						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
 						uow.Save(edoContainer);
 						uow.Commit();
 
-						_logger.LogInformation("Отправляем контейнер по заказу №{orderId}", order.Id);
+						_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", order.Id);
 						_taxcomApi.Send(container);
 					}
 					catch(Exception e)
 					{
-						_logger.LogError(e, "Ошибка в процессе формирования УПД №{orderId} и ее отправки", order.Id);
+						_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", order.Id);
 					}
 				}
 			}
@@ -192,7 +192,7 @@ namespace TaxcomEdoApi.Services
 						return Task.CompletedTask;
 					}
 
-					_logger.LogInformation("Обрабатываем полученные контейнеры {docFlowUpdatesCount}", docFlowUpdates.Updates.Count);
+					_logger.LogInformation("Обрабатываем полученные контейнеры {DocFlowUpdatesCount}", docFlowUpdates.Updates.Count);
 					foreach(var item in docFlowUpdates.Updates)
 					{
 						var container = _orderRepository.GetEdoContainerByMainDocumentId(uow, item.Documents[0].ExternalIdentifier);
@@ -301,7 +301,7 @@ namespace TaxcomEdoApi.Services
 
 		private async Task DelayAsync(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Ждем {_delaySec}сек", _delaySec);
+			_logger.LogInformation("Ждем {DelaySec}сек", _delaySec);
 			await Task.Delay(_delaySec * 1000, stoppingToken);
 		}
 	}
