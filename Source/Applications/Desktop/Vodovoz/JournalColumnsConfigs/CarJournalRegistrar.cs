@@ -20,6 +20,6 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGray : _colorBlack)
-				.Finish()
+				.Finish();
 	}
 }
