@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Organizations
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
-			TabName = "Откуда клиент";
+			TabName = "Формы собственности контрагентов";
 			SetOrder(x => x.Abbreviation);
 			UpdateOnChanges(typeof(OrganizationOwnershipType));
 		}

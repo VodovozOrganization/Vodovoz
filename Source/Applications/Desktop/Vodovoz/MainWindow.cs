@@ -1521,9 +1521,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionOrganizationOwnershipTypeActivated(object sender, EventArgs e)
 	{
-		OrganizationOwnershipTypeJournalFilterViewModel filter = new OrganizationOwnershipTypeJournalFilterViewModel();
-		var journal = new OrganizationOwnershipTypeJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-		tdiMain.AddTab(journal);
+		NavigationManager.OpenViewModel<OrganizationOwnershipTypeJournalViewModel>(null);
 	}
 
 	protected void OnActionProductGroupsActivated(object sender, EventArgs e)

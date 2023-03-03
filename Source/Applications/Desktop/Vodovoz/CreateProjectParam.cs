@@ -48,6 +48,7 @@ using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Dialogs.Organizations;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -119,7 +120,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Orders;
@@ -233,6 +233,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
 				.RegisterWidgetForTabViewModel<ClientCameFromViewModel, ClientCameFromView>()
+				.RegisterWidgetForTabViewModel<OrganizationOwnershipTypeViewModel, OrganizationOwnershipTypeView>()
 				.RegisterWidgetForTabViewModel<FuelTypeViewModel, FuelTypeView>()
 				.RegisterWidgetForTabViewModel<FuelWriteoffDocumentViewModel, FuelWriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()

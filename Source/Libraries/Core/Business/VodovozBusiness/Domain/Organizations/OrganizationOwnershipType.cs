@@ -7,8 +7,8 @@ using QS.DomainModel.UoW;
 namespace Vodovoz.Domain.Organizations
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Формы собственности",
-		Nominative = "Форма собственности"
+		NominativePlural = "Тип форм собственности",
+		Nominative = "Тип формы собственности"
 	)]
 	[EntityPermission]
 	public class OrganizationOwnershipType : PropertyChangedBase, IDomainObject, IValidatableObject
