@@ -33,12 +33,12 @@ namespace Vodovoz.Dialogs.Organizations
 			global::Stetic.BinContainer.Attach(this);
 			this.WidthRequest = 0;
 			this.HeightRequest = 0;
-			this.Sensitive = false;
 			this.Name = "Vodovoz.Dialogs.Organizations.OrganizationOwnershipTypeView";
 			// Container child Vodovoz.Dialogs.Organizations.OrganizationOwnershipTypeView.Gtk.Container+ContainerChild
 			this.yvboxMain = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxMain.Name = "yvboxMain";
 			this.yvboxMain.Spacing = 6;
+			this.yvboxMain.BorderWidth = ((uint)(4));
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.hboxButtons = new global::Gtk.HBox();
 			this.hboxButtons.Name = "hboxButtons";
@@ -85,12 +85,16 @@ namespace Vodovoz.Dialogs.Organizations
 			this.ytableOwnertypeData.ColumnSpacing = ((uint)(6));
 			// Container child ytableOwnertypeData.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.HeightRequest = 130;
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			this.GtkScrolledWindow.BorderWidth = ((uint)(2));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.ytextviewFullName = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewFullName.CanFocus = true;
 			this.ytextviewFullName.Name = "ytextviewFullName";
+			this.ytextviewFullName.AcceptsTab = false;
+			this.ytextviewFullName.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindow.Add(this.ytextviewFullName);
 			this.ytableOwnertypeData.Add(this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.ytableOwnertypeData[this.GtkScrolledWindow]));
@@ -98,7 +102,6 @@ namespace Vodovoz.Dialogs.Organizations
 			w7.BottomAttach = ((uint)(2));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableOwnertypeData.Gtk.Table+TableChild
 			this.yChkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
