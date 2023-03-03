@@ -133,6 +133,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
@@ -1518,6 +1519,13 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(journal);
 	}
 
+	protected void OnActionOrganizationOwnershipTypeActivated(object sender, EventArgs e)
+	{
+		OrganizationOwnershipTypeJournalFilterViewModel filter = new OrganizationOwnershipTypeJournalFilterViewModel();
+		var journal = new OrganizationOwnershipTypeJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(journal);
+	}
+
 	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -2239,7 +2247,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
 			() => new QSReport.ReportViewDlg(new CounterpartyReport(
-				new SalesChannelJournalFactory(), 
+				new SalesChannelJournalFactory(),
 				new DistrictJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));
