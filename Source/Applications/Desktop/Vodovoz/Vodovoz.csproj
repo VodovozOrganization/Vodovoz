@@ -1782,11 +1782,16 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintDetalizationJournalFilterView.cs" />
     <Compile Include="Views\Client\CounterpartyDetailsFromRevenueServiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyDetailsFromRevenueServiceView.cs" />
+    <Compile Include="Dialogs\Organizations\OrganizationOwnershipTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Organizations.OrganizationOwnershipTypeView.cs" />
+    <Compile Include="Filters\GtkViews\OrganizationOwnershipTypeJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrganizationOwnershipTypeJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\Warehouse\Documents\" />
+    <Folder Include="Dialogs\Organizations\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2272,7 +2277,7 @@
       <Name>VodovozViewModels</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
-      <Project>{08DCE339-CA3B-4D68-AF84-9625483283D5}</Project>
+      <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
     </ProjectReference>
   </ItemGroup>
