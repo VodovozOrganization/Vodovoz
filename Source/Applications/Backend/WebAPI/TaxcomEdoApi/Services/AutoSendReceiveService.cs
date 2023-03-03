@@ -31,14 +31,14 @@ namespace TaxcomEdoApi.Services
 			{
 				try
 				{
-					_logger.LogInformation($"Пауза перед запуском транзакций {_delaySec}сек");
+					_logger.LogInformation("Пауза перед запуском транзакций {_delaySec}сек", _delaySec);
 					await Task.Delay(_delaySec * 1000, stoppingToken);
 					_logger.LogInformation("Запускаем необходимые транзакции");
 					_taxcomApi.AutoSendReceive(stoppingToken);
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(e, $"Ошибка при запуске {nameof(_taxcomApi.AutoSendReceive)}");
+					_logger.LogError(e, "Ошибка при запуске {AutoSendReceive}", nameof(_taxcomApi.AutoSendReceive));
 				}
 			}
 		}

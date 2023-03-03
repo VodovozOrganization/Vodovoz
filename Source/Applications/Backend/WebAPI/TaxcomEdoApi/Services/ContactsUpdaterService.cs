@@ -86,7 +86,8 @@ namespace TaxcomEdoApi.Services
 								switch(contact.State.Code)
 								{
 									case ContactStateCode.Incoming:
-										_logger.LogInformation($"Входящее приглашение от клиента с аккаунтом {contact.EdxClientId}...");
+										_logger.LogInformation(
+											"Входящее приглашение от клиента с аккаунтом {EdxClientId}...", contact.EdxClientId);
 										_taxcomApi.AcceptContact(contact.EdxClientId);
 
 										counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
@@ -98,7 +99,7 @@ namespace TaxcomEdoApi.Services
 
 										foreach(var counterparty in counterparties)
 										{
-											_logger.LogInformation($"Обновляем данные у клиента Id {counterparty.Id}");
+											_logger.LogInformation("Обновляем данные у клиента Id {counterpartyId}", counterparty.Id);
 											counterparty.EdoOperator =
 												_counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
 											counterparty.PersonalAccountIdInEdo = contact.EdxClientId;
@@ -112,7 +113,7 @@ namespace TaxcomEdoApi.Services
 									case ContactStateCode.Accepted:
 									case ContactStateCode.Rejected:
 									case ContactStateCode.Error:
-										_logger.LogInformation($"Обрабатываем контакт в статусе {contact.State.Code}");
+										_logger.LogInformation("Обрабатываем контакт в статусе {StateCode}", contact.State.Code);
 										counterparties = _counterpartyRepository.GetCounterpartiesByINN(uow, contact.Inn);
 
 										if(counterparties == null)
@@ -131,12 +132,27 @@ namespace TaxcomEdoApi.Services
 											}
 
 											_logger.LogInformation(
-												$"Обновляем согласие на ЭДО у клиента Id {counterparty.Id}" +
-												$" с {counterparty.ConsentForEdoStatus} на {consentForEdoStatus}");
+												"Обновляем согласие на ЭДО у клиента Id {counterpartyId}" +
+												" с {counterpartyConsentForEdoStatus} на {consentForEdoStatus}",
+												counterparty.Id, counterparty.ConsentForEdoStatus, consentForEdoStatus);
 											
-											if(consentForEdoStatus == ConsentForEdoStatus.Agree)
+											if(consentForEdoStatus == ConsentForEdoStatus.Rejected)
+											{
+												if(counterparty.PersonalAccountIdInEdo != contact.EdxClientId)
+												{
+													_logger.LogInformation(
+														"Пришел отказ на ЭДО у клиента Id {counterpartyId}" +
+														" по кабинету {EdxClientId}," +
+														" хотя у клиента {counterpartyPersonalAccountIdInEdo} пропускаем...",
+														counterparty.Id, contact.EdxClientId, counterparty.PersonalAccountIdInEdo);
+													continue;
+												}
+											}
+											else if(consentForEdoStatus == ConsentForEdoStatus.Agree)
 											{
 												counterparty.PersonalAccountIdInEdo = contact.EdxClientId;
+												counterparty.EdoOperator =
+													_counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
 											}
 											
 											counterparty.ConsentForEdoStatus = consentForEdoStatus;
@@ -165,7 +181,7 @@ namespace TaxcomEdoApi.Services
 
 		private async Task DelayAsync(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation($"Ждем {_delaySec}сек");
+			_logger.LogInformation("Ждем {_delaySec}сек", _delaySec);
 			await Task.Delay(_delaySec * 1000, stoppingToken);
 		}
 	}
