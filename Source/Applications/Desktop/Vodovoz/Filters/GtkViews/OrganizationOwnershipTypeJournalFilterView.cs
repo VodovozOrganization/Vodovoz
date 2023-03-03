@@ -1,13 +1,13 @@
 ﻿using QS.Views.GtkUI;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Filters.GtkViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrganizationOwnershipTypeJournalFilterView : FilterViewBase<OrganizationOwnershipTypeJournalFilterViewModel>
 	{
-		public OrganizationOwnershipTypeJournalFilterView(OrganizationOwnershipTypeJournalFilterViewModel organizationOwnershipTypeJournalFilterViewModel) : base(сlientCameFromFilterViewModel)
+		public OrganizationOwnershipTypeJournalFilterView(OrganizationOwnershipTypeJournalFilterViewModel organizationOwnershipTypeJournalFilterViewModel) : base(OrganizationOwnershipTypeViewModel)
 		{
 			this.Build();
 			Configure();
@@ -15,7 +15,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		void Configure()
 		{
-			yChkShowArchive.Binding.AddBinding(ViewModel, vm => vm.RestrictArchive, w => w.Active).InitializeFromSource();
+			yChkShowArchive.Binding.AddBinding(ViewModel, vm => vm.IsArchive, w => w.Active).InitializeFromSource();
 		}
 	}
 }
