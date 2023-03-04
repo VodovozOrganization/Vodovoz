@@ -9,16 +9,29 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes.Organizations;
+using Vodovoz.Factories;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Organizations
 {
 	public class OrganizationOwnershipTypeJournalViewModel : FilterableSingleEntityJournalViewModelBase<OrganizationOwnershipType, OrganizationOwnershipTypeViewModel, OrganizationOwnershipTypeJournalNode, OrganizationOwnershipTypeJournalFilterViewModel>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ICommonServices _commonServices;
+		private readonly IValidationContextFactory _validationContextFactory;
+		private IOrganizationRepository _organizationRepository;
 
-		public OrganizationOwnershipTypeJournalViewModel(OrganizationOwnershipTypeJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public OrganizationOwnershipTypeJournalViewModel(
+			OrganizationOwnershipTypeJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IValidationContextFactory validationContextFactory,
+			IOrganizationRepository organizationRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(_unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(_commonServices));
+			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(_validationContextFactory));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(_organizationRepository));
 
 			TabName = "Формы собственности контрагентов";
 			SetOrder(x => x.Abbreviation);
@@ -54,14 +67,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Organizations
 
 		protected override Func<OrganizationOwnershipTypeViewModel> CreateDialogFunction => () => new OrganizationOwnershipTypeViewModel(
 			EntityUoWBuilder.ForCreate(),
-		   	unitOfWorkFactory,
-			commonServices
+		   	_unitOfWorkFactory,
+			_commonServices,
+			_validationContextFactory,
+			_organizationRepository
 		);
 
 		protected override Func<OrganizationOwnershipTypeJournalNode, OrganizationOwnershipTypeViewModel> OpenDialogFunction => node => new OrganizationOwnershipTypeViewModel(
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
-			commonServices
+		   	_unitOfWorkFactory,
+			_commonServices,
+			_validationContextFactory,
+			_organizationRepository
 		);
 	}
 }

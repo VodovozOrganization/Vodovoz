@@ -83,12 +83,17 @@ namespace Vodovoz.Domain.Organizations
 				yield return new ValidationResult("Необходимо заполнить поле \"Полное название\".");
 			}
 
+			if(!(validationContext.GetService(typeof(IUnitOfWork)) is IUnitOfWork uow))
+			{
+				throw new ArgumentException($"Для валидации типа организации должен быть доступен UnitOfWork");
+			}
+
 			if(!(validationContext.ServiceContainer.GetService(typeof(IOrganizationRepository)) is IOrganizationRepository organizationRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(IOrganizationRepository)}");
 			}
 
-			if (CheckForAbbreviationDuplicate(_uow, organizationRepository))
+			if (CheckForAbbreviationDuplicate(uow, organizationRepository))
 			{
 				yield return new ValidationResult($"Запись для формы собственности \"{Abbreviation}\" уже существует.");
 			}

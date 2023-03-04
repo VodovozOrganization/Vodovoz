@@ -13,10 +13,19 @@ namespace Vodovoz.Dialogs.Organizations
 
 		void ConfigureDlg()
 		{
-			yentryAbbreviation.Binding.AddBinding(ViewModel.Entity, x => x.Abbreviation, x => x.Text).InitializeFromSource();
-			ytextviewFullName.Binding.AddBinding(ViewModel.Entity, x => x.FullName, x => x.Buffer.Text).InitializeFromSource();
-			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, x => x.IsArchive, x => x.Active).InitializeFromSource();
+			yentryAbbreviation.Binding.AddBinding(ViewModel.Entity, e => e.Abbreviation, w => w.Text).InitializeFromSource();
+			yentryAbbreviation.Binding.AddBinding(ViewModel, wm => wm.CanCreateOrUpdate, w => w.Sensitive).InitializeFromSource();
+
+			ytextviewFullName.Binding.AddBinding(ViewModel.Entity, e => e.FullName, w => w.Buffer.Text).InitializeFromSource();
+			ytextviewFullName.Binding.AddBinding(ViewModel, wm => wm.CanCreateOrUpdate, w => w.Sensitive).InitializeFromSource();
+
+			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			yChkIsArchive.Binding.AddBinding(ViewModel, wm => wm.CanCreateOrUpdate, w => w.Sensitive).InitializeFromSource();
+
+
 			ybuttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive);
+
 			ybuttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 	}
