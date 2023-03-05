@@ -28,10 +28,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Organizations
 			IValidationContextFactory validationContextFactory,
 			IOrganizationRepository organizationRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(_unitOfWorkFactory));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(_commonServices));
-			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(_validationContextFactory));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(_organizationRepository));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 
 			TabName = "Формы собственности контрагентов";
 			SetOrder(x => x.Abbreviation);

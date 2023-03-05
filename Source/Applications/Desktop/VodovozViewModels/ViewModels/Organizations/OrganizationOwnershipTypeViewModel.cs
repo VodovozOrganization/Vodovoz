@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		{
 			TabName = "Тип формы собственности";
 
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(_organizationRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 
 			if(validationContextFactory == null)
 			{
