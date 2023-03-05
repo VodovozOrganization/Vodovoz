@@ -12,5 +12,6 @@ namespace Vodovoz.EntityRepositories.Organizations
 		Organization GetPaymentFromOrganizationById(IUnitOfWork uow, int paymentFromId);
 		Organization GetOrganizationByTaxcomEdoAccountId(IUnitOfWork uow, string edoAccountId);
 		IList<OrganizationOwnershipType> GetOrganizationOwnershipTypeByAbbreviation(IUnitOfWork uow, string abbreviation);
+		IList<OrganizationOwnershipType> GetAllOrganizationOwnershipTypes(IUnitOfWork uow);
 	}
 }

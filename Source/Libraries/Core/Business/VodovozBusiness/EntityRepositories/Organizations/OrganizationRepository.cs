@@ -69,6 +69,12 @@ namespace Vodovoz.EntityRepositories.Organizations
 				.Where(o => o.Abbreviation == abbreviation)
 				.List<OrganizationOwnershipType>();
 		}
+
+		public IList<OrganizationOwnershipType> GetAllOrganizationOwnershipTypes(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<OrganizationOwnershipType>()
+				.List<OrganizationOwnershipType>();
+		}
 	}
 }
 
