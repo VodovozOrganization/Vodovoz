@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -535,6 +535,7 @@
     <Compile Include="JournalColumnsConfigs\UsersJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WageDistrictLevelRatesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WageDistrictsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\WarehouseDocumentsItemsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WarehouseJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WaterJournalRegistrar.cs" />
     <Compile Include="JournalNodes\CarModelJournalNode.cs" />
