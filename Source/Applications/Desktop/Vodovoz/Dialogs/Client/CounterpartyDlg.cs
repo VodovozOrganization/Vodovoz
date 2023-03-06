@@ -90,6 +90,7 @@ using Autofac;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz
 {
@@ -111,6 +112,7 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
+		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
 		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
@@ -141,6 +143,8 @@ namespace Vodovoz
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
+
+		private List<string> _allNotArchivedOpfTypes = new List<string>();
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -314,7 +318,13 @@ namespace Vodovoz
 			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
-			
+			_allNotArchivedOpfTypes = _organizationRepository
+				.GetAllOrganizationOwnershipTypes(UoW)
+				.Where(t => !t.IsArchive)
+				.OrderBy(t => t.Abbreviation)
+				.Select(t => t.Abbreviation)
+				.ToList();
+
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
 
@@ -491,12 +501,14 @@ namespace Vodovoz
 			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
 			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
 
-			//datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
-			//datalegalname1.Binding.AddSource(Entity)
-			//	.AddBinding(s => s.Name, t => t.OwnName)
-			//	.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
-			//	.AddFuncBinding(s => s.TypeOfOwnership != "ИП", t => t.EntryName.Sensitive)
-			//	.InitializeFromSource();
+			ySpecCmbOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
+			//ySpecCmbOpf.Binding.AddBinding(Entity, s => s.TypeOfOwnership, t => t.SelectedItem).InitializeFromSource();
+			ySpecCmbOpf.Changed += YSpecCmbOpfChanged;
+
+			yentryOrganizationName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			yentryOrganizationName.Binding.AddBinding(Entity, s => s.Name, t => t.Text).InitializeFromSource();
+			yentryOrganizationName.Binding.AddFuncBinding(Entity, s => s.TypeOfOwnership != "ИП", t => t.Sensitive).InitializeFromSource();
 
 			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			entryFullName.Binding
@@ -1538,11 +1550,11 @@ namespace Vodovoz
 		protected void OnEnumPersonTypeChanged(object sender, EventArgs e)
 		{
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
-			//labelShort.Visible = datalegalname1.Visible =
-			//	labelFullName.Visible = entryFullName.Visible =
-			//		entryMainCounterparty.Visible = labelMainCounterparty.Visible =
-			//			radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
-			//				enumPayment.Visible = (Entity.PersonType == PersonType.legal);
+			labelShort.Visible = ySpecCmbOpf.Visible = yentryOrganizationName.Visible =
+				labelFullName.Visible = entryFullName.Visible =
+					entryMainCounterparty.Visible = labelMainCounterparty.Visible =
+						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
+							enumPayment.Visible = (Entity.PersonType == PersonType.legal);
 
 			if(Entity.PersonType != PersonType.legal && Entity.TaxType != TaxType.None)
 			{
@@ -2187,28 +2199,15 @@ namespace Vodovoz
 			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
 			Entity.RawJurAddress = revenueServiceRow.Address;
 
-			var allOrganizationOwnershipTypes = UoW.GetAll<OrganizationOwnershipType>().ToList();
-			if(allOrganizationOwnershipTypes.Any(t => t.Abbreviation == revenueServiceRow.Opf))
-			{
-				Entity.TypeOfOwnership = revenueServiceRow.Opf;
-			}
-			else
-			{
-				var newOrganizationOwnershipType = new OrganizationOwnershipType()
-				{
-					Abbreviation = revenueServiceRow.Opf ?? string.Empty,
-					FullName = revenueServiceRow.OpfFull ?? string.Empty,
-					IsArchive = false
-				};
+			var allOrganizationOwnershipTypes = _allNotArchivedOpfTypes;
 
-				if (newOrganizationOwnershipType.Abbreviation.Length > 0 && newOrganizationOwnershipType.FullName.Length > 0)
+			if((revenueServiceRow.Opf ?? String.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? String.Empty).Length > 0)
+			{
+				if(!allOrganizationOwnershipTypes.Any(t => t == revenueServiceRow.Opf))
 				{
-					using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
-					{
-						uowOrganization.Save(newOrganizationOwnershipType);
-					}
-					Entity.TypeOfOwnership = revenueServiceRow.Opf;
+					AddNewOrganizationOwnershipType(revenueServiceRow.Opf, revenueServiceRow.OpfFull);
 				}
+				Entity.TypeOfOwnership = revenueServiceRow.Opf;
 			}
 
 			if(revenueServiceRow.Opf == "ИП")
@@ -2257,6 +2256,41 @@ namespace Vodovoz
 					}
 				}
 			}
+		}
+
+		private void AddNewOrganizationOwnershipType(string abbreviation, string fullName)
+		{
+
+			var newOrganizationOwnershipType = new OrganizationOwnershipType()
+			{
+				Abbreviation = abbreviation,
+				FullName = fullName,
+				IsArchive = false
+			};
+
+			using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
+			{
+				uowOrganization.Save(newOrganizationOwnershipType);
+			}
+			//ySpecCmbOpf.Active = -1;
+			Entity.TypeOfOwnership = abbreviation;
+
+			ySpecCmbOpf.InsertText(1, abbreviation);
+			Gtk.TreeIter iter;
+			ySpecCmbOpf.Model.IterNthChild(out iter, 1);
+			_allNotArchivedOpfTypes.SortedAdd(abbreviation);
+			ySpecCmbOpf.Model.EmitRowInserted(null, iter);
+
+			//ySpecCmbOpf.Active = 1;
+			//ySpecCmbOpf = new Gamma.Widgets.ySpecComboBox();
+			ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
+			ySpecCmbOpf.Active = 1; 
+		}
+
+
+		private void YSpecCmbOpfChanged(object sender, EventArgs e)
+		{
+			Entity.TypeOfOwnership = ySpecCmbOpf.SelectedItem.ToString();//.GetTitle();
 		}
 	}
 
