@@ -76,6 +76,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Models;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
@@ -580,6 +581,10 @@ namespace Vodovoz
 				.As<IFilterWidgetResolver>()
 				.As<IWidgetResolver>()
 				.As<IGtkViewResolver>();
+
+			builder.RegisterType<TrueMarkCodesPool>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
 
 			#region Adapters & Factories
 

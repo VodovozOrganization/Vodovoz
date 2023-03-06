@@ -11,23 +11,37 @@ using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using Vodovoz.Domain.TrueMark;
+using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
 	public class TrueMarkReceiptOrdersRegistryJournalViewModel : JournalViewModelBase
 	{
+		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ITrueMarkRepository _trueMarkRepository;
+		private Timer _autoRefreshTimer;
+		private int _autoRefreshInterval;
+
 		public TrueMarkReceiptOrdersRegistryJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			TrueMarkCodesPool trueMarkCodesPool,
+			ITrueMarkRepository trueMarkRepository,
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
+			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+			_autoRefreshInterval = 30;
+
 			Title = "Реестр заказов для чека";
 
 			var levelDataLoader = new HierarchicalQueryLoader<TrueMarkCashReceiptOrder, TrueMarkReceiptOrderNode>(unitOfWorkFactory);
-			
+
 			levelDataLoader.SetLevelingModel(GetQuery)
 				.AddNextLevelSource(GetDetails);
 			levelDataLoader.SetCountFunction(GetCount);
@@ -49,11 +63,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			Refresh();
 		}
 
+		public override string FooterInfo
+		{
+			get
+			{
+				var poolCount = _trueMarkCodesPool.GetTotalCount();
+				var defectivePoolCount = _trueMarkCodesPool.GetDefectiveTotalCount();
+				var autorefreshInfo = GetAutoRefreshInfo();
+				var codeErrorsOrdersCount = _trueMarkRepository.GetCodeErrorsOrdersCount(UoW);
+				return $"Заказов с ошибками кодов: {codeErrorsOrdersCount} | Кодов в пуле: {poolCount}, бракованных: {defectivePoolCount} | {autorefreshInfo} | {base.FooterInfo}";
+			}
+		}
+
 		public override JournalSelectionMode SelectionMode => JournalSelectionMode.Single;
 
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateAutorefreshAction();
 		}
 
 		#region Queries
@@ -128,5 +155,63 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			var count = query.List<TrueMarkReceiptOrderNode>().Count();
 			return count;
 		}
+
+		#region Autorefresh
+
+		private bool autoRefreshEnabled => _autoRefreshTimer != null && _autoRefreshTimer.Enabled;
+
+		private void StartAutoRefresh()
+		{
+			if(autoRefreshEnabled)
+			{
+				return;
+			}
+			_autoRefreshTimer = new Timer(_autoRefreshInterval * 1000);
+			_autoRefreshTimer.Elapsed += (s, e) => Refresh();
+			_autoRefreshTimer.Start();
+		}
+
+		private void StopAutoRefresh()
+		{
+			_autoRefreshTimer?.Stop();
+			_autoRefreshTimer = null;
+		}
+
+		private void SwitchAutoRefresh()
+		{
+			if(autoRefreshEnabled)
+			{
+				StopAutoRefresh();
+			}
+			else
+			{
+				StartAutoRefresh();
+			}
+			OnPropertyChanged(nameof(FooterInfo));
+		}
+
+		private string GetAutoRefreshInfo()
+		{
+			if(autoRefreshEnabled)
+			{
+				return $"Автообновление каждые {_autoRefreshInterval} сек.";
+			}
+			else
+			{
+				return $"Автообновление выключено";
+			}
+		}
+
+		private void CreateAutorefreshAction()
+		{
+			var switchAutorefreshAction = new JournalAction("Вкл/Выкл автообновление",
+				(selected) => true,
+				(selected) => true,
+				(selected) => SwitchAutoRefresh()
+			);
+			NodeActionsList.Add(switchAutorefreshAction);
+		}
+
+		#endregion Autorefresh
 	}
 }

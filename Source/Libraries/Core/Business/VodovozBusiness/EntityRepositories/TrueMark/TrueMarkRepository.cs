@@ -1,6 +1,8 @@
 ﻿using NHibernate.Criterion;
+using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.EntityRepositories.TrueMark
@@ -15,6 +17,15 @@ namespace Vodovoz.EntityRepositories.TrueMark
 					|| trueMarkCashReceiptOrderAlias.Status == TrueMarkCashReceiptOrderStatus.CodeError)
 				.Select(Projections.Id())
 				.List<int>();
+			return result;
+		}
+
+		public int GetCodeErrorsOrdersCount(IUnitOfWork uow)
+		{
+			var result = uow.Session.QueryOver<TrueMarkCashReceiptOrder>()
+				.Where(x => x.Status == TrueMarkCashReceiptOrderStatus.CodeError)
+				.ToRowCountQuery()
+				.List<int>().First();
 			return result;
 		}
 	}

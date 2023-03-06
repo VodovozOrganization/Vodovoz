@@ -1,4 +1,5 @@
 ﻿using NHibernate;
+using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -161,6 +162,30 @@ namespace Vodovoz.Models.TrueMark
 					.SetParameterList("code_ids", codeIds.ToArray());
 				query.ExecuteUpdate();
 				transaction.Commit();
+			}
+		}
+
+		public int GetTotalCount()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var sql = $@"
+					SELECT Count(id) FROM true_mark_codes_pool;";
+				var query = uow.Session.CreateSQLQuery(sql);
+				var result = (int)query.UniqueResult<long>();
+				return result;
+			}
+		}
+
+		public int GetDefectiveTotalCount()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var sql = $@"
+					SELECT Count(id) FROM true_mark_defective_codes_pool;";
+				var query = uow.Session.CreateSQLQuery(sql);
+				var result = (int)query.UniqueResult<long>();
+				return result;
 			}
 		}
 	}
