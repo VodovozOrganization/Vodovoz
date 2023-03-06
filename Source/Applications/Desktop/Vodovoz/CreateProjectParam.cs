@@ -76,6 +76,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Models;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
@@ -575,6 +576,10 @@ namespace Vodovoz
 		{
 			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
 			builder.RegisterInstance(ViewModelWidgetResolver.Instance).AsSelf().AsImplementedInterfaces();
+
+			builder.RegisterType<TrueMarkCodesPool>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
 
 			#region Adapters & Factories
 
