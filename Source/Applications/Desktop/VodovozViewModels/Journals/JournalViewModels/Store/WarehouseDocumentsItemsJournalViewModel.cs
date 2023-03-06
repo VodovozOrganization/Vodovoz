@@ -210,52 +210,54 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var invoiceQuery = UoW.Session.QueryOver(() => incomingInvoiceItemAlias)
 				.Left.JoinQueryOver(() => incomingInvoiceItemAlias.Document, () => invoiceAlias);
 
-			//if((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingInvoice) &&
-			//   Filter.RestrictDriver == null)
-			//{
-			//	var invoiceQuery = UoW.Session.QueryOver<IncomingInvoice>(() => invoiceAlias);
-			//	if(Filter.RestrictWarehouse != null)
-			//	{
-			//		invoiceQuery.Where(x => x.Warehouse.Id == Filter.RestrictWarehouse.Id);
-			//	}
-			//	if(Filter.RestrictStartDate.HasValue)
-			//	{
-			//		invoiceQuery.Where(o => o.TimeStamp >= Filter.RestrictStartDate.Value);
-			//	}
-			//	if(Filter.RestrictEndDate.HasValue)
-			//	{
-			//		invoiceQuery.Where(o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays(1));
-			//	}
+			if((FilterViewModel.RestrictDocumentType is null || FilterViewModel.RestrictDocumentType == DocumentType.IncomingInvoice) &&
+			   FilterViewModel.RestrictDriver is null)
+			{
+				if(FilterViewModel.RestrictWarehouse != null)
+				{
+					invoiceQuery.Where(x => x.Warehouse.Id == FilterViewModel.RestrictWarehouse.Id);
+				}
+				if(FilterViewModel.RestrictStartDate.HasValue)
+				{
+					invoiceQuery.Where(o => o.TimeStamp >= FilterViewModel.RestrictStartDate.Value);
+				}
+				if(FilterViewModel.RestrictEndDate.HasValue)
+				{
+					invoiceQuery.Where(o => o.TimeStamp < FilterViewModel.RestrictEndDate.Value.AddDays(1));
+				}
+			}
 
 			return invoiceQuery.JoinQueryOver(() => invoiceAlias.Contractor, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => invoiceAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(() => invoiceAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.SelectList(list => list
-					.Select(() => incomingInvoiceItemAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => invoiceAlias.Id).WithAlias(() => resultAlias.DocumentId)
-					.Select(() => invoiceAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => invoiceAlias.Comment).WithAlias(() => resultAlias.Comment)
-					.Select(() => DocumentType.IncomingInvoice).WithAlias(() => resultAlias.DocTypeEnum)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => counterpartyAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => counterpartyAlias.Name)))
-					.WithAlias(() => resultAlias.Counterparty)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => warehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => warehouseAlias.Name)))
-					.WithAlias(() => resultAlias.Warehouse)
-					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
-					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
-					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
-					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
-					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
-					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-					.Select(() => invoiceAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
-				)
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem>>());
+			.JoinQueryOver(() => invoiceAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			.JoinAlias(() => invoiceAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			.SelectList(list => list
+				.Select(() => incomingInvoiceItemAlias.Id).WithAlias(() => resultAlias.Id)
+				.Select(() => invoiceAlias.Id).WithAlias(() => resultAlias.DocumentId)
+				.Select(() => invoiceAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+				.Select(() => invoiceAlias.Comment).WithAlias(() => resultAlias.Comment)
+				.Select(() => DocumentType.IncomingInvoice).WithAlias(() => resultAlias.DocTypeEnum)
+				.Select(Projections.Conditional(
+					Restrictions.Where(() => counterpartyAlias.Name == null),
+					Projections.Constant("Не указан", NHibernateUtil.String),
+					Projections.Property(() => counterpartyAlias.Name)))
+				.WithAlias(() => resultAlias.Counterparty)
+				.Select(Projections.Conditional(
+					Restrictions.Where(() => warehouseAlias.Name == null),
+					Projections.Constant("Не указан", NHibernateUtil.String),
+					Projections.Property(() => warehouseAlias.Name)))
+				.WithAlias(() => resultAlias.Warehouse)
+				.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+				.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+				.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+				.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+				.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+				.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+				.Select(() => invoiceAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+			)
+			.OrderByAlias(() => invoiceAlias.Id).Desc
+			.OrderByAlias(() => incomingInvoiceItemAlias.Id).Desc
+			.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem>>());
 		}
 
 		private IQueryOver<IncomingWaterMaterial> GetQueryIncomingWaterMaterial(IUnitOfWork unitOfWork)
