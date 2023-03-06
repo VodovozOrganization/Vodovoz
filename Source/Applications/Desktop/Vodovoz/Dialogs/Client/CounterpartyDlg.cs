@@ -2192,14 +2192,28 @@ namespace Vodovoz
 			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
 			Entity.RawJurAddress = revenueServiceRow.Address;
 
-			var allOrganizationOwnershipTypes = _organizationRepository.GetAllOrganizationOwnershipTypes(UoW);
+			var allOrganizationOwnershipTypes = UoW.GetAll<OrganizationOwnershipType>().ToList();
 			if(allOrganizationOwnershipTypes.Any(t => t.Abbreviation == revenueServiceRow.Opf))
 			{
 				Entity.TypeOfOwnership = revenueServiceRow.Opf;
 			}
 			else
 			{
-				Entity.TypeOfOwnership = null;
+				var newOrganizationOwnershipType = new OrganizationOwnershipType()
+				{
+					Abbreviation = revenueServiceRow.Opf ?? string.Empty,
+					FullName = revenueServiceRow.OpfFull ?? string.Empty,
+					IsArchive = false
+				};
+
+				if (newOrganizationOwnershipType.Abbreviation.Length > 0 && newOrganizationOwnershipType.FullName.Length > 0)
+				{
+					using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
+					{
+						uowOrganization.Save(newOrganizationOwnershipType);
+					}
+					Entity.TypeOfOwnership = revenueServiceRow.Opf;
+				}
 			}
 
 			if(revenueServiceRow.Opf == "ИП")
