@@ -503,8 +503,7 @@ namespace Vodovoz
 
 			ySpecCmbOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
-			//ySpecCmbOpf.Binding.AddBinding(Entity, s => s.TypeOfOwnership, t => t.SelectedItem).InitializeFromSource();
-			ySpecCmbOpf.Changed += YSpecCmbOpfChanged;
+			ySpecCmbOpf.Binding.AddBinding(Entity, s => s.TypeOfOwnership, t => t.SelectedItem).InitializeFromSource();
 
 			yentryOrganizationName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			yentryOrganizationName.Binding.AddBinding(Entity, s => s.Name, t => t.Text).InitializeFromSource();
@@ -2272,25 +2271,20 @@ namespace Vodovoz
 			{
 				uowOrganization.Save(newOrganizationOwnershipType);
 			}
-			//ySpecCmbOpf.Active = -1;
 			Entity.TypeOfOwnership = abbreviation;
 
+			ySpecCmbOpf.Active = -1;
 			ySpecCmbOpf.InsertText(1, abbreviation);
-			Gtk.TreeIter iter;
-			ySpecCmbOpf.Model.IterNthChild(out iter, 1);
 			_allNotArchivedOpfTypes.SortedAdd(abbreviation);
-			ySpecCmbOpf.Model.EmitRowInserted(null, iter);
+			ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
+			ySpecCmbOpf.Active = 1;
+
+			//Gtk.TreeIter iter;
+			//ySpecCmbOpf.Model.IterNthChild(out iter, 1);
+			//ySpecCmbOpf.Model.EmitRowInserted(null, iter);
 
 			//ySpecCmbOpf.Active = 1;
 			//ySpecCmbOpf = new Gamma.Widgets.ySpecComboBox();
-			ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
-			ySpecCmbOpf.Active = 1; 
-		}
-
-
-		private void YSpecCmbOpfChanged(object sender, EventArgs e)
-		{
-			Entity.TypeOfOwnership = ySpecCmbOpf.SelectedItem.ToString();//.GetTitle();
 		}
 	}
 
