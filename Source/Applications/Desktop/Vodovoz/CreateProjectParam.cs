@@ -119,6 +119,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -418,8 +419,9 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CarsMonitoringViewModel, CarsMonitoringView>()
 				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryPercentCoverageReportViewModel, FastDeliveryPercentCoverageReportView>()
+				.RegisterWidgetForWidgetViewModel<TrueMarkReceiptOrderJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
 				;
-
+			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 

@@ -15,18 +15,21 @@ using System.Timers;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
 	public class TrueMarkReceiptOrdersRegistryJournalViewModel : JournalViewModelBase
 	{
+		private readonly TrueMarkReceiptOrderJournalFilterViewModel _filter;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private Timer _autoRefreshTimer;
 		private int _autoRefreshInterval;
 
 		public TrueMarkReceiptOrdersRegistryJournalViewModel(
+			TrueMarkReceiptOrderJournalFilterViewModel filter,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			TrueMarkCodesPool trueMarkCodesPool,
@@ -34,11 +37,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
+			_filter = filter ?? throw new ArgumentNullException(nameof(filter));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_autoRefreshInterval = 30;
 
 			Title = "Реестр заказов для чека";
+			Filter = filter;
 
 			var levelDataLoader = new HierarchicalQueryLoader<TrueMarkCashReceiptOrder, TrueMarkReceiptOrderNode>(unitOfWorkFactory);
 
@@ -55,6 +60,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			CreateNodeActions();
 			StartAutoRefresh();
+		}
+
+		private IJournalFilter filter;
+		public IJournalFilter Filter
+		{
+			get => filter;
+			protected set
+			{
+				if(filter != null)
+					filter.OnFiltered -= FilterViewModel_OnFiltered;
+				filter = value;
+				if(filter != null)
+					filter.OnFiltered += FilterViewModel_OnFiltered;
+			}
 		}
 
 		public IRecursiveConfig RecuresiveConfig { get; }
@@ -93,10 +112,31 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			var query = uow.Session.QueryOver(() => trueMarkOrderAlias);
 
+			if(_filter.Status.HasValue)
+			{
+				query.Where(() => trueMarkOrderAlias.Status == _filter.Status.Value);
+			}
+
+			if(_filter.StartDate.HasValue)
+			{
+				query.Where(() => trueMarkOrderAlias.Date >= _filter.StartDate.Value);
+			}
+
+			if(_filter.EndDate.HasValue)
+			{
+				query.Where(() => trueMarkOrderAlias.Date <= _filter.EndDate.Value);
+			}
+
+			if(_filter.HasUnscannedReason)
+			{
+				query.Where(Restrictions.Eq(Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projections.Property(() => trueMarkOrderAlias.UnscannedCodesReason)), false));
+			}
+
 			query.Where(
 				GetSearchCriterion(
 					() => trueMarkOrderAlias.Id,
-					() => trueMarkOrderAlias.Order.Id
+					() => trueMarkOrderAlias.Order.Id,
+					() => trueMarkOrderAlias.UnscannedCodesReason
 				)
 			);
 
