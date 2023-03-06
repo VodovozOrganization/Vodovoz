@@ -80,7 +80,6 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using EdoService.Dto;
 using System.Threading;
-using Gamma.Widgets;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
@@ -88,12 +87,9 @@ using QS.Attachments.Domain;
 using QS.Utilities.Text;
 using Vodovoz.Core;
 using Autofac;
-using QSWidgetLib;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
-using Vodovoz.EntityRepositories.Organizations;
-using DocumentFormat.OpenXml.Vml.Spreadsheet;
 
 namespace Vodovoz
 {
@@ -115,7 +111,6 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
-		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
 		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());

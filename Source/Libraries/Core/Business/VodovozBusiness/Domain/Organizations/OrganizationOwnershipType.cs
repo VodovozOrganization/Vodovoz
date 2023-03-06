@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using NPOI.SS.Formula.Functions;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz.Domain.Organizations
