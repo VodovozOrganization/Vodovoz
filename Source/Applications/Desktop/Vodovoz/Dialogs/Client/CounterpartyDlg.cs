@@ -91,6 +91,7 @@ using RevenueService.Client;
 using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.EntityRepositories.Organizations;
+using FluentNHibernate.Data;
 
 namespace Vodovoz
 {
@@ -501,9 +502,16 @@ namespace Vodovoz
 			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
 			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
 
-			ySpecCmbOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
-			ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
-			ySpecCmbOpf.Binding.AddBinding(Entity, s => s.TypeOfOwnership, t => t.SelectedItem).InitializeFromSource();
+			//ySpecCmbOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			//ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
+			//ySpecCmbOpf.Binding.AddBinding(Entity, s => s.TypeOfOwnership, t => t.SelectedItem).InitializeFromSource();
+			
+			comboboxOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			foreach(string opfType in _allNotArchivedOpfTypes)
+			{
+				comboboxOpf.AppendText(opfType);
+			}
+			comboboxOpf.Changed += ComboboxOpfChanged;
 
 			yentryOrganizationName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			yentryOrganizationName.Binding.AddBinding(Entity, s => s.Name, t => t.Text).InitializeFromSource();
@@ -2273,11 +2281,11 @@ namespace Vodovoz
 			}
 			Entity.TypeOfOwnership = abbreviation;
 
-			ySpecCmbOpf.Active = -1;
-			ySpecCmbOpf.InsertText(1, abbreviation);
-			_allNotArchivedOpfTypes.SortedAdd(abbreviation);
-			ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
-			ySpecCmbOpf.Active = 1;
+			//ySpecCmbOpf.Active = -1;
+			//ySpecCmbOpf.InsertText(1, abbreviation);
+			//_allNotArchivedOpfTypes.SortedAdd(abbreviation);
+			//ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
+			//ySpecCmbOpf.Active = 1;
 
 			//Gtk.TreeIter iter;
 			//ySpecCmbOpf.Model.IterNthChild(out iter, 1);
@@ -2285,6 +2293,14 @@ namespace Vodovoz
 
 			//ySpecCmbOpf.Active = 1;
 			//ySpecCmbOpf = new Gamma.Widgets.ySpecComboBox();
+			comboboxOpf.InsertText(1, abbreviation);
+			comboboxOpf.Active = 1;
+
+		}
+
+		private void ComboboxOpfChanged(object sender, EventArgs e)
+		{
+			Entity.TypeOfOwnership = comboboxOpf.ActiveText;
 		}
 	}
 
