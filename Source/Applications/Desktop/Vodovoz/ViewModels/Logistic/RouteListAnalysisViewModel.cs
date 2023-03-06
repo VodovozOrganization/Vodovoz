@@ -213,7 +213,7 @@ namespace Vodovoz.ViewModels.Logistic
 					QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 					_undeliveryViewOpener,
 					_employeeService,
-					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+					_employeeJournalFactory,
 					_employeeSettings,
 					CommonServices
 				);
@@ -250,7 +250,7 @@ namespace Vodovoz.ViewModels.Logistic
 					fineFilter,
 					_undeliveryViewOpener,
 					_employeeService,
-					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+					_employeeJournalFactory,
 					UnitOfWorkFactory, 
 					_employeeSettings,
 					CommonServices
@@ -303,7 +303,7 @@ namespace Vodovoz.ViewModels.Logistic
 					fineFilter,
 					_undeliveryViewOpener,
 					_employeeService,
-					_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+					_employeeJournalFactory,
 					UnitOfWorkFactory, 
 					_employeeSettings,
 					CommonServices

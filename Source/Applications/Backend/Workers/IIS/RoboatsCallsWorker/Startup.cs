@@ -47,7 +47,7 @@ namespace RoboatsCallsWorker
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<RoboatsSettings>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<RoboatsSettings>().As<IRoboatsSettings>();
 
 			builder.RegisterInstance(ErrorReporter.Instance).AsImplementedInterfaces();
 

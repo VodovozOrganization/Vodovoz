@@ -60,7 +60,11 @@ namespace Vodovoz.JournalViewers
 			#region SignalsConnect
 			
 			btnAdd.Clicked += OnButtonAddClicked;
-			buttonRefresh.Clicked += (sender, args) => UpdateData();
+			buttonRefresh.Clicked += (sender, args) =>
+			{
+				vm.UpdateNodes();
+				tableProductGroup.YTreeModel = vm.YTreeModel;
+			};
 			buttonFilter.Clicked += OnButtonFilterClicked;
 			tableProductGroup.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Clicked += OnButtonEditClicked;

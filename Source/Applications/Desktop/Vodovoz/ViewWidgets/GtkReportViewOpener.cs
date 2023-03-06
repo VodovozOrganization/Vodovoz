@@ -12,6 +12,11 @@ namespace Vodovoz.ViewWidgets
 			tab.TabParent.AddTab(new ReportViewDlg(reportInfo),tab);
 		}
 
+		public void OpenReport(ITdiTabParent tabParent, ReportInfo reportInfo)
+		{
+			tabParent.AddTab(new ReportViewDlg(reportInfo), null);
+		}
+
 		public void OpenReportInSlaveTab(ITdiTab tab, ReportInfo reportInfo)
 		{
 			tab.TabParent.AddSlaveTab(tab, new ReportViewDlg(reportInfo));

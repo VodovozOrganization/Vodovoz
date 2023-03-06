@@ -23,7 +23,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 {
 	public partial class EdoUpdReportViewModel : DialogTabViewModelBase
 	{
-		private const string _templatePath = @".\Reports\Orders\EdoUpdReport.xlsx";
 		private readonly IFileDialogService _fileDialogService;
 		private DelegateCommand _generateCommand;
 		private DelegateCommand _exportCommand;

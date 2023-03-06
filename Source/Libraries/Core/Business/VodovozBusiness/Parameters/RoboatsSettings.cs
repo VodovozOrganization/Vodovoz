@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Parameters
 {
-	public class RoboatsSettings
+	public class RoboatsSettings : IRoboatsSettings
 	{
 		private readonly IParametersProvider _parametersProvider;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.Parameters
 		/// и будет закрыть при следующей проверке устаревших звонков
 		/// </summary>
 		public int CallTimeout => _parametersProvider.GetIntValue("roboats_call_timeout");
-		
+
 		/// <summary>
 		/// Интервал проверки устаревших звонков (в минутах)
 		/// </summary>

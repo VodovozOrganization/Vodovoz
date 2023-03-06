@@ -1,11 +1,10 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using System;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 

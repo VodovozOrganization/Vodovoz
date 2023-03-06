@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			RoboatsCallsFilterViewModel filterViewModel,
 			ICommonServices commonServices,
 			IFileDialogService fileDialogService,
-			RoboatsSettings roboatsSettings,
+			IRoboatsSettings roboatsSettings,
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{

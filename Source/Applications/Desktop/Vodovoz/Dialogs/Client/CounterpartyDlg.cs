@@ -90,6 +90,11 @@ using Vodovoz.Core;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Settings.Database.Edo;
 using Vodovoz.Settings.Database;
+using Autofac;
+using QSWidgetLib;
+using RevenueService.Client;
+using RevenueService.Client.Dto;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz
 {
@@ -111,7 +116,7 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
-		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
@@ -131,10 +136,12 @@ namespace Vodovoz
 		private double _emailLastScrollPosition;
 		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 		private IContactListService _contactListService;
-		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
+		private TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings = new EdoSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+		private ICounterpartySettings _counterpartySettings = new CounterpartySettings(new ParametersProvider());
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
+		private IRevenueServiceClient _revenueServiceClient;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -736,6 +743,16 @@ namespace Vodovoz
 
 		private void ConfigureTabRequisites()
 		{
+			_revenueServiceClient = new RevenueServiceClient(_counterpartySettings.RevenueServiceClientAccessToken);
+
+			btnRequestByInn.Binding
+				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.INN), w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnRequestByInnAndKpp.Binding
+				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.INN) && !string.IsNullOrWhiteSpace(e.KPP), w => w.Sensitive)
+				.InitializeFromSource();
+
 			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			
 			validatedOGRN.Binding
@@ -1308,40 +1325,14 @@ namespace Vodovoz
 
 		private void ComplaintViewOnActivated(object sender, EventArgs e)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+			Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.Counterparty = Entity;
 
-			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory, _subdivisionParametersProvider);
-			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
+			var filter = MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
 
-			var complaintsJournalViewModel = new ComplaintsJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				UndeliveredOrdersJournalOpener,
-				_employeeService,
-				CounterpartySelectorFactory,
-				RouteListItemRepository,
-				_subdivisionParametersProvider,
-				filter,
-				FilePickerService,
-				SubdivisionRepository,
-				new GtkTabsOpener(),
-				NomenclatureRepository,
-				_userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
-				new SalesPlanJournalFactory(),
-				new NomenclatureJournalFactory(),
-				new EmployeeSettings(new ParametersProvider()),
-				new UndeliveredOrdersRepository(),
-				new ComplaintParametersProvider(new ParametersProvider()),
-				MainClass.AppDIContainer.BeginLifetimeScope()
-			);
-
-			TabParent.AddTab(complaintsJournalViewModel, this, false);
+			MainClass.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
+			   null,
+			   filter,
+			   OpenPageOptions.IgnoreHash);
 		}
 
 		private bool _canClose = true;
@@ -2156,6 +2147,106 @@ namespace Vodovoz
 		{
 			_cancellationTokenSource.Cancel();
 			base.Dispose();
+		}
+
+		protected void OnButtonRequestByInnClicked(object sender, EventArgs e)
+		{
+			var dadataRequestDto = new DadataRequestDto
+			{
+				Inn = Entity.INN
+			};
+
+			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)
+		{
+			var dadataRequestDto = new DadataRequestDto
+			{
+				Inn = Entity.INN, 
+				Kpp = Entity.KPP
+			};
+
+			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		private void OpenRevenueServicePage(DadataRequestDto dadataRequestDto)
+		{
+			var revenueServicePage = MainClass.MainWin.NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
+				IRevenueServiceClient, CancellationToken>(null, dadataRequestDto, _revenueServiceClient, _cancellationTokenSource.Token);
+
+			revenueServicePage.ViewModel.OnSelectResult += (o, a) =>
+			{
+				if(a.IsActive
+				   || _commonServices.InteractiveService.Question("Вы действительно хотите подгрузить недействующие реквизиты?"))
+				{
+					FillEntityDetailsFromRevenueService(a);
+				}
+			};
+		}
+
+		private void FillEntityDetailsFromRevenueService(CounterpartyRevenueServiceDto revenueServiceRow)
+		{
+			Entity.KPP = revenueServiceRow.Kpp;
+			Entity.Name = revenueServiceRow.ShortName ?? revenueServiceRow.FullName;
+			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
+			Entity.RawJurAddress = revenueServiceRow.Address;
+
+			if(CommonValues.Ownerships.ContainsKey(revenueServiceRow.Opf))
+			{
+				Entity.TypeOfOwnership = revenueServiceRow.Opf;
+			}
+			else
+			{
+				Entity.TypeOfOwnership = null;
+			}
+
+			if(revenueServiceRow.Opf == "ИП")
+			{
+				Entity.SignatoryFIO = string.Empty;
+
+				Entity.Surname = revenueServiceRow.PersonSurname ?? string.Empty;
+				Entity.FirstName = revenueServiceRow.PersonName ?? string.Empty;
+				Entity.Patronymic = revenueServiceRow.PersonPatronymic ?? string.Empty;
+			}
+			else
+			{
+				Entity.SignatoryFIO = revenueServiceRow.TitlePersonFullName;
+
+				Entity.Surname = string.Empty;
+				Entity.FirstName = string.Empty;
+				Entity.Patronymic = string.Empty;
+			}
+
+			if(revenueServiceRow.Phones != null)
+			{
+				foreach(var number in revenueServiceRow.Phones)
+				{
+					if(Entity.Phones.All(x => x.Number != number))
+					{
+						_phonesViewModel.PhonesList.Add(new Phone
+						{
+							Counterparty = Entity,
+							Number = number
+						});
+					}
+				}
+			}
+
+			if(revenueServiceRow.Emails != null)
+			{
+				foreach(var email in revenueServiceRow.Emails)
+				{
+					if(Entity.Emails.All(x => x.Address != email))
+					{
+						emailsView.EmailsList.Add(new Email
+						{
+							Counterparty = Entity,
+							Address = email
+						});
+					}
+				}
+			}
 		}
 	}
 

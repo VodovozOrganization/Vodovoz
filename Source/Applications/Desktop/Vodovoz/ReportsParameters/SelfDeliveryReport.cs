@@ -11,10 +11,30 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SelfDeliveryReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private const int REPORT_MAX_PERIOD = 62;
+
 		public SelfDeliveryReport()
 		{
 			this.Build();
-			ydatepicker.Date = DateTime.Now.Date;
+			dateperiodpicker.StartDate = DateTime.Now.Date;
+			dateperiodpicker.EndDate = DateTime.Now.Date;
+			dateperiodpicker.PeriodChanged += DateperiodpickerPeriodChanged;
+			this.ylabelWarningMessage.Visible = false;
+		}
+
+		private void DateperiodpickerPeriodChanged(object sender, EventArgs e)
+		{
+			if (dateperiodpicker.StartDate.Date.AddDays(REPORT_MAX_PERIOD - 1) < dateperiodpicker.EndDate.Date)
+			{
+				this.ylabelWarningMessage.Visible = true;
+				this.ylabelWarningMessage.Text = $"Выбран период более {REPORT_MAX_PERIOD} дней";
+				this.buttonCreateRepot.Sensitive = false;
+			}
+			else
+			{
+				this.ylabelWarningMessage.Visible = false;
+				this.buttonCreateRepot.Sensitive = true;
+			}
 		}
 
 		#region IParametersWidget implementation
@@ -35,7 +55,9 @@ namespace Vodovoz.ReportsParameters
 				Identifier = "Orders.SelfDeliveryReport",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "date", ydatepicker.Date }
+					{ "startDate", dateperiodpicker.StartDate },
+					{ "endDate", dateperiodpicker.EndDate },
+					{ "isOneDayReport", dateperiodpicker.StartDate.Date == dateperiodpicker.EndDate.Date }
 				}
 			};
 		}
