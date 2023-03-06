@@ -491,12 +491,12 @@ namespace Vodovoz
 			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
 			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
 
-			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
-			datalegalname1.Binding.AddSource(Entity)
-				.AddBinding(s => s.Name, t => t.OwnName)
-				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
-				.AddFuncBinding(s => s.TypeOfOwnership != "ИП", t => t.EntryName.Sensitive)
-				.InitializeFromSource();
+			//datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			//datalegalname1.Binding.AddSource(Entity)
+			//	.AddBinding(s => s.Name, t => t.OwnName)
+			//	.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
+			//	.AddFuncBinding(s => s.TypeOfOwnership != "ИП", t => t.EntryName.Sensitive)
+			//	.InitializeFromSource();
 
 			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			entryFullName.Binding
@@ -1538,11 +1538,11 @@ namespace Vodovoz
 		protected void OnEnumPersonTypeChanged(object sender, EventArgs e)
 		{
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
-			labelShort.Visible = datalegalname1.Visible =
-				labelFullName.Visible = entryFullName.Visible =
-					entryMainCounterparty.Visible = labelMainCounterparty.Visible =
-						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
-							enumPayment.Visible = (Entity.PersonType == PersonType.legal);
+			//labelShort.Visible = datalegalname1.Visible =
+			//	labelFullName.Visible = entryFullName.Visible =
+			//		entryMainCounterparty.Visible = labelMainCounterparty.Visible =
+			//			radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
+			//				enumPayment.Visible = (Entity.PersonType == PersonType.legal);
 
 			if(Entity.PersonType != PersonType.legal && Entity.TaxType != TaxType.None)
 			{
