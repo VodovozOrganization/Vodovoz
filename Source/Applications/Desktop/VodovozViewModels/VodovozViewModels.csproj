@@ -70,15 +70,15 @@
     <Compile Include="Journals\JournalFactories\SalesChannelJournalFactory.cs" />
     <Compile Include="Journals\FilterViewModels\Organization\OrganizationOwnershipTypeJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Organizations\OrganizationOwnershipTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\Organizations\OrganizationOwnershipTypeJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
-    <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
     <Compile Include="TempAdapters\IComplaintDetalizationAutocompleteSelectionFactory.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyDetailsFromRevenueServiceViewModel.cs" />
