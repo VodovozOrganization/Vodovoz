@@ -91,7 +91,6 @@ using RevenueService.Client;
 using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.EntityRepositories.Organizations;
-using FluentNHibernate.Data;
 
 namespace Vodovoz
 {
@@ -2261,7 +2260,6 @@ namespace Vodovoz
 
 		private void AddNewOrganizationOwnershipType(string abbreviation, string fullName)
 		{
-
 			var newOrganizationOwnershipType = new OrganizationOwnershipType()
 			{
 				Abbreviation = abbreviation,

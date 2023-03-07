@@ -22,7 +22,6 @@ namespace Vodovoz.Dialogs.Organizations
 			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			yChkIsArchive.Binding.AddBinding(ViewModel, wm => wm.CanCreateOrUpdate, w => w.Sensitive).InitializeFromSource();
 
-
 			ybuttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive);
 
