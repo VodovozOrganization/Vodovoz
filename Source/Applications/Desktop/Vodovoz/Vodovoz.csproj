@@ -1786,6 +1786,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintDetalizationJournalFilterView.cs" />
     <Compile Include="Views\Client\CounterpartyDetailsFromRevenueServiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyDetailsFromRevenueServiceView.cs" />
+    <Compile Include="Filters\Views\TrueMarkReceiptJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

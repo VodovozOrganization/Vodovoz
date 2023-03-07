@@ -1848,6 +1848,37 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+
+			TreeViewColumnsConfigFactory.Register<TrueMarkReceiptOrdersRegistryJournalViewModel>(
+				(vm) => FluentColumnsConfig<TrueMarkReceiptOrderNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<TrueMarkReceiptOrderNode>(vm.Items.Cast<TrueMarkReceiptOrderNode>(), vm.RecuresiveConfig))
+					.AddColumn("Код").AddNumericRenderer(node => node.EntityId)
+					.AddColumn("Время").AddTextRenderer(node => node.Time.HasValue ? node.Time.Value.ToString("dd.MM.yyyy HH:mm:ss") : "")
+					.AddColumn("Статус").AddTextRenderer(node => node.Status)
+					.AddColumn("Код заказа или\nстроки заказа").AddNumericRenderer(node => node.OrderAndItemId).Digits(0)
+					.AddColumn("Брак").AddToggleRenderer(node => node.IsDefectiveCode).Editing(false)
+					.AddColumn("Дубль").AddToggleRenderer(node => node.IsDuplicateCode).Editing(false)
+					.AddColumn("Чек").AddToggleRenderer(node => node.HasReceipt).Editing(false)
+					.AddColumn("Источник\nGTIN").AddTextRenderer(node => node.SourceGtin)
+					.AddColumn("Источник\nСерийный номер").AddTextRenderer(node => node.SourceSerialnumber)
+					.AddColumn("Результат\nGTIN").AddTextRenderer(node => node.ResultGtin)
+					.AddColumn("Результат\nСерийный номер").AddTextRenderer(node => node.ResultSerialnumber)
+					.AddColumn("Причина не отскани-\nрованных бутылей").AddTextRenderer(node => node.UnscannedReason).WrapMode(Pango.WrapMode.Word).WrapWidth(400)
+					.AddColumn("Описание ошибки").AddTextRenderer(node => node.ErrorDescription).WrapMode(Pango.WrapMode.Word).WrapWidth(400)
+					.AddColumn("")
+					.RowCells()
+					.AddSetter<CellRenderer>(
+						(cell, node) => {
+							var color = _colorWhite;
+							if(node.NodeType == TrueMarkOrderNodeType.Order)
+							{
+								color = _colorLightGrey;
+							}
+							cell.CellBackgroundGdk = color;
+						}
+					)
+					.Finish()
+			);
 		}
 	}
 }
