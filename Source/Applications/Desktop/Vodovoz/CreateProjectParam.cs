@@ -713,6 +713,7 @@ namespace Vodovoz
 			builder.RegisterType<BaseParametersProvider>()
 				.As<ITerminalNomenclatureProvider>()
 				.As<IProfitCategoryProvider>()
+				.As<IPersonProvider>()
 				.AsSelf();
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))
