@@ -502,15 +502,8 @@ namespace Vodovoz
 			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
 			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
 
-			//ySpecCmbOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
-			//ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
-			//ySpecCmbOpf.Binding.AddBinding(Entity, s => s.TypeOfOwnership, t => t.SelectedItem).InitializeFromSource();
-			
 			comboboxOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
-			foreach(string opfType in _allNotArchivedOpfTypes)
-			{
-				comboboxOpf.AppendText(opfType);
-			}
+			FillComboboxOpf();
 			comboboxOpf.Changed += ComboboxOpfChanged;
 
 			yentryOrganizationName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
@@ -1557,7 +1550,7 @@ namespace Vodovoz
 		protected void OnEnumPersonTypeChanged(object sender, EventArgs e)
 		{
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
-			labelShort.Visible = ySpecCmbOpf.Visible = yentryOrganizationName.Visible =
+			labelShort.Visible = labelShort1.Visible = comboboxOpf.Visible = yentryOrganizationName.Visible = 
 				labelFullName.Visible = entryFullName.Visible =
 					entryMainCounterparty.Visible = labelMainCounterparty.Visible =
 						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
@@ -2215,6 +2208,7 @@ namespace Vodovoz
 					AddNewOrganizationOwnershipType(revenueServiceRow.Opf, revenueServiceRow.OpfFull);
 				}
 				Entity.TypeOfOwnership = revenueServiceRow.Opf;
+				comboboxOpf.Active = _allNotArchivedOpfTypes.IndexOf(Entity.TypeOfOwnership) + 1;
 			}
 
 			if(revenueServiceRow.Opf == "ИП")
@@ -2280,27 +2274,28 @@ namespace Vodovoz
 				uowOrganization.Save(newOrganizationOwnershipType);
 			}
 			Entity.TypeOfOwnership = abbreviation;
-
-			//ySpecCmbOpf.Active = -1;
-			//ySpecCmbOpf.InsertText(1, abbreviation);
-			//_allNotArchivedOpfTypes.SortedAdd(abbreviation);
-			//ySpecCmbOpf.ItemsList = _allNotArchivedOpfTypes;
-			//ySpecCmbOpf.Active = 1;
-
-			//Gtk.TreeIter iter;
-			//ySpecCmbOpf.Model.IterNthChild(out iter, 1);
-			//ySpecCmbOpf.Model.EmitRowInserted(null, iter);
-
-			//ySpecCmbOpf.Active = 1;
-			//ySpecCmbOpf = new Gamma.Widgets.ySpecComboBox();
-			comboboxOpf.InsertText(1, abbreviation);
-			comboboxOpf.Active = 1;
-
+			_allNotArchivedOpfTypes.SortedAdd(abbreviation);
+			comboboxOpf.InsertText(_allNotArchivedOpfTypes.IndexOf(abbreviation) + 1, abbreviation);
+			comboboxOpf.Active = _allNotArchivedOpfTypes.IndexOf(abbreviation) + 1;
 		}
 
 		private void ComboboxOpfChanged(object sender, EventArgs e)
 		{
 			Entity.TypeOfOwnership = comboboxOpf.ActiveText;
+		}
+
+		private void FillComboboxOpf()
+		{
+			comboboxOpf.AppendText("");
+			foreach(var opfType in _allNotArchivedOpfTypes)
+			{
+				comboboxOpf.AppendText(opfType);
+			}
+
+			if(_allNotArchivedOpfTypes.Any(t => t == Entity.TypeOfOwnership))
+			{
+				comboboxOpf.Active = _allNotArchivedOpfTypes.IndexOf(Entity.TypeOfOwnership) + 1;
+			}
 		}
 	}
 
