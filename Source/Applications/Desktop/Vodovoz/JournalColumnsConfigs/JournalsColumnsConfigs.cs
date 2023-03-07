@@ -306,7 +306,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddColumn("Аббревиатура").AddTextRenderer(n => n.Abbreviation)
 						.AddColumn("Полное название").AddTextRenderer(n => n.FullName)
 						.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
-						.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+						.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 						.Finish()
 			);
 

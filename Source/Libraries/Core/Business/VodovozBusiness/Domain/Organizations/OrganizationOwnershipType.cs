@@ -10,7 +10,7 @@ using Vodovoz.EntityRepositories.Organizations;
 namespace Vodovoz.Domain.Organizations
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Тип форм собственности",
+		NominativePlural = "Типы форм собственности",
 		Nominative = "Тип формы собственности"
 	)]
 	[EntityPermission]
@@ -29,28 +29,28 @@ namespace Vodovoz.Domain.Organizations
 		#region Свойства
 		public virtual int Id { get; set; }
 
-		string abbreviation;
+		string _abbreviation;
 		[Display(Name = "Аббревиатура")]
 		public virtual string Abbreviation
 		{
-			get => abbreviation;
-			set => SetField(ref abbreviation, value, () => Abbreviation);
+			get => _abbreviation;
+			set => SetField(ref _abbreviation, value);
 		}
 
-		string fullName;
+		string _fullName;
 		[Display(Name = "Полное название")]
 		public virtual string FullName
 		{
-			get => fullName;
-			set => SetField(ref fullName, value, () => FullName);
+			get => _fullName;
+			set => SetField(ref _fullName, value);
 		}
 
-		bool isArchive;
+		bool _isArchive;
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive
 		{
-			get => isArchive;
-			set => SetField(ref isArchive, value, () => IsArchive);
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
 		#endregion
 
@@ -62,9 +62,13 @@ namespace Vodovoz.Domain.Organizations
 		{
 			var organizationOwnershipTypes = organizationRepository.GetOrganizationOwnershipTypeByAbbreviation(uow, Abbreviation);
 			if(organizationOwnershipTypes == null)
+			{
 				return false;
+			}	
 			if(organizationOwnershipTypes.Any(x => x.Id != Id))
+			{
 				return true;
+			}
 			return false;
 		}
 

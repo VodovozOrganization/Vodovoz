@@ -8,6 +8,5 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Organizations
 		public string Abbreviation { get; set; }
 		public string FullName { get; set; }
 		public bool IsArchive { get; set; }
-		public string RowColor => IsArchive ? "grey" : "black";
 	}
 }

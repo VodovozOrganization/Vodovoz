@@ -2206,8 +2206,8 @@ namespace Vodovoz
 				{
 					AddNewOrganizationOwnershipType(revenueServiceRow.Opf, revenueServiceRow.OpfFull);
 				}
+				Entity.TypeOfOwnership = revenueServiceRow.Opf;
 				comboboxOpf.Active = _allNotArchivedOpfTypes.IndexOf(Entity.TypeOfOwnership) + 1;
-				Entity.TypeOfOwnership = comboboxOpf.ActiveText;
 			}
 
 			if(revenueServiceRow.Opf == "ИП")
@@ -2293,6 +2293,11 @@ namespace Vodovoz
 			if(_allNotArchivedOpfTypes.Any(t => t == Entity.TypeOfOwnership))
 			{
 				comboboxOpf.Active = _allNotArchivedOpfTypes.IndexOf(Entity.TypeOfOwnership) + 1;
+			}
+			else
+			{
+				comboboxOpf.Active = 0;
+				Entity.TypeOfOwnership = String.Empty;
 			}
 		}
 	}
