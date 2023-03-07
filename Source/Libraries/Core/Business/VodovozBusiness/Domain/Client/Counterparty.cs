@@ -1206,7 +1206,7 @@ namespace Vodovoz.Domain.Client
 						new[] { this.GetPropertyName(o => o.KPP) });
 			}
 			if(PersonType == PersonType.legal) {
-				if(TypeOfOwnership == null)
+				if(TypeOfOwnership == null || TypeOfOwnership.Length == 0)
 				{
 					yield return new ValidationResult("Не заполнена Форма собственности.",
 						new[] { nameof(TypeOfOwnership) });

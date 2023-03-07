@@ -2206,8 +2206,8 @@ namespace Vodovoz
 				{
 					AddNewOrganizationOwnershipType(revenueServiceRow.Opf, revenueServiceRow.OpfFull);
 				}
-				Entity.TypeOfOwnership = revenueServiceRow.Opf;
 				comboboxOpf.Active = _allNotArchivedOpfTypes.IndexOf(Entity.TypeOfOwnership) + 1;
+				Entity.TypeOfOwnership = comboboxOpf.ActiveText;
 			}
 
 			if(revenueServiceRow.Opf == "ИП")
