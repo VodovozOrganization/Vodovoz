@@ -1843,6 +1843,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Время").AddTextRenderer(node => node.Time.HasValue ? node.Time.Value.ToString("dd.MM.yyyy HH:mm:ss") : "")
 					.AddColumn("Статус").AddTextRenderer(node => node.Status)
 					.AddColumn("Код заказа или\nстроки заказа").AddNumericRenderer(node => node.OrderAndItemId).Digits(0)
+					.AddColumn("МЛ").AddNumericRenderer(node => node.RouteListId).Digits(0)
+					.AddColumn("Водитель").AddTextRenderer(node => node.DriverFIO)
 					.AddColumn("Брак").AddToggleRenderer(node => node.IsDefectiveCode).Editing(false)
 					.AddColumn("Дубль").AddToggleRenderer(node => node.IsDuplicateCode).Editing(false)
 					.AddColumn("Чек").AddToggleRenderer(node => node.HasReceipt).Editing(false)
