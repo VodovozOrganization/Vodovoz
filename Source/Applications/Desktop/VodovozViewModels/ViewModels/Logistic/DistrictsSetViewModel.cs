@@ -391,14 +391,10 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void AddWeekDayDeliveryPriceRule()
 		{
-			var journalFunction = new Func<ITdiTab>(() =>
-			{
-				var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
-				journal.SelectionMode = JournalSelectionMode.Single;
-				journal.OnEntitySelectedResult += JournalOnWeekDayEntitySelectedResult;
-				return journal;
-			});
-			var selectDeliveryPriceRule = TabParent.OpenTab(journalFunction, this);
+			var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += JournalOnWeekDayEntitySelectedResult;
+			TabParent.AddSlaveTab(this, journal);
 		}
 
 		private void JournalOnWeekDayEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
@@ -444,14 +440,10 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void AddCommonDeliveryPriceRule()
 		{
-			var journalFunction = new Func<ITdiTab>(() =>
-			{
-				var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
-				journal.SelectionMode = JournalSelectionMode.Single;
-				journal.OnEntitySelectedResult += JournalOnCommonEntitySelectedResult;
-				return journal;
-			});
-			var selectDeliveryPriceRule = TabParent.OpenTab(journalFunction, this);
+			var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += JournalOnCommonEntitySelectedResult;
+			TabParent.AddSlaveTab(this, journal);
 		}
 
 		private void JournalOnCommonEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)

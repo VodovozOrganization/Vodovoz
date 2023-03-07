@@ -53,7 +53,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						}
 					)
 					.Finish()
-			);			
+			);
 		}
 	}
 }
