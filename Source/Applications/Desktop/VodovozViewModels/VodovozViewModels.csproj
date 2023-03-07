@@ -64,11 +64,11 @@
     <Compile Include="Infrastructure\Services\IStoreDocumentHelper.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\Organization\OrganizationOwnershipTypeJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISalesChannelJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IWarehouseJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\SalesChannelJournalFactory.cs" />
+    <Compile Include="Journals\FilterViewModels\Organization\OrganizationOwnershipTypeJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderJournalNode.cs" />
