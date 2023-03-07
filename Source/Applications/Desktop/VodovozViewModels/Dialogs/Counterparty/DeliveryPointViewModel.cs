@@ -54,7 +54,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			IUserRepository userRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IPhoneRepository phoneRepository,
-			IContactsParameters contactsParameters,
+			IContactParametersProvider contactsParameters,
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,

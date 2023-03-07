@@ -57,20 +57,17 @@ namespace Vodovoz.Views.Logistic
                 responsiblePersonsList = value;
 
                 buttonAdd.Sensitive = responsiblePersonsList != null;
-                if (value != null) {
-                    ResponsiblePersonsList.ElementAdded += OnResponsiblePersonsElementAdded;
-                    ResponsiblePersonsList.ElementRemoved += OnResponsiblePersonsElementRemoved;
+				if(value != null)
+				{
+					ResponsiblePersonsList.ElementAdded += OnResponsiblePersonsElementAdded;
+					ResponsiblePersonsList.ElementRemoved += OnResponsiblePersonsElementRemoved;
 
-                    if (ResponsiblePersonsList.Count == 0) {
-                        ResponsiblePersonsList.Add(new DeliveryPointResponsiblePerson() { DeliveryPoint = DeliveryPoint });
-                    }
-                    else {
-                        foreach (DeliveryPointResponsiblePerson responsiblePerson in ResponsiblePersonsList) {
-                            AddResponsiblePersonRow(responsiblePerson);
-                        }
-                    }
-                }
-            }
+					foreach(DeliveryPointResponsiblePerson responsiblePerson in ResponsiblePersonsList)
+					{
+						AddResponsiblePersonRow(responsiblePerson);
+					}
+				}
+			}
         }
 
         /// <summary>
@@ -102,7 +99,7 @@ namespace Vodovoz.Views.Logistic
                 AttachOptions.Fill | AttachOptions.Expand,
                 (AttachOptions)0, (uint)0, (uint)0);
 
-            Label textPhoneLabel = new Label("Телефон: +7 ");
+            Label textPhoneLabel = new Label("+7");
             datatableResponsiblePersons.Attach(
                 textPhoneLabel,
                 (uint)2, (uint)3, rowsCount, rowsCount + 1,
@@ -112,7 +109,7 @@ namespace Vodovoz.Views.Logistic
             phoneDataEntry.ValidationMode = ValidationType.phone;
             phoneDataEntry.Tag = responsiblePerson;
             phoneDataEntry.WidthChars = 19;
-            phoneDataEntry.WidthRequest = 50;
+            phoneDataEntry.WidthRequest = 100;
             phoneDataEntry.Binding.AddBinding(responsiblePerson, e => e.Phone, w => w.Text).InitializeFromSource();
             datatableResponsiblePersons.Attach(
                 phoneDataEntry,
@@ -127,7 +124,7 @@ namespace Vodovoz.Views.Logistic
                 (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
             var employeeEntry = new EntityViewModelEntry();
-            employeeEntry.WidthRequest = 50;
+            employeeEntry.WidthRequest = 200;
             employeeEntry.SetEntityAutocompleteSelectorFactory(_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 
             employeeEntry.Binding.AddBinding(responsiblePerson, e => e.Employee, w => w.Subject).InitializeFromSource();

@@ -75,7 +75,7 @@ namespace Vodovoz.HibernateMapping
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("delivery_point_id");
 			HasMany(x => x.NomenclatureFixedPrices)
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("delivery_point_id");
-            HasMany(x => x.ResponsiblePersons).Inverse().Cascade.All().LazyLoad().KeyColumn("delivery_point_id");
+            HasMany(x => x.ResponsiblePersons).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("delivery_point_id");
 			HasMany(x => x.DeliveryPointEstimatedCoordinates)
 				.Inverse().Cascade.All().LazyLoad().KeyColumn("delivery_point_id");
 		}

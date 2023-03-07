@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Contacts
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private IUnitOfWork uow;
-		private GenericObservableList<Email> EmailsList;
+		public GenericObservableList<Email> EmailsList;
 		private IList<EmailType> emailTypes;
 
 		public IUnitOfWork UoW {

@@ -15,11 +15,11 @@ namespace RoboatsService.Requests
 	{
 		const string _requestType = "client";
 		private readonly ILogger<ClientCheckHandler> _logger;
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
-		public ClientCheckHandler(ILogger<ClientCheckHandler> logger, RoboatsSettings roboatsSettings, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
+		public ClientCheckHandler(ILogger<ClientCheckHandler> logger, IRoboatsSettings roboatsSettings, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
