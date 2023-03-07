@@ -2434,7 +2434,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>WITH orders_route_list_ids as 
@@ -2630,7 +2630,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2692,9 +2692,9 @@ GROUP BY route_lists.id
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>75</Timeout>
+        <Timeout>600</Timeout>
         <CommandText>WITH orders_route_list_ids as 
 (SELECT rla.id as rla_id, rla.order_id as order_id, rla.route_list_id as route_list_id 
 FROM route_lists rl
@@ -2868,7 +2868,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>
