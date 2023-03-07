@@ -19,7 +19,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 	public class RoboatsRepository : IRoboatsRepository
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 
 		private HashSet<Guid> _roboatsStreetsCache = new HashSet<Guid>();
 		private int _roboatsStreetsCacheTimeoutMinutes = 10;
@@ -30,7 +30,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 		private DateTime _roboatsWatersCacheLastUpdate;
 
 
-		public RoboatsRepository(IUnitOfWorkFactory unitOfWorkFactory, RoboatsSettings roboatsSettings)
+		public RoboatsRepository(IUnitOfWorkFactory unitOfWorkFactory, IRoboatsSettings roboatsSettings)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));

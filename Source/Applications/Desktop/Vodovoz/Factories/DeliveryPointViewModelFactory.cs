@@ -29,7 +29,7 @@ namespace Vodovoz.Factories
 		private readonly IFiasApiClient _fiasApiClient;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleSelectorFactory;
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
 
 
@@ -38,7 +38,7 @@ namespace Vodovoz.Factories
 			_fiasApiClient = fiasApiClient ?? throw new ArgumentNullException(nameof(fiasApiClient));
 			//Необходимо исправить получение всех этих зависимостей из скоупа
 			_parametersProvider = new ParametersProvider();
-			RoboatsSettings roboatsSettings = new RoboatsSettings(_parametersProvider);
+			IRoboatsSettings roboatsSettings = new RoboatsSettings(_parametersProvider);
 			RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			IDeliveryScheduleRepository deliveryScheduleRepository = new DeliveryScheduleRepository();
 			IFileDialogService fileDialogService = new FileDialogService();

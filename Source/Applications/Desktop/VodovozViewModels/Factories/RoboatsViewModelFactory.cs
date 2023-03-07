@@ -6,13 +6,13 @@ using Vodovoz.ViewModels.Dialogs.Roboats;
 
 namespace Vodovoz.Factories
 {
-	public class RoboatsViewModelFactory
+	public class RoboatsViewModelFactory : IRoboatsViewModelFactory
 	{
-		private readonly RoboatsFileStorageFactory _roboatsFileStorageFactory;
+		private readonly IRoboatsFileStorageFactory _roboatsFileStorageFactory;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 
-		public RoboatsViewModelFactory(RoboatsFileStorageFactory roboatsFileStorageFactory, IFileDialogService fileDialogService, ICurrentPermissionService currentPermissionService)
+		public RoboatsViewModelFactory(IRoboatsFileStorageFactory roboatsFileStorageFactory, IFileDialogService fileDialogService, ICurrentPermissionService currentPermissionService)
 		{
 			_roboatsFileStorageFactory = roboatsFileStorageFactory ?? throw new ArgumentNullException(nameof(roboatsFileStorageFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));

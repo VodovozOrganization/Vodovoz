@@ -22,8 +22,8 @@ namespace Vodovoz.Factories
 		{
 			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 
-			RoboatsSettings roboatsSettings = new RoboatsSettings(new ParametersProvider());
-			RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
+			IRoboatsSettings roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			IRoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			IFileDialogService fileDialogService = new FileDialogService();
 			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();

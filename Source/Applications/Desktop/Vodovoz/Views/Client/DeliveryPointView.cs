@@ -47,7 +47,6 @@ namespace Vodovoz.Views.Client
 			notebook1.ShowTabs = false;
 			buttonSave.Clicked += (sender, args) =>
 			{
-				deliverypointresponsiblepersonsview1.RemoveEmpty();
 				ViewModel.Save(true);
 			};
 			buttonSave.Binding
@@ -320,7 +319,7 @@ namespace Vodovoz.Views.Client
 				//FIXME этот виджет следовало бы переписать на VM + V
 				deliverypointresponsiblepersonsview1.UoW = ViewModel.UoW;
 				deliverypointresponsiblepersonsview1.DeliveryPoint = ViewModel.DeliveryPoint;
-				deliverypointresponsiblepersonsview1.ResponsiblePersons = ViewModel.ResponsiblePersons;
+				deliverypointresponsiblepersonsview1.ResponsiblePersons = ViewModel.DeliveryPoint.ResponsiblePersons;
 				deliverypointresponsiblepersonsview1.Sensitive = ViewModel.CanEdit;
 			}
 			else
