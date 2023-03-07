@@ -3,7 +3,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Parameters
 {
-	public class ContactParametersProvider : IContactsParameters
+	public class ContactParametersProvider : IContactParametersProvider
 	{
 		private readonly IParametersProvider _parametersProvider;
 

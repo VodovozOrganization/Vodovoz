@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 
 		public RoboatsEntityViewModel(
 			IRoboatsEntity entity,
-			RoboatsFileStorageFactory roboatsFileStorageFactory,
+			IRoboatsFileStorageFactory roboatsFileStorageFactory,
 			IFileDialogService fileDialogService,
 			ICurrentPermissionService permissionService
 		)

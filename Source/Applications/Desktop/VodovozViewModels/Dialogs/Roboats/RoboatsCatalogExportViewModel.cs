@@ -36,13 +36,13 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 		private DelegateCommand _startExport;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly RoboatsFileStorageFactory _roboatsFileStorageFactory;
+		private readonly IRoboatsFileStorageFactory _roboatsFileStorageFactory;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private RoboatsEntityType? _selectedExportType;
 		private OpenViewModelCommand _openDialogCommand;
@@ -66,13 +66,13 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 		public RoboatsCatalogExportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IFileDialogService fileDialogService,
-			RoboatsFileStorageFactory roboatsFileStorageFactory,
+			IRoboatsFileStorageFactory roboatsFileStorageFactory,
 			IRoboatsRepository roboatsRepository,
 			IDeliveryScheduleJournalFactory deliverySchedulejournalFactory,
 			RoboatsJournalsFactory roboatsJournalsFactory,
 			ICommonServices commonServices,
 			IDeliveryScheduleRepository deliveryScheduleRepository,
-			RoboatsViewModelFactory roboatsViewModelFactory,
+			IRoboatsViewModelFactory roboatsViewModelFactory,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
 			INavigationManager navigation) : base(commonServices.InteractiveService, navigation)
 		{

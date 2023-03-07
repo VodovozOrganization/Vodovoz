@@ -16,7 +16,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private readonly bool _canEdit;
 		private readonly bool _canCreate;
 
-		public RoboAtsCounterpartyPatronymicViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices)
+		public RoboAtsCounterpartyPatronymicViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, IRoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices)
 			: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(roboatsViewModelFactory is null)

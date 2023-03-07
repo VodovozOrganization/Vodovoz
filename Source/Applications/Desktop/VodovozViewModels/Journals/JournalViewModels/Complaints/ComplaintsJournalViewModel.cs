@@ -36,6 +36,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
+using QS.Tdi;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -172,6 +173,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
+			UseSlider = false;
 		}
 
 		private IQueryOver<Complaint> GetComplaintQuery(IUnitOfWork uow)
@@ -723,7 +725,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_employeeService,
 						_subdivisionRepository,
 						_commonServices,
-						_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+						_employeeJournalFactory,
 						_fileDialogService,
 						new UserRepository(),
 						_subdivisionParametersProvider
@@ -916,7 +918,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
+			CreateAddActions();
 			CreateEditAction();
 			CreateDefaultDeleteAction();
 			CreateExportAction();
@@ -932,6 +934,55 @@ namespace Vodovoz.Journals.JournalViewModels
 					var report = new ComplaintJournalReport(nodes, _fileDialogService);
 					report.Export();
 				}));
+		}
+		
+		private void CreateAddActions()
+		{
+			if(!EntityConfigs.Any()) {
+				return;
+			}
+
+			var totalCreateDialogConfigs = EntityConfigs
+				.Where(x => x.Value.PermissionResult.CanCreate)
+				.Sum(x => x.Value.EntityDocumentConfigurations
+							.Select(y => y.GetCreateEntityDlgConfigs().Count())
+							.Sum());
+
+			if(EntityConfigs.Values.Count(x => x.PermissionResult.CanRead) > 1 || totalCreateDialogConfigs > 1) {
+				var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
+				foreach(var entityConfig in EntityConfigs.Values) {
+					foreach(var documentConfig in entityConfig.EntityDocumentConfigurations) {
+						foreach(var createDlgConfig in documentConfig.GetCreateEntityDlgConfigs()) {
+							var childNodeAction = new JournalAction(createDlgConfig.Title,
+								(selected) => entityConfig.PermissionResult.CanCreate,
+								(selected) => entityConfig.PermissionResult.CanCreate,
+								(selected) => {
+									TabParent.AddSlaveTab(this, createDlgConfig.OpenEntityDialogFunction());
+								}
+							);
+							addParentNodeAction.ChildActionsList.Add(childNodeAction);
+						}
+					}
+				}
+				NodeActionsList.Add(addParentNodeAction);
+			} else {
+				var entityConfig = EntityConfigs.First().Value;
+				var addAction = new JournalAction("Добавить",
+					(selected) => entityConfig.PermissionResult.CanCreate,
+					(selected) => entityConfig.PermissionResult.CanCreate,
+					(selected) => {
+						var docConfig = entityConfig.EntityDocumentConfigurations.First();
+						ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction();
+
+						if(tab is ITdiDialog)
+							((ITdiDialog)tab).EntitySaved += Tab_EntitySaved;
+
+						TabParent.AddSlaveTab(this, tab);
+					},
+					"Insert"
+					);
+				NodeActionsList.Add(addAction);
+			};
 		}
 
 		protected void CreateEditAction()
@@ -963,17 +1014,13 @@ namespace Vodovoz.Journals.JournalViewModels
 
 					if(selectedNode.EntityType == typeof(Complaint))
 					{
-						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
-						HideJournal(TabParent);
+						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						return;
 					}
 
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
-						HideJournal(TabParent);
-					}
+					TabParent.AddSlaveTab(this, foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode));
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None) {

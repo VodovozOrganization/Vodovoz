@@ -73,7 +73,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
-		private readonly IContactsParameters _contactsParameters;
+		private readonly IContactParametersProvider _contactsParameters;
 
 		public ClientTaskViewModel(
 			IEmployeeRepository employeeRepository,
@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IOrganizationProvider organizationProvider,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
-			IContactsParameters contactsParameters,
+			IContactParametersProvider contactsParameters,
 			ICommonServices commonServices,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -127,7 +127,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			ICounterpartyContractRepository counterpartyContractRepository,
 			CounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
-			IContactsParameters contactsParameters,
+			IContactParametersProvider contactsParameters,
 			int counterpartyId,
 			int deliveryPointId)
 			: this(employeeRepository,

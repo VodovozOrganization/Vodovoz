@@ -21,7 +21,7 @@ namespace RoboatsService.Requests
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsOrderModel _roboatsOrderModel;
 		private readonly ValidOrdersProvider _validOrdersProvider;
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public OrderRequestType RequestType { get; }
@@ -51,7 +51,7 @@ namespace RoboatsService.Requests
 			RoboatsOrderModel roboatsOrderModel,
 			ValidOrdersProvider validOrdersProvider,
 			RequestDto requestDto,
-			RoboatsSettings roboatsSettings,
+			IRoboatsSettings roboatsSettings,
 			RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

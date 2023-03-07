@@ -896,6 +896,11 @@ namespace Vodovoz.Domain.Client
 			{
 				yield return new ValidationResult(phonesValidationMessage);
 			}
+
+			if(ResponsiblePersons.Any(x => x.DeliveryPointResponsiblePersonType == null || x.Employee == null || string.IsNullOrWhiteSpace(x.Phone)))
+			{
+				yield return new ValidationResult("Для ответственных лиц должны быть заполнены Тип, Сотрудник и Телефон", new[] { nameof(ResponsiblePersons) });
+			}
 		}
 
 		#endregion

@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 		private readonly bool _canEdit;
 		private readonly bool _canCreate;
 
-		public RoboatsWaterTypeViewModel(IEntityUoWBuilder uowBuilder, INomenclatureJournalFactory nomenclatureJournalFactory, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
+		public RoboatsWaterTypeViewModel(IEntityUoWBuilder uowBuilder, INomenclatureJournalFactory nomenclatureJournalFactory, IRoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
 		{
 			if(roboatsViewModelFactory is null)
 			{

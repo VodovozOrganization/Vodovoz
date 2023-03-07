@@ -27,7 +27,7 @@ namespace Vodovoz.Views.Contacts
 		private IList<PhoneType> phoneTypes;
 		private IUnitOfWork uow;
 		private IPhoneRepository phoneRepository;
-		private static readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private static readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 
 		private bool isReadOnly;
 		public bool IsReadOnly {

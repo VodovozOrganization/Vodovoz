@@ -409,6 +409,7 @@
     <Compile Include="Factories\EmployeeRegistrationVersionFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationVersionFactory.cs" />
+    <Compile Include="Factories\IRoboatsFileStorageFactory.cs" />
     <Compile Include="Factories\IRouteListProfitabilityFactory.cs" />
     <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
@@ -567,6 +568,7 @@
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
     <Compile Include="Parameters\ArchiveDataSettings.cs" />
+    <Compile Include="Parameters\CounterpartySettings.cs" />
     <Compile Include="Parameters\EdoSettings.cs" />
     <Compile Include="Parameters\CashDistributionCommonOrganisationProvider.cs" />
     <Compile Include="Models\IOrganizationProvider.cs" />
@@ -593,6 +595,7 @@
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
+    <Compile Include="Parameters\IRoboatsSettings.cs" />
     <Compile Include="Parameters\IRouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\IStoredResourcesSettings.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />
@@ -602,6 +605,7 @@
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
+    <Compile Include="Services\ICounterpartySettings.cs" />
     <Compile Include="Services\IEdoSettings.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
@@ -1222,7 +1226,7 @@
     <Compile Include="HibernateMapping\Contacts\PhoneMap.cs" />
     <Compile Include="HibernateMapping\Contacts\PhoneTypeMap.cs" />
     <Compile Include="HibernateMapping\Contacts\PostMap.cs" />
-    <Compile Include="Services\IContactsParameters.cs" />
+    <Compile Include="Services\IContactParametersProvider.cs" />
     <Compile Include="Parameters\ContactParametersProvider.cs" />
     <Compile Include="EntityRepositories\Contacts\EmailRepository.cs" />
     <Compile Include="EntityRepositories\Contacts\IEmailRepository.cs" />

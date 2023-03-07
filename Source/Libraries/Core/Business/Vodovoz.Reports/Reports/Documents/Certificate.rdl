@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
-  <PageHeight>11.69in</PageHeight>
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>12.19in</PageHeight>
   <PageWidth>8.27in</PageWidth>
   <Width>.1pt</Width>
   <TopMargin>0mm</TopMargin>
@@ -24,7 +22,7 @@
         <Height>831.90pt</Height>
         <Width>582.66pt</Width>
         <Left>7.53pt</Left>
-        <Top>6.78pt</Top>
+        <Top>35pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -34,8 +32,8 @@
           <Image Name="Image2">
             <Height>831.85pt</Height>
             <Width>582.67pt</Width>
-            <Left>0.00pt</Left>
-            <Top>0.00pt</Top>
+            <Left>0.0pt</Left>
+            <Top>5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -48,6 +46,32 @@
           </Image>
         </ReportItems>
       </List>
+      <Textbox Name="Textbox1">
+        <Height>20.00pt</Height>
+        <Width>117.24pt</Width>
+        <Value>={?order_id}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>467.60pt</Left>
+        <Top>15.00pt</Top>
+        <Style>
+          <FontSize>17pt</FontSize>
+          <TextAlign>Left</TextAlign>
+          <FontFamily >Times New Roman</FontFamily>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox2">
+        <Height>20.00pt</Height>
+        <Width>129.27pt</Width>
+        <Value>К заказу №</Value>
+        <ZIndex>1</ZIndex>
+        <Left>339.0pt</Left>
+        <Top>15.0pt</Top>
+        <Style>
+          <FontSize>17pt</FontSize>
+          <TextAlign>Right</TextAlign>
+          <FontFamily >Times New Roman</FontFamily>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -107,8 +131,14 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
