@@ -1,6 +1,7 @@
 ﻿using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -12,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
@@ -107,24 +110,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		private IQueryOver<TrueMarkCashReceiptOrder> GetQuery(IUnitOfWork uow)
 		{
-			TrueMarkCashReceiptOrder trueMarkOrderAlias = null;
 			TrueMarkReceiptOrderNode resultAlias = null;
+			TrueMarkCashReceiptOrder trueMarkOrderAlias = null;
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			Employee driverAlias = null;
 
 			var query = uow.Session.QueryOver(() => trueMarkOrderAlias);
+			query.JoinEntityQueryOver(() => routeListItemAlias, Restrictions.Where(() => trueMarkOrderAlias.Order.Id == routeListItemAlias.Order.Id), JoinType.LeftOuterJoin);
+			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
+			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
 
 			if(_filter.Status.HasValue)
 			{
-				query.Where(() => trueMarkOrderAlias.Status == _filter.Status.Value);
+				query.Where(Restrictions.Eq(Projections.Property(() => trueMarkOrderAlias.Status), _filter.Status.Value));
 			}
 
 			if(_filter.StartDate.HasValue)
 			{
-				query.Where(() => trueMarkOrderAlias.Date >= _filter.StartDate.Value);
+				query.Where(Restrictions.Eq(Projections.Property(() => trueMarkOrderAlias.Date), _filter.StartDate.Value));
 			}
 
 			if(_filter.EndDate.HasValue)
 			{
-				query.Where(() => trueMarkOrderAlias.Date <= _filter.EndDate.Value);
+				query.Where(Restrictions.Eq(Projections.Property(() => trueMarkOrderAlias.Date), _filter.EndDate.Value));
 			}
 
 			if(_filter.HasUnscannedReason)
@@ -145,6 +154,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				.Select(Projections.Constant(TrueMarkOrderNodeType.Order)).WithAlias(() => resultAlias.NodeType)
 				.Select(Projections.Property(() => trueMarkOrderAlias.Date)).WithAlias(() => resultAlias.Time)
 				.Select(Projections.Property(() => trueMarkOrderAlias.Order.Id)).WithAlias(() => resultAlias.OrderAndItemId)
+				.Select(Projections.Property(() => routeListAlias.Id)).WithAlias(() => resultAlias.RouteListId)
+				.Select(Projections.Property(() => driverAlias.Name)).WithAlias(() => resultAlias.DriverName)
+				.Select(Projections.Property(() => driverAlias.LastName)).WithAlias(() => resultAlias.DriverLastName)
+				.Select(Projections.Property(() => driverAlias.Patronymic)).WithAlias(() => resultAlias.DriverPatronimyc)
 				.Select(Projections.Property(() => trueMarkOrderAlias.Status)).WithAlias(() => resultAlias.OrderStatus)
 				.Select(Projections.Property(() => trueMarkOrderAlias.UnscannedCodesReason)).WithAlias(() => resultAlias.UnscannedReason)
 				.Select(Projections.Property(() => trueMarkOrderAlias.ErrorDescription)).WithAlias(() => resultAlias.ErrorDescription)
