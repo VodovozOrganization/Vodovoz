@@ -329,6 +329,9 @@ namespace Vodovoz
 		public LoadFrom1cDlg ()
 		{
 			this.Build ();
+
+			throw new NotSupportedException("Загрузка заказов из 1с не поддерживается!");
+
 			TabName = "Загрузка контрагентов из 1с 7.7";
 
 			FileFilter Filter = new FileFilter();
