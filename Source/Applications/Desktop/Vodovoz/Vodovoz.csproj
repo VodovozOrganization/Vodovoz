@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -458,6 +458,7 @@
     <Compile Include="JournalColumnsConfigs\DeliveryPointByClientJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointResponsiblePersonTypeJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\DeliveryPriceRuleJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryScheduleJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DiscountReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DistrictJournalRegistrar.cs" />
@@ -1880,7 +1881,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Warehouse\Documents\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

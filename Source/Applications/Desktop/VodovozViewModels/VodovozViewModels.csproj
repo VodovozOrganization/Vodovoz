@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -72,6 +72,7 @@
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Sales\DeliveryPriceRuleJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
@@ -727,7 +728,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
-    <Folder Include="ViewModels\Warehouses\Documents\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
