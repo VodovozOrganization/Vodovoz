@@ -918,6 +918,10 @@
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\NotSpecification.cs" />
     <Compile Include="Specifications\OrSpecification.cs" />
+    <Compile Include="Specifications\Store\Documents\TimestampAfterSpecification.cs" />
+    <Compile Include="Specifications\Store\Documents\TimestampBeforeEndDateSpecification.cs" />
+    <Compile Include="Specifications\Store\Documents\TimestampBetweenSpecification.cs" />
+    <Compile Include="Specifications\Store\Documents\WarehouseIdSpecification.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />
     <Compile Include="Tools\IDataArchiver.cs" />
