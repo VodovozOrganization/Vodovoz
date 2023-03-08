@@ -144,7 +144,7 @@ namespace Vodovoz
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 
-		private List<string> _allNotArchivedOpfTypes = new List<string>();
+		private List<OrganizationOwnershipType> _allOrganizationOwnershipTypes = new List<OrganizationOwnershipType>();
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -318,11 +318,9 @@ namespace Vodovoz
 			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
-			_allNotArchivedOpfTypes = _organizationRepository
+			_allOrganizationOwnershipTypes = _organizationRepository
 				.GetAllOrganizationOwnershipTypes(UoW)
-				.Where(t => !t.IsArchive)
-				.OrderBy(t => t.Abbreviation)
-				.Select(t => t.Abbreviation)
+				.OrderBy(t => t.Id)
 				.ToList();
 
 			buttonSave.Sensitive = CanEdit;
@@ -2198,16 +2196,15 @@ namespace Vodovoz
 			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
 			Entity.RawJurAddress = revenueServiceRow.Address;
 
-			var allOrganizationOwnershipTypes = _allNotArchivedOpfTypes;
-
 			if((revenueServiceRow.Opf ?? String.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? String.Empty).Length > 0)
 			{
-				if(!allOrganizationOwnershipTypes.Any(t => t == revenueServiceRow.Opf))
+				Entity.TypeOfOwnership = revenueServiceRow.Opf;
+
+				if(!GetAllComboboxOpfValues().Any(t => t == revenueServiceRow.Opf))
 				{
 					AddNewOrganizationOwnershipType(revenueServiceRow.Opf, revenueServiceRow.OpfFull);
 				}
-				Entity.TypeOfOwnership = revenueServiceRow.Opf;
-				comboboxOpf.Active = _allNotArchivedOpfTypes.IndexOf(Entity.TypeOfOwnership) + 1;
+				SetActiveComboboxOpfValue(Entity.TypeOfOwnership);
 			}
 
 			if(revenueServiceRow.Opf == "ИП")
@@ -2260,21 +2257,30 @@ namespace Vodovoz
 
 		private void AddNewOrganizationOwnershipType(string abbreviation, string fullName)
 		{
-			var newOrganizationOwnershipType = new OrganizationOwnershipType()
+			if (!_allOrganizationOwnershipTypes.Any(t => t.Abbreviation == abbreviation))
 			{
-				Abbreviation = abbreviation,
-				FullName = fullName,
-				IsArchive = false
-			};
+				var newOrganizationOwnershipType = new OrganizationOwnershipType()
+				{
+					Abbreviation = abbreviation,
+					FullName = fullName,
+					IsArchive = false
+				};
 
-			using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
-			{
-				uowOrganization.Save(newOrganizationOwnershipType);
+				using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
+				{
+					uowOrganization.Save(newOrganizationOwnershipType);
+				}
 			}
-			Entity.TypeOfOwnership = abbreviation;
-			_allNotArchivedOpfTypes.SortedAdd(abbreviation);
-			comboboxOpf.InsertText(_allNotArchivedOpfTypes.IndexOf(abbreviation) + 1, abbreviation);
-			comboboxOpf.Active = _allNotArchivedOpfTypes.IndexOf(abbreviation) + 1;
+			comboboxOpf.AppendText(abbreviation);
+			SetActiveComboboxOpfValue(abbreviation);
+		}
+
+		private List<string> GetAvailableOrganizationOwnershipTypes()
+		{
+			return _allOrganizationOwnershipTypes
+					.Where(t => !t.IsArchive || (Entity.Id > 0 && Entity.TypeOfOwnership != null && t.Abbreviation == Entity.TypeOfOwnership))
+					.Select(t => t.Abbreviation)
+					.ToList<string>();
 		}
 
 		private void ComboboxOpfChanged(object sender, EventArgs e)
@@ -2284,21 +2290,58 @@ namespace Vodovoz
 
 		private void FillComboboxOpf()
 		{
+			var availableOrganizationOwnershipTypes = GetAvailableOrganizationOwnershipTypes();
+
 			comboboxOpf.AppendText("");
-			foreach(var opfType in _allNotArchivedOpfTypes)
+
+			foreach(var ownershipType in availableOrganizationOwnershipTypes)
 			{
-				comboboxOpf.AppendText(opfType);
+				comboboxOpf.AppendText(ownershipType);
 			}
 
-			if(_allNotArchivedOpfTypes.Any(t => t == Entity.TypeOfOwnership))
+			Entity.TypeOfOwnership = SetActiveComboboxOpfValue(Entity.TypeOfOwnership) ? Entity.TypeOfOwnership : String.Empty;
+		}
+
+		private List<string> GetAllComboboxOpfValues()
+		{
+			List<string> values = new List<string>();
+			TreeIter iter;
+			comboboxOpf.Model.GetIterFirst(out iter);
+			do
 			{
-				comboboxOpf.Active = _allNotArchivedOpfTypes.IndexOf(Entity.TypeOfOwnership) + 1;
-			}
-			else
+				GLib.Value thisRow = new GLib.Value();
+				comboboxOpf.Model.GetValue(iter, 0, ref thisRow);
+				if(((thisRow.Val as string) ?? String.Empty).Length > 0)
+				{
+					values.Add(thisRow.Val as string);
+				}
+			} while(comboboxOpf.Model.IterNext(ref iter));
+
+			return values;
+		}
+
+		private bool SetActiveComboboxOpfValue(string value)
+		{
+			comboboxOpf.Active = 0;
+			if (string.IsNullOrEmpty(value))
 			{
-				comboboxOpf.Active = 0;
-				Entity.TypeOfOwnership = String.Empty;
+				return false;
 			}
+
+			TreeIter iter;
+			comboboxOpf.Model.GetIterFirst(out iter);
+			do
+			{
+				GLib.Value thisRow = new GLib.Value();
+				comboboxOpf.Model.GetValue(iter, 0, ref thisRow);
+				if(((thisRow.Val as string) ?? String.Empty) == value)
+				{
+					comboboxOpf.SetActiveIter(iter);
+					return true;
+				}
+			} while(comboboxOpf.Model.IterNext(ref iter));
+
+			return false;
 		}
 	}
 
