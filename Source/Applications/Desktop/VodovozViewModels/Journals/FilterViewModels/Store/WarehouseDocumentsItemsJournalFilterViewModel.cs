@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		}
 
 		public WarehouseIdSpecification<TDocument> GetWarehouseSpecification<TDocument>()
-			where TDocument : Document
+			where TDocument : Document, IWarehouseBindedDocument
 		{
 			return new WarehouseIdSpecification<TDocument>(Warehouse?.Id);
 		}
