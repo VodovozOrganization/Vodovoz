@@ -2,12 +2,16 @@
 using QS.Project.Filter;
 using QS.Services;
 using System;
+using System.Linq.Expressions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Specifications;
+using Vodovoz.Specifications.Store.Documents;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.ViewModels.Flyers;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
@@ -19,8 +23,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private readonly IUserService _userService;
 		private readonly IUserRepository _userRepository;
 		private Warehouse _warehouse;
-		private DateTime _startDate;
-		private DateTime _endDate;
+		private DateTime? _startDate;
+		private DateTime? _endDate;
 		private DocumentType? _restrictDocumentType;
 		private MovementDocumentStatus? _movementDocumentStatus;
 		private MovementDocumentStatus? _restrictMovementStatus;
@@ -55,22 +59,34 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 
-		public DateTime StartDate
+		public DateTime? StartDate
 		{
 			get => _startDate;
 			set => UpdateFilterField(ref _startDate, value);
 		}
 
-		public DateTime EndDate
+		public DateTime? EndDate
 		{
 			get => _endDate;
 			set => UpdateFilterField(ref _endDate, value);
+		}
+
+		public TimestampBetweenSpecification<TDocument> GetPeriodSpecification<TDocument>()
+			where TDocument : Document
+		{
+			return new TimestampBetweenSpecification<TDocument>(StartDate, EndDate.Value.AddDays(1));
 		}
 
 		public Warehouse Warehouse
 		{
 			get => _warehouse;
 			set => UpdateFilterField(ref _warehouse, value);
+		}
+
+		public WarehouseIdSpecification<TDocument> GetWarehouseSpecification<TDocument>()
+			where TDocument : Document
+		{
+			return new WarehouseIdSpecification<TDocument>(Warehouse?.Id);
 		}
 
 		public Employee Driver

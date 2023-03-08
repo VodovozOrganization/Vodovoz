@@ -7,12 +7,7 @@ using QS.Services;
 using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
@@ -178,86 +173,72 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		private IQueryOver<IncomingInvoiceItem> GetQueryIncomingInvoiceItem(IUnitOfWork unitOfWork)
 		{
+			WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem> resultAlias = null;
 			IncomingInvoice invoiceAlias = null;
 			IncomingInvoiceItem incomingInvoiceItemAlias = null;
-			IncomingWater waterAlias = null;
-			MovementDocument movementAlias = null;
-			WriteoffDocument writeoffAlias = null;
-			InventoryDocument inventoryAlias = null;
-			ShiftChangeWarehouseDocument shiftchangeAlias = null;
-			SelfDeliveryDocument selfDeliveryAlias = null;
-			RegradingOfGoodsDocument regradingOfGoodsAlias = null;
-			WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem> resultAlias = null;
 			Counterparty counterpartyAlias = null;
 			Warehouse warehouseAlias = null;
-			Warehouse secondWarehouseAlias = null;
-			MovementWagon wagonAlias = null;
-			Nomenclature productAlias = null;
-
-			CarLoadDocument loadCarAlias = null;
-			CarUnloadDocument unloadCarAlias = null;
-			RouteList routeListAlias = null;
-			Car carAlias = null;
-			CarModel carModelAlias = null;
-			Employee driverAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
-			Domain.Orders.Order orderAlias = null;
-			DriverAttachedTerminalGiveoutDocument terminalGiveoutAlias = null;
-			DriverAttachedTerminalReturnDocument terminalReturnAlias = null;
-			WarehouseMovementOperation wmoAlias = null;
 
 			var invoiceQuery = UoW.Session.QueryOver(() => incomingInvoiceItemAlias)
 				.Left.JoinQueryOver(() => incomingInvoiceItemAlias.Document, () => invoiceAlias);
 
-			if((FilterViewModel.RestrictDocumentType is null || FilterViewModel.RestrictDocumentType == DocumentType.IncomingInvoice) &&
-			   FilterViewModel.RestrictDriver is null)
+			if((FilterViewModel.DocumentType is null || FilterViewModel.DocumentType == DocumentType.IncomingInvoice)
+				&& FilterViewModel.Driver is null)
 			{
-				if(FilterViewModel.RestrictWarehouse != null)
-				{
-					invoiceQuery.Where(x => x.Warehouse.Id == FilterViewModel.RestrictWarehouse.Id);
-				}
-				if(FilterViewModel.RestrictStartDate.HasValue)
-				{
-					invoiceQuery.Where(o => o.TimeStamp >= FilterViewModel.RestrictStartDate.Value);
-				}
-				if(FilterViewModel.RestrictEndDate.HasValue)
-				{
-					invoiceQuery.Where(o => o.TimeStamp < FilterViewModel.RestrictEndDate.Value.AddDays(1));
-				}
+				invoiceQuery.Where(FilterViewModel.GetWarehouseSpecification<IncomingInvoice>().IsSatisfiedBy());
+
+				//if(FilterViewModel.Warehouse != null)
+				//{
+				//	invoiceQuery.Where(ii => ii.Warehouse.Id == FilterViewModel.Warehouse.Id);
+				//}
+
+				invoiceQuery.Where(FilterViewModel.GetPeriodSpecification<IncomingInvoice>().IsSatisfiedBy());
+				//if(FilterViewModel.StartDate.HasValue)
+				//{
+				//	invoiceQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate.Value);
+				//}
+				//if(FilterViewModel.EndDate.HasValue)
+				//{
+				//	invoiceQuery.Where(ii => ii.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
+				//}
+			}
+			else
+			{
+				invoiceQuery.Where(() => invoiceAlias.Id == -1);
 			}
 
 			return invoiceQuery.JoinQueryOver(() => invoiceAlias.Contractor, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.JoinQueryOver(() => invoiceAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.JoinAlias(() => invoiceAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.SelectList(list => list
-				.Select(() => incomingInvoiceItemAlias.Id).WithAlias(() => resultAlias.Id)
-				.Select(() => invoiceAlias.Id).WithAlias(() => resultAlias.DocumentId)
-				.Select(() => invoiceAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-				.Select(() => invoiceAlias.Comment).WithAlias(() => resultAlias.Comment)
-				.Select(() => DocumentType.IncomingInvoice).WithAlias(() => resultAlias.DocTypeEnum)
-				.Select(Projections.Conditional(
-					Restrictions.Where(() => counterpartyAlias.Name == null),
-					Projections.Constant("Не указан", NHibernateUtil.String),
-					Projections.Property(() => counterpartyAlias.Name)))
-				.WithAlias(() => resultAlias.Counterparty)
-				.Select(Projections.Conditional(
-					Restrictions.Where(() => warehouseAlias.Name == null),
-					Projections.Constant("Не указан", NHibernateUtil.String),
-					Projections.Property(() => warehouseAlias.Name)))
-				.WithAlias(() => resultAlias.Warehouse)
-				.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
-				.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
-				.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
-				.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
-				.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
-				.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-				.Select(() => invoiceAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
-			)
-			.OrderByAlias(() => invoiceAlias.Id).Desc
-			.OrderByAlias(() => incomingInvoiceItemAlias.Id).Desc
-			.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem>>());
+				.JoinQueryOver(() => invoiceAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => invoiceAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList(list => list
+					.Select(() => incomingInvoiceItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => invoiceAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => invoiceAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => invoiceAlias.Comment).WithAlias(() => resultAlias.Comment)
+					.Select(() => DocumentType.IncomingInvoice).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => counterpartyAlias.Name == null),
+						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Property(() => counterpartyAlias.Name)))
+					.WithAlias(() => resultAlias.Counterparty)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => warehouseAlias.Name == null),
+						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Property(() => warehouseAlias.Name)))
+					.WithAlias(() => resultAlias.Warehouse)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => invoiceAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+				.OrderByAlias(() => invoiceAlias.Id).Desc
+				.OrderByAlias(() => incomingInvoiceItemAlias.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem>>());
 		}
 
 		private IQueryOver<IncomingWaterMaterial> GetQueryIncomingWaterMaterial(IUnitOfWork unitOfWork)
