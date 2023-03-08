@@ -160,6 +160,31 @@ namespace Vodovoz.Views.Complaints
 					handsetPhone.SetPhone(ViewModel.Entity.Phone);
 				}
 			};
+
+			//ytreeviewResult.ShowExpanders = false;
+			//ytreeviewResult.ColumnsConfig = FluentColumnsConfig<object>.Create()
+			//	.AddColumn("Время")
+			//		.HeaderAlignment(0.5f)
+			//		.AddTextRenderer(x => GetTime(x))
+			//	.AddColumn("Автор")
+			//		.HeaderAlignment(0.5f)
+			//		.AddTextRenderer(x => GetAuthor(x))
+			//	.AddColumn("Комментарий")
+			//		.HeaderAlignment(0.5f)
+			//		.AddTextRenderer(x => GetNodeName(x))
+			//			.WrapWidth(300)
+			//			.WrapMode(Pango.WrapMode.WordChar)
+			//	.RowCells().AddSetter<CellRenderer>(SetColor)
+			//	.Finish();
+			////var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
+			////ytreeviewResult.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
+
+			//ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => {
+			//	ytreeviewResult.YTreeModel.EmitModelChanged();
+			//	ytreeviewResult.ExpandAll();
+			//};
+			//ytreeviewResult.ExpandAll();
+			//ytreeviewResult.RowActivated += YtreeviewComments_RowActivated;
 		}
 
 		void EntryCounterparty_Changed(object sender, System.EventArgs e)
