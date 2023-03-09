@@ -4008,28 +4008,22 @@ namespace Vodovoz
 			result.Root.ContactPhone = sourceOrder.ContactPhone;
 			result.Root.SignatureType = sourceOrder.SignatureType;
 
-			var preparedEquipment = sourceOrder.OrderEquipments
+			var equipmentItems = sourceOrder.OrderEquipments
 				.Where(oe => oe.OwnType == OwnTypes.Rent
 					&& oe.Reason == Reason.Rent
 					&& oe.Direction == Domain.Orders.Direction.Deliver)
-				.Select(oe =>
-				{
-					var nomenclature = oe.Nomenclature;
-					var count = oe.Count;
+				.Select(oe => (oe.Nomenclature, oe.Count)).ToList();
 
-					return new OrderEquipment()
-					{
-						Nomenclature = nomenclature,
-						Count = count,
-						OwnType = OwnTypes.Rent,
-						DirectionReason = DirectionReason.Rent,
-						Direction = Domain.Orders.Direction.PickUp
-					};
-				}).ToList();
-
-			foreach(var item in preparedEquipment)
+			foreach(var equipmentItem in equipmentItems)
 			{
-				result.Root.ObservableOrderEquipments.Add(item);
+				result.Root.AddEquipmentNomenclatureFromClient(
+					equipmentItem.Nomenclature,
+					result,
+					equipmentItem.Count,
+					Domain.Orders.Direction.PickUp,
+					DirectionReason.Rent,
+					OwnTypes.Rent,
+					Reason.Rent);
 			}
 
 			result.Root.UpdateDocuments();

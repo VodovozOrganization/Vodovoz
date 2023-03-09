@@ -8,8 +8,8 @@ namespace Vodovoz.Parameters
     public class NomenclatureParametersProvider : INomenclatureParametersProvider
     {
         private readonly IParametersProvider _parametersProvider;
-        
-        public NomenclatureParametersProvider(IParametersProvider parametersProvider)
+
+		public NomenclatureParametersProvider(IParametersProvider parametersProvider)
         {
             _parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
         }
@@ -34,7 +34,7 @@ namespace Vodovoz.Parameters
 
 		public int PromotionalNomenclatureGroupId => _parametersProvider.GetIntValue("promotional_nomenclature_group_id");
 
-		public int DailyCoolerRentNomenclatureId => 697;
+		public int DailyCoolerRentNomenclatureId => _parametersProvider.GetIntValue(nameof(DailyCoolerRentNomenclatureId));
 
 		public int[] PaidDeliveriesNomenclaturesIds() => new[]
 		{
