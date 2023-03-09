@@ -3995,6 +3995,7 @@ namespace Vodovoz
 		{
 			_slaveOrderDlg.TabClosed -= OnSlaveOrderClosed;
 			SaveAndClose();
+			_justCreated = false;
 		}
 
 		private IUnitOfWorkGeneric<Order> CreateNewOrderForDailyRentEquipmentReturn(Order sourceOrder)
