@@ -19,8 +19,8 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.Author).Column ("author_id");
 			References (x => x.LastEditor).Column ("last_editor_id");
 			References (x => x.Product).Column ("product_nomenclature_id").Not.Nullable ();
-			References (x => x.IncomingWarehouse).Column ("incoming_warehouse_id").Not.Nullable ();
-			References (x => x.WriteOffWarehouse).Column ("writeoff_warehouse_id").Not.Nullable ();
+			References (x => x.ToWarehouse).Column ("incoming_warehouse_id").Not.Nullable ();
+			References (x => x.FromWarehouse).Column ("writeoff_warehouse_id").Not.Nullable ();
 			References (x => x.ProduceOperation).Column ("produce_operation_id").Cascade.All ().Not.Nullable ();
 			HasMany (x => x.Materials).Cascade.AllDeleteOrphan ().Inverse ().KeyColumn ("incoming_water_id");
 		}
