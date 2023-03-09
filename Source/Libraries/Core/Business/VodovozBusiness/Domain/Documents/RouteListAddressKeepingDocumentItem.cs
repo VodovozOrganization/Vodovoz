@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Documents
 {

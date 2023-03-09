@@ -589,7 +589,7 @@ namespace Vodovoz
 
 				if(pastPlace != null)
 				{
-					if(new[] { AddressTransferType.FromFreeBalance, AddressTransferType.FromDriverToDriver }.Contains(address.AddressTransferType.Value))
+					if(address.AddressTransferType.Value == AddressTransferType.FromFreeBalance)
 					{
 						var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(UoW, address.Order, pastPlace.RouteList);
 

@@ -15,7 +15,6 @@ namespace Vodovoz.Domain.Logistic
 		private Nomenclature _nomenclature;
 		private decimal _amount;
 		private AdditionalLoadingDocument _additionalLoadingDocument;
-		private DeliveryFreeBalanceOperation _deliveryFreeBalanceOperation;
 
 		public virtual int Id { get; set; }
 

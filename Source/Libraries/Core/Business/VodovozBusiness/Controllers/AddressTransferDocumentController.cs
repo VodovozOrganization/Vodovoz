@@ -182,37 +182,6 @@ namespace Vodovoz.Controllers
 				addressTransferItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
 			}
 
-			// оборудование от клиента
-			foreach(var orderItem in addressTransferItem.OldAddress.Order.OrderEquipments
-						.Where(x => x.Direction == Direction.PickUp))
-			{
-				var newDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
-				{
-					AddressTransferDocumentItem = addressTransferItem,
-					Amount = -orderItem.Count,
-					Nomenclature = orderItem.Nomenclature,
-					RouteListFrom = addressTransferItem.OldAddress.RouteList,
-					RouteListTo = addressTransferItem.OldAddress.TransferedTo.RouteList
-				};
-
-				newDeliveryFreeBalanceTransferItem.CreateOrUpdateOperations();
-				addressTransferItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
-			}
-
-			// бутыли на возврат
-
-			var emptyBottlesDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
-			{
-				Nomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow),
-				Amount = -(addressTransferItem.OldAddress.Order.BottlesReturn ?? 0),
-				AddressTransferDocumentItem = addressTransferItem,
-				RouteListFrom = addressTransferItem.OldAddress.RouteList,
-				RouteListTo = addressTransferItem.OldAddress.TransferedTo.RouteList
-			};
-
-			emptyBottlesDeliveryFreeBalanceTransferItem.CreateOrUpdateOperations();
-			addressTransferItem.DeliveryFreeBalanceTransferItems.Add(emptyBottlesDeliveryFreeBalanceTransferItem);
-
 		}
 	}
 }

@@ -714,6 +714,7 @@ namespace Vodovoz
 				.As<ITerminalNomenclatureProvider>()
 				.As<IProfitCategoryProvider>()
 				.As<IPersonProvider>()
+				.As<IWageParametersProvider>()
 				.AsSelf();
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))

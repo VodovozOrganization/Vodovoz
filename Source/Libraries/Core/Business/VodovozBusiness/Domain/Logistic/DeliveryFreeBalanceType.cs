@@ -4,7 +4,6 @@
 	{
 		Increase,
 		Decrease,
-		Erase,
 		Unchange
 	}
 }
