@@ -818,7 +818,7 @@ namespace Vodovoz
 				.AddDeleteDependence<MovementDocument>(x => x.ToWarehouse)
 				.AddDeleteDependence<WarehouseMovementOperation>(x => x.IncomingWarehouse)
 				.AddDeleteDependence<WarehouseMovementOperation>(x => x.WriteoffWarehouse)
-				.AddDeleteDependence<WriteoffDocument>(x => x.WriteoffWarehouse)
+				.AddDeleteDependence<WriteoffDocument>(x => x.Warehouse)
 				.AddDeleteDependence<InventoryDocument>(x => x.Warehouse)
 				.AddDeleteDependence<ShiftChangeWarehouseDocument>(x => x.Warehouse)
 				.AddDeleteDependence<RegradingOfGoodsDocument>(x => x.Warehouse)

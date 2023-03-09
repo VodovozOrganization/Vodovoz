@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "входящая накладная")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class IncomingInvoice : Document, IValidatableObject
+	public class IncomingInvoice : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private IList<IncomingInvoiceItem> _items = new List<IncomingInvoiceItem>();
 
