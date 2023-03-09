@@ -70,7 +70,7 @@ namespace Vodovoz
 					.AddSetter((cell, node) => CalculateAmount(node))
 				.AddColumn("Ожидаемое кол-во")
 					.AddNumericRenderer(node => node.ExpectedAmount, false)
-					.Digits(2)
+					.Digits(0)
 				.AddColumn("")
 				.Finish();
 

@@ -126,6 +126,7 @@ namespace Vodovoz.Views.Logistic
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(7)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -296,6 +297,7 @@ namespace Vodovoz.Views.Logistic
 			this.labelBottleInfo.Selectable = true;
 			this.table1.Add(this.labelBottleInfo);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.labelBottleInfo]));
+			w20.BottomAttach = ((uint)(3));
 			w20.LeftAttach = ((uint)(6));
 			w20.RightAttach = ((uint)(7));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -334,11 +336,10 @@ namespace Vodovoz.Views.Logistic
 			this.yhboxDeliveryFreeBalance.Spacing = 6;
 			this.table1.Add(this.yhboxDeliveryFreeBalance);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.yhboxDeliveryFreeBalance]));
-			w23.TopAttach = ((uint)(2));
-			w23.BottomAttach = ((uint)(3));
+			w23.TopAttach = ((uint)(3));
+			w23.BottomAttach = ((uint)(4));
 			w23.LeftAttach = ((uint)(4));
 			w23.RightAttach = ((uint)(7));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yspinActualDistance = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
