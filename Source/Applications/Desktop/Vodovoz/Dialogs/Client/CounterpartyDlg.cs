@@ -2329,7 +2329,6 @@ namespace Vodovoz
 
 		private bool SetActiveComboboxOpfValue(string value)
 		{
-			comboboxOpf.Active = 0;
 			if (string.IsNullOrEmpty(value))
 			{
 				return false;

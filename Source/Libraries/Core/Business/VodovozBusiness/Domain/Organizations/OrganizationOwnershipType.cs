@@ -54,10 +54,9 @@ namespace Vodovoz.Domain.Organizations
 		}
 		#endregion
 
-		public virtual string Title => $"Форма собственности \"{Abbreviation}\"";
+		public virtual string Title => Abbreviation;
 
 		public static IUnitOfWorkGeneric<OrganizationOwnershipType> Create() => UnitOfWorkFactory.CreateWithNewRoot<OrganizationOwnershipType>();
-
 
 		#region IValidatableObject implementation
 		public virtual bool CheckForAbbreviationDuplicate(IUnitOfWork uow, IOrganizationRepository organizationRepository)
