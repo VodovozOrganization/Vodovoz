@@ -144,11 +144,6 @@ namespace Vodovoz
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Sensitive = _logisticanEditing;
 
-			additionalloadingtextview.Binding
-				.AddBinding(Entity, e => e.AdditionalLoadingDocument, w => w.AdditionalLoadingDocument)
-				.InitializeFromSource();
-			additionalloadingtextview.Visible = Entity.AdditionalLoadingDocument != null;
-
 			var deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
 			var deliveryfreebalanceview = new DeliveryFreeBalanceView(deliveryFreeBalanceViewModel);
 			deliveryfreebalanceview.Binding

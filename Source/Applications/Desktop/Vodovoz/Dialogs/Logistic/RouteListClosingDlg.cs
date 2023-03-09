@@ -207,11 +207,6 @@ namespace Vodovoz
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
-			additionalloadingtextview.Binding
-				.AddBinding(Entity, e => e.AdditionalLoadingDocument, w => w.AdditionalLoadingDocument)
-				.InitializeFromSource();
-			additionalloadingtextview.Visible = Entity.AdditionalLoadingDocument != null;
-
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
