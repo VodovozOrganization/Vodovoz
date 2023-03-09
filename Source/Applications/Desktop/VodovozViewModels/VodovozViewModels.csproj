@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -72,6 +72,7 @@
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Sales\DeliveryPriceRuleJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
@@ -82,10 +83,11 @@
     <Compile Include="ViewModels\Counterparty\CounterpartyDetailsFromRevenueServiceViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
-    <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Sale\DeliveryPriceRuleJournalViewModel.cs" />
     <Compile Include="ReportsParameters\Profitability\ProfitabilitySalesReportViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclaturePurchasePriceViewModel.cs" />
@@ -458,6 +460,7 @@
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.MeasurementUnit.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Report.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.DynamicsInEnum.cs" />
+    <Compile Include="ViewModels\Sale\DeliveryPriceRuleViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\BulkEmailViewModel.cs" />
@@ -725,7 +728,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
-    <Folder Include="ViewModels\Warehouses\Documents\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
