@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_autoRefreshInterval = 30;
 
-			Title = "Реестр заказов для чека";
+			Title = "Журнал кодов честного знака";
 			Filter = filter;
 
 			var levelDataLoader = new HierarchicalQueryLoader<TrueMarkCashReceiptOrder, TrueMarkReceiptOrderNode>(unitOfWorkFactory);
