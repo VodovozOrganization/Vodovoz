@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Domain.Documents
 {
-	public interface IWarehouseBindedDocument
+	public interface IWarehouseBoundedDocument : IDocument
 	{
 		Warehouse Warehouse { get; }
 	}

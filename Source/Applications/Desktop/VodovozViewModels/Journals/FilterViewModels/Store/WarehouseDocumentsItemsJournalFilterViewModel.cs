@@ -83,10 +83,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _warehouse, value);
 		}
 
-		public WarehouseIdSpecification<TDocument> GetWarehouseSpecification<TDocument>()
-			where TDocument : Document, IWarehouseBindedDocument
+		public ISpecification<TDocument> GetTwoWarhousesSpecification<TDocument>()
+			where TDocument : ITwoWarhousesBindedDocument
 		{
-			return new WarehouseIdSpecification<TDocument>(Warehouse?.Id);
+			return new DocumentTwoWarehousesBoundedIdSpecification<TDocument>(Warehouse?.Id);
+		}
+
+		public ISpecification<TDocument> GetWarehouseSpecification<TDocument>()
+			where TDocument : IWarehouseBoundedDocument
+		{
+			return new DocumentOneWarehouseBoundedIdSpecification<TDocument>(Warehouse?.Id);
 		}
 
 		public Employee Driver

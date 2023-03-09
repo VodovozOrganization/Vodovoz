@@ -187,14 +187,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType is null || FilterViewModel.DocumentType == DocumentType.IncomingInvoice)
 				&& FilterViewModel.Driver is null)
 			{
-				invoiceQuery.Where(FilterViewModel.GetWarehouseSpecification<IncomingInvoice>().IsSatisfiedBy());
+				invoiceQuery.Where(FilterViewModel.GetWarehouseSpecification<IncomingInvoice>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<IncomingInvoice>().IsSatisfiedBy());
 
 				//if(FilterViewModel.Warehouse != null)
 				//{
 				//	invoiceQuery.Where(ii => ii.Warehouse.Id == FilterViewModel.Warehouse.Id);
 				//}
 
-				invoiceQuery.Where(FilterViewModel.GetPeriodSpecification<IncomingInvoice>().IsSatisfiedBy());
+				//invoiceQuery.Where(FilterViewModel.GetPeriodSpecification<IncomingInvoice>().IsSatisfiedBy());
 				//if(FilterViewModel.StartDate.HasValue)
 				//{
 				//	invoiceQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate.Value);

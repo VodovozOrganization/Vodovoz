@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using QS.DomainModel.Entity;
+using System.Linq;
 
 namespace Vodovoz.Specifications
 {
@@ -22,6 +23,7 @@ namespace Vodovoz.Specifications
 		public static IQueryable<TEntity> Specification<TEntity>(
 			this IQueryable<TEntity> query,
 			ISpecification<TEntity> specification)
+			where TEntity : IDomainObject
 		{
 			return query.Where(specification.IsSatisfiedBy());
 		}
