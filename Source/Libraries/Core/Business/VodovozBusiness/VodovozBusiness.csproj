@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -117,6 +117,9 @@
     <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalDocumentBase.cs" />
     <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalGiveoutDocument.cs" />
     <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalReturnDocument.cs" />
+    <Compile Include="Domain\Documents\IDocument.cs" />
+    <Compile Include="Domain\Documents\ITwoWarhousesBindedDocument.cs" />
+    <Compile Include="Domain\Documents\IWarehouseBoundedDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
@@ -417,6 +420,7 @@
     <Compile Include="Factories\EmployeeRegistrationVersionFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationVersionFactory.cs" />
+    <Compile Include="Factories\IRoboatsFileStorageFactory.cs" />
     <Compile Include="Factories\IRouteListProfitabilityFactory.cs" />
     <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsCallFactory.cs" />
@@ -606,6 +610,7 @@
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
+    <Compile Include="Parameters\IRoboatsSettings.cs" />
     <Compile Include="Parameters\IRouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\IStoredResourcesSettings.cs" />
     <Compile Include="Parameters\ISubdivisionParametersProvider.cs" />

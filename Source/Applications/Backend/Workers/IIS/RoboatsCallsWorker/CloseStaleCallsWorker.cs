@@ -11,12 +11,12 @@ namespace RoboatsService.Workers
 	public class CloseStaleCallsWorker : TimerBackgroundServiceBase
 	{
 		private readonly ILogger<CloseStaleCallsWorker> _logger;
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly StaleCallsController _staleCallsController;
 		private readonly TimeSpan _interval;
 		private bool _isRunning = false;
 
-		public CloseStaleCallsWorker(ILogger<CloseStaleCallsWorker> logger, RoboatsSettings roboatsSettings, StaleCallsController staleCallsController)
+		public CloseStaleCallsWorker(ILogger<CloseStaleCallsWorker> logger, IRoboatsSettings roboatsSettings, StaleCallsController staleCallsController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));

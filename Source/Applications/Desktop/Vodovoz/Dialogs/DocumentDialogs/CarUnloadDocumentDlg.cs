@@ -133,7 +133,7 @@ namespace Vodovoz
 					nonserialequipmentreceptionview1.Sensitive =
 						defectiveitemsreceptionview1.Sensitive = editing;
 
-
+			// 20230309 Если спустя время не понадобится, то вырезать всё, что связано с этим, вместе с CarUnloadDocument.TareToReturn
 			hbxTareToReturn.Visible = false;
 
 			defectiveitemsreceptionview1.UoW =

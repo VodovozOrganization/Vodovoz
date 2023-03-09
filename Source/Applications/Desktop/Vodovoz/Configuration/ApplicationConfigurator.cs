@@ -284,15 +284,6 @@ namespace Vodovoz.Configuration
                 .SearchColumn("Ф.И.О.", x => x.FullName)
                 .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
                 .End();
-            OrmMain.AddObjectDescription<DeliveryPriceRule>().Dialog<DeliveryPriceRuleDlg>().DefaultTableView()
-                .Column("< 19л б.", x => x.Water19LCount.ToString())
-                .Column("< 6л б.", x => x.Water6LCount)
-                .Column("< 1,5л б.", x => x.Water1500mlCount)
-                .Column("< 0,6л б.", x => x.Water600mlCount)
-                .Column("< 0,5л б.", x => x.Water500mlCount)
-                .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
-                .SearchColumn("Описание правила", x => x.Title)
-                .End();
             OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
                 .SearchColumn("Имя", x => x.Name)
                 .Column("Тип", x => x.TypeOfCertificate.GetEnumTitle())

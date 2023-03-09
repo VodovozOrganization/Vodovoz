@@ -18,14 +18,14 @@ namespace RoboatsService.OrderValidation
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly IRoboatsRepository _roboatsRepository;
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallBatchRegistrator _roboatsCallRegistrator;
 
 		public ValidOrdersProvider(
 			IUnitOfWorkFactory uowFactory,
 			INomenclatureParametersProvider nomenclatureParametersProvider,
 			IRoboatsRepository roboatsRepository,
-			RoboatsSettings roboatsSettings,
+			IRoboatsSettings roboatsSettings,
 			RoboatsCallBatchRegistrator roboatsCallRegistrator)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
