@@ -121,8 +121,8 @@ namespace Vodovoz.ViewModel
 				var waterQuery = UoW.Session.QueryOver<IncomingWater>(() => waterAlias);
 				if(Filter.RestrictWarehouse != null)
 				{
-					waterQuery.Where(x => x.IncomingWarehouse.Id == Filter.RestrictWarehouse.Id ||
-					                      x.WriteOffWarehouse.Id == Filter.RestrictWarehouse.Id);
+					waterQuery.Where(x => x.ToWarehouse.Id == Filter.RestrictWarehouse.Id ||
+					                      x.FromWarehouse.Id == Filter.RestrictWarehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -134,7 +134,7 @@ namespace Vodovoz.ViewModel
 				}
 
 				var waterList = waterQuery
-					.JoinQueryOver(() => waterAlias.IncomingWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => waterAlias.ToWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias(() => waterAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias(() => waterAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.Left.JoinAlias(() => waterAlias.Product, () => productAlias)
