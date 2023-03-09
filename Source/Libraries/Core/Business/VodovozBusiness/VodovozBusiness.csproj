@@ -918,7 +918,7 @@
     <Compile Include="Specifications\ISpecification.cs" />
     <Compile Include="Specifications\NotSpecification.cs" />
     <Compile Include="Specifications\OrSpecification.cs" />
-    <Compile Include="Specifications\Specification.cs" />
+    <Compile Include="Specifications\Store\Documents\DocumentDriverIdSpecification.cs" />
     <Compile Include="Specifications\Store\Documents\DocumentOneWarehouseBoundedIdSpecification.cs" />
     <Compile Include="Specifications\Store\Documents\TimestampAfterSpecification.cs" />
     <Compile Include="Specifications\Store\Documents\TimestampBeforeEndDateSpecification.cs" />

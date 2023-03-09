@@ -2,7 +2,6 @@
 using QS.Project.Filter;
 using QS.Services;
 using System;
-using System.Linq.Expressions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
@@ -11,7 +10,6 @@ using Vodovoz.Specifications;
 using Vodovoz.Specifications.Store.Documents;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.ViewModels.Flyers;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {

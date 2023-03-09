@@ -19,7 +19,13 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 
 			enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
-			enumcomboDocumentType.HiddenItems = new[] { DocumentType.DeliveryDocument as object };
+			enumcomboDocumentType.HiddenItems = new object[]
+			{
+				DocumentType.DeliveryDocument,
+				DocumentType.DriverTerminalGiveout,
+				DocumentType.DriverTerminalMovement,
+				DocumentType.DriverTerminalReturn,
+			};
 
 			enumcomboDocumentType.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeDocumentType, w => w.Sensitive)

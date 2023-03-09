@@ -8,6 +8,9 @@ using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
@@ -17,8 +20,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 	public class WarehouseDocumentsItemsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<WarehouseDocumentsItemsJournalNode, WarehouseDocumentsItemsJournalFilterViewModel>
 	{
 		private Type[] _documentItemsTypes;
-
-		private WarehouseDocumentsItemsJournalNode _warehouseDocumentsItemsJournalNodeAlias = null;
 
 		public WarehouseDocumentsItemsJournalViewModel(
 			WarehouseDocumentsItemsJournalFilterViewModel filterViewModel,
@@ -40,7 +41,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				typeof(InventoryDocumentItem),
 				typeof(ShiftChangeWarehouseDocumentItem),
 				typeof(RegradingOfGoodsDocumentItem),
-				typeof(DeliveryDocumentItem)
 			};
 
 			SearchEnabled = false;
@@ -66,109 +66,78 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
 				.FinishConfiguration();
 
-			//RegisterEntity(GetQueryIncomingWaterMaterial).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
+			RegisterEntity(GetQueryIncomingWaterMaterial).AddDocumentConfiguration(
+				() => null,
+				(node) => null,
+				(node) => node.EntityType == null,
+				"Empty",
+				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
+				.FinishConfiguration();
 
-			//RegisterEntity(GetQueryMovementDocumentItem).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
+			RegisterEntity(GetQueryMovementDocumentItem).AddDocumentConfiguration(
+				() => null,
+				(node) => null,
+				(node) => node.EntityType == null,
+				"Empty",
+				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
+				.FinishConfiguration();
 
-			//RegisterEntity(GetQueryWriteoffDocumentItem).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
-			//RegisterEntity(GetQuerySelfDeliveryDocumentItem).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
+			RegisterEntity(GetQueryWriteoffDocumentItem)
+				.AddDocumentConfiguration(
+				() => null,
+				(node) => null,
+				(node) => node.EntityType == null,
+				"Empty",
+				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
+				.FinishConfiguration();
 
-			//RegisterEntity(GetQueryCarLoadDocumentItem).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
+			RegisterEntity(GetQuerySelfDeliveryDocumentItem).AddDocumentConfiguration(
+				() => null,
+				(node) => null,
+				(node) => node.EntityType == null,
+				"Empty",
+				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
+				.FinishConfiguration();
 
-			//RegisterEntity(GetQueryCarUnloadDocumentItem).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
+			RegisterEntity(GetQueryCarLoadDocumentItem).AddDocumentConfiguration(
+				() => null,
+				(node) => null,
+				(node) => node.EntityType == null,
+				"Empty",
+				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
+				.FinishConfiguration();
 
-			//RegisterEntity(GetQueryInventoryDocumentItem).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
+			RegisterEntity(GetQueryCarUnloadDocumentItem).AddDocumentConfiguration(
+				() => null,
+				(node) => null,
+				(node) => node.EntityType == null,
+				"Empty",
+				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
+				.FinishConfiguration();
 
-			//RegisterEntity(GetQueryShiftChangeWarehouseDocumentItem).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
+			RegisterEntity(GetQueryInventoryDocumentItem).AddDocumentConfiguration(
+				() => null,
+				(node) => null,
+				(node) => node.EntityType == null,
+				"Empty",
+				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
+				.FinishConfiguration();
 
-			//RegisterEntity(GetQueryRegradingOfGoodsDocumentItem).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
+			RegisterEntity(GetQueryShiftChangeWarehouseDocumentItem).AddDocumentConfiguration(
+				() => null,
+				(node) => null,
+				(node) => node.EntityType == null,
+				"Empty",
+				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
+				.FinishConfiguration();
 
-			//RegisterEntity(GetQueryDeliveryDocumentItem).AddDocumentConfiguration(
-			//	() => null,
-			//	(node) => null,
-			//	(node) => node.EntityType == null,
-			//	"Empty",
-			//	new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-			//	.FinishConfiguration();
-
-
-
-
-
-
-			//foreach(Type type in types)
-			//{
-			//	//var entityConfig = RegisterEntity()
-			//}
-
-			//var ordersConfig = RegisterEntity<VodovozOrder>(GetOrdersQuery)
-			//	.AddDocumentConfiguration(
-			//		//функция диалога создания документа
-			//		() => null,
-			//		//функция диалога открытия документа
-			//		(WarehouseDocumentsItemsJournalNode node) => _gtkDialogsOpener.CreateOrderDlg(node.Id),
-			//		//функция идентификации документа 
-			//		(WarehouseDocumentsItemsJournalNode node) => node.EntityType == typeof(VodovozOrder),
-			//		"Заказ",
-			//		new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
-			//	);
-
-			////завершение конфигурации
-			//ordersConfig.FinishConfiguration();
+			RegisterEntity(GetQueryRegradingOfGoodsDocumentItem).AddDocumentConfiguration(
+				() => null,
+				(node) => null,
+				(node) => node.EntityType == null,
+				"Empty",
+				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
+				.FinishConfiguration();
 		}
 
 		private IQueryOver<IncomingInvoiceItem> GetQueryIncomingInvoiceItem(IUnitOfWork unitOfWork)
@@ -181,39 +150,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 
-			var invoiceQuery = UoW.Session.QueryOver(() => incomingInvoiceItemAlias)
+			var invoiceQuery = unitOfWork.Session.QueryOver(() => incomingInvoiceItemAlias)
 				.Left.JoinQueryOver(() => incomingInvoiceItemAlias.Document, () => invoiceAlias);
 
-			if((FilterViewModel.DocumentType is null || FilterViewModel.DocumentType == DocumentType.IncomingInvoice)
+			if((FilterViewModel.DocumentType is null
+				|| FilterViewModel.DocumentType == DocumentType.IncomingInvoice)
 				&& FilterViewModel.Driver is null)
 			{
 				invoiceQuery.Where(FilterViewModel.GetWarehouseSpecification<IncomingInvoice>().IsSatisfiedBy())
 					.And(FilterViewModel.GetPeriodSpecification<IncomingInvoice>().IsSatisfiedBy());
-
-				//if(FilterViewModel.Warehouse != null)
-				//{
-				//	invoiceQuery.Where(ii => ii.Warehouse.Id == FilterViewModel.Warehouse.Id);
-				//}
-
-				//invoiceQuery.Where(FilterViewModel.GetPeriodSpecification<IncomingInvoice>().IsSatisfiedBy());
-				//if(FilterViewModel.StartDate.HasValue)
-				//{
-				//	invoiceQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate.Value);
-				//}
-				//if(FilterViewModel.EndDate.HasValue)
-				//{
-				//	invoiceQuery.Where(ii => ii.TimeStamp < FilterViewModel.EndDate.Value.AddDays(1));
-				//}
 			}
 			else
 			{
 				invoiceQuery.Where(() => invoiceAlias.Id == -1);
 			}
 
-			return invoiceQuery.JoinQueryOver(() => invoiceAlias.Contractor, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => invoiceAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(() => invoiceAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			return invoiceQuery
+				.Left.JoinAlias(() => invoiceAlias.Contractor, () => counterpartyAlias)
+				.Left.JoinAlias(() => invoiceAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => invoiceAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias)
 				.SelectList(list => list
 					.Select(() => incomingInvoiceItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => invoiceAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -237,59 +193,516 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => invoiceAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
-				.OrderByAlias(() => invoiceAlias.Id).Desc
+				.OrderByAlias(() => invoiceAlias.TimeStamp).Desc
 				.OrderByAlias(() => incomingInvoiceItemAlias.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem>>());
 		}
 
 		private IQueryOver<IncomingWaterMaterial> GetQueryIncomingWaterMaterial(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.Query<IncomingWaterMaterial>();
+			WarehouseDocumentsItemsJournalNode<IncomingWaterMaterial> resultAlias = null;
+			IncomingWaterMaterial incomingWaterMaterialAlias = null;
+			IncomingWater incomingWaterAlias = null;
+
+			Warehouse warehouseAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+			Nomenclature productAlias = null;
+
+			var waterQuery = unitOfWork.Session.QueryOver(() => incomingWaterMaterialAlias)
+				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+			if((FilterViewModel.DocumentType == null
+				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
+				&& FilterViewModel.Driver == null)
+			{
+				waterQuery.Where(FilterViewModel.GetTwoWarhousesSpecification<IncomingWater>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<IncomingWater>().IsSatisfiedBy());
+			}
+			else
+			{
+				waterQuery.Where(() => incomingWaterAlias.Id == -1);
+			}
+
+			return waterQuery
+				.Left.JoinAlias(() => incomingWaterAlias.ToWarehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
+				.Left.JoinAlias(() => incomingWaterAlias.Product, () => productAlias)
+				.SelectList(list => list
+					.Select(() => incomingWaterMaterialAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => incomingWaterAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => incomingWaterAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.IncomingWater).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => warehouseAlias.Name == null),
+						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Property(() => warehouseAlias.Name)))
+					.WithAlias(() => resultAlias.Warehouse)
+					.Select(() => productAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => incomingWaterAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => incomingWaterAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+			.OrderByAlias(() => incomingWaterAlias.TimeStamp).Desc
+			.OrderByAlias(() => incomingWaterMaterialAlias.Id).Desc
+			.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<IncomingWaterMaterial>>());
 		}
 
 		private IQueryOver<MovementDocumentItem> GetQueryMovementDocumentItem(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.Query<MovementDocumentItem>();
+			WarehouseDocumentsItemsJournalNode<MovementDocumentItem> resultAlias = null;
+
+			MovementDocumentItem movementDocumentItemAlias = null;
+			MovementDocument movementDocumentAlias = null;
+			Warehouse warehouseAlias = null;
+			Warehouse secondWarehouseAlias = null;
+			MovementWagon movementWagonAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
+				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+			if((FilterViewModel.DocumentType == null
+				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
+				&& FilterViewModel.Driver == null)
+			{
+				movementQuery.Where(FilterViewModel.GetTwoWarhousesSpecification<MovementDocument>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<MovementDocument>().IsSatisfiedBy());
+			}
+			else
+			{
+				movementQuery.Where(() => movementDocumentAlias.Id == -1);
+			}
+
+			return movementQuery
+				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => secondWarehouseAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => movementDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => movementDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => movementDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => movementDocumentAlias.Status).WithAlias(() => resultAlias.MovementDocumentStatus)
+					.Select(() => movementDocumentAlias.HasDiscrepancy).WithAlias(() => resultAlias.MovementDocumentDiscrepancy)
+					.Select(() => movementWagonAlias.Name).WithAlias(() => resultAlias.CarNumber)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => warehouseAlias.Name == null),
+						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Property(() => warehouseAlias.Name)))
+					.WithAlias(() => resultAlias.Warehouse)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => secondWarehouseAlias.Name == null),
+						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Property(() => secondWarehouseAlias.Name)))
+					.WithAlias(() => resultAlias.SecondWarehouse)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => movementDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => movementDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderByAlias(() => movementDocumentAlias.TimeStamp).Desc
+				.OrderByAlias(() => movementDocumentItemAlias.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<MovementDocumentItem>>());
 		}
 
 		private IQueryOver<WriteoffDocumentItem> GetQueryWriteoffDocumentItem(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.Query<WriteoffDocumentItem>();
+			WarehouseDocumentsItemsJournalNode<WriteoffDocumentItem> resultAlias = null;
+
+			WriteoffDocumentItem writeoffDocumentItemAlias = null;
+			WriteoffDocument writeoffDocumentAlias = null;
+			Counterparty counterpartyAlias = null;
+			Warehouse warehouseAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var writeoffQuery = unitOfWork.Session.QueryOver(() => writeoffDocumentItemAlias)
+				.JoinQueryOver(() => writeoffDocumentItemAlias.Document, () => writeoffDocumentAlias);
+
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.WriteoffDocument) &&
+				 FilterViewModel.Driver == null)
+			{
+				writeoffQuery.Where(FilterViewModel.GetWarehouseSpecification<WriteoffDocument>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<WriteoffDocument>().IsSatisfiedBy());
+			}
+			else
+			{
+				writeoffQuery.Where(() => writeoffDocumentAlias.Id == -1);
+			}
+
+			return writeoffQuery
+				.Left.JoinAlias(() => writeoffDocumentAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => writeoffDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => writeoffDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => writeoffDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => writeoffDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => writeoffDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => writeoffDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.WriteoffDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => counterpartyAlias.Name == null),
+						Projections.Constant(string.Empty, NHibernateUtil.String),
+						Projections.Property(() => counterpartyAlias.Name)))
+					.WithAlias(() => resultAlias.Counterparty)
+					.Select(Projections.Conditional(
+						Restrictions.Where(() => warehouseAlias.Name == null),
+						Projections.Constant(string.Empty, NHibernateUtil.String),
+						Projections.Property(() => warehouseAlias.Name)))
+					.WithAlias(() => resultAlias.Warehouse)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => writeoffDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => writeoffDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderByAlias(() => writeoffDocumentAlias.TimeStamp).Desc
+				.OrderByAlias(() => writeoffDocumentItemAlias.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<WriteoffDocumentItem>>());
 		}
 
 		private IQueryOver<SelfDeliveryDocumentItem> GetQuerySelfDeliveryDocumentItem(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.Query<SelfDeliveryDocumentItem>();
+			WarehouseDocumentsItemsJournalNode<SelfDeliveryDocumentItem> resultAlias = null;
+
+			SelfDeliveryDocument selfDeliveryDocumentAlias = null;
+			SelfDeliveryDocumentItem selfDeliveryDocumentItemAlias = null;
+
+			Warehouse warehouseAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			Counterparty counterpartyAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var selfDeliveryQuery = unitOfWork.Session.QueryOver(() => selfDeliveryDocumentItemAlias)
+				.JoinQueryOver(() => selfDeliveryDocumentItemAlias.Document, () => selfDeliveryDocumentAlias);
+
+			if((FilterViewModel.DocumentType == null
+				|| FilterViewModel.DocumentType == DocumentType.SelfDeliveryDocument)
+				&& FilterViewModel.Driver == null)
+			{
+				selfDeliveryQuery.Where(FilterViewModel.GetWarehouseSpecification<SelfDeliveryDocument>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<SelfDeliveryDocument>().IsSatisfiedBy());
+			}
+			else
+			{
+				selfDeliveryQuery.Where(() => selfDeliveryDocumentAlias.Id == -1);
+			}
+
+			return selfDeliveryQuery
+				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => orderAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => selfDeliveryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => selfDeliveryDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => selfDeliveryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => selfDeliveryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => selfDeliveryDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => selfDeliveryDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderByAlias(() => selfDeliveryDocumentAlias.TimeStamp).Desc
+				.OrderByAlias(() => selfDeliveryDocumentItemAlias.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<SelfDeliveryDocumentItem>>());
 		}
 
 		private IQueryOver<CarLoadDocumentItem> GetQueryCarLoadDocumentItem(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.Query<CarLoadDocumentItem>();
+			WarehouseDocumentsItemsJournalNode<CarLoadDocumentItem> resultAlias = null;
+
+			CarLoadDocumentItem carLoadDocumentItemAlias = null;
+			CarLoadDocument carLoadDocumentAlias = null;
+			Warehouse warehouseAlias = null;
+			RouteList routeListAlias = null;
+			Car carAlias = null;
+			CarModel carModelAlias = null;
+			Employee driverAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var carLoadQuery = unitOfWork.Session.QueryOver(() => carLoadDocumentItemAlias)
+				.JoinQueryOver(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+			if(FilterViewModel.DocumentType == null
+				|| FilterViewModel.DocumentType == DocumentType.CarLoadDocument)
+			{
+				if(FilterViewModel.Driver != null)
+				{
+					carLoadQuery.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
+				}
+
+				carLoadQuery.Where(FilterViewModel.GetWarehouseSpecification<CarLoadDocument>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<CarLoadDocument>().IsSatisfiedBy());
+			}
+			else
+			{
+				carLoadQuery.Where(() => carLoadDocumentAlias.Id == -1);
+			}
+
+			return carLoadQuery
+				.Left.JoinAlias(() => carLoadDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => carLoadDocumentAlias.RouteList, () => routeListAlias)
+				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+				.Left.JoinAlias(() => carLoadDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => carLoadDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => carLoadDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => carLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => carLoadDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.CarLoadDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
+					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
+					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
+					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
+					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => carLoadDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => carLoadDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderByAlias(() => carLoadDocumentAlias.TimeStamp).Desc
+				.OrderByAlias(() => carLoadDocumentItemAlias.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<MovementDocumentItem>>());
 		}
 
 		private IQueryOver<CarUnloadDocumentItem> GetQueryCarUnloadDocumentItem(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.Query<CarUnloadDocumentItem>();
+			WarehouseDocumentsItemsJournalNode<CarUnloadDocumentItem> resultAlias = null;
+
+			CarUnloadDocumentItem carUnLoadDocumentItemAlias = null;
+			CarUnloadDocument carUnLoadDocumentAlias = null;
+			Warehouse warehouseAlias = null;
+			RouteList routeListAlias = null;
+			Car carAlias = null;
+			CarModel carModelAlias = null;
+			Employee driverAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var carUnloadQuery = unitOfWork.Session.QueryOver(() => carUnLoadDocumentItemAlias)
+					.JoinQueryOver(() => carUnLoadDocumentItemAlias.Document, () => carUnLoadDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+			if(FilterViewModel.DocumentType == null
+				|| FilterViewModel.DocumentType == DocumentType.CarUnloadDocument)
+			{
+				carUnloadQuery.Where(FilterViewModel.GetWarehouseSpecification<CarUnloadDocument>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<CarUnloadDocument>().IsSatisfiedBy());
+
+				if(FilterViewModel.Driver != null)
+				{
+					carUnloadQuery.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
+				}
+			}
+			else
+			{
+				carUnloadQuery.Where(() => carUnLoadDocumentAlias.Id == -1);
+			}
+
+			return carUnloadQuery
+				.Left.JoinAlias(() => carUnLoadDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => carUnLoadDocumentAlias.RouteList, () => routeListAlias)
+				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+				.Left.JoinAlias(() => carUnLoadDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => carUnLoadDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => carUnLoadDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => carUnLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => carUnLoadDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.CarUnloadDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
+					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
+					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
+					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
+					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => carUnLoadDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => carUnLoadDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderByAlias(() => carUnLoadDocumentAlias.TimeStamp).Desc
+				.OrderByAlias(() => carUnLoadDocumentItemAlias.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<CarUnloadDocumentItem>>());
 		}
 
 		private IQueryOver<InventoryDocumentItem> GetQueryInventoryDocumentItem(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.Query<InventoryDocumentItem>();
+			WarehouseDocumentsItemsJournalNode<InventoryDocumentItem> resultAlias = null;
+
+			InventoryDocumentItem inventoryDocumentItemAlias = null;
+			InventoryDocument inventoryDocumentAlias = null;
+			Warehouse warehouseAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var inventoryQuery = unitOfWork.Session.QueryOver(() => inventoryDocumentItemAlias)
+				.JoinQueryOver(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+			if((FilterViewModel.DocumentType == null || FilterViewModel.RestrictDocumentType == DocumentType.InventoryDocument) &&
+				FilterViewModel.RestrictDriver == null)
+			{
+				inventoryQuery.Where(FilterViewModel.GetWarehouseSpecification<InventoryDocument>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<InventoryDocument>().IsSatisfiedBy());
+			}
+			else
+			{
+				inventoryQuery.Where(() => inventoryDocumentAlias.Id == -1);
+			}
+
+			return inventoryQuery
+				.Left.JoinAlias(() => inventoryDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => inventoryDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => inventoryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => inventoryDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => inventoryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => inventoryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.InventoryDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => inventoryDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => inventoryDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderByAlias(() => inventoryDocumentAlias.TimeStamp).Desc
+				.OrderByAlias(() => inventoryDocumentItemAlias.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<InventoryDocumentItem>>());
 		}
 
 		private IQueryOver<ShiftChangeWarehouseDocumentItem> GetQueryShiftChangeWarehouseDocumentItem(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.Query<ShiftChangeWarehouseDocumentItem>();
+			WarehouseDocumentsItemsJournalNode<ShiftChangeWarehouseDocumentItem> resultAlias = null;
+
+			ShiftChangeWarehouseDocumentItem shiftChangeWarehouseDocumentItemAlias = null;
+			ShiftChangeWarehouseDocument shiftChangeWarehouseDocumentAlias = null;
+
+			Warehouse warehouseAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var shiftchangeQuery = unitOfWork.Session.QueryOver(() => shiftChangeWarehouseDocumentItemAlias)
+				.JoinQueryOver(() => shiftChangeWarehouseDocumentItemAlias.Document, () => shiftChangeWarehouseDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.ShiftChangeDocument) &&
+				FilterViewModel.Driver == null)
+			{
+				shiftchangeQuery.Where(FilterViewModel.GetWarehouseSpecification<ShiftChangeWarehouseDocument>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<ShiftChangeWarehouseDocument>().IsSatisfiedBy());
+			}
+			else
+			{
+				shiftchangeQuery.Where(() => shiftChangeWarehouseDocumentAlias.Id == -1);
+			}
+
+			return shiftchangeQuery
+				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => shiftChangeWarehouseDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => shiftChangeWarehouseDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => shiftChangeWarehouseDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => shiftChangeWarehouseDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => shiftChangeWarehouseDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderByAlias(() => shiftChangeWarehouseDocumentAlias.TimeStamp).Desc
+				.OrderByAlias(() => shiftChangeWarehouseDocumentItemAlias.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<ShiftChangeWarehouseDocumentItem>>());
 		}
 
 		private IQueryOver<RegradingOfGoodsDocumentItem> GetQueryRegradingOfGoodsDocumentItem(IUnitOfWork unitOfWork)
 		{
-			return unitOfWork.Query<RegradingOfGoodsDocumentItem>();
-		}
+			WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem> resultAlias = null;
 
-		private IQueryOver<DeliveryDocumentItem> GetQueryDeliveryDocumentItem(IUnitOfWork unitOfWork)
-		{
-			return unitOfWork.Query<DeliveryDocumentItem>();
+			RegradingOfGoodsDocumentItem regradingOfGoodsDocumentItemAlias = null;
+			RegradingOfGoodsDocument regradingOfGoodsDocumentAlias = null;
+
+			Warehouse warehouseAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var regrandingQuery = unitOfWork.Session.QueryOver(() => regradingOfGoodsDocumentItemAlias)
+				.JoinQueryOver(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
+
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument) &&
+				FilterViewModel.Driver == null)
+			{
+				regrandingQuery.Where(FilterViewModel.GetWarehouseSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
+			}
+			else
+			{
+				regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.Id == -1);
+			}
+
+			return regrandingQuery
+				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => regradingOfGoodsDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => regradingOfGoodsDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => regradingOfGoodsDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => regradingOfGoodsDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => regradingOfGoodsDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderByAlias(() => regradingOfGoodsDocumentAlias.TimeStamp).Desc
+				.OrderByAlias(() => regradingOfGoodsDocumentItemAlias.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem>>());
 		}
 	}
 }

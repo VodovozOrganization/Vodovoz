@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Documents
 		Prepositional = "акте передачи склада")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ShiftChangeWarehouseDocument : Document, IValidatableObject
+	public class ShiftChangeWarehouseDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
