@@ -48,6 +48,7 @@ using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Dialogs.Organizations;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -234,6 +235,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
 				.RegisterWidgetForTabViewModel<ClientCameFromViewModel, ClientCameFromView>()
+				.RegisterWidgetForTabViewModel<OrganizationOwnershipTypeViewModel, OrganizationOwnershipTypeView>()
 				.RegisterWidgetForTabViewModel<FuelTypeViewModel, FuelTypeView>()
 				.RegisterWidgetForTabViewModel<FuelWriteoffDocumentViewModel, FuelWriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()
@@ -349,6 +351,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForWidgetViewModel<DriverMessageFilterViewModel, DriverMessageFilterView>()
 				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
+				.RegisterWidgetForWidgetViewModel<OrganizationOwnershipTypeJournalFilterViewModel, OrganizationOwnershipTypeJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
 				.RegisterWidgetForWidgetViewModel<IncomeCategoryJournalFilterViewModel, IncomeCategoryJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ExpenseCategoryJournalFilterViewModel, ExpenseCategoryJournalFilterView>()

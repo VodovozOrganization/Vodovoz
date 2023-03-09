@@ -183,6 +183,7 @@
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
     <Compile Include="Domain\Orders\TrueMarkApiDocument.cs" />
+    <Compile Include="Domain\Organizations\OrganizationOwnershipType.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
     <Compile Include="Domain\Permissions\AvailableDatabase.cs" />
     <Compile Include="Domain\Permissions\DatabasePrivilege.cs" />
@@ -510,6 +511,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\OrganizationOwnershipTypeMap.cs" />
     <Compile Include="HibernateMapping\Permissions\WarehousePermissionMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryTransferAbsenceReasonMap.cs" />

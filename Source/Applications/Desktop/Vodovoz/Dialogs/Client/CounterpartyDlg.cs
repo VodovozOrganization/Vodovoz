@@ -80,7 +80,6 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using EdoService.Dto;
 using System.Threading;
-using Gamma.Widgets;
 using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
@@ -88,10 +87,10 @@ using QS.Attachments.Domain;
 using QS.Utilities.Text;
 using Vodovoz.Core;
 using Autofac;
-using QSWidgetLib;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz
 {
@@ -113,6 +112,7 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
+		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
 		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
@@ -316,7 +316,7 @@ namespace Vodovoz
 			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
-			
+
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
 
@@ -493,12 +493,13 @@ namespace Vodovoz
 			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
 			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
 
-			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
-			datalegalname1.Binding.AddSource(Entity)
-				.AddBinding(s => s.Name, t => t.OwnName)
-				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
-				.AddFuncBinding(s => s.TypeOfOwnership != "ИП", t => t.EntryName.Sensitive)
-				.InitializeFromSource();
+			comboboxOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			FillComboboxOpf();
+			comboboxOpf.Changed += ComboboxOpfChanged;
+
+			yentryOrganizationName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			yentryOrganizationName.Binding.AddBinding(Entity, s => s.Name, t => t.Text).InitializeFromSource();
+			yentryOrganizationName.Binding.AddFuncBinding(Entity, s => s.TypeOfOwnership != "ИП", t => t.Sensitive).InitializeFromSource();
 
 			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			entryFullName.Binding
@@ -1540,7 +1541,7 @@ namespace Vodovoz
 		protected void OnEnumPersonTypeChanged(object sender, EventArgs e)
 		{
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
-			labelShort.Visible = datalegalname1.Visible =
+			labelShort.Visible = labelShort1.Visible = comboboxOpf.Visible = yentryOrganizationName.Visible = 
 				labelFullName.Visible = entryFullName.Visible =
 					entryMainCounterparty.Visible = labelMainCounterparty.Visible =
 						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
@@ -2189,13 +2190,15 @@ namespace Vodovoz
 			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
 			Entity.RawJurAddress = revenueServiceRow.Address;
 
-			if(CommonValues.Ownerships.ContainsKey(revenueServiceRow.Opf))
+			if((revenueServiceRow.Opf ?? String.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? String.Empty).Length > 0)
 			{
 				Entity.TypeOfOwnership = revenueServiceRow.Opf;
-			}
-			else
-			{
-				Entity.TypeOfOwnership = null;
+				
+				if(!GetAllComboboxOpfValues().Any(t => t == revenueServiceRow.Opf))
+				{
+					AddNewOrganizationOwnershipType(revenueServiceRow.Opf, revenueServiceRow.OpfFull);
+				}
+				SetActiveComboboxOpfValue(Entity.TypeOfOwnership);
 			}
 
 			if(revenueServiceRow.Opf == "ИП")
@@ -2244,6 +2247,107 @@ namespace Vodovoz
 					}
 				}
 			}
+		}
+
+		private void AddNewOrganizationOwnershipType(string abbreviation, string fullName)
+		{
+			if (!GetAllOrganizationOwnershipTypes().Any(t => t.Abbreviation == abbreviation))
+			{
+				var newOrganizationOwnershipType = new OrganizationOwnershipType()
+				{
+					Abbreviation = abbreviation,
+					FullName = fullName,
+					IsArchive = false
+				};
+
+				using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
+				{
+					uowOrganization.Save(newOrganizationOwnershipType);
+				}
+			}
+			FillComboboxOpf();
+		}
+
+		private List<OrganizationOwnershipType> GetAllOrganizationOwnershipTypes()
+		{
+			return _organizationRepository
+				.GetAllOrganizationOwnershipTypes(UoW)
+				.OrderBy(t => t.Id)
+				.ToList();
+		}
+
+		private List<string> GetAvailableOrganizationOwnershipTypes()
+		{
+			return GetAllOrganizationOwnershipTypes()
+					.Where(t => !t.IsArchive || (Entity.TypeOfOwnership != null && t.Abbreviation == Entity.TypeOfOwnership))
+					.Select(t => t.Abbreviation)
+					.ToList<string>();
+		}
+
+		private void ComboboxOpfChanged(object sender, EventArgs e)
+		{
+			Entity.TypeOfOwnership = comboboxOpf.ActiveText;
+		}
+
+		private void FillComboboxOpf()
+		{
+			var availableOrganizationOwnershipTypes = GetAvailableOrganizationOwnershipTypes();
+			var currentOwnershipType = Entity.TypeOfOwnership;
+			
+			while(GetAllComboboxOpfValues().Count() > 0)
+			{
+				comboboxOpf.RemoveText(0);
+			}
+
+			comboboxOpf.AppendText("");
+
+			foreach(var ownershipType in availableOrganizationOwnershipTypes)
+			{
+				comboboxOpf.AppendText(ownershipType);
+			}
+
+			Entity.TypeOfOwnership = SetActiveComboboxOpfValue(currentOwnershipType) ? currentOwnershipType : String.Empty;
+		}
+
+		private List<string> GetAllComboboxOpfValues()
+		{
+			List<string> values = new List<string>();
+			TreeIter iter;
+			comboboxOpf.Model.GetIterFirst(out iter);
+			do
+			{
+				GLib.Value thisRow = new GLib.Value();
+				comboboxOpf.Model.GetValue(iter, 0, ref thisRow);
+				if(((thisRow.Val as string) ?? String.Empty).Length > 0)
+				{
+					values.Add(thisRow.Val as string);
+				}
+			} while(comboboxOpf.Model.IterNext(ref iter));
+
+			return values;
+		}
+
+		private bool SetActiveComboboxOpfValue(string value)
+		{
+			if (string.IsNullOrEmpty(value))
+			{
+				return false;
+			}
+
+			TreeIter iter;
+			comboboxOpf.Model.GetIterFirst(out iter);
+			do
+			{
+				GLib.Value thisRow = new GLib.Value();
+				comboboxOpf.Model.GetValue(iter, 0, ref thisRow);
+				if(((thisRow.Val as string) ?? String.Empty) == value)
+				{
+					comboboxOpf.SetActiveIter(iter);
+					return true;
+				}
+			} while(comboboxOpf.Model.IterNext(ref iter));
+
+			return false;
 		}
 	}
 

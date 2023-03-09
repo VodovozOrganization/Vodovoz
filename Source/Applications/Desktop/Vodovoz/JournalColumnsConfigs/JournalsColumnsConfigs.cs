@@ -59,6 +59,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using DebtorJournalNode = Vodovoz.ViewModels.Journals.JournalNodes.DebtorJournalNode;
 using WrapMode = Pango.WrapMode;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalNodes.Organizations;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -294,6 +296,17 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddColumn("Название").AddTextRenderer(n => n.Name)
 						.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
 						.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+						.Finish()
+			);
+
+			//OrganizationOwnershipTypeJournalViewModel
+			TreeViewColumnsConfigFactory.Register<OrganizationOwnershipTypeJournalViewModel>(
+				() => FluentColumnsConfig< OrganizationOwnershipTypeJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+						.AddColumn("Аббревиатура").AddTextRenderer(n => n.Abbreviation)
+						.AddColumn("Полное название").AddTextRenderer(n => n.FullName)
+						.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
+						.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
 						.Finish()
 			);
 
