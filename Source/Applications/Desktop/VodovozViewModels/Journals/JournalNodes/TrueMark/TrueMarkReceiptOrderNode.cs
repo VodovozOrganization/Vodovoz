@@ -42,7 +42,5 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 
 		public int? ReceiptId { get; set; }
 		public bool HasReceipt => ReceiptId.HasValue;
-
-
 	}
 }

@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_autoRefreshInterval = 30;
 
-			Title = "Реестр заказов для чека";
+			Title = "Журнал кодов честного знака";
 			Filter = filter;
 
 			var levelDataLoader = new HierarchicalQueryLoader<TrueMarkCashReceiptOrder, TrueMarkReceiptOrderNode>(unitOfWorkFactory);
@@ -128,12 +128,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			if(_filter.StartDate.HasValue)
 			{
-				query.Where(Restrictions.Eq(Projections.Property(() => trueMarkOrderAlias.Date), _filter.StartDate.Value));
+				query.Where(Restrictions.Ge(Projections.Property(() => trueMarkOrderAlias.Date), _filter.StartDate.Value));
 			}
 
 			if(_filter.EndDate.HasValue)
 			{
-				query.Where(Restrictions.Eq(Projections.Property(() => trueMarkOrderAlias.Date), _filter.EndDate.Value));
+				query.Where(Restrictions.Le(Projections.Property(() => trueMarkOrderAlias.Date), _filter.EndDate.Value));
 			}
 
 			if(_filter.HasUnscannedReason)
