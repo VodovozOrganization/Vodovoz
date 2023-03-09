@@ -74,6 +74,7 @@
     <Compile Include="Journals\JournalNodes\Organizations\OrganizationOwnershipTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\TrueMark\CashReceiptNode.cs" />
     <Compile Include="Journals\JournalNodes\TrueMark\TrueMarkOrderNodeType.cs" />
     <Compile Include="Journals\JournalNodes\TrueMark\TrueMarkReceiptOrderNode.cs" />
     <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\TrueMark\ReceiptsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\TrueMark\TrueMarkReceiptOrdersRegistryJournalViewModel.cs" />
     <Compile Include="TempAdapters\IComplaintDetalizationAutocompleteSelectionFactory.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDetalizationViewModel.cs" />

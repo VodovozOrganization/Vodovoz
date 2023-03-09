@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader.Hierarchy;
+using QS.Utilities.Text;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.TrueMark;
@@ -21,6 +22,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 
 		public DateTime? Time { get; set; }
 		public int OrderAndItemId { get; set; }
+		public int RouteListId { get; set; }
+		public string DriverName { get; set; }
+		public string DriverLastName { get; set; }
+		public string DriverPatronimyc { get; set; }
+		public string DriverFIO => PersonHelper.PersonNameWithInitials(DriverLastName, DriverName, DriverPatronimyc);
 		public TrueMarkCashReceiptOrderStatus? OrderStatus { get; set; }
 		public string Status => OrderStatus.HasValue ? OrderStatus.GetEnumTitle() : "";
 		public string UnscannedReason { get; set; }
@@ -36,7 +42,5 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 
 		public int? ReceiptId { get; set; }
 		public bool HasReceipt => ReceiptId.HasValue;
-
-
 	}
 }
