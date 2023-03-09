@@ -34,6 +34,8 @@ namespace Vodovoz.Parameters
 
 		public int PromotionalNomenclatureGroupId => _parametersProvider.GetIntValue("promotional_nomenclature_group_id");
 
+		public int DailyCoolerRentNomenclatureId => 697;
+
 		public int[] PaidDeliveriesNomenclaturesIds() => new[]
 		{
 			PaidDeliveryNomenclatureId,
