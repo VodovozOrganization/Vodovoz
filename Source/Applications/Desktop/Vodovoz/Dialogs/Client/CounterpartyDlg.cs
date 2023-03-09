@@ -144,8 +144,6 @@ namespace Vodovoz
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 
-		private List<OrganizationOwnershipType> _allOrganizationOwnershipTypes = new List<OrganizationOwnershipType>();
-
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
 		public virtual IUndeliveredOrdersJournalOpener UndeliveredOrdersJournalOpener =>
@@ -318,10 +316,6 @@ namespace Vodovoz
 			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
-			_allOrganizationOwnershipTypes = _organizationRepository
-				.GetAllOrganizationOwnershipTypes(UoW)
-				.OrderBy(t => t.Id)
-				.ToList();
 
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
@@ -2199,7 +2193,7 @@ namespace Vodovoz
 			if((revenueServiceRow.Opf ?? String.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? String.Empty).Length > 0)
 			{
 				Entity.TypeOfOwnership = revenueServiceRow.Opf;
-
+				
 				if(!GetAllComboboxOpfValues().Any(t => t == revenueServiceRow.Opf))
 				{
 					AddNewOrganizationOwnershipType(revenueServiceRow.Opf, revenueServiceRow.OpfFull);
@@ -2257,7 +2251,7 @@ namespace Vodovoz
 
 		private void AddNewOrganizationOwnershipType(string abbreviation, string fullName)
 		{
-			if (!_allOrganizationOwnershipTypes.Any(t => t.Abbreviation == abbreviation))
+			if (!GetAllOrganizationOwnershipTypes().Any(t => t.Abbreviation == abbreviation))
 			{
 				var newOrganizationOwnershipType = new OrganizationOwnershipType()
 				{
@@ -2271,14 +2265,21 @@ namespace Vodovoz
 					uowOrganization.Save(newOrganizationOwnershipType);
 				}
 			}
-			comboboxOpf.AppendText(abbreviation);
-			SetActiveComboboxOpfValue(abbreviation);
+			FillComboboxOpf();
+		}
+
+		private List<OrganizationOwnershipType> GetAllOrganizationOwnershipTypes()
+		{
+			return _organizationRepository
+				.GetAllOrganizationOwnershipTypes(UoW)
+				.OrderBy(t => t.Id)
+				.ToList();
 		}
 
 		private List<string> GetAvailableOrganizationOwnershipTypes()
 		{
-			return _allOrganizationOwnershipTypes
-					.Where(t => !t.IsArchive || (Entity.Id > 0 && Entity.TypeOfOwnership != null && t.Abbreviation == Entity.TypeOfOwnership))
+			return GetAllOrganizationOwnershipTypes()
+					.Where(t => !t.IsArchive || (Entity.TypeOfOwnership != null && t.Abbreviation == Entity.TypeOfOwnership))
 					.Select(t => t.Abbreviation)
 					.ToList<string>();
 		}
@@ -2291,6 +2292,12 @@ namespace Vodovoz
 		private void FillComboboxOpf()
 		{
 			var availableOrganizationOwnershipTypes = GetAvailableOrganizationOwnershipTypes();
+			var currentOwnershipType = Entity.TypeOfOwnership;
+			
+			while(GetAllComboboxOpfValues().Count() > 0)
+			{
+				comboboxOpf.RemoveText(0);
+			}
 
 			comboboxOpf.AppendText("");
 
@@ -2299,7 +2306,7 @@ namespace Vodovoz
 				comboboxOpf.AppendText(ownershipType);
 			}
 
-			Entity.TypeOfOwnership = SetActiveComboboxOpfValue(Entity.TypeOfOwnership) ? Entity.TypeOfOwnership : String.Empty;
+			Entity.TypeOfOwnership = SetActiveComboboxOpfValue(currentOwnershipType) ? currentOwnershipType : String.Empty;
 		}
 
 		private List<string> GetAllComboboxOpfValues()
