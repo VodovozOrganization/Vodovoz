@@ -34,7 +34,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Organizations
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 
 			TabName = "Формы собственности контрагентов";
-			SetOrder(x => x.Abbreviation);
 			UpdateOnChanges(typeof(OrganizationOwnershipType));
 		}
 

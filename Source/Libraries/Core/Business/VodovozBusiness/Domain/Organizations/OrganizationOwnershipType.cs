@@ -54,6 +54,8 @@ namespace Vodovoz.Domain.Organizations
 		}
 		#endregion
 
+		public virtual string Title => $"Форма собственности \"{Abbreviation}\"";
+
 		public static IUnitOfWorkGeneric<OrganizationOwnershipType> Create() => UnitOfWorkFactory.CreateWithNewRoot<OrganizationOwnershipType>();
 
 
