@@ -91,6 +91,8 @@
     <Compile Include="Domain\Client\SubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\UnsubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\BulkEmailEventReason.cs" />
+    <Compile Include="Domain\Complaints\ComplaintArrangementResultComment.cs" />
+    <Compile Include="Domain\Complaints\ComplaintArrangementResultCommentType.cs" />
     <Compile Include="Domain\Complaints\ComplaintDetalization.cs" />
     <Compile Include="Domain\Complaints\ComplaintObject.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultBase.cs" />
@@ -431,6 +433,7 @@
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\CamplaintDetalizationMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintArrangementResultCommentMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultOfCounterpartyMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultOfEmployeesMap.cs" />
