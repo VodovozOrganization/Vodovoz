@@ -632,7 +632,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return result;
 		}
 
-		public IEnumerable<GoodsInRouteListResult> GetGoodsForShipmentActualCount(IUnitOfWork uow, int routeListId)
+		public IEnumerable<GoodsInRouteListResult> GetActualGoodsForShipment(IUnitOfWork uow, int routeListId)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
@@ -646,7 +646,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => addressAlias.RouteList.Id == routeListId)
 				.WhereRestrictionOn(() => nomenclatureAlias.Category).IsIn(Nomenclature.GetCategoriesForShipment())
-				.WhereRestrictionOn(() => addressAlias.Status).Not.IsIn(new[] { RouteListItemStatus.Transfered /*, RouteListItemStatus.Canceled, RouteListItemStatus.Overdue*/}); // отмены в ActualCount и так запишут 0
+				.WhereRestrictionOn(() => addressAlias.Status).Not.IsIn(new[] { RouteListItemStatus.Transfered});
 
 			var result = query
 				.SelectList(list => list
@@ -658,7 +658,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return result;
 		}
 
-		public IEnumerable<GoodsInRouteListResult> GetEquipmentForShipmentActualCount(IUnitOfWork uow, int routeListId, Direction direction)
+		public IEnumerable<GoodsInRouteListResult> GetActualEquipmentForShipment(IUnitOfWork uow, int routeListId, Direction direction)
 		{
 			VodovozOrder orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
@@ -672,7 +672,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => addressAlias.RouteList.Id == routeListId)
 				.WhereRestrictionOn(() => nomenclatureAlias.Category).IsIn(Nomenclature.GetCategoriesForShipment())
-				.WhereRestrictionOn(() => addressAlias.Status).Not.IsIn(new[] { RouteListItemStatus.Transfered/*, RouteListItemStatus.Canceled, RouteListItemStatus.Overdue*/}) // отмены в ActualCount и так запишут 0
+				.WhereRestrictionOn(() => addressAlias.Status).Not.IsIn(new[] { RouteListItemStatus.Transfered})
 				.And(() => orderEquipmentAlias.Direction == direction);
 
 			var result = query

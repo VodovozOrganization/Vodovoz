@@ -2,7 +2,6 @@
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -31,7 +30,6 @@ namespace Vodovoz.Domain.Logistic
 			get => _amount;
 			set => SetField(ref _amount, value);
 		}
-
 
 		[Display(Name = "Документ запаса")]
 		public virtual AdditionalLoadingDocument AdditionalLoadingDocument

@@ -62,10 +62,17 @@ namespace Vodovoz.ViewWidgets.Logistics
 			for(var i = 0; i < groupedOperations.Length; i++)
 			{
 				var item = groupedOperations[i];
+				var sum = item.Sum(o => o.Amount);
+
+				if(sum == 0)
+				{
+					continue;
+				}
+
 				iter = buffer.EndIter;
 				buffer.InsertWithTags(ref iter, item.Key.ShortName + ": ", _defaultTag);
 				iter = buffer.EndIter;
-				buffer.InsertWithTags(ref iter, item.Sum(o => o.Amount).ToString("N0"), _boldTag);
+				buffer.InsertWithTags(ref iter, sum.ToString("N0"), _boldTag);
 				iter = buffer.EndIter;
 				buffer.InsertWithTags(ref iter, " " + item.Key.Unit.Name + (i == lastIndex ? "" : ", "), _defaultTag);
 			}

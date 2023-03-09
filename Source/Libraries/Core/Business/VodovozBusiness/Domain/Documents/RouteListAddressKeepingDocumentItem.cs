@@ -7,8 +7,8 @@ using Vodovoz.Domain.Operations;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		Nominative = "строка документа ведения свободных остатков МЛ для адреса",
-		NominativePlural = "строки документа ведения свободных остатков МЛ для адреса")]
+		Nominative = "Строка документа ведения свободных остатков МЛ для адреса",
+		NominativePlural = "Строки документа ведения свободных остатков МЛ для адреса")]
 
 	[HistoryTrace]
 	public class RouteListAddressKeepingDocumentItem : PropertyChangedBase, IDomainObject

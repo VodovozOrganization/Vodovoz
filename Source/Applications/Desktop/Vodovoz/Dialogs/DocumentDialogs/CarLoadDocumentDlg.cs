@@ -35,7 +35,6 @@ namespace Vodovoz
 		private readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 
-
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
 			get {

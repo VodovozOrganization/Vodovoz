@@ -997,9 +997,9 @@ namespace Vodovoz.Domain.Logistic
 
 			#region Доставлено клиентам
 
-			var allDelivered = _routeListRepository.GetGoodsForShipmentActualCount(UoW, Id).ToList();
+			var allDelivered = _routeListRepository.GetActualGoodsForShipment(UoW, Id).ToList();
 
-			if(_routeListRepository.GetEquipmentForShipmentActualCount(UoW, this.Id, Direction.Deliver) is IEnumerable<GoodsInRouteListResult> equipmentActualCount)
+			if(_routeListRepository.GetActualEquipmentForShipment(UoW, this.Id, Direction.Deliver) is IEnumerable<GoodsInRouteListResult> equipmentActualCount)
 			{
 				allDelivered.AddRange(equipmentActualCount);
 			}

@@ -9,8 +9,8 @@ using Vodovoz.Domain.Operations;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		Nominative = "изменение свободных остатков при переносе адреса",
-		NominativePlural = "изменения свободных остатков при переносе адреса")]
+		Nominative = "Изменение свободных остатков при переносе адреса",
+		NominativePlural = "Изменения свободных остатков при переносе адреса")]
 	[HistoryTrace]
 
 	public class DeliveryFreeBalanceTransferItem : PropertyChangedBase, IDomainObject
@@ -60,14 +60,14 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _amount, value);
 		}
 
-		[Display(Name = "Операция списания номенклатуры со свободных остатков сотрудника")]
+		[Display(Name = "Операция списания номенклатуры со свободных остатков МЛ")]
 		public virtual DeliveryFreeBalanceOperation DeliveryFreeBalanceOperationFrom
 		{
 			get => _deliveryFreeBalanceOperationFrom;
 			set => SetField(ref _deliveryFreeBalanceOperationFrom, value);
 		}
 
-		[Display(Name = "Операция зачисления номенклатуры на свободные остатки сотрудника")]
+		[Display(Name = "Операция зачисления номенклатуры на свободные остатки МЛ")]
 		public virtual DeliveryFreeBalanceOperation DeliveryFreeBalanceOperationTo
 		{
 			get => _deliveryFreeBalanceOperationTo;

@@ -44,8 +44,8 @@ namespace Vodovoz.Controllers
             if(transferDocument != null)
             {
 	            CleanRouteListFreeBalanceOperations(transferDocument);
-
-				foreach(var documentItem in transferDocument.AddressTransferDocumentItems)
+	            
+	            foreach(var documentItem in transferDocument.AddressTransferDocumentItems)
 	            {
 		            uow.Delete(documentItem);
 	            }
@@ -57,30 +57,30 @@ namespace Vodovoz.Controllers
         }
 
         private void CleanRouteListFreeBalanceOperations(AddressTransferDocument transferDocument)
-        {
-			var documentOperationsFrom = transferDocument.ObservableAddressTransferDocumentItems
-				.SelectMany(x => x.DeliveryFreeBalanceTransferItems
-					.Select(y => y.DeliveryFreeBalanceOperationTo));
-			var documentOperationsTo = transferDocument.ObservableAddressTransferDocumentItems
-				.SelectMany(x => x.DeliveryFreeBalanceTransferItems
-					.Select(y => y.DeliveryFreeBalanceOperationFrom));
-			var documentOperations = documentOperationsFrom.Concat(documentOperationsTo).ToArray();
-
-			foreach(var operation in transferDocument.RouteListFrom.ObservableDeliveryFreeBalanceOperations.ToArray())
-			{
-				if(documentOperations.Contains(operation))
-				{
-					transferDocument.RouteListFrom?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
-				}
-			}
-
-			foreach(var operation in transferDocument.RouteListTo.ObservableDeliveryFreeBalanceOperations.ToArray())
-			{
-				if(documentOperations.Contains(operation))
-				{
-					transferDocument.RouteListTo?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
-				}
-			}
+        { 
+	        var documentOperationsFrom = transferDocument.ObservableAddressTransferDocumentItems
+		        .SelectMany(x => x.DeliveryFreeBalanceTransferItems
+			        .Select(y => y.DeliveryFreeBalanceOperationTo)); 
+	        var documentOperationsTo = transferDocument.ObservableAddressTransferDocumentItems
+		        .SelectMany(x => x.DeliveryFreeBalanceTransferItems
+			        .Select(y => y.DeliveryFreeBalanceOperationFrom)); 
+	        var documentOperations = documentOperationsFrom.Concat(documentOperationsTo).ToArray();
+	        
+	        foreach(var operation in transferDocument.RouteListFrom.ObservableDeliveryFreeBalanceOperations.ToArray()) 
+	        { 
+		        if(documentOperations.Contains(operation)) 
+		        {
+			        transferDocument.RouteListFrom?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
+		        }
+	        }
+	        
+	        foreach(var operation in transferDocument.RouteListTo.ObservableDeliveryFreeBalanceOperations.ToArray()) 
+	        { 
+		        if(documentOperations.Contains(operation)) 
+		        { 
+			        transferDocument.RouteListTo?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
+		        }
+	        }
 		}
 
         private void CreateOrUpdateAddressTransferDocuments(RouteList from, RouteList to, IUnitOfWork uow)
@@ -125,7 +125,7 @@ namespace Vodovoz.Controllers
                 {
                     continue;
                 }
-
+				
 				CreateDriverNomenclatureTransferItems(newAddressTransferItem);
             }
 

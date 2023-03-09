@@ -36,8 +36,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			NomenclatureCategory[] categories = null, AddressTransferType? addressTransferType = null);
 		IEnumerable<GoodsInRouteListResult> AllGoodsTransferredFromDrivers(IUnitOfWork uow, RouteList routeList,
 			NomenclatureCategory[] categories = null, AddressTransferType? addressTransferType = null);
-		IEnumerable<GoodsInRouteListResult> GetEquipmentForShipmentActualCount(IUnitOfWork uow, int routeListId, Direction direction);
-		IEnumerable<GoodsInRouteListResult> GetGoodsForShipmentActualCount(IUnitOfWork uow, int routeListId);
+		IEnumerable<GoodsInRouteListResult> GetActualEquipmentForShipment(IUnitOfWork uow, int routeListId, Direction direction);
+		IEnumerable<GoodsInRouteListResult> GetActualGoodsForShipment(IUnitOfWork uow, int routeListId);
 		List<ReturnsNode> GetReturnsToWarehouse(IUnitOfWork uow, int routeListId, NomenclatureCategory[] categories = null, int[] excludeNomenclatureIds = null);
 		List<ReturnsNode> GetReturnsToWarehouse(IUnitOfWork uow, int routeListId, params int[] nomenclatureIds);
 		IEnumerable<CarLoadDocument> GetCarLoadDocuments(IUnitOfWork uow, int routelistId);
