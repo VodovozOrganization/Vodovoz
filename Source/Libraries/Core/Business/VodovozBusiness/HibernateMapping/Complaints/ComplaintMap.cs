@@ -42,6 +42,7 @@ namespace Vodovoz.HibernateMapping.Complaints
 			HasMany(x => x.Guilties).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("complaint_id");
 			HasMany(x => x.ComplaintDiscussions).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("complaint_id");
 			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("complaint_id");
+			HasMany(x => x.ResultComments).Cascade.All().Inverse().LazyLoad().KeyColumn("complaint_id");
 
 			HasManyToMany<Fine>(x => x.Fines)
 				.Table("complaint_fines")
