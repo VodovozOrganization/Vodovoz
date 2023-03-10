@@ -26,7 +26,6 @@ namespace VodovozMangoService.Services
 			_externalCallers = new ConcurrentDictionary<string, CallerInfoCache>();
 			//_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_connection = connection ?? throw new ArgumentNullException(nameof(connection));
-
 		}
 
 		public Task RemoveOutDated()
