@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1871,16 +1871,24 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.Documents.InventoryDocumentView.cs" />
     <Compile Include="Views\Reports\FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryPercentCoverageReportView.cs" />
+    <Compile Include="Dialogs\Organizations\OrganizationOwnershipTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Organizations.OrganizationOwnershipTypeView.cs" />
+    <Compile Include="Filters\GtkViews\OrganizationOwnershipTypeJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrganizationOwnershipTypeJournalFilterView.cs" />
     <Compile Include="Views\Complaints\ComplaintDetalizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintDetalizationView.cs" />
     <Compile Include="Filters\GtkViews\ComplaintDetalizationJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintDetalizationJournalFilterView.cs" />
     <Compile Include="Views\Client\CounterpartyDetailsFromRevenueServiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyDetailsFromRevenueServiceView.cs" />
+    <Compile Include="Filters\Views\TrueMarkReceiptJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\Warehouse\Documents\" />
+    <Folder Include="Dialogs\Organizations\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2366,7 +2374,7 @@
       <Name>VodovozViewModels</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
-      <Project>{08DCE339-CA3B-4D68-AF84-9625483283D5}</Project>
+      <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
     </ProjectReference>
   </ItemGroup>
