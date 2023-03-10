@@ -158,7 +158,6 @@ namespace Vodovoz
 			} else {
 				Entity.CanEdit = true;
 			}
-
 		}
 
 		public override bool Save()

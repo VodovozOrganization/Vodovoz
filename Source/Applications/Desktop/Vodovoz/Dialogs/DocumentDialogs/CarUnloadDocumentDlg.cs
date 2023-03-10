@@ -128,7 +128,7 @@ namespace Vodovoz
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository(new NomenclatureParametersProvider(_parametersProvider)));
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
-			returnsreceptionview.Sensitive = 
+			returnsreceptionview.Sensitive =
 				hbxTareToReturn.Sensitive =
 					nonserialequipmentreceptionview1.Sensitive =
 						defectiveitemsreceptionview1.Sensitive = editing;
@@ -470,8 +470,12 @@ namespace Vodovoz
 						item.WarehouseMovementOperation.Amount = tempItem.Amount;
 					if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.Amount != -tempItem.Amount)
 						item.EmployeeNomenclatureMovementOperation.Amount = -tempItem.Amount;
+					
 					if(item.DeliveryFreeBalanceOperation != null && item.DeliveryFreeBalanceOperation.Amount != -tempItem.Amount)
+					{
 						item.DeliveryFreeBalanceOperation.Amount = -tempItem.Amount;
+					}
+
 					if(item.Redhead != tempItem.Redhead)
 						item.Redhead = tempItem.Redhead;
 				}

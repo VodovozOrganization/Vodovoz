@@ -989,8 +989,9 @@ namespace Vodovoz.Domain.Logistic
 
 			#region Передано другим водителям
 
-			var allGoodsTransferedToAnotherDrivers = _routeListRepository.AllGoodsTransferredToAnotherDrivers(UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromDriverToDriver);
-			
+			var allGoodsTransferedToAnotherDrivers = _routeListRepository.AllGoodsTransferredToAnotherDrivers(
+				UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromDriverToDriver);
+
 			AddDiscrepancy(allGoodsTransferedToAnotherDrivers, result, (discrepancy, amount) => discrepancy.TransferedToAnotherDrivers = amount);
 
 			#endregion

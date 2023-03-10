@@ -399,7 +399,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.SelectList(list => list
 					.SelectGroup(() => freeBalanceOperation.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
 					.SelectGroup(() => freeBalanceOperation.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
-					.SelectSum(()=> freeBalanceOperation.Amount).WithAlias(() => ordersAmountAlias.Amount))
+					.SelectSum(() => freeBalanceOperation.Amount).WithAlias(() => ordersAmountAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<RouteListNomenclatureAmount>())
 				.List<RouteListNomenclatureAmount>();
 

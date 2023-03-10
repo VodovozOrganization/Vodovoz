@@ -238,20 +238,21 @@ namespace Vodovoz
 
 	public class ReceptionItemNode : PropertyChangedBase
 	{
+		private decimal _amount;
+		private decimal _expectedAmount;
+
 		public NomenclatureCategory NomenclatureCategory { get; set; }
 		public int NomenclatureId { get; set; }
 		public string Name { get; set; }
 
-		decimal amount;
 		public virtual decimal Amount {
-			get => amount;
-			set => SetField(ref amount, value, () => Amount);
+			get => _amount;
+			set => SetField(ref _amount, value, () => Amount);
 		}
 
-		decimal expectedAmount;
 		public virtual decimal ExpectedAmount {
-			get => expectedAmount;
-			set => SetField(ref expectedAmount, value, () => ExpectedAmount);
+			get => _expectedAmount;
+			set => SetField(ref _expectedAmount, value, () => ExpectedAmount);
 		}
 
 		int equipmentId;
@@ -295,7 +296,7 @@ namespace Vodovoz
 			Name = nomenclature.Name;
 			NomenclatureId = nomenclature.Id;
 			NomenclatureCategory = nomenclature.Category;
-			this.amount = amount;
+			_amount = amount;
 		}
 
 		public ReceptionItemNode(WarehouseMovementOperation movementOperation) : this(movementOperation.Nomenclature, (int)movementOperation.Amount)

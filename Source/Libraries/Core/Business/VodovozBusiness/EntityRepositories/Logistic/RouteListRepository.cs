@@ -247,7 +247,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }))
+				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -275,7 +275,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }))
+				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -332,7 +332,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }))
+				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -366,7 +366,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }))
+				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -646,7 +646,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => addressAlias.RouteList.Id == routeListId)
 				.WhereRestrictionOn(() => nomenclatureAlias.Category).IsIn(Nomenclature.GetCategoriesForShipment())
-				.WhereRestrictionOn(() => addressAlias.Status).Not.IsIn(new[] { RouteListItemStatus.Transfered});
+				.WhereRestrictionOn(() => addressAlias.Status).Not.IsIn(new[] { RouteListItemStatus.Transfered });
 
 			var result = query
 				.SelectList(list => list
@@ -672,7 +672,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => addressAlias.RouteList.Id == routeListId)
 				.WhereRestrictionOn(() => nomenclatureAlias.Category).IsIn(Nomenclature.GetCategoriesForShipment())
-				.WhereRestrictionOn(() => addressAlias.Status).Not.IsIn(new[] { RouteListItemStatus.Transfered})
+				.WhereRestrictionOn(() => addressAlias.Status).Not.IsIn(new[] { RouteListItemStatus.Transfered })
 				.And(() => orderEquipmentAlias.Direction == direction);
 
 			var result = query
@@ -702,7 +702,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var nomenclaturesToDeliver = order.GetAllGoodsToDeliver();
 
 			return nomenclaturesToDeliver.All(item =>
-				item.Amount <= freeBalance.SingleOrDefault(b => b.NomenclatureId == item.NomenclatureId)?.Amount);
+				item.Amount <= freeBalance.SingleOrDefault(fb => fb.NomenclatureId == item.NomenclatureId)?.Amount);
 		}
 
 		public IEnumerable<GoodsInRouteListResult> AllGoodsDelivered(IEnumerable<DeliveryDocument> deliveryDocuments)
@@ -1299,6 +1299,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
 		}
+
+		public AddressTransferType[] AddressTransferTypesWithoutTransferFromHandToHand =>
+			new[]
+			{
+				AddressTransferType.NeedToReload,
+				AddressTransferType.FromFreeBalance
+			};
+
 	}
 
 	#region DTO
