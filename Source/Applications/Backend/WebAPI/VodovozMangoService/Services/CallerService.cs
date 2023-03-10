@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using NLog;
 using Polly;
@@ -17,15 +18,24 @@ namespace VodovozMangoService.Services
 		private readonly ConcurrentDictionary<string, CallerInfoCache> _externalCallers;
 		//private readonly ILogger<CallerService> _logger;
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly MySqlConnection _connection;
+		private readonly string _connectionString;
 
 		public CallerService(
 			//ILogger<CallerService> logger,
-			MySqlConnection connection)
+			IConfiguration configuration)
 		{
 			_externalCallers = new ConcurrentDictionary<string, CallerInfoCache>();
 			//_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_connection = connection ?? throw new ArgumentNullException(nameof(connection));
+
+			var connectionStringBuilder = new MySqlConnectionStringBuilder();
+			connectionStringBuilder.Server = configuration["Mysql:mysql_server_host_name"];
+			connectionStringBuilder.Port = uint.Parse(configuration["Mysql:mysql_server_port"]);
+			connectionStringBuilder.Database = configuration["Mysql:mysql_database"]; ;
+			connectionStringBuilder.UserID = configuration["Mysql:mysql_user"]; ;
+			connectionStringBuilder.Password = configuration["Mysql:mysql_password"]; ;
+			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
+			connectionStringBuilder.DefaultCommandTimeout = 5;
+			_connectionString = connectionStringBuilder.GetConnectionString(true);
 		}
 
 		public Task RemoveOutDated()
@@ -78,7 +88,9 @@ namespace VodovozMangoService.Services
 					.Or<TimeoutException>()
 					.WaitAndRetryAsync(5, (_) => TimeSpan.FromSeconds(1));
 
-				var list = (await _connection.QueryAsyncWithRetry<PhoneWithDetailsResponseNode>(sql, retryPolicy, new { digits })).ToList();
+				using var connection = new MySqlConnection(_connectionString);
+
+				var list = (await connection.QueryAsyncWithRetry<PhoneWithDetailsResponseNode>(sql, retryPolicy, new { digits })).ToList();
 
 				//_logger.LogDebug("{PhonesCount} телефонов в базе данных.", list.Count);
 				_logger.Debug("{PhonesCount} телефонов в базе данных.", list.Count);
