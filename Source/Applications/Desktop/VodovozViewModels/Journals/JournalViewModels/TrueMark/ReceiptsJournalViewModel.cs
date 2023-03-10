@@ -147,28 +147,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			if(_filter.StartDate.HasValue)
 			{
-				query.Where(
-					Restrictions.Disjunction()
-						.Add(Restrictions.Conjunction()
-							.Add(Restrictions.Ge(Projections.Property(() => trueMarkOrderAlias.Date), _filter.StartDate.Value))
-							.Add(Restrictions.IsNotNull(Projections.Property(() => trueMarkOrderAlias.Id))))
-						.Add(Restrictions.Conjunction()
-							.Add(Restrictions.Ge(Projections.Property(() => orderAlias.DeliveryDate), _filter.StartDate.Value))
-							.Add(Restrictions.IsNull(Projections.Property(() => trueMarkOrderAlias.Id))))
-				);
+				var startDate = _filter.StartDate.Value;
+				query.Where(() => orderAlias.DeliveryDate >= startDate);
 			}
 
 			if(_filter.EndDate.HasValue)
 			{
-				query.Where(
-					Restrictions.Disjunction()
-						.Add(Restrictions.Conjunction()
-							.Add(Restrictions.Le(Projections.Property(() => trueMarkOrderAlias.Date), _filter.EndDate.Value))
-							.Add(Restrictions.IsNotNull(Projections.Property(() => trueMarkOrderAlias.Id))))
-						.Add(Restrictions.Conjunction()
-							.Add(Restrictions.Le(Projections.Property(() => orderAlias.DeliveryDate), _filter.EndDate.Value))
-							.Add(Restrictions.IsNull(Projections.Property(() => trueMarkOrderAlias.Id))))
-				);
+				var endDate = _filter.EndDate.Value;
+				query.Where(() => orderAlias.DeliveryDate <= endDate);
 			}
 
 			if(_filter.HasUnscannedReason)
