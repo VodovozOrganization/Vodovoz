@@ -1,5 +1,4 @@
-using System;
-using MangoService;
+﻿using MangoService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MySql.Data.MySqlClient;
 using VodovozMangoService.HostedServices;
+using VodovozMangoService.Services;
 
 namespace VodovozMangoService
 {
@@ -24,7 +24,7 @@ namespace VodovozMangoService
         {
             var connectionStringBuilder = new MySqlConnectionStringBuilder();
             connectionStringBuilder.Server = Configuration["Mysql:mysql_server_host_name"];
-            connectionStringBuilder.Port = UInt32.Parse(Configuration["Mysql:mysql_server_port"]);
+            connectionStringBuilder.Port = uint.Parse(Configuration["Mysql:mysql_server_port"]);
             connectionStringBuilder.Database = Configuration["Mysql:mysql_database"];;
             connectionStringBuilder.UserID = Configuration["Mysql:mysql_user"];;
             connectionStringBuilder.Password = Configuration["Mysql:mysql_password"];;
@@ -45,6 +45,8 @@ namespace VodovozMangoService
             
             services.AddSingleton<NotificationHostedService>();
             services.AddHostedService<NotificationHostedService>(provider => provider.GetService<NotificationHostedService>());
+
+			services.AddSingleton<ICallerService, CallerService>();
 
             services.AddControllers();
         }
