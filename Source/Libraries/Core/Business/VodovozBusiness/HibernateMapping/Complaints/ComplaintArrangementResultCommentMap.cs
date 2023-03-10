@@ -16,7 +16,7 @@ namespace Vodovoz.HibernateMapping.Complaints
 			References(x => x.Complaint).Column("complaint_id");
 			References(x => x.Author).Column("author_id");
 			Map(x => x.Comment).Column("comment");
-			Map(x => x.CommentType).Column("comment_type").CustomType<ComplaintTypeStringType>();
+			Map(x => x.CommentType).Column("comment_type").CustomType<ComplaintArrangementResultCommentType>();
 			Map(x => x.CreationTime).Column("creation_time");
 		}
 	}

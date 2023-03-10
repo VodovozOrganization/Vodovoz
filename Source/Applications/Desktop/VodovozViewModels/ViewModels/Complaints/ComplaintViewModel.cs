@@ -405,6 +405,8 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			CreateAttachFineCommand();
 			CreateAddFineCommand();
+			CreateAddResultCommentCommand();
+			CreateAddArrangementCommentCommand();
 		}
 
 		#region AttachFineCommand

@@ -198,6 +198,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintResultOfCounterparty resultOfCounterpartyAlias = null;
 			ComplaintResultOfEmployees resultOfEmployeesAlias = null;
 			Responsible responsibleAlias = null;
+			ComplaintArrangementResultComment resultOfComplaintArrangementResultCommentAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -297,6 +298,14 @@ namespace Vodovoz.Journals.JournalViewModels
 				Projections.Property(() => fineAlias.TotalMoney),
 				Projections.Constant("\n"));
 
+			var arrangementResultCommentProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String,
+				"GROUP_CONCAT(?1 SEPARATOR '?2')"),
+				NHibernateUtil.String,
+				Projections.Property(() => resultOfComplaintArrangementResultCommentAlias.Comment),
+				Projections.Constant("||")
+				);
+
 			var resultOfCounterpartySubquery = QueryOver.Of(() => resultOfCounterpartyAlias)
 				.Where(() => resultOfCounterpartyAlias.Id == complaintAlias.ComplaintResultOfCounterparty.Id)
 				.Select(Projections.Property(() => resultOfCounterpartyAlias.Name));
@@ -304,6 +313,21 @@ namespace Vodovoz.Journals.JournalViewModels
 			var resultOfEmployeesSubquery = QueryOver.Of(() => resultOfEmployeesAlias)
 				.Where(() => resultOfEmployeesAlias.Id == complaintAlias.ComplaintResultOfEmployees.Id)
 				.Select(Projections.Property(() => resultOfEmployeesAlias.Name));
+
+			//var resultOfResultCommentsSubquery = QueryOver.Of(() => resultOfComplaintArrangementResultCommentAlias)
+			//	.Where(() => resultOfComplaintArrangementResultCommentAlias.Complaint.Id == complaintAlias.Id)
+			//	.Where(() => resultOfComplaintArrangementResultCommentAlias.CommentType == ComplaintArrangementResultCommentType.Result)
+			//	.Select(Projections.Property(() => resultOfComplaintArrangementResultCommentAlias.Comment));
+
+			var resultOfArrangementCommentsSubquery = QueryOver.Of(() => resultOfComplaintArrangementResultCommentAlias)
+				.Where(() => resultOfComplaintArrangementResultCommentAlias.Complaint.Id == complaintAlias.Id)
+				.Where(() => resultOfComplaintArrangementResultCommentAlias.CommentType == ComplaintArrangementResultCommentType.Arrangement)
+				.Select(Projections.Constant("Мероприятие"));
+
+			var resultOfArrangementCommentsSubquery1 = QueryOver.Of(() => resultOfComplaintArrangementResultCommentAlias)
+				.Where(() => resultOfComplaintArrangementResultCommentAlias.Id == complaintAlias.Id)
+				//.Where(() => counterpartyAlias.CommentType == ComplaintArrangementResultCommentType.Arrangement)
+				.Select(Projections.Property(() => resultOfComplaintArrangementResultCommentAlias.Comment));
 
 			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
@@ -491,7 +515,8 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintAlias.ResultText).WithAlias(() => resultAlias.ResultText)
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
-				.Select(() => complaintAlias.Arrangement).WithAlias(() => resultAlias.ArrangementText)
+				//.Select(() => complaintAlias.Arrangement).WithAlias(() => resultAlias.ArrangementText)
+				.SelectSubQuery(resultOfArrangementCommentsSubquery1).WithAlias(() => resultAlias.ArrangementText)
 				.SelectSubQuery(resultOfCounterpartySubquery).WithAlias(() => resultAlias.ResultOfCounterparty)
 				.SelectSubQuery(resultOfEmployeesSubquery).WithAlias(() => resultAlias.ResultOfEmployees)
 			);

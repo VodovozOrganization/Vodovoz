@@ -15,6 +15,8 @@ namespace Vodovoz.Domain.Complaints
 		NominativePlural = "комментарии мероприятий и результатов рекламации",
 		Nominative = "комментарий мероприятия и результата рекламации"
 	)]
+	[HistoryTrace]
+	[EntityPermission]
 	public class ComplaintArrangementResultComment : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

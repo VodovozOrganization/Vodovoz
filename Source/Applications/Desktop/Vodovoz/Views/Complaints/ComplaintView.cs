@@ -186,18 +186,18 @@ namespace Vodovoz.Views.Complaints
 			//var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
 			//ytreeviewResult.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
 
-			ViewModel.Entity.ObservableResultComments.ListContentChanged += (sender, e) =>
-			{
-				ytreeviewResult.YTreeModel.EmitModelChanged();
-				ytreeviewResult.ExpandAll();
-			};
+			//ViewModel.Entity.ObservableResultComments.ListContentChanged += (sender, e) =>
+			//{
+			//	ytreeviewResult.YTreeModel.EmitModelChanged();
+			//	ytreeviewResult.ExpandAll();
+			//};
 			ytreeviewResult.ExpandAll();
 
 			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.NewResultCommentText, w => w.Buffer.Text).InitializeFromSource();
-			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			//ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			ybuttonAddResult.Clicked += (sender, e) => ViewModel.AddResultCommentCommand.Execute();
-			ybuttonAddResult.Binding.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive).InitializeFromSource();
+			//ybuttonAddResult.Binding.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive).InitializeFromSource();
 		}
 
 		void EntryCounterparty_Changed(object sender, System.EventArgs e)
