@@ -54,6 +54,10 @@ namespace Vodovoz.Domain.Complaints
 		private IList<ComplaintFile> _files = new List<ComplaintFile>();
 		private GenericObservableList<ComplaintFile> _observableFiles;
 		private ComplaintDetalization _complaintDetalization;
+		private IList<ComplaintArrangementResultComment> _arrangementComments;
+		private GenericObservableList<ComplaintArrangementResultComment> _observableArrangementComments;
+		private IList<ComplaintArrangementResultComment> _resultComments;
+		private GenericObservableList<ComplaintArrangementResultComment> _observableResultComments;
 
 		public virtual int Id { get; set; }
 
@@ -169,6 +173,27 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref _resultText, value);
 		}
 
+		[Display(Name = "Комментарии по мероприятиям")]
+		public virtual IList<ComplaintArrangementResultComment> ResultComments
+		{
+			get => _resultComments;
+			set => SetField(ref _resultComments, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ComplaintArrangementResultComment> ObservableResultComments
+		{
+			get
+			{
+				if(_observableResultComments == null)
+				{
+					_observableResultComments = new GenericObservableList<ComplaintArrangementResultComment>(ResultComments);
+				}
+
+				return _observableResultComments;
+			}
+		}
+
 		[Display(Name = "Результат по клиенту")]
 		public virtual ComplaintResultOfCounterparty ComplaintResultOfCounterparty
 		{
@@ -215,6 +240,27 @@ namespace Vodovoz.Domain.Complaints
 		{
 			get => _arrangement;
 			set => SetField(ref _arrangement, value);
+		}
+		
+		[Display(Name = "Комментарии по мероприятиям")]
+		public virtual IList<ComplaintArrangementResultComment> ArrangementComments
+		{
+			get => _arrangementComments;
+			set => SetField(ref _arrangementComments, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ComplaintArrangementResultComment> ObservableArrangementComments
+		{
+			get
+			{
+				if(_observableArrangementComments == null)
+				{
+					_observableArrangementComments = new GenericObservableList<ComplaintArrangementResultComment>(ArrangementComments);
+				}
+
+				return _observableArrangementComments;
+			}
 		}
 
 		[Display(Name = "Оценка водителя")]
