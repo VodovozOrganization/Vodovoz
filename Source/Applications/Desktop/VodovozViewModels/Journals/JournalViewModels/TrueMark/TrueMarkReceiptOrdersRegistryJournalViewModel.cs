@@ -129,13 +129,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			if(_filter.StartDate.HasValue)
 			{
 				var startDate = _filter.StartDate.Value;
-				query.Where(() => trueMarkOrderAlias.Date >= startDate);
+				query.Where(
+					Restrictions.Ge(
+						Projections.SqlFunction("DATE",
+							NHibernateUtil.Date,
+							Projections.Property(() => trueMarkOrderAlias.Date)),
+						startDate
+					)
+				);
 			}
 
 			if(_filter.EndDate.HasValue)
 			{
 				var endDate = _filter.EndDate.Value;
-				query.Where(() => trueMarkOrderAlias.Date <= endDate);
+				query.Where(
+					Restrictions.Le(
+						Projections.SqlFunction("DATE",
+							NHibernateUtil.Date,
+							Projections.Property(() => trueMarkOrderAlias.Date)),
+						endDate
+					)
+				);
 			}
 
 			if(_filter.HasUnscannedReason)
