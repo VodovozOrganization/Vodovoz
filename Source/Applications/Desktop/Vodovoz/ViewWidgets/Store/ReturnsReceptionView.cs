@@ -131,7 +131,8 @@ namespace Vodovoz
 			Nomenclature nomenclatureAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			RouteListItem routeListItemAlias = null;
-			DeliveryFreeBalanceOperation freeBalanceOperation = null;
+			DeliveryFreeBalanceOperation freeBalanceOperationAlias = null;
+			CarUnloadDocumentItem carUnloadDocumentItemAlias = null;
 
 			IList<ReceptionItemNode> returnableItems = new List<ReceptionItemNode>();
 
@@ -160,22 +161,27 @@ namespace Vodovoz
 			else
 			{
 				var pickUpSubquery = QueryOver.Of(() => routeListItemAlias)
-					.JoinAlias(()=> routeListItemAlias.Order, () => orderAlias)
+					.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 					.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
 					.And(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.PickUp)
-					.And(() => orderEquipmentAlias.Nomenclature.Id == freeBalanceOperation.Nomenclature.Id)
+					.And(() => orderEquipmentAlias.Nomenclature.Id == freeBalanceOperationAlias.Nomenclature.Id)
 					.Select(Projections.Property(() => orderEquipmentAlias.Nomenclature.Id));
 
-				returnableItems = UoW.Session.QueryOver(() => freeBalanceOperation)
-					.JoinAlias(() => freeBalanceOperation.Nomenclature, () => nomenclatureAlias)
+				var carUnloadSubquery = QueryOver.Of(() => carUnloadDocumentItemAlias)
+					.Where(x => x.DeliveryFreeBalanceOperation.Id == freeBalanceOperationAlias.Id)
+					.Select(Projections.Property(() => carUnloadDocumentItemAlias.Id));
+
+				returnableItems = UoW.Session.QueryOver(() => freeBalanceOperationAlias)
+					.JoinAlias(() => freeBalanceOperationAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(f => f.RouteList.Id == RouteList.Id)
 					.WithSubquery.WhereNotExists(pickUpSubquery)
+					.WithSubquery.WhereNotExists(carUnloadSubquery)
 					.SelectList(list => list
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-						.SelectSum(() => freeBalanceOperation.Amount).WithAlias(() => resultAlias.ExpectedAmount)
+						.SelectSum(() => freeBalanceOperationAlias.Amount).WithAlias(() => resultAlias.ExpectedAmount)
 					).TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 					.List<ReceptionItemNode>();
 			}
