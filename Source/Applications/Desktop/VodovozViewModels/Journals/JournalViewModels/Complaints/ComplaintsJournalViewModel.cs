@@ -125,7 +125,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			TabName = "Журнал рекламаций";
-
+			
 			RegisterComplaints();
 
 			var threadLoader = DataLoader as ThreadDataLoader<ComplaintJournalNode>;
@@ -299,12 +299,11 @@ namespace Vodovoz.Journals.JournalViewModels
 				Projections.Constant("\n"));
 
 			var arrangementResultCommentProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String,
-				"GROUP_CONCAT(?1 SEPARATOR '?2')"),
-				NHibernateUtil.String,
-				Projections.Property(() => resultOfComplaintArrangementResultCommentAlias.Comment),
-				Projections.Constant("||")
-				);
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						Projections.Property(nameof(resultOfComplaintArrangementResultCommentAlias.Comment)),
+						Projections.Constant(" || ")
+						);
 
 			var resultOfCounterpartySubquery = QueryOver.Of(() => resultOfCounterpartyAlias)
 				.Where(() => resultOfCounterpartyAlias.Id == complaintAlias.ComplaintResultOfCounterparty.Id)
@@ -314,20 +313,17 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Where(() => resultOfEmployeesAlias.Id == complaintAlias.ComplaintResultOfEmployees.Id)
 				.Select(Projections.Property(() => resultOfEmployeesAlias.Name));
 
-			//var resultOfResultCommentsSubquery = QueryOver.Of(() => resultOfComplaintArrangementResultCommentAlias)
-			//	.Where(() => resultOfComplaintArrangementResultCommentAlias.Complaint.Id == complaintAlias.Id)
-			//	.Where(() => resultOfComplaintArrangementResultCommentAlias.CommentType == ComplaintArrangementResultCommentType.Result)
-			//	.Select(Projections.Property(() => resultOfComplaintArrangementResultCommentAlias.Comment));
-
 			var resultOfArrangementCommentsSubquery = QueryOver.Of(() => resultOfComplaintArrangementResultCommentAlias)
-				.Where(() => resultOfComplaintArrangementResultCommentAlias.Complaint.Id == complaintAlias.Id)
-				.Where(() => resultOfComplaintArrangementResultCommentAlias.CommentType == ComplaintArrangementResultCommentType.Arrangement)
-				.Select(Projections.Constant("Мероприятие"));
+				.Where(() => 
+					resultOfComplaintArrangementResultCommentAlias.Complaint.Id == complaintAlias.Id
+					&& resultOfComplaintArrangementResultCommentAlias.CommentType == ComplaintArrangementResultCommentType.Arrangement)
+				.Select(arrangementResultCommentProjection);
 
-			var resultOfArrangementCommentsSubquery1 = QueryOver.Of(() => resultOfComplaintArrangementResultCommentAlias)
-				.Where(() => resultOfComplaintArrangementResultCommentAlias.Id == complaintAlias.Id)
-				//.Where(() => counterpartyAlias.CommentType == ComplaintArrangementResultCommentType.Arrangement)
-				.Select(Projections.Property(() => resultOfComplaintArrangementResultCommentAlias.Comment));
+			var resultOfResultCommentsSubquery = QueryOver.Of(() => resultOfComplaintArrangementResultCommentAlias)
+				.Where(() =>
+					resultOfComplaintArrangementResultCommentAlias.Complaint.Id == complaintAlias.Id
+					&& resultOfComplaintArrangementResultCommentAlias.CommentType == ComplaintArrangementResultCommentType.Result)
+				.Select(arrangementResultCommentProjection);
 
 			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
@@ -512,11 +508,10 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(() => complaintKindAlias.IsArchive).WithAlias(() => resultAlias.ComplaintKindIsArchive)
 				.Select(() => complaintDelatizationAlias.Name).WithAlias(() => resultAlias.ComplaintDetalizationString)
 				.Select(() => complaintDelatizationAlias.IsArchive).WithAlias(() => resultAlias.ComplaintDetalizationIsArchive)
-				.Select(() => complaintAlias.ResultText).WithAlias(() => resultAlias.ResultText)
+				.SelectSubQuery(resultOfResultCommentsSubquery).WithAlias(() => resultAlias.ResultText)
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 				.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
-				//.Select(() => complaintAlias.Arrangement).WithAlias(() => resultAlias.ArrangementText)
-				.SelectSubQuery(resultOfArrangementCommentsSubquery1).WithAlias(() => resultAlias.ArrangementText)
+				.SelectSubQuery(resultOfArrangementCommentsSubquery).WithAlias(() => resultAlias.ArrangementText)
 				.SelectSubQuery(resultOfCounterpartySubquery).WithAlias(() => resultAlias.ResultOfCounterparty)
 				.SelectSubQuery(resultOfEmployeesSubquery).WithAlias(() => resultAlias.ResultOfEmployees)
 			);
