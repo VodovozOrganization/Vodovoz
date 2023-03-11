@@ -513,7 +513,7 @@ namespace Vodovoz.ViewModels.Complaints
 					newComment.Comment = NewResultCommentText;
 					newComment.CommentType = ComplaintArrangementResultCommentType.Arrangement;
 					newComment.CreationTime = DateTime.Now;
-					Entity.ObservableArrangementComments.Add(newComment);
+					Entity.ObservableResultComments.Add(newComment);
 					NewArrangementCommentText = string.Empty;
 				},
 				() => CanAddArrangementComment

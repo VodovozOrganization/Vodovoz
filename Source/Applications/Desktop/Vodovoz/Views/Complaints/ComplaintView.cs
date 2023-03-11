@@ -9,6 +9,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Gtk;
+using Gamma.Binding.Core.LevelTreeConfig;
+using Gamma.Binding;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -162,6 +164,31 @@ namespace Vodovoz.Views.Complaints
 				}
 			};
 
+			ytreeviewArrangement.ShowExpanders = false;
+			ytreeviewArrangement.ColumnsConfig = FluentColumnsConfig<object>.Create()
+				.AddColumn("Время")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetTime(x))
+				.AddColumn("Автор")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetAuthor(x))
+				.AddColumn("Комментарий")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetNodeName(x))
+						.WrapWidth(300)
+						.WrapMode(Pango.WrapMode.WordChar)
+				.RowCells().AddSetter<CellRenderer>(SetColor)
+				.Finish();
+			var levelsArrangement = LevelConfigFactory.FirstLevel<Complaint, ComplaintArrangementResultComment>(x => x.ArrangementComments).LastLevel(c => c.Complaint).EndConfig();
+			ytreeviewArrangement.YTreeModel = new LevelTreeModel<ComplaintArrangementResultComment>(ViewModel.Entity.ResultComments, levelsArrangement);
+
+			ViewModel.Entity.ObservableArrangementComments.ListContentChanged += (sender, e) =>
+			{
+				ytreeviewArrangement.YTreeModel.EmitModelChanged();
+				ytreeviewArrangement.ExpandAll();
+			};
+			ytreeviewArrangement.ExpandAll();
+
 			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.NewArrangementCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
@@ -183,14 +210,14 @@ namespace Vodovoz.Views.Complaints
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
-			//var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
-			//ytreeviewResult.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
+			var levelsResult = LevelConfigFactory.FirstLevel<Complaint, ComplaintArrangementResultComment>(x => x.ResultComments).LastLevel(c => c.Complaint).EndConfig();
+			ytreeviewResult.YTreeModel = new LevelTreeModel<ComplaintArrangementResultComment>(ViewModel.Entity.ResultComments, levelsResult);
 
-			//ViewModel.Entity.ObservableResultComments.ListContentChanged += (sender, e) =>
-			//{
-			//	ytreeviewResult.YTreeModel.EmitModelChanged();
-			//	ytreeviewResult.ExpandAll();
-			//};
+			ViewModel.Entity.ObservableResultComments.ListContentChanged += (sender, e) =>
+			{
+				ytreeviewResult.YTreeModel.EmitModelChanged();
+				ytreeviewResult.ExpandAll();
+			};
 			ytreeviewResult.ExpandAll();
 
 			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.NewResultCommentText, w => w.Buffer.Text).InitializeFromSource();

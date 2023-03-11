@@ -179,7 +179,7 @@ namespace Vodovoz.Domain.Complaints
 			get => _resultComments;
 			set => SetField(ref _resultComments, value);
 		}
-
+		
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ComplaintArrangementResultComment> ObservableResultComments
 		{
@@ -187,13 +187,13 @@ namespace Vodovoz.Domain.Complaints
 			{
 				if(_observableResultComments == null)
 				{
-					_observableResultComments = new GenericObservableList<ComplaintArrangementResultComment>(ResultComments);
+					_observableResultComments = new GenericObservableList<ComplaintArrangementResultComment>(ResultComments.Where(c => c.CommentType == ComplaintArrangementResultCommentType.Result).ToList());
 				}
 
 				return _observableResultComments;
 			}
 		}
-
+		
 		[Display(Name = "Результат по клиенту")]
 		public virtual ComplaintResultOfCounterparty ComplaintResultOfCounterparty
 		{
@@ -256,7 +256,7 @@ namespace Vodovoz.Domain.Complaints
 			{
 				if(_observableArrangementComments == null)
 				{
-					_observableArrangementComments = new GenericObservableList<ComplaintArrangementResultComment>(ResultComments);
+					_observableArrangementComments = new GenericObservableList<ComplaintArrangementResultComment>(ResultComments.Where(c => c.CommentType == ComplaintArrangementResultCommentType.Arrangement).ToList());
 				}
 
 				return _observableArrangementComments;
