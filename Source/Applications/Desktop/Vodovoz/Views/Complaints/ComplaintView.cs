@@ -9,8 +9,6 @@ using Vodovoz.ViewModels.Complaints;
 using Gtk;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.Binding;
-using System.Linq;
-using Vodovoz.JournalNodes;
 
 namespace Vodovoz.Views.Complaints
 {
