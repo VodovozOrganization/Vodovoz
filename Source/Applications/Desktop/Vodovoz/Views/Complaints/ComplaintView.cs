@@ -1,16 +1,16 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Widgets;
-using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Gtk;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.Binding;
+using System.Linq;
+using Vodovoz.JournalNodes;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -179,8 +179,8 @@ namespace Vodovoz.Views.Complaints
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
-			var levelsArrangement = LevelConfigFactory.FirstLevel<Complaint, ComplaintArrangementResultComment>(x => x.ArrangementComments).LastLevel(c => c.Complaint).EndConfig();
-			ytreeviewArrangement.YTreeModel = new LevelTreeModel<ComplaintArrangementResultComment>(ViewModel.Entity.ResultComments, levelsArrangement);
+			var levelsArrangement = LevelConfigFactory.FirstLevel<Complaint, ComplaintArrangementComment>(x => x.ArrangementComments).LastLevel(c => c.Complaint).EndConfig();
+			ytreeviewArrangement.YTreeModel = new LevelTreeModel<ComplaintArrangementComment>(ViewModel.Entity.ArrangementComments, levelsArrangement);
 
 			ViewModel.Entity.ObservableArrangementComments.ListContentChanged += (sender, e) =>
 			{
@@ -210,8 +210,8 @@ namespace Vodovoz.Views.Complaints
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
-			var levelsResult = LevelConfigFactory.FirstLevel<Complaint, ComplaintArrangementResultComment>(x => x.ResultComments).LastLevel(c => c.Complaint).EndConfig();
-			ytreeviewResult.YTreeModel = new LevelTreeModel<ComplaintArrangementResultComment>(ViewModel.Entity.ResultComments, levelsResult);
+			var levelsResult = LevelConfigFactory.FirstLevel<Complaint, ComplaintResultComment>(x => x.ResultComments).LastLevel(c => c.Complaint).EndConfig();
+			ytreeviewResult.YTreeModel = new LevelTreeModel<ComplaintResultComment>(ViewModel.Entity.ResultComments, levelsResult);
 
 			ViewModel.Entity.ObservableResultComments.ListContentChanged += (sender, e) =>
 			{
@@ -221,10 +221,10 @@ namespace Vodovoz.Views.Complaints
 			ytreeviewResult.ExpandAll();
 
 			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.NewResultCommentText, w => w.Buffer.Text).InitializeFromSource();
-			//ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			ybuttonAddResult.Clicked += (sender, e) => ViewModel.AddResultCommentCommand.Execute();
-			//ybuttonAddResult.Binding.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive).InitializeFromSource();
+			ybuttonAddResult.Binding.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive).InitializeFromSource();
 		}
 
 		void EntryCounterparty_Changed(object sender, System.EventArgs e)
@@ -245,9 +245,14 @@ namespace Vodovoz.Views.Complaints
 
 		private string GetTime(object node)
 		{
-			if(node is ComplaintArrangementResultComment)
+			if(node is ComplaintArrangementComment arrangementComment)
 			{
-				return (node as ComplaintArrangementResultComment).CreationTime.ToShortDateString() + "\n" + (node as ComplaintArrangementResultComment).CreationTime.ToShortTimeString();
+				return arrangementComment.CreationTime.ToShortDateString() + "\n" + arrangementComment.CreationTime.ToShortTimeString();
+			}
+
+			if(node is ComplaintResultComment resultComment)
+			{
+				return resultComment.CreationTime.ToShortDateString() + "\n" + resultComment.CreationTime.ToShortTimeString();
 			}
 
 			return "";
@@ -255,28 +260,42 @@ namespace Vodovoz.Views.Complaints
 
 		private string GetAuthor(object node)
 		{
-			if(node is ComplaintArrangementResultComment)
+			Employee author = new Employee();
+
+			if(node is ComplaintArrangementComment arrangementComment)
 			{
-				var author = (node as ComplaintArrangementResultComment).Author;
-				var subdivisionName = author.Subdivision != null && !string.IsNullOrWhiteSpace(author.Subdivision.ShortName) ? "\n" + author.Subdivision.ShortName : "";
-				var result = $"{author.GetPersonNameWithInitials()}{subdivisionName}";
-				return result;
+				author = arrangementComment.Author;
 			}
-			return "";
+			else if(node is ComplaintResultComment resultComment)
+			{
+				author = resultComment.Author;
+			}
+			else
+			{
+				return "";
+			}
+
+			var subdivisionName = author.Subdivision != null && !string.IsNullOrWhiteSpace(author.Subdivision.ShortName) ? "\n" + author.Subdivision.ShortName : "";
+			var result = $"{author.GetPersonNameWithInitials()}{subdivisionName}";
+			return result;
 		}
 
 		private string GetNodeName(object node)
 		{
-			if(node is ComplaintArrangementResultComment _complaintArrangementResultComment)
+			if(node is ComplaintArrangementComment arrangementComment)
 			{
-				return (node as ComplaintArrangementResultComment).Comment;
+				return arrangementComment.Comment;
+			}
+			if(node is ComplaintResultComment resultComment)
+			{
+				return resultComment.Comment;
 			}
 			return "";
 		}
 
 		private void SetColor(CellRenderer cell, object node)
 		{
-			if(node is ComplaintArrangementResultComment)
+			if(node is ComplaintArrangementComment || node is ComplaintResultComment)
 			{
 				cell.CellBackgroundGdk = new Gdk.Color(230, 230, 245);
 			}

@@ -392,7 +392,7 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		private string _newResultCommentText;
-		[PropertyChangedAlso(nameof(CanAddArrangementComment))]
+		[PropertyChangedAlso(nameof(CanAddResultComment))]
 		public virtual string NewResultCommentText
 		{
 			get => _newResultCommentText;
@@ -502,7 +502,7 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			AddArrangementCommentCommand = new DelegateCommand(
 				() => {
-					var newComment = new ComplaintArrangementResultComment();
+					var newComment = new ComplaintArrangementComment();
 					if(CurrentEmployee == null)
 					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
@@ -510,10 +510,9 @@ namespace Vodovoz.ViewModels.Complaints
 					}
 					newComment.Complaint = Entity;
 					newComment.Author = CurrentEmployee;
-					newComment.Comment = NewResultCommentText;
-					newComment.CommentType = ComplaintArrangementResultCommentType.Arrangement;
+					newComment.Comment = NewArrangementCommentText;
 					newComment.CreationTime = DateTime.Now;
-					Entity.ObservableResultComments.Add(newComment);
+					Entity.ObservableArrangementComments.Add(newComment);
 					NewArrangementCommentText = string.Empty;
 				},
 				() => CanAddArrangementComment
@@ -529,7 +528,7 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			AddResultCommentCommand = new DelegateCommand(
 				() => {
-					var newComment = new ComplaintArrangementResultComment();
+					var newComment = new ComplaintResultComment();
 					if(CurrentEmployee == null)
 					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
@@ -538,7 +537,6 @@ namespace Vodovoz.ViewModels.Complaints
 					newComment.Complaint = Entity;
 					newComment.Author = CurrentEmployee;
 					newComment.Comment = NewResultCommentText;
-					newComment.CommentType = ComplaintArrangementResultCommentType.Result;
 					newComment.CreationTime = DateTime.Now;
 					Entity.ObservableResultComments.Add(newComment);
 					NewResultCommentText = string.Empty;
