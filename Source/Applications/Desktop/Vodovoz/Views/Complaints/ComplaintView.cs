@@ -73,11 +73,6 @@ namespace Vodovoz.Views.Complaints
 			yhboxPhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			labelNamePhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
-			//arrangementTextView.Binding
-			//	.AddBinding(ViewModel.Entity, e => e.Arrangement, w => w.Buffer.Text)
-			//	.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-			//	.InitializeFromSource();
-
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			cmbComplaintKind.Binding
 				.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList)
@@ -113,9 +108,6 @@ namespace Vodovoz.Views.Complaints
 			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.ComplaintResultsOfEmployees, w => w.ItemsList).InitializeFromSource();
 			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfEmployees, w => w.SelectedItem).InitializeFromSource();
 			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-
-			//ytextviewResultText.Binding.AddBinding(ViewModel.Entity, e => e.ResultText, w => w.Buffer.Text).InitializeFromSource();
-			//ytextviewResultText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			complaintfilesview.ViewModel = ViewModel.FilesViewModel;
 
@@ -175,7 +167,7 @@ namespace Vodovoz.Views.Complaints
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => GetNodeName(x))
-						.WrapWidth(300)
+						.WrapWidth(250)
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
@@ -206,7 +198,7 @@ namespace Vodovoz.Views.Complaints
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => GetNodeName(x))
-						.WrapWidth(300)
+						.WrapWidth(250)
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
