@@ -73,10 +73,10 @@ namespace Vodovoz.Views.Complaints
 			yhboxPhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			labelNamePhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
-			arrangementTextView.Binding
-				.AddBinding(ViewModel.Entity, e => e.Arrangement, w => w.Buffer.Text)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
+			//arrangementTextView.Binding
+			//	.AddBinding(ViewModel.Entity, e => e.Arrangement, w => w.Buffer.Text)
+			//	.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+			//	.InitializeFromSource();
 
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			cmbComplaintKind.Binding
@@ -114,8 +114,8 @@ namespace Vodovoz.Views.Complaints
 			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfEmployees, w => w.SelectedItem).InitializeFromSource();
 			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			ytextviewResultText.Binding.AddBinding(ViewModel.Entity, e => e.ResultText, w => w.Buffer.Text).InitializeFromSource();
-			ytextviewResultText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			//ytextviewResultText.Binding.AddBinding(ViewModel.Entity, e => e.ResultText, w => w.Buffer.Text).InitializeFromSource();
+			//ytextviewResultText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			complaintfilesview.ViewModel = ViewModel.FilesViewModel;
 

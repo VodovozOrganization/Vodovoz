@@ -489,7 +489,6 @@ namespace Vodovoz.Journals.JournalViewModels
 					GetSearchCriterion(
 					() => complaintAlias.Id,
 					() => complaintAlias.ComplaintText,
-					() => complaintAlias.ResultText,
 					() => counterpartyAlias.Name,
 					() => deliveryPointAlias.CompiledAddress
 				)

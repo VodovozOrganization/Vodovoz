@@ -166,12 +166,15 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref _plannedCompletionDate, value);
 		}
 
-		[Display(Name = "Описание результата")]
-		public virtual string ResultText
-		{
-			get => _resultText;
-			set => SetField(ref _resultText, value);
-		}
+		//[Display(Name = "Описание результата")]
+		//public virtual string ResultText
+		//{
+		//	get => _resultText;
+		//	set => SetField(ref _resultText, value);
+		//}
+
+		//[Display(Name = "Комментарии результата рекламации")]
+		//public virtual string AllResultsText => String.Join("||", ObservableResultComments.Select(c => c.Comment).ToList<string>());
 
 		[Display(Name = "Комментарии - результаты")]
 		public virtual IList<ComplaintResultComment> ResultComments
@@ -235,12 +238,14 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref _complaintDetalization, value);
 		}
 
-		[Display(Name = "Мероприятия")]
-		public virtual string Arrangement
-		{
-			get => _arrangement;
-			set => SetField(ref _arrangement, value);
-		}
+		//[Display(Name = "Мероприятия")]
+		//public virtual string Arrangement
+		//{
+		//	get => _arrangement;
+		//	set => SetField(ref _arrangement, value);
+		//}
+
+		//public virtual string JoinedArrangementText => String.Join("||", ObservableArrangementComments.Select(c => c.Comment).ToList<string>());
 
 		[Display(Name = "Комментарии - мероприятия")]
 		public virtual IList<ComplaintArrangementComment> ArrangementComments
@@ -445,9 +450,9 @@ namespace Vodovoz.Domain.Complaints
 					result.Add("Заполните поле \"Итог работы по сотрудникам\".");
 				}
 
-				if(string.IsNullOrWhiteSpace(ResultText))
+				if(ObservableResultComments.Count == 0)
 				{
-					result.Add("Заполните поле \"Результат\".");
+					result.Add("Необходимо добавить комментарий \"Результат\".");
 				}
 			}
 
@@ -521,9 +526,9 @@ namespace Vodovoz.Domain.Complaints
 						"Заполните поле \"Итог работы по сотрудникам\".", new[] { nameof(ComplaintResultOfEmployees) });
 				}
 
-				if(string.IsNullOrWhiteSpace(ResultText))
+				if(ObservableResultComments.Count == 0)
 				{
-					yield return new ValidationResult("Заполните поле \"Результат\".", new[] { nameof(ResultText) });
+					yield return new ValidationResult("Необходимо добавить комментарий \"Результат\".", new[] { nameof(ResultComments) });
 				}
 			}
 		}
