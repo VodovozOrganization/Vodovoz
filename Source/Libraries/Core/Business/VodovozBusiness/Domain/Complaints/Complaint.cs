@@ -54,10 +54,10 @@ namespace Vodovoz.Domain.Complaints
 		private IList<ComplaintFile> _files = new List<ComplaintFile>();
 		private GenericObservableList<ComplaintFile> _observableFiles;
 		private ComplaintDetalization _complaintDetalization;
-		private IList<ComplaintArrangementResultComment> _arrangementComments = new List<ComplaintArrangementResultComment>();
-		private GenericObservableList<ComplaintArrangementResultComment> _observableArrangementComments;
-		private IList<ComplaintArrangementResultComment> _resultComments = new List<ComplaintArrangementResultComment>();
-		private GenericObservableList<ComplaintArrangementResultComment> _observableResultComments;
+		private IList<ComplaintArrangementComment> _arrangementComments = new List<ComplaintArrangementComment>();
+		private GenericObservableList<ComplaintArrangementComment> _observableArrangementComments;
+		private IList<ComplaintResultComment> _resultComments = new List<ComplaintResultComment>();
+		private GenericObservableList<ComplaintResultComment> _observableResultComments;
 
 		public virtual int Id { get; set; }
 
@@ -174,20 +174,20 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		[Display(Name = "Комментарии - результаты")]
-		public virtual IList<ComplaintArrangementResultComment> ResultComments
+		public virtual IList<ComplaintResultComment> ResultComments
 		{
 			get => _resultComments;
 			set => SetField(ref _resultComments, value);
 		}
 		
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintArrangementResultComment> ObservableResultComments
+		public virtual GenericObservableList<ComplaintResultComment> ObservableResultComments
 		{
 			get
 			{
 				if(_observableResultComments == null)
 				{
-					_observableResultComments = new GenericObservableList<ComplaintArrangementResultComment>(ResultComments.Where(c => c.CommentType == ComplaintArrangementResultCommentType.Result).ToList());
+					_observableResultComments = new GenericObservableList<ComplaintResultComment>(ResultComments);
 				}
 
 				return _observableResultComments;
@@ -243,20 +243,20 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		[Display(Name = "Комментарии - мероприятия")]
-		public virtual IList<ComplaintArrangementResultComment> ArrangementComments
+		public virtual IList<ComplaintArrangementComment> ArrangementComments
 		{
 			get => _arrangementComments;
 			set => SetField(ref _arrangementComments, value);
 		}
 
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintArrangementResultComment> ObservableArrangementComments
+		public virtual GenericObservableList<ComplaintArrangementComment> ObservableArrangementComments
 		{
 			get
 			{
 				if(_observableArrangementComments == null)
 				{
-					_observableArrangementComments = new GenericObservableList<ComplaintArrangementResultComment>(ResultComments.Where(c => c.CommentType == ComplaintArrangementResultCommentType.Arrangement).ToList());
+					_observableArrangementComments = new GenericObservableList<ComplaintArrangementComment>(ArrangementComments);
 				}
 
 				return _observableArrangementComments;

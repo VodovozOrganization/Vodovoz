@@ -3,11 +3,11 @@ using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.HibernateMapping.Complaints
 {
-	public class ComplaintArrangementResultCommentMap : ClassMap<ComplaintArrangementResultComment>
+	public class ComplaintResultCommentMap : ClassMap<ComplaintResultComment>
 	{
-		public ComplaintArrangementResultCommentMap()
+		public ComplaintResultCommentMap()
 		{
-			Table("complaint_arrangement_result_comments");
+			Table("complaint_result_comments");
 
 			Not.LazyLoad();
 
@@ -16,7 +16,6 @@ namespace Vodovoz.HibernateMapping.Complaints
 			References(x => x.Complaint).Column("complaint_id");
 			References(x => x.Author).Column("author_id");
 			Map(x => x.Comment).Column("comment");
-			Map(x => x.CommentType).Column("comment_type").CustomType<ComplaintArrangementResultCommentStringType>();
 			Map(x => x.CreationTime).Column("creation_time");
 		}
 	}
