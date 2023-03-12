@@ -344,7 +344,6 @@ namespace Vodovoz.Domain.Sale
 					result.AppendLine("минимум 19л: " + weekRules.Select(x => x.DeliveryPriceRule.Water19LCount).Min());
 					result.AppendLine("минимум 6л: " + weekRules.Select(x => x.DeliveryPriceRule.Water6LCount).Min());
 					result.AppendLine("минимум 1,5л: " + weekRules.Select(x => x.DeliveryPriceRule.Water1500mlCount).Min());
-					result.AppendLine("минимум 0,6л: " + weekRules.Select(x => x.DeliveryPriceRule.Water600mlCount).Min());
 					result.AppendLine("минимум 0,5л: " + weekRules.Select(x => x.DeliveryPriceRule.Water500mlCount).Min());
 				}
 				else if(ObservableCommonDistrictRuleItems.Any())
@@ -357,8 +356,6 @@ namespace Vodovoz.Domain.Sale
 						.Select(x => x.DeliveryPriceRule.Water6LCount).Min());
 					result.AppendLine("минимум 1,5л: " + ObservableCommonDistrictRuleItems
 						.Select(x => x.DeliveryPriceRule.Water1500mlCount).Min());
-					result.AppendLine("минимум 0,6л: " + ObservableCommonDistrictRuleItems
-						.Select(x => x.DeliveryPriceRule.Water600mlCount).Min());
 					result.AppendLine("минимум 0,5л: " + ObservableCommonDistrictRuleItems
 						.Select(x => x.DeliveryPriceRule.Water500mlCount).Min());
 				}

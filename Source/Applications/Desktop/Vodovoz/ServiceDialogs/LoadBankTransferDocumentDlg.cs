@@ -663,7 +663,10 @@ namespace Vodovoz
 
 		protected string TryGetOrganizationType (string name)
 		{
-			foreach (var pair in InformationHandbook.OrganizationTypes) {
+			//Если данный диалог снова будет в использовании,
+			//то необходимо изменить метод по аналогии с ManualPaymentMatchingViewModel.TryGetOrganizationType(string name),
+			//чтобы значения типов форм собственности брались из базы данных, а не из словаря
+			foreach(var pair in InformationHandbook.OrganizationTypes) {
 				string pattern = string.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Key);
 				string fullPattern = string.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Value);
 				Regex regex = new Regex (pattern, RegexOptions.IgnoreCase);

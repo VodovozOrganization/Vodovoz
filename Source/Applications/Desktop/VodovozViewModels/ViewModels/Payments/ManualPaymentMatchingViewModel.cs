@@ -21,6 +21,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.ViewModels.TempAdapters;
@@ -50,6 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IDialogsFactory _dialogsFactory;
+		private readonly IOrganizationRepository _organizationRepository;
 
 		private DelegateCommand _revertAllocatedSum;
 
@@ -60,12 +62,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IOrderRepository orderRepository,
 			IPaymentItemsRepository paymentItemsRepository,
 			IPaymentsRepository paymentsRepository,
-			IDialogsFactory dialogsFactory) : base(uowBuilder, uowFactory, commonServices)
+			IDialogsFactory dialogsFactory,
+			IOrganizationRepository organizationRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -712,22 +716,23 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private string TryGetOrganizationType(string name)
 		{
-			foreach(var pair in InformationHandbook.OrganizationTypes)
+			var allOrganizationOwnershipTypes = _organizationRepository.GetAllOrganizationOwnershipTypes(UoW);
+			foreach(var organizationType in allOrganizationOwnershipTypes)
 			{
-				string pattern = $@".*(^|\(|\s|\W|['""]){pair.Key}($|\)|\s|\W|['""]).*";
-				string fullPattern = $@".*(^|\(|\s|\W|['""]){pair.Value}($|\)|\s|\W|['""]).*";
+				string pattern = $@".*(^|\(|\s|\W|['""]){organizationType.Abbreviation}($|\)|\s|\W|['""]).*";
+				string fullPattern = $@".*(^|\(|\s|\W|['""]){organizationType.FullName}($|\)|\s|\W|['""]).*";
 				Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
 
 				if(regex.IsMatch(name))
 				{
-					return pair.Key;
+					return organizationType.Abbreviation;
 				}
 
 				regex = new Regex(fullPattern, RegexOptions.IgnoreCase);
 
 				if(regex.IsMatch(name))
 				{
-					return pair.Key;
+					return organizationType.Abbreviation;
 				}
 			}
 			return null;

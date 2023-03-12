@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -112,6 +112,9 @@
     <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalDocumentBase.cs" />
     <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalGiveoutDocument.cs" />
     <Compile Include="Domain\Documents\DriverTerminal\DriverAttachedTerminalReturnDocument.cs" />
+    <Compile Include="Domain\Documents\IDocument.cs" />
+    <Compile Include="Domain\Documents\ITwoWarhousesBindedDocument.cs" />
+    <Compile Include="Domain\Documents\IWarehouseBoundedDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocument.cs" />
     <Compile Include="Domain\Documents\WayBillDocumentItem.cs" />
     <Compile Include="Controllers\AddressTransferDocumentController.cs" />
@@ -185,6 +188,7 @@
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
     <Compile Include="Domain\Orders\TrueMarkApiDocument.cs" />
+    <Compile Include="Domain\Organizations\OrganizationOwnershipType.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
     <Compile Include="Domain\Permissions\AvailableDatabase.cs" />
     <Compile Include="Domain\Permissions\DatabasePrivilege.cs" />
@@ -262,6 +266,10 @@
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForPaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForAdvancePaymentEmail.cs" />
     <Compile Include="Domain\StoredEmails\OrderWithoutShipmentForDebtEmail.cs" />
+    <Compile Include="Domain\TrueMark\TrueMarkCashReceiptOrder.cs" />
+    <Compile Include="Domain\TrueMark\TrueMarkCashReceiptOrderStatus.cs" />
+    <Compile Include="Domain\TrueMark\TrueMarkCashReceiptProductCode.cs" />
+    <Compile Include="Domain\TrueMark\TrueMarkIdentificationCode.cs" />
     <Compile Include="Domain\Versions\VersionEntityBase.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
@@ -398,6 +406,8 @@
     <Compile Include="EntityRepositories\Stock\StockRepository.cs" />
     <Compile Include="EntityRepositories\StoredResource\IStoredResourceRepository.cs" />
     <Compile Include="EntityRepositories\StoredResource\StoredResourceRepository.cs" />
+    <Compile Include="EntityRepositories\TrueMark\ITrueMarkRepository.cs" />
+    <Compile Include="EntityRepositories\TrueMark\TrueMarkRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrderCommentsRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\IUndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCommentsNode.cs" />
@@ -509,6 +519,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
+    <Compile Include="HibernateMapping\Organizations\OrganizationOwnershipTypeMap.cs" />
     <Compile Include="HibernateMapping\Permissions\WarehousePermissionMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryTransferAbsenceReasonMap.cs" />
@@ -532,6 +543,9 @@
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
+    <Compile Include="HibernateMapping\TrueMark\TrueMarkCashReceiptOrderMap.cs" />
+    <Compile Include="HibernateMapping\TrueMark\TrueMarkCashReceiptProductCodeMap.cs" />
+    <Compile Include="HibernateMapping\TrueMark\TrueMarkWaterIdentificationCodeMap.cs" />
     <Compile Include="HibernateMapping\Users\AvailableDatabaseMap.cs" />
     <Compile Include="HibernateMapping\Users\DatabasePrivilegeMap.cs" />
     <Compile Include="HibernateMapping\Users\GlobalPrivilegeMap.cs" />
@@ -568,6 +582,7 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
