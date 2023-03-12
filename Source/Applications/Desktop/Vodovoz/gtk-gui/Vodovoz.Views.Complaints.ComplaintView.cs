@@ -729,6 +729,7 @@ namespace Vodovoz.Views.Complaints
 			this.ytextviewNewArrangement = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewNewArrangement.CanFocus = true;
 			this.ytextviewNewArrangement.Name = "ytextviewNewArrangement";
+			this.ytextviewNewArrangement.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindowNewArrangement.Add(this.ytextviewNewArrangement);
 			this.ytableArrangementResult.Add(this.GtkScrolledWindowNewArrangement);
 			global::Gtk.Table.TableChild w56 = ((global::Gtk.Table.TableChild)(this.ytableArrangementResult[this.GtkScrolledWindowNewArrangement]));
@@ -746,6 +747,7 @@ namespace Vodovoz.Views.Complaints
 			this.ytextviewNewResult = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewNewResult.CanFocus = true;
 			this.ytextviewNewResult.Name = "ytextviewNewResult";
+			this.ytextviewNewResult.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindowNewResult.Add(this.ytextviewNewResult);
 			this.ytableArrangementResult.Add(this.GtkScrolledWindowNewResult);
 			global::Gtk.Table.TableChild w58 = ((global::Gtk.Table.TableChild)(this.ytableArrangementResult[this.GtkScrolledWindowNewResult]));
