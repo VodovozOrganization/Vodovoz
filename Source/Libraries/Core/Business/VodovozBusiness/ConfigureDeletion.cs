@@ -1207,7 +1207,8 @@ namespace Vodovoz
 						.AddDeleteDependence<ComplaintDiscussion>(item => item.Complaint)
 						.AddDeleteDependence<ComplaintFile>(item => item.Complaint)
 						.AddDeleteDependence<ComplaintGuiltyItem>(item => item.Complaint)
-						.AddDeleteDependence<ComplaintArrangementResultComment>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintArrangementComment>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintResultComment>(item => item.Complaint)
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussion>()
@@ -1224,7 +1225,10 @@ namespace Vodovoz
 						.AddDeleteDependence<ComplaintFile>(item => item.ComplaintDiscussionComment)
 						;
 
-			DeleteConfig.AddHibernateDeleteInfo<ComplaintArrangementResultComment>()
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintArrangementComment>()
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintResultComment>()
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintObject>();
