@@ -5,7 +5,6 @@ using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
@@ -294,9 +293,6 @@ namespace Vodovoz
 		void LoadReception()
 		{
 			foreach(var item in Entity.Items) {
-				if(Entity.IsDefaultBottle(item))
-					continue;
-
 				if(defectiveitemsreceptionview1.Items.Any(x => x.NomenclatureId == item.WarehouseMovementOperation.Nomenclature.Id))
 					continue;
 

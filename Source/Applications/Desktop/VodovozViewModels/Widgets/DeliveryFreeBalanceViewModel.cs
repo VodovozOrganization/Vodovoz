@@ -32,9 +32,13 @@ namespace Vodovoz.ViewModels.Widgets
 			{
 				return;
 			}
-			_observableDeliveryFreeBalanceOperations.ElementAdded += OnElementAdded;
-			_observableDeliveryFreeBalanceOperations.ElementRemoved += OnElementRemoved;
-			_observableDeliveryFreeBalanceOperations.ElementChanged += OnElementChanged;
+
+			_observableDeliveryFreeBalanceOperations.PropertyChanged += OnObservableDeliveryFreeBalanceOperationsPropertyChanged;
+		}
+
+		private void OnObservableDeliveryFreeBalanceOperationsPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			UpdateAction?.Invoke();
 		}
 
 		private void UnsubscribeFromChanges()
@@ -43,24 +47,8 @@ namespace Vodovoz.ViewModels.Widgets
 			{
 				return;
 			}
-			_observableDeliveryFreeBalanceOperations.ElementAdded -= OnElementAdded;
-			_observableDeliveryFreeBalanceOperations.ElementRemoved -= OnElementRemoved;
-			_observableDeliveryFreeBalanceOperations.ElementChanged -= OnElementChanged;
-		}
 
-		private void OnElementAdded(object alist, int[] aidx)
-		{
-			UpdateAction?.Invoke();
-		}
-
-		private void OnElementRemoved(object alist, int[] aidx, object aobject)
-		{
-			UpdateAction?.Invoke();
-		}
-
-		private void OnElementChanged(object alist, int[] aidx)
-		{
-			UpdateAction?.Invoke();
+			_observableDeliveryFreeBalanceOperations.PropertyChanged -= OnObservableDeliveryFreeBalanceOperationsPropertyChanged;
 		}
 	}
 }
