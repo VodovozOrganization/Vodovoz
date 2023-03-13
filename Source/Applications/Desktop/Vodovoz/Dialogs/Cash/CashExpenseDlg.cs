@@ -317,7 +317,7 @@ namespace Vodovoz
 				if (employee.Category == EmployeeCategory.driver && employee.Status == EmployeeStatus.IsWorking)
 				{
 					var driverBalanceWithoutFutureFines = _wagesMovementRepository.GetDriverWageBalanceWithoutFutureFines(UoW, employee.Id);
-					var driverFutureFinesBalance = _wagesMovementRepository.GetDriverFutureFinesBalance(UoW, employee.Id);
+					var driverFutureFinesBalance = (-1) * _wagesMovementRepository.GetDriverFutureFinesBalance(UoW, employee.Id);
 
 					labelTemplate += " <span font='large' weight='bold'>Будущие штрафы: {1}</span>"; 
 					
