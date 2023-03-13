@@ -3822,7 +3822,7 @@ namespace Vodovoz.Domain.Orders
 		/// Возвращает список со всеми товарами, которые нужно доставить клиенту
 		/// </summary>
 		/// <returns></returns>
-		public virtual IList<NomenclatureAmountNode> GetAllGoodsToDeliver()
+		public virtual IList<NomenclatureAmountNode> GetAllGoodsToDeliver(bool isActualCount = false)
 		{
 			var result = new List<NomenclatureAmountNode>();
 
@@ -3831,7 +3831,7 @@ namespace Vodovoz.Domain.Orders
 				var found = result.FirstOrDefault(x => x.NomenclatureId == orderItem.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += orderItem.Count;
+					found.Amount += isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
 				}
 				else
 				{
@@ -3839,7 +3839,7 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = orderItem.Nomenclature.Id,
 						Nomenclature = orderItem.Nomenclature,
-						Amount = orderItem.Count
+						Amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count
 					});
 				}
 			}
@@ -3850,7 +3850,7 @@ namespace Vodovoz.Domain.Orders
 				var found = result.FirstOrDefault(x => x.NomenclatureId == equipment.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += equipment.Count;
+					found.Amount += isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
 				}
 				else
 				{
@@ -3858,7 +3858,7 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = equipment.Nomenclature.Id,
 						Nomenclature = equipment.Nomenclature,
-						Amount = equipment.Count
+						Amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count
 					});
 				}
 			}

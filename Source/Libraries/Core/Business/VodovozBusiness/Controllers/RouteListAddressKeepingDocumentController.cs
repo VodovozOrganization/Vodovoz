@@ -106,7 +106,7 @@ namespace Vodovoz.Controllers
 					{
 						RouteListAddressKeepingDocument = routeListKeepingDocument,
 						Nomenclature = item.Nomenclature,
-						Amount = item.Count * (-amountSign)
+						Amount = item.CurrentCount * (-amountSign)
 					};
 
 					routeListKeepingDocumentItem.CreateOrUpdateOperation();
@@ -162,7 +162,7 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocument.Items.Clear();
 			}
 
-			foreach(var item in routeListItem.Order.GetAllGoodsToDeliver())
+			foreach(var item in routeListItem.Order.GetAllGoodsToDeliver(true))
 			{
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 

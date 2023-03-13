@@ -1020,8 +1020,11 @@ namespace Vodovoz.Domain.Logistic
 					}
 					Discrepancy discrepancy = null;
 
-					if(address.TransferedTo == null
-						   || new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }.Contains(address.TransferedTo.AddressTransferType.Value))
+					var isNotFromHandsToHandsTransfer = address.TransferedTo == null 
+					    || (address.TransferedTo.AddressTransferType != null 
+					        && new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }.Contains(address.TransferedTo.AddressTransferType.Value));
+
+					if(isNotFromHandsToHandsTransfer)
 					{
 						discrepancy = new Discrepancy
 						{
@@ -1136,7 +1139,7 @@ namespace Vodovoz.Domain.Logistic
 
 				var discrepancy = new Discrepancy
 				{
-					Name = nomenclature.ShortName,
+					Name = nomenclature.Name,
 					Nomenclature = nomenclature
 				};
 
