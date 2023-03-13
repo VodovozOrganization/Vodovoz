@@ -65,6 +65,7 @@ namespace RevenueService.Client
 					BranchType = branchTypeParser.Parse(suggestion.data.branch_type),
 					CounterpartyType = personTypeParser.Parse(suggestion.data.type),
 					Opf = suggestion.data.opf?.@short,
+					OpfFull = suggestion.data.opf?.@full,
 					Emails = suggestion.data.emails?.Select(x => x.value).ToArray(),
 					Phones = suggestion.data.phones?.Select(x => x.value).ToArray(),
 					State = suggestion.data.state.status.ToString()

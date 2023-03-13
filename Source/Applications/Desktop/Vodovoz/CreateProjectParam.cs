@@ -40,6 +40,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
@@ -48,6 +49,7 @@ using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Dialogs.Organizations;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -76,6 +78,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewers.Complaints;
 using Vodovoz.Models;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
@@ -118,6 +121,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -233,6 +237,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
 				.RegisterWidgetForTabViewModel<ClientCameFromViewModel, ClientCameFromView>()
+				.RegisterWidgetForTabViewModel<OrganizationOwnershipTypeViewModel, OrganizationOwnershipTypeView>()
 				.RegisterWidgetForTabViewModel<FuelTypeViewModel, FuelTypeView>()
 				.RegisterWidgetForTabViewModel<FuelWriteoffDocumentViewModel, FuelWriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()
@@ -349,6 +354,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForWidgetViewModel<DriverMessageFilterViewModel, DriverMessageFilterView>()
 				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
+				.RegisterWidgetForWidgetViewModel<OrganizationOwnershipTypeJournalFilterViewModel, OrganizationOwnershipTypeJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
 				.RegisterWidgetForWidgetViewModel<IncomeCategoryJournalFilterViewModel, IncomeCategoryJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ExpenseCategoryJournalFilterViewModel, ExpenseCategoryJournalFilterView>()
@@ -419,8 +425,9 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CarsMonitoringViewModel, CarsMonitoringView>()
 				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryPercentCoverageReportViewModel, FastDeliveryPercentCoverageReportView>()
+				.RegisterWidgetForWidgetViewModel<TrueMarkReceiptOrderJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
 				;
-
+			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
@@ -583,6 +590,10 @@ namespace Vodovoz
 				.As<IWidgetResolver>()
 				.As<IGtkViewResolver>();
 
+			builder.RegisterType<TrueMarkCodesPool>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
 			#region Adapters & Factories
 
 			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
@@ -662,15 +673,7 @@ namespace Vodovoz
 
 			builder.Register(context => CallTaskSingletonFactory.GetInstance()).As<ICallTaskFactory>();
 
-			builder.Register(context => new CallTaskWorker(
-					context.Resolve<ICallTaskFactory>(),
-					context.Resolve<ICallTaskRepository>(),
-					context.Resolve<IOrderRepository>(),
-					context.Resolve<IEmployeeRepository>(),
-					context.Resolve<IPersonProvider>(),
-					context.Resolve<IUserService>(),
-					context.Resolve<IErrorReporter>()))
-				.As<ICallTaskWorker>();
+			builder.RegisterType<CallTaskWorker>().As<ICallTaskWorker>();
 
 			#endregion
 
@@ -764,6 +767,8 @@ namespace Vodovoz
 			builder.RegisterType<UserPermissionNode>()
 				.AsSelf()
 				.As<IPermissionNode>();
+
+			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			#endregion
 		}

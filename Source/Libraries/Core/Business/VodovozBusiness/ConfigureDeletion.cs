@@ -209,6 +209,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
 			DeleteConfig.AddHibernateDeleteInfo<RoboatsStreet>();
 			DeleteConfig.AddHibernateDeleteInfo<RoboatsWaterType>();
+			DeleteConfig.AddHibernateDeleteInfo<OrganizationOwnershipType>();
 
 			#endregion
 
