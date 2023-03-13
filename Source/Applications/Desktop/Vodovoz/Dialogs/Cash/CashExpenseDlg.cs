@@ -319,7 +319,7 @@ namespace Vodovoz
 					var driverBalanceWithoutFutureFines = _wagesMovementRepository.GetDriverWageBalanceWithoutFutureFines(UoW, employee.Id);
 					var driverFutureFinesBalance = _wagesMovementRepository.GetDriverFutureFinesBalance(UoW, employee.Id);
 
-					labelTemplate += "\n<span font='large' weight='bold'>Будущие штрафы: {1}</span>"; 
+					labelTemplate += " <span font='large' weight='bold'>Будущие штрафы: {1}</span>"; 
 					
 					ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, CurrencyWorks.GetShortCurrencyString(driverBalanceWithoutFutureFines), CurrencyWorks.GetShortCurrencyString(driverFutureFinesBalance));
 
