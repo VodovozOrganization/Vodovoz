@@ -247,7 +247,7 @@ namespace Vodovoz
 				.AddColumn("Дата").AddTextRenderer(node => node.Date)
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 				.AddColumn("Бутыли").AddTextRenderer(node => node.BottlesCount)
-				.AddColumn("Статус").AddEnumRenderer(node => node.Status)
+				.AddColumn("Статус").AddTextRenderer(node => node.RouteListItem.RouteList == null ? "" : node.Status.GetEnumTitle())
 				.AddColumn("Доставка\nза час")
 					.AddToggleRenderer(x => x.IsFastDelivery).Editing(false);
 
@@ -577,6 +577,8 @@ namespace Vodovoz
                     }
 
                     AddOrderInRouteListEnRoute(routeListTo, row.RouteListItem.Order);
+
+                    RouteListItemsFrom.Remove(row);
                 }
                 else
                 {
@@ -906,13 +908,18 @@ namespace Vodovoz
 
         private void SelectNewOrdersForRouteListEnRoute()
         {
-            var filter = new OrderJournalFilterViewModel(
+	        var routeListItemsTo = evmeRouteListTo.Subject as RouteList;
+	        var routeListToItems = routeListItemsTo?.Addresses.Select(t => t.Order.Id) ?? new List<int>();
+
+	        var filter = new OrderJournalFilterViewModel(
                 new CounterpartyJournalFactory(),
                 new DeliveryPointJournalFactory(),
                 new EmployeeJournalFactory())
             {
-                ExceptIds = RouteListItemsFrom.Select(x => x.RouteListItem.Order.Id).ToArray()
-            };
+				ExceptIds = RouteListItemsFrom.Select(f => f.RouteListItem.Order.Id)
+					.Concat(routeListToItems)
+					.ToArray()
+			};
 
             filter.SetAndRefilterAtOnce(
                 x => x.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate,
