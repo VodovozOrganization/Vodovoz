@@ -191,6 +191,7 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeCashier]));
 			w13.LeftAttach = ((uint)(3));
 			w13.RightAttach = ((uint)(4));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.evmeEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
@@ -336,6 +337,7 @@ namespace Vodovoz
 			w25.BottomAttach = ((uint)(2));
 			w25.LeftAttach = ((uint)(3));
 			w25.RightAttach = ((uint)(4));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
@@ -359,7 +361,7 @@ namespace Vodovoz
 			w27.TopAttach = ((uint)(4));
 			w27.BottomAttach = ((uint)(5));
 			w27.LeftAttach = ((uint)(1));
-			w27.RightAttach = ((uint)(2));
+			w27.RightAttach = ((uint)(4));
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
