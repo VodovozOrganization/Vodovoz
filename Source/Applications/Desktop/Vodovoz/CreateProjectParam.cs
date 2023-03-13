@@ -672,15 +672,7 @@ namespace Vodovoz
 
 			builder.Register(context => CallTaskSingletonFactory.GetInstance()).As<ICallTaskFactory>();
 
-			builder.Register(context => new CallTaskWorker(
-					context.Resolve<ICallTaskFactory>(),
-					context.Resolve<ICallTaskRepository>(),
-					context.Resolve<IOrderRepository>(),
-					context.Resolve<IEmployeeRepository>(),
-					context.Resolve<IPersonProvider>(),
-					context.Resolve<IUserService>(),
-					context.Resolve<IErrorReporter>()))
-				.As<ICallTaskWorker>();
+			builder.RegisterType<CallTaskWorker>().As<ICallTaskWorker>();
 
 			#endregion
 
@@ -725,6 +717,7 @@ namespace Vodovoz
 			builder.RegisterType<BaseParametersProvider>()
 				.As<ITerminalNomenclatureProvider>()
 				.As<IProfitCategoryProvider>()
+				.As<IPersonProvider>()
 				.AsSelf();
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))
