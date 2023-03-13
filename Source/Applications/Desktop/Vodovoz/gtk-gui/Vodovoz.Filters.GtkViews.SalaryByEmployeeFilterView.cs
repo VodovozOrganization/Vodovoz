@@ -42,6 +42,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.scrolledwindow2 = new global::Gtk.ScrolledWindow();
 			this.scrolledwindow2.CanFocus = true;
 			this.scrolledwindow2.Name = "scrolledwindow2";
+			this.scrolledwindow2.VscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.scrolledwindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child scrolledwindow2.Gtk.Container+ContainerChild
 			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
