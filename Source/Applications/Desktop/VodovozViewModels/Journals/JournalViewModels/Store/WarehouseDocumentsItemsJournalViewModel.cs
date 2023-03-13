@@ -2,10 +2,14 @@
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using QS.Tdi;
 using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -14,21 +18,29 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
+using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
+using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
 	public class WarehouseDocumentsItemsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<WarehouseDocumentsItemsJournalNode, WarehouseDocumentsItemsJournalFilterViewModel>
 	{
 		private Type[] _documentItemsTypes;
+		private readonly IGtkTabsOpener _gtkTabsOpener;
 
 		public WarehouseDocumentsItemsJournalViewModel(
 			WarehouseDocumentsItemsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices)
+			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			IGtkTabsOpener gtkTabsOpener)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			NavigationManager = navigationManager;
+
 			TabName = "Журнал строк складских документов";
 
 			_documentItemsTypes = new[]
@@ -47,99 +59,145 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			SearchEnabled = false;
 
+			UseSlider = false;
+
 			RegisterDocumentItems(_documentItemsTypes);
 
 			UpdateOnChanges(_documentItemsTypes);
+
+			UpdateAllEntityPermissions();
+			CreateNodeActions();
+			CreatePopupActions();
+			_gtkTabsOpener = gtkTabsOpener;
+		}
+
+		protected override void CreatePopupActions()
+		{
 		}
 
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateOpenDocumentAction();
+		}
+
+		protected void CreateOpenDocumentAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<WarehouseDocumentsItemsJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					WarehouseDocumentsItemsJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanUpdate;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<WarehouseDocumentsItemsJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					WarehouseDocumentsItemsJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
 		}
 
 		private void RegisterDocumentItems(Type[] types)
 		{
 			RegisterEntity(GetQueryIncomingInvoiceItem)
 				.AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
+					() => null,
+					(node) => NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => node.EntityType == typeof(IncomingInvoiceItem))
+					.FinishConfiguration();
 
-			RegisterEntity(GetQueryIncomingWaterMaterial).AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
+			RegisterEntity(GetQueryIncomingWaterMaterial)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => _gtkTabsOpener.OpenIncomingWaterDlg(node.DocumentId),
+					(node) => node.EntityType == typeof(IncomingWaterMaterial))
+					.FinishConfiguration();
 
-			RegisterEntity(GetQueryMovementDocumentItem).AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
+			RegisterEntity(GetQueryMovementDocumentItem)
+				.AddDocumentConfiguration(
+					() => null,
+					(node) => NavigationManager.OpenViewModel<MovementDocumentViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => node.EntityType == typeof(MovementDocumentItem))
+					.FinishConfiguration();
 
 			RegisterEntity(GetQueryWriteoffDocumentItem)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => _gtkTabsOpener.OpenWriteoffDocumentDlg(node.DocumentId),
+					(node) => node.EntityType == typeof(WriteoffDocumentItem))
+					.FinishConfiguration();
+
+			RegisterEntity(GetQuerySelfDeliveryDocumentItem)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => _gtkTabsOpener.OpenSelfDeliveryDocumentDlg(node.DocumentId),
+					(node) => node.EntityType == typeof(SelfDeliveryDocumentItem))
+					.FinishConfiguration();
+
+			RegisterEntity(GetQueryCarLoadDocumentItem)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => _gtkTabsOpener.OpenCarLoadDocumentDlg(node.DocumentId),
+					(node) => node.EntityType == typeof(CarLoadDocumentItem))
+					.FinishConfiguration();
+
+			RegisterEntity(GetQueryCarUnloadDocumentItem)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => _gtkTabsOpener.OpenCarUnloadDocumentDlg(node.DocumentId),
+					(node) => node.EntityType == typeof(CarUnloadDocumentItem))
+					.FinishConfiguration();
+
+			RegisterEntity(GetQueryInventoryDocumentItem)
 				.AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
+					() => null,
+					(node) => NavigationManager.OpenViewModel<InventoryDocumentViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => node.EntityType == typeof(InventoryDocumentItem))
+					.FinishConfiguration();
 
-			RegisterEntity(GetQuerySelfDeliveryDocumentItem).AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
+			RegisterEntity(GetQueryShiftChangeWarehouseDocumentItem)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => _gtkTabsOpener.OpenShiftChangeWarehouseDocumentDlg(node.DocumentId),
+					(node) => node.EntityType == typeof(ShiftChangeWarehouseDocumentItem))
+					.FinishConfiguration();
 
-			RegisterEntity(GetQueryCarLoadDocumentItem).AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
-
-			RegisterEntity(GetQueryCarUnloadDocumentItem).AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
-
-			RegisterEntity(GetQueryInventoryDocumentItem).AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
-
-			RegisterEntity(GetQueryShiftChangeWarehouseDocumentItem).AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
-
-			RegisterEntity(GetQueryRegradingOfGoodsDocumentItem).AddDocumentConfiguration(
-				() => null,
-				(node) => null,
-				(node) => node.EntityType == null,
-				"Empty",
-				new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true })
-				.FinishConfiguration();
+			RegisterEntity(GetQueryRegradingOfGoodsDocumentItem)
+				.AddDocumentConfiguration<ITdiTab>(
+					() => null,
+					(node) => _gtkTabsOpener.OpenRegradingOfGoodsDocumentDlg(node.DocumentId),
+					(node) => node.EntityType == typeof(RegradingOfGoodsDocumentItem))
+					.FinishConfiguration();
 
 			var dataLoader = DataLoader as ThreadDataLoader<WarehouseDocumentsItemsJournalNode>;
 			dataLoader.MergeInOrderBy(node => node.Date, true);
@@ -512,7 +570,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => carLoadDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => carLoadDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<MovementDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<CarLoadDocumentItem>>());
 		}
 
 		private IQueryOver<CarUnloadDocumentItem> GetQueryCarUnloadDocumentItem(IUnitOfWork unitOfWork)
@@ -600,8 +658,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var inventoryQuery = unitOfWork.Session.QueryOver(() => inventoryDocumentItemAlias)
 				.JoinQueryOver(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-			if((FilterViewModel.DocumentType == null || FilterViewModel.RestrictDocumentType == DocumentType.InventoryDocument) &&
-				FilterViewModel.RestrictDriver == null)
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.InventoryDocument) &&
+				FilterViewModel.Driver == null)
 			{
 				inventoryQuery.Where(FilterViewModel.GetWarehouseSpecification<InventoryDocument>().IsSatisfiedBy())
 					.And(FilterViewModel.GetPeriodSpecification<InventoryDocument>().IsSatisfiedBy());
