@@ -40,6 +40,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
@@ -765,6 +766,8 @@ namespace Vodovoz
 			builder.RegisterType<UserPermissionNode>()
 				.AsSelf()
 				.As<IPermissionNode>();
+
+			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			#endregion
 		}
