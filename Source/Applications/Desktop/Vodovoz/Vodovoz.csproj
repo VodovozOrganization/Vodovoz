@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -458,6 +458,7 @@
     <Compile Include="JournalColumnsConfigs\DeliveryPointByClientJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointResponsiblePersonTypeJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\DeliveryPriceRuleJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryScheduleJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DiscountReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DistrictJournalRegistrar.cs" />
@@ -493,6 +494,7 @@
     <Compile Include="JournalColumnsConfigs\OrderForRouteListJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrderJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrganizationCashTransferDocumentJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OrganizationOwnershipTypeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\PaidRentPackagesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\PaymentsFromJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\PaymentsJournalRegistrar.cs" />
@@ -1083,8 +1085,6 @@
     <Compile Include="Representations\TraineeVM.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureCharacteristicsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView.cs" />
-    <Compile Include="Dialogs\Sale\DeliveryPriceRuleDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceRuleDlg.cs" />
     <Compile Include="ServiceDialogs\ImportPaymentsFromTinkoffDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ImportPaymentsFromTinkoffDlg.cs" />
     <Compile Include="ServiceDialogs\PaymentsFromTinkoffParser.cs" />
@@ -1864,23 +1864,30 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarsMonitoringView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.cs" />
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
+    <Compile Include="Views\Sale\DeliveryPriceRuleView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Sale.DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
     <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
     <Compile Include="Views\Warehouse\Documents\InventoryDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.Documents.InventoryDocumentView.cs" />
     <Compile Include="Views\Reports\FastDeliveryPercentCoverageReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.FastDeliveryPercentCoverageReportView.cs" />
+    <Compile Include="Dialogs\Organizations\OrganizationOwnershipTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Organizations.OrganizationOwnershipTypeView.cs" />
+    <Compile Include="Filters\GtkViews\OrganizationOwnershipTypeJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrganizationOwnershipTypeJournalFilterView.cs" />
     <Compile Include="Views\Complaints\ComplaintDetalizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintDetalizationView.cs" />
     <Compile Include="Filters\GtkViews\ComplaintDetalizationJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintDetalizationJournalFilterView.cs" />
     <Compile Include="Views\Client\CounterpartyDetailsFromRevenueServiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyDetailsFromRevenueServiceView.cs" />
+    <Compile Include="Filters\Views\TrueMarkReceiptJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Views\Warehouse\Documents\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2366,7 +2373,7 @@
       <Name>VodovozViewModels</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
-      <Project>{08DCE339-CA3B-4D68-AF84-9625483283D5}</Project>
+      <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
     </ProjectReference>
   </ItemGroup>

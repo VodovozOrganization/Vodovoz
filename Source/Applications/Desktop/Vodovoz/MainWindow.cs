@@ -133,6 +133,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
@@ -1518,6 +1519,11 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(journal);
 	}
 
+	protected void OnActionOrganizationOwnershipTypeActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OrganizationOwnershipTypeJournalViewModel>(null);
+	}
+
 	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1552,18 +1558,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveryPriceRulesActivated(object sender, EventArgs e)
 	{
-		bool right = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_price_rules");
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<DeliveryPriceRule>(),
-			() =>
-			{
-				var dlg = new OrmReference(typeof(DeliveryPriceRule))
-				{
-					ButtonMode = right ? ReferenceButtonMode.CanAll : ReferenceButtonMode.None
-				};
-				return dlg;
-			}
-		);
+		NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(null);
 	}
 
 	protected void OnOnLineActionActivated(object sender, EventArgs e)
@@ -2239,7 +2234,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
 			() => new QSReport.ReportViewDlg(new CounterpartyReport(
-				new SalesChannelJournalFactory(), 
+				new SalesChannelJournalFactory(),
 				new DistrictJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));
