@@ -130,7 +130,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public string SecondWarehouse { get; set; }
 
-		public int Amount { get; set; }
+		public decimal Amount { get; set; }
 
 		public string CarModelName { get; set; }
 

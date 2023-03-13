@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
@@ -153,6 +154,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse warehouseAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var invoiceQuery = unitOfWork.Session.QueryOver(() => incomingInvoiceItemAlias)
 				.Left.JoinQueryOver(() => incomingInvoiceItemAlias.Document, () => invoiceAlias);
@@ -170,6 +172,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return invoiceQuery
+				.Left.JoinAlias(() => incomingInvoiceItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => invoiceAlias.Contractor, () => counterpartyAlias)
 				.Left.JoinAlias(() => invoiceAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => invoiceAlias.Author, () => authorAlias)
@@ -190,6 +193,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => warehouseAlias.Name)))
 					.WithAlias(() => resultAlias.Warehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => incomingInvoiceItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -210,7 +215,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse warehouseAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
-			Nomenclature productAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var waterQuery = unitOfWork.Session.QueryOver(() => incomingWaterMaterialAlias)
 				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
@@ -231,7 +236,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => incomingWaterAlias.ToWarehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.Product, () => productAlias)
+				.Left.JoinAlias(() => incomingWaterAlias.Product, () => nomenclatureAlias)
 				.SelectList(list => list
 					.Select(() => incomingWaterMaterialAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => incomingWaterAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -242,8 +247,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => warehouseAlias.Name)))
 					.WithAlias(() => resultAlias.Warehouse)
-					.Select(() => productAlias.Name).WithAlias(() => resultAlias.ProductName)
-					.Select(() => incomingWaterAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => incomingWaterMaterialAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -266,6 +271,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			MovementWagon movementWagonAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
 				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
@@ -283,6 +289,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return movementQuery
+				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => secondWarehouseAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
@@ -306,6 +313,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => secondWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.SecondWarehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => movementDocumentItemAlias.SendedAmount).WithAlias(() => resultAlias.Amount) // Нужно проверять (RecievedAmount не совпадает в части записей)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -328,6 +337,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse warehouseAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var writeoffQuery = unitOfWork.Session.QueryOver(() => writeoffDocumentItemAlias)
 				.JoinQueryOver(() => writeoffDocumentItemAlias.Document, () => writeoffDocumentAlias);
@@ -344,6 +354,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return writeoffQuery
+				.Left.JoinAlias(() => writeoffDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => writeoffDocumentAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => writeoffDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => writeoffDocumentAlias.Author, () => authorAlias)
@@ -363,6 +374,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant(string.Empty, NHibernateUtil.String),
 						Projections.Property(() => warehouseAlias.Name)))
 					.WithAlias(() => resultAlias.Warehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => writeoffDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -387,6 +400,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Counterparty counterpartyAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var selfDeliveryQuery = unitOfWork.Session.QueryOver(() => selfDeliveryDocumentItemAlias)
 				.JoinQueryOver(() => selfDeliveryDocumentItemAlias.Document, () => selfDeliveryDocumentAlias);
@@ -404,6 +418,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return selfDeliveryQuery
+				.Left.JoinAlias(() => selfDeliveryDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
@@ -417,6 +432,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocTypeEnum)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => selfDeliveryDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -442,6 +459,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee driverAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var carLoadQuery = unitOfWork.Session.QueryOver(() => carLoadDocumentItemAlias)
 				.JoinQueryOver(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
@@ -463,6 +481,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return carLoadQuery
+				.Left.JoinAlias(() => carLoadDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => carLoadDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => carLoadDocumentAlias.RouteList, () => routeListAlias)
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
@@ -481,6 +500,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => carLoadDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -507,6 +528,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee driverAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			WarehouseMovementOperation warehouseMovementOperationAlias = null;
 
 			var carUnloadQuery = unitOfWork.Session.QueryOver(() => carUnLoadDocumentItemAlias)
 					.JoinQueryOver(() => carUnLoadDocumentItemAlias.Document, () => carUnLoadDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
@@ -528,6 +551,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return carUnloadQuery
+				.Left.JoinAlias(() => carUnLoadDocumentItemAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias) // Нет данных в самом айтеме
+				.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => carUnLoadDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => carUnLoadDocumentAlias.RouteList, () => routeListAlias)
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
@@ -546,6 +571,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -568,6 +595,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse warehouseAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var inventoryQuery = unitOfWork.Session.QueryOver(() => inventoryDocumentItemAlias)
 				.JoinQueryOver(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
@@ -584,6 +612,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return inventoryQuery
+				.Left.JoinAlias(() => inventoryDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.LastEditor, () => lastEditorAlias)
@@ -593,6 +622,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => inventoryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.InventoryDocument).WithAlias(() => resultAlias.DocTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => inventoryDocumentItemAlias.AmountInFact).WithAlias(() => resultAlias.Amount) // AmountinDb AmountinFact???
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -615,6 +646,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse warehouseAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var shiftchangeQuery = unitOfWork.Session.QueryOver(() => shiftChangeWarehouseDocumentItemAlias)
 				.JoinQueryOver(() => shiftChangeWarehouseDocumentItemAlias.Document, () => shiftChangeWarehouseDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
@@ -631,6 +663,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return shiftchangeQuery
+				.Left.JoinAlias(() => shiftChangeWarehouseDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.LastEditor, () => lastEditorAlias)
@@ -640,6 +673,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => shiftChangeWarehouseDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact).WithAlias(() => resultAlias.Amount)  // AmountinDb AmountinFact???
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -662,6 +697,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse warehouseAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var regrandingQuery = unitOfWork.Session.QueryOver(() => regradingOfGoodsDocumentItemAlias)
 				.JoinQueryOver(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
@@ -678,6 +714,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return regrandingQuery
+				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureNew, () => nomenclatureAlias) //NomenclatureNew NomenclatureOld???
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
@@ -687,6 +724,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => regradingOfGoodsDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
