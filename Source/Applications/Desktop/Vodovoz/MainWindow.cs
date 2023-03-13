@@ -170,6 +170,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly IPasswordValidator passwordValidator;
 	private readonly IApplicationConfigurator applicationConfigurator;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
+	private readonly IComplaintNotificationController _complaintNotificationController;
 	private readonly bool _hasAccessToSalariesForLogistics;
 
 	public TdiNotebook TdiMain => tdiMain;
@@ -316,10 +317,11 @@ public partial class MainWindow : Gtk.Window
 		#endregion
 
 		#region Уведомление об отправленных перемещениях для подразделения
-
+		
+		int employeeSubdivisionId;
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			var employeeSubdivisionId = GetEmployeeSubdivisionId(uow);
+			employeeSubdivisionId = GetEmployeeSubdivisionId(uow);
 			_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), employeeSubdivisionId));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
@@ -334,6 +336,28 @@ public partial class MainWindow : Gtk.Window
 
 		btnUpdateMovementsNotification.Clicked += OnBtnUpdateMovementsNotificationClicked;
 
+		#endregion
+
+		#region Уведомление о наличии незакрытых рекламаций без комментариев отдела
+
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), employeeSubdivisionId));
+
+			var notificationDetails = _complaintNotificationController.GetNotificationDetails(uow);
+			hboxComplaintsNotification.Visible = notificationDetails.NeedNotify;
+			vseparatorNotifications.Visible = notificationDetails.NeedNotify;
+			lblComplaintsNotification.Markup = notificationDetails.NotificationMessage;
+
+			if(notificationDetails.NeedNotify)
+			{
+				_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
+			}
+		}
+
+		btnUpdateOpenComplaint.Clicked += OnBtnOpenComplaintClicked;
+
+		hboxNotifications.Visible = hboxMovementsNotification.Visible || hboxComplaintsNotification.Visible;
 		#endregion
 
 		BanksUpdater.CheckBanksUpdate(false);
@@ -399,8 +423,7 @@ public partial class MainWindow : Gtk.Window
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ProfitabilitySalesReportViewModel));
 	}
 
-	#region Методы для уведомления об отправленных перемещениях для подразделения
-
+	#region Уведомления об отправленных перемещениях и о наличии рекламаций
 	private int GetEmployeeSubdivisionId(IUnitOfWork uow)
 	{
 		var currentEmployee =
@@ -409,6 +432,7 @@ public partial class MainWindow : Gtk.Window
 		return currentEmployee?.Subdivision.Id ?? 0;
 	}
 
+	#region Методы для уведомления об отправленных перемещениях для подразделения
 	private void OnBtnUpdateMovementsNotificationClicked(object sender, EventArgs e)
 	{
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
@@ -422,6 +446,19 @@ public partial class MainWindow : Gtk.Window
 	{
 		lblMovementsNotification.Markup = notification;
 	}
+	#endregion
+
+	#region Методы для уведомления о наличии незакрытых рекламаций без комментариев для подразделения
+	private void UpdateSendedComplaintsNotification(string notification)
+	{
+		lblComplaintsNotification.Markup = notification;
+	}
+
+	private void OnBtnOpenComplaintClicked(object sender, EventArgs e)
+	{
+		//#TODO открытие рекламации
+	}
+	#endregion
 
 	#endregion
 
