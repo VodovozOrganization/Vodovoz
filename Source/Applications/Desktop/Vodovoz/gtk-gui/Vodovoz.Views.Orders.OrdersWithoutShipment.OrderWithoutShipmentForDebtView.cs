@@ -153,6 +153,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.entityViewModelEntryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entityViewModelEntryCounterparty.Name = "entityViewModelEntryCounterparty";
 			this.entityViewModelEntryCounterparty.CanEditReference = false;
+			this.entityViewModelEntryCounterparty.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.entityViewModelEntryCounterparty);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityViewModelEntryCounterparty]));
 			w11.Position = 1;
@@ -178,7 +179,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.yspinbtnDebtSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.yspinbtnDebtSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000000D, 1D);
 			this.yspinbtnDebtSum.CanFocus = true;
 			this.yspinbtnDebtSum.Name = "yspinbtnDebtSum";
 			this.yspinbtnDebtSum.Adjustment.PageIncrement = 10D;
