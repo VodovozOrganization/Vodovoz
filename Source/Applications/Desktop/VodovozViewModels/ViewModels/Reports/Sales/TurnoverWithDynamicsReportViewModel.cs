@@ -31,6 +31,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
@@ -853,14 +854,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias);
 
 			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
-				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id)
+				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id
+					|| phoneAlias.Id == orderAlias.ContactPhone.Id)
 				.AndNot(() => phoneAlias.IsArchive)
 				.Select(
 					CustomProjections.GroupConcat(
-						CustomProjections.Concat_WS(
-							"",
-							Projections.Constant("8"),
-							Projections.Property(() => phoneAlias.DigitsNumber)),
+						PhoneProjections.GetDigitNumberLeadsWith8(),
 						separator: ",\n"));
 
 			#region filter parameters
