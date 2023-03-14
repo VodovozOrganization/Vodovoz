@@ -32,14 +32,6 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DocumentType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
-			evmeWarehouse.SetEntityAutocompleteSelectorFactory(ViewModel.WarehouseJournalFactory.CreateSelectorFactory());
-
-			evmeWarehouse.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanChangeWarehouse, w => w.Sensitive)
-				.AddBinding(vm => vm.CanUpdateWarehouse, w => w.CanEditReference)
-				.AddBinding(vm => vm.Warehouse, w => w.Subject)
-				.InitializeFromSource();
-
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeDriver, w => w.Sensitive)
