@@ -753,6 +753,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			VodovozCounterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			Phone phoneAlias = null;
+			Phone orderContactPhoneAlias = null;
 
 			OrderItemNode resultNodeAlias = null;
 
@@ -844,6 +845,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.PromoSet, () => promotionalSetAlias)
 				.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
+				.Left.JoinAlias(() => orderAlias.ContactPhone, () => orderContactPhoneAlias)
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
@@ -854,8 +856,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias);
 
 			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
-				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id
-					|| phoneAlias.Id == orderAlias.ContactPhone.Id)
+				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id)
 				.AndNot(() => phoneAlias.IsArchive)
 				.Select(
 					CustomProjections.GroupConcat(
@@ -1081,6 +1082,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId)
 						.Select(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName)
 						.SelectSubQuery(counterpartyPhonesSubquery).WithAlias(() => resultNodeAlias.CounterpartyPhones)
+						.Select(PhoneProjections.GetOrderContactDigitNumberLeadsWith8()).WithAlias(() => resultNodeAlias.OrderContactPhone)
 						.Select(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName)
 						.Select(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate)
