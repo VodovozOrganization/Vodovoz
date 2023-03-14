@@ -1,5 +1,7 @@
 ﻿using QS.Project.Journal;
+using Gamma.Utilities;
 using Vodovoz.Domain.Employees;
+using System;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 {
@@ -24,5 +26,14 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 		public decimal AvgSalary { get; set; }
 		public string SubdivisionTitle { get; set; }
 		public decimal Balance { get; set; }
+	}
+
+	public class EmployeeWithLastWorkingDayJournalNode : EmployeeJournalNode
+	{
+		public DateTime? LastWorkingDay { get; set; }
+
+		public string LastWorkingDayString => LastWorkingDay?.ToShortDateString();
+		public string EmployeeCategoryString => EmpCatEnum.GetEnumTitle();
+		public string StatusString => Status.GetEnumTitle();
 	}
 }
