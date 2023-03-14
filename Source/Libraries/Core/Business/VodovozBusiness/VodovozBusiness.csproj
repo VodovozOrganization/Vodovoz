@@ -564,6 +564,7 @@
     <Compile Include="Models\FastPaymentSender.cs" />
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
+    <Compile Include="Models\INomenclaturePurchasePriceModel.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\NomenclatureCostPriceModel.cs" />
     <Compile Include="Models\NomenclatureGroupPricingModel.cs" />

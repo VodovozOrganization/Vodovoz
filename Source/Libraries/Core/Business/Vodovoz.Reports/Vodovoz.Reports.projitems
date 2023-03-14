@@ -16,6 +16,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\WayBillReportOneDayGroupPrint.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Cash\SalaryByEmployeeJournalReport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Orders\EdoUpdReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
