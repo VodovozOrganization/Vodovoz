@@ -77,6 +77,30 @@ namespace Vodovoz.EntityRepositories.Complaints
 			return query.Select(Projections.Count<Complaint>(c => c.Id)).SingleOrDefault<int>();
 		}
 
+		/// <summary>
+		/// Возвращает список id незакрытых рекламаций, в которых подключена дискуссия для указанного
+		/// отдела, но комментарии в ней отсутствуют
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="subdivisionId">id отдела для которого выполняется поиск рекламаций</param>
+		/// <returns>Список id рекламаций</returns>
+		public List<int> GetUnclosedWithNoCommentsComplaintIdsBySubdivision(IUnitOfWork uow, int subdivisionId)
+		{
+			var ids = new List<int>();
+
+			Complaint complaintAlias = null;
+			ComplaintDiscussion complaintDiscussionAlias = null;
+			ComplaintDiscussionComment complaintDiscussionCommentAlias = null;
+
+			var query = uow.Session.QueryOver(() => complaintAlias)
+				.JoinAlias(() => complaintAlias, () => complaintDiscussionAlias.Complaint)
+				.JoinAlias(() => complaintDiscussionAlias, () => complaintDiscussionCommentAlias.ComplaintDiscussion)
+				.Where(() => complaintAlias.Status != ComplaintStatuses.Closed)
+				.Where(() => complaintDiscussionAlias.Subdivision.Id == subdivisionId)
+				.Select(Projections.Group(() => complaintDiscussionCommentAlias.Id));
+			return ids;
+		}
+
 		public IEnumerable<DriverComplaintReason> GetDriverComplaintReasons(IUnitOfWork unitOfWork)
 		{
 			DriverComplaintReason driverComplaintReasonAlias = null;
