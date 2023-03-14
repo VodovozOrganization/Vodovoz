@@ -598,36 +598,36 @@ namespace Vodovoz.EntityRepositories.Orders
 				)
 			);
 
-			var paymentTypeRestriction = Restrictions.Disjunction()
-				.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.PaymentType == PaymentType.cash)
-					.Add(() => counterpartyAlias.AlwaysSendReceipts))
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
-					.Add(Restrictions.Disjunction()
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
+			//var paymentTypeRestriction = Restrictions.Disjunction()
+			//	.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
+			//	.Add(Restrictions.Conjunction()
+			//		.Add(() => orderAlias.PaymentType == PaymentType.cash)
+			//		.Add(() => counterpartyAlias.AlwaysSendReceipts))
+			//	.Add(Restrictions.Conjunction()
+			//		.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
+			//		.Add(Restrictions.Disjunction()
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
 
-			var statusRestriction = Restrictions.Disjunction()
-				.Add(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
-					new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed }))
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.SelfDelivery)
-					.Add(() => orderAlias.IsSelfDeliveryPaid)
-					.Add(() => counterpartyAlias.PersonType == PersonType.natural)
-				);
+			//var statusRestriction = Restrictions.Disjunction()
+			//	.Add(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
+			//		new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed }))
+			//	.Add(Restrictions.Conjunction()
+			//		.Add(() => orderAlias.SelfDelivery)
+			//		.Add(() => orderAlias.IsSelfDeliveryPaid)
+			//		.Add(() => counterpartyAlias.PersonType == PersonType.natural)
+			//	);
 
-			var positiveSumRestriction = Restrictions.Gt(orderSumProjection, 0);
+			//var positiveSumRestriction = Restrictions.Gt(orderSumProjection, 0);
 
-			var notSentRestriction = Restrictions.Disjunction()
-				.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
-				.Add(() => !cashReceiptAlias.Sent);
+			//var notSentRestriction = Restrictions.Disjunction()
+			//	.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
+			//	.Add(() => !cashReceiptAlias.Sent);
 
-			var ordersToSendQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
+			/*var ordersToSendQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
 				.JoinEntityQueryOver(() => trueMarkCashReceiptOrderAlias, Restrictions.Where(() => orderAlias.Id == trueMarkCashReceiptOrderAlias.Order.Id))
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
@@ -636,23 +636,23 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(Restrictions.In(Projections.Property(() => trueMarkCashReceiptOrderAlias.Status), new[] { TrueMarkCashReceiptOrderStatus.ReadyToSend, TrueMarkCashReceiptOrderStatus.ReceiptSendError } ))
 				.And(statusRestriction)
 				.And(positiveSumRestriction)
-				.And(notSentRestriction);
+				.And(notSentRestriction);*/
 
-			if(startDate.HasValue)
-			{
-				ordersToSendQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
-			}
+			//if(startDate.HasValue)
+			//{
+			//	ordersToSendQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+			//}
 
-			var ordersToSend = ordersToSendQuery
+			/*var ordersToSend = ordersToSendQuery
 				.SelectList(list => list
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => cashReceiptAlias.Id).WithAlias(() => resultAlias.ReceiptId)
 					.Select(() => cashReceiptAlias.Sent).WithAlias(() => resultAlias.WasSent)
 					.Select(() => trueMarkCashReceiptOrderAlias.Id).WithAlias(() => resultAlias.TrueMarkCashReceiptOrderId))
 				.TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
-				.List<ReceiptForOrderNode>();
+				.List<ReceiptForOrderNode>();*/
 
-			return ordersToSend;
+			return null;// ordersToSend;
 		}
 
 		public IEnumerable<int> GetSelfdeliveryOrderIdsForCashReceipt(IUnitOfWork uow, IOrderParametersProvider orderParametersProvider)
@@ -663,36 +663,36 @@ namespace Vodovoz.EntityRepositories.Orders
 			Counterparty counterpartyAlias = null;
 			TrueMarkCashReceiptOrder trueMarkCashReceiptOrderAlias = null;
 
-			var orderSumProjection = Projections.Sum(
-				Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.Decimal, "CAST(IFNULL(?1 * ?2 - ?3, 0) AS DECIMAL(14,2))"),
-					NHibernateUtil.Decimal,
-					Projections.Property(() => orderItemAlias.Count),
-					Projections.Property(() => orderItemAlias.Price),
-					Projections.Property(() => orderItemAlias.DiscountMoney)
-				)
-			);
+			//var orderSumProjection = Projections.Sum(
+			//	Projections.SqlFunction(
+			//		new SQLFunctionTemplate(NHibernateUtil.Decimal, "CAST(IFNULL(?1 * ?2 - ?3, 0) AS DECIMAL(14,2))"),
+			//		NHibernateUtil.Decimal,
+			//		Projections.Property(() => orderItemAlias.Count),
+			//		Projections.Property(() => orderItemAlias.Price),
+			//		Projections.Property(() => orderItemAlias.DiscountMoney)
+			//	)
+			//);
 
-			var paymentTypeRestriction = Restrictions.Disjunction()
-				.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.PaymentType == PaymentType.cash)
-					.Add(() => counterpartyAlias.AlwaysSendReceipts))
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
-					.Add(Restrictions.Disjunction()
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
+			//var paymentTypeRestriction = Restrictions.Disjunction()
+			//	.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
+			//	.Add(Restrictions.Conjunction()
+			//		.Add(() => orderAlias.PaymentType == PaymentType.cash)
+			//		.Add(() => counterpartyAlias.AlwaysSendReceipts))
+			//	.Add(Restrictions.Conjunction()
+			//		.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
+			//		.Add(Restrictions.Disjunction()
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
 
 			var statusRestriction = Restrictions.Conjunction()
 				.Add(() => orderAlias.SelfDelivery)
 				.Add(() => orderAlias.IsSelfDeliveryPaid)
 				.Add(() => counterpartyAlias.PersonType == PersonType.natural);
 
-			var positiveSumRestriction = Restrictions.Gt(orderSumProjection, 0);
+			//var positiveSumRestriction = Restrictions.Gt(orderSumProjection, 0);
 
 			var notSentRestriction = Restrictions.Disjunction()
 				.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
@@ -704,9 +704,9 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(Restrictions.IsNull(Projections.Property(() => trueMarkCashReceiptOrderAlias.Id)))
-				.Where(paymentTypeRestriction)
+				//.Where(paymentTypeRestriction)
 				.And(statusRestriction)
-				.And(positiveSumRestriction)
+				//.And(positiveSumRestriction)
 				.And(notSentRestriction);
 
 			ordersToSendQuery.Where(() => orderAlias.DeliveryDate >= DateTime.Today.AddDays(-3));
@@ -727,49 +727,50 @@ namespace Vodovoz.EntityRepositories.Orders
 			CashReceipt cashReceiptAlias = null;
 			Counterparty counterpartyAlias = null;
 
-			var orderSumProjection = Projections.Sum(
-				Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.Decimal, "CAST(IFNULL(?1 * ?2 - ?3, 0) AS DECIMAL(14,2))"),
-					NHibernateUtil.Decimal,
-					Projections.Property(() => orderItemAlias.Count),
-					Projections.Property(() => orderItemAlias.Price),
-					Projections.Property(() => orderItemAlias.DiscountMoney)
-				)
-			);
+			//var orderSumProjection = Projections.Sum(
+			//	Projections.SqlFunction(
+			//		new SQLFunctionTemplate(NHibernateUtil.Decimal, "CAST(IFNULL(?1 * ?2 - ?3, 0) AS DECIMAL(14,2))"),
+			//		NHibernateUtil.Decimal,
+			//		Projections.Property(() => orderItemAlias.Count),
+			//		Projections.Property(() => orderItemAlias.Price),
+			//		Projections.Property(() => orderItemAlias.DiscountMoney)
+			//	)
+			//);
 
-			var paymentTypeRestriction = Restrictions.Disjunction()
-				.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.PaymentType == PaymentType.cash)
-					.Add(() => counterpartyAlias.AlwaysSendReceipts))
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
-					.Add(Restrictions.Disjunction()
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
+			//var paymentTypeRestriction = Restrictions.Disjunction()
+			//	.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
+			//	.Add(Restrictions.Conjunction()
+			//		.Add(() => orderAlias.PaymentType == PaymentType.cash)
+			//		.Add(() => counterpartyAlias.AlwaysSendReceipts))
+			//	.Add(Restrictions.Conjunction()
+			//		.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
+			//		.Add(Restrictions.Disjunction()
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
+			//			.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
 
 			var statusRestriction = Restrictions.Conjunction()
 					.Add(() => orderAlias.SelfDelivery)
 					.Add(() => orderAlias.IsSelfDeliveryPaid)
 					.Add(() => counterpartyAlias.PersonType == PersonType.legal);
 
-			var positiveSumRestriction = Restrictions.Gt(orderSumProjection, 0);
+			//var positiveSumRestriction = Restrictions.Gt(orderSumProjection, 0);
 
-			var notSentRestriction = Restrictions.Disjunction()
-				.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
-				.Add(() => !cashReceiptAlias.Sent);
+			//var notSentRestriction = Restrictions.Disjunction()
+			//	.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
+			//	.Add(() => !cashReceiptAlias.Sent);
 
 			var ordersToSendQuery = uow.Session.QueryOver(() => orderAlias)
 				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Where(paymentTypeRestriction)
+				//.Where(paymentTypeRestriction)
 				.And(statusRestriction)
-				.And(positiveSumRestriction)
-				.And(notSentRestriction);
+				//.And(positiveSumRestriction)
+				//.And(notSentRestriction)
+				;
 
 			if(startDate.HasValue)
 			{

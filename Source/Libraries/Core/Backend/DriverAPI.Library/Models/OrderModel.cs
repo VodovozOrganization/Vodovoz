@@ -386,7 +386,7 @@ namespace DriverAPI.Library.Models
 		private TrueMarkCashReceiptProductCode CreateTrueMarkCodeEntity(string code, TrueMarkCashReceiptOrder trueMarkCashReceiptOrder, OrderItem orderItem)
 		{
 			var orderProductCode = new TrueMarkCashReceiptProductCode();
-			orderProductCode.TrueMarkCashReceiptOrder = trueMarkCashReceiptOrder;
+			orderProductCode.CashReceipt = trueMarkCashReceiptOrder;
 			orderProductCode.OrderItem = orderItem;
 
 			TrueMarkWaterIdentificationCode codeEntity;

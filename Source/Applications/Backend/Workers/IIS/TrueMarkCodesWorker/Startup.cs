@@ -46,7 +46,7 @@ namespace TrueMarkCodesWorker
 					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
-			services.AddHostedService<CodesHandleWorker>();
+			services.AddHostedService<ReceiptsHandleWorker>();
 
 			CreateBaseConfig();
 		}
@@ -84,11 +84,11 @@ namespace TrueMarkCodesWorker
 				.As<IParametersProvider>()
 				.SingleInstance();
 
-			builder.RegisterType<TrueMarkCodesHandler>()
+			builder.RegisterType<ReceiptsHandler>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
-			builder.RegisterType<TrueMarkSelfDeliveriesHandler>()
+			builder.RegisterType<SelfdeliveryReceiptCreator>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 

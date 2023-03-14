@@ -1,6 +1,4 @@
-﻿using NHibernate;
-using NHibernate.Util;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,6 +6,10 @@ using System.Linq;
 
 namespace Vodovoz.Models.TrueMark
 {
+
+	// После обновления базы данных до версии 10.6 
+	// необходимо поменять работу пула кодов на логику 
+	// использующую SELECT SKIP LOCKED
 	public class TrueMarkCodesPool
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;

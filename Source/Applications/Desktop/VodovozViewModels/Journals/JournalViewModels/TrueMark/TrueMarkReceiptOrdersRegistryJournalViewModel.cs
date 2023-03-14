@@ -127,12 +127,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				var query = uow.Session.QueryOver(() => trueMarkReceiptCodeAlias)
 					.Left.JoinAlias(() => trueMarkReceiptCodeAlias.SourceCode, () => trueMarkSourceCodeAlias)
 					.Left.JoinAlias(() => trueMarkReceiptCodeAlias.ResultCode, () => trueMarkResultCodeAlias)
-					.Where(Restrictions.In(Projections.Property(() => trueMarkReceiptCodeAlias.TrueMarkCashReceiptOrder.Id), parentNodes.Select(x => x.Id).ToArray()));
+					.Where(Restrictions.In(Projections.Property(() => trueMarkReceiptCodeAlias.CashReceipt.Id), parentNodes.Select(x => x.Id).ToArray()));
 
 				query.SelectList(list => list
 					.SelectGroup(() => trueMarkReceiptCodeAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(Projections.Constant(TrueMarkOrderNodeType.Code)).WithAlias(() => resultAlias.NodeType)
-					.Select(() => trueMarkReceiptCodeAlias.TrueMarkCashReceiptOrder.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => trueMarkReceiptCodeAlias.CashReceipt.Id).WithAlias(() => resultAlias.ParentId)
 					.Select(() => trueMarkReceiptCodeAlias.OrderItem.Id).WithAlias(() => resultAlias.OrderAndItemId)
 					.Select(() => trueMarkReceiptCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsDefectiveCode)
 					.Select(() => trueMarkReceiptCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateCode)

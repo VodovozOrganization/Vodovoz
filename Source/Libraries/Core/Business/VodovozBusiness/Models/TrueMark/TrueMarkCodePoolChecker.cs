@@ -1,40 +1,34 @@
 ﻿using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TrueMarkApi.Library;
-using TrueMarkApi.Library.Dto;
-using Vodovoz.Domain.TrueMark;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Edo;
 
 namespace Vodovoz.Models.TrueMark
 {
 	public class TrueMarkCodePoolChecker
 	{
-		private readonly ILogger<TrueMarkSelfDeliveriesHandler> _logger;
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly TrueMarkApiClient _trueMarkApiClient;
+		private readonly ILogger<SelfdeliveryReceiptCreator> _logger;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
-		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
+		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoSettings _edoSettings;
 
 		public TrueMarkCodePoolChecker(
-			ILogger<TrueMarkSelfDeliveriesHandler> logger, 
-			IUnitOfWorkFactory uowFactory, 
-			TrueMarkApiClient trueMarkApiClient,
+			ILogger<SelfdeliveryReceiptCreator> logger,
 			TrueMarkCodesPool trueMarkCodesPool,
-			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
+			TrueMarkCodesChecker trueMarkCodesChecker,
+			ITrueMarkRepository trueMarkRepository,
 			IEdoSettings edoSettings
 		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
-			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
+			_trueMarkCodesChecker = trueMarkCodesChecker ?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
+			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_edoSettings = edoSettings;
 		}
 
@@ -71,87 +65,47 @@ namespace Vodovoz.Models.TrueMark
 			var codeIdsToPromote = new List<int>();
 			var codeIdsToDelete = new List<int>();
 
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			_logger.LogInformation("Загружаем сущности с подробной информацией о кодах.");
+
+			var selectedCodes = _trueMarkRepository.LoadWaterCodes(selectedCodeIds);
+
+			var toSkip = 0;
+
+			while(selectedCodes.Count() > toSkip)
 			{
-				_logger.LogInformation("Загружаем сущности с подробной информацией о кодах.");
+				var codesToCheck = selectedCodes.Skip(toSkip).Take(100);
+				toSkip += 100;
 
-				var selectedCodes = uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
-					.WhereRestrictionOn(x => x.Id).IsIn(selectedCodeIds)
-					.List();
+				_logger.LogInformation("Отправка на проверку {0}/{1} кодов.", codesToCheck.Count(), selectedCodeIds.Count);
 
-				var toSkip = 0;
+				await Task.Delay(2000);
+				var checkResults = await _trueMarkCodesChecker.CheckCodesAsync(codesToCheck, cancellationToken);
 
-				while(selectedCodes.Count > toSkip)
+				foreach(var checkResult in checkResults)
 				{
-					var codesToCheck = selectedCodes.Skip(toSkip).Take(100);
-					toSkip += 100;
-
-					_logger.LogInformation("Отправка на проверку {0}/{1} кодов.", codesToCheck.Count(), selectedCodeIds.Count);
-
-					await Task.Delay(2000);
-					var checkResult = await CheckCodes(codesToCheck, cancellationToken);
-
-					var validCodesIds = checkResult.ValidCodes.Select(x => x.Id);
-					codeIdsToPromote.AddRange(validCodesIds);
-
-					var invalidCodesIds = checkResult.InvalidCodes.Select(x => x.Id);
-					codeIdsToDelete.AddRange(invalidCodesIds);
-				}
-
-				if(codeIdsToPromote.Any())
-				{
-					var extraSecondsPromotion = _edoSettings.CodePoolPromoteWithExtraSeconds;
-					_logger.LogInformation("Продвижение {0} проверенных кодов на верх пула на дополнительыне {1} секунд сверх текущего времени.", codeIdsToPromote.Count, extraSecondsPromotion);
-					_trueMarkCodesPool.PromoteCodes(codeIdsToPromote, extraSecondsPromotion);
-				}
-
-				if(codeIdsToDelete.Any())
-				{
-					_logger.LogInformation("Удаление из пула {0} кодов не прошедших проверку.", codeIdsToDelete.Count);
-					_trueMarkCodesPool.DeleteCodes(codeIdsToDelete);
-				}
-			}
-		}
-
-		private async Task<CheckResult> CheckCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
-		{
-			var result = new CheckResult();
-
-			var productCodes = codes.ToDictionary(x => _trueMarkWaterCodeParser.GetWaterIdentificationCode(x));
-
-			var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(productCodes.Keys, cancellationToken);
-
-			if(!string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
-			{
-				throw new TrueMarkException($"Не удалось получить информацию о состоянии товаров в системе Честный знак. Подробности: {productInstancesInfo.ErrorMessage}");
-			}
-
-			foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
-			{
-				var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode, out TrueMarkWaterIdentificationCode code);
-				if(!codeFound)
-				{
-					_logger.LogError("Проверенный в системе Честный знак, код ({0}) не был найден среди отправленных на проверку.", instanceStatus.IdentificationCode);
-					continue;
-				}
-
-				if(instanceStatus.Status == ProductInstanceStatusEnum.Introduced)
-				{
-					result.ValidCodes.Add(code);
-				}
-				else
-				{
-					result.InvalidCodes.Add(code);
+					if(checkResult.Introduced)
+					{
+						codeIdsToPromote.Add(checkResult.Code.Id);
+					}
+					else
+					{
+						codeIdsToDelete.Add(checkResult.Code.Id);
+					}
 				}
 			}
 
-			return result;
-		}
+			if(codeIdsToPromote.Any())
+			{
+				var extraSecondsPromotion = _edoSettings.CodePoolPromoteWithExtraSeconds;
+				_logger.LogInformation("Продвижение {0} проверенных кодов на верх пула на дополнительыне {1} секунд сверх текущего времени.", codeIdsToPromote.Count, extraSecondsPromotion);
+				_trueMarkCodesPool.PromoteCodes(codeIdsToPromote, extraSecondsPromotion);
+			}
 
-		private class CheckResult
-		{
-			public List<TrueMarkWaterIdentificationCode> ValidCodes { get; set; } = new List<TrueMarkWaterIdentificationCode>();
-			public List<TrueMarkWaterIdentificationCode> InvalidCodes { get; set; } = new List<TrueMarkWaterIdentificationCode>();
+			if(codeIdsToDelete.Any())
+			{
+				_logger.LogInformation("Удаление из пула {0} кодов не прошедших проверку.", codeIdsToDelete.Count);
+				_trueMarkCodesPool.DeleteCodes(codeIdsToDelete);
+			}
 		}
 	}
 }

@@ -1468,6 +1468,22 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
+		/// Вся положительная изначальная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveOriginalSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderItem item in ObservableOrderItems)
+				{
+					sum += item.Sum;
+				}
+				return sum;
+			}
+		}
+
+		/// <summary>
 		/// Вся отрицательная сумма заказа
 		/// </summary>
 		public virtual decimal OrderNegativeSum {

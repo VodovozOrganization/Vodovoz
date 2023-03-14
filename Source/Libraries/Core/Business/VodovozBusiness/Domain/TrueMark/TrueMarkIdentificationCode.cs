@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Models.TrueMark;
 
@@ -54,6 +55,17 @@ namespace Vodovoz.Domain.TrueMark
 		{
 			get => _checkCode;
 			set => SetField(ref _checkCode, value);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is TrueMarkWaterIdentificationCode code &&
+				   _rawCode == code._rawCode;
+		}
+
+		public override int GetHashCode()
+		{
+			return -1155050507 + EqualityComparer<string>.Default.GetHashCode(_rawCode);
 		}
 	}
 }

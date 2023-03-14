@@ -15,6 +15,7 @@ using QS.Project.HibernateMapping;
 using System.Reflection;
 using TrueMarkApi.Library;
 using TrueMarkCodesWorker;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.HibernateMapping.Organizations;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.NhibernateExtensions;
@@ -64,6 +65,14 @@ namespace TrueMarkCodePoolCheckWorker
 			builder.RegisterType<DefaultUnitOfWorkFactory>()
 				.As<IUnitOfWorkFactory>()
 				.SingleInstance();
+
+			builder.RegisterType<TrueMarkRepository>()
+				.As<ITrueMarkRepository>()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<TrueMarkCodesChecker>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
 
 			builder.RegisterType<TrueMarkCodePoolChecker>()
 				.AsSelf()

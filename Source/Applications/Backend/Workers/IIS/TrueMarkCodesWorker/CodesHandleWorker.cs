@@ -8,25 +8,22 @@ using Vodovoz.Settings.Edo;
 
 namespace TrueMarkCodesWorker
 {
-	public class CodesHandleWorker : TimerBackgroundServiceBase
+	public class ReceiptsHandleWorker : TimerBackgroundServiceBase
 	{
-		private readonly ILogger<CodesHandleWorker> _logger;
+		private readonly ILogger<ReceiptsHandleWorker> _logger;
 		private readonly IEdoSettings _edoSettings;
-		private readonly TrueMarkCodesHandler _trueMarkCodesHandler;
-		private readonly TrueMarkSelfDeliveriesHandler _trueMarkSelfDeliveriesHandler;
+		private readonly ReceiptsHandler _receiptsHandler;
 		private readonly TimeSpan _interval;
 		private bool _isRunning = false;
 
-		public CodesHandleWorker(
-			ILogger<CodesHandleWorker> logger, 
+		public ReceiptsHandleWorker(
+			ILogger<ReceiptsHandleWorker> logger, 
 			IEdoSettings edoSettings, 
-			TrueMarkCodesHandler trueMarkCodesHandler, 
-			TrueMarkSelfDeliveriesHandler trueMarkSelfDeliveriesHandler)
+			ReceiptsHandler receiptsHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
-			_trueMarkCodesHandler = trueMarkCodesHandler ?? throw new ArgumentNullException(nameof(trueMarkCodesHandler));
-			_trueMarkSelfDeliveriesHandler = trueMarkSelfDeliveriesHandler ?? throw new ArgumentNullException(nameof(trueMarkSelfDeliveriesHandler));
+			_receiptsHandler = receiptsHandler ?? throw new ArgumentNullException(nameof(receiptsHandler));
 			_interval = TimeSpan.FromMinutes(_edoSettings.TrueMarkCodesHandleInterval);
 		}
 		protected override TimeSpan Interval => _interval;
@@ -42,9 +39,11 @@ namespace TrueMarkCodesWorker
 
 			try
 			{
-				_logger.LogInformation("Вызов обработки кодов честного знака");
-				await _trueMarkCodesHandler.HandleOrders(stoppingToken);
-				_trueMarkSelfDeliveriesHandler.HandleOrders();
+				_logger.LogInformation("Вызов обработки чеков");
+				await _receiptsHandler.HandleReceiptsAsync(stoppingToken);
+
+				_logger.LogInformation("Вызов создания чеков для самовывозов");
+				await _receiptsHandler.CreateSelfdeliveryReceiptsAsync(stoppingToken);
 			}
 			catch(Exception ex)
 			{
@@ -58,12 +57,12 @@ namespace TrueMarkCodesWorker
 
 		protected override void OnStartService()
 		{
-			_logger.LogInformation("Запущен сервис обработки кодов честного знака");
+			_logger.LogInformation("Запущен сервис обработки чеков");
 		}
 
 		protected override void OnStopService()
 		{
-			_logger.LogInformation("Остановлен сервис обработки кодов честного знака");
+			_logger.LogInformation("Остановлен сервис обработки чеков");
 		}
 	}
 }
