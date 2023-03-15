@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.EntityFactories;
@@ -10,11 +10,11 @@ namespace Vodovoz.Domain
 {
 	public class NomenclatureFixedPriceController : INomenclatureFixedPriceProvider 
     {
-        private readonly NomenclatureFixedPriceFactory nomenclatureFixedPriceFactory;
+        private readonly INomenclatureFixedPriceFactory nomenclatureFixedPriceFactory;
         private readonly WaterFixedPricesGenerator waterFixedPricesGenerator;
 
         public NomenclatureFixedPriceController(
-        	NomenclatureFixedPriceFactory nomenclatureFixedPriceFactory,
+			INomenclatureFixedPriceFactory nomenclatureFixedPriceFactory,
             WaterFixedPricesGenerator waterFixedPricesGenerator) 
 		{
             this.nomenclatureFixedPriceFactory = nomenclatureFixedPriceFactory ??
