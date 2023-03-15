@@ -84,21 +84,23 @@ namespace Vodovoz.EntityRepositories.Complaints
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="subdivisionId">id отдела для которого выполняется поиск рекламаций</param>
 		/// <returns>Список id рекламаций</returns>
-		public List<int> GetUnclosedWithNoCommentsComplaintIdsBySubdivision(IUnitOfWork uow, int subdivisionId)
+		public IList<int> GetUnclosedWithNoCommentsComplaintIdsBySubdivision(IUnitOfWork uow, int subdivisionId)
 		{
-			var ids = new List<int>();
-
 			Complaint complaintAlias = null;
 			ComplaintDiscussion complaintDiscussionAlias = null;
 			ComplaintDiscussionComment complaintDiscussionCommentAlias = null;
 
-			var query = uow.Session.QueryOver(() => complaintAlias)
-				.JoinAlias(() => complaintAlias, () => complaintDiscussionAlias.Complaint)
-				.JoinAlias(() => complaintDiscussionAlias, () => complaintDiscussionCommentAlias.ComplaintDiscussion)
+			var ids = uow.Session.QueryOver(() => complaintDiscussionAlias)
+				.Left.JoinAlias(() => complaintDiscussionAlias.Complaint, () => complaintAlias)
+				.Left.JoinAlias(() => complaintDiscussionAlias.Comments, () => complaintDiscussionCommentAlias)
 				.Where(() => complaintAlias.Status != ComplaintStatuses.Closed)
 				.Where(() => complaintDiscussionAlias.Subdivision.Id == subdivisionId)
-				.Select(Projections.Group(() => complaintDiscussionCommentAlias.Id));
-			return ids;
+				.SelectList(list => list
+					.Select(Projections.Group(() => complaintAlias.Id))
+					.Select(Projections.Count(() => complaintDiscussionCommentAlias.Id)))
+				.List<object[]>();
+
+			return ids.Where(o => (int)o[1] == 0).Select(o => (int)o[0]).ToList();
 		}
 
 		public IEnumerable<DriverComplaintReason> GetDriverComplaintReasons(IUnitOfWork unitOfWork)
