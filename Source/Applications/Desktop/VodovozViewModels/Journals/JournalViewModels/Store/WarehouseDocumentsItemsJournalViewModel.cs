@@ -192,7 +192,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					(node) => node.EntityType == typeof(ShiftChangeWarehouseDocumentItem))
 					.FinishConfiguration();
 
-			RegisterEntity(GetQueryRegradingOfGoodsDocumentItem)
+			RegisterEntity<RegradingOfGoodsDocumentItem>(
+				new Func<IUnitOfWork, IQueryOver<RegradingOfGoodsDocumentItem>>[]
+				{
+					GetQueryRegradingOfGoodsWriteoffDocumentItem,
+					GetQueryRegradingOfGoodsIncomeDocumentItem
+				}.AsEnumerable())
 				.AddDocumentConfiguration<ITdiTab>(
 					() => null,
 					(node) => _gtkTabsOpener.OpenRegradingOfGoodsDocumentDlg(node.DocumentId),
@@ -372,7 +377,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Property(() => secondWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.SecondWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
-					.Select(() => movementDocumentItemAlias.SendedAmount).WithAlias(() => resultAlias.Amount) // Нужно проверять (RecievedAmount не совпадает в части записей)
+					.Select(() => movementDocumentItemAlias.ReceivedAmount - movementDocumentItemAlias.SendedAmount)
+						.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -681,7 +687,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => DocumentType.InventoryDocument).WithAlias(() => resultAlias.DocTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
-					.Select(() => inventoryDocumentItemAlias.AmountInFact).WithAlias(() => resultAlias.Amount) // AmountinDb AmountinFact???
+					.Select(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB)
+						.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -732,7 +739,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
-					.Select(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact).WithAlias(() => resultAlias.Amount)  // AmountinDb AmountinFact???
+					.Select(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact - shiftChangeWarehouseDocumentItemAlias.AmountInDB)
+						.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -745,7 +753,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<ShiftChangeWarehouseDocumentItem>>());
 		}
 
-		private IQueryOver<RegradingOfGoodsDocumentItem> GetQueryRegradingOfGoodsDocumentItem(IUnitOfWork unitOfWork)
+		private IQueryOver<RegradingOfGoodsDocumentItem> GetQueryRegradingOfGoodsWriteoffDocumentItem(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem> resultAlias = null;
 
@@ -772,7 +780,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return regrandingQuery
-				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureNew, () => nomenclatureAlias) //NomenclatureNew NomenclatureOld???
+				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureOld, () => nomenclatureAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
@@ -783,7 +791,60 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
-					.Select(() => regradingOfGoodsDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => -regradingOfGoodsDocumentItemAlias.Amount)
+						.WithAlias(() => resultAlias.Amount)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => regradingOfGoodsDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => regradingOfGoodsDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+				.OrderBy(x => x.TimeStamp).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem>>());
+		}
+
+		private IQueryOver<RegradingOfGoodsDocumentItem> GetQueryRegradingOfGoodsIncomeDocumentItem(IUnitOfWork unitOfWork)
+		{
+			WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem> resultAlias = null;
+
+			RegradingOfGoodsDocumentItem regradingOfGoodsDocumentItemAlias = null;
+			RegradingOfGoodsDocument regradingOfGoodsDocumentAlias = null;
+
+			Warehouse warehouseAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var regrandingQuery = unitOfWork.Session.QueryOver(() => regradingOfGoodsDocumentItemAlias)
+				.JoinQueryOver(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
+
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument) &&
+				FilterViewModel.Driver == null)
+			{
+				regrandingQuery.Where(FilterViewModel.GetWarehouseSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy())
+					.And(FilterViewModel.GetPeriodSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
+			}
+			else
+			{
+				regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.Id == -1);
+			}
+
+			return regrandingQuery
+				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureNew, () => nomenclatureAlias)
+				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
+				.SelectList(list => list
+					.Select(() => regradingOfGoodsDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => regradingOfGoodsDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => regradingOfGoodsDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Warehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => regradingOfGoodsDocumentItemAlias.Amount)
+						.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
