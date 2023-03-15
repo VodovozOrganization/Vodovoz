@@ -1881,17 +1881,27 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddEquipmentNomenclatureFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
+		public virtual void AddEquipmentNomenclatureFromClient(
+			Nomenclature nomenclature,
+			IUnitOfWork UoW,
+			int count = 0,
+			Direction direction = Direction.PickUp,
+			DirectionReason directionReason = DirectionReason.None,
+			OwnTypes ownType = OwnTypes.None,
+			Reason reason = Reason.Service)
 		{
 			ObservableOrderEquipments.Add(
 				new OrderEquipment {
 					Order = this,
-					Direction = Direction.PickUp,
+					Direction = direction,
 					Equipment = null,
 					OrderItem = null,
-					Reason = Reason.Service,
+					OwnType = ownType,
+					DirectionReason = directionReason,
+					Reason = reason,
 					Confirmed = true,
-					Nomenclature = nomenclature
+					Nomenclature = nomenclature,
+					Count = count
 				}
 			);
 			UpdateDocuments();
