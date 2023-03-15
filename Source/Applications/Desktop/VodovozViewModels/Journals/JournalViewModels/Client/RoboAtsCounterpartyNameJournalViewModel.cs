@@ -18,10 +18,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 	public class RoboAtsCounterpartyNameJournalViewModel : SingleEntityJournalViewModelBase<RoboAtsCounterpartyName, RoboAtsCounterpartyNameViewModel,
 		RoboAtsCounterpartyNameJournalNode>
 	{
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private OpenViewModelCommand _openViewModelCommand;
 
-		public RoboAtsCounterpartyNameJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices)
+		public RoboAtsCounterpartyNameJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, IRoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices)
 			: base(unitOfWorkFactory, commonServices)
 		{
 			TabName = "Имена контрагентов Roboats";

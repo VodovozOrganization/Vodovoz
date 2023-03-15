@@ -305,10 +305,10 @@ namespace DeliveryRulesService.Controllers
 			return rules.Select(rule => new DeliveryRuleDTO
 			{
 				Bottles19l = rule.DeliveryPriceRule.Water19LCount.ToString(),
-				Bottles6l = rule.DeliveryPriceRule.Water6LCount,
-				Bottles1500ml = rule.DeliveryPriceRule.Water1500mlCount,
-				Bottles600ml = rule.DeliveryPriceRule.Water600mlCount,
-				Bottles500ml = rule.DeliveryPriceRule.Water500mlCount,
+				Bottles6l = rule.DeliveryPriceRule.Water6LCount.ToString(),
+				Bottles1500ml = rule.DeliveryPriceRule.Water1500mlCount.ToString(),
+				Bottles600ml = rule.DeliveryPriceRule.Water600mlCount.ToString(),
+				Bottles500ml = rule.DeliveryPriceRule.Water500mlCount.ToString(),
 				MinOrder = $"{rule.DeliveryPriceRule.OrderMinSumEShopGoods}",
 				Price = $"{rule.Price:N0}"
 			})

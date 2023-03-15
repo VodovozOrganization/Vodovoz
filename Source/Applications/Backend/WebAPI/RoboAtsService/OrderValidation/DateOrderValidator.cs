@@ -8,10 +8,10 @@ namespace RoboatsService.OrderValidation
 {
 	public sealed class DateOrderValidator : OrderValidatorBase
 	{
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 		private int _ordersInMonths => _roboatsSettings.OrdersInMonths;
 
-		public DateOrderValidator(RoboatsSettings roboatsSettings)
+		public DateOrderValidator(IRoboatsSettings roboatsSettings)
 		{
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 		}

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using GMap.NET;
@@ -10,6 +9,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.Tdi;
 using QS.Utilities.Text;
 using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
@@ -19,25 +19,27 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
 {
     public sealed class DistrictsSetViewModel : EntityTabViewModelBase<DistrictsSet>
     {
-        public DistrictsSetViewModel(IEntityUoWBuilder uowBuilder,
+		public DistrictsSetViewModel(IEntityUoWBuilder uowBuilder,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IEntityDeleteWorker entityDeleteWorker,
             IEmployeeRepository employeeRepository,
             IDistrictRuleRepository districtRuleRepository,
 			IDeliveryScheduleJournalFactory deliveryScheduleJournalFactory,
-			INavigationManager navigation = null)
+			INavigationManager navigation)
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
             _entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
             DistrictRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
 			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Районы с графиками доставки";
 
@@ -50,7 +52,7 @@ namespace Vodovoz.ViewModels.Logistic
 
             var districtPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
             CanEditDistrict = districtPermissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
-            CanEditDeliveryRules = CanEditDistrict || commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_rules");
+            CanEditDeliveryRules = (CanEditDistrict || commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_rules")) && Entity.Status != DistrictsSetStatus.Active;
 			CanDeleteDistrict = (districtPermissionResult.CanDelete || districtPermissionResult.CanCreate && Entity.Id == 0) && Entity.Status != DistrictsSetStatus.Active;
             CanCreateDistrict = districtPermissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
 
@@ -75,8 +77,9 @@ namespace Vodovoz.ViewModels.Logistic
         private readonly IEntityDeleteWorker _entityDeleteWorker;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
 		private readonly GeometryFactory _geometryFactory;
+		private ICommonServices _commonServices;
 
-        public readonly bool CanChangeDistrictWageTypePermissionResult;
+		public readonly bool CanChangeDistrictWageTypePermissionResult;
         public readonly bool CanEditDistrict;
         public readonly bool CanEditDeliveryRules;
 		public readonly bool CanEditDeliveryScheduleRestriction;
@@ -353,21 +356,6 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedScheduleRestriction != null
         ));
 
-        private DelegateCommand<IEnumerable<DeliveryPriceRule>> addWeekDayDistrictRuleItemCommand;
-        public DelegateCommand<IEnumerable<DeliveryPriceRule>> AddWeekDayDistrictRuleItemCommand => addWeekDayDistrictRuleItemCommand ?? (addWeekDayDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRule>>(
-            ruleItems => {
-                foreach (var ruleItem in ruleItems) {
-                    if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id)) {
-                        WeekDayDistrictRuleItems.Add(new WeekDayDistrictRuleItem {
-                            District = SelectedDistrict, WeekDay = SelectedWeekDayName.Value, Price = 0,
-                            DeliveryPriceRule = ruleItem
-                        });
-                    }
-                }
-            },
-            ruleItems => ruleItems.Any()
-        ));
-
         private DelegateCommand removeWeekDayDistrictRuleItemCommand;
         public DelegateCommand RemoveWeekDayDistrictRuleItemCommand => removeWeekDayDistrictRuleItemCommand ?? (removeWeekDayDistrictRuleItemCommand = new DelegateCommand(
             () => {
@@ -376,21 +364,7 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedWeekDayDistrictRuleItem != null
         ));
 
-        private DelegateCommand<IEnumerable<DeliveryPriceRule>> addCommonDistrictRuleItemCommand;
-        public DelegateCommand<IEnumerable<DeliveryPriceRule>> AddCommonDistrictRuleItemCommand => addCommonDistrictRuleItemCommand ?? (addCommonDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRule>>(
-            ruleItems => {
-                foreach (var ruleItem in ruleItems) {
-                    if(CommonDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id)) {
-                        CommonDistrictRuleItems.Add(new CommonDistrictRuleItem {
-                            District = SelectedDistrict, Price = 0, DeliveryPriceRule = ruleItem
-                        });
-                    }
-                }
-            },
-            ruleItems => ruleItems.Any()
-        ));
-
-        private DelegateCommand removeCommonDistrictRuleItemCommand;
+		private DelegateCommand removeCommonDistrictRuleItemCommand;
         public DelegateCommand RemoveCommonDistrictRuleItemCommand => removeCommonDistrictRuleItemCommand ?? (removeCommonDistrictRuleItemCommand = new DelegateCommand(
             () => {
                 CommonDistrictRuleItems.Remove(SelectedCommonDistrictRuleItem);
@@ -398,7 +372,104 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedCommonDistrictRuleItem != null
         ));
 
-        private DelegateCommand<AcceptBefore> addAcceptBeforeCommand;
+		#region Команда добавления правила цен доставки дня недели
+		private DelegateCommand _addWeekDayDeliveryPriceRuleCommand;
+		public DelegateCommand AddWeekDayDeliveryPriceRuleCommand
+		{
+			get
+			{
+				if(_addWeekDayDeliveryPriceRuleCommand == null)
+				{
+					_addWeekDayDeliveryPriceRuleCommand = new DelegateCommand(AddWeekDayDeliveryPriceRule, () => CanAddWeekDayDeliveryPriceRuleCommand);
+					_addWeekDayDeliveryPriceRuleCommand.CanExecuteChangedWith(this, x => x.CanAddWeekDayDeliveryPriceRuleCommand);
+				}
+				return _addWeekDayDeliveryPriceRuleCommand;
+			}
+		}
+
+		private bool CanAddWeekDayDeliveryPriceRuleCommand => CanEditDeliveryRules;
+
+		private void AddWeekDayDeliveryPriceRule()
+		{
+			var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += JournalOnWeekDayEntitySelectedResult;
+			TabParent.AddSlaveTab(this, journal);
+		}
+
+		private void JournalOnWeekDayEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var node = e.SelectedNodes.FirstOrDefault();
+
+			if (node == null)
+			{
+				return;
+			}
+
+			if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != node.Id))
+			{
+				WeekDayDistrictRuleItems.Add(new WeekDayDistrictRuleItem
+				{
+					District = SelectedDistrict,
+					WeekDay = SelectedWeekDayName.Value,
+					Price = 0,
+					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
+					.Where(d => d.Id == node.Id)
+					.First()
+				});
+			}
+		}
+		#endregion
+
+		#region Команда добавления общего правила цен доставки
+		private DelegateCommand _addCommonDeliveryPriceRuleCommand;
+		public DelegateCommand AddCommonDeliveryPriceRuleCommand
+		{
+			get
+			{
+				if(_addCommonDeliveryPriceRuleCommand == null)
+				{
+					_addCommonDeliveryPriceRuleCommand = new DelegateCommand(AddCommonDeliveryPriceRule, () => CanAddCommonDeliveryPriceRuleCommand);
+					_addCommonDeliveryPriceRuleCommand.CanExecuteChangedWith(this, x => x.CanAddCommonDeliveryPriceRuleCommand);
+				}
+				return _addCommonDeliveryPriceRuleCommand;
+			}
+		}
+
+		private bool CanAddCommonDeliveryPriceRuleCommand => CanEditDeliveryRules;
+
+		private void AddCommonDeliveryPriceRule()
+		{
+			var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
+			journal.SelectionMode = JournalSelectionMode.Single;
+			journal.OnEntitySelectedResult += JournalOnCommonEntitySelectedResult;
+			TabParent.AddSlaveTab(this, journal);
+		}
+
+		private void JournalOnCommonEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var node = e.SelectedNodes.FirstOrDefault();
+
+			if(node == null)
+			{
+				return;
+			}
+
+			if(CommonDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != node.Id))
+			{
+				CommonDistrictRuleItems.Add(new CommonDistrictRuleItem
+				{
+					District = SelectedDistrict,
+					Price = 0,
+					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
+					.Where(d => d.Id == node.Id)
+					.First()
+				});
+			}
+		}
+		#endregion
+
+		private DelegateCommand<AcceptBefore> addAcceptBeforeCommand;
         public DelegateCommand<AcceptBefore> AddAcceptBeforeCommand => addAcceptBeforeCommand ?? (addAcceptBeforeCommand = new DelegateCommand<AcceptBefore>(
             acceptBefore => {
                 SelectedScheduleRestriction.AcceptBefore = acceptBefore;
@@ -414,9 +485,9 @@ namespace Vodovoz.ViewModels.Logistic
             () => SelectedScheduleRestriction != null
         ));
 
-        #endregion
+		#endregion
 
-        private void SortDistricts()
+		private void SortDistricts()
         {
             for(int i = 0; i < Entity.Districts.Count - 1; i++)
             {

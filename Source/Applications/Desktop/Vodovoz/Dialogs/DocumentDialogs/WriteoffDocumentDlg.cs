@@ -40,7 +40,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.WriteoffWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.WriteoffEdit);
+			Entity.Warehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.WriteoffEdit);
 			
 			ConfigureDlg ();
 		}
@@ -59,14 +59,14 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.WriteoffEdit, Entity.WriteoffWarehouse)) {
+			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.WriteoffEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
-			var editing = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.WriteoffEdit, Entity.WriteoffWarehouse);
+			var editing = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.WriteoffEdit, Entity.Warehouse);
 			evmeEmployee.IsEditable = textComment.Editable = editing;
-			writeoffdocumentitemsview1.Sensitive = editing && (Entity.WriteoffWarehouse != null || Entity.Client != null);
+			writeoffdocumentitemsview1.Sensitive = editing && (Entity.Warehouse != null || Entity.Client != null);
 
 			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
 			labelTimeStamp.Binding.AddBinding (Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource ();
@@ -77,9 +77,9 @@ namespace Vodovoz
 			evmeCounterparty.Changed += OnReferenceCounterpartyChanged;
 
 			ySpecCmbWarehouses.ItemsList = _storeDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WriteoffEdit);
-			ySpecCmbWarehouses.Binding.AddBinding (Entity, e => e.WriteoffWarehouse, w => w.SelectedItem).InitializeFromSource ();
+			ySpecCmbWarehouses.Binding.AddBinding (Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource ();
 			ySpecCmbWarehouses.ItemSelected += (sender, e) => {
-				writeoffdocumentitemsview1.Sensitive = editing && (Entity.WriteoffWarehouse != null || Entity.Client != null);
+				writeoffdocumentitemsview1.Sensitive = editing && (Entity.Warehouse != null || Entity.Client != null);
 			};
 
 			var dpFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel);

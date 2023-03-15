@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
@@ -8,10 +9,12 @@ using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Print;
 using QS.Project.Dialogs;
 using QS.Project.Journal;
@@ -19,20 +22,18 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
+using QS.Utilities.Extensions;
+using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
+using SmsPaymentService;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Gamma.ColumnConfig;
-using QS.Navigation;
-using QS.Utilities.Extensions;
-using QS.ViewModels.Extension;
-using SmsPaymentService;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
@@ -78,31 +79,30 @@ using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
+using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using VodovozInfrastructure.Configuration;
+using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using VodovozInfrastructure.Configuration;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
-using Vodovoz.Models.Orders;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Orders;
-using QS.Dialog.GtkUI.FileDialog;
-using Vodovoz.SidePanel.InfoViews;
-using Vodovoz.ViewModels.Dialogs.Email;
-using Vodovoz.ViewModels.Widgets;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
-using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 
 namespace Vodovoz
 {
@@ -121,6 +121,7 @@ namespace Vodovoz
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
+		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
 
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
@@ -201,7 +202,12 @@ namespace Vodovoz
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 
+		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
+		private OrderDlg _slaveOrderDlg = null;
+
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
+
+		private bool _justCreated = false;
 
 		private INomenclatureRepository nomenclatureRepository;
 
@@ -360,6 +366,16 @@ namespace Vodovoz
 			Entity.OrderAddressType = OrderAddressType.Delivery;
 		}
 
+		public OrderDlg(IUnitOfWorkGeneric<Order> unitOfWork)
+		{
+			Build();
+			UoWGeneric = unitOfWork;
+			Entity.OrderStatus = OrderStatus.NewOrder;
+			TabName = "Новый заказ на забор оборудования";
+			Entity.OrderAddressType = OrderAddressType.Delivery;
+			ConfigureDlg();
+		}
+
 		public OrderDlg(Counterparty client, Phone contactPhone) : this()
 		{
 			Entity.Client = UoW.GetById<Counterparty>(client.Id);
@@ -490,6 +506,8 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			_justCreated = UoWGeneric.IsNew;
+
 			if(_currentEmployee == null)
 			{
 				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
@@ -1605,7 +1623,10 @@ namespace Vodovoz
 		public bool CanClose()
 		{
 			if(!canClose)
+			{
 				MessageDialogHelper.RunInfoDialog("Дождитесь завершения задачи и повторите");
+			}
+
 			return canClose;
 		}
 
@@ -1836,6 +1857,9 @@ namespace Vodovoz
 			{
 				return false;
 			}
+
+			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
+
 			if(routeListToAddOrderTo != null && DriverApiParametersProvider.NotificationsEnabled)
 			{
 				NotifyDriver();
@@ -1874,7 +1898,7 @@ namespace Vodovoz
 
 		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
 		{
-			if(AcceptOrder())
+			if(AcceptOrder() && !NeedToCreateOrderForDailyRentEquipmentReturn)
 			{
 				OnCloseTab(false, CloseSource.Save);
 			}
@@ -3924,21 +3948,89 @@ namespace Vodovoz
 			{
 				_summaryInfoBuilder.AppendLine($"{lblContactlessDelivery.Text} {contactlessDelivery}").AppendLine();
 			}
-			
+
 			var commentForDriver = Entity.HasCommentForDriver ? Entity.Comment?.ToUpper() : "";
 			ylblCommentForDriver.Text = commentForDriver;
 
 			_summaryInfoBuilder.AppendLine($"{lblCommentForDriver.Text} {commentForDriver}").AppendLine();
-			
+
 			var commentForLogist = Entity.CommentLogist?.ToUpper();
 			ylblCommentForLogist.Text = commentForLogist;
 
 			_summaryInfoBuilder.Append($"{lblCommentForLogist.Text} {commentForLogist}");
-			
+
 			ntbOrder.GetNthPage(1).Hide();
 			ntbOrder.GetNthPage(1).Show();
 
 			ntbOrder.CurrentPage = 1;
+		}
+
+		private void OpenNewOrderForDailyRentEquipmentReturnIfNeeded()
+		{
+			if(NeedToCreateOrderForDailyRentEquipmentReturn)
+			{
+				_slaveUnitOfWork = CreateNewOrderForDailyRentEquipmentReturn(Entity);
+			}
+
+			if(_slaveOrderDlg != null)
+			{
+				TabParent.SwitchOnTab(_slaveOrderDlg);
+			}
+			else if(_slaveUnitOfWork != null)
+			{
+				_slaveOrderDlg = new OrderDlg(_slaveUnitOfWork);
+
+				TabParent.AddSlaveTab(this, _slaveOrderDlg);
+
+				_slaveOrderDlg.TabClosed += OnSlaveOrderClosed;
+			}
+		}
+
+		private bool NeedToCreateOrderForDailyRentEquipmentReturn => 
+			_justCreated &&
+			Entity.ObservableOrderItems.Any(orderItem =>
+				orderItem.Nomenclature.Id == _nomenclatureParametersProvider.DailyCoolerRentNomenclatureId);
+
+		private void OnSlaveOrderClosed(object sender, EventArgs e)
+		{
+			_slaveOrderDlg.TabClosed -= OnSlaveOrderClosed;
+			SaveAndClose();
+			_justCreated = false;
+		}
+
+		private IUnitOfWorkGeneric<Order> CreateNewOrderForDailyRentEquipmentReturn(Order sourceOrder)
+		{
+			var result = UnitOfWorkFactory.CreateWithNewRoot<Order>();
+
+			result.Root.Client = sourceOrder.Client;
+			result.Root.Author = sourceOrder.Author;
+			result.Root.DeliveryPoint = sourceOrder.DeliveryPoint;
+			result.Root.PaymentType = sourceOrder.PaymentType;
+			result.Root.ContactPhone = sourceOrder.ContactPhone;
+			result.Root.SignatureType = sourceOrder.SignatureType;
+
+			var equipmentItems = sourceOrder.OrderEquipments
+				.Where(oe => oe.OwnType == OwnTypes.Rent
+					&& oe.Reason == Reason.Rent
+					&& oe.Direction == Domain.Orders.Direction.Deliver
+					&& oe.OrderRentDepositItem.RentType == OrderRentType.DailyRent)
+				.Select(oe => (oe.Nomenclature, oe.Count)).ToList();
+
+			foreach(var equipmentItem in equipmentItems)
+			{
+				result.Root.AddEquipmentNomenclatureFromClient(
+					equipmentItem.Nomenclature,
+					result,
+					equipmentItem.Count,
+					Domain.Orders.Direction.PickUp,
+					DirectionReason.Rent,
+					OwnTypes.Rent,
+					Reason.Rent);
+			}
+
+			result.Root.UpdateDocuments();
+
+			return result;
 		}
 
 		protected void OnBtnReturnToEditClicked(object sender, EventArgs e)

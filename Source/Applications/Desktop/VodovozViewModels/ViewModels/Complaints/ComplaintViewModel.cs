@@ -380,12 +380,33 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public bool CanAttachFine => CanEdit;
 
+		public bool CanAddArrangementComment => !string.IsNullOrWhiteSpace(NewArrangementCommentText);
+		public bool CanAddResultComment => !string.IsNullOrWhiteSpace(NewResultCommentText);
+
+		private string _newArrangementCommentText;
+		[PropertyChangedAlso(nameof(CanAddArrangementComment))]
+		public virtual string NewArrangementCommentText
+		{
+			get => _newArrangementCommentText;
+			set => SetField(ref _newArrangementCommentText, value);
+		}
+
+		private string _newResultCommentText;
+		[PropertyChangedAlso(nameof(CanAddResultComment))]
+		public virtual string NewResultCommentText
+		{
+			get => _newResultCommentText;
+			set => SetField(ref _newResultCommentText, value);
+		}
+
 		#region Commands
 
 		private void CreateCommands()
 		{
 			CreateAttachFineCommand();
 			CreateAddFineCommand();
+			CreateAddResultCommentCommand();
+			CreateAddArrangementCommentCommand();
 		}
 
 		#region AttachFineCommand
@@ -473,6 +494,58 @@ namespace Vodovoz.ViewModels.Complaints
 			));
 
 		#endregion ChangeDeliveryPointCommand
+
+		#region AddArrangementCommentCommand
+		public DelegateCommand AddArrangementCommentCommand { get; private set; }
+
+		private void CreateAddArrangementCommentCommand()
+		{
+			AddArrangementCommentCommand = new DelegateCommand(
+				() => {
+					var newComment = new ComplaintArrangementComment();
+					if(CurrentEmployee == null)
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
+						return;
+					}
+					newComment.Complaint = Entity;
+					newComment.Author = CurrentEmployee;
+					newComment.Comment = NewArrangementCommentText;
+					newComment.CreationTime = DateTime.Now;
+					Entity.ObservableArrangementComments.Add(newComment);
+					NewArrangementCommentText = string.Empty;
+				},
+				() => CanAddArrangementComment
+			);
+			AddArrangementCommentCommand.CanExecuteChangedWith(this, x => x.CanAddArrangementComment);
+		}
+		#endregion
+
+		#region AddResultCommentCommand
+		public DelegateCommand AddResultCommentCommand { get; private set; }
+
+		private void CreateAddResultCommentCommand()
+		{
+			AddResultCommentCommand = new DelegateCommand(
+				() => {
+					var newComment = new ComplaintResultComment();
+					if(CurrentEmployee == null)
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
+						return;
+					}
+					newComment.Complaint = Entity;
+					newComment.Author = CurrentEmployee;
+					newComment.Comment = NewResultCommentText;
+					newComment.CreationTime = DateTime.Now;
+					Entity.ObservableResultComments.Add(newComment);
+					NewResultCommentText = string.Empty;
+				},
+				() => CanAddResultComment
+			);
+			AddResultCommentCommand.CanExecuteChangedWith(this, x => x.CanAddResultComment);
+		}
+		#endregion
 
 		#endregion Commands
 

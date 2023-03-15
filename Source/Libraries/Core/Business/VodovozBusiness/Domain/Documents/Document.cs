@@ -6,7 +6,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Documents
 {
-	public class Document : PropertyChangedBase, IDomainObject
+	public class Document : PropertyChangedBase, IDomainObject, IDocument
 	{
 		private DateTime _timeStamp = DateTime.Now;
 		private DateTime _version;
@@ -22,38 +22,42 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _version, value);
 		}
 
-		public virtual DateTime TimeStamp {
+		public virtual DateTime TimeStamp
+		{
 			get { return _timeStamp; }
-			set { SetField (ref _timeStamp, value, () => TimeStamp); }
+			set { SetField(ref _timeStamp, value, () => TimeStamp); }
 		}
 
 		Employee author;
 
-		[Display (Name = "Автор")]
-		public virtual Employee Author {
+		[Display(Name = "Автор")]
+		public virtual Employee Author
+		{
 			get { return author; }
-			set { SetField (ref author, value, () => Author); }
+			set { SetField(ref author, value, () => Author); }
 		}
 
 		Employee lastEditor;
 
-		[Display (Name = "Последний редактор")]
-		public virtual Employee LastEditor {
+		[Display(Name = "Последний редактор")]
+		public virtual Employee LastEditor
+		{
 			get { return lastEditor; }
-			set { SetField (ref lastEditor, value, () => LastEditor); }
+			set { SetField(ref lastEditor, value, () => LastEditor); }
 		}
 
 		DateTime lastEditedTime;
 
-		[Display (Name = "Последние изменения")]
-		public virtual DateTime LastEditedTime {
+		[Display(Name = "Последние изменения")]
+		public virtual DateTime LastEditedTime
+		{
 			get { return lastEditedTime; }
-			set { SetField (ref lastEditedTime, value, () => LastEditedTime); }
+			set { SetField(ref lastEditedTime, value, () => LastEditedTime); }
 		}
 
-		public virtual string DateString => TimeStamp.ToShortDateString () + " " + TimeStamp.ToShortTimeString ();
+		public virtual string DateString => TimeStamp.ToShortDateString() + " " + TimeStamp.ToShortTimeString();
 
-		public virtual string Number => Id.ToString ();
+		public virtual string Number => Id.ToString();
 
 		#region static
 
