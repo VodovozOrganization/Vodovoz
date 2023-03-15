@@ -1,8 +1,9 @@
 ﻿using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Complaints;
 
 namespace Vodovoz.Controllers
@@ -26,37 +27,32 @@ namespace Vodovoz.Controllers
 
 		public event Action<string> UpdateNotificationAction;
 
-
 		public SendedComplaintNotificationDetails GetNotificationDetails(IUnitOfWork uow)
 		{
 			var result = new SendedComplaintNotificationDetails();
+			var sendedComplaints = GetSendedComplaintIdsBySubdivision(uow);
 
-			if(NeedNotifyEmployee(uow))
+			if(sendedComplaints.Count > 0)
 			{
-				result.SendedComplaintsCount = GetSendedComplaintsBySubdivision(uow);
+				result.SendedComplaintsCount = sendedComplaints.Count;
 				result.NeedNotify = true;
 				result.NotificationMessage = GetNotificationMessage(result.SendedComplaintsCount.Value);
+
 				NotifyConfiguration.Instance.BatchSubscribeOnEntity<Complaint>(OnComplaintChanged);
 			}
 
 			return result;
 		}
 
+		public List<int> GetSendedComplaintIdsBySubdivision(IUnitOfWork uow)
+		{
+			var compaints = _complaintsRepository.GetUnclosedWithNoCommentsComplaintIdsBySubdivision(uow, _subdivisionIdForNotify);
+			return compaints.ToList();
+		}
+
 		public string GetNotificationMessageBySubdivision(IUnitOfWork uow)
 		{
-			return GetNotificationMessage(GetSendedComplaintsBySubdivision(uow));
-		}
-
-		private bool NeedNotifyEmployee(IUnitOfWork uow)
-		{
-			//#TODO запрос из репозитория
-			return true;
-		}
-
-		private int GetSendedComplaintsBySubdivision(IUnitOfWork uow)
-		{
-			//#TODO запрос из репозитория
-			return 2;
+			return GetNotificationMessage(GetSendedComplaintIdsBySubdivision(uow).Count);
 		}
 
 		private string GetNotificationMessage(int sendedComplaints)
