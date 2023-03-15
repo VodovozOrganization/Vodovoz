@@ -178,7 +178,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.yspinbtnDebtSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.yspinbtnDebtSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000000D, 1D);
 			this.yspinbtnDebtSum.CanFocus = true;
 			this.yspinbtnDebtSum.Name = "yspinbtnDebtSum";
 			this.yspinbtnDebtSum.Adjustment.PageIncrement = 10D;

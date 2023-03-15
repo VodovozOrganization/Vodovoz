@@ -1,13 +1,14 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Widgets;
-using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Gtk;
+using Gamma.Binding.Core.LevelTreeConfig;
+using Gamma.Binding;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -70,11 +71,6 @@ namespace Vodovoz.Views.Complaints
 			yhboxPhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			labelNamePhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
-			arrangementTextView.Binding
-				.AddBinding(ViewModel.Entity, e => e.Arrangement, w => w.Buffer.Text)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
-
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			cmbComplaintKind.Binding
 				.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList)
@@ -110,9 +106,6 @@ namespace Vodovoz.Views.Complaints
 			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.ComplaintResultsOfEmployees, w => w.ItemsList).InitializeFromSource();
 			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfEmployees, w => w.SelectedItem).InitializeFromSource();
 			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-
-			ytextviewResultText.Binding.AddBinding(ViewModel.Entity, e => e.ResultText, w => w.Buffer.Text).InitializeFromSource();
-			ytextviewResultText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			complaintfilesview.ViewModel = ViewModel.FilesViewModel;
 
@@ -160,6 +153,68 @@ namespace Vodovoz.Views.Complaints
 					handsetPhone.SetPhone(ViewModel.Entity.Phone);
 				}
 			};
+
+			ytreeviewArrangement.ShowExpanders = false;
+			ytreeviewArrangement.ColumnsConfig = FluentColumnsConfig<object>.Create()
+				.AddColumn("Время")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetTime(x))
+				.AddColumn("Автор")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetAuthor(x))
+				.AddColumn("Комментарий")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetNodeName(x))
+						.WrapWidth(250)
+						.WrapMode(Pango.WrapMode.WordChar)
+				.RowCells().AddSetter<CellRenderer>(SetColor)
+				.Finish();
+			var levelsArrangement = LevelConfigFactory.FirstLevel<Complaint, ComplaintArrangementComment>(x => x.ArrangementComments).LastLevel(c => c.Complaint).EndConfig();
+			ytreeviewArrangement.YTreeModel = new LevelTreeModel<ComplaintArrangementComment>(ViewModel.Entity.ArrangementComments, levelsArrangement);
+
+			ViewModel.Entity.ObservableArrangementComments.ListContentChanged += (sender, e) =>
+			{
+				ytreeviewArrangement.YTreeModel.EmitModelChanged();
+				ytreeviewArrangement.ExpandAll();
+			};
+			ytreeviewArrangement.ExpandAll();
+
+			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.NewArrangementCommentText, w => w.Buffer.Text).InitializeFromSource();
+			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+
+			ybuttonAddArrangement.Clicked += (sender, e) => ViewModel.AddArrangementCommentCommand.Execute();
+			ybuttonAddArrangement.Binding.AddBinding(ViewModel, vm => vm.CanAddArrangementComment, w => w.Sensitive).InitializeFromSource();
+
+			ytreeviewResult.ShowExpanders = false;
+			ytreeviewResult.ColumnsConfig = FluentColumnsConfig<object>.Create()
+				.AddColumn("Время")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetTime(x))
+				.AddColumn("Автор")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetAuthor(x))
+				.AddColumn("Комментарий")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetNodeName(x))
+						.WrapWidth(250)
+						.WrapMode(Pango.WrapMode.WordChar)
+				.RowCells().AddSetter<CellRenderer>(SetColor)
+				.Finish();
+			var levelsResult = LevelConfigFactory.FirstLevel<Complaint, ComplaintResultComment>(x => x.ResultComments).LastLevel(c => c.Complaint).EndConfig();
+			ytreeviewResult.YTreeModel = new LevelTreeModel<ComplaintResultComment>(ViewModel.Entity.ResultComments, levelsResult);
+
+			ViewModel.Entity.ObservableResultComments.ListContentChanged += (sender, e) =>
+			{
+				ytreeviewResult.YTreeModel.EmitModelChanged();
+				ytreeviewResult.ExpandAll();
+			};
+			ytreeviewResult.ExpandAll();
+
+			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.NewResultCommentText, w => w.Buffer.Text).InitializeFromSource();
+			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+
+			ybuttonAddResult.Clicked += (sender, e) => ViewModel.AddResultCommentCommand.Execute();
+			ybuttonAddResult.Binding.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive).InitializeFromSource();
 		}
 
 		void EntryCounterparty_Changed(object sender, System.EventArgs e)
@@ -176,6 +231,68 @@ namespace Vodovoz.Views.Complaints
 			spLstAddress.NameForSpecialStateNot = null;
 			spLstAddress.SelectedItem = SpecialComboState.Not;
 			spLstAddress.ItemsList = null;
+		}
+
+		private string GetTime(object node)
+		{
+			if(node is ComplaintArrangementComment arrangementComment)
+			{
+				return arrangementComment.CreationTime.ToShortDateString() + "\n" + arrangementComment.CreationTime.ToShortTimeString();
+			}
+
+			if(node is ComplaintResultComment resultComment)
+			{
+				return resultComment.CreationTime.ToShortDateString() + "\n" + resultComment.CreationTime.ToShortTimeString();
+			}
+
+			return "";
+		}
+
+		private string GetAuthor(object node)
+		{
+			Employee author = new Employee();
+
+			if(node is ComplaintArrangementComment arrangementComment)
+			{
+				author = arrangementComment.Author;
+			}
+			else if(node is ComplaintResultComment resultComment)
+			{
+				author = resultComment.Author;
+			}
+			else
+			{
+				return "";
+			}
+
+			var subdivisionName = author.Subdivision != null && !string.IsNullOrWhiteSpace(author.Subdivision.ShortName) ? "\n" + author.Subdivision.ShortName : "";
+			var result = $"{author.GetPersonNameWithInitials()}{subdivisionName}";
+			return result;
+		}
+
+		private string GetNodeName(object node)
+		{
+			if(node is ComplaintArrangementComment arrangementComment)
+			{
+				return arrangementComment.Comment;
+			}
+			if(node is ComplaintResultComment resultComment)
+			{
+				return resultComment.Comment;
+			}
+			return "";
+		}
+
+		private void SetColor(CellRenderer cell, object node)
+		{
+			if(node is ComplaintArrangementComment || node is ComplaintResultComment)
+			{
+				cell.CellBackgroundGdk = new Gdk.Color(230, 230, 245);
+			}
+			else
+			{
+				cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);
+			}
 		}
 	}
 }
