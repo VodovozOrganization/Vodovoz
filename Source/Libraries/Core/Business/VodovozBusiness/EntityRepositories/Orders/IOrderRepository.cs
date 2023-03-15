@@ -94,8 +94,8 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
 		IList<Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
-        Order GetOrder(IUnitOfWork unitOfWork, int orderId);
-        IList<Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
+		Order GetOrder(IUnitOfWork unitOfWork, int orderId);
+		IList<Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
 
 		IList<Order> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c);
 
@@ -137,6 +137,15 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
 		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
+
+		/// <summary>
+		/// Проверка на перенос данной позиция в другой заказ
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderItem">Позиция заказа</param>
+		/// <returns>true - если свойство CopiedFromUndelivery другого заказа содержит значения, равное Id данной позиции</returns>
+		bool IsMovedToTheNewOrder(IUnitOfWork uow, OrderItem orderItem);
+
 		int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate);
 		DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId);
 		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(

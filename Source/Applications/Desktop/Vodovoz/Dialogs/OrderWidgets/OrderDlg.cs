@@ -2560,6 +2560,14 @@ namespace Vodovoz
 				}
 			}
 
+			var isMovedToNewOrder = _orderRepository.IsMovedToTheNewOrder(UoW, item);
+			if(isMovedToNewOrder)
+			{
+				MessageDialogHelper.RunWarningDialog(
+					$"Нельзя удалить строку заказа, т.к. данная позиция была перенесена в другой заказ.");
+				return;
+			}
+
 			Entity.RemoveItem(item);
 		}
 

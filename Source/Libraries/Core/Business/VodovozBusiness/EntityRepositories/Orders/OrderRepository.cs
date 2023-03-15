@@ -767,6 +767,15 @@ namespace Vodovoz.EntityRepositories.Orders
 			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
 		}
 
+		public bool IsMovedToTheNewOrder(IUnitOfWork uow, OrderItem orderItem)
+		{
+			var movedOrderItems = uow.Session.QueryOver<OrderItem>()
+				.Where(o => o.CopiedFromUndelivery.Id == orderItem.Id && o.Id != orderItem.Id)
+				.List<OrderItem>();
+
+			return movedOrderItems.Count > 0;
+		}
+
 		public IEnumerable<VodovozOrder> GetOrders(IUnitOfWork uow, int[] ids)
 		{
 			VodovozOrder vodovozOrderAlias = null;
