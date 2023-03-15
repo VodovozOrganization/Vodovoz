@@ -252,7 +252,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				var row = new TurnoverWithDynamicsReportRow
 				{
 					Title = counterpartyGroup.First().CounterpartyFullName,
-					Phones = counterpartyGroup.First().Phones,
+					Phones = ProcessCounterpartyPhones(counterpartyGroup),
 					RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
 					SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
 				};
@@ -262,6 +262,45 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				ProcessDynamics(row);
 				ProcessLastSale(counterpartyGroup, row);
 				return row;
+			}
+
+			private string ProcessCounterpartyPhones(IGrouping<int, OrderItemNode> counterpartyGroup)
+			{
+				var result = string.Empty;
+
+				var counterpartyPhones = counterpartyGroup.First().CounterpartyPhones;
+
+				if(string.IsNullOrWhiteSpace(counterpartyPhones))
+				{
+					counterpartyPhones = string.Empty;
+				}
+
+				var ordersContactPhones = counterpartyGroup
+					.Select(cp => cp.OrderContactPhone)
+					.Where(ocp => !counterpartyPhones.Contains(ocp))
+					.Distinct();
+
+				string resultedOrderContactPhones = string.Empty;
+
+				if(ordersContactPhones.Any())
+				{
+					resultedOrderContactPhones = string.Join(",\n", ordersContactPhones);
+
+					if(counterpartyPhones != string.Empty)
+					{
+						result = resultedOrderContactPhones + ",\n" + counterpartyPhones;
+					}
+					else
+					{
+						result = resultedOrderContactPhones;
+					}
+				}
+				else
+				{
+					result = counterpartyPhones;
+				}
+
+				return result;
 			}
 
 			private void ProcessLastSale(IGrouping<int, OrderItemNode> nomenclatureGroup, TurnoverWithDynamicsReportRow row)
@@ -504,13 +543,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public decimal ActualSum { get; set; }
 
 				public string OrderContactPhone { get; set; }
-
-				public string Phones => string.IsNullOrWhiteSpace(OrderContactPhone)
-					|| (CounterpartyPhones != null && CounterpartyPhones.Contains(OrderContactPhone))
-					? CounterpartyPhones
-					: string.IsNullOrWhiteSpace(CounterpartyPhones)
-						? OrderContactPhone
-						: OrderContactPhone + ",\n" + CounterpartyPhones;
 			}
 		}
 	}
